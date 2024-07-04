@@ -1,0 +1,65 @@
+#!/bin/bash
+
+restore_dotfiles() {
+  echo -e "start restoring up \e[32mdotfiles\e[0m..."
+  echo "=========================================="
+  # Restore the configuration files
+  cp ~/work/personal/repositories/dotfiles/zsh/.zshrc ~/.zshrc
+  cp ~/work/personal/repositories/dotfiles/p10k/.p10k.zsh ~/.p10k.zsh
+  cp ~/work/personal/repositories/dotfiles/tmux/.tmux.conf ~/.tmux.conf
+  echo -e "finish restoring \e[32mdotfiles\e[0m"
+}
+
+restore_nvim() {
+  echo -e "start restoring up \e[32mnvim\e[0m..."
+  echo "=========================================="
+  # Navigate to the repository directory
+  cd ~/.config/nvim
+  git reset --hard
+  echo -e "finish restoring \e[32mnvim\e[0m"
+}
+
+# Function to display usage
+usage() {
+  echo "ERROR: No option provided, use one of the following:"
+  echo -e "  -d    Restore \e[32mdotfiles\e[0m from 'hareki/dotfiles' repository"
+  echo -e "  -l    Restore \e[32mnvim\e[0m from 'hareki/nvim' repository"
+  exit 1
+}
+
+# Initialize an array to store options
+options=()
+
+# Parse command line options
+while getopts "dl" opt; do
+  case $opt in
+  d)
+    options+=("dotfiles")
+    ;;
+  l)
+    options+=("nvim")
+    ;;
+  \?)
+    usage
+    ;;
+  esac
+done
+
+# Check if no option was provided
+if [ ${#options[@]} -eq 0 ]; then
+  usage
+fi
+
+# Execute functions in the order of options provided
+for i in "${!options[@]}"; do
+  option="${options[$i]}"
+  if [ "$option" == "dotfiles" ]; then
+    restore_dotfiles
+  elif [ "$option" == "nvim" ]; then
+    restore_nvim
+  fi
+  # Print an empty line if the current option is not the last one
+  if [ $i -lt $((${#options[@]} - 1)) ]; then
+    echo ""
+  fi
+done
