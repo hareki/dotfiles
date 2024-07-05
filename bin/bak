@@ -72,8 +72,8 @@ backup_nvim() {
 }
 
 backup_all() {
-  backup_dotfiles
   backup_nvim
+  backup_dotfiles
 }
 
 # Function to display usage

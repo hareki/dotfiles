@@ -56,8 +56,8 @@ restore_nvim() {
 }
 
 restore_all() {
-  restore_dotfiles
   restore_nvim
+  restore_dotfiles
 }
 
 # Function to display usage
