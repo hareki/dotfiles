@@ -56,7 +56,6 @@ backup_dotfiles() {
   echo "------------------------------------------"
   backup_bin
   echo "=========================================="
-  echo -e "FINISHED BACKING UP \e[31mALL DOTFILE CONFIGS\e[0m..."
 }
 
 backup_nvim() {
@@ -154,5 +153,6 @@ done
 
 # Push dotfiles changes if any were made
 if [ "$dotfiles_changes_made" = true ]; then
+  echo -e "FINISHED BACKING UP \e[31mALL DOTFILE CONFIGS\e[0m, PUSHING CHANGES TO DOTFILES REPOSITORY"
   push_dotfiles_changes
 fi
