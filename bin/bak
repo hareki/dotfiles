@@ -71,15 +71,31 @@ backup_nvim() {
   print_finish_message "nvim"
 }
 
+backup_all() {
+  backup_dotfiles
+  backup_nvim
+}
+
 # Function to display usage
-usage() {
-  echo "ERROR: No option provided, use one of the following:"
+print_usage() {
+  echo -e "Usage: $0 [OPTION]..."
+  echo -e "Backup configuration files."
+  echo -e ""
+  echo -e "Options:"
   echo -e "  --tmux     Backup \e[32mtmux\e[0m config"
   echo -e "  --zsh      Backup \e[32mzsh\e[0m config"
   echo -e "  --p10k     Backup \e[32mp10k\e[0m config"
   echo -e "  --bin      Backup \e[32mbin\e[0m scripts"
   echo -e "  --dotfiles Backup \e[32mall dotfiles\e[0m configs"
   echo -e "  --nvim     Backup \e[32mnvim\e[0m config"
+  echo -e "  --all      Backup \e[32mall dotfiles and nvim\e[0m configs"
+  echo -e "  --help     Display this help and exit"
+}
+
+# Function to handle error usage message
+usage() {
+  echo "ERROR: No option provided, use one of the following:"
+  print_usage
   exit 1
 }
 
@@ -106,6 +122,13 @@ while [[ "$1" != "" ]]; do
     ;;
   --nvim)
     options+=("nvim")
+    ;;
+  --all)
+    options+=("all")
+    ;;
+  --help)
+    print_usage
+    exit 0
     ;;
   *)
     usage
@@ -147,6 +170,10 @@ for option in "${options[@]}"; do
     ;;
   nvim)
     backup_nvim
+    ;;
+  all)
+    backup_all
+    dotfiles_changes_made=true
     ;;
   esac
 done
