@@ -161,6 +161,5 @@ if [ -z "$SSH_AUTH_SOCK" ] ; then
  ssh-add ~/.ssh/id_ed25519_zigvy &> /dev/null
 fi
 
-
 ### https://github.com/zsh-users/zsh-syntax-highlighting?tab=readme-ov-file#why-must-zsh-syntax-highlightingzsh-be-sourced-at-the-end-of-the-zshrc-file
 source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
