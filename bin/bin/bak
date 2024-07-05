@@ -7,7 +7,6 @@ backup_dotfiles() {
   cp ~/.zshrc ~/work/personal/repositories/dotfiles/zsh/
   cp ~/.p10k.zsh ~/work/personal/repositories/dotfiles/p10k/
   cp ~/.tmux.conf ~/work/personal/repositories/dotfiles/tmux/
-  cp -r ~/bin ~/work/personal/repositories/dotfiles/
 
   # Navigate to the repository directory
   cd ~/work/personal/repositories/dotfiles/
