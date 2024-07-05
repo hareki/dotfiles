@@ -35,7 +35,7 @@ restore_bin() {
 }
 
 restore_dotfiles() {
-  echo -e "START RESTORING ALL \e[32mDOTFILE CONFIGS\e[0m..."
+  echo -e "START RESTORING \e[31mALL DOTFILE CONFIGS\e[0m..."
   echo "=========================================="
   restore_zsh
   echo "------------------------------------------"
@@ -45,7 +45,7 @@ restore_dotfiles() {
   echo "------------------------------------------"
   restore_bin
   echo "=========================================="
-  echo -e "FINISHED RESTORING ALL \e[32mDOTFILE CONFIGS\e[0m..."
+  echo -e "FINISHED RESTORING \e[31mALL DOTFILE CONFIGS\e[0m..."
 }
 
 restore_nvim() {
