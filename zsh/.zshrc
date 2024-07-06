@@ -87,10 +87,9 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git command-not-found zsh-autosuggestions zsh-vi-mode)
-
 ZVM_VI_INSERT_ESCAPE_BINDKEY=jk
-
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+ZVM_VI_HIGHLIGHT_BACKGROUND="#45475A"
 
 function zvm_after_lazy_keybindings() {
   zvm_define_widget autosuggest-accept
