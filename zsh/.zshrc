@@ -86,7 +86,16 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git command-not-found zsh-autosuggestions)
+plugins=(git command-not-found zsh-autosuggestions zsh-vi-mode)
+
+ZVM_VI_INSERT_ESCAPE_BINDKEY=jk
+
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+
+function zvm_after_lazy_keybindings() {
+  zvm_define_widget autosuggest-accept
+  zvm_bindkey vicmd '^E' autosuggest-accept
+}
 
 source $ZSH/oh-my-zsh.sh
 
@@ -149,10 +158,6 @@ zstyle :bracketed-paste-magic paste-finish pastefinish
 ### Fix slowness of pastes
 
 
-### zsh-autosuggestions config
-ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-## Shift + Tab
-bindkey '^[[Z' autosuggest-accept
 
 ### start ssh agent and add keys to it - suppress messages if everything goes smoothly
 if [ -z "$SSH_AUTH_SOCK" ] ; then
