@@ -159,7 +159,12 @@ preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 alias ls="colorls"
 alias bat="batcat"
 alias fd="fdfind"
-alias inv='fd --hidden --exclude .git --exclude node_modules | fzf-tmux -p --reverse | xargs nvim'
+
+# Interactive nvim - open a file / directory using fzf in nvim
+alias inv='nvim "$(fd --hidden --exclude .git --exclude node_modules -- ".*" ~ | fzf-tmux -p --reverse)"'
+
+# Interactive cd - change directory using fzf
+alias icd='cd "$(fd --type directory --hidden --exclude .git --exclude node_modules -- ".*" ~ | fzf-tmux -p --reverse)"'
 
 # NVM Configs
 export NVM_DIR="$HOME/.nvm"
@@ -200,5 +205,9 @@ if [ -z "$SSH_AUTH_SOCK" ] ; then
  ssh-add ~/.ssh/id_ed25519_zigvy &> /dev/null
 fi
 
+
+# Surface1(bg) and Yellow(fg) from Catppuchin Mocha
+# Couldn't get it to just change the bg color and leave the bg color as is, so I chose a foreground color my self
+zle_highlight=(region:bg=#45475a,fg=#f9e2af)
 # https://github.com/zsh-users/zsh-syntax-highlighting?tab=readme-ov-file#why-must-zsh-syntax-highlightingzsh-be-sourced-at-the-end-of-the-zshrc-file
 source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
