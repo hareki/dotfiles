@@ -87,9 +87,10 @@
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
+
+# if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+#   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+# fi
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
@@ -118,23 +119,47 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git command-not-found zsh-autosuggestions zsh-vi-mode autoupdate)
+plugins=(git command-not-found zsh-autosuggestions autoupdate)
 
 # Plugin configs
-ZVM_VI_INSERT_ESCAPE_BINDKEY=jk
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-ZVM_VI_HIGHLIGHT_BACKGROUND="#45475A"
 
-function zvm_after_lazy_keybindings() {
-  zvm_define_widget autosuggest-accept
-  zvm_bindkey vicmd '^E' autosuggest-accept
-}
 
 source $ZSH/oh-my-zsh.sh
 
 
+bindkey -v
+bindkey -M viins 'jk' vi-cmd-mode
+bindkey '^E' autosuggest-accept
+
+# Change cursor shape for different vi modes.
+# https://gist.github.com/LukeSmithxyz/e62f26e55ea8b0ed41a65912fbebbe52
+function zle-keymap-select {
+  if [[ ${KEYMAP} == vicmd ]] ||
+     [[ $1 = 'block' ]]; then
+    echo -ne '\e[1 q'
+  elif [[ ${KEYMAP} == main ]] ||
+       [[ ${KEYMAP} == viins ]] ||
+       [[ ${KEYMAP} = '' ]] ||
+       [[ $1 = 'beam' ]]; then
+    echo -ne '\e[5 q'
+  fi
+}
+zle -N zle-keymap-select
+zle-line-init() {
+    zle -K viins # initiate `vi insert` as keymap (can be removed if `bindkey -V` has been set elsewhere)
+    echo -ne "\e[5 q"
+}
+zle -N zle-line-init
+echo -ne '\e[5 q' # Use beam shape cursor on startup.
+preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
+
+
 # Aliases
 alias ls="colorls"
+alias bat="batcat"
+alias fd="fdfind"
+alias inv='fd --hidden --exclude .git --exclude node_modules | fzf-tmux -p --reverse | xargs nvim'
 
 # NVM Configs
 export NVM_DIR="$HOME/.nvm"

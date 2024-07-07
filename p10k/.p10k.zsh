@@ -5,17 +5,16 @@ typeset -g GREEN="#a6e3a1"  # NodeJS logo's color
 typeset -g LAVENDER="#b4befe" # Lavender - Mocha
 typeset -g MAUVE="#cba6f7" # Mauve - Mocha
 typeset -g PEACH="#fab387" # Peach - Mocha
+typeset -g MAROON="#eba0ac" # Peach - Mocha
 typeset -g BLUE="#89b4fa" # Blue - Mocha
+typeset -g SAPPHIRE="#74c7ec" # Sapphire - Mocha
 typeset -g RED="#f38ba8" # Red - Mocha (Darkened to 60%)
-
-typeset -g OS_ICON_BACKGROUND=$BLUE
-typeset -g OS_ICON_FOREGROUND=$WHITE
 
 # typeset -g CONTEXT_BACKGROUND="#fe782a" # Peach - Latte (Lightened to 58%)
 typeset -g CONTEXT_BACKGROUND=$LAVENDER
 typeset -g CONTEXT_FOREGROUND=$WHITE
 
-typeset -g DIR_BACKGROUND=$PEACH 
+typeset -g DIR_BACKGROUND=$SAPPHIRE
 typeset -g DIR_FOREGROUND=$BLACK
 
 typeset -g CURRENT_TIME_BACKGROUND=$BLUE
@@ -467,7 +466,8 @@ typeset -g STATUS_ERROR_FOREGROUND=$BLACK
       # If local branch name is at most 32 characters long, show it in full.
       # Otherwise show the first 12 … the last 12.
       # Tip: To always show local branch name in full without truncation, delete the next line.
-      (( $#branch > 32 )) && branch[13,-13]="…"  # <-- this line
+      # (( $#branch > 32 )) && branch[13,-13]="…"  # <-- this line
+      (( ${#branch} > 32 )) && branch="${branch:0:32}..."
       res+="${clean}${(g::)POWERLEVEL9K_VCS_BRANCH_ICON}${branch//\%/%%}"
     fi
 
