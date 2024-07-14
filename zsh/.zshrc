@@ -162,6 +162,8 @@ alias fd="fdfind"
 
 # Interactive nvim - open a file / directory using fzf in nvim
 alias inv='nvim "$(fd --hidden --exclude .git --exclude node_modules -- ".*" ~ | fzf-tmux -p --reverse)"'
+alias invd='nvim "$(fd --hidden --exclude .git --exclude node_modules --type directory -- ".*" ~ | fzf-tmux -p --reverse)"'
+alias invf='nvim "$(fd --hidden --exclude .git --exclude node_modules --type file -- ".*" ~ | fzf-tmux -p --reverse)"'
 
 # Interactive cd - change directory using fzf
 alias icd='cd "$(fd --type directory --hidden --exclude .git --exclude node_modules -- ".*" ~ | fzf-tmux -p --reverse)"'
