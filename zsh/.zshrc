@@ -159,6 +159,8 @@ preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 alias ls="colorls"
 alias bat="batcat"
 # alias fd="fdfind"
+# Alias doesn't cut it since we need Telescope to use fd-find as well, this link is specifically for Debian-based Linux distributions
+# as the binary name fd is already used by another package.
 ln -s $(which fdfind) ~/.local/bin/fd
 
 # Interactive nvim - open a file / directory using fzf in nvim
