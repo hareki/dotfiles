@@ -73,6 +73,7 @@ typeset -g STATUS_ERROR_FOREGROUND=$BLACK
     # load                  # CPU load
     # context                 # user@hostname
     # vcs                     # git status
+    command_execution_time  # duration of the last command
     status                  # exit code of the last command
     # =========================[ Line #2 ]=========================
     newline                 # \n
