@@ -161,7 +161,8 @@ alias bat="batcat"
 # alias fd="fdfind"
 # Alias doesn't cut it since we need Telescope to use fd-find as well, this link is specifically for Debian-based Linux distributions
 # as the binary name fd is already used by another package.
-ln -s $(which fdfind) ~/.local/bin/fd
+# you only need to run once though
+# ln -s $(which fdfind) ~/.local/bin/fd
 
 # Interactive nvim - open a file / directory using fzf in nvim
 alias inv='nvim "$(fd --hidden --exclude .git --exclude node_modules -- ".*" ~ | fzf-tmux -p --reverse)"'
