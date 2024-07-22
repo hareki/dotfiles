@@ -1,3 +1,10 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -104,6 +111,9 @@ if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
+export GEM_HOME="$(ruby -e 'puts Gem.user_dir')"
+PATH="$PATH:$GEM_HOME/bin"
+
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -119,7 +129,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git command-not-found zsh-autosuggestions autoupdate)
+plugins=(zsh-autosuggestions zsh-syntax-highlighting autoupdate command-not-found)
 
 # Plugin configs
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
@@ -156,13 +166,8 @@ preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 
 
 # Aliases
-alias ls="colorls"
+alias cls="colorls"
 alias bat="batcat"
-# alias fd="fdfind"
-# Alias doesn't cut it since we need Telescope to use fd-find as well, this link is specifically for Debian-based Linux distributions
-# as the binary name fd is already used by another package.
-# you only need to run once though
-# ln -s $(which fdfind) ~/.local/bin/fd
 
 # Interactive nvim - open a file / directory using fzf in nvim
 alias inv='nvim "$(fd --hidden --exclude .git --exclude node_modules -- ".*" ~ | fzf-tmux -p --reverse)"'
@@ -181,9 +186,11 @@ export NVM_DIR="$HOME/.nvm"
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 
+
 # fzf for searching command history config
-source /usr/share/doc/fzf/examples/key-bindings.zsh
-source /usr/share/doc/fzf/examples/completion.zsh
+# source /usr/share/doc/fzf/examples/key-bindings.zsh
+# source /usr/share/doc/fzf/examples/completion.zsh
+source <(fzf --zsh)
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
@@ -206,14 +213,11 @@ zstyle :bracketed-paste-magic paste-finish pastefinish
 
 # Start ssh agent and add keys to it - suppress messages if everything goes smoothly
 if [ -z "$SSH_AUTH_SOCK" ] ; then
- eval `ssh-agent -s` > /dev/null 
+ eval `ssh-agent -s` > /dev/null
  ssh-add ~/.ssh/id_ed25519_personal &> /dev/null
  ssh-add ~/.ssh/id_ed25519_zigvy &> /dev/null
 fi
 
-
 # Surface1(bg) and Yellow(fg) from Catppuchin Mocha
 # Couldn't get it to just change the bg color and leave the bg color as is, so I chose a foreground color my self
 zle_highlight=(region:bg=#45475a,fg=#f9e2af)
-# https://github.com/zsh-users/zsh-syntax-highlighting?tab=readme-ov-file#why-must-zsh-syntax-highlightingzsh-be-sourced-at-the-end-of-the-zshrc-file
-source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
