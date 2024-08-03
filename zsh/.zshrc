@@ -152,7 +152,7 @@ function sync-g {
   cd "$STOW_REPO"
   if git status --porcelain | grep -q .; then
     git add .
-    git commit -m "updated via script at $(date)"
+    git commit -m "updated via script at $(date +"%d/%m/%Y | %a %I:%M %p")"
     git push
   else
     echo "nothing to commit, working tree clean"
