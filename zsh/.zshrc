@@ -114,6 +114,9 @@ fi
 export GEM_HOME="$(gem env user_gemhome)"
 PATH="$PATH:$GEM_HOME/bin"
 
+# Spicetify
+PATH=$PATH:/home/hareki/.spicetify
+
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -246,4 +249,3 @@ fi
 # Couldn't get it to just change the bg color and leave the bg color as is, so I chose a foreground color myself
 zle_highlight=(region:bg=#45475a,fg=#f9e2af)
 
-export PATH=$PATH:/home/hareki/.spicetify
