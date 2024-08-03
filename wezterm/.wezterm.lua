@@ -11,6 +11,8 @@ config.window_padding = {
 }
 
 config.color_scheme = 'Catppuccin Mocha'
+config.underline_thickness = '1.65pt'
+config.underline_position = '200%'
 config.font = wezterm.font('JetBrainsMono Nerd Font', { weight = 'DemiBold', })
 config.line_height = 1.33
 config.font_size = 14.0
@@ -51,6 +53,5 @@ config.keys = {
   }
 }
 
-config.default_prog = { 'Arch' }
 
 return config

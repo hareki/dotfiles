@@ -1,0 +1,62 @@
+/* imports */
+@import url("ShyFox/shy-variables.css");
+@import url("ShyFox/shy-global.css");
+@import url("ShyFox/shy-sidebar.css");
+@import url("ShyFox/shy-toolbar.css");
+@import url("ShyFox/shy-navbar.css");
+@import url("ShyFox/shy-findbar.css");
+@import url("ShyFox/shy-controls.css");
+@import url("ShyFox/shy-compact.css");
+@import url("ShyFox/shy-icons.css");
+@import url("ShyFox/shy-floating-search.css");
+
+
+/* --- Context menu - Increase spacing, adjust icon alignment --- */
+@media (-moz-bool-pref: "shyfox.enable.ext.mono.context.icons") {
+    #contentAreaContextMenu, #toolbar-context-menu, #unified-extensions-context-menu{
+    /* ublock */
+    menuitem[id*="plasma-browser-integration_kde_org-menuitem-_purpose_share"]{
+        .menu-iconic-icon {opacity: 0 !important;}
+        background-image: url("./icons/kde-plasma.svg") !important;
+    }
+    }
+}
+
+
+menupopup:not(.in-menulist) > menuitem,
+menupopup:not(.in-menulist) > menu {
+    padding-block: 18px !important;
+    padding-inline-start: 13px !important;
+}
+:root {
+    --arrowpanel-menuitem-padding: 4px 8px !important;
+}
+
+
+:is(#toolbar-context-menu, #contentAreaContextMenu, #unified-extensions-context-menu, #downloadsContextMenu, #placesContext, #sidebarMenu-popup, #BMB_bookmarksPopup) :is(menuitem, menu) {
+    background-position-y: 10px !important;
+    background-position-x: 12px !important;
+}
+
+:is(#toolbar-context-menu, #contentAreaContextMenu, #unified-extensions-context-menu, #downloadsContextMenu, #placesContext, #sidebarMenu-popup, #BMB_bookmarksPopup) :is(menuitem, menu) {
+    &:not(.menuitem-iconic, .menu-iconic, [type="checkbox"], [type="radio"]) > label {
+        margin-inline-start: 25px !important;
+    }
+}
+
+:is(#toolbar-context-menu, #contentAreaContextMenu, #unified-extensions-context-menu, #downloadsContextMenu, #placesContext, #sidebarMenu-popup, #BMB_bookmarksPopup) :is(menuitem, menu) {
+    & .menu-iconic-text {
+        margin-inline-start: 4px !important;
+    }
+}
+
+/* --- Make navbar and toolbar background match the catpuucin theme --- */
+:root{
+    --tb-col: #181825;
+}
+
+@media not (prefers-contrast) {
+    :root:not([lwtheme]) {
+        --toolbar-field-background-color: #24273A !important;
+    }
+}

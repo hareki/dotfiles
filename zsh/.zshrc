@@ -111,8 +111,8 @@ if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
-export GEM_HOME="$(ruby -e 'puts Gem.user_dir')"
-PATH="$PATH:$GEM_HOME/bin"
+export GEM_HOME="$(gem env user_gemhome)"
+export PATH="$PATH:$GEM_HOME/bin"
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -129,7 +129,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(zsh-autosuggestions zsh-syntax-highlighting autoupdate command-not-found)
+plugins=(zsh-autosuggestions zsh-syntax-highlighting)
 
 # Plugin configs
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
@@ -221,3 +221,5 @@ fi
 # Surface1(bg) and Yellow(fg) from Catppuchin Mocha
 # Couldn't get it to just change the bg color and leave the bg color as is, so I chose a foreground color my self
 zle_highlight=(region:bg=#45475a,fg=#f9e2af)
+
+export PATH=$PATH:/home/hareki/.spicetify
