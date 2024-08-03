@@ -112,7 +112,7 @@ if [ -d "$HOME/.local/bin" ] ; then
 fi
 
 export GEM_HOME="$(gem env user_gemhome)"
-export PATH="$PATH:$GEM_HOME/bin"
+PATH="$PATH:$GEM_HOME/bin"
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -136,6 +136,30 @@ ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
 
 source $ZSH/oh-my-zsh.sh
+
+export STOW_REPO="$HOME/Repositories/personal/dotfiles"
+function sync-d {
+    # local target_dir="$HOME/Repositories/personal/dotfiles"
+    if [ -d "$STOW_REPO/$1" ]; then
+        cd "$STOW_REPO" || return
+        stow "$1" -t ~
+    else
+        echo "Directory $STOW_REPO/$1 does not exist."
+    fi
+}
+
+function sync-g {
+  cd "$STOW_REPO"
+  if git status --porcelain | grep -q .; then
+    git add .
+    git commit -m "updated via script at $(date)"
+    git push
+  else
+    echo "nothing to commit, working tree clean"
+  fi
+}
+
+
 
 
 bindkey -v
@@ -219,7 +243,7 @@ if [ -z "$SSH_AUTH_SOCK" ] ; then
 fi
 
 # Surface1(bg) and Yellow(fg) from Catppuchin Mocha
-# Couldn't get it to just change the bg color and leave the bg color as is, so I chose a foreground color my self
+# Couldn't get it to just change the bg color and leave the bg color as is, so I chose a foreground color myself
 zle_highlight=(region:bg=#45475a,fg=#f9e2af)
 
 export PATH=$PATH:/home/hareki/.spicetify
