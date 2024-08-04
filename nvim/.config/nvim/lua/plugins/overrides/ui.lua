@@ -46,6 +46,15 @@ return {
         indicator = {
           style = "underline",
         },
+        offsets = {
+          {
+            filetype = "neo-tree",
+            -- text = "File Explorer",
+            text = "",
+            text_align = "center",
+            highlight = "BufferLineOffsetText",
+          },
+        },
         color_icons = true,
         show_buffer_close_icons = false,
       },
@@ -61,6 +70,15 @@ return {
             fg = bg_color,
             bg = bg_color,
           },
+          indicator_visible = {
+            fg = bg_color,
+            bg = bg_color,
+          },
+          indicator_selected = {
+            fg = bg_color,
+            bg = bg_color,
+            sp = bg_color,
+          },
           background = {
             bg = bg_color,
           },
@@ -70,12 +88,12 @@ return {
         },
         get_selected_highlights({
           { "hint", "info", "warning", "error" },
-          { "modified", "duplicate", "indicator", "buffer" },
+          -- { "modified", "duplicate", "indicator", "buffer" },
+          { "modified", "duplicate", "buffer" },
         })
       ),
     },
   },
-
   {
     "folke/noice.nvim",
     opts = {

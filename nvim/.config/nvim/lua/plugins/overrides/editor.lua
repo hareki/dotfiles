@@ -42,6 +42,11 @@ return {
       opts.window.mappings["P"] = { "toggle_preview", config = { use_float = true } }
 
       opts.default_component_configs.indent.with_markers = false
+
+      -- opts.source_selector = {
+      --   winbar = true,
+      --   statusline = true,
+      -- }
     end,
   },
 

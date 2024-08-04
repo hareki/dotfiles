@@ -15,6 +15,9 @@ return {
       highlight! SpellRare gui=none
       highlight! SpellLocal gui=none
 
+
+      highlight BufferLineOffsetText gui=bold guibg=#181825
+
       " remove the background of all floating windows
       highlight! NormalFloat guibg=none
 
