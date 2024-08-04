@@ -4,11 +4,15 @@ local gitsigns_config = require("gitsigns.config").config
 return {
   {
     "nvim-neo-tree/neo-tree.nvim",
-    -- init = function()
-    --   vim.cmd([[
-    --   highlight NeoTreeTitleBar guifg=#ff0000 guibg=#000000
-    --   ]])
-    -- end,
+    dependencies = {
+      {
+        "adelarsq/image_preview.nvim",
+        event = "VeryLazy",
+        config = function()
+          require("image_preview").setup()
+        end,
+      },
+    },
     opts = function(_, opts)
       -- Show relative line numbers for neo-tree
       -- source: https://stackoverflow.com/questions/77927924/add-relative-line-numbers-in-neo-tree-using-lazy-in-neovim
@@ -22,8 +26,20 @@ return {
         end,
       })
 
-      -- opts.window.mappings = opts.window.mappings or {}
-      -- opts.window.mappings["P"] = { "toggle_preview", config = { use_float = true } }
+      opts.commands = opts.commands or {}
+      opts.commands = vim.tbl_extend("force", opts.commands, {
+        image_wezterm = function(state)
+          local node = state.tree:get_node()
+          if node.type == "file" then
+            require("image_preview").PreviewImage(node.path)
+          end
+        end,
+      })
+
+      local filesystem_mappings = Util.ensure_nested_table.run(opts, "filesystem", "window", "mappings")
+      filesystem_mappings["<leader>p"] = "image_wezterm"
+
+      opts.window.mappings["P"] = { "toggle_preview", config = { use_float = true } }
 
       opts.default_component_configs.indent.with_markers = false
     end,
@@ -49,7 +65,7 @@ return {
           local next_blame_value = not gitsigns_config.current_line_blame
           local notify = next_blame_value and LazyVim.info or LazyVim.warn
 
-          notify(Util.toggle_notify("current line blame", next_blame_value), { title = "gitsigns" })
+          notify(Util.toggle_notify.run("current line blame", next_blame_value), { title = "gitsigns" })
           gitsigns.toggle_current_line_blame()
         end,
         desc = "Toggle current line blame",

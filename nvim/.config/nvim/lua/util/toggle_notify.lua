@@ -1,13 +1,9 @@
 ---@class util.toggle_notify
-local M = setmetatable({}, {
-  __call = function(m, ...)
-    return m.toggle_notify(...)
-  end,
-})
+local M = {}
 
 --- @param feature string
---- @param value number | string
-function M.toggle_notify(feature, value)
+--- @param value number | boolean
+function M.run(feature, value)
   local message
   if type(value) == "boolean" then
     if value then

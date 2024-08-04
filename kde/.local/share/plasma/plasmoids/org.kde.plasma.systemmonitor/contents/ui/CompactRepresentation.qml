@@ -25,12 +25,12 @@ Control {
     Layout.minimumHeight: (contentItem ? contentItem.Layout.minimumHeight : 0) + leftPadding + rightPadding
 
     // BEGIN EDIT
-    Layout.preferredWidth: (contentItem ? contentItem.Layout.preferredWidth + 30 : 0) + leftPadding + rightPadding
+    Layout.preferredWidth: (contentItem ? contentItem.Layout.preferredWidth + 40 : 0) + leftPadding + rightPadding
     // END EDIT
     Layout.preferredHeight: (contentItem ? contentItem.Layout.preferredHeight : 0) + leftPadding + rightPadding
 
     // BEGIN EDIT
-    Layout.maximumWidth: (contentItem ? contentItem.Layout.maximumWidth + 30 : 0) + leftPadding + rightPadding
+    Layout.maximumWidth: (contentItem ? contentItem.Layout.maximumWidth + 40 : 0) + leftPadding + rightPadding
     // END EDIT
     Layout.maximumHeight: (contentItem ? contentItem.Layout.maximumHeight : 0) + leftPadding + rightPadding
 
