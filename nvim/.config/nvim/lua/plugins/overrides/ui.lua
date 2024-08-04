@@ -1,31 +1,30 @@
-local bg_color = "#181825"
-local bg_selected = "#1E1E2E"
-local fg_selected = "#CDD6F4"
-local blue = "#89B4FA"
+local darkest = "#181825"
+local dark = "#1e1e2e"
+local blue = "#89b4fa"
+local gray = "#6c7086"
 
 local function get_selected_highlights(configs)
   local result = {}
 
-  -- First nested table: labels that should generate diagnostic variants
-  for _, label in ipairs(configs[1]) do
-    -- Base configuration
-    result[label .. "_selected"] = {
+  for _, label in ipairs(configs["visible"]) do
+    result[label .. "_visible"] = {
       italic = false,
-      sp = blue,
-    }
-    -- Diagnostic variant
-    result[label .. "_diagnostic_selected"] = {
-      italic = false,
-      sp = blue,
+      bold = true,
     }
   end
 
-  -- Second nested table: labels that should not generate diagnostic variants
-  for _, label in ipairs(configs[2]) do
-    -- Base configuration
+  for _, label in ipairs(configs["diagnostic_selected"]) do
     result[label .. "_selected"] = {
       italic = false,
-      sp = blue,
+    }
+    result[label .. "_diagnostic_selected"] = {
+      italic = false,
+    }
+  end
+
+  for _, label in ipairs(configs["selected"]) do
+    result[label .. "_selected"] = {
+      italic = false,
     }
   end
 
@@ -43,14 +42,15 @@ return {
     },
     opts = {
       options = {
-        indicator = {
-          style = "underline",
+        groups = {
+          items = {
+            require("bufferline.groups").builtin.pinned:with({ icon = "󰐃 " }),
+          },
         },
         offsets = {
           {
             filetype = "neo-tree",
-            -- text = "File Explorer",
-            text = "",
+            text = "File Explorer",
             text_align = "center",
             highlight = "BufferLineOffsetText",
           },
@@ -62,34 +62,43 @@ return {
       highlights = vim.tbl_extend(
         "force",
         {
-          buffer_visible = {
-            bg = bg_selected,
-            fg = fg_selected,
-          },
-          separator = {
-            fg = bg_color,
-            bg = bg_color,
-          },
-          indicator_visible = {
-            fg = bg_color,
-            bg = bg_color,
-          },
-          indicator_selected = {
-            fg = bg_color,
-            bg = bg_color,
-            sp = bg_color,
-          },
           background = {
-            bg = bg_color,
+            bg = darkest,
           },
           fill = {
-            bg = bg_color,
+            bg = darkest,
+          },
+
+          indicator_visible = {
+            bg = gray,
+            fg = gray,
+          },
+          indicator_selected = {
+            bg = blue,
+            fg = blue,
+          },
+
+          buffer_visible = {
+            bg = dark,
+            bold = true,
+            italic = false,
+          },
+          buffer_selected = {
+            bg = dark,
+            fg = blue,
+            bold = true,
+            italic = false,
+          },
+
+          separator = {
+            fg = darkest,
+            bg = darkest,
           },
         },
         get_selected_highlights({
-          { "hint", "info", "warning", "error" },
-          -- { "modified", "duplicate", "indicator", "buffer" },
-          { "modified", "duplicate", "buffer" },
+          diagnostic_selected = { "hint", "info", "warning", "error" },
+          visible = { "hint", "info", "warning", "error" },
+          selected = { "modified", "duplicate" },
         })
       ),
     },
