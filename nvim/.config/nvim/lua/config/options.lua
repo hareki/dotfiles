@@ -10,7 +10,7 @@ opt.pumblend = 0 -- fully opaque popupmenu
 opt.pumheight = 15 -- Maximum number of entries in a popup
 
 opt.spell = true -- keep it true to use cmp-spell, but hide the undercurl (see config.post.highlightgroups)
-opt.spelloptions = ""
+-- opt.spelloptions = ""
 opt.list = false
--- opt.spelloptions:append("camel")
+opt.spelloptions:append("camel")
 -- opt.winbar = "%=%m %f" -- basically a breadcrumb
