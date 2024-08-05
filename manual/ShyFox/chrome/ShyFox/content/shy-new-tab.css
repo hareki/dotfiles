@@ -137,7 +137,7 @@ Styles for new tab
     background-color: var(--tr-col) !important;
     &:hover{background-color: var(--tr-hov-col) !important;}
   }
-  
+
   /* autograph */
   .activity-stream::before,
   .activity-stream::after
@@ -149,12 +149,12 @@ Styles for new tab
     z-index: 99999;
     bottom: 10px;
   }
-  
+
   .activity-stream::before{
     content: "ShyFox by N2ezr";
     left: 10px;
   }
-  
+
   .activity-stream::after{
     content: "42 🤙";
     right: 10px;

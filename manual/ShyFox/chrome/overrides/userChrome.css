@@ -1,23 +1,9 @@
-/* imports */
-@import url("ShyFox/shy-variables.css");
-@import url("ShyFox/shy-global.css");
-@import url("ShyFox/shy-sidebar.css");
-@import url("ShyFox/shy-toolbar.css");
-@import url("ShyFox/shy-navbar.css");
-@import url("ShyFox/shy-findbar.css");
-@import url("ShyFox/shy-controls.css");
-@import url("ShyFox/shy-compact.css");
-@import url("ShyFox/shy-icons.css");
-@import url("ShyFox/shy-floating-search.css");
-
-
-/* --- Context menu - Increase spacing, adjust icon alignment --- */
+/* --- CONTEXT MENU SPACING - Increase spacing, adjust icon alignment --- */
 @media (-moz-bool-pref: "shyfox.enable.ext.mono.context.icons") {
     #contentAreaContextMenu, #toolbar-context-menu, #unified-extensions-context-menu{
-    /* ublock */
     menuitem[id*="plasma-browser-integration_kde_org-menuitem-_purpose_share"]{
         .menu-iconic-icon {opacity: 0 !important;}
-        background-image: url("./icons/kde-plasma.svg") !important;
+        background-image: url("../icons/kde-plasma.svg") !important;
     }
     }
 }
@@ -50,13 +36,38 @@ menupopup:not(.in-menulist) > menu {
     }
 }
 
-/* --- Make navbar and toolbar background match the catpuucin theme --- */
+/* --- THEME - Make navbar and toolbar background match the catpuucin theme --- */
 :root{
+    /* panel (Navbar, Toolbar) backgrond color */
     --tb-col: #181825;
 }
 
 @media not (prefers-contrast) {
     :root:not([lwtheme]) {
+        /* address bar background color */
         --toolbar-field-background-color: #24273A !important;
     }
+}
+
+/* ------ */
+toolbarbutton.bookmark-item:not(.subviewbutton) {
+    padding-inline: 8px !important;
+
+    & .toolbarbutton-text {
+        display: none !important;
+    }
+
+    & .toolbarbutton-icon {
+        margin-inline-end: 0px !important
+    }
+}
+
+#PlacesChevron .toolbarbutton-icon {
+    width: 32px !important;
+    padding-inline: 8px !important;
+}
+
+#OtherBookmarks:not(#\9 ) {
+    width: 32px !important;
+    background-position: center !important;
 }
