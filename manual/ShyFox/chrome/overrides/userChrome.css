@@ -1,10 +1,19 @@
 /* --- CONTEXT MENU SPACING - Increase spacing, adjust icon alignment --- */
+
+menupopup > :is(menuitem, menu) {
+    max-width: 500px !important;
+}
+
 @media (-moz-bool-pref: "shyfox.enable.ext.mono.context.icons") {
     #contentAreaContextMenu, #toolbar-context-menu, #unified-extensions-context-menu{
-    menuitem[id*="plasma-browser-integration_kde_org-menuitem-_purpose_share"]{
-        .menu-iconic-icon {opacity: 0 !important;}
-        background-image: url("../icons/kde-plasma.svg") !important;
-    }
+        menuitem[id*="plasma-browser-integration_kde_org-menuitem-_purpose_share"]{
+            .menu-iconic-icon {opacity: 0 !important;}
+            background-image: url("../icons/kde-plasma.svg") !important;
+        }
+        menu[id*="nordvpnproxy_nordvpn_com-menuitem-_nordvpn_extension_context_menu_group"]{
+            .menu-iconic-icon {opacity: 0 !important;}
+            background-image: url("../icons/nord-vpn.svg") !important;
+        }
     }
 }
 
