@@ -1,31 +1,34 @@
 local darkest = "#181825"
-local dark = "#1e1e2e"
-local blue = "#89b4fa"
-local gray = "#6c7086"
+local dark = "#1E1E2E"
+local white = "#CDD6F4"
+local blue = "#89B4FA"
 
 local function get_selected_highlights(configs)
   local result = {}
 
-  for _, label in ipairs(configs["visible"]) do
-    result[label .. "_visible"] = {
-      italic = false,
-      bold = true,
-    }
-  end
+  local visible_highlights = {
+    bold = true,
+  }
+
+  local diagnostic_selected_highlights = {
+    italic = false,
+    sp = blue,
+  }
+
+  local selected_highlights = {
+    italic = false,
+    sp = blue,
+  }
 
   for _, label in ipairs(configs["diagnostic_selected"]) do
-    result[label .. "_selected"] = {
-      italic = false,
-    }
-    result[label .. "_diagnostic_selected"] = {
-      italic = false,
-    }
+    result[label .. "_visible"] = visible_highlights
+    result[label .. "_selected"] = selected_highlights
+    result[label .. "_diagnostic_selected"] = diagnostic_selected_highlights
   end
 
-  for _, label in ipairs(configs["selected"]) do
-    result[label .. "_selected"] = {
-      italic = false,
-    }
+  for _, label in ipairs(configs["diagnostic"]) do
+    result[label .. "_visible"] = visible_highlights
+    result[label .. "_selected"] = selected_highlights
   end
 
   return result
@@ -42,11 +45,6 @@ return {
     },
     opts = {
       options = {
-        groups = {
-          items = {
-            require("bufferline.groups").builtin.pinned:with({ icon = "󰐃 " }),
-          },
-        },
         offsets = {
           {
             filetype = "neo-tree",
@@ -55,6 +53,10 @@ return {
             highlight = "BufferLineOffsetText",
           },
         },
+
+        indicator = {
+          style = "underline",
+        },
         color_icons = true,
         show_buffer_close_icons = false,
       },
@@ -62,6 +64,15 @@ return {
       highlights = vim.tbl_extend(
         "force",
         {
+          buffer_visible = {
+            bg = dark,
+            fg = white,
+            bold = true,
+          },
+          separator = {
+            fg = darkest,
+            bg = darkest,
+          },
           background = {
             bg = darkest,
           },
@@ -70,39 +81,18 @@ return {
           },
 
           indicator_visible = {
-            bg = gray,
-            fg = gray,
-          },
-          indicator_selected = {
-            bg = blue,
-            fg = blue,
-          },
-
-          buffer_visible = {
+            fg = dark,
             bg = dark,
-            bold = true,
-            italic = false,
-          },
-          buffer_selected = {
-            bg = dark,
-            fg = blue,
-            bold = true,
-            italic = false,
-          },
-
-          separator = {
-            fg = darkest,
-            bg = darkest,
           },
         },
         get_selected_highlights({
           diagnostic_selected = { "hint", "info", "warning", "error" },
-          visible = { "hint", "info", "warning", "error" },
-          selected = { "modified", "duplicate" },
+          diagnostic = { "modified", "duplicate", "indicator", "buffer" },
         })
       ),
     },
   },
+
   {
     "folke/noice.nvim",
     opts = {

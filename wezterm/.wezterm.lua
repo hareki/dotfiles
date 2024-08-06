@@ -14,8 +14,8 @@ local config_table = {
 		bottom = 0,
 	},
 
-	underline_thickness = "1.5pt",
-	underline_position = "175%",
+	underline_thickness = "1.6pt",
+	underline_position = "200%",
 
 	cursor_blink_ease_in = "Constant",
 	cursor_blink_ease_out = "Constant",

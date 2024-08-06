@@ -249,7 +249,7 @@ fi
 # Couldn't get it to just change the bg color and leave the bg color as is, so I chose a foreground color myself
 zle_highlight=(region:bg=#45475a,fg=#f9e2af)
 
-export TERM='xterm-256color'
+# export TERM='xterm-256color'
 export EDITOR='nvim'
 export VISUAL='nvim'
 
