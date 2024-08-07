@@ -1,10 +1,10 @@
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
+
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
-
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -22,7 +22,7 @@ fi
 # Uncomment one of the following lines to change the auto-update behavior
 # zstyle ':omz:update' mode disabled  # disable automatic updates
 # zstyle ':omz:update' mode auto      # update automatically without asking
-# zstyle ':omz:update' mode reminder  # just remind me to update when it's time
+zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 
 # Uncomment the following line to change how often to auto-update (in days).
 # zstyle ':omz:update' frequency 13
@@ -89,18 +89,12 @@ fi
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# ---------------------
-
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-
-# if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-#   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-# fi
-
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+
+# ---------------------
+
+
 
 # set PATH so it includes user's private bin if it exists
 if [ -d "$HOME/bin" ] ; then
@@ -126,17 +120,21 @@ export ZSH="$HOME/.oh-my-zsh"
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
-
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(zsh-autosuggestions zsh-syntax-highlighting)
 
-# Plugin configs
+# The ssh-agent plugin just start the ssh-agent, to work with multiple identities, follow this guide:
+# https://gist.github.com/oanhnn/80a89405ab9023894df7
+plugins=(zsh-autosuggestions zsh-syntax-highlighting ssh-agent)
+
+# https://github.com/ohmyzsh/ohmyzsh/blob/master/plugins/ssh-agent/README.md#powerline-10k-specific-settings
+zstyle :omz:plugins:ssh-agent quiet yes
+zstyle :omz:plugins:ssh-agent lazy yes
+
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-
 
 source $ZSH/oh-my-zsh.sh
 
@@ -161,9 +159,6 @@ function sync-g {
     echo "nothing to commit, working tree clean"
   fi
 }
-
-
-
 
 bindkey -v
 bindkey -M viins 'jk' vi-cmd-mode
@@ -191,7 +186,6 @@ zle -N zle-line-init
 echo -ne '\e[5 q' # Use beam shape cursor on startup.
 preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 
-
 # Aliases
 alias cls="colorls"
 alias bat="batcat"
@@ -211,8 +205,6 @@ export NVM_DIR="$HOME/.nvm"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
-
 
 # fzf for searching command history config
 # source /usr/share/doc/fzf/examples/key-bindings.zsh
@@ -236,10 +228,6 @@ function pastefinish {
 zstyle :bracketed-paste-magic paste-init pasteinit
 zstyle :bracketed-paste-magic paste-finish pastefinish
 
-
-
-
-
 # Surface1(bg) and Yellow(fg) from Catppuchin Mocha
 # Couldn't get it to just change the bg color and leave the bg color as is, so I chose a foreground color myself
 zle_highlight=(region:bg=#45475a,fg=#f9e2af)
@@ -247,15 +235,3 @@ zle_highlight=(region:bg=#45475a,fg=#f9e2af)
 # export TERM='xterm-256color'
 export EDITOR='nvim'
 export VISUAL='nvim'
-
-
-# Start ssh agent and add keys to it - suppress messages if everything goes smoothly
-# if [ -z "$SSH_AUTH_SOCK" ] ; then
-  # eval "$(ssh-agent -s)" > /dev/null
-  # ssh-add ~/.ssh/id_ed25519_personal &> /dev/null
-  # ssh-add ~/.ssh/id_ed25519_zigvy &> /dev/null
-
-  eval "$(ssh-agent -s)" 
-  ssh-add ~/.ssh/id_ed25519_personal 
-  ssh-add ~/.ssh/id_ed25519_zigvy 
-# fi
