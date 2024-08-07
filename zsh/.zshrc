@@ -238,12 +238,7 @@ zstyle :bracketed-paste-magic paste-finish pastefinish
 
 
 
-# Start ssh agent and add keys to it - suppress messages if everything goes smoothly
-if [ -z "$SSH_AUTH_SOCK" ] ; then
- eval `ssh-agent -s` > /dev/null
- ssh-add ~/.ssh/id_ed25519_personal &> /dev/null
- ssh-add ~/.ssh/id_ed25519_zigvy &> /dev/null
-fi
+
 
 # Surface1(bg) and Yellow(fg) from Catppuchin Mocha
 # Couldn't get it to just change the bg color and leave the bg color as is, so I chose a foreground color myself
@@ -253,3 +248,14 @@ zle_highlight=(region:bg=#45475a,fg=#f9e2af)
 export EDITOR='nvim'
 export VISUAL='nvim'
 
+
+# Start ssh agent and add keys to it - suppress messages if everything goes smoothly
+# if [ -z "$SSH_AUTH_SOCK" ] ; then
+  # eval "$(ssh-agent -s)" > /dev/null
+  # ssh-add ~/.ssh/id_ed25519_personal &> /dev/null
+  # ssh-add ~/.ssh/id_ed25519_zigvy &> /dev/null
+
+  eval "$(ssh-agent -s)" 
+  ssh-add ~/.ssh/id_ed25519_personal 
+  ssh-add ~/.ssh/id_ed25519_zigvy 
+# fi
