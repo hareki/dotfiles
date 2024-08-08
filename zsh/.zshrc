@@ -175,6 +175,7 @@ function sync-g {
     else
       echo "nothing to commit, working tree clean"
     fi
+    cd "$HOME"
   )
 }
 
