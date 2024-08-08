@@ -158,6 +158,7 @@ function sync-g {
     git add .
     git commit -m "updated via script at $(date +"%d/%m/%Y | %a %I:%M %p")"
     git push
+    cd -
   else
     echo "nothing to commit, working tree clean"
   fi
