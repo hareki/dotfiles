@@ -153,6 +153,7 @@ function sync-d {
 }
 
 function sync-g {
+  local current_dir=$(pwd) 
   cd "$STOW_REPO"
   if git status --porcelain | grep -q .; then
     git add .
@@ -161,7 +162,7 @@ function sync-g {
   else
     echo "nothing to commit, working tree clean"
   fi
-  cd -
+  cd "$current_dir"  
 }
 
 bindkey -v
