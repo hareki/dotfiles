@@ -152,31 +152,16 @@ function sync-d {
     fi
 }
 
-# function sync-g {
-#   local current_dir=$(pwd) 
-#   cd "$STOW_REPO"
-#   if git status --porcelain | grep -q .; then
-#     git add .
-#     git commit -m "updated via script at $(date +"%d/%m/%Y | %a %I:%M %p")"
-#     git push
-#   else
-#     echo "nothing to commit, working tree clean"
-#   fi
-#   cd "$current_dir"  
-# }
-
 function sync-g {
-  (
-    # cd "$STOW_REPO"
-    # if git status --porcelain | grep -q .; then
-    #   git add .
-    #   git commit -m "updated via script at $(date +"%d/%m/%Y | %a %I:%M %p")"
-    #   git push
-    # else
-    #   echo "nothing to commit, working tree clean"
-    # fi
-    cd "$HOME"
-  )
+  cd "$STOW_REPO"
+  if git status --porcelain | grep -q .; then
+    git add .
+    git commit -m "updated via script at $(date +"%d/%m/%Y | %a %I:%M %p")"
+    git push
+  else
+    echo "nothing to commit, working tree clean"
+  fi
+  cd -
 }
 
 bindkey -v
