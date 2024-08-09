@@ -20,16 +20,16 @@ menupopup > :is(menuitem, menu) {
 
 menupopup:not(.in-menulist) > menuitem,
 menupopup:not(.in-menulist) > menu {
-    padding-block: 18px !important;
-    padding-inline-start: 13px !important;
+    padding-block: 8px !important;
+    padding-inline-start: 17px !important;
 }
 :root {
     --arrowpanel-menuitem-padding: 4px 8px !important;
 }
 
 
-:is(#toolbar-context-menu, #contentAreaContextMenu, #unified-extensions-context-menu, #downloadsContextMenu, #placesContext, #sidebarMenu-popup, #BMB_bookmarksPopup) :is(menuitem, menu) {
-    background-position-y: 10px !important;
+:is(#toolbar-context-menu, #contentAreaContextMenu, #unified-extensions-context-menu, #downloadsContextMenu, #placesContext, #sidebarMenu-popup, #BMB_bookmarksPopup) :is(menuitem, menu):not(#\9):not(#\9):not(#\9):not(#\9) {
+    background-position-y: 12px !important;
     background-position-x: 12px !important;
 }
 

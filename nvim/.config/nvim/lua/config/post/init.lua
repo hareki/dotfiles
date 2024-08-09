@@ -1,1 +1,1 @@
-require("config.post.higlightgroups").setup()
+require("config.post.custom_highlights").setup()

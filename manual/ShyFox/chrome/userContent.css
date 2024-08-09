@@ -6,16 +6,3 @@
 @import url("ShyFox/shy-variables.css");
 
 @import url("overrides/userContent.css");
-
-@-moz-document url("about:home"), url("about:newtab") {
-    .activity-stream::before{
-        content: none;
-        left: 10px;
-    }
-
-    .activity-stream::after{
-        content: none;
-        right: 10px;
-    }
-
-}

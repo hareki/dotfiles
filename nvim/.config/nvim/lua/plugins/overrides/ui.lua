@@ -1,38 +1,9 @@
-local darkest = "#181825"
-local dark = "#1E1E2E"
-local white = "#CDD6F4"
-local blue = "#89B4FA"
+local colors = require("catppuccin.palettes").get_palette("mocha")
 
-local function get_selected_highlights(configs)
-  local result = {}
-
-  local visible_highlights = {
-    bold = true,
-  }
-
-  local diagnostic_selected_highlights = {
-    italic = false,
-    sp = blue,
-  }
-
-  local selected_highlights = {
-    italic = false,
-    sp = blue,
-  }
-
-  for _, label in ipairs(configs["diagnostic_selected"]) do
-    result[label .. "_visible"] = visible_highlights
-    result[label .. "_selected"] = selected_highlights
-    result[label .. "_diagnostic_selected"] = diagnostic_selected_highlights
-  end
-
-  for _, label in ipairs(configs["diagnostic"]) do
-    result[label .. "_visible"] = visible_highlights
-    result[label .. "_selected"] = selected_highlights
-  end
-
-  return result
-end
+local mantle = colors.mantle
+local base = colors.base
+local text = colors.text
+local blue = colors.blue
 
 return {
   {
@@ -65,34 +36,71 @@ return {
         "force",
         {
           buffer_visible = {
-            bg = dark,
-            fg = white,
+            bg = base,
+            fg = text,
             bold = true,
           },
           separator = {
-            fg = darkest,
-            bg = darkest,
+            fg = mantle,
+            bg = mantle,
           },
           background = {
-            bg = darkest,
+            bg = mantle,
           },
           fill = {
-            bg = darkest,
+            bg = mantle,
           },
 
           indicator_visible = {
-            fg = dark,
-            bg = dark,
+            fg = base,
+            bg = base,
           },
         },
-        get_selected_highlights({
+        Util.get_selected_highlights({
           diagnostic_selected = { "hint", "info", "warning", "error" },
           diagnostic = { "modified", "duplicate", "indicator", "buffer" },
-        })
+        }, blue)
       ),
     },
   },
 
+  {
+    "nvim-lualine/lualine.nvim",
+    opts = function(_, opts)
+      local icons = LazyVim.config.icons
+
+      -- opts.options.section_separators = { left = "", right = "" }
+      -- opts.options.component_separators = { left = "|", right = "|" }
+
+      opts.options.section_separators = { left = "", right = "" }
+      opts.options.component_separators = { left = "", right = "" }
+
+      -- opts.sections.lualine_y[0].color = { bg = mantle }
+      -- opts.sections.lualine_y[1].color = { bg = mantle }
+
+      opts.sections.lualine_y = {
+        {
+          "diagnostics",
+          symbols = {
+            error = icons.diagnostics.Error,
+            warn = icons.diagnostics.Warn,
+            info = icons.diagnostics.Info,
+            hint = icons.diagnostics.Hint,
+          },
+          always_visible = true,
+          color = { bg = mantle },
+        },
+      }
+
+      opts.sections.lualine_z = {
+        { "location", separator = "x" },
+        { "progress" },
+
+        -- { "progress", separator = "" },
+        -- { "location" },
+      }
+    end,
+  },
   {
     "folke/noice.nvim",
     opts = {
