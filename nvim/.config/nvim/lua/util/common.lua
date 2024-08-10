@@ -42,4 +42,13 @@ M.get_selected_highlights = function(configs, color)
   return result
 end
 
+M.remove_lualine_component = function(name, tbl)
+  -- Iterate through the table in reverse to avoid issues when removing elements (skipping elements)
+  for i = #tbl, 1, -1 do
+    if tbl[i][1] == name then
+      table.remove(tbl, i)
+    end
+  end
+end
+
 return M
