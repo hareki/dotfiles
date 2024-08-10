@@ -17,19 +17,14 @@ M.hl = function(group, style)
   vim.api.nvim_set_hl(0, group, style)
 end
 
---- @param t1 table
---- @param t2 table
-M.mergeTables = function(t1, t2)
-  -- Iterate through each key-value pair in the second table
-  for k, v in pairs(t2) do
-    -- If the value is a table and the key also exists in t1 as a table, merge recursively
-    if type(v) == "table" and type(t1[k]) == "table" then
-      M.mergeTables(t1[k], v)
-    else
-      -- Otherwise, overwrite or add the value from t2 to t1
-      t1[k] = v
-    end
-  end
+M.get_initial_path = function()
+  -- Get the first argument passed to Neovim (which is usually the path)
+  local first_arg = vim.fn.argv(0)
+
+  -- If the path is relative, resolve it to an absolute path
+  local initial_path = vim.fn.fnamemodify(tostring(first_arg), ":p")
+
+  return initial_path
 end
 
 M.get_selected_highlights = function(configs, color)
