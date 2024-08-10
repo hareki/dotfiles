@@ -5,20 +5,6 @@ local base = colors.base
 local text = colors.text
 local blue = colors.blue
 
-local root_dir_component_func = LazyVim.lualine.root_dir()[1]
-
-local format_root_dir = function()
-  local result = root_dir_component_func()
-  local space_index = result:find(" ")
-
-  -- Remove the space between the icon and the root dir
-  if space_index then
-    result = result:sub(1, space_index - 1) .. result:sub(space_index + 1)
-  end
-
-  return result
-end
-
 return {
   {
     "akinsho/bufferline.nvim",
@@ -33,7 +19,7 @@ return {
         offsets = {
           {
             filetype = "neo-tree",
-            text = format_root_dir(),
+            text = "File Explorer",
             text_align = "center",
             highlight = "BufferLineOffsetText",
           },
@@ -94,8 +80,59 @@ return {
         end
       end
 
-      -- ===== SECTION B ====
+      -- ===== WINBAR ====
+      -- opts.options.disabled_filetypes = {
+      --   -- winbar = { "neo-tree" },
+      --   statusline = { "neo-tree" },
+      -- }
+      -- local winbar = Util.ensure_nested_table.run(opts, "winbar")
+      -- local inactive_winbar = Util.ensure_nested_table.run(opts, "inactive_winbar")
+      -- local breadcrumb_component = {}
+      --
+      -- -- Add back the default component since we're overriding the entire section:
+      -- -- https://www.lazyvim.org/plugins/ui#lualinenvim
+      -- if vim.g.trouble_lualine and LazyVim.has("trouble.nvim") then
+      --   local trouble = require("trouble")
+      --   local symbols = trouble.statusline({
+      --     mode = "symbols",
+      --     groups = {},
+      --     title = false,
+      --     filter = { range = true },
+      --     format = "{kind_icon}{symbol.name:Normal}",
+      --     hl_group = "lualine_c_normal",
+      --   })
+      --   table.insert(breadcrumb_component, {
+      --     symbols and symbols.get,
+      --     cond = function()
+      --       return vim.b.trouble_lualine ~= false and symbols.has()
+      --     end,
+      --     padding = { left = 1, right = 1 },
+      --     color = { bg = "#ff0000", fg = text },
+      --   })
+      -- end
+      --
+      -- table.insert(breadcrumb_component, {
+      --   "filetype",
+      --   icon_only = true,
+      --   separator = "",
+      --   padding = { left = 1, right = 0 },
+      --   color = { bg = mantle, fg = text },
+      -- })
+      --
+      -- table.insert(breadcrumb_component, {
+      --   LazyVim.lualine.pretty_path({
+      --     relative = "cwd",
+      --     length = 0,
+      --     filename_hl = "none",
+      --   }),
+      --   padding = { left = 0, right = 1 },
+      --   color = { bg = mantle, fg = text },
+      -- })
+      --
+      -- winbar.lualine_z = breadcrumb_component
+      -- inactive_winbar.lualine_z = breadcrumb_component
 
+      -- ===== SECTION B ====
       local function format_branch_name(branch_name)
         -- Length variables for easier maintenance
         local max_task_name_length = 20
@@ -151,31 +188,31 @@ return {
       }
 
       -- ===== SECTION C ====
+      opts.sections.lualine_c = {}
+      -- opts.sections.lualine_c = {
+      --   { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
+      --   { LazyVim.lualine.pretty_path(), padding = { left = 0, right = 1 } },
+      -- }
 
-      opts.sections.lualine_c = {
-        { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
-        { LazyVim.lualine.pretty_path(), padding = { left = 0, right = 1 } },
-      }
-
-      -- Add back the default component since we're overriding the entire section:
-      -- https://www.lazyvim.org/plugins/ui#lualinenvim
-      if vim.g.trouble_lualine and LazyVim.has("trouble.nvim") then
-        local trouble = require("trouble")
-        local symbols = trouble.statusline({
-          mode = "symbols",
-          groups = {},
-          title = false,
-          filter = { range = true },
-          format = "{kind_icon}{symbol.name:Normal}",
-          hl_group = "lualine_c_normal",
-        })
-        table.insert(opts.sections.lualine_c, {
-          symbols and symbols.get,
-          cond = function()
-            return vim.b.trouble_lualine ~= false and symbols.has()
-          end,
-        })
-      end
+      -- -- Add back the default component since we're overriding the entire section:
+      -- -- https://www.lazyvim.org/plugins/ui#lualinenvim
+      -- if vim.g.trouble_lualine and LazyVim.has("trouble.nvim") then
+      --   local trouble = require("trouble")
+      --   local symbols = trouble.statusline({
+      --     mode = "symbols",
+      --     groups = {},
+      --     title = false,
+      --     filter = { range = true },
+      --     format = "{kind_icon}{symbol.name:Normal}",
+      --     hl_group = "lualine_c_normal",
+      --   })
+      --   table.insert(opts.sections.lualine_c, {
+      --     symbols and symbols.get,
+      --     cond = function()
+      --       return vim.b.trouble_lualine ~= false and symbols.has()
+      --     end,
+      --   })
+      -- end
 
       -- ===== SECTION X ====
       Util.remove_lualine_component("diff", opts.sections.lualine_x)
