@@ -32,12 +32,14 @@ local custom_highlights = {
   BufferLineOffsetText = { bold = true, bg = colors.mantle },
 
   Cursor = { reverse = true },
+
+  NeoTreeWinSeparator = { bg = colors.mantle, fg = colors.mantle },
 }
 
 return {
   setup = function()
     for group, style in pairs(custom_highlights) do
-      vim.api.nvim_set_hl(0, group, style)
+      Util.hl(group, style)
     end
 
     vim.api.nvim_set_option_value("guicursor", "n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkon1", {

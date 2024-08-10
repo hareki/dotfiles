@@ -18,18 +18,26 @@ Util.aucmd("BufEnter", {
 Util.aucmd("ModeChanged", {
   pattern = "*:[vV\x16]*",
   callback = function()
-    vim.cmd("highlight LspReferenceRead guibg=none")
-    vim.cmd("highlight LspReferenceText guibg=none")
-    vim.cmd("highlight LspReferenceWrite guibg=none")
+    Util.hl("LspReferenceRead", { bg = "none" })
+    Util.hl("LspReferenceText", { bg = "none" })
+    Util.hl("LspReferenceWrite", { bg = "none" })
+
+    -- vim.cmd("highlight LspReferenceRead guibg=none")
+    -- vim.cmd("highlight LspReferenceText guibg=none")
+    -- vim.cmd("highlight LspReferenceWrite guibg=none")
   end,
 })
 
 Util.aucmd("ModeChanged", {
   pattern = "[vV\x16]*:*",
   callback = function()
-    vim.cmd("highlight! link LspReferenceRead MyDocumentHighlight")
-    vim.cmd("highlight! link LspReferenceText MyDocumentHighlight")
-    vim.cmd("highlight! link LspReferenceWrite MyDocumentHighlight")
+    Util.hl("LspReferenceRead", { link = "MyDocumentHighlight" })
+    Util.hl("LspReferenceText", { link = "MyDocumentHighlight" })
+    Util.hl("LspReferenceWrite", { link = "MyDocumentHighlight" })
+
+    -- vim.cmd("highlight! link LspReferenceRead MyDocumentHighlight")
+    -- vim.cmd("highlight! link LspReferenceText MyDocumentHighlight")
+    -- vim.cmd("highlight! link LspReferenceWrite MyDocumentHighlight")
   end,
 })
 
