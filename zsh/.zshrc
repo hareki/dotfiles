@@ -164,6 +164,15 @@ function sync-g {
   cd -
 }
 
+function nvcd() {
+  # If the provided argument is a directory, we should `cd` into it first. The so-called `heuristic` to detect root dir is really bad, or just misconfigured, idk
+    if [[ -d $1 ]]; then
+        cd "$1" && nvim .
+    else
+        nvim "$1"
+    fi
+}
+
 bindkey -v
 bindkey -M viins 'jk' vi-cmd-mode
 bindkey '^E' autosuggest-accept
@@ -192,7 +201,7 @@ preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 
 # Aliases
 alias cls="colorls"
-alias bat="batcat"
+alias nvim="nvcd"
 
 # Interactive nvim - open a file / directory using fzf in nvim
 alias inv='nvim "$(fd --hidden --exclude .git --exclude node_modules -- ".*" ~ | fzf-tmux -p --reverse)"'
