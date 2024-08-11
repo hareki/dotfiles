@@ -9,7 +9,7 @@ opt.clipboard = "" -- turn off clipboard syncing
 opt.pumblend = 0 -- fully opaque popupmenu
 opt.pumheight = 15 -- Maximum number of entries in a popup
 
-opt.spell = true -- keep it true to use cmp-spell, but hide the undercurl (see config.post.highlightgroups)
+opt.spell = true -- keep it true to use cmp-spell, but hide the undercurl (see extras.custom_highlights)
 -- opt.spelloptions = ""
 opt.list = false
 -- opt.spelloptions:append("camel")
