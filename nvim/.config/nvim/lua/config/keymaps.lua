@@ -21,3 +21,5 @@ Util.map({ "n", "x" }, "<leader>p", '"+p', { desc = "Paste from system clipboard
 Util.map({ "n", "x" }, "P", '"0p', { noremap = true, desc = "Paste from last yank register" })
 
 Util.map({ "i", "x", "n", "s" }, "<C-a>", "<cmd>wa<cr><esc>", { desc = "Save File", silent = true })
+
+Util.map("v", "<leader>t", "ygvgcp", { remap = true, silent = true, desc = "Yank, comment and paste" })
