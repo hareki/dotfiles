@@ -15,6 +15,7 @@ return {
   },
   opts = {
     options = {
+      max_name_length = 999,
       offsets = {
         {
           filetype = "neo-tree",
