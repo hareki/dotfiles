@@ -2,16 +2,16 @@ local colors = require("catppuccin.palettes").get_palette("mocha")
 
 local custom_highlights = {
   -- Set undercurl color of misspelled / unknown words as diagnostic's
-  SpellBad = { link = "LspDiagnosticsUnderlineHint" },
-  SpellCap = { link = "LspDiagnosticsUnderlineHint" },
-  SpellRare = { link = "LspDiagnosticsUnderlineHint" },
-  SpellLocal = { link = "LspDiagnosticsUnderlineHint" },
+  -- SpellBad = { link = "LspDiagnosticsUnderlineHint" },
+  -- SpellCap = { link = "LspDiagnosticsUnderlineHint" },
+  -- SpellRare = { link = "LspDiagnosticsUnderlineHint" },
+  -- SpellLocal = { link = "LspDiagnosticsUnderlineHint" },
 
   -- Remove the undercurl but keep spell checker on to use cmp-spell
-  -- SpellBad = { underline = false },
-  -- SpellCap = { underline = false },
-  -- SpellRare = { underline = false },
-  -- SpellLocal = { underline = false },
+  SpellBad = { underline = false },
+  SpellCap = { underline = false },
+  SpellRare = { underline = false },
+  SpellLocal = { underline = false },
 
   Visual = { bold = false, bg = colors.surface1 },
 
