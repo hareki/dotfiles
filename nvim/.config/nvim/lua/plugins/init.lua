@@ -6,7 +6,9 @@ return {
   { import = "plugins.overrides.lsp" },
   { import = "plugins.overrides.ui" },
 
+  { import = "plugins.extras.coding" },
   { import = "plugins.extras.editor" },
+  { import = "plugins.extras.lsp" },
   { import = "plugins.extras.tmux" },
   { import = "plugins.extras.ui" },
 }
