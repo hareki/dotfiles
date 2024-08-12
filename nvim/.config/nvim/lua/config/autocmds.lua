@@ -14,7 +14,7 @@ Util.aucmd("BufEnter", {
   command = "setlocal formatoptions-=cro",
 })
 
--- NOTE: Disable document highlight in visual mode
+-- NOTE: Disable document highlight and pause vim-illuminate in visual mode
 Util.aucmd("ModeChanged", {
   pattern = "*:[vV\x16]*",
   callback = function()

@@ -5,10 +5,14 @@ return {
   "lewis6991/gitsigns.nvim",
   opts = function(_, opts)
     opts.current_line_blame = true
-    opts.current_line_blame_formatter = "      <author>, <author_time:%R> - <summary>"
-    opts.current_line_blame_opts = {
-      delay = 500,
-    }
+    -- opts.current_line_blame_formatter = "      <author>, <author_time:%R> - <summary>"
+    opts.current_line_blame_formatter = "<author>, <author_time:%R> - <summary>"
+
+    local blame_opts = Util.ensure_nested_table.run(opts, "current_line_blame_opts")
+
+    blame_opts.delay = 300
+    -- blame_opts.virt_text_priority = 999
+    blame_opts.virt_text = true
 
     opts.preview_config = {
       border = "rounded",
