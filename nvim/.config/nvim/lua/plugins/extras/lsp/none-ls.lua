@@ -1,14 +1,3 @@
--- if false then
---   return {
---     "mfussenegger/nvim-lint",
---     opts = {
---       linters_by_ft = {
---         ["*"] = { "cspell" },
---       },
---     },
---   }
--- end
-
 return {
   "nvimtools/none-ls.nvim",
   dependencies = {
@@ -22,7 +11,7 @@ return {
           -- https://www.reddit.com/r/neovim/comments/zyv7pi/nullls_warning_level_for_sources/
           -- Force the severity to be HINT
           diagnostics_postprocess = function(diagnostic)
-            diagnostic.severity = vim.diagnostic.severity.HINT
+            diagnostic.severity = vim.diagnostic.severity.INFO
           end,
         }),
         cspell.code_actions,

@@ -3,13 +3,8 @@ return {
   event = "VeryLazy",
   config = function()
     require("tiny-inline-diagnostic").setup({
-      -- signs = {
-      --   left = " ",
-      --   right = " ",
-      --   diag = "●",
-      -- },
       blend = {
-        factor = 0.5,
+        factor = 0.4,
       },
       options = {
         overflow = {
