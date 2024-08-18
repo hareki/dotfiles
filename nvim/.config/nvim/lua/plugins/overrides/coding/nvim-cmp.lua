@@ -11,6 +11,7 @@ return {
     "dmitmel/cmp-cmdline-history",
     "hrsh7th/cmp-calc",
     "f3fora/cmp-spell",
+    "brenoprata10/nvim-highlight-colors"
   },
   opts = function(_, opts)
     opts.window = {
