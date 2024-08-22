@@ -9,12 +9,13 @@ return {
   "akinsho/bufferline.nvim",
   event = "VeryLazy",
   keys = {
-    { "<A-S-h>", "<cmd>BufferLineMovePrev<cr>", desc = "Move buffer prev" },
-    { "<A-S-l>", "<cmd>BufferLineMoveNext<cr>", desc = "Move buffer next" },
+    { "<A-S-h>", "<cmd>BufferLineMovePrev<cr>",  desc = "Move buffer prev" },
+    { "<A-S-l>", "<cmd>BufferLineMoveNext<cr>",  desc = "Move buffer next" },
     { "<A-S-p>", "<Cmd>BufferLineTogglePin<CR>", desc = "Toggle Pin" },
   },
   opts = {
     options = {
+      always_show_bufferline = true,
       max_name_length = 999,
       offsets = {
         {
