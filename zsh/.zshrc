@@ -126,7 +126,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 
-# The ssh-agent plugin just start the ssh-agent, to work with multiple identities, follow this guide:
+# The ssh-agent plugin just starts the ssh-agent, to work with multiple identities, follow this guide:
 # https://gist.github.com/oanhnn/80a89405ab9023894df7
 plugins=(zsh-autosuggestions zsh-syntax-highlighting ssh-agent autoupdate)
 
@@ -143,17 +143,17 @@ source $ZSH/oh-my-zsh.sh
 
 export STOW_REPO="$HOME/Repositories/personal/dotfiles"
 function sync-d {
-    # local target_dir="$HOME/Repositories/personal/dotfiles"
     if [ -d "$STOW_REPO/$1" ]; then
         cd "$STOW_REPO" || return
         stow "$1" -t ~
+        cd - 
     else
         echo "Directory $STOW_REPO/$1 does not exist."
     fi
 }
 
 function sync-g {
-  cd "$STOW_REPO"
+  cd "$STOW_REPO" || return
   if git status --porcelain | grep -q .; then
     git add .
     git commit -m "updated via script at $(date +"%d/%m/%Y | %a %I:%M %p")"
@@ -165,17 +165,25 @@ function sync-g {
 }
 
 function nvcd() {
-  # If the provided argument is a directory, we should `cd` into it first. The so-called `heuristic` to detect root dir is really bad, or just misconfigured, idk
+  # 1. If the provided argument is a directory, we should `cd` into it first. The so-called `heuristic` to detect root dir is really bad, or just misconfigured, idk
+  # 2. The `env TERM=wezterm` is for https://wezfurlong.org/wezterm/faq.html#how-do-i-enable-undercurl-curly-underlines
+  # 3. Have to use the `command` to explicitly call a command without triggering the alias.
     if [[ -d $1 ]]; then
-        cd "$1" && nvim .
+        cd "$1" && command env TERM=wezterm nvim .
     else
-        nvim "$1"
+       command env TERM=wezterm nvim "$1"
     fi
 }
 
 bindkey -v
 bindkey -M viins 'jk' vi-cmd-mode
 bindkey '^E' autosuggest-accept
+
+# start ssh server for wezterm ssh
+if ! pgrep -x "sshd" > /dev/null
+then
+    sudo /usr/sbin/sshd
+fi
 
 # Change cursor shape for different vi modes.
 # https://gist.github.com/LukeSmithxyz/e62f26e55ea8b0ed41a65912fbebbe52
@@ -202,14 +210,86 @@ preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 # Aliases
 alias cls="colorls"
 alias nvim="nvcd"
+# https://wezfurlong.org/wezterm/faq.html#how-do-i-enable-undercurl-curly-underlines
+# alias nvim="env TERM=wezterm nvim"
 
 # Interactive nvim - open a file / directory using fzf in nvim
-alias inv='nvim "$(fd --hidden --exclude .git --exclude node_modules -- ".*" ~ | fzf-tmux -p --reverse)"'
-alias invd='nvim "$(fd --hidden --exclude .git --exclude node_modules --type directory -- ".*" ~ | fzf-tmux -p --reverse)"'
-alias invf='nvim "$(fd --hidden --exclude .git --exclude node_modules --type file -- ".*" ~ | fzf-tmux -p --reverse)"'
+# alias inv='nvim "$(fd --hidden --exclude .git --exclude node_modules -- ".*" ~ | fzf-tmux -p --reverse)"'
+# function inv {
+#   # Use fd to list files and fzf to select
+#   local file
+#   file=$(fd --hidden --exclude .git --exclude node_modules -- ".*" ~ | fzf-tmux -p --reverse)
+#
+#   # Check if the selection is empty (Ctrl-C or Esc was pressed)
+#   if [[ -z "$file" ]]; then
+#     echo "Selection canceled, no file opened."
+#     return 0
+#   fi
+#
+#   # Open the selected file in nvim
+#   nvim "$file"
+# }
+function inv {
+  # Default values
+  local type=""
+  local root_dir="$HOME"  # Default to home directory
+  local change_dir=0  # Flag to indicate whether to use 'cd'
 
-# Interactive cd - change directory using fzf
-alias icd='cd "$(fd --type directory --hidden --exclude .git --exclude node_modules -- ".*" ~ | fzf-tmux -p --reverse)"'
+  # Help message
+  local help_message="Usage: inv [options] [path]
+  
+Options:
+  -d            List directories only (uses '--type directory')
+  -f            List files only (uses '--type file')
+  -c            Change to the selected directory (uses 'cd' instead of 'nvim')
+  -h            Show this help message
+  
+If [path] is provided, it will be used as the root directory to begin the search. If omitted, the default is \$HOME."
+
+  # Parse options
+  while getopts ":dfch" opt; do
+    case $opt in
+      d) type="directory" ;;       # Option -d for directories
+      f) type="file" ;;            # Option -f for files
+      c) change_dir=1; type="directory" ;;  # Option -c for changing directories
+      h) echo "$help_message"; return 0 ;;  # Option -h to display help
+      \?) echo "Invalid option: -$OPTARG" >&2; return 1 ;;  # Invalid option handling
+      :) echo "Option -$OPTARG requires an argument." >&2; return 1 ;;  # Missing argument
+    esac
+  done
+
+  # Shift to check for positional argument (path)
+  shift $((OPTIND - 1))
+
+  # If a path is provided as an argument, use it
+  if [[ -n "$1" ]]; then
+    root_dir="$1"
+  fi
+
+  # Build the fd command
+  local fd_command=(fd --hidden --exclude .git --exclude node_modules)
+  [[ -n "$type" ]] && fd_command+=(--type "$type")
+  fd_command+=(".*" "$root_dir")
+
+  # Use fd to list files/directories and fzf to select
+  local file
+  file=$("${fd_command[@]}" | fzf-tmux -p --reverse)
+
+  # Check if the selection is empty (Ctrl-C or Esc was pressed)
+  if [[ -z "$file" ]]; then
+    echo "Selection canceled, no file opened."
+    return 0
+  fi
+
+  # If -c option is provided, change to the selected directory
+  if [[ $change_dir -eq 1 ]]; then
+    cd "$file" || return 1
+    echo "Changed directory to $file"
+  else
+    # Otherwise, open the file/directory in nvim
+    nvim "$file"
+  fi
+}
 
 # NVM Configs
 export NVM_DIR="$HOME/.nvm"
@@ -248,3 +328,5 @@ zle_highlight=(region:bg=#45475a,fg=#f9e2af)
 # export TERM='xterm-256color'
 export EDITOR='nvim'
 export VISUAL='nvim'
+
+clear
