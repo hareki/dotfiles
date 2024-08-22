@@ -1,3 +1,5 @@
+-- if true then return {} end
+
 return {
   "rachartier/tiny-inline-diagnostic.nvim",
   event = "VeryLazy",
@@ -11,7 +13,7 @@ return {
           mode = "oneline",
         },
         virt_texts = {
-          priority = 1, --[[ smaller means higher priority ]]
+          priority = 10, --[[ smaller means higher priority ]]
         },
       },
     })
