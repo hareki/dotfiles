@@ -84,6 +84,12 @@ Util.aucmd("TextYankPost", {
   group = Util.lazy_augroup("highlight_yank"),
   callback = function()
     local register = vim.v.event.regname
+    -- ensure yank-related events are processed first
+    -- tiny-inline-diagnostic prevent the vim.highlight.on_yank to work properly so we need to temporarily disable it during the highlight
+    vim.defer_fn(function()
+      require("tiny-inline-diagnostic").disable()
+    end, 50)
+
     if vim.g.checkingSameTerm == 0 then
       if register == "+" or register == "*" then
         vim.highlight.on_yank({ higroup = "YankHighlightSystem" })
@@ -91,5 +97,10 @@ Util.aucmd("TextYankPost", {
         vim.highlight.on_yank()
       end
     end
+
+    -- wait for the highlight to wear out before re-enabling it (default duration = 150ms, we wait for an extra 50ms just in case)
+    vim.defer_fn(function()
+      require("tiny-inline-diagnostic").enable()
+    end, 200)
   end,
 })

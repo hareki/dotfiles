@@ -27,7 +27,16 @@ local custom_highlights = {
   TreesitterContext = { bg = "#373948" },
 
   -- Custom highlight groups
-  YankHighlightSystem = { link = "@comment.warning" },
+  YankHighlightSystem = {
+    fg = "#1e1e2e",
+    -- ctermfg = "#1e1e2e",
+    bg = "#f9e2af",
+    -- ctermbg = "#f9e2af",
+    underline = false,
+    undercurl = false,
+    force = true
+  },
+
   MyDocumentHighlight = { bg = "#373948" }, --#3b3d4d
   BufferLineOffsetText = { bold = true, bg = colors.mantle },
 
@@ -45,25 +54,5 @@ return {
     vim.api.nvim_set_option_value("guicursor", "n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkon1", {
       scope = "global",
     })
-
-
-    local function paste()
-      return {
-        vim.fn.split(vim.fn.getreg(""), "\n"),
-        vim.fn.getregtype(""),
-      }
-    end
-
-    vim.g.clipboard = {
-      name = "OSC 52",
-      copy = {
-        ["+"] = require("vim.ui.clipboard.osc52").copy("+"),
-        ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
-      },
-      paste = {
-        ["+"] = paste,
-        ["*"] = paste,
-      },
-    }
   end,
 }
