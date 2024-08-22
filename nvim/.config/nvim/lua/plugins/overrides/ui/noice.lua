@@ -31,8 +31,6 @@ return {
         opts = { skip = true },
       },
 
-      -- Add back this option since lazy.nvim doesn't perform a deep merge (it shouldn't anyway)
-      -- https://www.lazyvim.org/plugins/ui#noicenvim
       {
         filter = {
           event = "msg_show",
@@ -42,7 +40,7 @@ return {
             { find = "; before #%d+" },
           },
         },
-        view = "mini",
+        opts = { skip = true }
       },
     },
   },
