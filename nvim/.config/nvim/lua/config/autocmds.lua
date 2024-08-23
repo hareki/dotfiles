@@ -2,6 +2,19 @@
 -- Default autocmds that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
 -- Add any additional autocmds here
 
+local function disable_doc_hl()
+  Util.hl("LspReferenceRead", { bg = "none" })
+  Util.hl("LspReferenceText", { bg = "none" })
+  Util.hl("LspReferenceWrite", { bg = "none" })
+end
+
+
+local function enable_doc_hl()
+  Util.hl("LspReferenceRead", { link = "MyDocumentHighlight" })
+  Util.hl("LspReferenceText", { link = "MyDocumentHighlight" })
+  Util.hl("LspReferenceWrite", { link = "MyDocumentHighlight" })
+end
+
 -- NOTE: Disable autocomments
 -- source: https://www.reddit.com/r/neovim/comments/13585hy/trying_to_disable_autocomments_on_new_line_eg/
 Util.aucmd("BufEnter", {
@@ -18,26 +31,14 @@ Util.aucmd("BufEnter", {
 Util.aucmd("ModeChanged", {
   pattern = "*:[vV\x16]*",
   callback = function()
-    Util.hl("LspReferenceRead", { bg = "none" })
-    Util.hl("LspReferenceText", { bg = "none" })
-    Util.hl("LspReferenceWrite", { bg = "none" })
-
-    -- vim.cmd("highlight LspReferenceRead guibg=none")
-    -- vim.cmd("highlight LspReferenceText guibg=none")
-    -- vim.cmd("highlight LspReferenceWrite guibg=none")
+    disable_doc_hl()
   end,
 })
 
 Util.aucmd("ModeChanged", {
   pattern = "[vV\x16]*:*",
   callback = function()
-    Util.hl("LspReferenceRead", { link = "MyDocumentHighlight" })
-    Util.hl("LspReferenceText", { link = "MyDocumentHighlight" })
-    Util.hl("LspReferenceWrite", { link = "MyDocumentHighlight" })
-
-    -- vim.cmd("highlight! link LspReferenceRead MyDocumentHighlight")
-    -- vim.cmd("highlight! link LspReferenceText MyDocumentHighlight")
-    -- vim.cmd("highlight! link LspReferenceWrite MyDocumentHighlight")
+    enable_doc_hl()
   end,
 })
 
@@ -80,27 +81,31 @@ Util.aucmd({ "CursorMoved", "ModeChanged" }, {
 
 -- NOTE: Tweak the highlight_yank from LazyVim to have different colors based on the register name
 -- source: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua#L17-L23
+-- NOTE: Currently testing yanky.nvim, so disabling vim.highlight.on_yank for now
+
 Util.aucmd("TextYankPost", {
   group = Util.lazy_augroup("highlight_yank"),
   callback = function()
-    local register = vim.v.event.regname
-    -- ensure yank-related events are processed first
-    -- tiny-inline-diagnostic prevent the vim.highlight.on_yank to work properly so we need to temporarily disable it during the highlight
+    -- Ensure yank-related events are processed first
+    -- tiny-inline-diagnostic prevent the highlight on yank to work properly so we need to temporarily disable it during the highlight
     vim.defer_fn(function()
       require("tiny-inline-diagnostic").disable()
+      disable_doc_hl()
     end, 50)
 
-    if vim.g.checkingSameTerm == 0 then
-      if register == "+" or register == "*" then
-        vim.highlight.on_yank({ higroup = "YankHighlightSystem" })
-      else
-        vim.highlight.on_yank()
-      end
-    end
+    --     local register = vim.v.event.regname
+    --     if vim.g.checkingSameTerm == 0 then
+    --       if register == "+" or register == "*" then
+    --         vim.highlight.on_yank({ higroup = "YankHighlightSystem" })
+    --       else
+    --         vim.highlight.on_yank()
+    --       end
+    --     end
 
-    -- wait for the highlight to wear out before re-enabling it (default duration = 150ms, we wait for an extra 50ms just in case)
+    -- Wait for the highlight to wear out before re-enabling it (default duration = 150ms, we wait for an extra 50ms just in case)
     vim.defer_fn(function()
       require("tiny-inline-diagnostic").enable()
+      enable_doc_hl()
     end, 200)
   end,
 })
