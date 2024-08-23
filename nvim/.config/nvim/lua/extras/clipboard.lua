@@ -1,5 +1,13 @@
 return {
   setup = function()
+    -- https://github.com/neovim/neovim/discussions/28010#discussioncomment-9877494
+    local function paste()
+      return {
+        vim.fn.split(vim.fn.getreg(""), "\n"),
+        vim.fn.getregtype(""),
+      }
+    end
+
     vim.g.clipboard = {
       name = "OSC 52",
       copy = {
@@ -7,10 +15,9 @@ return {
         ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
       },
       paste = {
-        -- Use wezterm.action.PasteFrom instead due to issues related to SSH: https://github.com/wez/wezterm/issues/2050
-        ["+"] = function() end, -- Pasting disabled
-        ["*"] = function() end, -- Pasting disabled
-      }
+        ["+"] = paste,
+        ["*"] = paste,
+      },
     }
   end
 }
