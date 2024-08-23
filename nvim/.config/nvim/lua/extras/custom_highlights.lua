@@ -27,14 +27,20 @@ local custom_highlights = {
   TreesitterContext = { bg = "#373948" },
 
   -- Custom highlight groups
-  YankPutHighlight = {
+  YankSystemHighlight = {
+    fg = colors.base,
+    bg = colors.yellow,
+  },
+
+  YankRegisterHighlight = {
     fg = colors.base,
     bg = colors.blue,
   },
 
   -- yanky.nvim
-  YankyPut = { link = "YankPutHighlight" },
-  YankyYanked = { link = "YankPutHighlight" },
+  YankyPut = { link = "YankRegisterHighlight" },
+  -- we use aucmds to dynamically switch hl colors instead
+  -- YankyYanked = { link = "YankRegisterHighlight" },
 
   MyDocumentHighlight = { bg = "#373948" }, --#3b3d4d
   BufferLineOffsetText = { bold = true, bg = colors.mantle },

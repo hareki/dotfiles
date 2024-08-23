@@ -93,16 +93,16 @@ Util.aucmd("TextYankPost", {
       disable_doc_hl()
     end, 50)
 
-    -- local register = vim.v.event.regname
-    -- if vim.g.checkingSameTerm == 0 then
-    --   if register == "+" or register == "*" then
-    --     vim.highlight.on_yank({ higroup = "YankPutHighlight" })
-    --   else
-    --     vim.highlight.on_yank()
-    --   end
-    -- end
+    local register = vim.v.event.regname
+    if vim.g.checkingSameTerm == 0 then
+      if register == "+" or register == "*" then
+        vim.highlight.on_yank({ higroup = "YankSystemHighlight" })
+      else
+        vim.highlight.on_yank({ higroup = "YankRegisterHighlight" })
+      end
+    end
 
-    vim.highlight.on_yank({ higroup = "YankPutHighlight" })
+    -- vim.highlight.on_yank({ higroup = "YankRegisterHighlight" })
 
     -- Wait for the highlight to wear out before re-enabling it (default duration = 150ms, we wait for an extra 50ms just in case)
     vim.defer_fn(function()
