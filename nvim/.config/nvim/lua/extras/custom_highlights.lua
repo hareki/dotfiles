@@ -29,12 +29,7 @@ local custom_highlights = {
   -- Custom highlight groups
   YankHighlightSystem = {
     fg = "#1e1e2e",
-    -- ctermfg = "#1e1e2e",
     bg = "#f9e2af",
-    -- ctermbg = "#f9e2af",
-    underline = false,
-    undercurl = false,
-    force = true
   },
 
   MyDocumentHighlight = { bg = "#373948" }, --#3b3d4d
