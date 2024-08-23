@@ -2,6 +2,8 @@
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps here
 
+-- NOTE: these are just general keymaps, there are other keymaps that closely related to some plugin so they're not here
+-- We can find them with the "keys = " or "Util.map" keywords
 Util.map("i", "jk", "<Esc>", { noremap = true, desc = "Map jk to Esc in insert mode" })
 
 Util.map({ "i", "x", "n", "s" }, "<C-a>", "<cmd>wa<cr><esc>", { desc = "Save File", silent = true })
