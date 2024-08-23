@@ -27,10 +27,13 @@ local custom_highlights = {
   TreesitterContext = { bg = "#373948" },
 
   -- Custom highlight groups
-  YankHighlightSystem = {
-    fg = "#1e1e2e",
-    bg = "#f9e2af",
+  YankPutHighlight = {
+    fg = colors.base,
+    bg = colors.blue,
   },
+
+  YankyPut = { link = "YankPutHighlight" },
+  YankyYanked = { link = "YankPutHighlight" },
 
   MyDocumentHighlight = { bg = "#373948" }, --#3b3d4d
   BufferLineOffsetText = { bold = true, bg = colors.mantle },
