@@ -11,4 +11,8 @@ return {
     "folke/ts-comments.nvim",
     enabled = false,
   },
+  {
+    "Bekaboo/dropbar.nvim",
+    enabled = false,
+  }
 }
