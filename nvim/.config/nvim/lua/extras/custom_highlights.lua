@@ -32,6 +32,7 @@ local custom_highlights = {
     bg = colors.blue,
   },
 
+  -- yanky.nvim
   YankyPut = { link = "YankPutHighlight" },
   YankyYanked = { link = "YankPutHighlight" },
 
