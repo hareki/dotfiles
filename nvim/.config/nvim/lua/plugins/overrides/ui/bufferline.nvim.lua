@@ -11,7 +11,7 @@ return {
   keys = {
     { "<A-S-h>", "<cmd>BufferLineMovePrev<cr>",  desc = "Move buffer prev" },
     { "<A-S-l>", "<cmd>BufferLineMoveNext<cr>",  desc = "Move buffer next" },
-    { "<A-S-p>", "<Cmd>BufferLineTogglePin<CR>", desc = "Toggle Pin" },
+    { "<A-S-p>", "<cmd>BufferLineTogglePin<cr>", desc = "Toggle Pin" },
   },
   opts = {
     options = {
