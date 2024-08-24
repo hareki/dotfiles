@@ -18,7 +18,6 @@ Util.map({ "n", "x" }, "P", '"0p', { noremap = true, desc = "Paste from last yan
 -- wezterm.action.PasteFrom is set to <C-v> in .wezterm.lua
 Util.map({ "x" }, "<C-c>", '"+y', { desc = "Yank to system clipboard", noremap = true })
 
-
 Util.map("v", "<leader>t", "ygvgcp", { remap = true, silent = true, desc = "Yank, comment and paste" })
 
 -- Use wezterm.action.PasteFrom instead due to issues related to SSH: https://github.com/wez/wezterm/issues/2050
