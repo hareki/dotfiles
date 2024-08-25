@@ -1,40 +1,79 @@
+local quotes = {
+  { '“Most people fail in life not because they aim too high and miss,', 'but because they aim too low and hit.” — Les Brown' },
+  { '“If you set your goals ridiculously high and it\'s a failure', 'you will fail above everyone else\'s success.” — James Cameron' },
+  { '“Never feel shame for trying and failing, for he who has never failed ', 'is he who has never tried.” — Og Mandino' },
+  { '“There is little success where there is little laughter.” — Andrew Carnegie' }
+}
+
+local function get_random_quote()
+  local random_index = math.random(1, #quotes)
+  local selected_quote = quotes[random_index]
+
+  local footer = { "" }
+
+  for _, line in ipairs(selected_quote) do
+    table.insert(footer, line)
+  end
+
+  return footer
+end
+
 return {
   "nvimdev/dashboard-nvim",
   opts = function(_, opts)
     local logo = [[
-   ██╗  ██╗  █████╗  ██████╗  ███████╗ ██╗  ██╗ ██╗
-   ██║  ██║ ██╔══██╗ ██╔══██╗ ██╔════╝ ██║ ██╔╝ ██║
-   ███████║ ███████║ ██████╔╝ █████╗   █████╔╝  ██║
-   ██╔══██║ ██╔══██║ ██╔══██╗ ██╔══╝   ██╔═██╗  ██║
-   ██║  ██║ ██║  ██║ ██║  ██║ ███████╗ ██║  ██╗ ██║
-   ╚═╝  ╚═╝ ╚═╝  ╚═╝ ╚═╝  ╚═╝ ╚══════╝ ╚═╝  ╚═╝ ╚═╝
+  ██╗  ██╗   █████╗   ██████╗   ███████╗  ██╗  ██╗  ██╗
+  ██║  ██║  ██╔══██╗  ██╔══██╗  ██╔════╝  ██║ ██╔╝  ██║
+  ███████║  ███████║  ██████╔╝  █████╗    █████╔╝   ██║
+  ██╔══██║  ██╔══██║  ██╔══██╗  ██╔══╝    ██╔═██╗   ██║
+  ██║  ██║  ██║  ██║  ██║  ██║  ███████╗  ██║  ██╗  ██║
+  ╚═╝  ╚═╝  ╚═╝  ╚═╝  ╚═╝  ╚═╝  ╚══════╝  ╚═╝  ╚═╝  ╚═╝
     ]]
-    logo = string.rep("\n", 6) .. logo .. "\n"
+    logo = string.rep("\n", 4) .. logo .. "\n"
     opts.theme = "hyper"
     opts.config = {
       header = vim.split(logo, "\n"),
       center = {},
+      project = { enable = true, limit = 2, },
+      mru = { limit = 4, },
+      -- footer = { "", '"Most people fail in life not because they aim too high and miss,', 'but because they aim too low and hit." — Les Brown' },
+      footer = get_random_quote(),
       shortcut = {
-        { desc = "󰊳 Update", group = "@property", action = "Lazy update", key = "u" },
         {
-          icon = ":u6709: ",
-          icon_hl = "@variable",
+          icon = "󰊳 ",
+          desc = "Sync",
+          group = "@property",
+          action = "Lazy sync",
+          key = "s"
+        },
+
+        {
+          icon = " ",
+          desc = "Changelog",
+          group = '@repeat',
+          action = "Lazy log",
+          key = "l"
+        },
+        {
+          icon = "󰱼 ",
           desc = "Files",
-          group = "Label",
+          group = 'DiagnosticHint',
           action = "Telescope find_files",
           key = "f",
         },
         {
-          desc = " Apps",
-          group = "DiagnosticHint",
-          action = "Telescope app",
-          key = "a",
+          icon = "󰺯 ",
+          desc = "Search",
+          group = 'Label',
+          action = "Telescope live_grep",
+          key = "g",
         },
         {
-          desc = " dotfiles",
-          group = "Number",
-          action = "Telescope dotfiles",
-          key = "d",
+          icon = "󰈆 ",
+          desc = "Exit",
+          group = '@error',
+          action = "exit",
+          key = "e",
         },
       },
     }

@@ -25,6 +25,7 @@ local custom_highlights = {
   -- nvim-treesitter-context plugin
   TreesitterContextBottom = { bold = false, italic = false },
   TreesitterContext = { bg = "#373948" },
+  TreesitterContextLineNumber = { bg = "#373948" },
 
   -- Custom highlight groups
   YankSystemHighlight = {
@@ -37,6 +38,10 @@ local custom_highlights = {
     bg = colors.blue,
   },
 
+  BufferLineBuffer = {
+    bg = colors.base
+  },
+
   -- yanky.nvim
   YankyPut = { link = "YankRegisterHighlight" },
   -- we use aucmds to dynamically switch hl colors instead
@@ -47,7 +52,7 @@ local custom_highlights = {
 
   Cursor = { reverse = true },
 
-  NeoTreeWinSeparator = { bg = colors.mantle, fg = colors.mantle },
+  -- NeoTreeWinSeparator = { bg = colors.mantle, fg = colors.mantle },
 }
 
 return {
