@@ -27,37 +27,6 @@ M.get_initial_path = function()
   return initial_path
 end
 
-M.get_selected_highlights = function(configs, color)
-  local result = {}
-
-  local visible_highlights = {
-    bold = true,
-  }
-
-  local diagnostic_selected_highlights = {
-    italic = false,
-    sp = color,
-  }
-
-  local selected_highlights = {
-    italic = false,
-    sp = color,
-  }
-
-  for _, label in ipairs(configs["diagnostic_selected"]) do
-    result[label .. "_visible"] = visible_highlights
-    result[label .. "_selected"] = selected_highlights
-    result[label .. "_diagnostic_selected"] = diagnostic_selected_highlights
-  end
-
-  for _, label in ipairs(configs["diagnostic"]) do
-    result[label .. "_visible"] = visible_highlights
-    result[label .. "_selected"] = selected_highlights
-  end
-
-  return result
-end
-
 M.remove_lualine_component = function(name, tbl)
   -- Iterate through the table in reverse to avoid issues when removing elements (skipping elements)
   for i = #tbl, 1, -1 do

@@ -1,6 +1,6 @@
-# oh-my-zsh template: ~/.oh-my-zsh/templates/zshrc.zsh-template
+# NOTE: oh-my-zsh template: ~/.oh-my-zsh/templates/zshrc.zsh-template
 
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# NOTE: Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
 
@@ -72,16 +72,6 @@ sync-g() {
   cd -
 }
 
-nvcd() {
-  # 1. If the provided argument is a directory, we should `cd` into it first. The so-called `heuristic` to detect root dir is really bad, or just misconfigured, idk
-  # 2. The `env TERM=wezterm` is for https://wezfurlong.org/wezterm/faq.html#how-do-i-enable-undercurl-curly-underlines
-  # 3. Have to use the `command` to explicitly call a command without triggering the alias.
-    if [[ -d $1 ]]; then
-        cd "$1" && command env TERM=wezterm nvim .
-    else
-       command env TERM=wezterm nvim "$1"
-    fi
-}
 
 # NOTE: Enable vi mode
 bindkey -v
@@ -113,8 +103,25 @@ preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 
 # NOTE: Aliases and util functions
 alias cls="colorls"
-alias nvim="nvcd"
+alias rez="source ~/.zshrc && zsh"
 cl() { cd "$@" && cls; }
+
+nvcd() {
+  # 1. The `env TERM=wezterm` is for https://wezfurlong.org/wezterm/faq.html#how-do-i-enable-undercurl-curly-underlines
+  # 2. Have to use the `command` to explicitly call a command without triggering the alias.
+    if [[ -z $1 ]]; then
+      command env TERM=wezterm nvim
+      return 0
+    fi
+
+    if [[ -d $1 ]]; then
+      cd "$1" && command env TERM=wezterm nvim .
+      return 0
+    fi
+
+    command env TERM=wezterm nvim "$1"
+}
+alias nvim="nvcd"
 
 fv() {
   # Default values
@@ -178,11 +185,10 @@ If [path] is provided, it will be used as the root directory to begin the search
   fi
 }
 
-# NVM Configs
+# NOTE: NVM Configs
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
 
 # NOTE: Enable searching command history with fzf
 source <(fzf --zsh)

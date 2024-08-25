@@ -15,10 +15,15 @@ return {
     enabled = false,
   },
   -- TODO: the dropbar gets really crowded if the project is deeply nested. Need to find a config to limit the nested level
-  {
-    "Bekaboo/dropbar.nvim",
-    enabled = false,
-  },
+  -- {
+  --   "Bekaboo/dropbar.nvim",
+  --   enabled = false,
+  -- },
+  -- {
+  --   "nvim-treesitter/nvim-treesitter-context",
+  --   enabled = false
+  -- },
+
   -- NOTE: currently testing yanky.nvim and nvim-neoclip
   -- {
   --   "gbprod/yanky.nvim",
