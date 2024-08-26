@@ -9,13 +9,13 @@ local config_table = {
   enable_tab_bar = false,
   audible_bell = "Disabled",
   window_padding = {
-    left = 0,
+    left = 5,
     right = 0,
-    top = 0,
+    top = 7,
     bottom = 0,
   },
 
-  underline_thickness = "1.4pt",
+  underline_thickness = "2px",
   underline_position = "200%",
 
   cursor_blink_ease_in = "Constant",
@@ -24,7 +24,7 @@ local config_table = {
 
   line_height = 1.3,
 
-  font_size = 14.0,
+  font_size = 14.5,
   font = wezterm.font("JetBrainsMono Nerd Font", { weight = "DemiBold" }),
   font_rules = {
     {
