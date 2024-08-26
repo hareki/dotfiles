@@ -18,8 +18,8 @@ if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
-export GEM_HOME="$(gem env user_gemhome)"
-PATH="$PATH:$GEM_HOME/bin"
+# export GEM_HOME="$(gem env user_gemhome)"
+# export PATH="$PATH:$GEM_HOME/bin"
 
 # # Spicetify
 # PATH=$PATH:/home/hareki/.spicetify
@@ -45,8 +45,12 @@ ZSH_CUSTOM_AUTOUPDATE_NUM_WORKERS=8
 ZSH_CUSTOM_AUTOUPDATE_QUIET=true
 
 source $ZSH/oh-my-zsh.sh
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# Load rbenv automatically
+eval "$(rbenv init - zsh)"
 
 # NOTE: Stow config
 export STOW_REPO="$HOME/Repositories/personal/dotfiles"
@@ -161,7 +165,7 @@ If [path] is provided, it will be used as the root directory to begin the search
   fi
 
   # Build the fd command
-  local fd_command=(fd --hidden --exclude .git --exclude node_modules)
+  local fd_command=(fd --hidden --exclude .git --exclude node_modules --exclude mnt)
   [[ -n "$type" ]] && fd_command+=(--type "$type")
   fd_command+=(".*" "$root_dir")
 
@@ -212,7 +216,7 @@ zstyle :bracketed-paste-magic paste-finish pastefinish
 
 # NOTE: Surface1(bg) and Yellow(fg) from Catppuchin Mocha
 # Couldn't get it to just change the bg color and leave the bg color as is, so I chose a foreground color myself
-zle_highlight=(region:bg=#45475a,fg=#f9e2af)
+# zle_highlight=(region:bg=#45475a,fg=#f9e2af)
 
 # NOTE: Start ssh server on startup for wezterm ssh
 if ! pgrep -x "sshd" > /dev/null
