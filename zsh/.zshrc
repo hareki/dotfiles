@@ -216,7 +216,7 @@ zstyle :bracketed-paste-magic paste-finish pastefinish
 
 # NOTE: Surface1(bg) and Yellow(fg) from Catppuchin Mocha
 # Couldn't get it to just change the bg color and leave the bg color as is, so I chose a foreground color myself
-# zle_highlight=(region:bg=#45475a,fg=#f9e2af)
+zle_highlight=(region:bg=#45475a,fg=#f9e2af)
 
 # NOTE: Start ssh server on startup for wezterm ssh
 if ! pgrep -x "sshd" > /dev/null
