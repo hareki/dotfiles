@@ -18,11 +18,11 @@ return {
   -- https://github.com/neovim/neovim/issues/25696
   {
     "garymjr/nvim-snippets",
-    enabled = false
+    enabled = false,
   },
   -- NOTE: just copy whatever we like to prevent snippets from bombarding the cmp menu
   {
     "rafamadriz/friendly-snippets",
-    enabled = false
-  }
+    enabled = false,
+  },
 }
