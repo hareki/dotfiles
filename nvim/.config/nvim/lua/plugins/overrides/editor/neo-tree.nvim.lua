@@ -37,6 +37,49 @@ return {
 
     opts.window.mappings["P"] = { "toggle_preview", config = { use_float = true } }
 
+    -- https://github.com/nvim-neo-tree/neo-tree.nvim/discussions/370#discussioncomment-4144005
+    opts.window.mappings["Y"] = function(state)
+      -- NeoTree is based on [NuiTree](https://github.com/MunifTanjim/nui.nvim/tree/main/lua/nui/tree)
+      -- The node is based on [NuiNode](https://github.com/MunifTanjim/nui.nvim/tree/main/lua/nui/tree#nuitreenode)
+      local node = state.tree:get_node()
+      local filepath = node:get_id()
+      local filename = node.name
+      local modify = vim.fn.fnamemodify
+
+      local results = {
+        modify(filepath, ":."),
+        filename,
+        filepath,
+        modify(filepath, ":~"),
+        modify(filename, ":r"),
+        modify(filename, ":e"),
+      }
+
+      vim.ui.select({
+        "1. Path relative to CWD: " .. results[1],
+        "2. Filename: " .. results[2],
+        "3. Absolute path: " .. results[3],
+        "4. Path relative to HOME: " .. results[4],
+        "5. Filename without extension: " .. results[5],
+        "6. Extension of the filename: " .. results[6],
+      }, { prompt = "Choose to copy to clipboard:" }, function(choice)
+        if choice == nil then
+          LazyVim.notify("Operation cancelled")
+          return
+        end
+        local i = tonumber(choice:sub(1, 1))
+        if i == nil then
+          LazyVim.notify("Invalid choice", {
+            level = vim.log.levels.ERROR,
+          })
+          return
+        end
+        local result = results[i]
+        vim.fn.setreg("+", result)
+        LazyVim.notify("Copied: " .. result)
+      end)
+    end
+
     opts.default_component_configs.indent.with_markers = false
 
     -- opts.source_selector = {
