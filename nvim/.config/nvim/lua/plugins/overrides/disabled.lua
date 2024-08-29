@@ -14,23 +14,15 @@ return {
     "folke/ts-comments.nvim",
     enabled = false,
   },
-  -- TODO: the dropbar gets really crowded if the project is deeply nested. Need to find a config to limit the nested level
-  -- {
-  --   "Bekaboo/dropbar.nvim",
-  --   enabled = false,
-  -- },
-  -- {
-  --   "nvim-treesitter/nvim-treesitter-context",
-  --   enabled = false
-  -- },
-
-  -- NOTE: currently testing yanky.nvim and nvim-neoclip
-  -- {
-  --   "gbprod/yanky.nvim",
-  --   enabled = false
-  -- },
+  -- NOTE: use LuaSnip for now since there're some advanced vscode snippet style neovim can't parse them right now (eg. us - useState from friendly-snippets)
+  -- https://github.com/neovim/neovim/issues/25696
   {
-    "AckslD/nvim-neoclip.lua",
+    "garymjr/nvim-snippets",
+    enabled = false
+  },
+  -- NOTE: just copy whatever we like to prevent snippets from bombarding the cmp menu
+  {
+    "rafamadriz/friendly-snippets",
     enabled = false
   }
 }
