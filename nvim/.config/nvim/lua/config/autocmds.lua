@@ -8,7 +8,6 @@ local function disable_doc_hl()
   Util.hl("LspReferenceWrite", { bg = "none" })
 end
 
-
 local function enable_doc_hl()
   Util.hl("LspReferenceRead", { link = "MyDocumentHighlight" })
   Util.hl("LspReferenceText", { link = "MyDocumentHighlight" })
