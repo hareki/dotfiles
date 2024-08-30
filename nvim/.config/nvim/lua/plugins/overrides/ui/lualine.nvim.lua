@@ -1,3 +1,6 @@
+-- if true then
+--   return {}
+-- end
 return {
   "nvim-lualine/lualine.nvim",
   opts = function(_, opts)
@@ -70,7 +73,16 @@ return {
     }
 
     -- ===== SECTION C ====
-    opts.sections.lualine_c = {}
+    opts.sections.lualine_c = {
+      {
+        function()
+          local cwd = vim.loop.cwd()
+          return cwd:match("([^/]+)$")
+        end,
+        icon = "󱉭",
+      },
+    }
+
     -- opts.sections.lualine_c = {
     --   { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
     --   { LazyVim.lualine.pretty_path(), padding = { left = 0, right = 1 } },
@@ -98,6 +110,8 @@ return {
 
     -- ===== SECTION X ====
     Util.remove_lualine_component("diff", opts.sections.lualine_x)
+    -- https://github.com/AndreM222/copilot-lualine
+    table.insert(opts.sections.lualine_x, { "copilot" })
 
     -- ===== SECTION Y ====
     opts.sections.lualine_y = {
