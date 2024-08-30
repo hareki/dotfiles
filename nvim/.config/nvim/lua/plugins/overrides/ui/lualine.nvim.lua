@@ -7,7 +7,9 @@ return {
     local icons = LazyVim.config.icons
 
     opts.options.section_separators = { left = "", right = "" }
-    opts.options.component_separators = { left = "|", right = "|" }
+    -- opts.options.component_separators = { left = "|", right = "|" }
+    opts.options.component_separators = { left = "", right = "" }
+    -- opts.options.component_separators = { left = "│", right = "│" }
 
     -- For some reason the so-called support for `neo-tree` is a blank statusline? => remove it for now
     local extensions = opts.extensions
@@ -129,8 +131,8 @@ return {
 
     -- ===== SECTION Z ====
     opts.sections.lualine_z = {
-      { "location", padding = { left = 1, right = 1 } },
-      { "progress", padding = { left = 1, right = 1 } },
+      { "location", padding = { left = 1, right = 1 }, separator = "|" },
+      { "progress", padding = { left = 1, right = 1 }, separator = "|" },
     }
   end,
 }
