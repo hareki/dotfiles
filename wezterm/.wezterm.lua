@@ -8,6 +8,7 @@ local config_table = {
 	color_scheme = "Catppuccin Mocha",
 	enable_tab_bar = false,
 	audible_bell = "Disabled",
+
 	window_padding = {
 		left = 5,
 		right = 0,
@@ -25,26 +26,27 @@ local config_table = {
 	line_height = 1.3,
 
 	font_size = 14.5,
-	font = wezterm.font("JetBrainsMono Nerd Font", { weight = "DemiBold" }),
-	font_rules = {
-		{
-			intensity = "Bold",
-			italic = false,
-			font = wezterm.font({
-				family = "JetBrainsMono Nerd Font",
-				weight = "ExtraBold",
-			}),
-		},
-		{
-			intensity = "Bold",
-			italic = true,
-			font = wezterm.font({
-				family = "JetBrainsMono Nerd Font",
-				weight = "ExtraBold",
-				style = "Italic",
-			}),
-		},
-	},
+	-- font = wezterm.font("JetBrainsMono Nerd Font", { weight = "DemiBold" }),
+	-- font_rules = {
+	-- 	{
+	-- 		intensity = "Bold",
+	-- 		italic = false,
+	-- 		font = wezterm.font({
+	-- 			family = "JetBrainsMono Nerd Font",
+	-- 			weight = "ExtraBold",
+	-- 		}),
+	-- 	},
+	-- 	{
+	-- 		intensity = "Bold",
+	-- 		italic = true,
+	-- 		font = wezterm.font({
+	-- 			family = "JetBrainsMono Nerd Font",
+	-- 			weight = "ExtraBold",
+	-- 			style = "Italic",
+	-- 		}),
+	-- 	},
+	-- },
+	font = wezterm.font("Maple Mono NF", { weight = "Medium" }),
 
 	keys = {
 		{ key = "v", mods = "CTRL", action = act.PasteFrom("Clipboard") },
