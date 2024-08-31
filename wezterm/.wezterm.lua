@@ -46,7 +46,27 @@ local config_table = {
 	-- 		}),
 	-- 	},
 	-- },
+
 	font = wezterm.font("Maple Mono NF", { weight = "Medium" }),
+	font_rules = {
+		{
+			intensity = "Bold",
+			italic = false,
+			font = wezterm.font({
+				family = "Maple Mono NF",
+				weight = "ExtraBold",
+			}),
+		},
+		{
+			intensity = "Bold",
+			italic = true,
+			font = wezterm.font({
+				family = "Maple Mono NF",
+				weight = "ExtraBold",
+				style = "Italic",
+			}),
+		},
+	},
 
 	keys = {
 		{ key = "v", mods = "CTRL", action = act.PasteFrom("Clipboard") },
