@@ -19,5 +19,5 @@ return {
         ["*"] = paste,
       },
     }
-  end
+  end,
 }

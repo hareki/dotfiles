@@ -39,7 +39,7 @@ local custom_highlights = {
   },
 
   BufferLineBuffer = {
-    bg = colors.base
+    bg = colors.base,
   },
 
   -- yanky.nvim
