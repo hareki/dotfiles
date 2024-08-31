@@ -31,6 +31,7 @@ return {
       end
 
       -- By default LazyVim uses preview_hunk_inline
+      -- https://www.lazyvim.org/plugins/editor#gitsignsnvim
       gs_unmap("n", "<leader>ghp")
       gs_map("n", "<leader>ghp", gitsigns.preview_hunk, "Preview hunk")
     end
