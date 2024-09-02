@@ -14,27 +14,25 @@ return {
     bar = {
       sources = function(buf, _)
         local lsp_item_limit = 2
-        local sources = require('dropbar.sources')
-        local utils = require('dropbar.utils')
-        if vim.bo[buf].ft == 'markdown' then
+        local sources = require("dropbar.sources")
+        local utils = require("dropbar.utils")
+        if vim.bo[buf].ft == "markdown" then
           return {
             sources.path,
             sources.markdown,
           }
         end
-        if vim.bo[buf].buftype == 'terminal' then
+        if vim.bo[buf].buftype == "terminal" then
           return {
             sources.terminal,
           }
         end
 
-
-
-        local lsp_sources       = utils.source.fallback({
+        local lsp_sources = utils.source.fallback({
           sources.lsp,
           sources.treesitter,
         })
-        local orig_get_symbols  = lsp_sources.get_symbols
+        local orig_get_symbols = lsp_sources.get_symbols
 
         lsp_sources.get_symbols = function(...)
           local symbols = orig_get_symbols(...)
@@ -43,9 +41,9 @@ return {
 
         return {
           sources.path,
-          lsp_sources
+          lsp_sources,
         }
-      end
+      end,
     },
 
     sources = {

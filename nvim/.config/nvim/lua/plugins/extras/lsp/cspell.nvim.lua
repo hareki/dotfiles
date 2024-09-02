@@ -2,7 +2,7 @@ local null_ls = require("null-ls")
 
 local config = {
   find_json = function()
-    return vim.fn.expand("~") .. '/.config/cspell.json'
+    return vim.fn.expand("~") .. "/.config/cspell.json"
   end,
 }
 return {
@@ -20,10 +20,10 @@ return {
           diagnostics_postprocess = function(diagnostic)
             diagnostic.severity = vim.diagnostic.severity.HINT
           end,
-          config = config
+          config = config,
         }),
         cspell.code_actions.with({
-          config = config
+          config = config,
         }),
       },
     })
