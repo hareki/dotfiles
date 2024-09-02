@@ -112,8 +112,6 @@ return {
 
     -- ===== SECTION X ====
     Util.remove_lualine_component("diff", opts.sections.lualine_x)
-    -- https://github.com/AndreM222/copilot-lualine
-    table.insert(opts.sections.lualine_x, { "copilot" })
 
     -- ===== SECTION Y ====
     opts.sections.lualine_y = {
