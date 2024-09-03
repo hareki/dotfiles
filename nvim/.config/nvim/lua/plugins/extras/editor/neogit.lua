@@ -1,7 +1,7 @@
 return {
   "NeogitOrg/neogit",
   dependencies = {
-    "nvim-lua/plenary.nvim",  -- required
+    "nvim-lua/plenary.nvim", -- required
     "sindrets/diffview.nvim", -- optional - Diff integration
 
     -- Only one of these is needed, not both.
@@ -18,5 +18,5 @@ return {
       -- Requires you to have `sindrets/diffview.nvim` installed.
       diffview = true,
     },
-  }
+  },
 }

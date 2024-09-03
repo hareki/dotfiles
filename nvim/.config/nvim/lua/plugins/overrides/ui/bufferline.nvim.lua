@@ -1,3 +1,8 @@
+-- NOTE: currently testing, using harpoon only
+if true then
+  return {}
+end
+
 local colors = require("catppuccin.palettes").get_palette("mocha")
 
 local bg = colors.base

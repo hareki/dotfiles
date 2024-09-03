@@ -78,6 +78,9 @@ return {
         end,
         icon = "󱉭",
       },
+      {
+        "harpoon2",
+      },
     }
 
     -- ===== SECTION X ====
