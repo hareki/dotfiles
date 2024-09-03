@@ -139,13 +139,14 @@ fv() {
   local type=""
   local root_dir="$HOME"  # Default to home directory
   local change_dir=0  # Flag to indicate whether to use 'cd'
+  local use_preview=0  # Flag to indicate whether to use preview
 
   # Help message
   local help_message="Usage: fv [options] [path]
   
 Options:
   -d            List directories only (uses '--type directory')
-  -f            List files only (uses '--type file')
+  -f            List files only (uses '--type file' and enables file preview pane)
   -c            Change to the selected directory (uses 'cd' instead of 'nvim')
   -h            Show this help message
   
@@ -155,7 +156,7 @@ If [path] is provided, it will be used as the root directory to begin the search
   while getopts ":dfch" opt; do
     case $opt in
       d) type="directory" ;;       # Option -d for directories
-      f) type="file" ;;            # Option -f for files
+      f) type="file"; use_preview=1 ;;  # Option -f for files, enable preview
       c) change_dir=1; type="directory" ;;  # Option -c for changing directories
       h) echo "$help_message"; return 0 ;;  # Option -h to display help
       \?) echo "Invalid option: -$OPTARG" >&2; return 1 ;;  # Invalid option handling
@@ -176,16 +177,24 @@ If [path] is provided, it will be used as the root directory to begin the search
   [[ -n "$type" ]] && fd_command+=(--type "$type")
   fd_command+=(".*" "$root_dir")
 
+  # Common fzf-tmux options
+  local fzf_options=(-p --reverse -w 60% -h 50%)
+
+  # Add preview option if -f is provided
+  if [[ $use_preview -eq 1 ]]; then
+    fzf_options+=(
+      --preview="bat --color=always --theme=\"Catppuccin Mocha\" {}"
+      --preview-window=down:60%
+      -h 80%  # Adjust height when using preview
+    )
+  fi
+
   # Use fd to list files/directories and fzf to select
   local file
-  # command use to preview files if -f is provided: 
-  file=$("${fd_command[@]}" | fzf-tmux -p --reverse -w 60% -h 80%  --preview="bat --color=always --theme=\"Catppuccin Mocha\" {}" --preview-window=down:60%)
-  # file=$("${fd_command[@]}" | fzf-tmux -p --reverse -w 60% -h 50%) # otherwise use this
-  
+  file=$("${fd_command[@]}" | fzf-tmux "${fzf_options[@]}")
 
   # Check if the selection is empty (Ctrl-C or Esc was pressed)
   if [[ -z "$file" ]]; then
-    # echo "Selection canceled, no file opened."
     return 0
   fi
 
