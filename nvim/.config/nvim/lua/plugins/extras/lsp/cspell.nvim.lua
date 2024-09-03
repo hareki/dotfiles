@@ -7,8 +7,14 @@ local config = {
 }
 return {
   "nvimtools/none-ls.nvim",
+  lazy = true,
   dependencies = {
-    "davidmh/cspell.nvim",
+    {
+      "davidmh/cspell.nvim",
+      -- This is not really needed since it matches another condition to be lazy-loaded anyway,
+      -- but just in case there's change in the future
+      lazy = true,
+    },
   },
   config = function()
     local cspell = require("cspell")
