@@ -100,7 +100,6 @@ Util.aucmd("TextYankPost", {
         vim.highlight.on_yank({ higroup = "YankRegisterHighlight" })
       end
     end
-
     -- vim.highlight.on_yank({ higroup = "YankRegisterHighlight" })
 
     -- Wait for the highlight to wear out before re-enabling it (default duration = 150ms, we wait for an extra 50ms just in case)

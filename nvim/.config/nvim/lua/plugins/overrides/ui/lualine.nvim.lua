@@ -1,15 +1,10 @@
--- if true then
---   return {}
--- end
 return {
   "nvim-lualine/lualine.nvim",
   opts = function(_, opts)
     local icons = LazyVim.config.icons
 
     opts.options.section_separators = { left = "", right = "" }
-    -- opts.options.component_separators = { left = "|", right = "|" }
     opts.options.component_separators = { left = "", right = "" }
-    -- opts.options.component_separators = { left = "│", right = "│" }
 
     -- For some reason the so-called support for `neo-tree` is a blank statusline? => remove it for now
     local extensions = opts.extensions
@@ -84,31 +79,6 @@ return {
         icon = "󱉭",
       },
     }
-
-    -- opts.sections.lualine_c = {
-    --   { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
-    --   { LazyVim.lualine.pretty_path(), padding = { left = 0, right = 1 } },
-    -- }
-
-    -- -- Add back the default component since we're overriding the entire section:
-    -- -- https://www.lazyvim.org/plugins/ui#lualinenvim
-    -- if vim.g.trouble_lualine and LazyVim.has("trouble.nvim") then
-    --   local trouble = require("trouble")
-    --   local symbols = trouble.statusline({
-    --     mode = "symbols",
-    --     groups = {},
-    --     title = false,
-    --     filter = { range = true },
-    --     format = "{kind_icon}{symbol.name:Normal}",
-    --     hl_group = "lualine_c_normal",
-    --   })
-    --   table.insert(opts.sections.lualine_c, {
-    --     symbols and symbols.get,
-    --     cond = function()
-    --       return vim.b.trouble_lualine ~= false and symbols.has()
-    --     end,
-    --   })
-    -- end
 
     -- ===== SECTION X ====
     Util.remove_lualine_component("diff", opts.sections.lualine_x)
