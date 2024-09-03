@@ -58,7 +58,7 @@ sync-d() {
     if [ -d "$STOW_REPO/$1" ]; then
         cd "$STOW_REPO" || return
         stow "$1" -t ~
-        cd - 
+        cd -  > /dev/null
     else
         echo "Directory $STOW_REPO/$1 does not exist."
     fi
@@ -106,10 +106,16 @@ echo -ne '\e[5 q' # Use beam shape cursor on startup.
 preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 
 # NOTE: Aliases and util functions
+
 alias cls="colorls"
+
+# [RE-Z]shrc
 alias rez="source ~/.zshrc && zsh"
+
+# [C]hange [D]irectory and [L]i[S]t
 cl() { cd "$@" && cls; }
 
+# [N]eo[V]im and [C]hange [D]irectory
 nvcd() {
   # 1. The `env TERM=wezterm` is for https://wezfurlong.org/wezterm/faq.html#how-do-i-enable-undercurl-curly-underlines
   # 2. Have to use the `command` to explicitly call a command without triggering the alias.
@@ -127,6 +133,7 @@ nvcd() {
 }
 alias nvim="nvcd"
 
+# [F]ind Neo[V]im
 fv() {
   # Default values
   local type=""
@@ -175,7 +182,7 @@ If [path] is provided, it will be used as the root directory to begin the search
 
   # Check if the selection is empty (Ctrl-C or Esc was pressed)
   if [[ -z "$file" ]]; then
-    echo "Selection canceled, no file opened."
+    # echo "Selection canceled, no file opened."
     return 0
   fi
 
