@@ -178,7 +178,10 @@ If [path] is provided, it will be used as the root directory to begin the search
 
   # Use fd to list files/directories and fzf to select
   local file
-  file=$("${fd_command[@]}" | fzf-tmux -p --reverse)
+  # command use to preview files if -f is provided: 
+  file=$("${fd_command[@]}" | fzf-tmux -p --reverse -w 60% -h 80%  --preview="bat --color=always --theme=\"Catppuccin Mocha\" {}" --preview-window=down:60%)
+  # file=$("${fd_command[@]}" | fzf-tmux -p --reverse -w 60% -h 50%) # otherwise use this
+  
 
   # Check if the selection is empty (Ctrl-C or Esc was pressed)
   if [[ -z "$file" ]]; then
