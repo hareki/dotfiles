@@ -66,14 +66,23 @@ sync-d() {
 
 sync-g() {
   cd "$STOW_REPO" || return
+  
+  # Check for uncommitted changes
   if git status --porcelain | grep -q .; then
     git add .
     git commit -m "Updated via sync-g at $(date +"%d/%m/%Y | %a %I:%M %p")"
     git push
   else
-    echo "nothing to commit, working tree clean"
+    # No uncommitted changes, check for unpushed commits
+    if git log --branches --not --remotes | grep -q .; then
+      echo "Unpushed commits found. Pushing now..."
+      git push
+    else
+      echo "Nothing to commit, working tree clean, and all changes are pushed."
+    fi
   fi
-  cd -
+
+  cd - || return
 }
 
 
