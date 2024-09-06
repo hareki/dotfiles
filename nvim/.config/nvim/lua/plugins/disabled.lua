@@ -26,8 +26,8 @@ return {
     enabled = false,
   },
   -- NOTE: currently testing, using harpoon only
-  {
-    "akinsho/bufferline.nvim",
-    enabled = false,
-  },
+  -- {
+  --   "akinsho/bufferline.nvim",
+  --   enabled = false,
+  -- },
 }

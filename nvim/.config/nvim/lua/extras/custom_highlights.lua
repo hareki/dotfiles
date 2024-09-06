@@ -47,6 +47,9 @@ local custom_highlights = {
   -- we use aucmds to dynamically switch hl colors instead
   -- YankyYanked = { link = "YankRegisterHighlight" },
 
+  -- Setting different color from "String" highlight group to avoid confusion
+  RainbowDelimiterGreen = { fg = colors.rosewater },
+
   MyDocumentHighlight = { bg = "#373948" }, --#3b3d4d
   BufferLineOffsetText = { bold = true, bg = colors.mantle },
 
