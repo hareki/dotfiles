@@ -40,8 +40,10 @@ local function toggle_telescope(harpoon_files)
           local selected_entry = state.get_selected_entry()
           local current_picker = state.get_current_picker(prompt_buffer_number)
 
-          harpoon:list():remove(selected_entry)
-          current_picker:refresh(make_finder())
+          local harpoon_list = harpoon:list().items
+          table.remove(harpoon_list, selected_entry.index)
+
+          current_picker:refresh(make_finder(), { reset_prompt = true })
         end)
 
         return true
@@ -92,6 +94,7 @@ return {
       },
     },
   },
+  -- TODO: Find a way to insert harpoon2 component here, not in the main lualine config
   -- {
   --   "nvim-lualine/lualine.nvim",
   --   opts = function(_, opts)
