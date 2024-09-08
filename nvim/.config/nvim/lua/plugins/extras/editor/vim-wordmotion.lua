@@ -5,5 +5,5 @@ return {
     Util.map({ "o" }, "iW", "iw", { noremap = true })
     Util.map({ "n", "x", "o" }, "E", "e", { noremap = true })
     Util.map({ "n", "x", "o" }, "B", "b", { noremap = true })
-  end
+  end,
 }

@@ -40,10 +40,8 @@ local function toggle_telescope(harpoon_files)
           local selected_entry = state.get_selected_entry()
           local current_picker = state.get_current_picker(prompt_buffer_number)
 
-          local harpoon_list = harpoon:list().items
-          table.remove(harpoon_list, selected_entry.index)
-
-          current_picker:refresh(make_finder(), { reset_prompt = true })
+          table.remove(harpoon:list().items, selected_entry.index)
+          current_picker:refresh(make_finder())
         end)
 
         return true
@@ -74,7 +72,7 @@ return {
 
       for i = 1, 5 do
         table.insert(keys, {
-          "<C-" .. i .. ">",
+          "<leader>" .. i,
           function()
             require("harpoon"):list():select(i)
           end,
