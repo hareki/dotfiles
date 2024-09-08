@@ -32,7 +32,7 @@ return {
       end,
     })
 
-    local filesystem_mappings = Util.ensure_nested_table.run(opts, "filesystem", "window", "mappings")
+    local filesystem_mappings = Util.ensure_nested_table(opts, "filesystem", "window", "mappings")
     filesystem_mappings["<leader>p"] = "image_wezterm"
 
     opts.window.mappings["P"] = { "toggle_preview", config = { use_float = true } }

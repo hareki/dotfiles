@@ -1,12 +1,102 @@
+-- Enum-like structure for branch formats
+local branch_formats = {
+  TASK_ID_ONLY = "task id only",
+  TASK_ID_AND_NAME = "task id and name",
+  TASK_ID_AND_AUTHOR = "task id and author",
+}
+
+-- Start with the default branch format
+local branch_display_mode = branch_formats.TASK_ID_ONLY
+-- Prevent yelling incorret branch format for the first time loading
+local is_first_time_format_set = true
+
+local task_name_start_length = 15
+local task_name_end_length = 5
+local max_task_name_length = task_name_start_length + task_name_end_length
+
+-- Helper function to check valid branch format
+local function is_valid_branch_format(format)
+  for _, value in pairs(branch_formats) do
+    if value == format then
+      return true
+    end
+  end
+  return false
+end
+
+local function set_branch_name_format(format_name)
+  if is_valid_branch_format(format_name) then
+    branch_display_mode = format_name
+    LazyVim.notify("Branch name format set to " .. format_name)
+    require("lualine").refresh()
+  else
+    LazyVim.error("Invalid branch name format: " .. format_name)
+  end
+end
+
+-- Format branch name based on the current display mode
+local function format_branch_name(branch_name)
+  -- Check if the branch name follows the ClickUp format
+  local is_clickup_format = branch_name:match("^CU%-%w+_.+_.+$")
+  if not is_clickup_format then
+    return branch_name
+  end
+
+  is_first_time_format_set = false
+
+  -- Extract the prefix (task ID), task name, and author name
+  local prefix, task_name, author_name = branch_name:match("^(CU%-%w+)_([^_]+)_(.+)$")
+
+  -- Handle formatting for different display modes
+  if branch_display_mode == branch_formats.TASK_ID_ONLY then
+    return prefix
+  elseif branch_display_mode == branch_formats.TASK_ID_AND_NAME then
+    -- Display task ID and formatted task name
+    local formatted_task_name
+    if #task_name > max_task_name_length then
+      -- Show start and end parts of the task name with ellipsis
+      formatted_task_name = task_name:sub(1, task_name_start_length) .. "..." .. task_name:sub(-task_name_end_length)
+    else
+      formatted_task_name = task_name
+    end
+    return prefix .. "_" .. formatted_task_name
+  elseif branch_display_mode == branch_formats.TASK_ID_AND_AUTHOR then
+    -- Display task ID and author name
+    return prefix .. "_" .. author_name
+  end
+end
+
 return {
   "nvim-lualine/lualine.nvim",
+  keys = {
+    {
+      "<leader>ul1",
+      function()
+        set_branch_name_format(branch_formats.TASK_ID_ONLY)
+      end,
+      desc = "Set task id only branch name format",
+    },
+    {
+      "<leader>ul2",
+      function()
+        set_branch_name_format(branch_formats.TASK_ID_AND_NAME)
+      end,
+      desc = "Set task id and task name branch name format",
+    },
+    {
+      "<leader>ul3",
+      function()
+        set_branch_name_format(branch_formats.TASK_ID_AND_AUTHOR)
+      end,
+      desc = "Set task id and author branch name format",
+    },
+  },
   opts = function(_, opts)
     local icons = LazyVim.config.icons
 
     opts.options.section_separators = { left = "", right = "" }
     opts.options.component_separators = { left = "", right = "" }
 
-    -- For some reason the so-called support for `neo-tree` is a blank statusline? => remove it for now
     local extensions = opts.extensions
     for i = #extensions, 1, -1 do
       if extensions[i] == "neo-tree" then
@@ -14,36 +104,7 @@ return {
       end
     end
 
-    -- ===== SECTION B ====
-    local function format_branch_name(branch_name)
-      -- Length variables for easier maintenance
-      local max_task_name_length = 20
-      local start_length = 15
-      local end_length = 5
-
-      -- Check if the branch name follows the ClickUp format
-      local is_clickup_format = branch_name:match("^CU%-%w+_.+_.+$")
-      if not is_clickup_format then
-        return branch_name
-      end
-
-      -- Extract the prefix, task name, and assigner name
-      local prefix, task_name, assigner_name = branch_name:match("^(CU%-%w+)_([^_]+)_(.+)$")
-
-      -- Handle the task name formatting
-      local formatted_task_name
-      if #task_name > max_task_name_length then
-        formatted_task_name = task_name:sub(1, start_length) .. "..." .. task_name:sub(-end_length)
-      else
-        formatted_task_name = task_name
-      end
-
-      -- Combine everything to get the final formatted branch name
-      local formatted_branch_name = prefix .. "_" .. formatted_task_name .. "_" .. assigner_name
-
-      return formatted_branch_name
-    end
-
+    -- Update lualine_b section with formatted branch name
     opts.sections.lualine_b = {
       {
         "branch",
@@ -69,7 +130,6 @@ return {
       },
     }
 
-    -- ===== SECTION C ====
     opts.sections.lualine_c = {
       {
         function()
@@ -80,6 +140,8 @@ return {
       },
       {
         "harpoon2",
+        indicators = { "1", "2", "3", "4", "5" },
+        active_indicators = { "[1]", "[2]", "[3]", "[4]", "[5]" },
       },
     }
 

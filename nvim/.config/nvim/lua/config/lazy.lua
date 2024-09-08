@@ -13,7 +13,13 @@ require("lazy").setup({
     enabled = false,
   },
   spec = {
-    { "LazyVim/LazyVim", import = "lazyvim.plugins" },
+    {
+      "LazyVim/LazyVim",
+      import = "lazyvim.plugins",
+      opts = {
+        colorscheme = "catppuccin-mocha",
+      },
+    },
 
     { import = "plugins.disabled" },
 
@@ -24,7 +30,6 @@ require("lazy").setup({
     { import = "plugins.extras.ui" },
 
     { import = "plugins.overrides.coding" },
-    { import = "plugins.overrides.colorscheme" },
     { import = "plugins.overrides.editor" },
 
     { import = "plugins.overrides.extras.coding" },
