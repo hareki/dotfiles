@@ -1,6 +1,7 @@
 local CommonUtil = require("util.common")
 
----@class util: CommonUtil
+---@class util: util.common
+---@field toggle util.toggle
 local M = {}
 
 setmetatable(M, {

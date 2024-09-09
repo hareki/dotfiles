@@ -35,20 +35,20 @@ return {
     })
   end,
 
-  keys = {
-    {
-      "<leader>uS",
-      function()
-        local cspell_query = { name = "cspell" }
-        local cspell_active = not null_ls.get_source(cspell_query)[1]._disabled
-
-        local next_cspell_active = not cspell_active
-        local notify = next_cspell_active and LazyVim.info or LazyVim.warn
-        notify(Util.toggle_notify.run("cspell", next_cspell_active), { title = "cspell" })
-
-        null_ls.toggle(cspell_query)
-      end,
-      desc = "Toggle cspell",
-    },
-  },
+  -- keys = {
+  --   {
+  --     "<leader>uS",
+  --     function()
+  --       local cspell_query = { name = "cspell" }
+  --       local cspell_active = not null_ls.get_source(cspell_query)[1]._disabled
+  --
+  --       -- local next_cspell_active = not cspell_active
+  --       -- local notify = next_cspell_active and LazyVim.info or LazyVim.warn
+  --       -- notify(Util.toggle_notify.run("cspell", next_cspell_active), { title = "cspell" })
+  --
+  --       null_ls.toggle(cspell_query)
+  --     end,
+  --     desc = "Toggle cspell",
+  --   },
+  -- },
 }

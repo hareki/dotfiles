@@ -2,10 +2,9 @@
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps here
 
--- local gitsigns = require("gitsigns")
---
--- local gitsigns_config = require("gitsigns.config").config
---
+local gitsigns = require("gitsigns")
+local gitsigns_config = require("gitsigns.config").config
+
 -- -- require("extras.which-key-info-overrides").setup()
 -- Util.toggle({
 --   feature = "current line blame",
@@ -14,6 +13,9 @@
 --   value = gitsigns_config.current_line_blame,
 --   lhs = "<leader>ub",
 -- })
+
+Util.toggle.map("<leader>ub", Util.toggle.current_line_blame)
+Util.toggle.map("<leader>uS", Util.toggle.cspell)
 
 -- NOTE: these are just general keymaps, there are other keymaps that closely related to some plugin so they're not here
 -- We can find them with the "keys = " or "Util.map" keywords
