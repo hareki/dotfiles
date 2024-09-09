@@ -16,58 +16,6 @@ M.hl = function(group, style)
   vim.api.nvim_set_hl(0, group, style)
 end
 
---- @class ToggleConfig
---- @field title string
---- @field feature string
---- @field value boolean
---- @field lhs string
---- @field toggle_func fun()
---- @param config ToggleConfig
-M.toggle_2 = function(config)
-  --- @param feature string
-  --- @param value number | boolean
-  --- @param mode string -- past | present
-  local function toggle_notify(feature, value, mode)
-    local past = mode == "past"
-    local message
-
-    if type(value) == "boolean" then
-      local action = value and "Enable" or "Disable"
-      if past then
-        action = action .. "d" -- Changes "Enable" to "Enabled" or "Disable" to "Disabled"
-      end
-      message = action .. " " .. feature
-    elseif type(value) == "number" or type(value) == "string" then
-      message = "Set " .. feature .. " to " .. tostring(value)
-    else
-      error("Unsupported value type: " .. type(value))
-    end
-
-    return message
-  end
-
-  local lhs = config.lhs
-  local title = config.title
-  local feature = config.feature
-  local next_value = not config.value
-  local notify = next_value and LazyVim.info or LazyVim.warn
-  local toggle_func = config.toggle_func
-
-  Util.map("n", lhs, function()
-    notify(toggle_notify(feature, next_value, "past"), { title = title })
-    toggle_func()
-  end)
-
-  require("which-key").add({
-    {
-      lhs,
-      desc = function()
-        return toggle_notify(feature, not next_value, "present")
-      end,
-    },
-  })
-end
-
 M.get_initial_path = function()
   -- Get the first argument passed to Neovim (which is usually the path)
   local first_arg = vim.fn.argv(0)
