@@ -1,4 +1,4 @@
----@class CommonUtil
+---@class util.common
 local M = {}
 
 M.aucmd = vim.api.nvim_create_autocmd
@@ -23,7 +23,7 @@ end
 --- @field lhs string
 --- @field toggle_func fun()
 --- @param config ToggleConfig
-M.toggle = function(config)
+M.toggle_2 = function(config)
   --- @param feature string
   --- @param value number | boolean
   --- @param mode string -- past | present
@@ -53,10 +53,18 @@ M.toggle = function(config)
   local notify = next_value and LazyVim.info or LazyVim.warn
   local toggle_func = config.toggle_func
 
-  toggle_func()
-  notify(toggle_notify(feature, next_value, "past"), { title = title })
+  Util.map("n", lhs, function()
+    notify(toggle_notify(feature, next_value, "past"), { title = title })
+    toggle_func()
+  end)
+
   require("which-key").add({
-    { lhs, desc = toggle_notify(feature, not next_value, "present") },
+    {
+      lhs,
+      desc = function()
+        return toggle_notify(feature, not next_value, "present")
+      end,
+    },
   })
 end
 
