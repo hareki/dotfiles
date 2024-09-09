@@ -2,8 +2,16 @@
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps here
 
+local wk = require("which-key")
+
 Util.toggle.map("<leader>ub", Util.toggle.current_line_blame)
 Util.toggle.map("<leader>us", Util.toggle.cspell)
+
+-- See `lua/plugins/overrides/ui/lualine.nvim.lua` for the full implementation
+Util.unmap("n", "<leader>ul")
+wk.add({
+  { "<leader>ul", group = "Branch Format" },
+})
 
 -- NOTE: these are just general keymaps, there are other keymaps that closely related to some plugin so they're not here
 -- We can find them with the "keys = " or "Util.map" keywords
