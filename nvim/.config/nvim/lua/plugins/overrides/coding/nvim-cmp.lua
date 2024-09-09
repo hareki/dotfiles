@@ -10,7 +10,6 @@ return {
     "hrsh7th/cmp-cmdline",
     "dmitmel/cmp-cmdline-history",
     "hrsh7th/cmp-calc",
-    "f3fora/cmp-spell",
   },
   opts = function(_, opts)
     opts.window = {
@@ -30,26 +29,7 @@ return {
     }
 
     table.insert(opts.sources, {
-      name = "spell",
-      option = {
-        keep_all_entries = false,
-        enable_in_context = function()
-          return true
-        end,
-        preselect_correct_word = true,
-        -- not sure if it's working, but whatever
-        max_item_count = 5,
-      },
-    })
-
-    table.insert(opts.sources, {
       name = "calc",
-    })
-
-    table.insert(opts.sources, 1, {
-      name = "copilot",
-      group_index = 1,
-      priority = 100,
     })
   end,
   init = function()
