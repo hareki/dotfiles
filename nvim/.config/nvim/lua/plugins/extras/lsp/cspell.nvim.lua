@@ -6,49 +6,54 @@ local config = {
   end,
 }
 return {
-  "nvimtools/none-ls.nvim",
-  lazy = true,
-  dependencies = {
-    {
-      "davidmh/cspell.nvim",
-      -- This is not really needed since it matches another condition to be lazy-loaded anyway,
-      -- but just in case there's change in the future
-      lazy = true,
-    },
-  },
-  config = function()
-    local cspell = require("cspell")
-    null_ls.setup({
-      sources = {
-        cspell.diagnostics.with({
-          -- https://www.reddit.com/r/neovim/comments/zyv7pi/nullls_warning_level_for_sources/
-          -- Force the severity to be HINT
-          diagnostics_postprocess = function(diagnostic)
-            diagnostic.severity = vim.diagnostic.severity.HINT
-          end,
-          config = config,
-        }),
-        cspell.code_actions.with({
-          config = config,
-        }),
+  {
+    "nvimtools/none-ls.nvim",
+    lazy = true,
+    dependencies = {
+      {
+        "davidmh/cspell.nvim",
+        -- This is not really needed since it matches another condition to be lazy-loaded anyway,
+        -- but just in case there's change in the future
+        lazy = true,
       },
-    })
-  end,
-
-  -- keys = {
-  --   {
-  --     "<leader>uS",
-  --     function()
-  --       local cspell_query = { name = "cspell" }
-  --       local cspell_active = not null_ls.get_source(cspell_query)[1]._disabled
-  --
-  --       -- local next_cspell_active = not cspell_active
-  --       -- local notify = next_cspell_active and LazyVim.info or LazyVim.warn
-  --       -- notify(Util.toggle_notify.run("cspell", next_cspell_active), { title = "cspell" })
-  --
-  --       null_ls.toggle(cspell_query)
-  --     end,
-  --     desc = "Toggle cspell",
-  --   },
-  -- },
+    },
+    config = function()
+      local cspell = require("cspell")
+      null_ls.setup({
+        sources = {
+          cspell.diagnostics.with({
+            -- https://www.reddit.com/r/neovim/comments/zyv7pi/nullls_warning_level_for_sources/
+            -- Force the severity to be HINT
+            diagnostics_postprocess = function(diagnostic)
+              diagnostic.severity = vim.diagnostic.severity.HINT
+            end,
+            config = config,
+          }),
+          cspell.code_actions.with({
+            config = config,
+          }),
+        },
+      })
+    end,
+  },
+  {
+    "hrsh7th/nvim-cmp",
+    dependencies = {
+      "f3fora/cmp-spell",
+    },
+    opts = function(_, opts)
+      table.insert(opts.sources, {
+        name = "spell",
+        option = {
+          keep_all_entries = false,
+          enable_in_context = function()
+            return true
+          end,
+          preselect_correct_word = true,
+          -- not sure if it's working, but whatever
+          max_item_count = 5,
+        },
+      })
+    end,
+  },
 }
