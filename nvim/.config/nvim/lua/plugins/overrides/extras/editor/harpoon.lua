@@ -92,12 +92,24 @@ return {
       },
     },
   },
-  -- TODO: Find a way to insert harpoon2 component here, not in the main lualine config
-  -- {
-  --   "nvim-lualine/lualine.nvim",
-  --   opts = function(_, opts)
-  --     LazyVim.notify("this line")
-  --     table.insert(opts.sections.lualine_c, { "harpoon2" })
-  --   end,
-  -- },
+  {
+    "nvim-lualine/lualine.nvim",
+    opts = function(_, opts)
+      local indicators = {}
+      local active_indicators = {}
+
+      for i = 1, 6 do
+        table.insert(indicators, tostring(i))
+        table.insert(active_indicators, "[" .. tostring(i) .. "]")
+      end
+
+      opts.sections.lualine_c = {
+        {
+          "harpoon2",
+          indicators = indicators,
+          active_indicators = active_indicators,
+        },
+      }
+    end,
+  },
 }
