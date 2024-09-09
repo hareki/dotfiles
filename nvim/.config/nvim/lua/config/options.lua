@@ -5,13 +5,14 @@
 local opt = vim.opt
 
 opt.clipboard = "" -- turn off clipboard syncing
--- opt.clipboard = "unnamedplus"
 
-opt.pumblend = 0   -- fully opaque popupmenu
+opt.pumblend = 0 -- fully opaque popupmenu
 opt.pumheight = 15 -- Maximum number of entries in a popup
 
-opt.spell = true   -- keep it true to use cmp-spell, but hide the undercurl (see extras.custom_highlights)
--- opt.spelloptions = ""
-opt.list = false
+opt.list = false -- hide whitespace characters
+
+opt.spell = true -- keep it true to use cmp-spell, but hide the undercurl (see extras.custom_highlights)
 -- opt.spelloptions:append("camel")
+-- opt.spelloptions = ""
+
 -- opt.winbar = "%=%m %f" -- basically a breadcrumb

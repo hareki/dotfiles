@@ -42,9 +42,9 @@ local custom_highlights = {
     bg = colors.base,
   },
 
-  -- yanky.nvim
-  YankyPut = { link = "YankRegisterHighlight" },
-  -- we use aucmds to dynamically switch hl colors instead
+  YankyPut = { link = "YankRegisterHighlight" }, -- yanky.nvim
+
+  -- We use aucmds to dynamically switch hl colors instead
   -- YankyYanked = { link = "YankRegisterHighlight" },
 
   -- Setting different color from "String" highlight group to avoid confusion

@@ -109,3 +109,18 @@ Util.aucmd("TextYankPost", {
     end, Constant.YANK_PUT_HL_TIMER + 50)
   end,
 })
+
+-- Disable minipairs when entering search or command-line mode
+vim.api.nvim_create_autocmd("CmdlineEnter", {
+  pattern = "[/:?]",
+  callback = function()
+    vim.g.minipairs_disable = true
+  end,
+})
+
+vim.api.nvim_create_autocmd("CmdlineLeave", {
+  pattern = "[/:?]",
+  callback = function()
+    vim.g.minipairs_disable = false
+  end,
+})

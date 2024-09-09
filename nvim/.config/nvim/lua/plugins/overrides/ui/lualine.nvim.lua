@@ -130,20 +130,13 @@ return {
       },
     }
 
-    opts.sections.lualine_c = {
-      {
-        function()
-          local cwd = vim.loop.cwd()
-          return cwd:match("([^/]+)$")
-        end,
-        icon = "󱉭",
-      },
-      {
-        "harpoon2",
-        indicators = { "1", "2", "3", "4", "5" },
-        active_indicators = { "[1]", "[2]", "[3]", "[4]", "[5]" },
-      },
-    }
+    table.insert(opts.sections.lualine_c, 1, {
+      function()
+        local cwd = vim.loop.cwd()
+        return cwd:match("([^/]+)$")
+      end,
+      icon = "󱉭",
+    })
 
     -- ===== SECTION X ====
     Util.remove_lualine_component("diff", opts.sections.lualine_x)

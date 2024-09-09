@@ -19,7 +19,7 @@ return {
     },
     routes = {
       {
-        -- Ignore null-ls messages since it's just cspell
+        -- Ignore null-ls messages since it's just for cspell
         filter = {
           event = "lsp",
           kind = "progress",
@@ -31,6 +31,7 @@ return {
         opts = { skip = true },
       },
 
+      -- Ignore saving notification
       {
         filter = {
           event = "msg_show",
@@ -40,7 +41,7 @@ return {
             { find = "; before #%d+" },
           },
         },
-        opts = { skip = true }
+        opts = { skip = true },
       },
     },
   },
