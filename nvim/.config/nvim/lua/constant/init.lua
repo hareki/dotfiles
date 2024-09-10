@@ -5,5 +5,6 @@ local M = {}
 
 M.YANK_PUT_HL_TIMER = 300
 M.PREVIEW_TITLE = "Preview"
+M.CMP_YANKY_KIND = "Yanky"
 
 return M
