@@ -74,9 +74,23 @@ return {
     },
     opts = function(_, opts)
       table.insert(opts.sources, {
-        priority = 2,
+        priority = 50,
         name = "cmp_yanky",
       })
+
+      opts.formatting = opts.formatting or {}
+      local format_original = opts.formatting.format or function(entry, item)
+        return item
+      end
+
+      opts.formatting.format = function(entry, item)
+        if entry.source.name == "cmp_yanky" then
+          -- Assign a custom kind and hl group for cmp_yanky before passsing it to format_original
+          item.kind = Constant.CMP_YANKY_KIND
+          item.kind_hl_group = "CmpItemKindClass"
+        end
+        return format_original(entry, item)
+      end
     end,
   },
 }

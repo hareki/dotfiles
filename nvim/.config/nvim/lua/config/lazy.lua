@@ -16,9 +16,10 @@ require("lazy").setup({
     {
       "LazyVim/LazyVim",
       import = "lazyvim.plugins",
-      opts = {
-        colorscheme = "catppuccin-mocha",
-      },
+      opts = function(_, opts)
+        opts.colorscheme = "catppuccin-mocha"
+        Util.ensure_nested_table(opts, "icons", "kinds")[Constant.CMP_YANKY_KIND] = "󰅍 "
+      end,
     },
 
     { import = "plugins.disabled" },
