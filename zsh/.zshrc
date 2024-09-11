@@ -256,4 +256,11 @@ fi
 export EDITOR='nvim'
 export VISUAL='nvim'
 
+# REDIS
+export REDIS_BIN_PATH=/usr/bin
+export CLUSTER_HOST=127.0.0.1
+export CLUSTER_PORT=3002
+export NODES=6
+
 clear
+
