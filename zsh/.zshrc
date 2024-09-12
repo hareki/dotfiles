@@ -7,6 +7,14 @@
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
+PATH="/mnt/c/Windows:$PATH"
+explorer() {
+    if [ -z "$1" ]; then
+        explorer.exe
+    else
+        explorer.exe "$(wslpath -w "$1")"
+    fi
+}
 
 
 # NOTE: Update PATH variable

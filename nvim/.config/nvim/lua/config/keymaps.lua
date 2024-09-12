@@ -4,6 +4,14 @@
 
 local wk = require("which-key")
 
+wk.add({
+  {
+    "<leader>o",
+    group = "Open with",
+    icon = "󰏌",
+  },
+})
+
 Util.toggle.map("<leader>ub", Util.toggle.current_line_blame)
 Util.toggle.map("<leader>us", Util.toggle.cspell)
 
