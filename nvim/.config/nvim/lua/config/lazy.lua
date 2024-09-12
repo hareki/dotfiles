@@ -26,6 +26,7 @@ require("lazy").setup({
 
     { import = "plugins.extras.coding" },
     { import = "plugins.extras.editor" },
+    { import = "plugins.extras.lang" },
     { import = "plugins.extras.lsp" },
     { import = "plugins.extras.tmux" },
     { import = "plugins.extras.ui" },
