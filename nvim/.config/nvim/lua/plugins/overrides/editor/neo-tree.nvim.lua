@@ -17,7 +17,7 @@ return {
     -- Make the function name has white space using unicode escape sequences (From ChatGPT with love)
     -- Just for aesthetic purposes when using it with which-key.nvim
     -- Since I couldn't  make `wk.add` to work exclusively for neo-tree
-    local func_name = "Windows\194\160Explorer"
+    local func_name = "File\194\160Explorer"
     opts.commands = vim.tbl_extend("force", opts.commands, {
       [func_name] = function(state)
         local node = state.tree:get_node()
