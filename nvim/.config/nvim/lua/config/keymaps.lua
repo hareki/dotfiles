@@ -21,6 +21,10 @@ wk.add({
   { "<leader>ul", group = "Branch Format" },
 })
 
+Util.map("n", "U", function()
+  vim.diagnostic.open_float(nil, { border = "rounded" })
+end, { noremap = true, silent = true })
+
 -- NOTE: these are just general keymaps, there are other keymaps that closely related to some plugin so they're not here
 -- We can find them with the "keys = " or "Util.map" keywords
 Util.map("i", "jk", "<Esc>", { noremap = true, desc = "Map jk to Esc in insert mode" })
