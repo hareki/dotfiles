@@ -1,9 +1,17 @@
 return {
   "folke/noice.nvim",
   opts = {
+    lsp = {
+      hover = {
+        opts = {
+          border = "rounded", -- Set your desired border style here
+        },
+      },
+    },
     presets = {
       bottom_search = false,
       command_palette = false,
+      lsp_doc_border = true,
     },
     views = {
       cmdline_popup = {

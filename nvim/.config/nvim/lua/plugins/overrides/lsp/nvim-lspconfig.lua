@@ -8,5 +8,11 @@ return {
     opts.inlay_hints.enabled = false
     opts.codelens.enabled = false
     -- opts.document_highlight = true
+
+    -- opts.setup["*"] = function(client, bufnr)
+    --   vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
+    --     border = "rounded",
+    --   })
+    -- end
   end,
 }
