@@ -87,7 +87,7 @@ Util.aucmd("TextYankPost", {
     -- Ensure yank-related events are processed first
     -- tiny-inline-diagnostic prevent the highlight on yank to work properly so we need to temporarily disable it during the highlight
     vim.defer_fn(function()
-      require("tiny-inline-diagnostic").disable()
+      -- require("tiny-inline-diagnostic").disable()
       disable_doc_hl()
     end, 50)
 
@@ -103,7 +103,7 @@ Util.aucmd("TextYankPost", {
 
     -- Wait for the highlight to wear out before re-enabling it (default duration = 150ms, we wait for an extra 50ms just in case)
     vim.defer_fn(function()
-      require("tiny-inline-diagnostic").enable()
+      -- require("tiny-inline-diagnostic").enable()
       enable_doc_hl()
     end, Constant.YANK_PUT_HL_TIMER + 50)
   end,

@@ -2,6 +2,9 @@
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps here
 
+-- NOTE: these are just general keymaps, there are other keymaps that closely related to some plugin so they're not here
+-- We can find them with the "keys = " or "Util.map" keywords
+
 local wk = require("which-key")
 
 wk.add({
@@ -28,8 +31,6 @@ Util.map("n", "U", function()
   vim.diagnostic.open_float(nil, { border = "rounded" })
 end, { noremap = true, silent = true })
 
--- NOTE: these are just general keymaps, there are other keymaps that closely related to some plugin so they're not here
--- We can find them with the "keys = " or "Util.map" keywords
 Util.map("i", "jk", "<Esc>", { noremap = true, desc = "Map jk to Esc in insert mode" })
 
 Util.map({ "i", "x", "n", "s" }, "<C-a>", "<cmd>wa<cr><esc>", { desc = "Save File", silent = true })
@@ -52,6 +53,10 @@ Util.map("n", "<A-v>", "<C-v>", { silent = true, desc = "Visual Block Mode" })
 -- For my muscle memory (always press shift when split window)
 Util.unmap("n", "<leader>-")
 Util.map("n", "<leader>_", "<C-W>s", { desc = "Split Window Below", remap = true })
+
+-- I accidentally press these keys a lot
+Util.unmap({ "n", "i", "v" }, "<A-j>")
+Util.unmap({ "n", "i", "v" }, "<A-k>")
 
 -- Use wezterm.action.PasteFrom instead due to issues related to SSH: https://github.com/wez/wezterm/issues/2050
 -- Util.map({ "n", "x" }, "<leader>p", '"+p', { desc = "Paste from system clipboard" })

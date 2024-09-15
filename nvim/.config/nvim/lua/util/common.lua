@@ -37,10 +37,14 @@ end
 
 --- Ensures that the nested tables exist in the given table.
 --- @param t table The table to operate on.
---- @vararg string The keys to ensure nested tables for.
+--- @param key_string string The dot-separated string representing the nested keys.
 --- @return table nested_table the innermost table that was ensured.
-function M.ensure_nested_table(t, ...)
-  local keys = { ... }
+function M.ensure_nested_table(t, key_string)
+  local keys = {}
+  for key in key_string:gmatch("[^%.]+") do
+    table.insert(keys, key)
+  end
+
   for _, key in ipairs(keys) do
     if t[key] == nil then
       t[key] = {}
@@ -49,5 +53,4 @@ function M.ensure_nested_table(t, ...)
   end
   return t
 end
-
 return M

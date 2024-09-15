@@ -59,4 +59,7 @@ return {
       },
     },
   },
+  keys = {
+    { "<leader>sB", "<cmd>Telescope git_branches<cr>", desc = "Git Branches" },
+  },
 }
