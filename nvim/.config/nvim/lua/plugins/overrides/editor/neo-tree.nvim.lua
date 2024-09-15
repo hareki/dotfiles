@@ -31,7 +31,7 @@ return {
       end,
     })
 
-    local filesystem_mappings = Util.ensure_nested_table(opts, "filesystem", "window", "mappings")
+    local filesystem_mappings = Util.ensure_nested_table(opts, "filesystem.window.mappings")
     local explorer_mapping = "<leader>oe"
     filesystem_mappings[explorer_mapping] = func_name
 

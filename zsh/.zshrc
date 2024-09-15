@@ -150,6 +150,23 @@ nvcd() {
 }
 alias nvim="nvcd"
 
+# [F]ind [B]ranch
+fb() {
+    # List branches, remove HEAD reference, leading spaces, asterisks, remove "remotes/origin/" prefix, and remove duplicates
+    branch=$(git branch -a --sort=-committerdate | sed '/HEAD ->/d' | sed 's/^..//' | sed 's/remotes\/origin\///' | sort -u | fzf-tmux -p --reverse -w 60% -h 50%)
+
+    if [[ -n $branch ]]; then
+        # Check if the selected branch exists locally
+        if git show-ref --verify --quiet "refs/heads/$branch"; then
+            # Checkout the local branch
+            git checkout "$branch"
+        else
+            # Checkout a new local branch that tracks the remote branch
+            git checkout -b "$branch" --track "remotes/origin/$branch"
+        fi
+    fi
+}
+
 # [F]ind Neo[V]im
 fv() {
   # Default values

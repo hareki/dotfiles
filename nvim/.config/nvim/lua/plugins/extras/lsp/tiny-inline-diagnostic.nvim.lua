@@ -1,3 +1,7 @@
+if true then
+  return {}
+end
+
 return {
   "rachartier/tiny-inline-diagnostic.nvim",
   event = "VeryLazy",

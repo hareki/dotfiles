@@ -7,11 +7,11 @@ local branch_formats = {
 
 -- Start with the default branch format
 local branch_display_mode = branch_formats.TASK_ID_ONLY
--- Prevent yelling incorret branch format for the first time loading
+-- Prevent yelling incorrect branch format for the first time loading
 local is_first_time_format_set = true
 
-local task_name_start_length = 15
-local task_name_end_length = 5
+local task_name_start_length = 999
+local task_name_end_length = 10
 local max_task_name_length = task_name_start_length + task_name_end_length
 
 -- Helper function to check valid branch format
