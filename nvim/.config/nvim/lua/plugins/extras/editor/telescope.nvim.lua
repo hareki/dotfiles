@@ -49,6 +49,14 @@ return {
           width = 0.6,
         },
       },
+      mappings = {
+        i = {
+          ["<c-q>"] = function(...)
+            require("telescope.actions").send_to_qflist(...)
+            require("trouble").open("quickfix")
+          end,
+        },
+      },
     },
   },
 }

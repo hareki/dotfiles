@@ -80,7 +80,6 @@ Util.aucmd({ "CursorMoved", "ModeChanged" }, {
 
 -- NOTE: Tweak the highlight_yank from LazyVim to have different colors based on the register name
 -- source: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua#L17-L23
--- NOTE: Currently testing yanky.nvim, so disabling vim.highlight.on_yank for now
 
 Util.aucmd("TextYankPost", {
   group = Util.lazy_augroup("highlight_yank"),
