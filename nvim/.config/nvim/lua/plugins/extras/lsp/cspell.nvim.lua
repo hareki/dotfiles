@@ -44,14 +44,13 @@ return {
     opts = function(_, opts)
       table.insert(opts.sources, {
         name = "spell",
+        max_item_count = 5,
         option = {
           keep_all_entries = false,
           enable_in_context = function()
             return true
           end,
           preselect_correct_word = true,
-          -- not sure if it's working, but whatever
-          max_item_count = 5,
         },
       })
     end,

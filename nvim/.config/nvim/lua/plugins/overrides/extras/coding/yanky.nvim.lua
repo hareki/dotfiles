@@ -7,7 +7,9 @@ return {
     opts = {
       ring = { storage = "sqlite" },
       highlight = {
+        -- Use our own aucmd to highlight on yank instead, to differentiate between clipboard and register yank
         on_yank = false,
+
         on_put = true,
         timer = Constant.YANK_PUT_HL_TIMER,
       },
@@ -74,8 +76,12 @@ return {
     },
     opts = function(_, opts)
       table.insert(opts.sources, {
-        priority = 50,
         name = "cmp_yanky",
+        priority = 10,
+        max_item_count = 3,
+        option = {
+          minLength = 3,
+        },
       })
 
       opts.formatting = opts.formatting or {}
