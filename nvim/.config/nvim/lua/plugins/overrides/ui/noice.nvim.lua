@@ -4,7 +4,7 @@ return {
     lsp = {
       hover = {
         opts = {
-          border = "rounded", -- Set your desired border style here
+          border = "rounded",
         },
       },
     },
