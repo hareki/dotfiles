@@ -5,6 +5,7 @@ local config = {
     return vim.fn.expand("~") .. "/.config/cspell.json"
   end,
 }
+
 return {
   {
     "nvimtools/none-ls.nvim",
@@ -17,6 +18,10 @@ return {
         lazy = true,
       },
     },
+    -- Disable https://www.lazyvim.org/extras/lsp/none-ls init function, since none-ls is not here to do any format
+    -- Just use it for cspell lsp related stuff (https://github.com/davidmh/cspell.nvim)
+    init = function() end,
+
     config = function()
       local cspell = require("cspell")
       null_ls.setup({
