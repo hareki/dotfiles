@@ -61,3 +61,7 @@ Util.unmap({ "n", "i", "v" }, "<A-k>")
 -- Use wezterm.action.PasteFrom instead due to issues related to SSH: https://github.com/wez/wezterm/issues/2050
 -- Util.map({ "n", "x" }, "<leader>p", '"+p', { desc = "Paste from system clipboard" })
 -- Util.map({ "x" }, "<leader>y", '"+y', { desc = "Yank to system clipboard" })
+
+Util.map("n", "<leader>0", function()
+  LazyVim.notify(vim.inspect(LazyVim.format.formatters))
+end, { desc = "test" })
