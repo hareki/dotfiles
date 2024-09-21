@@ -69,9 +69,9 @@ export STOW_REPO="$HOME/Repositories/personal/dotfiles"
 # [S]ync-[D]otfiles
 sync-d() {
     if [ -d "$STOW_REPO/$1" ]; then
-        cd "$STOW_REPO" || return
+        z "$STOW_REPO" || return
         stow "$1" -t ~
-        cd -  > /dev/null
+        z -  > /dev/null
     else
         echo "Directory $STOW_REPO/$1 does not exist."
     fi
@@ -89,7 +89,7 @@ compdef _sync_d_autocomplete sync-d
 
 # [S]ync [G]itHub
 sync-g() {
-  cd "$STOW_REPO" || return
+  z "$STOW_REPO" || return
   
   # Check for uncommitted changes
   if git status --porcelain | grep -q .; then
@@ -106,7 +106,7 @@ sync-g() {
     fi
   fi
 
-  cd - || return
+  z - || return
 }
 
 
@@ -146,7 +146,7 @@ alias cls="colorls"
 alias rez="source ~/.zshrc && zsh"
 
 # [C]hange [D]irectory and [L]i[S]t
-cl() { cd "$@" && cls; }
+cl() { z "$@" && cls; }
 
 # [N]eo[V]im and [C]hange [D]irectory
 nvcd() {
@@ -158,7 +158,7 @@ nvcd() {
     fi
 
     if [[ -d $1 ]]; then
-      cd "$1" && command env TERM=wezterm nvim .
+      z "$1" && command env TERM=wezterm nvim .
       return 0
     fi
 
@@ -250,7 +250,7 @@ If [path] is provided, it will be used as the root directory to begin the search
 
   # If -c option is provided, change to the selected directory
   if [[ $change_dir -eq 1 ]]; then
-    cd "$file" || return 1
+    z "$file" || return 1
     echo "Changed directory to $file"
   else
     # Otherwise, open the file/directory in nvim
@@ -303,5 +303,6 @@ export CLUSTER_HOST=127.0.0.1
 export CLUSTER_PORT=3002
 export NODES=6
 
+eval "$(zoxide init zsh)"
 clear
 
