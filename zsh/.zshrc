@@ -64,6 +64,7 @@ source $ZSH/oh-my-zsh.sh
 # Load rbenv automatically
 eval "$(rbenv init - zsh)"
 
+
 # NOTE: Stow config
 export STOW_REPO="$HOME/Repositories/personal/dotfiles"
 # [S]ync-[D]otfiles
@@ -258,6 +259,21 @@ If [path] is provided, it will be used as the root directory to begin the search
   fi
 }
 
+# [Y]azi [C]hange [D]irectory
+# Press q to quit and cd into the cwd
+# Press Q to quit without changing directory
+ycd() {
+    local cwd_file
+    cwd_file=$(mktemp)
+    yazi --cwd-file="$cwd_file" "$@"
+    if [ -f "$cwd_file" ]; then
+        z "$(cat "$cwd_file")" || return
+        rm "$cwd_file"
+    fi
+}
+
+alias yazi="ycd"
+
 # NOTE: NVM Configs
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -307,5 +323,6 @@ export NODES=6
 # https://github.com/ajeetdsouza/zoxide/issues/618
 export _ZO_FZF_OPTS="--exact --no-sort --bind=ctrl-z:ignore,btab:up,tab:down --cycle --keep-right --border=rounded --height=45% --info=inline --layout=reverse --tabstop=1 --exit-0"
 eval "$(zoxide init zsh)"
+
 clear
 
