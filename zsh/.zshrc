@@ -303,6 +303,9 @@ export CLUSTER_HOST=127.0.0.1
 export CLUSTER_PORT=3002
 export NODES=6
 
+# Set rounded border, keep other default options, currently there's no way to merge the two
+# https://github.com/ajeetdsouza/zoxide/issues/618
+export _ZO_FZF_OPTS="--exact --no-sort --bind=ctrl-z:ignore,btab:up,tab:down --cycle --keep-right --border=rounded --height=45% --info=inline --layout=reverse --tabstop=1 --exit-0"
 eval "$(zoxide init zsh)"
 clear
 
