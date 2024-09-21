@@ -62,6 +62,7 @@ eval "$(rbenv init - zsh)"
 
 # NOTE: Stow config
 export STOW_REPO="$HOME/Repositories/personal/dotfiles"
+# [S]ync-[D]otfiles
 sync-d() {
     if [ -d "$STOW_REPO/$1" ]; then
         cd "$STOW_REPO" || return
@@ -72,6 +73,7 @@ sync-d() {
     fi
 }
 
+# [S]ync [G]itHub
 sync-g() {
   cd "$STOW_REPO" || return
   
