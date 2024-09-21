@@ -25,9 +25,4 @@ return {
     "rafamadriz/friendly-snippets",
     enabled = false,
   },
-  -- NOTE: currently testing, using harpoon only
-  -- {
-  --   "akinsho/bufferline.nvim",
-  --   enabled = false,
-  -- },
 }

@@ -2,6 +2,10 @@
 -- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
 -- Add any additional options here
 
+-- disable LazyVim autoformat as it's synchronous, it feels laggy
+vim.g.autoformat = false
+vim.b.autoformat = false
+
 local opt = vim.opt
 
 opt.clipboard = "" -- turn off clipboard syncing

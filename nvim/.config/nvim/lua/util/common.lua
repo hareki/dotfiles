@@ -2,6 +2,8 @@
 local M = {}
 
 M.aucmd = vim.api.nvim_create_autocmd
+M.clear_aucmd = vim.api.nvim_clear_autocmds
+
 M.map = vim.keymap.set
 M.unmap = vim.keymap.del
 
