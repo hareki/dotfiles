@@ -51,6 +51,15 @@ return {
         },
         opts = { skip = true },
       },
+
+      --  Ignore "No information available" since there could be multiple LSP clients for the same filetype
+      {
+        filter = {
+          event = "notify",
+          find = "^No information available$",
+        },
+        opts = { skip = true },
+      },
     },
   },
 }
