@@ -7,6 +7,7 @@
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
+
 PATH="/mnt/c/Windows:$PATH"
 explorer() {
     if [ -z "$1" ]; then
@@ -16,6 +17,9 @@ explorer() {
     fi
 }
 
+# Show labels for completions (pressing tab)
+# zstyle ':completion:*' format '%d'
+# zstyle ':completion:*' group-name ''
 
 # NOTE: Update PATH variable
 if [ -d "$HOME/bin" ] ; then
@@ -72,6 +76,16 @@ sync-d() {
         echo "Directory $STOW_REPO/$1 does not exist."
     fi
 }
+
+_sync_d_autocomplete() {
+    local -a dirs
+    local repo_dir="$STOW_REPO"
+
+    # Get a list of directories under $STOW_REPO excluding .git and feed them into completion
+    dirs=(${(f)"$(fd --type d --max-depth 1 --exclude .git --base-directory $repo_dir --exec basename {})"})
+    _describe 'stow directories' dirs
+}
+compdef _sync_d_autocomplete sync-d
 
 # [S]ync [G]itHub
 sync-g() {
