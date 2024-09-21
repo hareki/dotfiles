@@ -58,10 +58,25 @@ Util.map("n", "<leader>_", "<C-W>s", { desc = "Split Window Below", remap = true
 Util.unmap({ "n", "i", "v" }, "<A-j>")
 Util.unmap({ "n", "i", "v" }, "<A-k>")
 
+-- Autoformat file on save asynchronously
+Util.map({ "i", "x", "n", "s" }, "<C-s>", function()
+  local start_time = vim.loop.hrtime()
+  -- vim.api.nvim_command("LazyFormat")
+  -- require("conform").format()
+  require("conform").format({ async = true }, function(_)
+    vim.api.nvim_command("silent! write")
+
+    local end_time = vim.loop.hrtime()
+    local elapsed_time_ms = (end_time - start_time) / 1e6
+    print(string.format("Execution time: %.3f ms", elapsed_time_ms))
+  end)
+
+  -- vim.api.nvim_command("silent! write")
+  -- local end_time = vim.loop.hrtime()
+  -- local elapsed_time_ms = (end_time - start_time) / 1e6
+  -- print(string.format("Execution time: %.3f ms", elapsed_time_ms))
+end, { desc = "Save file" })
+
 -- Use wezterm.action.PasteFrom instead due to issues related to SSH: https://github.com/wez/wezterm/issues/2050
 -- Util.map({ "n", "x" }, "<leader>p", '"+p', { desc = "Paste from system clipboard" })
 -- Util.map({ "x" }, "<leader>y", '"+y', { desc = "Yank to system clipboard" })
-
-Util.map("n", "<leader>0", function()
-  LazyVim.notify(vim.inspect(LazyVim.format.formatters))
-end, { desc = "test" })

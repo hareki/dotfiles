@@ -38,8 +38,8 @@ require("lazy").setup({
     { import = "plugins.overrides.extras.ui" },
     { import = "plugins.overrides.extras.editor" },
 
-    -- { import = "plugins.overrides.formatting" },
-    -- { import = "plugins.overrides.linting" },
+    { import = "plugins.overrides.formatting" },
+    { import = "plugins.overrides.linting" },
     { import = "plugins.overrides.lsp" },
     { import = "plugins.overrides.ui" },
   },
