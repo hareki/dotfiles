@@ -33,8 +33,6 @@ end, { noremap = true, silent = true })
 
 Util.map("i", "jk", "<Esc>", { noremap = true, desc = "Map jk to Esc in insert mode" })
 
-Util.map({ "i", "x", "n", "s" }, "<C-a>", "<cmd>wa<cr><esc>", { desc = "Save File", silent = true })
-
 Util.map({ "n", "v" }, "<C-u>", "<C-u>zz", { desc = "Scroll up and center" })
 Util.map({ "n", "v" }, "<C-d>", "<C-d>zz", { desc = "Scroll down and center" })
 

@@ -110,6 +110,11 @@ sync-g() {
   z - || return
 }
 
+zn() {
+  z "$1" || return
+  nvim .
+}
+
 
 # NOTE: Enable vi mode
 bindkey -v

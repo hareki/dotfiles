@@ -1,6 +1,7 @@
 return {
   "neovim/nvim-lspconfig",
   opts = function(_, opts)
+    -- opts.servers.bashls = { filetypes = { "sh", "zsh" } }
     opts.diagnostics.virtual_text = false -- We use tiny-inline-diagnostic instead (currently disable it as well)
     opts.inlay_hints.enabled = false
     opts.codelens.enabled = false
