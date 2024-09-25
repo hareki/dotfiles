@@ -115,12 +115,10 @@ zn() {
   nvim .
 }
 
-
 # NOTE: Enable vi mode
 bindkey -v
 bindkey -M viins 'jk' vi-cmd-mode
 bindkey '^E' autosuggest-accept
-
 
 # Change cursor shape for different vi modes.
 # https://gist.github.com/LukeSmithxyz/e62f26e55ea8b0ed41a65912fbebbe52
