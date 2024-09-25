@@ -1,11 +1,14 @@
 return {
   "neovim/nvim-lspconfig",
   opts = function(_, opts)
-    -- opts.servers.bashls = { filetypes = { "sh", "zsh" } }
     opts.diagnostics.virtual_text = false -- We use tiny-inline-diagnostic instead (currently disable it as well)
     opts.inlay_hints.enabled = false
     opts.codelens.enabled = false
     -- opts.document_highlight = true
+
+    -- Doesn't work properly since bash and zsh although look similar at first, they're not
+    -- Lots of false positives
+    -- opts.servers.bashls = { filetypes = { "sh", "zsh" } }
 
     -- Use noice.nvim to do this instead, just keep it commented as a reference
     -- opts.setup["*"] = function(client, bufnr)
