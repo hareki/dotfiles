@@ -111,7 +111,7 @@ sync-g() {
 }
 
 zn() {
-  z "$1" || return
+  z "$1" > /dev/null 2>&1 
   nvim .
 }
 
@@ -282,12 +282,12 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-# NOTE: Enable searching command history with fzf
-source <(fzf --zsh)
-HISTFILE=~/.zsh_history
-HISTSIZE=10000
-SAVEHIST=10000
-setopt appendhistory
+# # NOTE: Enable searching command history with fzf
+# source <(fzf --zsh)
+# HISTFILE=~/.zsh_history
+# HISTSIZE=10000
+# SAVEHIST=10000
+# setopt appendhistory
 
 # NOTE: Fix slowness of pastes with zsh-syntax-highlighting.zsh
 # https://gist.github.com/magicdude4eva/2d4748f8ef3e6bf7b1591964c201c1ab
@@ -327,5 +327,5 @@ export NODES=6
 export _ZO_FZF_OPTS="--exact --no-sort --bind=ctrl-z:ignore,btab:up,tab:down --cycle --keep-right --border=rounded --height=45% --info=inline --layout=reverse --tabstop=1 --exit-0"
 eval "$(zoxide init zsh)"
 
+eval "$(atuin init zsh --disable-up-arrow)"
 clear
-
