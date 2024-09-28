@@ -110,11 +110,6 @@ sync-g() {
   z - || return
 }
 
-zn() {
-  z "$1" > /dev/null 2>&1 
-  nvim .
-}
-
 # NOTE: Enable vi mode
 bindkey -v
 bindkey -M viins 'jk' vi-cmd-mode
@@ -169,6 +164,11 @@ nvcd() {
     command env TERM=wezterm nvim "$1"
 }
 alias nvim="nvcd"
+
+zn() {
+  z "$1" > /dev/null 2>&1 
+  nvcd .
+}
 
 # [F]ind [B]ranch
 fb() {
