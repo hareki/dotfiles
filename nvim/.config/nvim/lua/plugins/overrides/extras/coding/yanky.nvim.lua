@@ -77,7 +77,7 @@ return {
     opts = function(_, opts)
       table.insert(opts.sources, {
         name = "cmp_yanky",
-        priority = 10,
+        priority = 20,
         max_item_count = 3,
         option = {
           minLength = 3,
