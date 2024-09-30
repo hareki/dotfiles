@@ -19,4 +19,7 @@ return {
       diffview = true,
     },
   },
+  keys = {
+    { "<leader>gn", "<cmd>Neogit<cr>", desc = "Neogit" },
+  },
 }
