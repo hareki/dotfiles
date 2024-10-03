@@ -1,4 +1,5 @@
 local wezterm = require("wezterm")
+local mux = wezterm.mux
 local act = wezterm.action
 
 local config = wezterm.config_builder()
@@ -47,7 +48,7 @@ local config_table = {
 	-- 	},
 	-- },
 
-	font = wezterm.font("Maple Mono NF", { weight = "Medium" }),
+	font = wezterm.font("Maple Mono NF", { weight = "DemiBold" }),
 	font_rules = {
 		{
 			intensity = "Bold",
@@ -73,7 +74,7 @@ local config_table = {
 		{
 			key = "C",
 			mods = "CTRL",
-			action = wezterm.action.CopyTo("ClipboardAndPrimarySelection"),
+			action = act.CopyTo("ClipboardAndPrimarySelection"),
 		},
 	},
 }
@@ -81,5 +82,12 @@ local config_table = {
 for k, v in pairs(config_table) do
 	config[k] = v
 end
+
+-- https://github.com/wez/wezterm/discussions/2506
+wezterm.on('gui-startup', function(window)
+  local tab, pane, window = mux.spawn_window(cmd or {})
+  local gui_window = window:gui_window();
+  gui_window:perform_action(act.ToggleFullScreen, pane)
+end)
 
 return config
