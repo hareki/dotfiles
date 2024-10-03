@@ -12,8 +12,10 @@ return {
     -- https://github.com/Bekaboo/dropbar.nvim?tab=readme-ov-file#bar
     -- intercept and limit the lsp items to avoid too deeply nested items
     bar = {
+      truncate = false,
+      hover = false,
       sources = function(buf, _)
-        local lsp_item_limit = 2
+        local lsp_item_limit = 3
         local sources = require("dropbar.sources")
         local utils = require("dropbar.utils")
         if vim.bo[buf].ft == "markdown" then
