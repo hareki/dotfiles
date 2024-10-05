@@ -140,6 +140,7 @@ preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 # NOTE: Aliases and util functions
 
 alias cls="colorls"
+alias cd="z"
 
 # [RE-Z]shrc
 alias rez="source ~/.zshrc && zsh"
