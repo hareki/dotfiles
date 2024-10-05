@@ -9,6 +9,14 @@ return {
     { "<leader>d", "<cmd>lua require('dropbar.api').pick()<cr>", desc = "Dropbar pick" },
   },
   opts = {
+    icons = {
+      kinds = {
+        symbols = {
+          Folder = "",
+        },
+      },
+    },
+
     -- https://github.com/Bekaboo/dropbar.nvim?tab=readme-ov-file#bar
     -- intercept and limit the lsp items to avoid too deeply nested items
     bar = {
