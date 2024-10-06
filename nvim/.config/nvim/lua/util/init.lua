@@ -1,6 +1,7 @@
 local CommonUtil = require("util.common")
 
 ---@class util: util.common
+---@field git util.git
 ---@field toggle util.toggle
 local M = {}
 
