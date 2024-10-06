@@ -4,7 +4,7 @@ local builtin = require("telescope.builtin")
 local picker_config = {}
 for picker_name, _ in pairs(builtin) do
   picker_config[picker_name] = {
-    preview_title = Constant.PREVIEW_TITLE,
+    preview_title = Constant.telescope.PREVIEW_TITLE,
   }
 end
 
