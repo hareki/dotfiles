@@ -2,7 +2,7 @@
 local M = {}
 
 -- Start with the default branch format
-local branch_display_mode = Constant.BRANCH_FORMATS.TASK_ID_ONLY
+local branch_display_mode = Constant.git.BRANCH_FORMATS.TASK_ID_ONLY
 
 local task_name_start_length = 999
 local task_name_end_length = 10
@@ -16,7 +16,7 @@ local repo_cache = {
 
 -- Helper function to check valid branch format
 function M.is_valid_branch_format(format)
-  for _, value in pairs(Constant.BRANCH_FORMATS) do
+  for _, value in pairs(Constant.git.BRANCH_FORMATS) do
     if value == format then
       return true
     end
@@ -46,9 +46,9 @@ function M.format_branch_name(branch_name)
   local prefix, task_name, author_name = branch_name:match("^(CU%-%w+)_([^_]+)_(.+)$")
 
   -- Handle formatting for different display modes
-  if branch_display_mode == Constant.BRANCH_FORMATS.TASK_ID_ONLY then
+  if branch_display_mode == Constant.git.BRANCH_FORMATS.TASK_ID_ONLY then
     return prefix
-  elseif branch_display_mode == Constant.BRANCH_FORMATS.TASK_ID_AND_NAME then
+  elseif branch_display_mode == Constant.git.BRANCH_FORMATS.TASK_ID_AND_NAME then
     -- Display task ID and formatted task name
     local formatted_task_name
     if #task_name > max_task_name_length then
@@ -58,7 +58,7 @@ function M.format_branch_name(branch_name)
       formatted_task_name = task_name
     end
     return prefix .. "_" .. formatted_task_name
-  elseif branch_display_mode == Constant.BRANCH_FORMATS.TASK_ID_AND_AUTHOR then
+  elseif branch_display_mode == Constant.git.BRANCH_FORMATS.TASK_ID_AND_AUTHOR then
     -- Display task ID and author name
     return prefix .. "_" .. author_name
   end

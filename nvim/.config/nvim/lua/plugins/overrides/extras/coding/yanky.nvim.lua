@@ -11,7 +11,7 @@ return {
         on_yank = false,
 
         on_put = true,
-        timer = Constant.YANK_PUT_HL_TIMER,
+        timer = Constant.yanky.PUT_HL_TIMER,
       },
       system_clipboard = {
         sync_with_ring = false,
@@ -92,7 +92,7 @@ return {
       opts.formatting.format = function(entry, item)
         if entry.source.name == "cmp_yanky" then
           -- Assign a custom kind and hl group for cmp_yanky before passsing it to format_original
-          item.kind = Constant.CMP_YANKY_KIND
+          item.kind = Constant.yanky.CMP_KIND
           item.kind_hl_group = "CmpItemKindClass"
         end
         return format_original(entry, item)

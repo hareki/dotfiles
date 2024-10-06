@@ -105,7 +105,7 @@ Util.aucmd("TextYankPost", {
     vim.defer_fn(function()
       -- require("tiny-inline-diagnostic").enable()
       enable_doc_hl()
-    end, Constant.YANK_PUT_HL_TIMER + 50)
+    end, Constant.yanky.PUT_HL_TIMER + 50)
   end,
 })
 
