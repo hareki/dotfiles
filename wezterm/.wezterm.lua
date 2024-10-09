@@ -84,7 +84,7 @@ for k, v in pairs(config_table) do
 end
 
 -- https://github.com/wez/wezterm/discussions/2506
-wezterm.on('gui-startup', function(window)
+wezterm.on('gui-startup', function(cmd)
   local tab, pane, window = mux.spawn_window(cmd or {})
   local gui_window = window:gui_window();
   gui_window:perform_action(act.ToggleFullScreen, pane)
