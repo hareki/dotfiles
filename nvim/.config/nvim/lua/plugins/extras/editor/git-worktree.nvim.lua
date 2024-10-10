@@ -1,3 +1,5 @@
+if true then return {} end
+
 local extensions = require("telescope").extensions
 
 return {
@@ -15,7 +17,7 @@ return {
       })
     end,
     keys = {
-      { "<leader>gwl", "<cmd>Telescope git_worktree<cr>", desc = "List" },
+      { "<leader>gwl", "<cmd>Telescope git_worktree<cr>",           desc = "List" },
       { "<leader>gwc", extensions.git_worktree.create_git_worktree, desc = "Create" },
     },
   },

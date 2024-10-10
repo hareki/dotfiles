@@ -62,7 +62,7 @@ source $ZSH/oh-my-zsh.sh
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # Load rbenv automatically
-eval "$(rbenv init - zsh)"
+# eval "$(rbenv init - zsh)"
 
 
 # NOTE: Stow config
@@ -316,7 +316,7 @@ fi
 # NOTE: Set default editor
 export EDITOR='nvim'
 export VISUAL='nvim'
-export TERM='wezterm'
+# export TERM='wezterm'
 
 # REDIS
 export REDIS_BIN_PATH=/usr/bin
