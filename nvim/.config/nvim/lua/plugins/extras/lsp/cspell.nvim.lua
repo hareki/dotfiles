@@ -8,6 +8,14 @@ local config = {
 
 return {
   {
+    {
+      "williamboman/mason.nvim",
+      opts = function(_, opts)
+        table.insert(opts.ensure_installed, "cspell")
+      end,
+    },
+  },
+  {
     "nvimtools/none-ls.nvim",
     lazy = true,
     dependencies = {
