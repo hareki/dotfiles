@@ -330,4 +330,4 @@ export _ZO_FZF_OPTS="--exact --no-sort --bind=ctrl-z:ignore,btab:up,tab:down --c
 eval "$(zoxide init zsh)"
 
 eval "$(atuin init zsh --disable-up-arrow)"
-clear
+# clear
