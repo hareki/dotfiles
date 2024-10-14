@@ -2,7 +2,7 @@ return {
   {
     "williamboman/mason.nvim",
     opts = function(_, opts)
-      table.insert(opts.ensure_installed, "cspell")
+      table.insert(opts.ensure_installed, "eslint_d")
     end,
   },
 
