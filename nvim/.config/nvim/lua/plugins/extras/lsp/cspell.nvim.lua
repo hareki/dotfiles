@@ -1,5 +1,3 @@
-local null_ls = require("null-ls")
-
 local config = {
   find_json = function()
     return vim.fn.expand("~") .. "/.config/cspell.json"
@@ -32,6 +30,8 @@ return {
 
     config = function()
       local cspell = require("cspell")
+      local null_ls = require("null-ls")
+
       null_ls.setup({
         sources = {
           cspell.diagnostics.with({

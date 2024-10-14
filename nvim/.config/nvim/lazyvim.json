@@ -11,7 +11,6 @@
     "lazyvim.plugins.extras.lang.tailwind",
     "lazyvim.plugins.extras.lang.typescript",
     "lazyvim.plugins.extras.linting.eslint",
-    "lazyvim.plugins.extras.lsp.none-ls",
     "lazyvim.plugins.extras.ui.mini-indentscope",
     "lazyvim.plugins.extras.ui.treesitter-context",
     "lazyvim.plugins.extras.util.mini-hipatterns"
@@ -21,3 +20,4 @@
   },
   "version": 6
 }
+

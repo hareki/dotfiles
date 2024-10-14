@@ -14,7 +14,7 @@ local normal_unselected_text = colors.overlay0
 
 -- NOTE:
 -- "hint", "info", "warning", "error": diagnostic variations
--- "duplicate": prefix for duplicate file names at differnt paths
+-- "duplicate": prefix for duplicate file names at different paths
 -- "buffer": normal (bare bone) variations
 -- no suffix: normal (bare bone) state, doesn't get selected by any means
 -- "visible": buffer gets selected (current buffer), but not focused (eg: focusing neo-tree)
