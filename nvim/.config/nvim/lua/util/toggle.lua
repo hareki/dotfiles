@@ -4,7 +4,7 @@
 -- Override keymap instead of skipping the already existing keymap. (vim.keymap.set instead of LazyVim.safe_keymap_set)
 -- Extend what can be toggled
 
-local null_ls = require("null-ls")
+-- local null_ls = require("null-ls")
 local gitsigns = require("gitsigns")
 local gitsigns_config = require("gitsigns.config").config
 
@@ -31,22 +31,22 @@ M.current_line_blame = LazyVim.toggle.wrap({
   end,
 })
 
-local cspell_query = { name = "cspell" }
-local get_cspell_state = function()
-  return not null_ls.get_source(cspell_query)[1]._disabled
-end
-
-M.cspell = LazyVim.toggle.wrap({
-  name = "cspell",
-  get = function()
-    return get_cspell_state()
-  end,
-  set = function(state)
-    local cspell_state = get_cspell_state()
-    if state ~= cspell_state then
-      null_ls.toggle(cspell_query)
-    end
-  end,
-})
+-- local cspell_query = { name = "cspell" }
+-- local get_cspell_state = function()
+--   return not null_ls.get_source(cspell_query)[1]._disabled
+-- end
+--
+-- M.cspell = LazyVim.toggle.wrap({
+--   name = "cspell",
+--   get = function()
+--     return get_cspell_state()
+--   end,
+--   set = function(state)
+--     local cspell_state = get_cspell_state()
+--     if state ~= cspell_state then
+--       null_ls.toggle(cspell_query)
+--     end
+--   end,
+-- })
 
 return M

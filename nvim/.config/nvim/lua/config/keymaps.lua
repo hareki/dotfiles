@@ -16,10 +16,7 @@ wk.add({
 })
 
 Util.toggle.map("<leader>ub", Util.toggle.current_line_blame)
-Util.toggle.map("<leader>us", Util.toggle.cspell)
-
--- Util.unmap("n", "f1")
--- Util.map("n", "f1", "<cmd>cnext<cr>", { desc = "Next search result" })
+-- Util.toggle.map("<leader>us", Util.toggle.cspell)
 
 -- See `lua/plugins/overrides/ui/lualine.nvim.lua` for the full implementation
 Util.unmap("n", "<leader>ul")
