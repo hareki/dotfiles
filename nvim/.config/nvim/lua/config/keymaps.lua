@@ -58,12 +58,12 @@ Util.unmap({ "n", "i", "v" }, "<A-k>")
 
 -- Autoformat file on save asynchronously
 Util.map({ "i", "x", "n", "s" }, "<C-s>", function()
-  -- local start_time = vim.loop.hrtime()
+  local start_time = vim.loop.hrtime()
   require("conform").format({ async = true }, function(_)
     vim.api.nvim_command("silent! write")
-    -- local end_time = vim.loop.hrtime()
-    -- local elapsed_time_ms = (end_time - start_time) / 1e6
-    -- print(string.format("Execution time: %.3f ms", elapsed_time_ms))
+    local end_time = vim.loop.hrtime()
+    local elapsed_time_ms = (end_time - start_time) / 1e6
+    print(string.format("Execution time: %.3f ms", elapsed_time_ms))
   end)
 end, { desc = "Save file" })
 
