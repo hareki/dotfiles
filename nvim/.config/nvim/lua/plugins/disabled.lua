@@ -20,6 +20,13 @@ local disabled_plugins = {
   -- NOTE: let's see if I feel uncomfortable without this plugin... Since I don't use it that much
   "leafo/magick",
   "hareki/image.nvim",
+
+  -- NOTE: currently experiencing using lazygit only
+  "NeogitOrg/neogit",
+  "sindrets/diffview.nvim",
+
+  -- NOTE: let's see if I feel uncomfortable without this plugin... Since I don't use it that much
+  "rachartier/tiny-inline-diagnostic.nvim",
 }
 
 -- Generate the table with plugins disabled

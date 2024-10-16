@@ -1,8 +1,3 @@
--- Currently experiencing using lazygit only
-if true then
-  return {}
-end
-
 return {
   "NeogitOrg/neogit",
   dependencies = {
