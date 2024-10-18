@@ -41,10 +41,20 @@ M.typos_lsp = LazyVim.toggle.wrap({
   name = "typos-lsp",
   get = function()
     local ns_id = get_typos_ns_id()
+    if not ns_id then
+      LazyVim.warn("typos-lsp is not running")
+      return false
+    end
+
     return vim.diagnostic.is_enabled({ ns_id = ns_id })
   end,
   set = function(state)
     local ns_id = get_typos_ns_id()
+    if not ns_id then
+      LazyVim.warn("typos-lsp is not running")
+      return
+    end
+
     vim.diagnostic.enable(state, { ns_id = ns_id })
   end,
 })

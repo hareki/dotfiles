@@ -111,7 +111,7 @@ end
 
 -- Function to get the repository name following the refined logic
 function M.get_repo_name()
-  local current_cwd = vim.loop.cwd()
+  local current_cwd = Util.cwd()()
 
   -- Check if the CWD has changed since the last cache
   if repo_cache.name and repo_cache.last_cwd == current_cwd then
