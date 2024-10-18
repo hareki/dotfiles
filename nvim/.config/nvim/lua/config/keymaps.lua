@@ -16,6 +16,7 @@ wk.add({
 })
 
 Util.toggle.map("<leader>ub", Util.toggle.current_line_blame)
+Util.toggle.map("<leader>us", Util.toggle.typos_lsp)
 -- Util.toggle.map("<leader>us", Util.toggle.cspell)
 
 -- See `lua/plugins/overrides/ui/lualine.nvim.lua` for the full implementation
