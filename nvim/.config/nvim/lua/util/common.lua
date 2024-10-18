@@ -18,6 +18,10 @@ M.hl = function(group, style)
   vim.api.nvim_set_hl(0, group, style)
 end
 
+M.cwd = function()
+  return vim.fn.getcwd()
+end
+
 M.get_initial_path = function()
   -- Get the first argument passed to Neovim (which is usually the path)
   local first_arg = vim.fn.argv(0)

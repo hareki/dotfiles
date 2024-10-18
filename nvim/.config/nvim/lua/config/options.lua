@@ -20,3 +20,7 @@ opt.spell = true -- keep it true to use cmp-spell, but hide the undercurl (see e
 -- opt.spelloptions = ""
 
 -- opt.winbar = "%=%m %f" -- basically a breadcrumb
+
+-- vim.g.git_worktree = {
+-- change_directory_command = "vim.api.nvim_set_current_dir",
+-- }
