@@ -31,6 +31,24 @@ M.current_line_blame = LazyVim.toggle.wrap({
   end,
 })
 
+local get_typos_ns_id = function()
+  local clients = vim.lsp.get_clients({ name = "typos_lsp" })
+  local typos_lsp = clients[1]
+  return vim.lsp.diagnostic.get_namespace(typos_lsp.id)
+end
+
+M.typos_lsp = LazyVim.toggle.wrap({
+  name = "typos-lsp",
+  get = function()
+    local ns_id = get_typos_ns_id()
+    return vim.diagnostic.is_enabled({ ns_id = ns_id })
+  end,
+  set = function(state)
+    local ns_id = get_typos_ns_id()
+    vim.diagnostic.enable(state, { ns_id = ns_id })
+  end,
+})
+
 -- local cspell_query = { name = "cspell" }
 -- local get_cspell_state = function()
 --   return not null_ls.get_source(cspell_query)[1]._disabled
