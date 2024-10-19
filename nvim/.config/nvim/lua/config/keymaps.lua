@@ -65,28 +65,11 @@ Util.map({ "i", "x", "n", "s" }, "<C-s>", function()
   end)
 end, { desc = "Save file" })
 
+Util.map("n", "<leader>t", function()
+  -- Add function to test here
+  LazyVim.notify("No test at the moment")
+end, { desc = "Testing stuff", remap = true })
+
 -- Use wezterm.action.PasteFrom instead due to issues related to SSH: https://github.com/wez/wezterm/issues/2050
 -- Util.map({ "n", "x" }, "<leader>p", '"+p', { desc = "Paste from system clipboard" })
 -- Util.map({ "x" }, "<leader>y", '"+y', { desc = "Yank to system clipboard" })
-
-function ShowDiagnosticsAndSources()
-  local bufnr = vim.api.nvim_get_current_buf()
-  local cursor = vim.api.nvim_win_get_cursor(0)
-  local line = cursor[1] - 1 -- Zero-indexed
-
-  local diagnostics = vim.diagnostic.get(bufnr, { lnum = line })
-
-  if #diagnostics == 0 then
-    print("No diagnostics on this line.")
-    return
-  end
-
-  for _, diag in ipairs(diagnostics) do
-    local message = diag.message or "No message"
-    local source = diag.source or "Unknown"
-    LazyVim.notify(string.format("Diagnostic: %s [Source: %s]", message, source))
-  end
-end
-Util.map("n", "<leader>t", function()
-  ShowDiagnosticsAndSources()
-end, { desc = "Testing stuff", remap = true })
