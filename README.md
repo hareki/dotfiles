@@ -1,0 +1,1 @@
+Each directory is designed to represent its corresponding location in the home directory, enabling [GNU Stow](https://www.gnu.org/software/stow/) to manage symbolic links efficiently. You can find more details in the `sync-d` function in [zsh/.zhsrc](https://github.com/hareki/dotfiles/blob/main/zsh/.zshrc)
