@@ -7,6 +7,8 @@ M.clear_aucmd = vim.api.nvim_clear_autocmds
 M.map = vim.keymap.set
 M.unmap = vim.keymap.del
 
+M.cwd = vim.fn.getcwd
+
 --- @param name string
 M.lazy_augroup = function(name)
   return vim.api.nvim_create_augroup("lazyvim_" .. name, { clear = true })
@@ -16,10 +18,6 @@ end
 --- @param style table
 M.hl = function(group, style)
   vim.api.nvim_set_hl(0, group, style)
-end
-
-M.cwd = function()
-  return vim.fn.getcwd()
 end
 
 M.get_initial_path = function()
