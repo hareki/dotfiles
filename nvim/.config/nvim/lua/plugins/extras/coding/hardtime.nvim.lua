@@ -1,9 +1,16 @@
 return {
   {
-    "m4xshen/hardtime.nvim",
+    "hareki/hardtime.nvim",
+    branch = "detect-which-key-re-feed-keys",
     dependencies = { "MunifTanjim/nui.nvim", "nvim-lua/plenary.nvim" },
-    opts = {
-      disabled_filetypes = { "neo-tree", "lazy", "mason" },
+    lazy = false,
+    opts = {},
+    -- https://github.com/m4xshen/hardtime.nvim/issues/31
+    keys = {
+      { "j", 'v:count || mode(1)[0:1] == "no" ? "j" : "gj"' },
+      { "k", 'v:count || mode(1)[0:1] == "no" ? "k" : "gk"' },
+      { "<Up>", "<Up>" },
+      { "<Down>", "<Down>" },
     },
   },
 }

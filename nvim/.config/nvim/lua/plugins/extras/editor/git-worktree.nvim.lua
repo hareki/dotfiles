@@ -1,6 +1,4 @@
 local extensions = require("telescope").extensions
-local hooks = require("git-worktree.hooks")
-local which_key = require("which-key")
 local telescope = require("telescope")
 
 local refresh_neo_tree = function()
@@ -37,6 +35,8 @@ return {
     version = false,
     dependencies = { "nvim-lua/plenary.nvim" },
     init = function()
+      local hooks = require("git-worktree.hooks")
+      local which_key = require("which-key")
       telescope.load_extension("git_worktree")
       which_key.add({
         { "<leader>gw", group = "Git Worktree" },
