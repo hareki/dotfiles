@@ -19,6 +19,7 @@ require("lazy").setup({
       opts = function(_, opts)
         opts.colorscheme = "catppuccin-mocha"
         Util.ensure_nested_table(opts, "icons.kinds")[Constant.yanky.CMP_KIND] = "󰅍 "
+        -- Util.ensure_nested_table(opts, "defaults").keymaps = false
       end,
     },
 

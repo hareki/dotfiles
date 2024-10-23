@@ -73,3 +73,4 @@ end, { desc = "Testing stuff", remap = true })
 -- Use wezterm.action.PasteFrom instead due to issues related to SSH: https://github.com/wez/wezterm/issues/2050
 -- Util.map({ "n", "x" }, "<leader>p", '"+p', { desc = "Paste from system clipboard" })
 -- Util.map({ "x" }, "<leader>y", '"+y', { desc = "Yank to system clipboard" })
+-- Util.map("n", "h", "x", { desc = "test124" })
