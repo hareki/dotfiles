@@ -63,5 +63,5 @@ sync-g() {
 
 > [!Note]
 > - These are just config files, pleae make sure to install the packages as well
-> - The `manual` directory isn't a package name, it contains configs requiring manual setup instead of using `stow`
+> - `manual` isn't a package name, it contains configs requiring manual setup instead of using `stow`
 > - I mostly use `sync-g` to commit my changes, so pardon those weird commit messages 
