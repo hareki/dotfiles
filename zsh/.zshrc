@@ -324,6 +324,14 @@ export CLUSTER_HOST=127.0.0.1
 export CLUSTER_PORT=3002
 export NODES=6
 
+# FZF Catppuccino Mocha theme with custom border color
+export FZF_DEFAULT_OPTS=" \
+--color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8,border:#89b4fa \
+--color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
+--color=marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8 \
+--color=selected-bg:#45475a \
+--multi"
+
 # Set rounded border, keep other default options, currently there's no way to merge the two
 # https://github.com/ajeetdsouza/zoxide/issues/618
 export _ZO_FZF_OPTS="--exact --no-sort --bind=ctrl-z:ignore,btab:up,tab:down --cycle --keep-right --border=rounded --height=45% --info=inline --layout=reverse --tabstop=1 --exit-0"

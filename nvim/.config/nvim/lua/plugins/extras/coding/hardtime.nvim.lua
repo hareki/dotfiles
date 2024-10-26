@@ -1,7 +1,6 @@
 return {
   {
     "hareki/hardtime.nvim",
-    branch = "detect-which-key-re-feed-keys",
     dependencies = { "MunifTanjim/nui.nvim", "nvim-lua/plenary.nvim" },
     lazy = false,
     opts = {},
