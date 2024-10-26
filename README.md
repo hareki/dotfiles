@@ -6,7 +6,7 @@
 
 I use [stow](https://www.gnu.org/software/stow/) to manage my dotfiles, which handles symlinks to ensure that the files in my dotfiles repository stay synchronized with the actual configuration files.
 
-<details><summary>I even took step further and created some util functions to smoothen the process, which you can find at my <a href="https://github.com/hareki/dotfiles/blob/main/zsh/.zshrc">.zshrc</a> file</summary>
+<details><summary>I even took step further and created some util functions to smoothen the process, which you can find at my <a href="https://github.com/hareki/dotfiles/blob/main/zsh/.zshrc">.zshrc</a></summary>
 
 <!-- config:start -->
   
