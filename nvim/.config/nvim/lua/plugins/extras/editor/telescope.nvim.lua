@@ -24,6 +24,7 @@ return {
   opts = {
     pickers = vim.tbl_extend("force", picker_config, {
       buffers = {
+        select_current = true,
         preview_title = Constant.telescope.PREVIEW_TITLE,
         --https://github.com/nvim-telescope/telescope.nvim/issues/1145#issuecomment-903161099
         mappings = {
