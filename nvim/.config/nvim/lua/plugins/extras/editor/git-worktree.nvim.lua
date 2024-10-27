@@ -16,17 +16,6 @@ local refresh_lualine = function()
   require("lualine").refresh()
 end
 
--- file/regular/normal buffers, whatever the name
-local close_all_file_buffers = function()
-  local bufs = vim.api.nvim_list_bufs()
-  for _, bufnr in ipairs(bufs) do
-    -- Check if the buffer is listed and has an empty 'buftype' (normal file buffer)
-    if vim.fn.buflisted(bufnr) == 1 and vim.api.nvim_get_option_value("buftype", { buf = bufnr }) == "" then
-      vim.api.nvim_buf_delete(bufnr, { force = false })
-    end
-  end
-end
-
 return {
   {
     "hareki/git-worktree.nvim",
@@ -45,7 +34,7 @@ return {
       hooks.register(hooks.type.SWITCH, function()
         refresh_neo_tree()
         refresh_lualine()
-        close_all_file_buffers()
+        Util.close_file_buffers(true)
       end)
 
       -- Cant do these in "keys" since it would fail/throw error if git-worktree hasn't been installed yet

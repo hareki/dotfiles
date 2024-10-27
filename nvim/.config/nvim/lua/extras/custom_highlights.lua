@@ -44,6 +44,8 @@ local custom_highlights = {
 
   YankyPut = { link = "YankRegisterHighlight" }, -- yanky.nvim
 
+  DropBarKindDir = { link = "DropBarKindFile" },
+
   -- We use aucmds to dynamically switch hl colors instead
   -- YankyYanked = { link = "YankRegisterHighlight" },
 

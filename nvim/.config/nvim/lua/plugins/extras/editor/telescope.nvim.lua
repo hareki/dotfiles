@@ -22,7 +22,18 @@ end
 return {
   "nvim-telescope/telescope.nvim",
   opts = {
-    pickers = picker_config,
+    pickers = vim.tbl_extend("force", picker_config, {
+      buffers = {
+        preview_title = Constant.telescope.PREVIEW_TITLE,
+        --https://github.com/nvim-telescope/telescope.nvim/issues/1145#issuecomment-903161099
+        mappings = {
+          n = {
+            ["x"] = require("telescope.actions").delete_buffer,
+          },
+        },
+      },
+    }),
+
     defaults = {
       prompt_prefix = "   ",
       results_title = false,
@@ -42,8 +53,8 @@ return {
       layout_config = {
         vertical = {
           mirror = true,
-          height = 0.8,
-          preview_height = 0.5,
+          height = 0.9,
+          preview_height = 0.6,
           preview_cutoff = 1, -- Preview should always show (unless previewer = false)
           prompt_position = "top",
           width = 0.6,
@@ -61,5 +72,6 @@ return {
   },
   keys = {
     { "<leader>sB", "<cmd>Telescope git_branches<cr>", desc = "Git Branches" },
+    { "L", "<cmd>Telescope buffers initial_mode=normal<cr>", desc = "Buffers" },
   },
 }

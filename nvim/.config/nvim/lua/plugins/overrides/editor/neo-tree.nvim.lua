@@ -1,9 +1,11 @@
 return {
   "nvim-neo-tree/neo-tree.nvim",
+  -- Prevent neotree from opening automatically
+  -- init = function() end,
   opts = function(_, opts)
+    opts.event_handlers = opts.event_handlers or {}
     -- Show relative line numbers for neo-tree
     -- source: https://stackoverflow.com/questions/77927924/add-relative-line-numbers-in-neo-tree-using-lazy-in-neovim
-    opts.event_handlers = opts.event_handlers or {}
     table.insert(opts.event_handlers, {
       event = "neo_tree_buffer_enter",
       handler = function()
@@ -12,6 +14,14 @@ return {
             ]])
       end,
     })
+
+    -- Auto Close on Open File
+    -- table.insert(opts.event_handlers, {
+    --   event = "file_open_requested",
+    --   handler = function()
+    --     require("neo-tree.command").execute({ action = "close" })
+    --   end,
+    -- })
 
     opts.commands = opts.commands or {}
     -- Make the function name has white space using unicode escape sequences (From ChatGPT with love)

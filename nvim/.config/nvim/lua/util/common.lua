@@ -57,4 +57,34 @@ function M.ensure_nested_table(t, key_string)
   end
   return t
 end
+
+-- File/regular/normal buffers, whatever the name
+--- @param current boolean
+function M.close_file_buffers(current)
+  -- Retrieve a list of all buffer numbers
+  local bufs = vim.api.nvim_list_bufs()
+
+  -- Get the current buffer number
+  local current_bufnr = vim.api.nvim_get_current_buf()
+
+  for _, bufnr in ipairs(bufs) do
+    -- Check if the buffer is listed and is a normal file buffer (buftype is empty)
+    local is_listed = vim.fn.buflisted(bufnr) == 1
+    local buftype = vim.api.nvim_get_option_value("buftype", { buf = bufnr })
+    local is_normal_file = buftype == ""
+
+    if is_listed and is_normal_file then
+      if current then
+        -- If 'current' is true, attempt to delete all normal file buffers including the current one
+        vim.api.nvim_buf_delete(bufnr, { force = false })
+      else
+        -- If 'current' is false, exclude the current buffer from deletion
+        if bufnr ~= current_bufnr then
+          vim.api.nvim_buf_delete(bufnr, { force = false })
+        end
+      end
+    end
+  end
+end
+
 return M

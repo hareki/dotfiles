@@ -1,7 +1,7 @@
 ---@class constant
 ---@field filetype constant.filetype
 ---@field git constant.git
----@field telescope constant.telecope
+---@field telescope constant.telescope
 ---@field yanky constant.yanky
 local M = {}
 

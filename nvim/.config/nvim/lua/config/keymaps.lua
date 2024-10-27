@@ -65,6 +65,11 @@ Util.map({ "i", "x", "n", "s" }, "<C-s>", function()
   end)
 end, { desc = "Save file" })
 
+Util.map("n", "<leader>bo", function()
+  Util.close_file_buffers(false)
+  LazyVim.notify("Deleted other buffers")
+end, { desc = "Delete Other Buffers" })
+
 Util.map("n", "<leader>t", function()
   -- Add function to test here
   LazyVim.notify("No test at the moment")
