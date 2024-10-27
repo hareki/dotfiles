@@ -36,7 +36,7 @@ return {
       end
     end
 
-    -- Update lualine_b section with formatted branch name
+    ---- SECTION B ----
     opts.sections.lualine_b = {
       {
         "branch",
@@ -62,36 +62,64 @@ return {
       },
     }
 
-    -- table.insert(opts.sections.lualine_c, 1, {
-    --   get_git_repo_name,
-    --   icon = "󱉭",
-    -- })
+    ---- SECTION C ----
+    local indicators = {}
+    local active_indicators = {}
 
-    table.insert(opts.sections.lualine_c, 1, {
-      function()
-        local repo = Util.git.get_repo_name()
-        return repo and ("󱉭 " .. repo) or "󱉭"
-      end,
-    })
+    for i = 1, 6 do
+      table.insert(indicators, tostring(i))
+      table.insert(active_indicators, "[" .. tostring(i) .. "]")
+    end
 
-    -- ===== SECTION X ====
+    opts.sections.lualine_c = {
+      {
+        function()
+          local repo = Util.git.get_repo_name()
+          return repo and ("󱉭 " .. repo) or "󱉭"
+        end,
+      },
+      {
+        "harpoon2",
+        indicators = indicators,
+        active_indicators = active_indicators,
+      },
+    }
+
+    ---- SECTION X ----
     Util.remove_lualine_component("diff", opts.sections.lualine_x)
+    -- Remove the `require("noice").api.status.command` component
+    table.remove(opts.sections.lualine_x, 1)
 
-    -- ===== SECTION Y ====
+    ---- SECTION Y ----
     opts.sections.lualine_y = {
       {
         "diagnostics",
+        sections = { "error", "warn", "info" },
         symbols = {
           error = icons.diagnostics.Error,
           warn = icons.diagnostics.Warn,
           info = icons.diagnostics.Info,
           hint = icons.diagnostics.Hint,
         },
-        always_visible = true,
+        -- always_visible = true,
+      },
+      {
+        "filetype",
+        icon_only = true,
+        colored = false,
+        padding = { left = 1, right = 0 },
+      },
+      {
+        "filename",
+        padding = { left = 0, right = 1 },
+        symbols = {
+          modified = "󱙃",
+          readonly = "󰌾",
+        },
       },
     }
 
-    -- ===== SECTION Z ====
+    ---- SECTION Z ----
     opts.sections.lualine_z = {
       { "location", padding = { left = 1, right = 1 }, separator = "|" },
       { "progress", padding = { left = 1, right = 1 }, separator = "|" },
