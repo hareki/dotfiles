@@ -109,34 +109,27 @@ Util.aucmd("TextYankPost", {
 })
 
 -- Disable minipairs when entering search or command-line mode
-vim.api.nvim_create_autocmd("CmdlineEnter", {
+Util.aucmd("CmdlineEnter", {
   pattern = "[/:?]",
   callback = function()
     vim.g.minipairs_disable = true
   end,
 })
 
-vim.api.nvim_create_autocmd("CmdlineLeave", {
+Util.aucmd("CmdlineLeave", {
   pattern = "[/:?]",
   callback = function()
     vim.g.minipairs_disable = false
   end,
 })
 
--- local function update_winbar()
---   local home_replaced = "test/path"
---   local buffer_count = 5
---   local hostname = "hostname"
---   vim.opt.winbar = "%#WinBar1#%m "
---     .. "%#WinBar2#("
---     .. buffer_count
---     .. ") "
---     .. "%#WinBar1#"
---     .. home_replaced
---     .. "%*%=%#WinBar2#"
---     .. hostname
--- end
--- -- Autocmd to update the winbar on BufEnter and WinEnter events
--- vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter" }, {
---   callback = update_winbar,
--- })
+-- https://www.reddit.com/r/neovim/comments/180tnhg/disable_miniindentscope_for_certain_filetypes/
+Util.aucmd("FileType", {
+  desc = "Disable indentscope for certain filetypes",
+  pattern = {
+    "dropbar_menu",
+  },
+  callback = function()
+    vim.b.miniindentscope_disable = true
+  end,
+})

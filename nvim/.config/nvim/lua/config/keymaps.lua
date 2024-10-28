@@ -7,23 +7,25 @@
 
 local wk = require("which-key")
 
+Util.unmap("n", "<leader>ul")
 wk.add({
   {
     "<leader>o",
-    group = "Open with",
+    group = "open with",
     icon = "󰏌",
+  },
+  -- See `lua/plugins/overrides/ui/lualine.nvim.lua` for the full implementation
+  { "<leader>ul", group = "branch Format" },
+  {
+    "<leader>r",
+    group = "refactor",
+    icon = "",
   },
 })
 
 Util.toggle.map("<leader>ub", Util.toggle.current_line_blame)
 Util.toggle.map("<leader>us", Util.toggle.typos_lsp)
 -- Util.toggle.map("<leader>us", Util.toggle.cspell)
-
--- See `lua/plugins/overrides/ui/lualine.nvim.lua` for the full implementation
-Util.unmap("n", "<leader>ul")
-wk.add({
-  { "<leader>ul", group = "Branch Format" },
-})
 
 Util.map("n", "U", function()
   vim.diagnostic.open_float(nil, { border = "rounded" })

@@ -1,3 +1,5 @@
+local dropbar_pick_key = "<leader>d"
+
 return {
   "Bekaboo/dropbar.nvim",
   lazy = false,
@@ -5,17 +7,32 @@ return {
   dependencies = {
     "nvim-telescope/telescope-fzf-native.nvim",
   },
+  init = function()
+    local wk = require("which-key")
+    wk.add({
+      {
+        dropbar_pick_key,
+        icon = "",
+      },
+    })
+  end,
   keys = {
-    { "<leader>d", "<cmd>lua require('dropbar.api').pick()<cr>", desc = "Dropbar pick" },
+    { dropbar_pick_key, "<cmd>lua require('dropbar.api').pick()<cr>", desc = "Dropbar pick" },
   },
   opts = {
-    -- icons = {
-    --   kinds = {
-    --     symbols = {
-    --       Folder = "",
-    --     },
-    --   },
-    -- },
+    menu = {
+      win_configs = {
+        border = "rounded", -- You can change 'single' to any other valid border style
+      },
+    },
+    icons = {
+
+      ui = {
+        menu = {
+          indicator = "",
+        },
+      },
+    },
 
     -- https://github.com/Bekaboo/dropbar.nvim?tab=readme-ov-file#bar
     -- intercept and limit the lsp items to avoid too deeply nested items
