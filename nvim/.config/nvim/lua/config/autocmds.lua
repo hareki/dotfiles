@@ -122,3 +122,21 @@ vim.api.nvim_create_autocmd("CmdlineLeave", {
     vim.g.minipairs_disable = false
   end,
 })
+
+-- local function update_winbar()
+--   local home_replaced = "test/path"
+--   local buffer_count = 5
+--   local hostname = "hostname"
+--   vim.opt.winbar = "%#WinBar1#%m "
+--     .. "%#WinBar2#("
+--     .. buffer_count
+--     .. ") "
+--     .. "%#WinBar1#"
+--     .. home_replaced
+--     .. "%*%=%#WinBar2#"
+--     .. hostname
+-- end
+-- -- Autocmd to update the winbar on BufEnter and WinEnter events
+-- vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter" }, {
+--   callback = update_winbar,
+-- })
