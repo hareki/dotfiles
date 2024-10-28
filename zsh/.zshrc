@@ -8,7 +8,7 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" 
 fi
 
-PATH="/mnt/c/Windows:$PATH"
+PATH="/mnt/c/Windows:/mnt/c/Windows/System32/WindowsPowerShell/v1.0:$PATH"
 explorer() {
     if [ -z "$1" ]; then
         explorer.exe
