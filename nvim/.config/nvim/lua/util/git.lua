@@ -1,20 +1,25 @@
 ---@class util.git
 local M = {}
 
--- Start with the default branch format
 local branch_display_mode = Constant.git.BRANCH_FORMATS.TASK_ID_ONLY
 
 local task_name_start_length = 999
 local task_name_end_length = 10
 local max_task_name_length = task_name_start_length + task_name_end_length
 
--- Initialize a cache table to store the repository name and last known CWD
+-- A cache table to store the repository name and last known CWD
 local repo_cache = {
   name = nil,
   last_cwd = nil,
 }
 
--- Helper function to check valid branch format
+--- Checks whether a given branch format is valid according to predefined branch formats.
+--- Valid branch formats are:
+--- - Constant.git.BRANCH_FORMATS.TASK_ID_ONLY
+--- - Constant.git.BRANCH_FORMATS.TASK_ID_AND_NAME
+--- - Constant.git.BRANCH_FORMATS.TASK_ID_AND_AUTHOR
+--- @param format string The branch format to validate.
+--- @return boolean True if the format is valid, false otherwise.
 function M.is_valid_branch_format(format)
   for _, value in pairs(Constant.git.BRANCH_FORMATS) do
     if value == format then
@@ -24,6 +29,8 @@ function M.is_valid_branch_format(format)
   return false
 end
 
+--- Sets the branch display format if it is valid and refreshes the status line.
+--- @param format_name string The name of the branch format to set.
 function M.set_branch_name_format(format_name)
   if M.is_valid_branch_format(format_name) then
     branch_display_mode = format_name
@@ -34,22 +41,20 @@ function M.set_branch_name_format(format_name)
   end
 end
 
--- Format branch name based on the current display mode
+--- Formats a given branch name according to the selected display mode.
+--- @param branch_name string The original branch name to be formatted.
+--- @return string The formatted branch name.
 function M.format_branch_name(branch_name)
-  -- Check if the branch name follows the ClickUp format
   local is_clickup_format = branch_name:match("^CU%-%w+_.+_.+$")
   if not is_clickup_format then
     return branch_name
   end
 
-  -- Extract the prefix (task ID), task name, and author name
   local prefix, task_name, author_name = branch_name:match("^(CU%-%w+)_([^_]+)_(.+)$")
 
-  -- Handle formatting for different display modes
   if branch_display_mode == Constant.git.BRANCH_FORMATS.TASK_ID_ONLY then
     return prefix
   elseif branch_display_mode == Constant.git.BRANCH_FORMATS.TASK_ID_AND_NAME then
-    -- Display task ID and formatted task name
     local formatted_task_name
     if #task_name > max_task_name_length then
       -- Show start and end parts of the task name with ellipsis
@@ -59,12 +64,14 @@ function M.format_branch_name(branch_name)
     end
     return prefix .. "_" .. formatted_task_name
   elseif branch_display_mode == Constant.git.BRANCH_FORMATS.TASK_ID_AND_AUTHOR then
-    -- Display task ID and author name
     return prefix .. "_" .. author_name
   end
 end
 
--- Helper function to execute a shell command and return its output
+--- Executes a shell command, optionally in a specified directory, and returns its output.
+--- @param cmd string The shell command to execute.
+--- @param cwd string|nil The directory in which to execute the command. Defaults to current directory if nil.
+--- @return string|nil The trimmed output of the command, or nil if an error occurs.
 function M.exec_cmd(cmd, cwd)
   local full_cmd = cmd
   if cwd then
@@ -84,6 +91,8 @@ function M.exec_cmd(cmd, cwd)
   return nil
 end
 
+--- Retrieves the repository name from the remote origin URL.
+--- @return string|nil The repository name extracted from the remote URL, or nil if not found.
 function M.get_repo_name_from_remote()
   -- Execute the basename command to strip the .git suffix
   -- Command: basename -s .git $(git config --get remote.origin.url)
@@ -95,7 +104,9 @@ function M.get_repo_name_from_remote()
   return nil
 end
 
--- Function to check if a given directory is a bare repository
+--- Determines whether a specified directory is a bare Git repository.
+--- @param path string The directory path to check.
+--- @return boolean True if the directory is a bare repository, false otherwise.
 function M.is_bare_repo(path)
   if not path or path == "" then
     return false
@@ -104,12 +115,15 @@ function M.is_bare_repo(path)
   return result == "true"
 end
 
--- Function to extract the repository name from a given path
+--- Extracts the repository name from a given file system path.
+--- @param path string The file system path from which to extract the repository name.
+--- @return string|nil The repository name (last component of the path), or nil if invalid.
 function M.get_repo_name_from_path(path)
   return path:match("([^/\\]+)$")
 end
 
--- Function to get the repository name following the refined logic
+--- Retrieves the repository name using multiple strategies and caches the result.
+--- @return string|nil The repository name determined by the implemented logic.
 function M.get_repo_name()
   local current_cwd = Util.cwd()
 
@@ -134,7 +148,6 @@ function M.get_repo_name()
     -- Extract the parent directory of the top-level directory
     local parent_dir = toplevel:match("(.+)/[^/\\]+$") or toplevel:match("(.+)\\[^\\]+$")
     if parent_dir and parent_dir ~= "" then
-      -- Check if the parent directory is a bare repository
       if M.is_bare_repo(parent_dir) then
         -- Extract the repository name from the parent directory
         local parent_repo_name = M.get_repo_name_from_path(parent_dir)

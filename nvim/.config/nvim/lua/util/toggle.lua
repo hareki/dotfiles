@@ -1,4 +1,3 @@
--- NOTE:
 -- A clone of map method from
 -- https://github.com/LazyVim/LazyVim/blob/3dbace941ee935c89c73fd774267043d12f57fe2/lua/lazyvim/util/toggle.lua
 -- Override keymap instead of skipping the already existing keymap. (vim.keymap.set instead of LazyVim.safe_keymap_set)

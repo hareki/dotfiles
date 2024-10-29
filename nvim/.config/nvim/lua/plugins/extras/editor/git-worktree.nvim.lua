@@ -34,7 +34,7 @@ return {
       hooks.register(hooks.type.SWITCH, function()
         refresh_neo_tree()
         refresh_lualine()
-        Util.close_file_buffers(true)
+        Util.buffer.close_file_buffers(true)
       end)
 
       -- Cant do these in "keys" since it would fail/throw error if git-worktree hasn't been installed yet

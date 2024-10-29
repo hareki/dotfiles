@@ -3,6 +3,7 @@ local CommonUtil = require("util.common")
 ---@class util: util.common
 ---@field git util.git
 ---@field toggle util.toggle
+---@field buffer util.buffer
 local M = {}
 
 setmetatable(M, {
