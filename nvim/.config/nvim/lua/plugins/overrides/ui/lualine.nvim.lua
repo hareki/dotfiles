@@ -80,6 +80,7 @@ return {
       },
       {
         "harpoon2",
+        icon = "󰀱",
         indicators = indicators,
         active_indicators = active_indicators,
       },
@@ -119,13 +120,19 @@ return {
           modified = " ",
           readonly = "󰌾",
         },
+        separator = "|",
+      },
+      {
+        function()
+          return Util.buffer.count_file_buffers()
+        end,
       },
     }
 
     ---- SECTION Z ----
     opts.sections.lualine_z = {
       { "location", padding = { left = 1, right = 1 }, separator = "|" },
-      { "progress", padding = { left = 1, right = 1 }, separator = "|" },
+      { "progress", padding = { left = 1, right = 1 } },
     }
   end,
 }
