@@ -38,6 +38,14 @@ local custom_highlights = {
     bg = colors.blue,
   },
 
+  NeoTreeNormal = {
+    bg = colors.base,
+  },
+
+  NeoTreeNormalNC = {
+    bg = colors.base,
+  },
+
   BufferLineBuffer = {
     bg = colors.base,
   },

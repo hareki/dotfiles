@@ -1,16 +1,12 @@
 {
   "consoleLog": {
     "prefix": "clg",
-    "body": [
-      "console.log(${1:first})"
-    ],
+    "body": ["console.log(${1:first})"],
     "description": "Displays a message in the console"
   },
   "consoleError": {
     "prefix": "cle",
-    "body": [
-      "console.error(${1:first})"
-    ],
+    "body": ["console.error(${1:first})"],
     "description": "Displays an error message in the console"
   },
   "Switch Statement": {
@@ -38,11 +34,7 @@
   },
   "For-Each Loop": {
     "prefix": "foreach",
-    "body": [
-      "${1:array}.forEach(${2:element} => {",
-      "\t$0",
-      "});"
-    ],
+    "body": ["${1:array}.forEach(${2:element} => {", "\t$0", "});"],
     "description": "For-Each Loop"
   },
   "For-In Loop": {
@@ -59,11 +51,7 @@
   },
   "For-Of Loop": {
     "prefix": "forof",
-    "body": [
-      "for (const ${1:iterator} of ${2:object}) {",
-      "\t$0",
-      "}"
-    ],
+    "body": ["for (const ${1:iterator} of ${2:object}) {", "\t$0", "}"],
     "description": "For-Of Loop"
   },
   "comment": {

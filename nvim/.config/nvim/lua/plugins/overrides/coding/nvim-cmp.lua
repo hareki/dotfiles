@@ -9,7 +9,8 @@ return {
   dependencies = {
     "hrsh7th/cmp-cmdline",
     "dmitmel/cmp-cmdline-history",
-    "hrsh7th/cmp-calc",
+    -- "hrsh7th/cmp-calc",
+    -- "chrisgrieser/cmp_yanky",
   },
   opts = function(_, opts)
     opts.window = {
@@ -28,9 +29,32 @@ return {
       },
     }
 
-    table.insert(opts.sources, {
-      name = "calc",
-    })
+    -- table.insert(opts.sources, {
+    --   name = "calc",
+    -- })
+
+    -- table.insert(opts.sources, {
+    --   name = "cmp_yanky",
+    --   priority = 20,
+    --   max_item_count = 3,
+    --   option = {
+    --     minLength = 3,
+    --   },
+    -- })
+
+    opts.formatting = opts.formatting or {}
+    local format_original = opts.formatting.format or function(entry, item)
+      return item
+    end
+
+    opts.formatting.format = function(entry, item)
+      if entry.source.name == "cmp_yanky" then
+        -- Assign a custom kind and hl group for cmp_yanky before passing it to format_original
+        item.kind = Constant.yanky.CMP_KIND
+        item.kind_hl_group = "CmpItemKindClass"
+      end
+      return format_original(entry, item)
+    end
   end,
   init = function()
     local mapping = cmp.mapping.preset.cmdline()

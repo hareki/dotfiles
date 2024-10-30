@@ -23,6 +23,12 @@ return {
     --   end,
     -- })
 
+    -- https://github.com/nvim-neo-tree/neo-tree.nvim/issues/533#issuecomment-1287950467
+    Util.ensure_nested(opts, "window.popup").size = { height = "80%", width = "59%" }
+
+    opts.popup_border_style = "rounded"
+    opts.window.position = "float"
+
     opts.commands = opts.commands or {}
     -- Make the function name has white space using unicode escape sequences (From ChatGPT with love)
     -- Just for aesthetic purposes when using it with which-key.nvim
@@ -41,7 +47,7 @@ return {
       end,
     })
 
-    local filesystem_mappings = Util.ensure_nested_table(opts, "filesystem.window.mappings")
+    local filesystem_mappings = Util.ensure_nested(opts, "filesystem.window.mappings")
     local explorer_mapping = "<leader>oe"
     filesystem_mappings[explorer_mapping] = func_name
 

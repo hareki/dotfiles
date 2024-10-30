@@ -8,7 +8,7 @@ return {
     -- opts.current_line_blame_formatter = "      <author>, <author_time:%R> - <summary>"
     opts.current_line_blame_formatter = "<author>, <author_time:%R> - <summary>"
 
-    local blame_opts = Util.ensure_nested_table(opts, "current_line_blame_opts")
+    local blame_opts = Util.ensure_nested(opts, "current_line_blame_opts")
 
     blame_opts.delay = 300
     -- blame_opts.virt_text_priority = 999
