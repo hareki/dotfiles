@@ -29,29 +29,18 @@ return {
     opts.popup_border_style = "rounded"
     opts.window.position = "float"
 
-    opts.commands = opts.commands or {}
-    -- Make the function name has white space using unicode escape sequences (From ChatGPT with love)
-    -- Just for aesthetic purposes when using it with which-key.nvim
-    -- Since I couldn't  make `wk.add` to work exclusively for neo-tree
-    local func_name = "File\194\160Explorer"
-    opts.commands = vim.tbl_extend("force", opts.commands, {
-      [func_name] = function(state)
-        local node = state.tree:get_node()
-        local path = node.path -- Absolute path of the node
+    opts.window.mappings["P"] = { "toggle_preview", config = { use_float = true } }
 
-        -- Convert WSL path to Windows path using wslpath and call explorer.exe
-        -- Redirect stderr and stdout to /dev/null to suppress the "Not a tty" error
+    opts.window.mappings["O"] = {
+      function(state)
+        local path = state.tree:get_node().path -- Absolute path of the node
         local cmd = "explorer.exe \"$(wslpath -w '" .. path .. "')\" >/dev/null 2>&1"
         os.execute(cmd)
-        LazyVim.notify("Opened with explorer: " .. path)
+        -- LazyVim.notify("Opened with explorer: " .. path)
+        -- require("lazy.util").open(state.tree:get_node().path, { system = true })
       end,
-    })
-
-    local filesystem_mappings = Util.ensure_nested(opts, "filesystem.window.mappings")
-    local explorer_mapping = "<leader>oe"
-    filesystem_mappings[explorer_mapping] = func_name
-
-    opts.window.mappings["P"] = { "toggle_preview", config = { use_float = true } }
+      desc = "Open with System Application",
+    }
 
     -- https://github.com/nvim-neo-tree/neo-tree.nvim/discussions/370#discussioncomment-4144005
     opts.window.mappings["Y"] = function(state)
