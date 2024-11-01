@@ -4,7 +4,7 @@ return {
     opts = {
       win = {
         border = "rounded",
-        padding = { 1, 2 }, -- extra window padding [top/bottom, right/left]
+        padding = { 1, 4 }, -- extra window padding [top/bottom, right/left]
       },
       defer = function(ctx)
         return vim.list_contains({ "<C-V>", "V", "v" }, ctx.mode)

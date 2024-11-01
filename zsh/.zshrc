@@ -139,6 +139,7 @@ preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 
 # NOTE: Aliases and util functions
 
+alias lg="lazygit"
 alias cls="colorls"
 alias cd="z"
 
@@ -335,6 +336,7 @@ export FZF_DEFAULT_OPTS=" \
 # Set rounded border, keep other default options, currently there's no way to merge the two
 # https://github.com/ajeetdsouza/zoxide/issues/618
 export _ZO_FZF_OPTS="--exact --no-sort --bind=ctrl-z:ignore,btab:up,tab:down --cycle --keep-right --border=rounded --height=45% --info=inline --layout=reverse --tabstop=1 --exit-0"
+
 eval "$(zoxide init zsh)"
 
 eval "$(atuin init zsh --disable-up-arrow)"
