@@ -1,28 +1,35 @@
 return {
   "nvim-lualine/lualine.nvim",
-  keys = {
-    {
-      "<leader>ul1",
-      function()
-        Util.git.set_branch_name_format(Constant.git.BRANCH_FORMATS.TASK_ID_ONLY)
-      end,
-      desc = "Set task id only branch name format",
-    },
-    {
-      "<leader>ul2",
-      function()
-        Util.git.set_branch_name_format(Constant.git.BRANCH_FORMATS.TASK_ID_AND_NAME)
-      end,
-      desc = "Set task id and task name branch name format",
-    },
-    {
-      "<leader>ul3",
-      function()
-        Util.git.set_branch_name_format(Constant.git.BRANCH_FORMATS.TASK_ID_AND_AUTHOR)
-      end,
-      desc = "Set task id and author branch name format",
-    },
-  },
+  keys = function(_, keys)
+    require("which-key").add({
+      { "<leader>ul", group = "Branch Format" },
+    })
+
+    local mappings = {
+      {
+        "<leader>ul1",
+        function()
+          Util.git.set_branch_name_format(Constant.git.BRANCH_FORMATS.TASK_ID_ONLY)
+        end,
+        desc = "Set task id only branch name format",
+      },
+      {
+        "<leader>ul2",
+        function()
+          Util.git.set_branch_name_format(Constant.git.BRANCH_FORMATS.TASK_ID_AND_NAME)
+        end,
+        desc = "Set task id and task name branch name format",
+      },
+      {
+        "<leader>ul3",
+        function()
+          Util.git.set_branch_name_format(Constant.git.BRANCH_FORMATS.TASK_ID_AND_AUTHOR)
+        end,
+        desc = "Set task id and author branch name format",
+      },
+    }
+    return vim.list_extend(keys, mappings)
+  end,
   opts = function(_, opts)
     local icons = LazyVim.config.icons
 

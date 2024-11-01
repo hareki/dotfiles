@@ -3,6 +3,10 @@ local current_position = "float"
 return {
   "nvim-neo-tree/neo-tree.nvim",
   keys = function(_, keys)
+    require("which-key").add({
+      { "<leader>ut", group = "Set Neo-tree position" },
+    })
+
     -- https://github.com/nvim-neo-tree/neo-tree.nvim/discussions/826#discussioncomment-5431757
     local function is_open()
       local manager = require("neo-tree.sources.manager")
