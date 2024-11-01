@@ -1,11 +1,77 @@
+local current_position = "float"
+
 return {
   "nvim-neo-tree/neo-tree.nvim",
-  -- Prevent neotree from opening automatically
-  -- init = function() end,
+  keys = function(_, keys)
+    -- https://github.com/nvim-neo-tree/neo-tree.nvim/discussions/826#discussioncomment-5431757
+    local function is_open()
+      local manager = require("neo-tree.sources.manager")
+      local renderer = require("neo-tree.ui.renderer")
+
+      local state = manager.get_state("filesystem")
+      local window_exists = renderer.window_exists(state)
+      return window_exists
+    end
+
+    local function set_position(position)
+      current_position = position
+      if is_open() then
+        require("neo-tree.command").execute({
+          reveal = true,
+          position = current_position,
+        })
+      end
+      LazyVim.notify("Neo-tree position set to " .. position)
+    end
+
+    local mappings = {
+      {
+        "<leader>utf",
+        function()
+          set_position("float")
+        end,
+        desc = "Set Neo-tree position to float",
+      },
+      {
+        "<leader>utl",
+        function()
+          set_position("left")
+        end,
+        desc = "Set Neo-tree position to left",
+      },
+      {
+        "<leader>fe",
+        function()
+          require("neo-tree.command").execute({
+            toggle = true,
+            reveal = true,
+            position = current_position,
+            dir = LazyVim.root(),
+          })
+        end,
+        desc = "Explorer NeoTree (Root Dir)",
+      },
+      {
+        "<leader>fE",
+        function()
+          require("neo-tree.command").execute({
+            toggle = true,
+            reveal = true,
+            position = current_position,
+            dir = vim.uv.cwd(),
+          })
+        end,
+        desc = "Explorer NeoTree (Current Dir)",
+      },
+    }
+
+    return vim.list_extend(keys, mappings)
+  end,
+  -- init = function() end, -- prevent neotree from opening automatically
   opts = function(_, opts)
     opts.event_handlers = opts.event_handlers or {}
     -- Show relative line numbers for neo-tree
-    -- source: https://stackoverflow.com/questions/77927924/add-relative-line-numbers-in-neo-tree-using-lazy-in-neovim
+    -- https://stackoverflow.com/questions/77927924/add-relative-line-numbers-in-neo-tree-using-lazy-in-neovim
     table.insert(opts.event_handlers, {
       event = "neo_tree_buffer_enter",
       handler = function()
@@ -24,10 +90,14 @@ return {
     -- })
 
     -- https://github.com/nvim-neo-tree/neo-tree.nvim/issues/533#issuecomment-1287950467
-    Util.ensure_nested(opts, "window.popup").size = { height = "80%", width = "59%" }
+    Util.ensure_nested(opts, "window.popup").size = {
+      height = "80%",
+      -- width = "59%",
+      width = "50%",
+    }
 
     opts.popup_border_style = "rounded"
-    opts.window.position = "float"
+    opts.window.position = current_position
 
     opts.window.mappings["P"] = { "toggle_preview", config = { use_float = true } }
 
@@ -86,10 +156,5 @@ return {
     end
 
     opts.default_component_configs.indent.with_markers = false
-
-    -- opts.source_selector = {
-    --   winbar = true,
-    --   statusline = true,
-    -- }
   end,
 }

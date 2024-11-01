@@ -33,6 +33,9 @@ M.current_line_blame = LazyVim.toggle.wrap({
 local get_typos_ns_id = function()
   local clients = vim.lsp.get_clients({ name = "typos_lsp" })
   local typos_lsp = clients[1]
+  if not typos_lsp then
+    return nil
+  end
   return vim.lsp.diagnostic.get_namespace(typos_lsp.id)
 end
 
@@ -41,7 +44,7 @@ M.typos_lsp = LazyVim.toggle.wrap({
   get = function()
     local ns_id = get_typos_ns_id()
     if not ns_id then
-      LazyVim.warn("typos-lsp is not running")
+      -- LazyVim.warn("typos-lsp is not running")
       return false
     end
 
@@ -50,7 +53,7 @@ M.typos_lsp = LazyVim.toggle.wrap({
   set = function(state)
     local ns_id = get_typos_ns_id()
     if not ns_id then
-      LazyVim.warn("typos-lsp is not running")
+      -- LazyVim.warn("typos-lsp is not running")
       return
     end
 

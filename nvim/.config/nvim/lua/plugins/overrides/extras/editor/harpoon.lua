@@ -35,7 +35,7 @@ local function toggle_telescope(harpoon_files)
       -- Delete harpooned file mapping
       -- https://github.com/prdanelli/dotfiles/blob/05a0fe693c622ac8b8e60c8ba8b7a3cdf9cb5057/neovim-lazy/lua/plugins/harpoon.lua#L13
       attach_mappings = function(prompt_buffer_number, map)
-        map("i", "<c-d>", function()
+        map("n", "x", function()
           local state = require("telescope.actions.state")
           local selected_entry = state.get_selected_entry()
           local current_picker = state.get_current_picker(prompt_buffer_number)
@@ -70,7 +70,7 @@ return {
         },
       }
 
-      for i = 1, 5 do
+      for i = 1, 4 do
         table.insert(keys, {
           "<leader>" .. i,
           function()

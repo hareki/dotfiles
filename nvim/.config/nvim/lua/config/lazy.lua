@@ -13,17 +13,10 @@ require("lazy").setup({
     hererocks = true,
   },
   spec = {
-    {
-      "LazyVim/LazyVim",
-      import = "lazyvim.plugins",
-      opts = function(_, opts)
-        opts.colorscheme = "catppuccin-mocha"
-        Util.ensure_nested(opts, "icons.kinds")[Constant.yanky.CMP_KIND] = "󰅍 "
-        -- Util.ensure_nested_table(opts, "defaults").keymaps = false
-      end,
-    },
+    { "Hareki/LazyVim", import = "lazyvim.plugins" },
 
     { import = "plugins.disabled" },
+    { import = "plugins.core" },
 
     { import = "plugins.extras.coding" },
     { import = "plugins.extras.editor" },
