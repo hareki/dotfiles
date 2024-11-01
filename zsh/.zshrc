@@ -316,7 +316,7 @@ fi
 # NOTE: Set default editor
 export EDITOR='nvim'
 export VISUAL='nvim'
-# export TERM='wezterm'
+export TERM='wezterm'
 
 # REDIS
 export REDIS_BIN_PATH=/usr/bin
