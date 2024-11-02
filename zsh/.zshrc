@@ -137,6 +137,10 @@ zle -N zle-line-init
 echo -ne '\e[5 q' # Use beam shape cursor on startup.
 preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 
+# fzf-tmux command uses bash shell, causing the incorrect cursor shape due to "echo -ne '\e[5 q" not being executed.
+# So we need to "echo -ne '\e[5 q" in the bash shell as well.
+export BASH_ENV="$HOME/.fzf_bashrc"
+
 # NOTE: Aliases and util functions
 
 alias lg="lazygit"
@@ -333,9 +337,10 @@ export FZF_DEFAULT_OPTS=" \
 --color=selected-bg:#45475a \
 --multi"
 
-# Set rounded border, keep other default options, currently there's no way to merge the two
+# Set rounded border for zoxide, keep other default options, currently there's no way to merge the two
 # https://github.com/ajeetdsouza/zoxide/issues/618
 export _ZO_FZF_OPTS="--exact --no-sort --bind=ctrl-z:ignore,btab:up,tab:down --cycle --keep-right --border=rounded --height=45% --info=inline --layout=reverse --tabstop=1 --exit-0"
+# Extend fzf default options for zoxide
 export _ZO_FZF_OPTS="$_ZO_FZF_OPTS $FZF_DEFAULT_OPTS"
 
 eval "$(zoxide init zsh)"
