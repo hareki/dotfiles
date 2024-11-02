@@ -336,6 +336,7 @@ export FZF_DEFAULT_OPTS=" \
 # Set rounded border, keep other default options, currently there's no way to merge the two
 # https://github.com/ajeetdsouza/zoxide/issues/618
 export _ZO_FZF_OPTS="--exact --no-sort --bind=ctrl-z:ignore,btab:up,tab:down --cycle --keep-right --border=rounded --height=45% --info=inline --layout=reverse --tabstop=1 --exit-0"
+export _ZO_FZF_OPTS="$_ZO_FZF_OPTS $FZF_DEFAULT_OPTS"
 
 eval "$(zoxide init zsh)"
 
