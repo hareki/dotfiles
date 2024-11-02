@@ -15,13 +15,11 @@ require("lazy").setup({
   spec = {
     { "Hareki/LazyVim", import = "lazyvim.plugins" },
 
-    { import = "plugins.disabled" },
     { import = "plugins.core" },
 
     { import = "plugins.extras.coding" },
     { import = "plugins.extras.editor" },
     { import = "plugins.extras.lang" },
-    { import = "plugins.extras.lsp" },
     { import = "plugins.extras.tmux" },
     { import = "plugins.extras.ui" },
 
