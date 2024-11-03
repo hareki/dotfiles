@@ -20,6 +20,7 @@ local config_table = {
 	underline_thickness = "2px",
 	underline_position = "175%",
 
+	default_cursor_style = 'BlinkingBar',
 	cursor_blink_ease_in = "Constant",
 	cursor_blink_ease_out = "Constant",
 	cursor_blink_rate = 600,
