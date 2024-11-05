@@ -9,6 +9,11 @@ end
 vim.opt.rtp:prepend(vim.env.LAZY or lazypath)
 
 require("lazy").setup({
+  ui = {
+    border = "rounded",
+    backdrop = 100,
+    title = " Lazy ",
+  },
   rocks = {
     hererocks = true,
   },

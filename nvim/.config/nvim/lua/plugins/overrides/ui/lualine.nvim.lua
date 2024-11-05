@@ -111,11 +111,18 @@ return {
         },
         -- always_visible = true,
       },
+      -- Acts as a padding that always there so that even if filetype icon is not visible, the filename will still have some padding
+      {
+        function()
+          return " "
+        end,
+        padding = { left = 0, right = 0 },
+      },
       {
         "filetype",
         icon_only = true,
         colored = false,
-        padding = { left = 1, right = 0 },
+        padding = { left = 0, right = 0 },
       },
       {
         "filename",
