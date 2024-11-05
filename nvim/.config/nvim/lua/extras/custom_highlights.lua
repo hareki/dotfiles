@@ -54,6 +54,8 @@ local custom_highlights = {
 
   DropBarKindDir = { link = "DropBarKindFile" },
 
+  FloatTitle = { fg = colors.blue },
+
   -- We use aucmds to dynamically switch hl colors instead
   -- YankyYanked = { link = "YankRegisterHighlight" },
 
