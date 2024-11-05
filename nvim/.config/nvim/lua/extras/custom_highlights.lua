@@ -74,6 +74,7 @@ return {
       Util.hl(group, style)
     end
 
+    -- Can't set cursor shape for terminal mode, waiting for: https://github.com/neovim/neovim/issues/3681
     vim.api.nvim_set_option_value("guicursor", "n-v:block,i-c-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkon1", {
       scope = "global",
     })
