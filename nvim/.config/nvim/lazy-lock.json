@@ -1,5 +1,5 @@
 {
-  "LazyVim": { "branch": "main", "commit": "8d221e9766d3f0ec5434e4599b5205fdfa4d1fe2" },
+  "LazyVim": { "branch": "main", "commit": "a6c76e4ac584ea4984dcc0f1ab3fa2426161b18a" },
   "LuaSnip": { "branch": "master", "commit": "2737edc9e674e537dc0a97e3405658d57d2d31ed" },
   "SchemaStore.nvim": { "branch": "main", "commit": "3d2412ee76de350ac13b42e84876b2184d8847a5" },
   "catppuccin": { "branch": "main", "commit": "35d8057137af463c9f41f169539e9b190d57d269" },
@@ -29,7 +29,7 @@
   "lualine.nvim": { "branch": "master", "commit": "640260d7c2d98779cab89b1e7088ab14ea354a02" },
   "luvit-meta": { "branch": "main", "commit": "ce76f6f6cdc9201523a5875a4471dcfe0186eb60" },
   "mason-lspconfig.nvim": { "branch": "main", "commit": "4d0e5b49363cac187326998b96aa6a2884e0e89b" },
-  "mason.nvim": { "branch": "main", "commit": "e2f7f9044ec30067bc11800a9e266664b88cda22" },
+  "mason.nvim": { "branch": "main", "commit": "96964ccdbc427d36b3408d6204ac6751c1921ab5" },
   "mini.ai": { "branch": "main", "commit": "9b9b7cfa38b4871c3e44cfe89cf6d53fd40684d9" },
   "mini.hipatterns": { "branch": "main", "commit": "797cbdc893cdcc2f0fbc05a23b4dae238a1fb0ae" },
   "mini.icons": { "branch": "main", "commit": "a2742459f0ee32806c2438ca06b4d8b331f3f4d4" },
