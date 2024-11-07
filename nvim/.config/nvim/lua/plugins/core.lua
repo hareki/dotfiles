@@ -2,7 +2,7 @@ return {
   -- Always use the latest version
   -- https://www.lazyvim.org/configuration/lazy.nvim
   {
-    "Hareki/LazyVim",
+    "hareki/LazyVim",
     version = false,
     opts = function(_, opts)
       opts.colorscheme = "catppuccin-mocha"
