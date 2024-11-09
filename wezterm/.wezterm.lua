@@ -5,6 +5,7 @@ local act = wezterm.action
 local config = wezterm.config_builder()
 
 local config_table = {
+	max_fps = 75,
 	default_prog = { "archlinux" },
 	color_scheme = "Catppuccin Mocha",
 	enable_tab_bar = false,
@@ -21,6 +22,7 @@ local config_table = {
 	underline_position = "175%",
 
 	default_cursor_style = 'BlinkingBar',
+	animation_fps = 1,
 	cursor_blink_ease_in = "Constant",
 	cursor_blink_ease_out = "Constant",
 	cursor_blink_rate = 600,
