@@ -193,39 +193,78 @@ fb() {
     fi
 }
 
-# [F]ind Neo[V]im
-fv() {
+# [M]y f[Z]f
+# Heavily crafted with the help of ChatGPT
+mz() {
   # Default values
   local type=""
   local root_dir="$HOME"  # Default to home directory
-  local change_dir=0  # Flag to indicate whether to use 'cd'
-  local use_preview=0  # Flag to indicate whether to use preview
+  local change_dir=0      # Flag to indicate whether to use 'cd'
+  local use_preview=0     # Flag to indicate whether to use preview
+  local output_path=0     # Flag for -l option
 
   # Help message
-  local help_message="Usage: fv [options] [path]
-  
+  local help_message="Usage: fv [OPTIONS] [PATH]
+
+
 Options:
-  -d            List directories only (uses '--type directory')
-  -f            List files only (uses '--type file' and enables file preview pane)
-  -c            Change to the selected directory (uses 'cd' instead of 'nvim')
-  -h            Show this help message
-  
-If [path] is provided, it will be used as the root directory to begin the search. If omitted, the default is \$HOME."
+  -d, --directories   List directories only (uses '--type directory')
+  -f, --files         List files only (uses '--type file')
+  -p, --preview       Enable preview pane
+  -c, --cd            Change to the selected directory (uses 'cd' instead of 'nvim')
+  -l, --log           Output the selected path to the terminal input instead of opening it
+  -h, --help          Show this help message
+
+If [PATH] is provided, it will be used as the root directory to begin the search. If omitted, the default is \$HOME."
 
   # Parse options
-  while getopts ":dfch" opt; do
-    case $opt in
-      d) type="directory" ;;       # Option -d for directories
-      f) type="file"; use_preview=1 ;;  # Option -f for files, enable preview
-      c) change_dir=1; type="directory" ;;  # Option -c for changing directories
-      h) echo "$help_message"; return 0 ;;  # Option -h to display help
-      \?) echo "Invalid option: -$OPTARG" >&2; return 1 ;;  # Invalid option handling
-      :) echo "Option -$OPTARG requires an argument." >&2; return 1 ;;  # Missing argument
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -d|--directories)
+        type="directory"
+        shift
+        ;;
+      -f|--files)
+        type="file"
+        shift
+        ;;
+      -p|--preview)
+        use_preview=1
+        shift
+        ;;
+      -c|--cd)
+        change_dir=1
+        type="directory"
+        shift
+        ;;
+      -l|--log)
+        output_path=1
+        shift
+        ;;
+      -h|--help)
+        echo "$help_message"
+        return 0
+        ;;
+      --)
+        shift
+        break
+        ;;
+      -*)
+        echo "Invalid option: $1" >&2
+        return 1
+        ;;
+      *)
+        # Positional argument (path)
+        break
+        ;;
     esac
   done
 
-  # Shift to check for positional argument (path)
-  shift $((OPTIND - 1))
+  # If both -c and -l are provided, throw an error
+  if [[ $change_dir -eq 1 && $output_path -eq 1 ]]; then
+    echo "Error: Options '-c/--cd' and '-l/--log' cannot be used together." >&2
+    return 1
+  fi
 
   # If a path is provided as an argument, use it
   if [[ -n "$1" ]]; then
@@ -240,7 +279,7 @@ If [path] is provided, it will be used as the root directory to begin the search
   # Common fzf-tmux options
   local fzf_options=(-p --reverse -w 60% -h 50%)
 
-  # Add preview option if -f is provided
+  # Add preview option if -p is provided
   if [[ $use_preview -eq 1 ]]; then
     fzf_options+=(
       --preview="bat --color=always --theme=\"Catppuccin Mocha\" {}"
@@ -262,11 +301,35 @@ If [path] is provided, it will be used as the root directory to begin the search
   if [[ $change_dir -eq 1 ]]; then
     z "$file" || return 1
     echo "Changed directory to $file"
+  elif [[ $output_path -eq 1 ]]; then
+    # Output the selected path
+    echo "$file"
   else
     # Otherwise, open the file/directory in nvim
     nvim "$file"
   fi
 }
+
+
+
+mz_insert_path() {
+  # Export the current PATH variable to the widget's environment
+  local -x PATH="$PATH"
+
+  local path
+  path=$(mz -lp)
+
+  if [[ -z "$path" ]]; then
+    return 0
+  fi
+
+  # Insert the path into the command line at cursor position
+  LBUFFER+="$path"
+}
+
+# Register the widget with ZLE
+zle -N mz_insert_path
+bindkey '^I' mz_insert_path
 
 # [Y]azi [C]hange [D]irectory
 # Press q to quit and cd into the cwd
