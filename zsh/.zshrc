@@ -8,7 +8,7 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" 
 fi
 
-PATH="/mnt/c/Windows:/mnt/c/Windows/System32/WindowsPowerShell/v1.0:$PATH"
+PATH="/mnt/c/Windows:/mnt/c/Windows/System32:/mnt/c/Windows/System32/WindowsPowerShell/v1.0:$PATH"
 explorer() {
     if [ -z "$1" ]; then
         explorer.exe
@@ -140,6 +140,22 @@ preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 # fzf-tmux command uses bash shell, causing the incorrect cursor shape due to "echo -ne '\e[5 q" not being executed.
 # So we need to "echo -ne '\e[5 q" in the bash shell as well.
 export BASH_ENV="$HOME/.fzf_bashrc"
+
+function vi-yank-clip {
+  zle vi-yank
+  echo "$CUTBUFFER" | clip.exe
+}
+
+zle -N vi-yank-clip
+bindkey -M vicmd 'y' vi-yank-clip
+
+function vi-delete-clip {
+  zle vi-delete
+  echo "$CUTBUFFER" | clip.exe
+}
+
+zle -N vi-delete-char-clip
+bindkey -M visual 'x' vi-delete-clip
 
 # NOTE: Aliases and util functions
 
