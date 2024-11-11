@@ -6,6 +6,9 @@
 vim.g.autoformat = false
 vim.b.autoformat = false
 
+vim.g.lazyvim_eslint_auto_format = false
+vim.b.lazyvim_eslint_auto_format = false
+
 -- vim.g.git_worktree = {
 -- change_directory_command = "vim.api.nvim_set_current_dir",
 -- }
