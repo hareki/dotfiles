@@ -163,6 +163,10 @@ alias lg="lazygit"
 alias cls="colorls"
 alias cd="z"
 
+alias ..= "z .."
+alias ...= "z ..."
+alias ....= "z ...."
+
 # [RE-Z]shrc
 alias rez="source ~/.zshrc && zsh"
 
