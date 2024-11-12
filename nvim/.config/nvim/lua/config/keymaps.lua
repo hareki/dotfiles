@@ -44,11 +44,6 @@ map({ "i", "x", "n", "s" }, "<C-s>", function()
   end)
 end, { desc = "Save and async format file" })
 
-map("n", "<leader>bo", function()
-  Util.buffer.close_file_buffers(false)
-  LazyVim.notify("Deleted other buffers")
-end, { desc = "Delete Other Buffers" })
-
 -- map("n", "<leader>t", function()
 --   -- Add function to test here
 --   LazyVim.notify("No test at the moment")
