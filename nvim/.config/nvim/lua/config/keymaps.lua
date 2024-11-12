@@ -16,6 +16,10 @@ end, { noremap = true, silent = true })
 
 map("i", "jk", "<Esc>", { noremap = true, desc = "Map jk to Esc in insert mode" })
 
+map("n", "<leader>uN", function()
+  Snacks.notifier.show_history()
+end, { noremap = true, desc = "Show Notification History" })
+
 map({ "n", "v" }, "<C-u>", "<C-u>zz", { desc = "Scroll up and center" })
 map({ "n", "v" }, "<C-d>", "<C-d>zz", { desc = "Scroll down and center" })
 
