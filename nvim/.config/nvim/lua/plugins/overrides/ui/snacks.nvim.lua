@@ -1,13 +1,13 @@
 return {
   {
-    "folke/snacks.nvim",
+    "hareki/snacks.nvim",
     opts = {
       terminal = {
         win = {
           position = "float",
           border = "rounded",
-          backdrop = 100,
-          size = { width = 0.7, height = 0.7 },
+          widh = 0.8,
+          height = 0.8,
           title = " Terminal ",
           title_pos = "center",
         },
