@@ -5,8 +5,8 @@
 -- NOTE: these are just general keymaps, there are other keymaps that closely related to some plugin so they're not here
 -- We can find them with the "keys = " or "Util.map" keywords
 
-Util.toggle.map("<leader>ub", Util.toggle.current_line_blame)
-Util.toggle.map("<leader>us", Util.toggle.typos_lsp)
+Util.toggle.current_line_blame():map("<leader>ub")
+Util.toggle.typos_lsp():map("<leader>us")
 
 local map = Util.map
 
