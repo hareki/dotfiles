@@ -233,48 +233,67 @@ Options:
 
 If [PATH] is provided, it will be used as the root directory to begin the search. If omitted, the default is \$HOME."
 
-  # Parse options
-  while [[ $# -gt 0 ]]; do
-    case "$1" in
-      -d|--directories)
+  # Parse options using getopts
+  local opt
+  # Reset OPTIND in case getopts has been used previously in the shell
+  OPTIND=1
+  while getopts ":dfpclh-:" opt; do
+    case "$opt" in
+      d)
         type="directory"
-        shift
         ;;
-      -f|--files)
+      f)
         type="file"
-        shift
         ;;
-      -p|--preview)
+      p)
         use_preview=1
-        shift
         ;;
-      -c|--cd)
+      c)
         change_dir=1
         type="directory"
-        shift
         ;;
-      -l|--log)
+      l)
         output_path=1
-        shift
         ;;
-      -h|--help)
+      h)
         echo "$help_message"
         return 0
         ;;
-      --)
-        shift
-        break
+      -)
+        case "${OPTARG}" in
+          directories)
+            type="directory"
+            ;;
+          files)
+            type="file"
+            ;;
+          preview)
+            use_preview=1
+            ;;
+          cd)
+            change_dir=1
+            type="directory"
+            ;;
+          log)
+            output_path=1
+            ;;
+          help)
+            echo "$help_message"
+            return 0
+            ;;
+          *)
+            echo "Invalid option: --${OPTARG}" >&2
+            return 1
+            ;;
+        esac
         ;;
-      -*)
-        echo "Invalid option: $1" >&2
+      \?)
+        echo "Invalid option: -$OPTARG" >&2
         return 1
-        ;;
-      *)
-        # Positional argument (path)
-        break
         ;;
     esac
   done
+  shift $((OPTIND -1))
 
   # If both -c and -l are provided, throw an error
   if [[ $change_dir -eq 1 && $output_path -eq 1 ]]; then
@@ -345,7 +364,7 @@ mz_insert_path() {
 
 # Register the widget with ZLE
 zle -N mz_insert_path
-bindkey '^I' mz_insert_path
+bindkey '^O' mz_insert_path
 
 # [Y]azi [C]hange [D]irectory
 # Press q to quit and cd into the cwd
