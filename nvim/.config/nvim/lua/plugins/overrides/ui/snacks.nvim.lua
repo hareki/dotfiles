@@ -1,6 +1,6 @@
 return {
   {
-    "hareki/snacks.nvim",
+    "folke/snacks.nvim",
     opts = function(_, opts)
       Snacks.config.style("terminal", {
         position = "float",
