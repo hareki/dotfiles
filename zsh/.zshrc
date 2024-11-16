@@ -154,7 +154,7 @@ function vi-delete-clip {
   echo "$CUTBUFFER" | clip.exe
 }
 
-zle -N vi-delete-char-clip
+zle -N vi-delete-clip
 bindkey -M visual 'x' vi-delete-clip
 
 # NOTE: Aliases and util functions
