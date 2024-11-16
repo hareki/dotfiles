@@ -14,6 +14,7 @@ return {
 
       Snacks.config.style("notification.history", {
         title = " Notification History ",
+        backdrop = 100,
       })
 
       Snacks.config.style("blame_line", {
