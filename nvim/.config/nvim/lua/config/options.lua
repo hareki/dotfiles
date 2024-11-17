@@ -3,15 +3,14 @@
 -- Add any additional options here
 
 -- disable LazyVim autoformat as it's synchronous, it feels laggy
-vim.g.autoformat = false
-vim.b.autoformat = false
+local g = vim.g
+local b = vim.b
 
-vim.g.lazyvim_eslint_auto_format = false
-vim.b.lazyvim_eslint_auto_format = false
+g.autoformat = false
+b.autoformat = false
 
--- vim.g.git_worktree = {
--- change_directory_command = "vim.api.nvim_set_current_dir",
--- }
+g.lazyvim_eslint_auto_format = false
+b.lazyvim_eslint_auto_format = false
 
 local opt = vim.opt
 
