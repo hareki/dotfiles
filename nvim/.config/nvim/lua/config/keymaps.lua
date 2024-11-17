@@ -27,6 +27,7 @@ map("x", "x", '"0d', { noremap = true, desc = "Cut to register 0" })
 
 -- wezterm.action.PasteFrom is set to <C-v> in .wezterm.lua
 map({ "x" }, "<C-c>", '"+y', { desc = "Yank to system clipboard", noremap = true })
+map({ "n", "x" }, "<C-y>", '"+y', { desc = "Yank to system clipboard", noremap = true })
 
 map("v", "<leader>t", "ygvgcp", { remap = true, silent = true, desc = "Yank, comment and paste" })
 map("n", "<A-v>", "<C-v>", { silent = true, desc = "Visual Block Mode" })
@@ -34,20 +35,25 @@ map("n", "<A-v>", "<C-v>", { silent = true, desc = "Visual Block Mode" })
 map("n", "<leader>_", "<C-W>s", { desc = "Split Window Below", remap = true })
 
 -- Autoformat file on save asynchronously
-local timer = false
+local profile = false
+
+---@diagnostic disable-next-line: undefined-field
+local hrtime = vim.loop.hrtime
+
 map({ "i", "x", "n", "s" }, "<C-s>", function()
-  local start_time = timer and vim.loop.hrtime() or nil
+  local start_time = profile and hrtime() or nil
   require("conform").format({ async = true }, function(_)
     vim.api.nvim_command("silent! write")
 
     if start_time then
-      local end_time = vim.loop.hrtime()
+      local end_time = hrtime()
       local elapsed_time_ms = (end_time - start_time) / 1e6
       print(string.format("Execution time: %.3f ms", elapsed_time_ms))
     end
   end)
 end, { desc = "Save and async format file" })
 
+-- Used testing stuff when needed
 -- map("n", "<leader>t", function()
 --   -- Add function to test here
 --   LazyVim.notify("No test at the moment")
@@ -55,8 +61,6 @@ end, { desc = "Save and async format file" })
 
 -- Use wezterm.action.PasteFrom instead due to issues related to SSH: https://github.com/wez/wezterm/issues/2050
 -- map({ "n", "x" }, "<leader>p", '"+p', { desc = "Paste from system clipboard" })
--- map({ "x" }, "<leader>y", '"+y', { desc = "Yank to system clipboard" })
--- map("n", "h", "x", { desc = "test124" })
 
 -- Use yanky.nvim instead
 -- map("x", "p", '"_dP', { noremap = true, desc = "Paste without overwriting register" })

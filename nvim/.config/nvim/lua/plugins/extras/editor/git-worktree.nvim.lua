@@ -23,6 +23,7 @@ return {
     -- https://github.com/polarmutex/git-worktree.nvim/commit/604ab2dd763776a36d1aad9fd81a3c513c1d4d94
     version = false,
     dependencies = { "nvim-lua/plenary.nvim" },
+    -- git-worktree.nvim doesn't have setup function, so "opts" will not work
     init = function()
       local hooks = require("git-worktree.hooks")
       local which_key = require("which-key")
