@@ -50,6 +50,7 @@ export EDITOR='nvim'
 export VISUAL='nvim'
 export TERM='wezterm'
 export STOW_REPO="$HOME/Repositories/personal/dotfiles"
+export PATH="/home/hareki/.local/share/fnm:$PATH"
 
 # Redis
 export REDIS_BIN_PATH=/usr/bin
@@ -395,17 +396,6 @@ ycd() {
 
 alias yazi="ycd"
 
-# Lazy load NVM since it takes forever to load
-# https://frederic-hemberger.de/notes/speeding-up-initial-zsh-startup-with-lazy-loading/
-nvm() {
-  # Unset the placeholder function
-  unfunction "$0" # Can also use `unset -f nvm`
-  export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-  $0 "$@"
-}
-
 # Enable searching command history with fzf
 source <(fzf --zsh)
 HISTFILE=~/.zsh_history
@@ -436,7 +426,8 @@ then
   sudo /usr/sbin/sshd
 fi
 
-eval "$(zoxide init zsh)"
-eval "$(rbenv init - zsh)"
-# eval "$(atuin init zsh --disable-up-arrow)"
+eval "`zoxide init zsh`"
+eval "`rbenv init - zsh`"
+eval "`fnm env`"
+# eval "`atuin init zsh --disable-up-arrow`"
 clear
