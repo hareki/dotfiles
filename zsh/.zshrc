@@ -1,6 +1,6 @@
-# NOTE: oh-my-zsh template: ~/.oh-my-zsh/templates/zshrc.zsh-template
+# oh-my-zsh template: ~/.oh-my-zsh/templates/zshrc.zsh-template
 
-# NOTE: Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
 
@@ -11,37 +11,23 @@ fi
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-PATH="/mnt/c/Windows:/mnt/c/Windows/System32:/mnt/c/Windows/System32/WindowsPowerShell/v1.0:$PATH"
-explorer() {
-    if [ -z "$1" ]; then
-        explorer.exe
-    else
-        explorer.exe "$(wslpath -w "$1")"
-    fi
-}
-
 # Show labels for completions (pressing tab)
 # zstyle ':completion:*' format '%d'
 # zstyle ':completion:*' group-name ''
 
-# NOTE: Update PATH variable
+PATH="/mnt/c/Windows:/mnt/c/Windows/System32:/mnt/c/Windows/System32/WindowsPowerShell/v1.0:$PATH"
+
+# Update PATH variable
 if [ -d "$HOME/bin" ] ; then
-    PATH="$HOME/bin:$PATH"
+  PATH="$HOME/bin:$PATH"
 fi
 
 if [ -d "$HOME/.local/bin" ] ; then
-    PATH="$HOME/.local/bin:$PATH"
+  PATH="$HOME/.local/bin:$PATH"
 fi
-
-# export GEM_HOME="$(gem env user_gemhome)"
-# export PATH="$PATH:$GEM_HOME/bin"
-
-# # Spicetify
-# PATH=$PATH:/home/hareki/.spicetify
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
-
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # The ssh-agent plugin just starts the ssh-agent, to work with multiple identities, follow this guide:
@@ -55,33 +41,115 @@ zstyle :omz:plugins:ssh-agent quiet yes
 zstyle :omz:plugins:ssh-agent lazy yes
 
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-
 ZSH_CUSTOM_AUTOUPDATE_NUM_WORKERS=8
 ZSH_CUSTOM_AUTOUPDATE_QUIET=true
 
 source $ZSH/oh-my-zsh.sh
 
-
-# NOTE: Stow config
+export EDITOR='nvim'
+export VISUAL='nvim'
+export TERM='wezterm'
 export STOW_REPO="$HOME/Repositories/personal/dotfiles"
+
+# Redis
+export REDIS_BIN_PATH=/usr/bin
+export CLUSTER_HOST=127.0.0.1
+export CLUSTER_PORT=3002
+export NODES=6
+
+# fzf-tmux command uses bash shell, causing the incorrect cursor shape due to "echo -ne '\e[5 q" not being executed.
+# So we need to "echo -ne '\e[5 q" in the bash shell as well.
+export BASH_ENV="$HOME/.fzf_bashrc"
+
+# FZF Catppuccino Mocha theme with custom border color
+export FZF_DEFAULT_OPTS=" \
+--border=rounded --layout=reverse \
+--color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8,border:#89b4fa \
+--color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
+--color=marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8 \
+--color=selected-bg:#45475a \
+--multi"
+
+# Added/overriden options: --border=rounded --info=default
+# Keep other default options, currently there's no way to merge the two
+# https://github.com/ajeetdsouza/zoxide/issues/618
+export _ZO_FZF_OPTS="--exact --no-sort --bind=ctrl-z:ignore,btab:up,tab:down --cycle --keep-right --border=rounded --height=45% --info=default --layout=reverse --tabstop=1 --exit-0"
+# Extend fzf default options for zoxide
+export _ZO_FZF_OPTS="$_ZO_FZF_OPTS $FZF_DEFAULT_OPTS"
+
+# Enable vi mode
+bindkey -v
+bindkey -M viins 'jk' vi-cmd-mode
+bindkey '^E' autosuggest-accept
+
+# Change cursor shape for different vi modes.
+# https://gist.github.com/LukeSmithxyz/e62f26e55ea8b0ed41a65912fbebbe52
+zle-keymap-select() {
+  if [[ ${KEYMAP} == vicmd ]] ||
+    [[ $1 = 'block' ]]; then
+    echo -ne '\e[1 q'
+  elif [[ ${KEYMAP} == main ]] ||
+    [[ ${KEYMAP} == viins ]] ||
+    [[ ${KEYMAP} = '' ]] ||
+    [[ $1 = 'beam' ]]; then
+    echo -ne '\e[5 q'
+  fi
+}
+zle -N zle-keymap-select
+
+zle-line-init() {
+  zle -K viins # initiate `vi insert` as keymap (can be removed if `bindkey -V` has been set elsewhere)
+  echo -ne "\e[5 q"
+}
+zle -N zle-line-init
+
+echo -ne '\e[5 q' # Use beam shape cursor on startup.
+preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
+
+function vi-yank-clip {
+  zle vi-yank
+  echo "$CUTBUFFER" | clip.exe
+}
+zle -N vi-yank-clip
+bindkey -M vicmd 'y' vi-yank-clip
+
+function vi-delete-clip {
+  zle vi-delete
+  echo "$CUTBUFFER" | clip.exe
+}
+zle -N vi-delete-clip
+bindkey -M visual 'x' vi-delete-clip
+
+# Aliases and util functions
+alias lg="lazygit"
+alias cls="colorls"
+alias cd="z"
+
+alias ..= "z .."
+alias ...= "z ..."
+alias ....= "z ...."
+
+# [RE-Z]shrc
+alias rez="clear && echo '' && exec zsh"
+
 # [S]ync-[D]otfiles
 sync-d() {
-    if [ -d "$STOW_REPO/$1" ]; then
-        z "$STOW_REPO" || return
-        stow "$1" -t ~
-        z -  > /dev/null
-    else
-        echo "Directory $STOW_REPO/$1 does not exist."
-    fi
+  if [ -d "$STOW_REPO/$1" ]; then
+    z "$STOW_REPO" || return
+    stow "$1" -t ~
+    z -  > /dev/null
+  else
+    echo "Directory $STOW_REPO/$1 does not exist."
+  fi
 }
 
 _sync_d_autocomplete() {
-    local -a dirs
-    local repo_dir="$STOW_REPO"
+  local -a dirs
+  local repo_dir="$STOW_REPO"
 
-    # Get a list of directories under $STOW_REPO excluding .git and feed them into completion
-    dirs=(${(f)"$(fd --type d --max-depth 1 --exclude .git --base-directory $repo_dir --exec basename {})"})
-    _describe 'stow directories' dirs
+  # Get a list of directories under $STOW_REPO excluding .git and feed them into completion
+  dirs=(${(f)"$(fd --type d --max-depth 1 --exclude .git --base-directory $repo_dir --exec basename {})"})
+  _describe 'stow directories' dirs
 }
 compdef _sync_d_autocomplete sync-d
 
@@ -107,65 +175,13 @@ sync-g() {
   z - || return
 }
 
-# NOTE: Enable vi mode
-bindkey -v
-bindkey -M viins 'jk' vi-cmd-mode
-bindkey '^E' autosuggest-accept
-
-# Change cursor shape for different vi modes.
-# https://gist.github.com/LukeSmithxyz/e62f26e55ea8b0ed41a65912fbebbe52
-zle-keymap-select() {
-  if [[ ${KEYMAP} == vicmd ]] ||
-     [[ $1 = 'block' ]]; then
-    echo -ne '\e[1 q'
-  elif [[ ${KEYMAP} == main ]] ||
-       [[ ${KEYMAP} == viins ]] ||
-       [[ ${KEYMAP} = '' ]] ||
-       [[ $1 = 'beam' ]]; then
-    echo -ne '\e[5 q'
-  fi
+explorer() {
+    if [ -z "$1" ]; then
+      explorer.exe
+    else
+      explorer.exe "$(wslpath -w "$1")"
+    fi
 }
-zle -N zle-keymap-select
-zle-line-init() {
-    zle -K viins # initiate `vi insert` as keymap (can be removed if `bindkey -V` has been set elsewhere)
-    echo -ne "\e[5 q"
-}
-zle -N zle-line-init
-echo -ne '\e[5 q' # Use beam shape cursor on startup.
-preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
-
-# fzf-tmux command uses bash shell, causing the incorrect cursor shape due to "echo -ne '\e[5 q" not being executed.
-# So we need to "echo -ne '\e[5 q" in the bash shell as well.
-export BASH_ENV="$HOME/.fzf_bashrc"
-
-function vi-yank-clip {
-  zle vi-yank
-  echo "$CUTBUFFER" | clip.exe
-}
-
-zle -N vi-yank-clip
-bindkey -M vicmd 'y' vi-yank-clip
-
-function vi-delete-clip {
-  zle vi-delete
-  echo "$CUTBUFFER" | clip.exe
-}
-
-zle -N vi-delete-clip
-bindkey -M visual 'x' vi-delete-clip
-
-# NOTE: Aliases and util functions
-
-alias lg="lazygit"
-alias cls="colorls"
-alias cd="z"
-
-alias ..= "z .."
-alias ...= "z ..."
-alias ....= "z ...."
-
-# [RE-Z]shrc
-alias rez="clear && echo '' && exec zsh"
 
 # [C]hange [D]irectory and [L]i[S]t
 cl() { z "$@" && cls; }
@@ -174,17 +190,17 @@ cl() { z "$@" && cls; }
 nvcd() {
   # 1. The `env TERM=wezterm` is for https://wezfurlong.org/wezterm/faq.html#how-do-i-enable-undercurl-curly-underlines
   # 2. Have to use the `command` to explicitly call a command without triggering the alias.
-    if [[ -z $1 ]]; then
-      command env TERM=wezterm nvim
-      return 0
-    fi
+  if [[ -z $1 ]]; then
+    command env TERM=wezterm nvim
+    return 0
+  fi
 
-    if [[ -d $1 ]]; then
-      z "$1" && command env TERM=wezterm nvim .
-      return 0
-    fi
+  if [[ -d $1 ]]; then
+    z "$1" && command env TERM=wezterm nvim .
+    return 0
+  fi
 
-    command env TERM=wezterm nvim "$1"
+  command env TERM=wezterm nvim "$1"
 }
 alias nvim="nvcd"
 
@@ -195,19 +211,19 @@ zn() {
 
 # [F]ind [B]ranch
 fb() {
-    # List branches, remove HEAD reference, leading spaces, asterisks, remove "remotes/origin/" prefix, and remove duplicates
-    branch=$(git branch -a --sort=-committerdate | sed '/HEAD ->/d' | sed 's/^..//' | sed 's/remotes\/origin\///' | sort -u | fzf-tmux -p --reverse -w 60% -h 50%)
+  # List branches, remove HEAD reference, leading spaces, asterisks, remove "remotes/origin/" prefix, and remove duplicates
+  branch=$(git branch -a --sort=-committerdate | sed '/HEAD ->/d' | sed 's/^..//' | sed 's/remotes\/origin\///' | sort -u | fzf-tmux -p --reverse -w 60% -h 50%)
 
-    if [[ -n $branch ]]; then
-        # Check if the selected branch exists locally
-        if git show-ref --verify --quiet "refs/heads/$branch"; then
-            # Checkout the local branch
-            git checkout "$branch"
-        else
-            # Checkout a new local branch that tracks the remote branch
-            git checkout -b "$branch" --track "remotes/origin/$branch"
-        fi
+  if [[ -n $branch ]]; then
+    # Check if the selected branch exists locally
+    if git show-ref --verify --quiet "refs/heads/$branch"; then
+      # Checkout the local branch
+      git checkout "$branch"
+    else
+      # Checkout a new local branch that tracks the remote branch
+      git checkout -b "$branch" --track "remotes/origin/$branch"
     fi
+  fi
 }
 
 # [M]y f[Z]f
@@ -222,7 +238,6 @@ mz() {
 
   # Help message
   local help_message="Usage: fv [OPTIONS] [PATH]
-
 
 Options:
   -d, --directories   List directories only (uses '--type directory')
@@ -346,8 +361,6 @@ If [PATH] is provided, it will be used as the root directory to begin the search
   fi
 }
 
-
-
 mz_insert_path() {
   # Export the current PATH variable to the widget's environment
   local -x PATH="$PATH"
@@ -371,30 +384,36 @@ bindkey '^O' mz_insert_path
 # Press q to quit and cd into the cwd
 # Press Q to quit without changing directory
 ycd() {
-    local cwd_file
-    cwd_file=$(mktemp)
-    yazi --cwd-file="$cwd_file" "$@"
-    if [ -f "$cwd_file" ]; then
-        z "$(cat "$cwd_file")" || return
-        rm "$cwd_file"
-    fi
+  local cwd_file
+  cwd_file=$(mktemp)
+  yazi --cwd-file="$cwd_file" "$@"
+  if [ -f "$cwd_file" ]; then
+    z "$(cat "$cwd_file")" || return
+    rm "$cwd_file"
+  fi
 }
 
 alias yazi="ycd"
 
-# NOTE: NVM Configs
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# Lazy load NVM since it takes forever to load
+# https://frederic-hemberger.de/notes/speeding-up-initial-zsh-startup-with-lazy-loading/
+nvm() {
+  # Unset the placeholder function
+  unfunction "$0" # Can also use `unset -f nvm`
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+  $0 "$@"
+}
 
-# NOTE: Enable searching command history with fzf
+# Enable searching command history with fzf
 source <(fzf --zsh)
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
 setopt appendhistory
 
-# NOTE: Fix slowness of pastes with zsh-syntax-highlighting.zsh
+# Fix slowness of pastes with zsh-syntax-highlighting.zsh
 # https://gist.github.com/magicdude4eva/2d4748f8ef3e6bf7b1591964c201c1ab
 pasteinit() {
   OLD_SELF_INSERT=${${(s.:.)widgets[self-insert]}[2,3]}
@@ -407,42 +426,15 @@ pastefinish() {
 zstyle :bracketed-paste-magic paste-init pasteinit
 zstyle :bracketed-paste-magic paste-finish pastefinish
 
-# NOTE: Surface1(bg) and Yellow(fg) from Catppuchin Mocha
+# Surface1(bg) and Yellow(fg) from Catppuchin Mocha
 # Couldn't get it to just change the bg color and leave the bg color as is, so I chose a foreground color myself
 zle_highlight=(region:bg=#45475a,fg=#f9e2af)
 
-# NOTE: Start ssh server on startup for wezterm ssh
+# Start ssh server on startup for wezterm ssh
 if ! pgrep -x "sshd" > /dev/null
 then
-    sudo /usr/sbin/sshd
+  sudo /usr/sbin/sshd
 fi
-
-# NOTE: Set default editor
-export EDITOR='nvim'
-export VISUAL='nvim'
-export TERM='wezterm'
-
-# REDIS
-export REDIS_BIN_PATH=/usr/bin
-export CLUSTER_HOST=127.0.0.1
-export CLUSTER_PORT=3002
-export NODES=6
-
-# FZF Catppuccino Mocha theme with custom border color
-export FZF_DEFAULT_OPTS=" \
---border=rounded --layout=reverse \
---color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8,border:#89b4fa \
---color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
---color=marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8 \
---color=selected-bg:#45475a \
---multi"
-
-# Added/overriden options: --border=rounded --info=default
-# Keep other default options, currently there's no way to merge the two
-# https://github.com/ajeetdsouza/zoxide/issues/618
-export _ZO_FZF_OPTS="--exact --no-sort --bind=ctrl-z:ignore,btab:up,tab:down --cycle --keep-right --border=rounded --height=45% --info=default --layout=reverse --tabstop=1 --exit-0"
-# Extend fzf default options for zoxide
-export _ZO_FZF_OPTS="$_ZO_FZF_OPTS $FZF_DEFAULT_OPTS"
 
 eval "$(zoxide init zsh)"
 eval "$(rbenv init - zsh)"
