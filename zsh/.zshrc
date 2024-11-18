@@ -8,6 +8,9 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" 
 fi
 
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
 PATH="/mnt/c/Windows:/mnt/c/Windows/System32:/mnt/c/Windows/System32/WindowsPowerShell/v1.0:$PATH"
 explorer() {
     if [ -z "$1" ]; then
@@ -57,12 +60,6 @@ ZSH_CUSTOM_AUTOUPDATE_NUM_WORKERS=8
 ZSH_CUSTOM_AUTOUPDATE_QUIET=true
 
 source $ZSH/oh-my-zsh.sh
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
-# Load rbenv automatically
-eval "$(rbenv init - zsh)"
 
 
 # NOTE: Stow config
@@ -168,7 +165,7 @@ alias ...= "z ..."
 alias ....= "z ...."
 
 # [RE-Z]shrc
-alias rez="source ~/.zshrc && zsh"
+alias rez="clear && echo '' && exec zsh"
 
 # [C]hange [D]irectory and [L]i[S]t
 cl() { z "$@" && cls; }
@@ -390,12 +387,12 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-# # NOTE: Enable searching command history with fzf
-# source <(fzf --zsh)
-# HISTFILE=~/.zsh_history
-# HISTSIZE=10000
-# SAVEHIST=10000
-# setopt appendhistory
+# NOTE: Enable searching command history with fzf
+source <(fzf --zsh)
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+setopt appendhistory
 
 # NOTE: Fix slowness of pastes with zsh-syntax-highlighting.zsh
 # https://gist.github.com/magicdude4eva/2d4748f8ef3e6bf7b1591964c201c1ab
@@ -433,19 +430,21 @@ export NODES=6
 
 # FZF Catppuccino Mocha theme with custom border color
 export FZF_DEFAULT_OPTS=" \
+--border=rounded --layout=reverse \
 --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8,border:#89b4fa \
 --color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
 --color=marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8 \
 --color=selected-bg:#45475a \
 --multi"
 
-# Set rounded border for zoxide, keep other default options, currently there's no way to merge the two
+# Added/overriden options: --border=rounded --info=default
+# Keep other default options, currently there's no way to merge the two
 # https://github.com/ajeetdsouza/zoxide/issues/618
-export _ZO_FZF_OPTS="--exact --no-sort --bind=ctrl-z:ignore,btab:up,tab:down --cycle --keep-right --border=rounded --height=45% --info=inline --layout=reverse --tabstop=1 --exit-0"
+export _ZO_FZF_OPTS="--exact --no-sort --bind=ctrl-z:ignore,btab:up,tab:down --cycle --keep-right --border=rounded --height=45% --info=default --layout=reverse --tabstop=1 --exit-0"
 # Extend fzf default options for zoxide
 export _ZO_FZF_OPTS="$_ZO_FZF_OPTS $FZF_DEFAULT_OPTS"
 
 eval "$(zoxide init zsh)"
-
-eval "$(atuin init zsh --disable-up-arrow)"
+eval "$(rbenv init - zsh)"
+# eval "$(atuin init zsh --disable-up-arrow)"
 clear
