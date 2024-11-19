@@ -427,7 +427,16 @@ then
 fi
 
 eval "`zoxide init zsh`"
-eval "`rbenv init - zsh`"
+
+# I'm only using rbenv to run tmuxinator for now so we can lazy-load it to gain a bit of performance (~150ms)
+# eval "`rbenv init - zsh`"
+function tmuxinator {
+  unset -f tmuxinator
+  eval "`rbenv init - zsh`"
+  tmuxinator "$@"
+}
+
+# Can't do the same for node since many commands depend on it (~100ms)
 eval "`fnm env`"
-# eval "`atuin init zsh --disable-up-arrow`"
+
 clear
