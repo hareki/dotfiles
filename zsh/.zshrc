@@ -131,6 +131,8 @@ alias ...= "z ..."
 alias ....= "z ...."
 
 # [RE-Z]shrc
+# echo '' is to simulate the p10k ruler (I use it as basically a blank line at the top)
+# so that when the shell is ready (after instant prompt) the prompt won't be shifted 
 alias rez="clear && echo '' && exec zsh"
 
 # [S]ync-[D]otfiles
