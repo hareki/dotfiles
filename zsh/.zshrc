@@ -15,16 +15,12 @@ fi
 # zstyle ':completion:*' format '%d'
 # zstyle ':completion:*' group-name ''
 
-PATH="/mnt/c/Windows:/mnt/c/Windows/System32:/mnt/c/Windows/System32/WindowsPowerShell/v1.0:$PATH"
-
-# Update PATH variable
-if [ -d "$HOME/bin" ] ; then
-  PATH="$HOME/bin:$PATH"
-fi
-
-if [ -d "$HOME/.local/bin" ] ; then
-  PATH="$HOME/.local/bin:$PATH"
-fi
+export PATH="/mnt/c/Windows:/mnt/c/Windows/System32:/mnt/c/Windows/System32/WindowsPowerShell/v1.0:$PATH"
+export FNM_DIR="$HOME/.local/share/fnm"
+[[ -d "$FNM_DIR" ]] && PATH="$FNM_DIR:$PATH"
+[[ -d "$HOME/bin" ]] && PATH="$HOME/bin:$PATH"
+[[ -d "$HOME/.local/bin" ]] && PATH="$HOME/.local/bin:$PATH"
+[[ -d "/home/hareki/.local/share/fnm" ]] && PATH="/home/hareki/.local/share/fnm:$PATH"
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -46,11 +42,13 @@ ZSH_CUSTOM_AUTOUPDATE_QUIET=true
 
 source $ZSH/oh-my-zsh.sh
 
+# Editor and Terminal Settings
 export EDITOR='nvim'
 export VISUAL='nvim'
 export TERM='wezterm'
+
+# Dotfiles management
 export STOW_REPO="$HOME/Repositories/personal/dotfiles"
-export PATH="/home/hareki/.local/share/fnm:$PATH"
 
 # Redis
 export REDIS_BIN_PATH=/usr/bin
@@ -398,12 +396,19 @@ ycd() {
 
 alias yazi="ycd"
 
-# Enable searching command history with fzf
-source <(fzf --zsh)
+# Lazy load fzf fuzzy completion
+load_fzf_completion() {
+  unset -f load_fzf_completion
+  source <(fzf --zsh)
+  zle fzf-history-widget
+}
+zle -N load_fzf_completion
+bindkey '^R' load_fzf_completion
+
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
-setopt appendhistory
+setopt appendhistory sharehistory
 
 # Fix slowness of pastes with zsh-syntax-highlighting.zsh
 # https://gist.github.com/magicdude4eva/2d4748f8ef3e6bf7b1591964c201c1ab
@@ -432,7 +437,7 @@ eval "`zoxide init zsh`"
 
 # I'm only using rbenv to run tmuxinator for now so we can lazy-load it to gain a bit of performance (~150ms)
 # eval "`rbenv init - zsh`"
-function tmuxinator {
+tmuxinator() {
   unset -f tmuxinator
   eval "`rbenv init - zsh`"
   tmuxinator "$@"
