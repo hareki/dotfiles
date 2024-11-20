@@ -31,25 +31,25 @@ return {
   "nvimdev/dashboard-nvim",
   opts = function(_)
     local logo = [[                                                                      
-                                                                           
-             ████ ██████           █████      ██                     
-            ███████████             █████                             
-            █████████ ███████████████████ ███   ███████████   
-           █████████  ███    █████████████ █████ ██████████████   
-          █████████ ██████████ █████████ █████ █████ ████ █████   
-        ███████████ ███    ███ █████████ █████ █████ ████ █████  
-       ██████  █████████████████████ ████ █████ █████ ████ ██████ 
+                                                                         
+          ████ ██████           █████      ██                     
+         ███████████             █████                             
+         █████████ ███████████████████ ███   ███████████   
+        █████████  ███    █████████████ █████ ██████████████   
+       █████████ ██████████ █████████ █████ █████ ████ █████   
+     ███████████ ███    ███ █████████ █████ █████ ████ █████  
+    ██████  █████████████████████ ████ █████ █████ ████ ██████ 
                                                                              ]]
 
-    logo = string.rep("\n", 1) .. logo .. "\n"
+    logo = string.rep("\n", 3) .. logo .. "\n"
 
     return {
       theme = "hyper",
+      shuffle_letter = false,
       config = {
         header = vim.split(logo, "\n"),
-        center = {},
-        project = { enable = true, limit = 2 },
-        mru = { limit = 4 },
+        project = { enable = true, limit = 4 },
+        mru = { enable = false, limit = 3 },
         -- footer = { "", '"Most people fail in life not because they aim too high and miss,', 'but because they aim too low and hit." — Les Brown' },
         footer = get_random_quote(),
         shortcut = {
@@ -60,34 +60,19 @@ return {
             action = "Lazy sync",
             key = "s",
           },
-
           {
-            icon = " ",
+            icon = "   ",
             desc = "Changelog",
             group = "@repeat",
             action = "Lazy log",
             key = "l",
           },
           {
-            icon = "󰱼 ",
-            desc = "Files",
-            group = "DiagnosticHint",
-            action = "Telescope find_files",
-            key = "f",
-          },
-          {
-            icon = "󰺯 ",
-            desc = "Search",
-            group = "Label",
-            action = "Telescope live_grep",
-            key = "g",
-          },
-          {
-            icon = "󰈆 ",
-            desc = "Exit",
+            icon = "  󰈆 ",
+            desc = "Quit",
             group = "@error",
             action = "exit",
-            key = "e",
+            key = "q",
           },
         },
       },
