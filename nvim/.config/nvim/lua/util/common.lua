@@ -58,4 +58,53 @@ function M.ensure_nested(t, key_string)
   return t
 end
 
+function M.get_rendered_tabline()
+  local tabs = vim.api.nvim_list_tabpages()
+  local current_tab = vim.api.nvim_get_current_tabpage()
+  local tabline = ""
+
+  local fixed_width = 15
+
+  for index, tab in ipairs(tabs) do
+    local is_current = (tab == current_tab)
+
+    if is_current then
+      tabline = tabline .. "%#TabLineSel#"
+    else
+      tabline = tabline .. "%#TabLine#"
+    end
+
+    -- Start clickable area
+    tabline = tabline .. "%" .. index .. "T"
+
+    -- Prepare the tab number centered within fixed_width
+    local tab_number = "Tab " .. tostring(index)
+    if is_current then
+      tab_number = "[" .. tab_number .. "]"
+    end
+    local padding_total = fixed_width - #tab_number
+    if padding_total < 0 then
+      padding_total = 0 -- Prevent negative padding
+    end
+    local padding_left = math.floor(padding_total / 2)
+    local padding_right = padding_total - padding_left
+    local tab_label = string.rep(" ", padding_left) .. tab_number .. string.rep(" ", padding_right)
+
+    -- Add the tab label
+    tabline = tabline .. tab_label
+
+    -- Explicitly reset the clickable area
+    tabline = tabline .. "%T"
+
+    if index < #tabs then
+      tabline = tabline .. "%#TabLine#|"
+    end
+  end
+
+  -- Fill the rest of the tabline area
+  tabline = tabline .. "%#TabLineFill#"
+
+  return tabline
+end
+
 return M

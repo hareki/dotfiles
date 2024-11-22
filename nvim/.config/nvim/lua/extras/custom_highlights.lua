@@ -49,6 +49,13 @@ local custom_highlights = {
   BufferLineBuffer = {
     bg = colors.base,
   },
+  TabLine = {
+    bg = colors.base,
+    fg = colors.surface1,
+  },
+  TabLineFill = {
+    bg = colors.base,
+  },
 
   YankyPut = { link = "YankRegisterHighlight" }, -- yanky.nvim
 

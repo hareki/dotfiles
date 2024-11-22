@@ -17,6 +17,7 @@ local opt = vim.opt
 opt.clipboard = "" -- turn off clipboard syncing
 opt.scrolloff = 6 -- Lines of context
 opt.smoothscroll = false
+opt.tabline = "%!v:lua.Util.get_rendered_tabline()"
 
 opt.pumblend = 0 -- fully opaque popupmenu
 opt.pumheight = 15 -- Maximum number of entries in a popup
