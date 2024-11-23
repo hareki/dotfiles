@@ -24,6 +24,7 @@ return {
       opts.notifier = {
         margin = { top = 1, right = 1, bottom = 0 },
       }
+      opts.dashboard.enabled = false
     end,
   },
 }
