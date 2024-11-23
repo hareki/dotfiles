@@ -53,6 +53,14 @@ map({ "i", "x", "n", "s" }, "<C-s>", function()
   end)
 end, { desc = "Save and async format file" })
 
+map("n", "<leader>gg", function()
+  Snacks.lazygit({ cwd = LazyVim.root.git(), configure = false })
+end, { desc = "Lazygit (Root Dir)" })
+
+map("n", "<leader>gG", function()
+  Snacks.lazygit({ configure = false })
+end, { desc = "Lazygit (cwd)" })
+
 -- Used testing stuff when needed
 -- map("n", "<leader>t", function()
 --   -- Add function to test here
