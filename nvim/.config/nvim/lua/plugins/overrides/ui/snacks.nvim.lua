@@ -21,6 +21,10 @@ return {
         height = 0.4,
       })
 
+      Snacks.config.style("lazygit", {
+        title = " Lazygit ",
+      })
+
       opts.notifier = {
         margin = { top = 1, right = 1, bottom = 0 },
       }

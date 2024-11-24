@@ -45,7 +45,20 @@ source $ZSH/oh-my-zsh.sh
 # Editor and Terminal Settings
 export EDITOR='nvim'
 export VISUAL='nvim'
-export TERM='wezterm'
+
+# ==== Lazygit Color Settings =====
+# This one's causing trouble with lazygit truecolor support
+# export TERM='wezterm'
+
+# For some reasons this one doesn't work: https://github.com/wez/wezterm/issues/875
+# lazygit needs this information to display truecolor
+export COLORTERM="truecolor"
+
+# Override the color 241 (ANSI) to "blue" in catppuccin since lazygit uses this color for directory icon
+# https://github.com/jesseduffield/lazygit/issues/3863
+# https://github.com/folke/snacks.nvim/blob/7564a30cad803c01f8ecc15683a280d2f0e9bdb7/lua/snacks/lazygit.lua#L125
+echo -ne "\033]4;241;#89b4fa\007"
+
 
 # Dotfiles management
 export STOW_REPO="$HOME/Repositories/personal/dotfiles"
@@ -56,6 +69,7 @@ export CLUSTER_HOST=127.0.0.1
 export CLUSTER_PORT=3002
 export NODES=6
 
+export BAT_THEME="Catppuccin Mocha"
 # fzf-tmux command uses bash shell, causing the incorrect cursor shape due to "echo -ne '\e[5 q" not being executed.
 # So we need to "echo -ne '\e[5 q" in the bash shell as well.
 export BASH_ENV="$HOME/.fzf_bashrc"
@@ -121,7 +135,6 @@ bindkey -M visual 'x' vi-delete-clip
 
 # Aliases and util functions
 alias lg="lazygit"
-alias cls="colorls"
 alias cd="z"
 
 alias ..= "z .."

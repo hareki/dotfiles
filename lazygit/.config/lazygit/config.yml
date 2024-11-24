@@ -15,6 +15,11 @@ os:
     [ -z "$NVIM" ] && nvim -- "{{dir}}" ||
     (nvim --server "$NVIM" --remote-send "q" && nvim --server "$NVIM" --remote "{{dir}}")
 gui:
+  authorColors:
+    "*": "#b4befe"
+  nerdFontsVersion: "3"
+
+  # https://github.com/catppuccin/lazygit
   theme:
     activeBorderColor:
       - "#fab387"
@@ -35,9 +40,6 @@ gui:
       - "#cdd6f4"
     searchingActiveBorderColor:
       - "#fab387"
-
-  authorColors:
-    "*": "#b4befe"
 git:
   paging:
     colorArg: always
