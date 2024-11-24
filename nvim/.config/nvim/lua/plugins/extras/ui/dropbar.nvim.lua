@@ -40,6 +40,15 @@ return {
       truncate = false,
       hover = false,
       sources = function(buf, _)
+        -- Hide the dropbar when in diff view
+        -- The second check is for when one buffer is closed
+        if vim.wo.diff or Util.has_dir({
+          dir_name = ".git",
+        }) then
+          vim.wo.winbar = ""
+          return {}
+        end
+
         local sources = require("dropbar.sources")
 
         if vim.bo[buf].ft == "markdown" then

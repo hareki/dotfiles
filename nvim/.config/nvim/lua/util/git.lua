@@ -172,4 +172,77 @@ function M.get_repo_name()
   return repo_name
 end
 
+local test = "a"
+
+--- Get the commit hash of the last commit affecting the current line in the current buffer.
+---
+--- @return string|nil The commit hash if found, or nil if not.
+function M.get_current_line_commit()
+  --- Get the current line number.
+  --- @type integer
+  local line = vim.api.nvim_win_get_cursor(0)[1]
+
+  --- Get the current file path.
+  --- @type string
+  local file = vim.api.nvim_buf_get_name(0)
+
+  --- Get Git root directory.
+  --- @type string|nil
+  local root = Snacks.git.get_root()
+  if not root then
+    vim.notify("Not inside a Git repository", vim.log.levels.ERROR)
+    return nil
+  end
+
+  local relative_file = Util.get_relative_path(file, root)
+
+  --- Construct the Git log command to get the last commit for the current line.
+  --- @type string[]
+  local cmd = {
+    "git",
+    "-C",
+    root,
+    "log",
+    "-n",
+    "1",
+    "-L",
+    string.format("%d,%d:%s", line, line, relative_file),
+  }
+
+  --- Execute the Git command and capture the output.
+  --- @type string[]
+  local output = vim.fn.systemlist(cmd)
+
+  -- Check for Git command errors.
+  if vim.v.shell_error ~= 0 then
+    vim.notify("Git command failed. Ensure the file is tracked and has sufficient history.", vim.log.levels.ERROR)
+    return nil
+  end
+
+  --- Extract the current commit hash from the Git command output.
+  --- @type string|nil
+  local current_commit = nil
+  for _, out_line in ipairs(output) do
+    current_commit = out_line:match("^commit%s+([0-9a-f]+)")
+    if current_commit then
+      break
+    end
+  end
+
+  return current_commit
+end
+
+--- Open Diffview to compare a commit with its previous state.
+---
+--- @param commit? string The commit hash or reference to compare.
+function M.diff_parent(commit)
+  if not commit or commit == "" then
+    -- No commit provided, show the current changes (both staged and unstaged) compared with the last commit
+    vim.cmd("DiffviewOpen")
+  else
+    --- Open Diffview with the commit range using commit~1.
+    vim.cmd(string.format("DiffviewOpen %s~1..%s", commit, commit))
+  end
+end
+
 return M
