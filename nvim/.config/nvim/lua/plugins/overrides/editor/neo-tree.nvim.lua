@@ -103,6 +103,11 @@ return {
     opts.popup_border_style = "rounded"
     opts.window.position = current_position
 
+    local icon = Util.ensure_nested(opts, "default_component_configs.icon")
+    icon.folder_closed = ""
+    icon.folder_open = ""
+    icon.folder_empty = ""
+
     opts.window.mappings["P"] = { "toggle_preview", config = { use_float = true } }
 
     opts.window.mappings["O"] = {
