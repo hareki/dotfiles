@@ -3,6 +3,7 @@
 ---@field git constant.git
 ---@field telescope constant.telescope
 ---@field yanky constant.yanky
+---@field ui constant.ui
 local M = {}
 
 setmetatable(M, {

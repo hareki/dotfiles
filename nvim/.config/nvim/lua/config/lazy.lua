@@ -8,9 +8,10 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(vim.env.LAZY or lazypath)
 
+local lg_size = Constant.ui.popup_size.lg
 require("lazy").setup({
   ui = {
-    size = { width = 0.8, height = 0.8 },
+    size = { width = lg_size.WIDTH, height = lg_size.HEIGHT },
     border = "rounded",
     backdrop = 100,
     title = " Lazy ",

@@ -1,11 +1,12 @@
+local lg_size = Constant.ui.popup_size.lg
 return {
   {
     "hareki/mason.nvim",
     opts = {
       ui = {
         border = "rounded",
-        height = 0.8,
-        width = 0.8,
+        width = lg_size.WIDTH,
+        height = lg_size.HEIGHT,
         title = " Mason ",
         title_pos = "center",
       },

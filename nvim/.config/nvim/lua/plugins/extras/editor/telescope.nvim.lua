@@ -19,6 +19,7 @@ require("telescope.pickers.layout_strategies").vertical_merged = function(picker
   return layout
 end
 
+local lg_size = Constant.ui.popup_size.lg
 return {
   "nvim-telescope/telescope.nvim",
   opts = {
@@ -54,11 +55,14 @@ return {
       layout_config = {
         vertical = {
           mirror = true,
-          height = 0.9,
+
+          -- Unify height and width to match other large popups by compensating for different size calculation methods
+          height = lg_size.HEIGHT + 0.1,
+          width = lg_size.WIDTH + 0.015,
+
           preview_height = 0.6,
           preview_cutoff = 1, -- Preview should always show (unless previewer = false)
           prompt_position = "top",
-          width = 0.6,
         },
       },
       mappings = {

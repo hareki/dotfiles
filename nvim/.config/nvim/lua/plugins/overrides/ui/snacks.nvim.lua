@@ -1,3 +1,4 @@
+local lg_size = Constant.ui.popup_size.lg
 return {
   {
     "folke/snacks.nvim",
@@ -8,13 +9,15 @@ return {
         title_pos = "center",
         border = "rounded",
         backdrop = 100,
-        width = 0.8,
-        height = 0.8,
+        width = lg_size.WIDTH,
+        height = lg_size.HEIGHT,
       })
 
       Snacks.config.style("notification.history", {
         title = " Notification History ",
         backdrop = 100,
+        width = lg_size.WIDTH,
+        height = lg_size.HEIGHT,
       })
 
       Snacks.config.style("blame_line", {
