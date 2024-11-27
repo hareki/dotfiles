@@ -42,6 +42,10 @@ ZSH_CUSTOM_AUTOUPDATE_QUIET=true
 
 source $ZSH/oh-my-zsh.sh
 
+# 2x Ctrl-D to exit, see `bash-ctrl-d` function
+export IGNOREEOF=2
+__BASH_IGNORE_EOF=0
+
 # Editor and Terminal Settings
 export EDITOR='nvim'
 export VISUAL='nvim'
@@ -392,6 +396,25 @@ function mz_insert_path {
 
 zle -N mz_insert_path
 bindkey '^O' mz_insert_path
+
+# Make Ctrl-D terminate the shell only after a certain number of times: https://superuser.com/questions/1243138/why-does-ignoreeof-not-work-in-zsh
+# Bash like Ctrl-D wrapper for IGNOREEOF
+setopt ignore_eof
+function bash-ctrl-d {
+  if [[ $CURSOR == 0 && -z $BUFFER ]]
+  then
+    [[ -z $IGNOREEOF || $IGNOREEOF == 0 ]] && exit
+    if [[ "$LASTWIDGET" == "bash-ctrl-d" ]]
+    then
+      (( --__BASH_IGNORE_EOF <= 0 )) && exit
+    else
+      (( __BASH_IGNORE_EOF = IGNOREEOF ))
+    fi
+  fi
+}
+
+zle -N bash-ctrl-d
+bindkey '^D' bash-ctrl-d
 
 # [Y]azi [C]hange [D]irectory
 # Press q to quit and cd into the cwd
