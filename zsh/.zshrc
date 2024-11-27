@@ -97,7 +97,7 @@ bindkey '^E' autosuggest-accept
 
 # Change cursor shape for different vi modes.
 # https://gist.github.com/LukeSmithxyz/e62f26e55ea8b0ed41a65912fbebbe52
-zle-keymap-select() {
+function zle-keymap-select {
   if [[ ${KEYMAP} == vicmd ]] ||
     [[ $1 = 'block' ]]; then
     echo -ne '\e[1 q'
@@ -110,14 +110,14 @@ zle-keymap-select() {
 }
 zle -N zle-keymap-select
 
-zle-line-init() {
+function zle-line-init {
   zle -K viins # initiate `vi insert` as keymap (can be removed if `bindkey -V` has been set elsewhere)
   echo -ne "\e[5 q"
 }
 zle -N zle-line-init
 
 echo -ne '\e[5 q' # Use beam shape cursor on startup.
-preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
+function preexec { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 
 function vi-yank-clip {
   zle vi-yank
@@ -147,7 +147,7 @@ alias ....= "z ...."
 alias rez="clear && echo '' && exec zsh"
 
 # [S]ync-[D]otfiles
-sync-d() {
+function sync-d {
   if [ -d "$STOW_REPO/$1" ]; then
     z "$STOW_REPO" || return
     stow "$1" -t ~
@@ -157,7 +157,7 @@ sync-d() {
   fi
 }
 
-_sync_d_autocomplete() {
+function _sync_d_autocomplete {
   local -a dirs
   local repo_dir="$STOW_REPO"
 
@@ -168,7 +168,7 @@ _sync_d_autocomplete() {
 compdef _sync_d_autocomplete sync-d
 
 # [S]ync [G]itHub
-sync-g() {
+function sync-g {
   z "$STOW_REPO" || return
   
   # Check for uncommitted changes
@@ -189,7 +189,7 @@ sync-g() {
   z - || return
 }
 
-explorer() {
+function explorer {
     if [ -z "$1" ]; then
       explorer.exe
     else
@@ -198,10 +198,10 @@ explorer() {
 }
 
 # [C]hange [D]irectory and [L]i[S]t
-cl() { z "$@" && cls; }
+function cl { z "$@" && cls; }
 
 # [N]eo[V]im and [C]hange [D]irectory
-nvcd() {
+function nvcd {
   # 1. The `env TERM=wezterm` is for https://wezfurlong.org/wezterm/faq.html#how-do-i-enable-undercurl-curly-underlines
   # 2. Have to use the `command` to explicitly call a command without triggering the alias.
   if [[ -z $1 ]]; then
@@ -218,13 +218,13 @@ nvcd() {
 }
 alias nvim="nvcd"
 
-zn() {
+function zn {
   z "$1" > /dev/null 2>&1 
   nvcd .
 }
 
 # [F]ind [B]ranch
-fb() {
+function fb {
   # List branches, remove HEAD reference, leading spaces, asterisks, remove "remotes/origin/" prefix, and remove duplicates
   branch=$(git branch -a --sort=-committerdate | sed '/HEAD ->/d' | sed 's/^..//' | sed 's/remotes\/origin\///' | sort -u | fzf-tmux -p --reverse -w 60% -h 50%)
 
@@ -242,7 +242,7 @@ fb() {
 
 # [M]y f[Z]f
 # Heavily crafted with the help of ChatGPT
-mz() {
+function mz {
   # Default values
   local type=""
   local root_dir="$HOME"  # Default to home directory
@@ -375,7 +375,7 @@ If [PATH] is provided, it will be used as the root directory to begin the search
   fi
 }
 
-mz_insert_path() {
+function mz_insert_path {
   # Export the current PATH variable to the widget's environment
   local -x PATH="$PATH"
 
@@ -390,14 +390,13 @@ mz_insert_path() {
   LBUFFER+="$path"
 }
 
-# Register the widget with ZLE
 zle -N mz_insert_path
 bindkey '^O' mz_insert_path
 
 # [Y]azi [C]hange [D]irectory
 # Press q to quit and cd into the cwd
 # Press Q to quit without changing directory
-ycd() {
+function ycd {
   local cwd_file
   cwd_file=$(mktemp)
   yazi --cwd-file="$cwd_file" "$@"
@@ -410,7 +409,7 @@ ycd() {
 alias yazi="ycd"
 
 # Lazy load fzf fuzzy completion
-load_fzf_completion() {
+function load_fzf_completion {
   unset -f load_fzf_completion
   source <(fzf --zsh)
   zle fzf-history-widget
@@ -425,12 +424,12 @@ setopt appendhistory sharehistory
 
 # Fix slowness of pastes with zsh-syntax-highlighting.zsh
 # https://gist.github.com/magicdude4eva/2d4748f8ef3e6bf7b1591964c201c1ab
-pasteinit() {
+function pasteinit {
   OLD_SELF_INSERT=${${(s.:.)widgets[self-insert]}[2,3]}
   zle -N self-insert url-quote-magic # I wonder if you'd need `.url-quote-magic`?
 }
 
-pastefinish() {
+function pastefinish {
   zle -N self-insert $OLD_SELF_INSERT
 }
 zstyle :bracketed-paste-magic paste-init pasteinit
@@ -450,7 +449,7 @@ eval "`zoxide init zsh`"
 
 # I'm only using rbenv to run tmuxinator for now so we can lazy-load it to gain a bit of performance (~150ms)
 # eval "`rbenv init - zsh`"
-tmuxinator() {
+function tmuxinator {
   unset -f tmuxinator
   eval "`rbenv init - zsh`"
   tmuxinator "$@"
