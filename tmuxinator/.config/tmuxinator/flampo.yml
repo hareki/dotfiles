@@ -1,16 +1,16 @@
 # /home/hareki/.config/tmuxinator/flampo.yml
 
 name: flampo
-root:  ~/Repositories/personal/dotfiles/nvim/.config/nvim
+root: ~/Repositories/personal/dotfiles/nvim/.config/nvim
 
 windows:
   - editor: nvim .
-  - logs:
+  - terminal:
+  - servers:
       # Use tmux list-windows to get the current layout (after manually resizing it)
       # layout: 5865,182x33,0,0[182x14,0,0,2,182x18,0,15{82x18,0,15,3,99x18,83,15,4}]
       # Or use one of the standard layouts (the size of of the main pane must be set in .tmux.conf though)
-      layout: main-horizontal
+      layout: even-vertical
       panes:
         - echo "hi from pane1"
         - echo "hi from pane2"
-        - echo "hi from pane3"
