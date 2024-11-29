@@ -397,6 +397,35 @@ function mz_insert_path {
 zle -N mz_insert_path
 bindkey '^O' mz_insert_path
 
+# Create a git bare repository suitable to work with git worktree
+# https://stackoverflow.com/questions/54367011/git-bare-repositories-worktrees-and-tracking-branches?noredirect=1#comment95612475_54367011
+# https://stackoverflow.com/questions/74862356/git-pull-doesnt-pull-latest-changes-when-using-git-worktree/74866544#comment132115905_74862356
+# Git [Bare] [W]ork[T]ree
+function git-bwt {
+  if [ -z "$1" ]; then
+    echo "Usage: git-bwt <remote-url>"
+    return 1
+  fi
+
+  local repo_url="$1"
+  local repo_name=$(basename -s .git "$repo_url")
+  local bare_repo_dir="${repo_name}.bwt"
+
+  echo "Cloning repository as bare: $repo_name..."
+  git clone --bare "$repo_url" "$bare_repo_dir" || return 1
+
+  cd "$bare_repo_dir" || return 1
+
+  echo "Configuring fetch refspec to track remote branches..."
+  git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*' || return 1
+
+  echo "Fetching remote branches..."
+  git fetch &> /dev/null  || return 1
+
+  cd ..
+  echo -e "\033[0;32mBare worktree setup complete\033[0m"
+}
+
 # Make Ctrl-D terminate the shell only after a certain number of times: https://superuser.com/questions/1243138/why-does-ignoreeof-not-work-in-zsh
 # Bash like Ctrl-D wrapper for IGNOREEOF
 setopt ignore_eof
