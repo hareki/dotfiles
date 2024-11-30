@@ -141,9 +141,9 @@ bindkey -M visual 'x' vi-delete-clip
 alias lg="lazygit"
 alias cd="z"
 
-alias ..= "z .."
-alias ...= "z ..."
-alias ....= "z ...."
+alias ..="z .."
+alias ...="z ..."
+alias ....="z ...."
 
 # [RE-Z]shrc
 # echo '' is to simulate the p10k ruler (I use it as basically a blank line at the top)
