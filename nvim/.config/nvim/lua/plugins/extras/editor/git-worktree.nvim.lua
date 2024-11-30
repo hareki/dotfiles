@@ -16,6 +16,11 @@ local refresh_lualine = function()
   require("lualine").refresh()
 end
 
+vim.g.git_worktree = {
+  prefill_upstream = true,
+  auto_set_upstream = true,
+}
+
 return {
   {
     "hareki/git-worktree.nvim",
