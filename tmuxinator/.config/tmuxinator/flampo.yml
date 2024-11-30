@@ -1,7 +1,7 @@
 # /home/hareki/.config/tmuxinator/flampo.yml
 
 name: flampo
-root: ~/Repositories/personal/dotfiles/nvim/.config/nvim
+root: ~/Repositories/work/zigvy/flampo/flampo-webapp.bwt
 
 windows:
   - editor: nvim .
@@ -12,5 +12,5 @@ windows:
       # Or use one of the standard layouts (the size of of the main pane must be set in .tmux.conf though)
       layout: even-vertical
       panes:
-        - echo "hi from pane1"
-        - echo "hi from pane2"
+        -
+        - cd ../flampo-api && yarn start:dev2
