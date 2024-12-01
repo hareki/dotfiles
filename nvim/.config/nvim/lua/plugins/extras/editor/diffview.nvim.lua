@@ -1,7 +1,8 @@
 return {
   {
     "sindrets/diffview.nvim",
-    opts = function()
+    cmd = "DiffviewOpen",
+    init = function()
       local map = Util.map
       local wk = require("which-key")
       local git = Util.git

@@ -1,5 +1,3 @@
--- NOTE: just a clone of https://www.lazyvim.org/extras/lang/tailwind#nvim-lspconfig
--- plus the classRegex
 return {
   "neovim/nvim-lspconfig",
   opts = function(_, opts)

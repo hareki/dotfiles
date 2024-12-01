@@ -5,25 +5,27 @@ return {
       { "<leader>ul", group = "Branch Format" },
     })
 
+    local set_branch_name_format = Util.git.set_branch_name_format
+
     local mappings = {
       {
         "<leader>ul1",
         function()
-          Util.git.set_branch_name_format(Constant.git.branch_formats.TASK_ID_ONLY)
+          set_branch_name_format(Constant.git.branch_formats.TASK_ID_ONLY)
         end,
         desc = "Set task id only branch name format",
       },
       {
         "<leader>ul2",
         function()
-          Util.git.set_branch_name_format(Constant.git.branch_formats.TASK_ID_AND_NAME)
+          set_branch_name_format(Constant.git.branch_formats.TASK_ID_AND_NAME)
         end,
         desc = "Set task id and task name branch name format",
       },
       {
         "<leader>ul3",
         function()
-          Util.git.set_branch_name_format(Constant.git.branch_formats.TASK_ID_AND_AUTHOR)
+          set_branch_name_format(Constant.git.branch_formats.TASK_ID_AND_AUTHOR)
         end,
         desc = "Set task id and author branch name format",
       },

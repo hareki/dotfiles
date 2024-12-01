@@ -3,7 +3,8 @@ local current_position = "float"
 return {
   "nvim-neo-tree/neo-tree.nvim",
   keys = function(_, keys)
-    require("which-key").add({
+    local wk = require("which-key")
+    wk.add({
       { "<leader>ut", group = "Set Neo-tree position" },
     })
 
@@ -96,7 +97,6 @@ return {
     -- https://github.com/nvim-neo-tree/neo-tree.nvim/issues/533#issuecomment-1287950467
     Util.ensure_nested(opts, "window.popup").size = {
       height = "80%",
-      -- width = "59%",
       width = "50%",
     }
 
@@ -108,9 +108,11 @@ return {
     icon.folder_open = ""
     icon.folder_empty = ""
 
-    opts.window.mappings["P"] = { "toggle_preview", config = { use_float = true } }
+    local win_mappings = opts.window.mappings
+    win_mappings["P"] = { "toggle_preview", config = { use_float = true } }
+    win_mappings["Z"] = "expand_all_nodes"
 
-    opts.window.mappings["O"] = {
+    win_mappings["O"] = {
       function(state)
         local path = state.tree:get_node().path -- Absolute path of the node
         local cmd = "explorer.exe \"$(wslpath -w '" .. path .. "')\" >/dev/null 2>&1"
@@ -122,7 +124,7 @@ return {
     }
 
     -- https://github.com/nvim-neo-tree/neo-tree.nvim/discussions/370#discussioncomment-4144005
-    opts.window.mappings["Y"] = function(state)
+    win_mappings["Y"] = function(state)
       -- NeoTree is based on [NuiTree](https://github.com/MunifTanjim/nui.nvim/tree/main/lua/nui/tree)
       -- The node is based on [NuiNode](https://github.com/MunifTanjim/nui.nvim/tree/main/lua/nui/tree#nuitreenode)
       local node = state.tree:get_node()

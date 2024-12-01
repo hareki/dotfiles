@@ -1,6 +1,3 @@
-local extensions = require("telescope").extensions
-local telescope = require("telescope")
-
 local refresh_neo_tree = function()
   local manager = require("neo-tree.sources.manager")
   local renderer = require("neo-tree.ui.renderer")
@@ -30,8 +27,12 @@ return {
     dependencies = { "nvim-lua/plenary.nvim" },
     -- git-worktree.nvim doesn't have setup function, so "opts" will not work
     init = function()
+      local extensions = require("telescope").extensions
+      local telescope = require("telescope")
+
       local hooks = require("git-worktree.hooks")
       local which_key = require("which-key")
+
       telescope.load_extension("git_worktree")
       which_key.add({
         { "<leader>gw", group = "Git Worktree" },

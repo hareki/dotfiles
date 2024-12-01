@@ -1,5 +1,3 @@
-local dropbar_pick_key = "<leader>d"
-
 return {
   "Bekaboo/dropbar.nvim",
   lazy = false,
@@ -7,22 +5,23 @@ return {
   dependencies = {
     "nvim-telescope/telescope-fzf-native.nvim",
   },
-  init = function()
+  keys = function(_, keys)
+    local dropbar_pick_key = "<leader>d"
     local wk = require("which-key")
+
     wk.add({
       {
         dropbar_pick_key,
         icon = "",
       },
     })
+
+    table.insert(keys, { dropbar_pick_key, "<cmd>lua require('dropbar.api').pick()<cr>", desc = "Dropbar pick" })
   end,
-  keys = {
-    { dropbar_pick_key, "<cmd>lua require('dropbar.api').pick()<cr>", desc = "Dropbar pick" },
-  },
   opts = {
     menu = {
       win_configs = {
-        border = "rounded", -- You can change 'single' to any other valid border style
+        border = "rounded",
       },
     },
     icons = {

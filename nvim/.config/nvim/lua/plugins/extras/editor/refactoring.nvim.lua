@@ -1,7 +1,7 @@
 return {
   {
     "ThePrimeagen/refactoring.nvim",
-    keys = function(_, keys)
+    keys = function()
       require("which-key").add({
         {
           "<leader>r",
@@ -9,8 +9,6 @@ return {
           icon = "",
         },
       })
-
-      return keys
     end,
   },
 }

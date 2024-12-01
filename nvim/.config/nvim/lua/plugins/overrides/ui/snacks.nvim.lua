@@ -1,8 +1,9 @@
-local lg_size = Constant.ui.popup_size.lg
 return {
   {
     "folke/snacks.nvim",
     opts = function(_, opts)
+      local lg_size = Constant.ui.popup_size.lg
+
       Snacks.config.style("terminal", {
         position = "float",
         title = " Terminal ",

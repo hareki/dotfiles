@@ -1,3 +1,4 @@
+-- https://zenquotes.io/
 local quotes = {
   {
     "“Most people fail in life not because they aim too high and miss,",
