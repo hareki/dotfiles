@@ -2,39 +2,42 @@
 -- Default autocmds that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
 -- Add any additional autocmds here
 
+local aucmd = Util.aucmd
+local hl = Util.hl
+
 local function disable_doc_hl()
-  Util.hl("LspReferenceRead", { bg = "none" })
-  Util.hl("LspReferenceText", { bg = "none" })
-  Util.hl("LspReferenceWrite", { bg = "none" })
+  hl("LspReferenceRead", { bg = "none" })
+  hl("LspReferenceText", { bg = "none" })
+  hl("LspReferenceWrite", { bg = "none" })
 end
 
 local function enable_doc_hl()
-  Util.hl("LspReferenceRead", { link = "MyDocumentHighlight" })
-  Util.hl("LspReferenceText", { link = "MyDocumentHighlight" })
-  Util.hl("LspReferenceWrite", { link = "MyDocumentHighlight" })
+  hl("LspReferenceRead", { link = "MyDocumentHighlight" })
+  hl("LspReferenceText", { link = "MyDocumentHighlight" })
+  hl("LspReferenceWrite", { link = "MyDocumentHighlight" })
 end
 
 -- NOTE: Disable autocomments
 -- source: https://www.reddit.com/r/neovim/comments/13585hy/trying_to_disable_autocomments_on_new_line_eg/
-Util.aucmd("BufEnter", {
+aucmd("BufEnter", {
   pattern = "*",
   command = "set formatoptions-=cro",
 })
 
-Util.aucmd("BufEnter", {
+aucmd("BufEnter", {
   pattern = "*",
   command = "setlocal formatoptions-=cro",
 })
 
 -- NOTE: Disable document highlight and pause vim-illuminate in visual mode
-Util.aucmd("ModeChanged", {
+aucmd("ModeChanged", {
   pattern = "*:[vV\x16]*",
   callback = function()
     disable_doc_hl()
   end,
 })
 
-Util.aucmd("ModeChanged", {
+aucmd("ModeChanged", {
   pattern = "[vV\x16]*:*",
   callback = function()
     enable_doc_hl()
@@ -47,7 +50,7 @@ Util.aucmd("ModeChanged", {
 -- Global variable to track the state
 vim.g.checkingSameTerm = 0
 
-Util.aucmd({ "CursorMoved", "ModeChanged" }, {
+aucmd({ "CursorMoved", "ModeChanged" }, {
   pattern = "*",
   -- Function to check the same term
   callback = function()
@@ -80,7 +83,7 @@ Util.aucmd({ "CursorMoved", "ModeChanged" }, {
 
 -- NOTE: Tweak the highlight_yank from LazyVim to have different colors based on the register name
 -- source: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua#L17-L23
-Util.aucmd("TextYankPost", {
+aucmd("TextYankPost", {
   group = Util.lazy_augroup("highlight_yank"),
   callback = function()
     -- Ensure yank-related events are processed first
@@ -109,14 +112,14 @@ Util.aucmd("TextYankPost", {
 })
 
 -- Disable minipairs when entering search or command-line mode
-Util.aucmd("CmdlineEnter", {
+aucmd("CmdlineEnter", {
   pattern = "[/:?]",
   callback = function()
     vim.g.minipairs_disable = true
   end,
 })
 
-Util.aucmd("CmdlineLeave", {
+aucmd("CmdlineLeave", {
   pattern = "[/:?]",
   callback = function()
     vim.g.minipairs_disable = false
@@ -124,12 +127,29 @@ Util.aucmd("CmdlineLeave", {
 })
 
 -- https://www.reddit.com/r/neovim/comments/180tnhg/disable_miniindentscope_for_certain_filetypes/
-Util.aucmd("FileType", {
+aucmd("FileType", {
   desc = "Disable indentscope for certain filetypes",
   pattern = {
     "dropbar_menu",
   },
   callback = function()
     vim.b.miniindentscope_disable = true
+  end,
+})
+
+aucmd("CmdlineLeave", {
+  desc = "Center screen after jumping to a line number",
+  callback = function()
+    local cmd_type = vim.fn.getcmdtype()
+    local cmd_line = vim.fn.getcmdline()
+
+    if cmd_type == ":" then
+      local line_number = tonumber(cmd_line)
+      if line_number then
+        vim.schedule(function()
+          vim.cmd("normal! zz")
+        end)
+      end
+    end
   end,
 })

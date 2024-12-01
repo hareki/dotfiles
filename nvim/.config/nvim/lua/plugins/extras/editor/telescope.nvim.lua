@@ -24,7 +24,7 @@ return {
         return layout
       end
 
-      opts.pickers = vim.tbl_extend("force", picker_config, {
+      opts.pickers = vim.tbl_deep_extend("force", picker_config, {
         buffers = {
           select_current = true,
           preview_title = Constant.telescope.PREVIEW_TITLE,
