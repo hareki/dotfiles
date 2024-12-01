@@ -3,6 +3,7 @@ return {
     "folke/snacks.nvim",
     opts = function(_, opts)
       local lg_size = Constant.ui.popup_size.lg
+      local xl_size = Constant.ui.popup_size.xl
 
       Snacks.config.style("terminal", {
         position = "float",
@@ -27,6 +28,8 @@ return {
 
       Snacks.config.style("lazygit", {
         title = " Lazygit ",
+        width = xl_size.WIDTH,
+        height = xl_size.HEIGHT,
       })
 
       opts.notifier = {
