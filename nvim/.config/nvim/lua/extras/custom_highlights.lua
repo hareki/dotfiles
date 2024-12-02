@@ -63,6 +63,23 @@ local custom_highlights = {
 
   FloatTitle = { fg = colors.blue },
 
+  -- Remap hydra colorscheme to catppuccin
+  HydraRed = {
+    fg = colors.peach,
+  },
+
+  HydraAmaranth = {
+    fg = colors.red,
+  },
+
+  HydraTeal = {
+    fg = colors.teal,
+  },
+
+  HydraPink = {
+    fg = colors.pink,
+  },
+
   -- We use aucmds to dynamically switch hl colors instead
   -- YankyYanked = { link = "YankRegisterHighlight" },
 
