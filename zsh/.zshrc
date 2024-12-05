@@ -141,6 +141,10 @@ bindkey -M visual 'x' vi-delete-clip
 alias lg="lazygit"
 alias cd="z"
 
+# `--no-user` flag only takes effect when using in combination with long format  
+# The column doesn't provide any useful information in a single user environment anyway
+alias ls="eza --icons=always --no-user" 
+
 alias ..="z .."
 alias ...="z ..."
 alias ....="z ...."
