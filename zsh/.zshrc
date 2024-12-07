@@ -1,5 +1,3 @@
-# oh-my-zsh template: ~/.oh-my-zsh/templates/zshrc.zsh-template
-
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -108,9 +106,12 @@ alias profile="time  zsh -i -c exit"
 alias ls="eza --icons=always --no-user"
 
 # [RE-Z]shrc
-# echo '' is to simulate the p10k ruler (I use it as basically a blank line at the top)
-# so that when the shell is ready (after instant prompt) the prompt won't be shifted
-alias rez="clear && echo '' && exec zsh"
+# echo '' is to simulate the p10k ruler, I basically use it as a blank line at the top,
+# so that when the shell is ready after instant prompt the prompt won't be shifted.
+
+# env -i ... is to hard reset the environment variables to empty and just keep some essential ones for the shell to function,
+# this is to make sure the new zsh instance that doesn't inherit any of the previously exported variables.
+alias rez="clear && echo '' && exec env -i TERM="$TERM" HOME="$HOME" PATH="$PATH" zsh -l"
 
 # Enable vi mode
 bindkey -v
