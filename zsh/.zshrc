@@ -3,8 +3,8 @@
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then 
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" 
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
@@ -92,6 +92,26 @@ export _ZO_FZF_OPTS="--exact --no-sort --bind=ctrl-z:ignore,btab:up,tab:down --c
 # Extend fzf default options for zoxide
 export _ZO_FZF_OPTS="$_ZO_FZF_OPTS $FZF_DEFAULT_OPTS"
 
+alias lg="lazygit"
+
+alias cd="z"
+alias ..="z .."
+alias ...="z ..."
+alias ....="z ...."
+
+alias nvim="nvcd"
+alias yazi="ycd"
+alias profile="time  zsh -i -c exit"
+
+# `--no-user` flag only takes effect when using in combination with long format
+# The column doesn't provide any useful information in a single user environment anyway
+alias ls="eza --icons=always --no-user"
+
+# [RE-Z]shrc
+# echo '' is to simulate the p10k ruler (I use it as basically a blank line at the top)
+# so that when the shell is ready (after instant prompt) the prompt won't be shifted
+alias rez="clear && echo '' && exec zsh"
+
 # Enable vi mode
 bindkey -v
 bindkey -M viins 'jk' vi-cmd-mode
@@ -134,26 +154,6 @@ function vi-delete-clip {
 }
 zle -N vi-delete-clip
 bindkey -M visual 'x' vi-delete-clip
-
-# Aliases and util functions
-alias lg="lazygit"
-alias cd="z"
-
-# `--no-user` flag only takes effect when using in combination with long format  
-# The column doesn't provide any useful information in a single user environment anyway
-alias ls="eza --icons=always --no-user" 
-
-alias ..="z .."
-alias ...="z ..."
-alias ....="z ...."
-
-# [RE-Z]shrc
-# echo '' is to simulate the p10k ruler (I use it as basically a blank line at the top)
-# so that when the shell is ready (after instant prompt) the prompt won't be shifted 
-alias rez="clear && echo '' && exec zsh"
-alias nvim="nvcd"
-alias yazi="ycd"
-alias profile="time  zsh -i -c exit"
 
 function _sync_d_autocomplete {
   local -a dirs
@@ -252,6 +252,7 @@ function tmuxinator {
 # Can't do the same for node since many commands depend on it (~100ms)
 eval "`fnm env`"
 
+# Autoload util functions when needed
 functions_dir=~/.zsh/functions
 fpath=($functions_dir $fpath)
 for func in $functions_dir/*(.N); do
