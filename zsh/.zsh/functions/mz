@@ -1,0 +1,136 @@
+#!/bin/zsh
+
+# [M]y f[Z]f
+# Heavily crafted with the help of ChatGPT
+function mz {
+  # Default values
+  local type=""
+  local root_dir="$HOME"  # Default to home directory
+  local change_dir=0      # Flag to indicate whether to use 'cd'
+  local use_preview=0     # Flag to indicate whether to use preview
+  local output_path=0     # Flag for -l option
+
+  # Help message
+  local help_message="Usage: fv [OPTIONS] [PATH]
+
+Options:
+  -d, --directories   List directories only (uses '--type directory')
+  -f, --files         List files only (uses '--type file')
+  -p, --preview       Enable preview pane
+  -c, --cd            Change to the selected directory (uses 'cd' instead of 'nvim')
+  -l, --log           Output the selected path to the terminal input instead of opening it
+  -h, --help          Show this help message
+
+If [PATH] is provided, it will be used as the root directory to begin the search. If omitted, the default is \$HOME."
+
+  # Parse options using getopts
+  local opt
+  # Reset OPTIND in case getopts has been used previously in the shell
+  OPTIND=1
+  while getopts ":dfpclh-:" opt; do
+    case "$opt" in
+      d)
+        type="directory"
+        ;;
+      f)
+        type="file"
+        ;;
+      p)
+        use_preview=1
+        ;;
+      c)
+        change_dir=1
+        type="directory"
+        ;;
+      l)
+        output_path=1
+        ;;
+      h)
+        echo "$help_message"
+        return 0
+        ;;
+      -)
+        case "${OPTARG}" in
+          directories)
+            type="directory"
+            ;;
+          files)
+            type="file"
+            ;;
+          preview)
+            use_preview=1
+            ;;
+          cd)
+            change_dir=1
+            type="directory"
+            ;;
+          log)
+            output_path=1
+            ;;
+          help)
+            echo "$help_message"
+            return 0
+            ;;
+          *)
+            echo "Invalid option: --${OPTARG}" >&2
+            return 1
+            ;;
+        esac
+        ;;
+      \?)
+        echo "Invalid option: -$OPTARG" >&2
+        return 1
+        ;;
+    esac
+  done
+  shift $((OPTIND -1))
+
+  # If both -c and -l are provided, throw an error
+  if [[ $change_dir -eq 1 && $output_path -eq 1 ]]; then
+    echo "Error: Options '-c/--cd' and '-l/--log' cannot be used together." >&2
+    return 1
+  fi
+
+  # If a path is provided as an argument, use it
+  if [[ -n "$1" ]]; then
+    root_dir="$1"
+  fi
+
+  # Build the fd command
+  local fd_command=(fd --hidden --exclude .git --exclude node_modules --exclude mnt)
+  [[ -n "$type" ]] && fd_command+=(--type "$type")
+  fd_command+=(".*" "$root_dir")
+
+  # Common fzf-tmux options
+  local fzf_options=(-p --reverse -w 60% -h 50%)
+
+  # Add preview option if -p is provided
+  if [[ $use_preview -eq 1 ]]; then
+    fzf_options+=(
+      --preview="bat --color=always --theme=\"Catppuccin Mocha\" {}"
+      --preview-window=down:60%
+      -h 80%  # Adjust height when using preview
+    )
+  fi
+
+  # Use fd to list files/directories and fzf to select
+  local file
+  file=$("${fd_command[@]}" | fzf-tmux "${fzf_options[@]}")
+
+  # Check if the selection is empty (Ctrl-C or Esc was pressed)
+  if [[ -z "$file" ]]; then
+    return 0
+  fi
+
+  # If -c option is provided, change to the selected directory
+  if [[ $change_dir -eq 1 ]]; then
+    z "$file" || return 1
+    echo "Changed directory to $file"
+  elif [[ $output_path -eq 1 ]]; then
+    # Output the selected path
+    echo "$file"
+  else
+    # Otherwise, open the file/directory in nvim
+    nvim "$file"
+  fi
+}

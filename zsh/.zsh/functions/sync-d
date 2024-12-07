@@ -1,0 +1,12 @@
+#!/bin/zsh
+
+# [S]ync-[D]otfiles
+function sync-d {
+  if [ -d "$STOW_REPO/$1" ]; then
+    z "$STOW_REPO" || return
+    stow "$1" -t ~
+    z -  > /dev/null
+  else
+    echo "Directory $STOW_REPO/$1 does not exist."
+  fi
+}

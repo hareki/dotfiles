@@ -1,0 +1,4 @@
+#!/bin/zsh
+
+# [C]hange [D]irectory and [L]i[S]t
+function cl { z "$@" && cls; }

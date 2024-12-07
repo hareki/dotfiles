@@ -3,7 +3,6 @@
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
-
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then 
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" 
 fi
@@ -24,7 +23,7 @@ export FNM_DIR="$HOME/.local/share/fnm"
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="powerlevel10k/powerlevel10k"
+export ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # The ssh-agent plugin just starts the ssh-agent, to work with multiple identities, follow this guide:
 # https://gist.github.com/oanhnn/80a89405ab9023894df7
@@ -62,7 +61,6 @@ export COLORTERM="truecolor"
 # https://github.com/jesseduffield/lazygit/issues/3863
 # https://github.com/folke/snacks.nvim/blob/7564a30cad803c01f8ecc15683a280d2f0e9bdb7/lua/snacks/lazygit.lua#L125
 echo -ne "\033]4;241;#89b4fa\007"
-
 
 # Dotfiles management
 export STOW_REPO="$HOME/Repositories/personal/dotfiles"
@@ -153,17 +151,9 @@ alias ....="z ...."
 # echo '' is to simulate the p10k ruler (I use it as basically a blank line at the top)
 # so that when the shell is ready (after instant prompt) the prompt won't be shifted 
 alias rez="clear && echo '' && exec zsh"
-
-# [S]ync-[D]otfiles
-function sync-d {
-  if [ -d "$STOW_REPO/$1" ]; then
-    z "$STOW_REPO" || return
-    stow "$1" -t ~
-    z -  > /dev/null
-  else
-    echo "Directory $STOW_REPO/$1 does not exist."
-  fi
-}
+alias nvim="nvcd"
+alias yazi="ycd"
+alias profile="time  zsh -i -c exit"
 
 function _sync_d_autocomplete {
   local -a dirs
@@ -174,214 +164,6 @@ function _sync_d_autocomplete {
   _describe 'stow directories' dirs
 }
 compdef _sync_d_autocomplete sync-d
-
-# [S]ync [G]itHub
-function sync-g {
-  z "$STOW_REPO" || return
-  
-  # Check for uncommitted changes
-  if git status --porcelain | grep -q .; then
-    git add .
-    git commit -m "Updated via sync-g at $(date +"%d/%m/%Y | %a %I:%M %p")"
-    git push
-  else
-    # No uncommitted changes, check for unpushed commits
-    if git log --branches --not --remotes | grep -q .; then
-      echo "Unpushed commits found. Pushing now..."
-      git push
-    else
-      echo "Nothing to commit, working tree clean, and all changes are pushed."
-    fi
-  fi
-
-  z - || return
-}
-
-function explorer {
-    if [ -z "$1" ]; then
-      explorer.exe
-    else
-      explorer.exe "$(wslpath -w "$1")"
-    fi
-}
-
-# [C]hange [D]irectory and [L]i[S]t
-function cl { z "$@" && cls; }
-
-# [N]eo[V]im and [C]hange [D]irectory
-function nvcd {
-  # 1. The `env TERM=wezterm` is for https://wezfurlong.org/wezterm/faq.html#how-do-i-enable-undercurl-curly-underlines
-  # 2. Have to use the `command` to explicitly call a command without triggering the alias.
-  if [[ -z $1 ]]; then
-    command env TERM=wezterm nvim
-    return 0
-  fi
-
-  if [[ -d $1 ]]; then
-    z "$1" && command env TERM=wezterm nvim .
-    return 0
-  fi
-
-  command env TERM=wezterm nvim "$1"
-}
-alias nvim="nvcd"
-
-function zn {
-  z "$1" > /dev/null 2>&1 
-  nvcd .
-}
-
-# [F]ind [B]ranch
-function fb {
-  # List branches, remove HEAD reference, leading spaces, asterisks, remove "remotes/origin/" prefix, and remove duplicates
-  branch=$(git branch -a --sort=-committerdate | sed '/HEAD ->/d' | sed 's/^..//' | sed 's/remotes\/origin\///' | sort -u | fzf-tmux -p --reverse -w 60% -h 50%)
-
-  if [[ -n $branch ]]; then
-    # Check if the selected branch exists locally
-    if git show-ref --verify --quiet "refs/heads/$branch"; then
-      # Checkout the local branch
-      git checkout "$branch"
-    else
-      # Checkout a new local branch that tracks the remote branch
-      git checkout -b "$branch" --track "remotes/origin/$branch"
-    fi
-  fi
-}
-
-# [M]y f[Z]f
-# Heavily crafted with the help of ChatGPT
-function mz {
-  # Default values
-  local type=""
-  local root_dir="$HOME"  # Default to home directory
-  local change_dir=0      # Flag to indicate whether to use 'cd'
-  local use_preview=0     # Flag to indicate whether to use preview
-  local output_path=0     # Flag for -l option
-
-  # Help message
-  local help_message="Usage: fv [OPTIONS] [PATH]
-
-Options:
-  -d, --directories   List directories only (uses '--type directory')
-  -f, --files         List files only (uses '--type file')
-  -p, --preview       Enable preview pane
-  -c, --cd            Change to the selected directory (uses 'cd' instead of 'nvim')
-  -l, --log           Output the selected path to the terminal input instead of opening it
-  -h, --help          Show this help message
-
-If [PATH] is provided, it will be used as the root directory to begin the search. If omitted, the default is \$HOME."
-
-  # Parse options using getopts
-  local opt
-  # Reset OPTIND in case getopts has been used previously in the shell
-  OPTIND=1
-  while getopts ":dfpclh-:" opt; do
-    case "$opt" in
-      d)
-        type="directory"
-        ;;
-      f)
-        type="file"
-        ;;
-      p)
-        use_preview=1
-        ;;
-      c)
-        change_dir=1
-        type="directory"
-        ;;
-      l)
-        output_path=1
-        ;;
-      h)
-        echo "$help_message"
-        return 0
-        ;;
-      -)
-        case "${OPTARG}" in
-          directories)
-            type="directory"
-            ;;
-          files)
-            type="file"
-            ;;
-          preview)
-            use_preview=1
-            ;;
-          cd)
-            change_dir=1
-            type="directory"
-            ;;
-          log)
-            output_path=1
-            ;;
-          help)
-            echo "$help_message"
-            return 0
-            ;;
-          *)
-            echo "Invalid option: --${OPTARG}" >&2
-            return 1
-            ;;
-        esac
-        ;;
-      \?)
-        echo "Invalid option: -$OPTARG" >&2
-        return 1
-        ;;
-    esac
-  done
-  shift $((OPTIND -1))
-
-  # If both -c and -l are provided, throw an error
-  if [[ $change_dir -eq 1 && $output_path -eq 1 ]]; then
-    echo "Error: Options '-c/--cd' and '-l/--log' cannot be used together." >&2
-    return 1
-  fi
-
-  # If a path is provided as an argument, use it
-  if [[ -n "$1" ]]; then
-    root_dir="$1"
-  fi
-
-  # Build the fd command
-  local fd_command=(fd --hidden --exclude .git --exclude node_modules --exclude mnt)
-  [[ -n "$type" ]] && fd_command+=(--type "$type")
-  fd_command+=(".*" "$root_dir")
-
-  # Common fzf-tmux options
-  local fzf_options=(-p --reverse -w 60% -h 50%)
-
-  # Add preview option if -p is provided
-  if [[ $use_preview -eq 1 ]]; then
-    fzf_options+=(
-      --preview="bat --color=always --theme=\"Catppuccin Mocha\" {}"
-      --preview-window=down:60%
-      -h 80%  # Adjust height when using preview
-    )
-  fi
-
-  # Use fd to list files/directories and fzf to select
-  local file
-  file=$("${fd_command[@]}" | fzf-tmux "${fzf_options[@]}")
-
-  # Check if the selection is empty (Ctrl-C or Esc was pressed)
-  if [[ -z "$file" ]]; then
-    return 0
-  fi
-
-  # If -c option is provided, change to the selected directory
-  if [[ $change_dir -eq 1 ]]; then
-    z "$file" || return 1
-    echo "Changed directory to $file"
-  elif [[ $output_path -eq 1 ]]; then
-    # Output the selected path
-    echo "$file"
-  else
-    # Otherwise, open the file/directory in nvim
-    nvim "$file"
-  fi
-}
 
 function mz_insert_path {
   # Export the current PATH variable to the widget's environment
@@ -401,35 +183,6 @@ function mz_insert_path {
 zle -N mz_insert_path
 bindkey '^O' mz_insert_path
 
-# Create a git bare repository suitable to work with git worktree
-# https://stackoverflow.com/questions/54367011/git-bare-repositories-worktrees-and-tracking-branches?noredirect=1#comment95612475_54367011
-# https://stackoverflow.com/questions/74862356/git-pull-doesnt-pull-latest-changes-when-using-git-worktree/74866544#comment132115905_74862356
-# Git [Bare] [W]ork[T]ree
-function git-bwt {
-  if [ -z "$1" ]; then
-    echo "Usage: git-bwt <remote-url>"
-    return 1
-  fi
-
-  local repo_url="$1"
-  local repo_name=$(basename -s .git "$repo_url")
-  local bare_repo_dir="${repo_name}.bwt"
-
-  echo "Cloning repository as bare: $repo_name..."
-  git clone --bare "$repo_url" "$bare_repo_dir" || return 1
-
-  cd "$bare_repo_dir" || return 1
-
-  echo "Configuring fetch refspec to track remote branches..."
-  git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*' || return 1
-
-  echo "Fetching remote branches..."
-  git fetch &> /dev/null  || return 1
-
-  cd ..
-  echo -e "\033[0;32mBare worktree setup complete\033[0m"
-}
-
 # Make Ctrl-D terminate the shell only after a certain number of times: https://superuser.com/questions/1243138/why-does-ignoreeof-not-work-in-zsh
 # Bash like Ctrl-D wrapper for IGNOREEOF
 setopt ignore_eof
@@ -448,21 +201,6 @@ function bash-ctrl-d {
 
 zle -N bash-ctrl-d
 bindkey '^D' bash-ctrl-d
-
-# [Y]azi [C]hange [D]irectory
-# Press q to quit and cd into the cwd
-# Press Q to quit without changing directory
-function ycd {
-  local cwd_file
-  cwd_file=$(mktemp)
-  yazi --cwd-file="$cwd_file" "$@"
-  if [ -f "$cwd_file" ]; then
-    z "$(cat "$cwd_file")" || return
-    rm "$cwd_file"
-  fi
-}
-
-alias yazi="ycd"
 
 # Lazy load fzf fuzzy completion
 function load_fzf_completion {
@@ -513,5 +251,11 @@ function tmuxinator {
 
 # Can't do the same for node since many commands depend on it (~100ms)
 eval "`fnm env`"
+
+functions_dir=~/.zsh/functions
+fpath=($functions_dir $fpath)
+for func in $functions_dir/*(.N); do
+  autoload -Uz "${func:t}"
+done
 
 clear
