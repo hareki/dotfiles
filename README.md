@@ -7,11 +7,11 @@
 > [!Note]
 > - These are just config files, pleae make sure to install the packages as well
 > - `manual` isn't a package name, it contains configs requiring manual setup instead of using `stow`
-> - I sometimes use `sync-g` to commit my changes, so pardon those weird commit messages if you see them
+> - I sometimes use `sync-g` to quickly commit my changes, so pardon those weird commit messages if you see them
 
 I use [stow](https://www.gnu.org/software/stow/) to manage my dotfiles, which handles symlinks to ensure that the files in my dotfiles repository stay synchronized with the actual configuration files.
 
-<details><summary>I even took step further and created some util functions to smoothen the process, which you can find at my <a href="https://github.com/hareki/dotfiles/blob/main/zsh/.zshrc">.zshrc</a></summary>
+<details><summary>I even took step further and created some util functions to smoothen the process, which you can find at my <a href="https://github.com/hareki/dotfiles/blob/main/zsh/.zsh/lazy-functions">lazy-functions</a></summary>
 
 <!-- config:start -->
   
