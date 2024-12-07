@@ -9,7 +9,7 @@ os:
   editAtLine: >
     [ -z "$NVIM" ] && env TERM=wezterm nvim +{{line}} -- "{{filename}}" ||
     (nvim --server "$NVIM" --remote-send "q" &&
-     env TERM=wezterm nvim --server "$NVIM" --remote-send ":edit {{filename}}\<CR>:call cursor({{line}},1)\<CR>")
+    env TERM=wezterm nvim --server "$NVIM" --remote-send ":edit {{filename}}\<CR>:call cursor({{line}},1)\<CR>")
 
   openDirInEditor: >
     [ -z "$NVIM" ] && env TERM=wezterm nvim -- "{{dir}}" ||

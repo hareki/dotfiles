@@ -113,7 +113,7 @@ alias ls="eza --icons=always --no-user"
 
 # env -i ... is to hard reset the environment variables to empty and just keep some essential ones for the shell to function,
 # this is to make sure the new zsh instance that doesn't inherit any of the previously exported variables.
-alias rez="clear && echo '' && exec env -i TERM="$TERM" HOME="$HOME" PATH="$PATH" zsh -l"
+alias rez="clear && echo '' && exec env -i TERM="$TERM" HOME="$HOME" PATH="$PATH" ZSH="$ZSH" ZSH_THEME="$ZSH_THEME" zsh"
 
 # Enable vi mode
 bindkey -v
@@ -242,24 +242,27 @@ then
   sudo /usr/sbin/sshd
 fi
 
-# ====== Lazy Loading Stuff ======
+# ====== Wrapper functions to lazy load heavy stuff ======
 eval "`zoxide init zsh`"
 
-# Only use rbenv to run tmuxinator for now so we can lazy load it to gain a bit of performance (~150ms)
-# eval "`rbenv init - zsh`"
 function tmuxinator {
   unset -f tmuxinator
   eval "`rbenv init - zsh`"
   tmuxinator "$@"
 }
 
-# Create lazy loading functions for Node.js
-NODE_COMMANDS=(node npm npx)
+NODE_REQUIRED_COMMANDS=(node npm npx lazygit)
 
-for cmd in "${NODE_COMMANDS[@]}"; do
+function unset_node_commands {
+  for cmd in "${NODE_REQUIRED_COMMANDS[@]}"; do
+    unset -f "$cmd" >/dev/null 2>&1
+  done
+}
+
+for cmd in "${NODE_REQUIRED_COMMANDS[@]}"; do
   eval "
     function $cmd() {
-      unset -f $cmd
+      unset_node_commands
       eval \"\$(fnm env)\"
       $cmd \"\$@\"
     }
@@ -272,9 +275,7 @@ function ensure_node_loaded {
   if typeset -f node > /dev/null; then
     if command -v fnm >/dev/null 2>&1; then
       eval "$(fnm env)"
-      for cmd in "${NODE_COMMANDS[@]}"; do
-        unset -f "$cmd"
-      done
+      unset_node_commands
       
       # Verify that 'node' is now available
       if ! command -v node >/dev/null 2>&1; then
