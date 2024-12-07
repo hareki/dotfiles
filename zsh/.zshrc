@@ -263,17 +263,14 @@ for cmd in "${NODE_COMMANDS[@]}"; do
   "
 done
 
-# Overshadows the nvim command to load Node.js via fnm first, and then run nvim
-# Also setups alias for the actual command to `nvcd`
-function nvim {
-  unset -f nvim
+function ensure_node_loaded {
   # Check if "node" is a shell function (used to lazy load Node.js) or not
   # If it is => Node.js is not loaded yet
   if typeset -f node > /dev/null; then
     if command -v fnm >/dev/null 2>&1; then
       eval "$(fnm env)"
       for cmd in "${NODE_COMMANDS[@]}"; do
-        eval "unset -f $cmd"
+        unset -f "$cmd"
       done
       
       # Verify that 'node' is now available
@@ -286,13 +283,39 @@ function nvim {
       return 1
     fi
   fi
+  return 0
+}
 
+# [N]eo[V]im and [C]hange [D]irectory
+function nvcd {
+  ensure_node_loaded || return 1
+
+  # 1. The `env TERM=wezterm` is for https://wezfurlong.org/wezterm/faq.html#how-do-i-enable-undercurl-curly-underlines
+  # 2. Have to use the `command` to explicitly call a command without triggering the alias.
+  if [[ -z $1 ]]; then
+    command env TERM=wezterm nvim
+    return 0
+  fi
+
+  if [[ -d $1 ]]; then
+    z "$1" && command env TERM=wezterm nvim .
+    return 0
+  fi
+
+  command env TERM=wezterm nvim "$1"
+}
+
+# Overshadows the nvim command to load Node.js via fnm first, and then run nvim
+# Also setups alias for the actual command to `nvcd`
+function nvim {
+  unset -f nvim
+  ensure_node_loaded || return 1
   alias nvim="nvcd"
   nvcd "$@"
 }
 
 # Autoload util functions when needed
-functions_dir=~/.zsh/functions
+functions_dir=~/.zsh/lazy-functions
 fpath=($functions_dir $fpath)
 for func in $functions_dir/*(.N); do
   autoload -Uz "${func:t}"
