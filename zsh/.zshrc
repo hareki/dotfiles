@@ -100,6 +100,8 @@ alias ....="z ...."
 # alias nvim="nvcd"
 alias yazi="ycd"
 alias profile="time  zsh -i -c exit"
+alias compz="zcompile ~/.zshrc"
+alias cl="clear"
 
 # `--no-user` flag only takes effect when using in combination with long format
 # The column doesn't provide any useful information in a single user environment anyway
