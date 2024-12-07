@@ -19,7 +19,7 @@ export FNM_DIR="$HOME/.local/share/fnm"
 [[ -d "$FNM_DIR" ]] && PATH="$FNM_DIR:$PATH"
 [[ -d "$HOME/bin" ]] && PATH="$HOME/bin:$PATH"
 [[ -d "$HOME/.local/bin" ]] && PATH="$HOME/.local/bin:$PATH"
-[[ -d "/home/hareki/.local/share/fnm" ]] && PATH="/home/hareki/.local/share/fnm:$PATH"
+[[ -d "$HOME/.local/share/fnm" ]] && PATH="$HOME/.local/share/fnm:$PATH"
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -49,7 +49,7 @@ __BASH_IGNORE_EOF=0
 export EDITOR='nvim'
 export VISUAL='nvim'
 
-# ==== Lazygit Color Settings =====
+# ======= Lazygit Color Settings =======
 # This one's causing trouble with lazygit truecolor support
 # export TERM='wezterm'
 
@@ -99,7 +99,7 @@ alias ..="z .."
 alias ...="z ..."
 alias ....="z ...."
 
-alias nvim="nvcd"
+# alias nvim="nvcd"
 alias yazi="ycd"
 alias profile="time  zsh -i -c exit"
 
@@ -239,9 +239,10 @@ then
   sudo /usr/sbin/sshd
 fi
 
+# ====== Lazy Loading Stuff ======
 eval "`zoxide init zsh`"
 
-# I'm only using rbenv to run tmuxinator for now so we can lazy-load it to gain a bit of performance (~150ms)
+# Only use rbenv to run tmuxinator for now so we can lazy load it to gain a bit of performance (~150ms)
 # eval "`rbenv init - zsh`"
 function tmuxinator {
   unset -f tmuxinator
@@ -249,8 +250,46 @@ function tmuxinator {
   tmuxinator "$@"
 }
 
-# Can't do the same for node since many commands depend on it (~100ms)
-eval "`fnm env`"
+# Create lazy loading functions for Node.js
+NODE_COMMANDS=(node npm npx)
+
+for cmd in "${NODE_COMMANDS[@]}"; do
+  eval "
+    function $cmd() {
+      unset -f $cmd
+      eval \"\$(fnm env)\"
+      $cmd \"\$@\"
+    }
+  "
+done
+
+# Overshadows the nvim command to load Node.js via fnm first, and then run nvim
+# Also setups alias for the actual command to `nvcd`
+function nvim {
+  unset -f nvim
+  # Check if "node" is a shell function (used to lazy load Node.js) or not
+  # If it is => Node.js is not loaded yet
+  if typeset -f node > /dev/null; then
+    if command -v fnm >/dev/null 2>&1; then
+      eval "$(fnm env)"
+      for cmd in "${NODE_COMMANDS[@]}"; do
+        eval "unset -f $cmd"
+      done
+      
+      # Verify that 'node' is now available
+      if ! command -v node >/dev/null 2>&1; then
+        echo "Error: Node.js could not be loaded via fnm." >&2
+        return 1
+      fi
+    else
+      echo "Error: fnm is not installed. Please install fnm to use nvim with Node.js plugins." >&2
+      return 1
+    fi
+  fi
+
+  alias nvim="nvcd"
+  nvcd "$@"
+}
 
 # Autoload util functions when needed
 functions_dir=~/.zsh/functions
