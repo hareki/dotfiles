@@ -20,8 +20,8 @@ return {
     },
 
     keys = {
-      { "y", "<Plug>(YankyYank)", mode = { "n", "x" }, desc = "Yank Text" },
-      { "p", "<Plug>(YankyPutAfter)", mode = { "n", "x" }, desc = "Put Text After Cursor" },
+      { "y", "<Plug>(YankyYank)", mode = { "n", "x" }, desc = "Yank text" },
+      { "p", "<Plug>(YankyPutAfter)", mode = { "n", "x" }, desc = "Put text after cursor" },
       {
         "p",
         '"_d<Plug>(YankyPutBefore)',

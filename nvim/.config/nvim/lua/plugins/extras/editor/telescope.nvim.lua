@@ -78,14 +78,14 @@ return {
     end,
     keys = function(_, keys)
       local mappings = {
-        { "<leader>sB", "<cmd>Telescope git_branches<cr>", desc = "Git Branches" },
+        { "<leader>sB", "<cmd>Telescope git_branches<cr>", desc = "Git branches" },
       }
 
       for _, key in ipairs({ "L", "H" }) do
         table.insert(mappings, {
           key,
           "<cmd>Telescope buffers initial_mode=normal<cr>",
-          desc = "Telescope Buffers",
+          desc = "Telescope buffers",
         })
       end
 

@@ -54,7 +54,7 @@ return {
             dir = LazyVim.root(),
           })
         end,
-        desc = "Explorer NeoTree (Root Dir)",
+        desc = "Explorer Neo-tree (root dir)",
       },
       {
         "<leader>fE",
@@ -66,7 +66,7 @@ return {
             dir = vim.uv.cwd(),
           })
         end,
-        desc = "Explorer NeoTree (Current Dir)",
+        desc = "Explorer Neo-tree (current dir)",
       },
     }
 

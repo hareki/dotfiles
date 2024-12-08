@@ -11,7 +11,7 @@ return {
         if not winid then
           vim.lsp.buf.hover()
         end
-      end, { desc = "Peek Fold" })
+      end, { desc = "Peek fold" })
 
       local opt = vim.opt
       opt.foldcolumn = "1"

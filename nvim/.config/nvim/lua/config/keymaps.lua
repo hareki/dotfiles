@@ -18,7 +18,7 @@ map("i", "jk", "<Esc>", { noremap = true, desc = "Map jk to Esc in insert mode" 
 
 map("n", "<leader>uN", function()
   Snacks.notifier.show_history()
-end, { noremap = true, desc = "Show Notification History" })
+end, { noremap = true, desc = "Show notification history" })
 
 map({ "n", "v" }, "<C-u>", "<C-u>zz", { desc = "Scroll up and center" })
 map({ "n", "v" }, "<C-d>", "<C-d>zz", { desc = "Scroll down and center" })
@@ -30,9 +30,9 @@ map({ "x" }, "<C-c>", '"+y', { desc = "Yank to system clipboard", noremap = true
 map({ "n", "x" }, "<C-y>", '"+y', { desc = "Yank to system clipboard", noremap = true })
 
 map("v", "<leader>t", "ygvgcp", { remap = true, silent = true, desc = "Yank, comment and paste" })
-map("n", "<A-v>", "<C-v>", { silent = true, desc = "Visual Block Mode" })
+map("n", "<A-v>", "<C-v>", { silent = true, desc = "Visual block mode" })
 
-map("n", "<leader>_", "<C-W>s", { desc = "Split Window Below", remap = true })
+map("n", "<leader>_", "<C-W>s", { desc = "Split window below", remap = true })
 
 -- Autoformat file on save asynchronously
 local profile = false
@@ -55,7 +55,7 @@ end, { desc = "Save and async format file" })
 
 map("n", "<leader>gg", function()
   Snacks.lazygit({ cwd = LazyVim.root.git(), configure = false })
-end, { desc = "Lazygit (Root Dir)" })
+end, { desc = "Lazygit (root dir)" })
 
 map("n", "<leader>gG", function()
   Snacks.lazygit({ configure = false })
