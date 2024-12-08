@@ -120,7 +120,7 @@ return {
         -- LazyVim.notify("Opened with explorer: " .. path)
         -- require("lazy.util").open(state.tree:get_node().path, { system = true })
       end,
-      desc = "Open with System Application",
+      desc = "Open with system application",
     }
 
     -- https://github.com/nvim-neo-tree/neo-tree.nvim/discussions/370#discussioncomment-4144005
