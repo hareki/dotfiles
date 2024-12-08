@@ -43,12 +43,12 @@ return {
       },
 
       {
-        "<c-p>",
+        "<A-p>",
         "<Plug>(YankyPreviousEntry)",
         desc = "Select previous entry through yank history",
       },
       {
-        "<c-n>",
+        "<A-n>",
         "<Plug>(YankyNextEntry)",
         desc = "Select next entry through yank history",
       },
