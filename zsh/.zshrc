@@ -1,3 +1,7 @@
+if [[ -n "$ZSH_DEBUGRC" ]]; then
+  zmodload zsh/zprof
+fi
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -99,9 +103,8 @@ alias ..="z .."
 alias ...="z ..."
 alias ....="z ...."
 
-# alias nvim="nvcd"
 alias yazi="ycd"
-alias profile="time  zsh -i -c exit"
+alias profile="time ZSH_DEBUGRC=1 zsh -i -c exit"
 alias compz="zcompile ~/.zshrc"
 alias cl="clear"
 
@@ -316,8 +319,8 @@ function nvcd {
 # Overshadows the nvim command to load Node.js via fnm first, and then run nvim
 # Also setups alias for the actual command to `nvcd`
 function nvim {
-  unset -f nvim
   ensure_node_loaded || return 1
+  unset -f nvim
   alias nvim="nvcd"
   nvcd "$@"
 }
@@ -330,3 +333,7 @@ for func in $functions_dir/*(.N); do
 done
 
 clear
+
+if [[ -n "$ZSH_DEBUGRC" ]]; then
+  zprof
+fi
