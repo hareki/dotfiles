@@ -107,6 +107,7 @@ alias yazi="ycd"
 alias profile="time ZSH_DEBUGRC=1 zsh -i -c exit"
 alias compz="zcompile ~/.zshrc"
 alias cl="clear"
+alias ez="nvim ~/.zshrc"
 
 # `--no-user` flag only takes effect when using in combination with long format
 # The column doesn't provide any useful information in a single user environment anyway
