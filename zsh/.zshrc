@@ -111,9 +111,11 @@ alias ls="eza --icons=always --no-user"
 # echo '' is to simulate the p10k ruler, I basically use it as a blank line at the top,
 # so that when the shell is ready after instant prompt the prompt won't be shifted.
 
-# env -i ... is to hard reset the environment variables to empty and just keep some essential ones for the shell to function,
+# env -i ... is to hard reset the environment variables to empty, must retain the essential ones like TERM
 # this is to make sure the new zsh instance that doesn't inherit any of the previously exported variables.
-alias rez="clear && echo '' && exec env -i TERM="$TERM" HOME="$HOME" PATH="$PATH" ZSH="$ZSH" ZSH_THEME="$ZSH_THEME" zsh"
+
+# --login is to make sure the new shell behaves exactly like the first time we open the terminal
+alias rez="clear && echo '' && exec env -i TERM="$TERM" zsh --login"
 
 # Enable vi mode
 bindkey -v
