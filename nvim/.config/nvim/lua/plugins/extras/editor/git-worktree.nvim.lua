@@ -19,14 +19,14 @@ return {
     },
     config = function()
       local hooks = require("git-worktree.hooks")
-      local which_key = require("which-key")
+      local wk = require("which-key")
 
       vim.g.git_worktree = {
         prefill_upstream = true,
         auto_set_upstream = true,
       }
 
-      which_key.add({
+      wk.add({
         { "<leader>gw", group = "Git Worktree" },
       })
 
