@@ -6,6 +6,7 @@ return {
         border = "rounded",
         padding = { 1, 3 }, -- extra window padding [top/bottom, right/left]
       }
+
       opts.defer = function(ctx)
         return vim.list_contains({ "<C-V>", "V", "v" }, ctx.mode)
       end
@@ -26,14 +27,12 @@ return {
         "]M",
       }
       local disabled_spec = {}
-
       for _, keymap in ipairs(hidden_keymaps) do
         table.insert(disabled_spec, { keymap, hidden = true })
       end
 
       local icons = LazyVim.config.icons.diagnostics
-
-      opts.spec = vim.list_extend(disabled_spec, {
+      local custom_spec = vim.list_extend(disabled_spec, {
         {
           "[s",
           desc = "Misspelled word",
@@ -61,6 +60,8 @@ return {
         { "[d", icon = { icon = icons.Info, hl = "DiagnosticInfo" } },
         { "]d", icon = { icon = icons.Info, hl = "DiagnosticInfo" } },
       })
+
+      opts.spec = vim.list_extend(opts.spec or {}, custom_spec)
     end,
   },
 }
