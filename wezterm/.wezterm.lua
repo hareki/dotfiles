@@ -10,6 +10,7 @@ local config_table = {
 	color_scheme = "Catppuccin Mocha",
 	enable_tab_bar = false,
 	audible_bell = "Disabled",
+	warn_about_missing_glyphs = false,
 
 	window_padding = {
 		left = 5,
