@@ -15,9 +15,9 @@ local custom_highlights = {
 
   Visual = { bold = false, bg = colors.surface1 },
 
-  LspReferenceText = { link = "MyDocumentHighlight" },
-  LspReferenceRead = { link = "MyDocumentHighlight" },
-  LspReferenceWrite = { link = "MyDocumentHighlight" },
+  LspReferenceText = { link = "DocumentHighlight" },
+  LspReferenceRead = { link = "DocumentHighlight" },
+  LspReferenceWrite = { link = "DocumentHighlight" },
 
   -- Remove the background of all floating windows
   NormalFloat = { bg = "none" },
@@ -46,9 +46,13 @@ local custom_highlights = {
     bg = colors.base,
   },
 
+  -- NeoTreeWinSeparator = { bg = colors.mantle, fg = colors.mantle },
+
   BufferLineBuffer = {
     bg = colors.base,
   },
+  BufferLineOffsetText = { bold = true, bg = colors.mantle },
+
   TabLine = {
     bg = colors.base,
     fg = colors.surface1,
@@ -69,12 +73,15 @@ local custom_highlights = {
   -- Setting different color from "String" highlight group to avoid confusion
   RainbowDelimiterGreen = { fg = colors.rosewater },
 
-  MyDocumentHighlight = { bg = "#373948" }, --#3b3d4d
-  BufferLineOffsetText = { bold = true, bg = colors.mantle },
+  DocumentHighlight = { bg = "#373948" }, --#3b3d4d
+
+  -- Highlight groups for vim-visual-multi: https://github.com/mg979/vim-visual-multi/blob/master/doc/vm-settings.txt
+  VM_Extend = { link = "Visual" },
+  VM_Cursor = { bg = colors.rosewater, fg = colors.base },
+  VM_Mono = { link = "VM_Cursor" },
+  VM_Highlight_Matches = { link = "DocumentHighlight" }, -- This is not official, just to unify the naming convention
 
   Cursor = { reverse = true },
-
-  -- NeoTreeWinSeparator = { bg = colors.mantle, fg = colors.mantle },
 }
 
 return {

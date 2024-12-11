@@ -12,10 +12,46 @@ local function disable_doc_hl()
 end
 
 local function enable_doc_hl()
-  hl("LspReferenceRead", { link = "MyDocumentHighlight" })
-  hl("LspReferenceText", { link = "MyDocumentHighlight" })
-  hl("LspReferenceWrite", { link = "MyDocumentHighlight" })
+  hl("LspReferenceRead", { link = "DocumentHighlight" })
+  hl("LspReferenceText", { link = "DocumentHighlight" })
+  hl("LspReferenceWrite", { link = "DocumentHighlight" })
 end
+
+-- NOTE: Disable LSP reference highlight in visual mode and vim-visual-multi
+
+-- vim-visual-multi makes normal and visual mode switch back and forth multiple times,
+-- so we only run the enable/disable_doc_hl for visual mode change if vim-visual-multi isn't active
+aucmd("ModeChanged", {
+  pattern = "*:[vV\x16]*",
+  callback = function()
+    if vim.b.visual_multi == nil then
+      disable_doc_hl()
+    end
+  end,
+})
+
+aucmd("User", {
+  pattern = "visual_multi_start",
+  callback = function()
+    disable_doc_hl()
+  end,
+})
+
+aucmd("ModeChanged", {
+  pattern = "[vV\x16]*:*",
+  callback = function()
+    if vim.b.visual_multi == nil then
+      enable_doc_hl()
+    end
+  end,
+})
+
+aucmd("User", {
+  pattern = "visual_multi_exit",
+  callback = function()
+    enable_doc_hl()
+  end,
+})
 
 -- NOTE: Disable autocomments
 -- source: https://www.reddit.com/r/neovim/comments/13585hy/trying_to_disable_autocomments_on_new_line_eg/
@@ -29,27 +65,10 @@ aucmd("BufEnter", {
   command = "setlocal formatoptions-=cro",
 })
 
--- NOTE: Disable document highlight and pause vim-illuminate in visual mode
-aucmd("ModeChanged", {
-  pattern = "*:[vV\x16]*",
-  callback = function()
-    disable_doc_hl()
-  end,
-})
-
-aucmd("ModeChanged", {
-  pattern = "[vV\x16]*:*",
-  callback = function()
-    enable_doc_hl()
-  end,
-})
-
 -- NOTE: Highlight all occurrences of selected text in visual mode
 -- source: https://github.com/Losams/-VIM-Plugins/blob/master/checkSameTerm.vim
 
--- Global variable to track the state
-vim.g.checkingSameTerm = 0
-
+vim.g.checking_same_term = 0
 aucmd({ "CursorMoved", "ModeChanged" }, {
   pattern = "*",
   -- Function to check the same term
@@ -57,7 +76,7 @@ aucmd({ "CursorMoved", "ModeChanged" }, {
     local currentmode = vim.api.nvim_get_mode().mode
     -- Check for (any) visual mode
     if currentmode == "v" or currentmode == "V" or currentmode == "\22" then
-      vim.g.checkingSameTerm = 1
+      vim.g.checking_same_term = 1
       -- Backing up what we're having in the register
       local s = vim.fn.getreg('"')
 
@@ -67,14 +86,14 @@ aucmd({ "CursorMoved", "ModeChanged" }, {
       search_term = vim.fn.escape(search_term, "\\/"):gsub("\n", "\\n")
       -- Check if the search term is not just blank space or newline characters
       if search_term:match("^%s*$") == nil and search_term:match("^\\n*$") == nil then
-        vim.cmd("match MyDocumentHighlight /\\V" .. search_term .. "/")
+        vim.cmd("match DocumentHighlight /\\V" .. search_term .. "/")
       else
         vim.cmd("match none")
       end
 
       -- Restore the text back to the register after searching
       vim.fn.setreg('"', s)
-      vim.g.checkingSameTerm = 0
+      vim.g.checking_same_term = 0
     else
       vim.cmd("match none")
     end
@@ -94,7 +113,7 @@ aucmd("TextYankPost", {
     end, 50)
 
     local register = vim.v.event.regname
-    if vim.g.checkingSameTerm == 0 then
+    if vim.g.checking_same_term == 0 then
       if register == "+" or register == "*" then
         vim.highlight.on_yank({ higroup = "YankSystemHighlight" })
       else
@@ -106,7 +125,9 @@ aucmd("TextYankPost", {
     -- Wait for the highlight to wear out before re-enabling it (default duration = 150ms, we wait for an extra 50ms just in case)
     vim.defer_fn(function()
       -- require("tiny-inline-diagnostic").enable()
-      enable_doc_hl()
+      if vim.b.visual_multi == nil then
+        enable_doc_hl()
+      end
     end, Constant.yanky.PUT_HL_TIMER + 50)
   end,
 })
