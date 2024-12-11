@@ -28,6 +28,11 @@ M.hls = function(custom_highlights)
   end
 end
 
+--- @param name? "frappe" | "latte" | "macchiato" | "mocha"
+M.get_palette = function(name)
+  return require("catppuccin.palettes").get_palette(name or "mocha")
+end
+
 M.get_initial_path = function()
   -- Get the first argument passed to Neovim (which is usually the path)
   local first_arg = vim.fn.argv(0)

@@ -1,4 +1,5 @@
+require("extras.common").setup()
 require("extras.debug").setup()
-require("extras.custom_highlights").setup()
+require("extras.highlight_groups").setup()
 require("extras.clipboard").setup()
 require("extras.snippets").setup()

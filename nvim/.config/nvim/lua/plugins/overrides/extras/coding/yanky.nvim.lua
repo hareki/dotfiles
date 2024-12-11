@@ -4,20 +4,28 @@ return {
     dependencies = {
       { "kkharji/sqlite.lua" },
     },
-    opts = {
-      ring = { storage = "sqlite" },
-      highlight = {
-        -- Use our own aucmd to highlight on yank instead, to differentiate between clipboard and register yank
-        on_yank = false,
+    opts = function(_, opts)
+      Util.hls({
+        YankyPut = { link = "YankRegisterHighlight" },
+        -- We use aucmds to dynamically switch hl colors instead
+        -- YankyYanked = { link = "YankRegisterHighlight" },
+      })
 
-        on_put = true,
-        timer = Constant.yanky.PUT_HL_TIMER,
-      },
-      system_clipboard = {
-        sync_with_ring = false,
-        clipboard_register = nil,
-      },
-    },
+      return vim.tbl_deep_extend("force", opts, {
+        ring = { storage = "sqlite" },
+        highlight = {
+          -- Use our own aucmd to highlight on yank instead, to differentiate between clipboard and register yank
+          on_yank = false,
+
+          on_put = true,
+          timer = Constant.yanky.PUT_HL_TIMER,
+        },
+        system_clipboard = {
+          sync_with_ring = false,
+          clipboard_register = nil,
+        },
+      })
+    end,
 
     keys = {
       { "y", "<Plug>(YankyYank)", mode = { "n", "x" }, desc = "Yank text" },

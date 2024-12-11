@@ -2,8 +2,12 @@ local current_position = "float"
 
 return {
   "nvim-neo-tree/neo-tree.nvim",
+  dependencies = {
+    "catppuccin/nvim",
+  },
   keys = function(_, keys)
     local wk = require("which-key")
+
     wk.add({
       { "<leader>ut", group = "Set Neo-tree position" },
     })
@@ -74,7 +78,19 @@ return {
   end,
   -- init = function() end, -- prevent neotree from opening automatically
   opts = function(_, opts)
+    local palette = Util.get_palette()
+
+    Util.hls({
+      NeoTreeNormal = { bg = palette.base },
+      NeoTreeNormalNC = { bg = palette.base },
+      -- NeoTreeWinSeparator = { bg = colors.mantle, fg = colors.mantle },
+    })
+
+    opts.popup_border_style = "rounded"
+    opts.window.position = current_position
+    opts.default_component_configs.indent.with_markers = false
     opts.event_handlers = opts.event_handlers or {}
+
     -- Show relative line numbers for neo-tree
     -- https://stackoverflow.com/questions/77927924/add-relative-line-numbers-in-neo-tree-using-lazy-in-neovim
     table.insert(opts.event_handlers, {
@@ -99,9 +115,6 @@ return {
       height = "80%",
       width = "50%",
     }
-
-    opts.popup_border_style = "rounded"
-    opts.window.position = current_position
 
     local icon = Util.ensure_nested(opts, "default_component_configs.icon")
     icon.folder_closed = ""
@@ -165,7 +178,5 @@ return {
         LazyVim.notify("Copied: " .. result)
       end)
     end
-
-    opts.default_component_configs.indent.with_markers = false
   end,
 }

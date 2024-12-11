@@ -1,9 +1,4 @@
 -- Keymaps are automatically loaded on the VeryLazy event
--- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
--- Add any additional keymaps here
-
--- NOTE: these are just general keymaps, there are other keymaps that closely related to some plugin so they're not here
--- We can find them with the "keys = " or "Util.map" keywords
 
 Util.toggle.current_line_blame():map("<leader>ub")
 Util.toggle.typos_lsp():map("<leader>us")
