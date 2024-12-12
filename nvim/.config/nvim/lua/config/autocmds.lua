@@ -1,6 +1,5 @@
 -- Autocmds are automatically loaded on the VeryLazy event
--- Default autocmds that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
--- Add any additional autocmds here
+-- Default autocmds that are always set: https://github.com/hareki/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
 
 local aucmd = Util.aucmd
 local hl = Util.hl

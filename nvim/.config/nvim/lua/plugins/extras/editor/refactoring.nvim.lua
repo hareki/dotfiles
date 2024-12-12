@@ -2,7 +2,9 @@ return {
   {
     "ThePrimeagen/refactoring.nvim",
     keys = function()
-      require("which-key").add({
+      local wk = require("which-key")
+
+      wk.add({
         {
           "<leader>r",
           group = "Refactor",

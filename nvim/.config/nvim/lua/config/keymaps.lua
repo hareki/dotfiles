@@ -1,4 +1,5 @@
 -- Keymaps are automatically loaded on the VeryLazy event
+-- Default autocmds that are always set: https://github.com/hareki/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 
 Util.toggle.current_line_blame():map("<leader>ub")
 Util.toggle.typos_lsp():map("<leader>us")
