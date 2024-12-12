@@ -1,14 +1,22 @@
+-- https://www.lazyvim.org/configuration/lazy.nvim
 return {
-  -- Always use the latest version
-  -- https://www.lazyvim.org/configuration/lazy.nvim
   {
     "hareki/LazyVim",
     version = false,
     opts = function(_, opts)
-      opts.colorscheme = "catppuccin-mocha"
-      Util.ensure_nested(opts, "icons.kinds")[Constant.yanky.CMP_KIND] = "󰅍 "
-      -- Util.ensure_nested_table(opts, "defaults").keymaps = false
+      return vim.tbl_deep_extend("force", opts, {
+        colorscheme = "catppuccin-mocha",
+        icons = {
+          kinds = {
+            [Constant.yanky.CMP_KIND] = "󰅍 ",
+          },
+        },
+      })
     end,
   },
-  -- { "folke/lazy.nvim", version = false },
+
+  {
+    "folke/lazy.nvim",
+    version = false,
+  },
 }

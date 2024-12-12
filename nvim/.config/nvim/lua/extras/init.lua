@@ -1,5 +1,11 @@
-require("extras.common").setup()
-require("extras.debug").setup()
-require("extras.highlight_groups").setup()
-require("extras.clipboard").setup()
-require("extras.snippets").setup()
+local extra_modules = {
+  "common",
+  "debug",
+  "highlight_groups",
+  "clipboard",
+  "snippets",
+}
+
+for _, module in ipairs(extra_modules) do
+  require("extras." .. module).setup()
+end
