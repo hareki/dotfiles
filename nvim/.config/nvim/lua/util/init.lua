@@ -12,7 +12,6 @@ setmetatable(M, {
       return CommonUtil[k]
     end
 
-    -- @diagnostic disable-next-line: no-unknown
     t[k] = require("util." .. k)
     return t[k]
   end,
