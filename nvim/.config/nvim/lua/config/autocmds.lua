@@ -16,8 +16,7 @@ local function enable_doc_hl()
   hl("LspReferenceWrite", { link = "DocumentHighlight" })
 end
 
--- NOTE: Disable LSP reference highlight in visual mode and vim-visual-multi
-
+-- Disable LSP reference highlight in visual mode and vim-visual-multi
 -- vim-visual-multi makes normal and visual mode switch back and forth multiple times,
 -- so we only run the enable/disable_doc_hl for visual mode change if vim-visual-multi isn't active
 aucmd("ModeChanged", {
@@ -52,8 +51,8 @@ aucmd("User", {
   end,
 })
 
--- NOTE: Disable autocomments
--- source: https://www.reddit.com/r/neovim/comments/13585hy/trying_to_disable_autocomments_on_new_line_eg/
+-- Disable autocomments
+-- https://www.reddit.com/r/neovim/comments/13585hy/trying_to_disable_autocomments_on_new_line_eg/
 aucmd("BufEnter", {
   pattern = "*",
   command = "set formatoptions-=cro",
@@ -64,9 +63,8 @@ aucmd("BufEnter", {
   command = "setlocal formatoptions-=cro",
 })
 
--- NOTE: Highlight all occurrences of selected text in visual mode
--- source: https://github.com/Losams/-VIM-Plugins/blob/master/checkSameTerm.vim
-
+-- Highlight all occurrences of selected text in visual mode
+-- https://github.com/Losams/-VIM-Plugins/blob/master/checkSameTerm.vim
 vim.g.checking_same_term = 0
 aucmd({ "CursorMoved", "ModeChanged" }, {
   pattern = "*",
@@ -99,8 +97,8 @@ aucmd({ "CursorMoved", "ModeChanged" }, {
   end,
 })
 
--- NOTE: Tweak the highlight_yank from LazyVim to have different colors based on the register name
--- source: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua#L17-L23
+-- Tweak the highlight_yank from LazyVim to have different colors based on the register name
+-- https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua#L17-L23
 aucmd("TextYankPost", {
   group = Util.lazy_augroup("highlight_yank"),
   callback = function()
@@ -143,17 +141,6 @@ aucmd("CmdlineLeave", {
   pattern = "[/:?]",
   callback = function()
     vim.g.minipairs_disable = false
-  end,
-})
-
--- https://www.reddit.com/r/neovim/comments/180tnhg/disable_miniindentscope_for_certain_filetypes/
-aucmd("FileType", {
-  desc = "Disable indentscope for certain filetypes",
-  pattern = {
-    "dropbar_menu",
-  },
-  callback = function()
-    vim.b.miniindentscope_disable = true
   end,
 })
 
