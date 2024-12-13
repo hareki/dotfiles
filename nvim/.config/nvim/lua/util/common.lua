@@ -16,15 +16,15 @@ end
 
 --- @param group string
 --- @param style vim.api.keyset.highlight
-M.hl = function(group, style)
+M.highlight = function(group, style)
   vim.api.nvim_set_hl(0, group, style)
 end
 
 --- A table of custom highlight groups and their corresponding styles.
 --- @param custom_highlights table<string, vim.api.keyset.highlight>
-M.hls = function(custom_highlights)
+M.highlights = function(custom_highlights)
   for group, style in pairs(custom_highlights) do
-    Util.hl(group, style)
+    Util.highlight(group, style)
   end
 end
 

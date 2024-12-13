@@ -21,7 +21,7 @@ return {
   end,
 
   opts = function(_, opts)
-    Util.hls({
+    Util.highlights({
       DropBarKindDir = { link = "DropBarKindFile" },
     })
 

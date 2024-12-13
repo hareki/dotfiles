@@ -5,7 +5,7 @@ return {
       { "kkharji/sqlite.lua" },
     },
     opts = function(_, opts)
-      Util.hls({
+      Util.highlights({
         YankyPut = { link = "YankRegisterHighlight" },
         -- We use aucmds to dynamically switch hl colors instead
         -- YankyYanked = { link = "YankRegisterHighlight" },

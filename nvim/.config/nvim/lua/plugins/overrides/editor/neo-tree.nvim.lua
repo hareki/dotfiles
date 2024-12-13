@@ -77,7 +77,7 @@ return {
   opts = function(_, opts)
     local palette = Util.get_palette()
 
-    Util.hls({
+    Util.highlights({
       NeoTreeNormal = { bg = palette.base },
       NeoTreeNormalNC = { bg = palette.base },
       -- NeoTreeWinSeparator = { bg = colors.mantle, fg = colors.mantle },

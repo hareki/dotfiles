@@ -2,18 +2,18 @@
 -- Default autocmds that are always set: https://github.com/hareki/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
 
 local aucmd = Util.aucmd
-local hl = Util.hl
+local highlight = Util.highlight
 
 local function disable_doc_hl()
-  hl("LspReferenceRead", { bg = "none" })
-  hl("LspReferenceText", { bg = "none" })
-  hl("LspReferenceWrite", { bg = "none" })
+  highlight("LspReferenceRead", { bg = "none" })
+  highlight("LspReferenceText", { bg = "none" })
+  highlight("LspReferenceWrite", { bg = "none" })
 end
 
 local function enable_doc_hl()
-  hl("LspReferenceRead", { link = "DocumentHighlight" })
-  hl("LspReferenceText", { link = "DocumentHighlight" })
-  hl("LspReferenceWrite", { link = "DocumentHighlight" })
+  highlight("LspReferenceRead", { link = "DocumentHighlight" })
+  highlight("LspReferenceText", { link = "DocumentHighlight" })
+  highlight("LspReferenceWrite", { link = "DocumentHighlight" })
 end
 
 -- Disable LSP reference highlight in visual mode and vim-visual-multi

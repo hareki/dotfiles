@@ -1,7 +1,7 @@
 return {
   "nvim-treesitter/nvim-treesitter-context",
   opts = function(_, opts)
-    Util.hls({
+    Util.highlights({
       TreesitterContextBottom = { bold = false, italic = false },
       TreesitterContext = { link = "DocumentHighlight" },
       TreesitterContextLineNumber = { link = "DocumentHighlight" },

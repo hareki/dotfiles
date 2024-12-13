@@ -10,7 +10,7 @@ return {
       local wk = require("which-key")
       local colors = require("catppuccin.palettes").get_palette("mocha")
 
-      Util.hls({
+      Util.highlights({
         -- https://github.com/mg979/vim-visual-multi/blob/master/doc/vm-settings.txt
         VM_Extend = { link = "Visual" },
         VM_Cursor = { bg = colors.rosewater, fg = colors.base },

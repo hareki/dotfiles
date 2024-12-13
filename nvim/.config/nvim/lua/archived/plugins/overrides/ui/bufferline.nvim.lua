@@ -99,7 +99,7 @@ return {
       return result
     end
 
-    Util.hls({
+    Util.highlights({
       BufferLineBuffer = {
         bg = palette.base,
       },
