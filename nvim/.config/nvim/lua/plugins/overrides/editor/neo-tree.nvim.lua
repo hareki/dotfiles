@@ -88,8 +88,8 @@ return {
     opts.default_component_configs.indent.with_markers = false
     opts.event_handlers = opts.event_handlers or {}
 
-    Util.ensure_nested(opts, "window.popup")
-    Util.ensure_nested(opts, "default_component_configs.icon")
+    Util.define(opts, "window.popup")
+    Util.define(opts, "default_component_configs.icon")
 
     -- Show relative line numbers for neo-tree
     -- https://stackoverflow.com/questions/77927924/add-relative-line-numbers-in-neo-tree-using-lazy-in-neovim

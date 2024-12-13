@@ -52,11 +52,11 @@ M.remove_lualine_component = function(name, tbl)
   end
 end
 
---- Ensures that the nested tables exist in the given table.
+--- Ensures a nested path exists in the given table.
 --- @param t table The table to operate on.
 --- @param key_string string The dot-separated string representing the nested keys.
 --- @return table nested_table the innermost table that was ensured.
-function M.ensure_nested(t, key_string)
+function M.define(t, key_string)
   local keys = {}
   for key in key_string:gmatch("[^%.]+") do
     table.insert(keys, key)
