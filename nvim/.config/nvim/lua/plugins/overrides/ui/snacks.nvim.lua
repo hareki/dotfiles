@@ -34,6 +34,9 @@ return {
       })
 
       return vim.tbl_deep_extend("force", opts, {
+        indent = {
+          enabled = false,
+        },
         notifier = {
           margin = { top = 1, right = 1, bottom = 0 },
         },

@@ -2,9 +2,6 @@ local current_position = "float"
 
 return {
   "nvim-neo-tree/neo-tree.nvim",
-  dependencies = {
-    "catppuccin/nvim",
-  },
   keys = function(_, keys)
     local wk = require("which-key")
     wk.add({
@@ -48,7 +45,7 @@ return {
         desc = "Set Neo-tree position to left",
       },
       {
-        "<leader>fe",
+        "<leader>e",
         function()
           require("neo-tree.command").execute({
             toggle = true,

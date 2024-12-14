@@ -2,15 +2,7 @@ return {
   {
     "folke/which-key.nvim",
     opts = function(_, opts)
-      opts.win = {
-        border = "rounded",
-        padding = { 1, 3 }, -- extra window padding [top/bottom, right/left]
-      }
-
-      opts.defer = function(ctx)
-        return vim.list_contains({ "<C-V>", "V", "v" }, ctx.mode)
-      end
-
+      local icons = LazyVim.config.icons.diagnostics
       local hidden_keymaps = {
         "[(",
         "[{",
@@ -31,7 +23,6 @@ return {
         table.insert(disabled_spec, { keymap, hidden = true })
       end
 
-      local icons = LazyVim.config.icons.diagnostics
       local custom_spec = vim.list_extend(disabled_spec, {
         {
           "[s",
@@ -61,7 +52,19 @@ return {
         { "]d", icon = { icon = icons.Info, hl = "DiagnosticInfo" } },
       })
 
-      opts.spec = vim.list_extend(opts.spec or {}, custom_spec)
+      return vim.tbl_deep_extend("force", opts, {
+        preset = "classic",
+        spec = vim.list_extend(opts.spec or {}, custom_spec),
+        win = {
+          border = "rounded",
+          padding = { 1, 3 }, -- [top/bottom, right/left]
+        },
+
+        -- Don't show which-key when first entering visual mode
+        defer = function(ctx)
+          return vim.list_contains({ "<C-V>", "V", "v" }, ctx.mode)
+        end,
+      })
     end,
   },
 }

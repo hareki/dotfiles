@@ -8,7 +8,7 @@ return {
     },
     config = function()
       local wk = require("which-key")
-      local colors = require("catppuccin.palettes").get_palette("mocha")
+      local colors = Util.get_palette()
 
       Util.highlights({
         -- https://github.com/mg979/vim-visual-multi/blob/master/doc/vm-settings.txt

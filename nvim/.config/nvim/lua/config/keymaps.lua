@@ -12,10 +12,6 @@ end, { noremap = true, silent = true })
 
 map("i", "jk", "<Esc>", { noremap = true, desc = "Map jk to Esc in insert mode" })
 
-map("n", "<leader>uN", function()
-  Snacks.notifier.show_history()
-end, { noremap = true, desc = "Show notification history" })
-
 map({ "n", "v" }, "<C-u>", "<C-u>zz", { desc = "Scroll up and center" })
 map({ "n", "v" }, "<C-d>", "<C-d>zz", { desc = "Scroll down and center" })
 
@@ -27,8 +23,6 @@ map({ "n", "x" }, "<C-y>", '"+y', { desc = "Yank to system clipboard", noremap =
 
 map("v", "<leader>t", "ygvgcp", { remap = true, silent = true, desc = "Yank, comment and paste" })
 map("n", "<A-v>", "<C-v>", { silent = true, desc = "Visual block mode" })
-
-map("n", "<leader>_", "<C-W>s", { desc = "Split window below", remap = true })
 
 -- Autoformat file on save asynchronously
 local profile = false

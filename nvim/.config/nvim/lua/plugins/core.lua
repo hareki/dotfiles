@@ -5,7 +5,6 @@ return {
     version = false,
     opts = function(_, opts)
       return vim.tbl_deep_extend("force", opts, {
-        colorscheme = "catppuccin-mocha",
         icons = {
           kinds = {
             [Constant.yanky.CMP_KIND] = "󰅍 ",
