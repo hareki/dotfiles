@@ -56,10 +56,6 @@ return {
         component_separators = { left = "", right = "" },
       })
 
-      local noice_command_status_index = 1
-      Util.remove_lualine_component("diff", opts.sections.lualine_x)
-      table.remove(opts.sections.lualine_x, noice_command_status_index)
-
       opts.sections = vim.tbl_extend("force", opts.sections, {
         lualine_b = {
           {
