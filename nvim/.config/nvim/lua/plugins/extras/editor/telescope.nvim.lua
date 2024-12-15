@@ -7,9 +7,9 @@ return {
       local lg_size = Constant.ui.popup_size.lg
 
       -- Unify the preview title for all pickers
-      local picker_config = {}
+      local default_picker_configs = {}
       for picker_name, _ in pairs(builtin) do
-        picker_config[picker_name] = {
+        default_picker_configs[picker_name] = {
           preview_title = Constant.telescope.PREVIEW_TITLE,
         }
       end
@@ -24,58 +24,61 @@ return {
         return layout
       end
 
-      opts.pickers = vim.tbl_deep_extend("force", picker_config, {
-        buffers = {
-          select_current = true,
-          preview_title = Constant.telescope.PREVIEW_TITLE,
-          --https://github.com/nvim-telescope/telescope.nvim/issues/1145#issuecomment-903161099
+      return vim.tbl_deep_extend("force", opts, {
+        pickers = vim.tbl_deep_extend("force", default_picker_configs, {
+          buffers = {
+            select_current = true,
+            preview_title = Constant.telescope.PREVIEW_TITLE,
+            --https://github.com/nvim-telescope/telescope.nvim/issues/1145#issuecomment-903161099
+            mappings = {
+              n = {
+                ["x"] = require("telescope.actions").delete_buffer,
+              },
+            },
+          },
+        }),
+
+        defaults = {
+          prompt_prefix = "   ",
+          results_title = false,
+          -- Merge prompt and results windows
+          -- https://github.com/nvim-telescope/telescope.nvim/blob/5972437de807c3bc101565175da66a1aa4f8707a/lua/telescope/themes.lua#L50
+          borderchars = {
+            prompt = { "─", "│", " ", "│", "╭", "╮", "│", "│" },
+            results = { "─", "│", "─", "│", "├", "┤", "╯", "╰" },
+            preview = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
+          },
+          layout_strategy = "vertical_merged",
+
+          -- Make results appear from top to bottom
+          -- https://github.com/nvim-telescope/telescope.nvim/issues/1933
+          sorting_strategy = "ascending",
+
+          layout_config = {
+            vertical = {
+              mirror = true,
+
+              -- Unify height and width to match other large popups by compensating for different size calculation methods
+              height = lg_size.HEIGHT + 0.1,
+              width = lg_size.WIDTH + 0.015,
+
+              preview_height = 0.6,
+              preview_cutoff = 1, -- Preview should always show (unless previewer = false)
+              prompt_position = "top",
+            },
+          },
           mappings = {
-            n = {
-              ["x"] = require("telescope.actions").delete_buffer,
+            i = {
+              ["<c-q>"] = function(...)
+                require("telescope.actions").send_to_qflist(...)
+                require("trouble").open("quickfix")
+              end,
             },
           },
         },
       })
-
-      opts.defaults = vim.tbl_deep_extend("force", opts.defaults, {
-        prompt_prefix = "   ",
-        results_title = false,
-        -- Merge prompt and results windows
-        -- https://github.com/nvim-telescope/telescope.nvim/blob/5972437de807c3bc101565175da66a1aa4f8707a/lua/telescope/themes.lua#L50
-        borderchars = {
-          prompt = { "─", "│", " ", "│", "╭", "╮", "│", "│" },
-          results = { "─", "│", "─", "│", "├", "┤", "╯", "╰" },
-          preview = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
-        },
-        layout_strategy = "vertical_merged",
-
-        -- Make results appear from top to bottom
-        -- https://github.com/nvim-telescope/telescope.nvim/issues/1933
-        sorting_strategy = "ascending",
-
-        layout_config = {
-          vertical = {
-            mirror = true,
-
-            -- Unify height and width to match other large popups by compensating for different size calculation methods
-            height = lg_size.HEIGHT + 0.1,
-            width = lg_size.WIDTH + 0.015,
-
-            preview_height = 0.6,
-            preview_cutoff = 1, -- Preview should always show (unless previewer = false)
-            prompt_position = "top",
-          },
-        },
-        mappings = {
-          i = {
-            ["<c-q>"] = function(...)
-              require("telescope.actions").send_to_qflist(...)
-              require("trouble").open("quickfix")
-            end,
-          },
-        },
-      })
     end,
+
     keys = function(_, keys)
       local mappings = {
         { "<leader>sB", "<cmd>Telescope git_branches<cr>", desc = "Git branches" },

@@ -33,6 +33,7 @@ require("lazy").setup({
     { import = "plugins.overrides.coding" },
     { import = "plugins.overrides.editor" },
 
+    { import = "plugins.overrides.extras.ai" },
     { import = "plugins.overrides.extras.coding" },
     { import = "plugins.overrides.extras.editor" },
     { import = "plugins.overrides.extras.ui" },

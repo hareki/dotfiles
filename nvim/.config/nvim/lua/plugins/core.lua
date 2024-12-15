@@ -7,6 +7,7 @@ return {
       return vim.tbl_deep_extend("force", opts, {
         icons = {
           kinds = {
+            Folder = "󰉋 ",
             [Constant.yanky.CMP_KIND] = "󰅍 ",
           },
         },

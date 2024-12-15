@@ -1,20 +1,6 @@
 return {
   "neovim/nvim-lspconfig",
   opts = function(_, opts)
-    opts.diagnostics.virtual_text = false -- We use tiny-inline-diagnostic instead (currently disable it as well)
-    opts.inlay_hints.enabled = false
-    opts.codelens.enabled = false
-
-    opts.servers.typos_lsp = {
-      cmd_env = { RUST_LOG = "info" },
-      init_options = {
-        config = "~/.config/typos/typos.toml",
-        diagnosticSeverity = "Info",
-      },
-    }
-
-    -- opts.document_highlight = true
-
     -- Doesn't work properly since bash and zsh although look similar at first, they're not
     -- Lots of false positives
     -- opts.servers.bashls = { filetypes = { "sh", "zsh" } }
@@ -25,5 +11,26 @@ return {
     --     border = "rounded",
     --   })
     -- end
+
+    return vim.tbl_deep_extend("force", opts, {
+      inlay_hints = {
+        enabled = false,
+      },
+      codelens = {
+        enabled = false,
+      },
+      diagnostics = {
+        virtual_text = false,
+      },
+      servers = {
+        typos_lsp = {
+          cmd_env = { RUST_LOG = "info" },
+          init_options = {
+            config = "~/.config/typos/typos.toml",
+            diagnosticSeverity = "Info",
+          },
+        },
+      },
+    })
   end,
 }

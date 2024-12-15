@@ -19,9 +19,10 @@ return {
     },
     config = function()
       local hooks = require("git-worktree.hooks")
+      local g = vim.g
       local wk = require("which-key")
 
-      vim.g.git_worktree = {
+      g.git_worktree = {
         prefill_upstream = true,
         auto_set_upstream = true,
       }

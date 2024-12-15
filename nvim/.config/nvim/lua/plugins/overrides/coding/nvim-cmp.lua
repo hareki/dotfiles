@@ -7,8 +7,6 @@ return {
   dependencies = {
     "hrsh7th/cmp-cmdline",
     "dmitmel/cmp-cmdline-history",
-    -- "hrsh7th/cmp-calc",
-    -- "chrisgrieser/cmp_yanky",
   },
   opts = function(_, opts)
     local cmp = require("cmp")
@@ -63,31 +61,38 @@ return {
       },
     }
 
-    -- table.insert(opts.sources, {
-    --   name = "calc",
-    -- })
-
-    -- table.insert(opts.sources, {
-    --   name = "cmp_yanky",
-    --   priority = 20,
-    --   max_item_count = 3,
-    --   option = {
-    --     minLength = 3,
-    --   },
-    -- })
-
-    opts.formatting = opts.formatting or {}
-    local format_original = opts.formatting.format or function(entry, item)
+    local org_format = Util.define(opts, "formatting").format or function(entry, item)
       return item
     end
 
-    opts.formatting.format = function(entry, item)
-      if entry.source.name == "cmp_yanky" then
-        -- Assign a custom kind and hl group for cmp_yanky before passing it to format_original
-        item.kind = Constant.yanky.CMP_KIND
-        item.kind_hl_group = "CmpItemKindClass"
-      end
-      return format_original(entry, item)
-    end
+    return vim.tbl_deep_extend("force", opts, {
+      window = {
+        -- documentation = cmp.config.window.bordered(),
+        -- completion = cmp.config.window.bordered(),
+
+        completion = {
+          border = "rounded",
+          -- CursorLine is the currently selected item
+          winhighlight = "Normal:CmpNormal,CursorLine:PmenuSel",
+        },
+        documentation = {
+          border = "rounded",
+          winhighlight = "Normal:CmpNormal",
+          -- winhighlight = "Normal:CmpNormal,FloatBorder:CmpItemKindConstant",
+        },
+      },
+
+      formatting = {
+        format = function(entry, item)
+          if entry.source.name == "cmp_yanky" then
+            -- Assign a custom kind and hl group for cmp_yanky before passing it to format_original
+            item.kind = Constant.yanky.CMP_KIND
+            item.kind_hl_group = "CmpItemKindClass"
+          end
+
+          return org_format(entry, item)
+        end,
+      },
+    })
   end,
 }

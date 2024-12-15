@@ -1,5 +1,7 @@
 return {
   setup = function()
+    local g = vim.g
+    local osc52 = require("vim.ui.clipboard.osc52")
     -- https://github.com/neovim/neovim/discussions/28010#discussioncomment-9877494
     local function paste()
       return {
@@ -8,11 +10,11 @@ return {
       }
     end
 
-    vim.g.clipboard = {
+    g.clipboard = {
       name = "OSC 52",
       copy = {
-        ["+"] = require("vim.ui.clipboard.osc52").copy("+"),
-        ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
+        ["+"] = osc52.copy("+"),
+        ["*"] = osc52.copy("*"),
       },
       paste = {
         ["+"] = paste,

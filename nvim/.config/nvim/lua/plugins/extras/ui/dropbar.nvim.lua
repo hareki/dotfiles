@@ -17,7 +17,9 @@ return {
       },
     })
 
-    table.insert(keys, { dropbar_pick_key, "<cmd>lua require('dropbar.api').pick()<cr>", desc = "Dropbar pick" })
+    return vim.list_extend(keys, {
+      { dropbar_pick_key, "<cmd>lua require('dropbar.api').pick()<cr>", desc = "Dropbar pick" },
+    })
   end,
 
   opts = function(_, opts)
@@ -32,7 +34,6 @@ return {
         },
       },
       icons = {
-
         ui = {
           menu = {
             indicator = "",
@@ -69,29 +70,28 @@ return {
             }
           end
 
-          -- Completely disable LSP items for now, since I don't use it
-          return {
-            sources.path,
-          }
-
-          -- local lsp_item_limit = 3
-          -- local utils = require("dropbar.utils")
-
-          -- local lsp_sources = utils.source.fallback({
-          --   sources.lsp,
-          --   sources.treesitter,
-          -- })
-          -- local orig_get_symbols = lsp_sources.get_symbols
-          --
-          -- lsp_sources.get_symbols = function(...)
-          --   local symbols = orig_get_symbols(...)
-          --   return { unpack(symbols, 1, math.min(#symbols, lsp_item_limit)) }
-          -- end
-          --
           -- return {
           --   sources.path,
-          --   lsp_sources,
           -- }
+
+          local lsp_item_limit = 3
+          local utils = require("dropbar.utils")
+
+          local lsp_sources = utils.source.fallback({
+            sources.lsp,
+            sources.treesitter,
+          })
+          local orig_get_symbols = lsp_sources.get_symbols
+
+          lsp_sources.get_symbols = function(...)
+            local symbols = orig_get_symbols(...)
+            return { unpack(symbols, 1, math.min(#symbols, lsp_item_limit)) }
+          end
+
+          return {
+            sources.path,
+            lsp_sources,
+          }
         end,
       },
 
