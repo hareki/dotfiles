@@ -57,7 +57,7 @@ return {
         spec = vim.list_extend(opts.spec or {}, custom_spec),
         win = {
           border = "rounded",
-          padding = { 1, 3 }, -- [top/bottom, right/left]
+          padding = { 1, 3 }, -- [top/bottom, right/left] the actual horizontal padding will be +3 the value, not sure why
         },
 
         -- Don't show which-key when first entering visual mode
