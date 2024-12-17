@@ -259,7 +259,7 @@ function tmuxinator {
   tmuxinator "$@"
 }
 
-NODE_REQUIRED_COMMANDS=(node npm npx lazygit)
+NODE_REQUIRED_COMMANDS=(node npm npx lazygit yarn)
 
 function unset_node_commands {
   for cmd in "${NODE_REQUIRED_COMMANDS[@]}"; do
