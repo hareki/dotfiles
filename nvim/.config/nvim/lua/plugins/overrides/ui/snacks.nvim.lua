@@ -16,7 +16,7 @@ return {
         height = lg_size.HEIGHT,
       })
 
-      style("notification.history", {
+      style("notification_history", {
         title = " Notification History ",
         backdrop = 100,
         width = lg_size.WIDTH,
