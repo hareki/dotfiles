@@ -1,7 +1,8 @@
-api.unmapAllExcept(['d','u','i','v','f','cf'], /.*/);
+api.unmapAllExcept(['d','u','C','i','v','f','cf'], /.*/);
 api.map('<PageUp>','u');
 api.map('<PageDown>','d');
 api.map('mf', 'cf');
+api.map('F', 'C')
 
 const hintsCss =
   `
