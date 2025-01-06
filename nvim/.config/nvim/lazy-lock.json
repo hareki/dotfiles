@@ -1,5 +1,5 @@
 {
-  "LazyVim": { "branch": "main", "commit": "625425fd4901b141f20a97356307547572948e48" },
+  "LazyVim": { "branch": "main", "commit": "b36593f9a455674f6457c8805ea16a26a9047ab0" },
   "LuaSnip": { "branch": "master", "commit": "33b06d72d220aa56a7ce80a0dd6f06c70cd82b9d" },
   "SchemaStore.nvim": { "branch": "main", "commit": "fa47222e29d6f6e80eddcdd0f125c27edf274ad5" },
   "catppuccin": { "branch": "main", "commit": "f67b886d65a029f12ffa298701fb8f1efd89295d" },
@@ -55,7 +55,7 @@
   "promise-async": { "branch": "main", "commit": "119e8961014c9bfaf1487bf3c2a393d254f337e2" },
   "rainbow-delimiters.nvim": { "branch": "master", "commit": "77e5bad54227dcfe3878ffbda88ab1efdaacb475" },
   "refactoring.nvim": { "branch": "master", "commit": "2db6d378e873de31d18ade549c2edba64ff1c2e3" },
-  "snacks.nvim": { "branch": "main", "commit": "d312053f78b4fb55523def179ac502438dd93193" },
+  "snacks.nvim": { "branch": "fix-win-position-2", "commit": "392c9d229c58877eedc82631f91763093e1821b8" },
   "sqlite.lua": { "branch": "master", "commit": "cf482586c4f24e197375235a6e310b9b9e80ba83" },
   "tailwindcss-colorizer-cmp.nvim": { "branch": "main", "commit": "3d3cd95e4a4135c250faf83dd5ed61b8e5502b86" },
   "telescope-fzf-native.nvim": { "branch": "main", "commit": "dae2eac9d91464448b584c7949a31df8faefec56" },

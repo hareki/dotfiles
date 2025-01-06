@@ -33,7 +33,7 @@ local hrtime = vim.loop.hrtime
 map({ "i", "x", "n", "s" }, "<C-s>", function()
   local start_time = profile and hrtime() or nil
   require("conform").format({ async = true }, function(_)
-    vim.api.nvim_command("silent! write")
+    vim.api.nvim_command("write")
 
     if start_time then
       local end_time = hrtime()

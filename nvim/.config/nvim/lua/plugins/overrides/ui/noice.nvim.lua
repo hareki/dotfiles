@@ -39,7 +39,6 @@ return {
         opts = { skip = true },
       },
 
-      -- Ignore saving notification
       {
         filter = {
           event = "msg_show",
@@ -49,7 +48,7 @@ return {
             { find = "; before #%d+" },
           },
         },
-        opts = { skip = true },
+        view = "mini",
       },
 
       --  Ignore "No information available" since there could be multiple LSP clients for the same filetype
