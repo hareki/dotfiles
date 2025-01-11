@@ -1,0 +1,11 @@
+/* Catppuccin Mocha */
+:host(:is(.anonymous-content-host, notification-message)),
+:root,
+.zenLooksAndFeelColorOption {
+  --zen-branding-dark: #1e1e2e !important; /* Base */
+  --zen-toolbar-element-bg: rgba(147, 153, 178, 0.25) !important; /* Overlay2 */
+}
+
+#tabbrowser-tabs {
+  --tab-selected-bgcolor: rgba(205, 214, 244, 0.25) !important; /* Text */
+}
