@@ -1,0 +1,26 @@
+/* Catppuccin Mocha */
+#main-window {
+  --zen-branding-dark: #1e1e2e !important; /* Base */
+  --zen-toolbar-element-bg: rgba(147, 153, 178, 0.25) !important; /* Overlay2 */
+  
+  /* Wrapper inactive background */
+  --lwt-accent-color-inactive: #11111b !important; /* Crust */;
+  
+  /* Wrapper backbround */
+  --zen-themed-toolbar-bg: #1e1e2e !important;
+  --zen-themed-toolbar-bg-transparent: #1e1e2e !important;
+}
+
+* {
+  font-family: 'Maple Mono NF';
+}
+
+#tabbrowser-tabs {
+  --tab-selected-bgcolor: rgba(205, 214, 244, 0.25) !important; /* Text */
+}
+
+#urlbar[open] {
+  & #urlbar-background {
+    background-color: var(--zen-branding-dark) !important;
+  }
+}
