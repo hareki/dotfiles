@@ -9,6 +9,8 @@
   /* Wrapper backbround */
   --zen-themed-toolbar-bg: #1e1e2e !important;
   --zen-themed-toolbar-bg-transparent: #1e1e2e !important;
+  
+  --tab-icon-overlay-stroke: #313244 !important; /* Surface0 */
 }
 
 * {
