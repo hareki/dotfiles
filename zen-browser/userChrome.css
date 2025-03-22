@@ -1,28 +1,45 @@
-/* Catppuccin Mocha */
+:root {
+  --ctp-overlay2: 147, 153, 178;
+  --ctp-mantle: #181825;
+  --ctp-crust: #11111b;
+  --ctp-surface0: #313244;
+  --ctp-surface1: #45475a;
+  --ctp-text: rgba(var(--ctp-base-rgb), 0.25);
+  --ctp-font: 'Maple Mono NF';
+}
+
 #main-window {
-  --zen-branding-dark: #1e1e2e !important; /* Base */
-  --zen-toolbar-element-bg: rgba(147, 153, 178, 0.25) !important; /* Overlay2 */
-  
-  /* Wrapper inactive background */
-  --lwt-accent-color-inactive: #11111b !important; /* Crust */;
-  
-  /* Wrapper backbround */
-  --zen-themed-toolbar-bg: #1e1e2e !important;
-  --zen-themed-toolbar-bg-transparent: #1e1e2e !important;
-  
-  --tab-icon-overlay-stroke: #313244 !important; /* Surface0 */
+  --zen-branding-dark: var(--ctp-mantle) !important;
+  --zen-toolbar-element-bg: rgba(var(--ctp-overlay2), 0.25) !important;
+  --lwt-accent-color-inactive: var(--ctp-crust) !important;
+  --zen-themed-toolbar-bg: var(--ctp-mantle) !important;
+  --zen-themed-toolbar-bg-transparent: var(--ctp-mantle) !important;
+}
+
+#urlbar:not([breakout-extend='true']):hover #urlbar-background {
+  background: rgba(var(--ctp-overlay2), 0.4) !important;
+}
+
+.browserContainer > findbar {
+  background: var(--ctp-mantle) !important;
+}
+
+#zen-media-controls-toolbar > toolbaritem {
+  --zen-media-control-bg: var(--ctp-surface0) !important;
+}
+
+.tab-icon-overlay {
+  background: var(--ctp-surface0) !important;
 }
 
 * {
-  font-family: 'Maple Mono NF';
+  font-family: var(--ctp-font) !important;
 }
 
 #tabbrowser-tabs {
-  --tab-selected-bgcolor: rgba(205, 214, 244, 0.25) !important; /* Text */
+  --tab-selected-bgcolor: var(--ctp-text) !important;
 }
 
-#urlbar[open] {
-  & #urlbar-background {
-    background-color: var(--zen-branding-dark) !important;
-  }
+#urlbar[open] #urlbar-background {
+  background-color: var(--zen-branding-dark) !important;
 }
