@@ -4,7 +4,7 @@
   --ctp-crust: #11111b;
   --ctp-surface0: #313244;
   --ctp-surface1: #45475a;
-  --ctp-text: rgba(var(--ctp-base-rgb), 0.25);
+  --ctp-text: rgba(var(--ctp-overlay2), 0.25);
   --ctp-font: 'Maple Mono NF';
 }
 
