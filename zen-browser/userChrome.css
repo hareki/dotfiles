@@ -43,3 +43,17 @@
 #urlbar[open] #urlbar-background {
   background-color: var(--zen-branding-dark) !important;
 }
+
+.urlbarView-row {
+  &[selected] {
+    background-color: var(--ctp-surface1) !important;;
+  }
+}
+
+.urlbarView-row {
+  &:hover:not([selected]) {
+    & .urlbarView-favicon, & {
+      background-color: var(--ctp-surface0) !important;
+    }
+  }
+}
