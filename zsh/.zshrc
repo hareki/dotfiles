@@ -169,6 +169,12 @@ function mz_insert_path {
 zle -N mz_insert_path
 bindkey '^O' mz_insert_path
 
+
+# Override the color 241 (ANSI) to "blue" in catppuccin since lazygit uses this color for directory icon
+# https://github.com/jesseduffield/lazygit/issues/3863
+# https://github.com/folke/snacks.nvim/blob/7564a30cad803c01f8ecc15683a280d2f0e9bdb7/lua/snacks/lazygit.lua#L125
+echo -ne "\033]4;241;#89b4fa\007"
+
 # Lazy load fzf fuzzy completion
 function load_fzf_completion {
   unset -f load_fzf_completion
