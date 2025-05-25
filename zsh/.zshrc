@@ -91,9 +91,6 @@ alias ezp="nvim ~/.zprofile"
 alias ls="eza --icons=always --no-user"
 
 # [RE-Z]shrc
-# echo '' is to simulate the p10k ruler, I basically use it as a blank line at the top,
-# so that when the shell is ready after instant prompt the prompt won't be shifted.
-
 # env -i ... is to hard reset the environment variables to empty, must retain the essential ones like TERM
 # this is to make sure the new zsh instance that doesn't inherit any of the previously exported variables.
 
