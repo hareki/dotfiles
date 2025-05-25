@@ -6,10 +6,9 @@ fi
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
 
-# Disable instant prompt for now, since I have lazy-loaded tons of stuff, the startup time is pretty good now (~150ms)
-# if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-#   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-# fi
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
@@ -18,62 +17,39 @@ fi
 # zstyle ':completion:*' format '%d'
 # zstyle ':completion:*' group-name ''
 
-export PATH="/mnt/c/Windows:/mnt/c/Windows/System32:/mnt/c/Windows/System32/WindowsPowerShell/v1.0:$PATH"
-export FNM_DIR="$HOME/.local/share/fnm"
-[[ -d "$FNM_DIR" ]] && PATH="$FNM_DIR:$PATH"
-[[ -d "$HOME/bin" ]] && PATH="$HOME/bin:$PATH"
-[[ -d "$HOME/.local/bin" ]] && PATH="$HOME/.local/bin:$PATH"
-[[ -d "$HOME/.local/share/fnm" ]] && PATH="$HOME/.local/share/fnm:$PATH"
-
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 export ZSH_THEME="powerlevel10k/powerlevel10k"
-
-# The ssh-agent plugin just starts the ssh-agent, to work with multiple identities, follow this guide:
-# https://gist.github.com/oanhnn/80a89405ab9023894df7
-plugins=(zsh-autosuggestions zsh-syntax-highlighting ssh-agent autoupdate)
+export ZSH_EVALCACHE_DIR="$HOME/.cache/.zsh-evalcache"
 
 zstyle ':omz:update' mode auto      # update oh-my-zsh automatically without asking
-
-# https://github.com/ohmyzsh/ohmyzsh/blob/master/plugins/ssh-agent/README.md#powerline-10k-specific-settings
-zstyle :omz:plugins:ssh-agent quiet yes
-zstyle :omz:plugins:ssh-agent lazy yes
 
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 ZSH_CUSTOM_AUTOUPDATE_NUM_WORKERS=8
 ZSH_CUSTOM_AUTOUPDATE_QUIET=true
 
-source $ZSH/oh-my-zsh.sh
+# Set the root name of the plugins files (.txt and .zsh) antidote will use.
+zsh_plugins=${ZDOTDIR:-~}/.zsh_plugins
 
-# 2x Ctrl-D to exit, see `bash-ctrl-d` function
-export IGNOREEOF=2
-__BASH_IGNORE_EOF=0
+# Ensure the .zsh_plugins.txt file exists so you can add plugins.
+[[ -f ${zsh_plugins}.txt ]] || touch ${zsh_plugins}.txt
 
-# Editor and Terminal Settings
-export EDITOR='nvim'
-export VISUAL='nvim'
+# Lazy-load antidote from its functions directory.
+fpath=(/path/to/antidote/functions $fpath)
+autoload -Uz antidote
 
-# ======= Lazygit Color Settings =======
-# This one's causing trouble with lazygit truecolor support
-# export TERM='wezterm'
+# Generate a new static file whenever .zsh_plugins.txt is updated.
+if [[ ! ${zsh_plugins}.zsh -nt ${zsh_plugins}.txt ]]; then
+  antidote bundle <${zsh_plugins}.txt >|${zsh_plugins}.zsh
+fi
 
-# For some reasons this one doesn't work: https://github.com/wez/wezterm/issues/875
-# lazygit needs this information to display truecolor
-export COLORTERM="truecolor"
+# Source your static plugins file.
+source ${zsh_plugins}.zsh
 
-# Override the color 241 (ANSI) to "blue" in catppuccin since lazygit uses this color for directory icon
-# https://github.com/jesseduffield/lazygit/issues/3863
-# https://github.com/folke/snacks.nvim/blob/7564a30cad803c01f8ecc15683a280d2f0e9bdb7/lua/snacks/lazygit.lua#L125
-echo -ne "\033]4;241;#89b4fa\007"
+autoload -Uz promptinit && promptinit && prompt powerlevel10k
 
 # Dotfiles management
 export STOW_REPO="$HOME/Repositories/personal/dotfiles"
-
-# Redis
-export REDIS_BIN_PATH=/usr/bin
-export CLUSTER_HOST=127.0.0.1
-export CLUSTER_PORT=3002
-export NODES=6
 
 export BAT_THEME="Catppuccin Mocha"
 # fzf-tmux command uses bash shell, causing the incorrect cursor shape due to "echo -ne '\e[5 q" not being executed.
@@ -108,6 +84,7 @@ alias profile="time ZSH_DEBUGRC=1 zsh -i -c exit"
 alias compz="zcompile ~/.zshrc"
 alias cl="clear"
 alias ez="nvim ~/.zshrc"
+alias ezp="nvim ~/.zprofile"
 
 # `--no-user` flag only takes effect when using in combination with long format
 # The column doesn't provide any useful information in a single user environment anyway
@@ -121,7 +98,8 @@ alias ls="eza --icons=always --no-user"
 # this is to make sure the new zsh instance that doesn't inherit any of the previously exported variables.
 
 # --login is to make sure the new shell behaves exactly like the first time we open the terminal
-alias rez="clear && echo '' && exec env -i TERM="$TERM" zsh --login"
+# -i to ignore all current environment variables, must set the $TERM in .zprofile
+alias rez="clear && exec env -i zsh --login"
 
 # Enable vi mode
 bindkey -v
@@ -154,14 +132,14 @@ function preexec { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new pro
 
 function vi-yank-clip {
   zle vi-yank
-  echo "$CUTBUFFER" | clip.exe
+  echo "$CUTBUFFER" | pbcopy
 }
 zle -N vi-yank-clip
 bindkey -M vicmd 'y' vi-yank-clip
 
 function vi-delete-clip {
   zle vi-delete
-  echo "$CUTBUFFER" | clip.exe
+  echo "$CUTBUFFER" | pbcopy
 }
 zle -N vi-delete-clip
 bindkey -M visual 'x' vi-delete-clip
@@ -194,25 +172,6 @@ function mz_insert_path {
 zle -N mz_insert_path
 bindkey '^O' mz_insert_path
 
-# Make Ctrl-D terminate the shell only after a certain number of times: https://superuser.com/questions/1243138/why-does-ignoreeof-not-work-in-zsh
-# Bash like Ctrl-D wrapper for IGNOREEOF
-setopt ignore_eof
-function bash-ctrl-d {
-  if [[ $CURSOR == 0 && -z $BUFFER ]]
-  then
-    [[ -z $IGNOREEOF || $IGNOREEOF == 0 ]] && exit
-    if [[ "$LASTWIDGET" == "bash-ctrl-d" ]]
-    then
-      (( --__BASH_IGNORE_EOF <= 0 )) && exit
-    else
-      (( __BASH_IGNORE_EOF = IGNOREEOF ))
-    fi
-  fi
-}
-
-zle -N bash-ctrl-d
-bindkey '^D' bash-ctrl-d
-
 # Lazy load fzf fuzzy completion
 function load_fzf_completion {
   unset -f load_fzf_completion
@@ -244,87 +203,28 @@ zstyle :bracketed-paste-magic paste-finish pastefinish
 # Couldn't get it to just change the bg color and leave the bg color as is, so I chose a foreground color myself
 zle_highlight=(region:bg=#45475a,fg=#f9e2af)
 
-# Start ssh server on startup for wezterm ssh
-if ! pgrep -x "sshd" > /dev/null
-then
-  sudo /usr/sbin/sshd
-fi
 
-# ====== Wrapper functions to lazy load heavy stuff ======
-eval "`zoxide init zsh`"
-
-function tmuxinator {
-  unset -f tmuxinator
-  eval "`rbenv init - zsh`"
-  tmuxinator "$@"
-}
-
-NODE_REQUIRED_COMMANDS=(node npm npx lazygit yarn)
-
-function unset_node_commands {
-  for cmd in "${NODE_REQUIRED_COMMANDS[@]}"; do
-    unset -f "$cmd" >/dev/null 2>&1
-  done
-}
-
-for cmd in "${NODE_REQUIRED_COMMANDS[@]}"; do
-  eval "
-    function $cmd() {
-      unset_node_commands
-      eval \"\$(fnm env)\"
-      $cmd \"\$@\"
-    }
-  "
-done
-
-function ensure_node_loaded {
-  # Check if "node" is a shell function (used to lazy load Node.js) or not
-  # If it is => Node.js is not loaded yet
-  if typeset -f node > /dev/null; then
-    if command -v fnm >/dev/null 2>&1; then
-      eval "$(fnm env)"
-      unset_node_commands
-      
-      # Verify that 'node' is now available
-      if ! command -v node >/dev/null 2>&1; then
-        echo "Error: Node.js could not be loaded via fnm." >&2
-        return 1
-      fi
-    else
-      echo "Error: fnm is not installed. Please install fnm to use nvim with Node.js plugins." >&2
-      return 1
-    fi
-  fi
-  return 0
-}
-
+alias nvim="nvcd"
 # [N]eo[V]im and [C]hange [D]irectory
 function nvcd {
-  ensure_node_loaded || return 1
-
-  # 1. The `env TERM=wezterm` is for https://wezfurlong.org/wezterm/faq.html#how-do-i-enable-undercurl-curly-underlines
-  # 2. Have to use the `command` to explicitly call a command without triggering the alias.
+  # Have to use the `command` to explicitly call a command without triggering the alias.
+  
+  # No argument given
   if [[ -z $1 ]]; then
-    command env TERM=wezterm nvim
+    command nvim
     return 0
   fi
 
+  # Argument is directory => call zoxide first
   if [[ -d $1 ]]; then
-    z "$1" && command env TERM=wezterm nvim .
+    z "$1" && command nvim .
     return 0
   fi
 
-  command env TERM=wezterm nvim "$1"
+  # Arugment is file
+  command nvim "$1"
 }
 
-# Overshadows the nvim command to load Node.js via fnm first, and then run nvim
-# Also setups alias for the actual command to `nvcd`
-function nvim {
-  ensure_node_loaded || return 1
-  unset -f nvim
-  alias nvim="nvcd"
-  nvcd "$@"
-}
 
 # Autoload util functions when needed
 functions_dir=~/.zsh/lazy-functions
@@ -333,7 +233,9 @@ for func in $functions_dir/*(.N); do
   autoload -Uz "${func:t}"
 done
 
-clear
+_evalcache mise activate zsh
+_evalcache zoxide init zsh
+
 
 if [[ -n "$ZSH_DEBUGRC" ]]; then
   zprof
