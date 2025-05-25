@@ -1,6 +1,7 @@
 
 getantidote/use-omz
-ohmyzsh/ohmyzsh  path:lib
+ohmyzsh/ohmyzsh path:lib
+ohmyzsh/ohmyzsh path:plugins/ssh-agent
 romkatv/powerlevel10k kind:fpath
 
 zsh-users/zsh-autosuggestions

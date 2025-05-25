@@ -29,7 +29,7 @@ ZSH_CUSTOM_AUTOUPDATE_NUM_WORKERS=8
 ZSH_CUSTOM_AUTOUPDATE_QUIET=true
 
 # Set the root name of the plugins files (.txt and .zsh) antidote will use.
-zsh_plugins=${ZDOTDIR:-~}/.zsh_plugins
+zsh_plugins="$HOME/.zsh_plugins"
 
 # Ensure the .zsh_plugins.txt file exists so you can add plugins.
 [[ -f ${zsh_plugins}.txt ]] || touch ${zsh_plugins}.txt
