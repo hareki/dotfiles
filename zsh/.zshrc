@@ -51,7 +51,6 @@ autoload -Uz promptinit && promptinit && prompt powerlevel10k
 # Dotfiles management
 export STOW_REPO="$HOME/Repositories/personal/dotfiles"
 
-export BAT_THEME="Catppuccin Mocha"
 # fzf-tmux command uses bash shell, causing the incorrect cursor shape due to "echo -ne '\e[5 q" not being executed.
 # So we need to "echo -ne '\e[5 q" in the bash shell as well.
 export BASH_ENV="$HOME/.fzf_bashrc"
