@@ -3,11 +3,20 @@
 /* Not included in the official */
 * {
   font-family: 'SF Pro Rounded' !important;
-  font-weight: 500;
+}
+
+.tab-label-container:not([selected], [multiselected]) {
+  opacity: 1 !important;
+}
+
+.urlbarView-row {
+  color: rgba(255, 255, 255, 0.9) !important;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
+    --toolbox-textcolor-inactive: #fff !important;
+
     --zen-colors-primary: #313244 !important;
     --zen-primary-color: #89b4fa !important;
     --zen-colors-secondary: #313244 !important;
