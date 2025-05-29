@@ -50,6 +50,7 @@ autoload -Uz promptinit && promptinit && prompt powerlevel10k
 
 # Dotfiles management
 export STOW_REPO="$HOME/Repositories/personal/dotfiles"
+export PATH="$PATH:$HOME/.spicetify"
 
 # fzf-tmux command uses bash shell, causing the incorrect cursor shape due to "echo -ne '\e[5 q" not being executed.
 # So we need to "echo -ne '\e[5 q" in the bash shell as well.
@@ -242,3 +243,4 @@ _evalcache zoxide init zsh
 if [[ -n "$ZSH_DEBUGRC" ]]; then
   zprof
 fi
+
