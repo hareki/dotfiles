@@ -23,6 +23,7 @@ export ZSH_THEME="powerlevel10k/powerlevel10k"
 export ZSH_EVALCACHE_DIR="$HOME/.cache/.zsh-evalcache"
 
 zstyle ':omz:update' mode auto      # update oh-my-zsh automatically without asking
+zstyle ':omz:plugins:ssh-agent' quiet yes
 
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 ZSH_CUSTOM_AUTOUPDATE_NUM_WORKERS=8
