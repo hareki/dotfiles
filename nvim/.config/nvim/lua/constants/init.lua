@@ -4,6 +4,7 @@
 ---@field telescope constant.telescope
 ---@field yanky constant.yanky
 ---@field ui constant.ui
+---@field icons constant.icons
 local M = {}
 
 setmetatable(M, {

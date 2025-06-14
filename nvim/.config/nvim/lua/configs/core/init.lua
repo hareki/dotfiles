@@ -1,8 +1,9 @@
-require('lua.configs.core.ensure-lazy')
+require("configs.core.ensure-lazy")
 
 -- [[ Configure and install plugins ]]
 local lg_size = Constant.ui.popup_size.lg
 require('lazy').setup({
+    version = "*",
     ui = {
         size = { width = lg_size.WIDTH, height = lg_size.HEIGHT },
         border = "rounded",
@@ -15,6 +16,7 @@ require('lazy').setup({
         { import = "plugins.formatting" },
         { import = "plugins.linting" },
         { import = "plugins.lsp" },
+        { import = "plugins.treesitter" },
         { import = "plugins.ui" }
     },
     checker = { enabled = false, notify = false },

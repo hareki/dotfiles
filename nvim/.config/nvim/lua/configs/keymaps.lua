@@ -1,11 +1,16 @@
 --  See `:help vim.keymap.set()`
 local map = vim.keymap.set
 
+map({ "n", "x" }, "<D-c>", '"+y', { desc = "Yank to system clipboard", remap = true })
+
+map({ "n", "x" }, "<D-v>", '"+p', { desc = "Paste from system clipboard", remap = true })
+map({ "i" }, "<D-v>", '<C-o>"+p', { desc = "Paste from system clipboard", remap = true })
+
 map({ "i", "x", "n", "s" }, "<C-s>", "<cmd>w<cr><esc>", { desc = "Save File" })
 
 map({ 'n', 'v' }, '<PageUp>', '<C-u>zz', { desc = 'Scroll up and center' })
 map({ 'n', 'v' }, '<PageDown>', '<C-d>zz', { desc = 'Scroll down and center' })
-map("x", "x", '"0d', { noremap = true, desc = "Cut to register 0" })
+map("x", "x", '"0d', { desc = "Cut to register 0" })
 map("v", "<leader>t", "ygvgcp", { remap = true, silent = true, desc = "Yank, comment and paste" })
 
 map('n', '<C-Left>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
