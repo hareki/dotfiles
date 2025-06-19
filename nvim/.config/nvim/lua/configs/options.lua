@@ -15,7 +15,20 @@ local opt = vim.opt
 opt.number = true
 opt.relativenumber = true
 
-opt.guicursor = "n-v:block,i-c-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkon1"
+-- opt.guicursor = "n-v:block,i-c-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkon1"
+-- opt.guicursor = "n-v:block,i-c-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait0-blinkon400-blinkoff250"
+-- opt.guicursor =
+-- "n-v:block-blinkwait0-blinkon400-blinkoff250,i-c-ci-ve:ver25-blinkwait0-blinkon400-blinkoff250,r-cr:hor20-blinkwait0-blinkon400-blinkoff250,o:hor50"
+opt.guicursor = table.concat({
+    -- Normal & Visual ⇒ solid block that starts blinking after 700 ms
+    "n-v:block-blinkwait0-blinkon400-blinkoff250",
+    -- Insert & Command-line ⇒ 25-cell vertical bar, blinks immediately
+    "i-c-ci-ve:ver25-blinkwait0-blinkon400-blinkoff250",
+    -- Replace modes ⇒ 20-cell underline, same blink timing
+    "r-cr:hor20-blinkwait0-blinkon400-blinkoff250",
+    -- Operator-pending ⇒ 50-cell underline, no blink (steady)
+    "o:hor50"
+}, ",")
 opt.list = false                   -- Hide whitespace characters
 opt.spell = true                   -- Keep it true to use cmp-spell, but hide the undercurl
 opt.spelllang = { 'en_us' }        -- Set the spell checking language to English (US)
@@ -35,6 +48,7 @@ opt.updatetime = 250               -- Decrease update time
 opt.timeoutlen = 300               -- Decrease mapped sequence wait time
 opt.wildmode = "longest:full,full" -- Command-line completion mode
 opt.winminwidth = 5                -- Minimum window width
+opt.laststatus = 3                 -- Global statusline
 
 -- Save undo history
 opt.undofile = true

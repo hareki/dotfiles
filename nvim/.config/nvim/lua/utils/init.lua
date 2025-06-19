@@ -12,6 +12,8 @@ setmetatable(M, {
             return CommonUtil[k]
         end
 
+        print("Loading utils." .. k)
+
         t[k] = require("utils." .. k)
         return t[k]
     end,

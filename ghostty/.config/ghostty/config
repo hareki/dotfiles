@@ -48,6 +48,8 @@ font-size = 20
 font-style = SemiBold
 theme = catppuccin-mocha
 cursor-style = bar
+macos-titlebar-style = hidden
+
 
 font-family = Maple Mono NF
 font-feature = +calt, +liga, -zero, -ss02
@@ -56,7 +58,34 @@ font-style-bold  = ExtraBold
 font-style-italic  = SemiBold Italic
 font-style-bold-italic  = ExtraBold Italic
 
-# Pass super+c to the Neovim to handle yanking if no selection (not performable)
-keybind = performable:ctrl+c=copy_to_clipboard
-keybind = unconsumed:ctrl+v=ignore
-keybind = ctrl+shift+v=paste_from_clipboard
+
+adjust-cell-height = 15%
+
+window-padding-balance = true
+window-padding-x = 16
+window-padding-y = 12
+
+cursor-style-blink = true
+
+
+keybind = cmd+shift+c=copy_to_clipboard
+keybind = cmd+shift+v=paste_from_clipboard
+
+# Remap cmd + keys to alt + keys so that tmux can understand them.
+# Copy to clipboard
+keybind = cmd+c=esc:c 
+
+# Paste from clipboard
+keybind = cmd+v=esc:v 
+
+# Save (not implemented yet)
+keybind = cmd+s=esc:s 
+
+keybind = cmd+p=esc:p # FloaX
+keybind = cmd+o=esc:o # SessionX
+
+# Tmux pane nagivation 
+keybind = cmd+m=esc:m 
+keybind = cmd+n=esc:n
+keybind = cmd+e=esc:e
+keybind = cmd+i=esc:i

@@ -2,12 +2,11 @@ return {
     "nvim-lualine/lualine.nvim",
     event = "VeryLazy",
     init = function()
-        vim.g.lualine_laststatus = vim.o.laststatus
         if vim.fn.argc(-1) > 0 then
-            -- set an empty statusline till lualine loads
+            -- Set an empty statusline till lualine loads
             vim.o.statusline = " "
         else
-            -- hide the statusline on the starter page
+            -- Hide the statusline on the starter page
             vim.o.laststatus = 0
         end
     end,
@@ -15,37 +14,151 @@ return {
         -- PERF: we don't need this lualine require madness 🤷
         local lualine_require = require("lualine_require")
         lualine_require.require = require
-
+        local palette = Util.get_palette()
         local icons = Constant.icons
 
-        vim.o.laststatus = vim.g.lualine_laststatus
+        local mode_hl = {
+            -- NORMAL & friends
+            NORMAL        = { fg = palette.surface0, bg = palette.blue, gui = 'bold' },
+            ['O-PENDING'] = { fg = palette.surface0, bg = palette.blue, gui = 'bold' },
 
-        local harpoon_indicators = {}
-        local harpoon_active_indicators = {}
+            -- VISUAL family (Visual, Select, block, etc.)
+            VISUAL        = { fg = palette.base, bg = palette.mauve, gui = 'bold' },
+            ['V-LINE']    = { fg = palette.base, bg = palette.mauve, gui = 'bold' },
+            ['V-BLOCK']   = { fg = palette.base, bg = palette.mauve, gui = 'bold' },
 
-        for i = 1, 6 do
-            table.insert(harpoon_indicators, tostring(i))
-            table.insert(harpoon_active_indicators, "[" .. tostring(i) .. "]")
+            SELECT        = { fg = palette.base, bg = palette.mauve, gui = 'bold' },
+            ['S-LINE']    = { fg = palette.base, bg = palette.mauve, gui = 'bold' },
+            ['S-BLOCK']   = { fg = palette.base, bg = palette.mauve, gui = 'bold' },
+
+            -- INSERT (also used for Terminal/Shell because the theme re-uses the same colours)
+            INSERT        = { fg = palette.base, bg = palette.green, gui = 'bold' },
+            SHELL         = { fg = palette.base, bg = palette.green, gui = 'bold' },
+            TERMINAL      = { fg = palette.base, bg = palette.green, gui = 'bold' },
+
+            -- REPLACE family
+            REPLACE       = { fg = palette.base, bg = palette.red, gui = 'bold' },
+            ['V-REPLACE'] = { fg = palette.base, bg = palette.red, gui = 'bold' },
+
+            -- COMMAND/EX/MORE/CONFIRM share the same colours
+            COMMAND       = { fg = palette.base, bg = palette.peach, gui = 'bold' },
+            EX            = { fg = palette.base, bg = palette.peach, gui = 'bold' },
+            MORE          = { fg = palette.base, bg = palette.peach, gui = 'bold' },
+            CONFIRM       = { fg = palette.base, bg = palette.peach, gui = 'bold' },
+        }
+
+        local reset_theme = {
+            normal   = {
+                a = { fg = palette.surface0, bg = palette.mantle },
+                b = { fg = palette.surface0, bg = palette.mantle },
+                c = { fg = palette.surface0, bg = palette.mantle },
+            },
+            insert   = {
+                a = { fg = palette.surface0, bg = palette.mantle },
+                b = { fg = palette.surface0, bg = palette.mantle },
+                c = { fg = palette.surface0, bg = palette.mantle },
+            },
+            visual   = {
+                a = { fg = palette.surface0, bg = palette.mantle },
+                b = { fg = palette.surface0, bg = palette.mantle },
+                c = { fg = palette.surface0, bg = palette.mantle },
+            },
+            replace  = {
+                a = { fg = palette.surface0, bg = palette.mantle },
+                b = { fg = palette.surface0, bg = palette.mantle },
+                c = { fg = palette.surface0, bg = palette.mantle },
+            },
+            inactive = {
+                a = { fg = palette.surface0, bg = palette.mantle },
+                b = { fg = palette.surface0, bg = palette.mantle },
+                c = { fg = palette.surface0, bg = palette.mantle },
+            },
+        }
+
+        local function inverse_mode_hl(mode)
+            local c = mode_hl[mode]
+            return { fg = c.bg, bg = c.fg, gui = c.gui }
         end
 
-        local opts = {
+        -- From lualine.nvim slanted gaps example
+        local empty = require('lualine.component'):extend()
+        function empty:draw(default_highlight)
+            self.status = ' '
+            self.applied_separator = ''
+            self:apply_highlights(default_highlight)
+            self:apply_section_separators()
+            return self.status
+        end
+
+        local empty_comp = {
+            empty,
+            color = { fg = palette.mantle, bg = palette.mantle },
+            padding = { left = 0, right = 0 },
+            separator = { left = "", right = "" },
+        }
+
+        return {
             options = {
-                theme = "auto",
+                theme = reset_theme,
                 globalstatus = vim.o.laststatus == 3,
                 disabled_filetypes = { statusline = { "dashboard", "netrw" } },
-
-                section_separators = { left = "", right = "" },
-                component_separators = { left = "", right = "" },
+                padding = { left = 0, right = 0 },
+                sections_separators = { left = '', right = '' },
+                component_separators = { left = '', right = '' },
             },
+
+
             sections = {
-                lualine_a = { "mode" },
-                lualine_b = {
+                lualine_a = {
+                    {
+                        'mode',
+                        icon = {
+                            "󰀵 ",
+                            color = function()
+                                local mode = require('lualine.utils.mode').get_mode()
+                                return mode_hl[mode]
+                            end
+                        },
+                        separator = { left = "", right = "", },
+                        color = function()
+                            local mode = require('lualine.utils.mode').get_mode()
+                            return inverse_mode_hl(mode)
+                        end
+                    },
+
+                    empty_comp,
+
+                    {
+                        "filetype",
+                        icon_only = true,
+                        colored = false,
+                        separator = { left = "" },
+                        color = { bg = palette.mauve, fg = palette.mantle },
+
+                    },
+                    {
+                        "filename",
+                        fmt = function(filename)
+                            return filename:gsub("neo%-tree filesystem %[%d+%]", "neo-tree.nvim")
+                        end,
+                        padding = { left = 1, },
+                        symbols = {
+                            modified = " ",
+                            readonly = "󰌾",
+                        },
+                        separator = { right = "" },
+                        color = { fg = palette.mauve, bg = palette.surface0 },
+                    },
                     {
                         "branch",
+                        icon = '',
                         fmt = Util.git.format_branch_name,
+                        color = { fg = palette.subtext0, bg = palette.mantle },
+                        padding = { left = 2, right = 0 },
                     },
                     {
                         "diff",
+                        padding = { left = 2, right = 0 },
                         symbols = {
                             added = icons.git.added,
                             modified = icons.git.modified,
@@ -63,42 +176,21 @@ return {
                         end,
                     },
                 },
-
-                lualine_c = {
+                lualine_b = {},
+                lualine_c = {},
+                lualine_x = {},
+                lualine_y = {},
+                lualine_z = {
                     {
-                        function()
-                            local repo = Util.git.get_repo_name()
-                            return repo and ("󱉭 " .. repo) or "󱉭"
-                        end,
+                        'lsp_status',
+                        icon = '', -- f013
+                        symbols = {
+                            spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' },
+                            done = '✓',
+                            separator = ' ',
+                        },
+                        ignore_lsp = {},
                     },
-                    {
-                        "harpoon2",
-                        icon = "󰀱",
-                        indicators = harpoon_indicators,
-                        active_indicators = harpoon_active_indicators,
-                    },
-                },
-                lualine_x = {
-                    -- Pending key sequence
-                    {
-                        function() return require("noice").api.status.pending.get() end,
-                        cond = function() return package.loaded["noice"] and require("noice").api.status.pending.has() end,
-                        color = function() return { fg = Snacks.util.color("Constant") } end,
-                    },
-                    -- stylua: ignore
-                    {
-                        function() return require("noice").api.status.command.get() end,
-                        cond = function() return package.loaded["noice"] and require("noice").api.status.command.has() end,
-                        color = function() return { fg = Snacks.util.color("Statement") } end,
-                    },
-                    -- stylua: ignore
-                    {
-                        function() return "  " .. require("dap").status() end,
-                        cond = function() return package.loaded["dap"] and require("dap").status() ~= "" end,
-                        color = function() return { fg = Snacks.util.color("Debug") } end,
-                    },
-                },
-                lualine_y = {
                     {
                         "diagnostics",
                         sections = { "error", "warn", "info" },
@@ -108,64 +200,39 @@ return {
                             info = icons.diagnostics.Info,
                             hint = icons.diagnostics.Hint,
                         },
-                        -- always_visible = true,
+                        always_visible = true,
+                        padding = { left = 0, right = 2 },
                     },
-                    -- Acts as a padding that always there so that even if filetype icon is not visible, the filename will still have some padding
+
                     {
                         function()
-                            return " "
+                            return Util.git.get_repo_name()
                         end,
+                        color = { fg = palette.pink, bg = palette.surface0 },
+                        separator = { left = "", right = "", },
+                        icon = {
+                            -- "󱉭 ",
+                            " ",
+                            color = { fg = palette.mantle, bg = palette.pink }
+                        },
                         padding = { left = 0, right = 0 },
                     },
+
+                    empty_comp,
+
                     {
-                        "filetype",
-                        icon_only = true,
-                        colored = false,
-                        padding = { left = 0, right = 1 },
-                        separator = "|",
-                    },
-                    {
-                        "filename",
-                        fmt = function(filename)
-                            return filename:gsub("neo%-tree filesystem %[%d+%]", "neo-tree.nvim")
-                        end,
-                        padding = { left = 1, right = 1 },
-                        symbols = {
-                            modified = " ",
-                            readonly = "󰌾",
+                        "progress",
+                        padding = { left = 0, right = 0 },
+                        color = { fg = palette.green, bg = palette.mantle },
+                        icon = {
+                            ' ',
+                            color = { fg = palette.mantle, bg = palette.green },
                         },
-                        separator = "|",
+                        separator = { left = "", right = "", },
                     },
-                    {
-                        function()
-                            return Util.buffer.count_file_buffers()
-                        end,
-                    },
-                },
-                lualine_z = {
-                    { "location", padding = { left = 1, right = 1 }, separator = "|" },
-                    { "progress", padding = { left = 1, right = 1 } },
                 },
             },
             extensions = { "neo-tree", "lazy", "fzf" },
         }
-
-        local trouble = require("trouble")
-        local symbols = trouble.statusline({
-            mode = "symbols",
-            groups = {},
-            title = false,
-            filter = { range = true },
-            format = "{kind_icon}{symbol.name:Normal}",
-            hl_group = "lualine_c_normal",
-        })
-        table.insert(opts.sections.lualine_c, {
-            symbols and symbols.get,
-            cond = function()
-                return vim.b.trouble_lualine ~= false and symbols.has()
-            end,
-        })
-
-        return opts
     end,
 }

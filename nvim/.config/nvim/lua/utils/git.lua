@@ -126,7 +126,7 @@ end
 --- Retrieves the repository name using multiple strategies and caches the result.
 --- @return string|nil The repository name determined by the implemented logic.
 function M.get_repo_name()
-    local current_cwd = Util.cwd()
+    local current_cwd = vim.fn.getcwd()
 
     -- Check if the CWD has changed since the last cache
     if repo_cache.name and repo_cache.last_cwd == current_cwd then
@@ -172,8 +172,6 @@ function M.get_repo_name()
     repo_cache.name = cwd_name or "Unknown"
     return repo_name
 end
-
-local test = "a"
 
 --- Get the commit hash of the last commit affecting the current line in the current buffer.
 ---
