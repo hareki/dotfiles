@@ -3,7 +3,6 @@ local palette = require("catppuccin.palettes").get_palette("mocha")
 Util.highlights({
     Visual = { bold = false, bg = palette.surface1 },
     DocumentHighlight = { bg = "#373948" }, --#3b3d4d
-    Cursor = { reverse = true },
 
     DiagnosticUnderlineInfo = { link = "LspDiagnosticsUnderlineInformation" },
     DiagnosticUnderlineHint = { link = "LspDiagnosticsUnderlineHint" },

@@ -213,7 +213,7 @@ alias nvim="nvcd"
 # [N]eo[V]im and [C]hange [D]irectory
 function nvcd {
   # Have to use the `command` to explicitly call a command without triggering the alias.
-  
+
   # No argument given
   if [[ -z $1 ]]; then
     command nvim

@@ -223,10 +223,10 @@ return {
                     {
                         "progress",
                         padding = { left = 0, right = 0 },
-                        color = { fg = palette.green, bg = palette.mantle },
+                        color = { fg = palette.green, bg = palette.surface0 },
                         icon = {
                             ' ',
-                            color = { fg = palette.mantle, bg = palette.green },
+                            color = { fg = palette.surface0, bg = palette.green },
                         },
                         separator = { left = "", right = "", },
                     },
