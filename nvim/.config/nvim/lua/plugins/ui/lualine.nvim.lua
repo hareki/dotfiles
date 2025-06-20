@@ -112,8 +112,10 @@ return {
                 lualine_a = {
                     {
                         'mode',
+                        fmt = string.lower,
                         icon = {
-                            "󰀵 ",
+                            -- "󰀵 ",
+                            " ",
                             color = function()
                                 local mode = require('lualine.utils.mode').get_mode()
                                 return mode_hl[mode]

@@ -78,20 +78,36 @@ keybind = cmd+shift+c=copy_to_clipboard
 keybind = cmd+shift+v=paste_from_clipboard
 
 # Remap cmd + keys to alt + keys so that tmux can understand them.
+#  They was previous esc:<key> but .tmux.conf does not support that key sequence correctly...
 # Copy to clipboard
-keybind = cmd+c=esc:c 
+keybind = cmd+c=text:\x1bc 
 
 # Paste from clipboard
-keybind = cmd+v=esc:v 
+keybind = cmd+v=text:\x1bv 
 
 # Save (not implemented yet)
-keybind = cmd+s=esc:s 
+keybind = cmd+s=text:\x1bs 
 
-keybind = cmd+p=esc:p # FloaX
-keybind = cmd+o=esc:o # SessionX
+keybind = cmd+p=text:\x1bp # FloaX
+keybind = cmd+o=text:\x1bo # SessionX
+
+# Tmux prefix
+keybind = cmd+d=text:\x1bd
 
 # Tmux pane nagivation 
-keybind = cmd+m=esc:m 
-keybind = cmd+n=esc:n
-keybind = cmd+e=esc:e
-keybind = cmd+i=esc:i
+keybind = cmd+m=text:\x1bm
+keybind = cmd+n=text:\x1bn
+keybind = cmd+e=text:\x1be
+keybind = cmd+i=text:\x1bi
+
+# Tmux window navigation
+keybind = cmd+1=text:\x1b1
+keybind = cmd+2=text:\x1b2
+keybind = cmd+3=text:\x1b3
+keybind = cmd+4=text:\x1b4
+keybind = cmd+5=text:\x1b5
+keybind = cmd+6=text:\x1b6
+keybind = cmd+7=text:\x1b7
+keybind = cmd+8=text:\x1b8
+keybind = cmd+9=text:\x1b9
+keybind = cmd+0=text:\x1b0
