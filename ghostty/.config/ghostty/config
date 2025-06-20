@@ -81,6 +81,7 @@ keybind = cmd+shift+v=paste_from_clipboard
 #  They was previous esc:<key> but .tmux.conf does not support that key sequence correctly...
 # Copy to clipboard
 keybind = cmd+c=text:\x1bc 
+keybind = cmd+x=text:\x1bx
 
 # Paste from clipboard
 keybind = cmd+v=text:\x1bv 

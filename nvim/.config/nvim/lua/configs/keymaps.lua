@@ -2,6 +2,7 @@
 local map = vim.keymap.set
 
 map({ "n", "x" }, "<A-c>", '"+y', { desc = "Yank to system clipboard", remap = true })
+map({ "n", "x" }, "<A-x>", '"+d', { desc = "Cut to system clipboard", remap = true })
 map({ "n", "x" }, "<A-v>", '"+p', { desc = "Paste from system clipboard", remap = true })
 map({ "i" }, "<A-v>", '<C-o>"+p', { desc = "Paste from system clipboard", remap = true })
 
