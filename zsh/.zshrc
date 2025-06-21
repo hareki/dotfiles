@@ -74,6 +74,7 @@ export _ZO_FZF_OPTS="--exact --no-sort --bind=ctrl-z:ignore,btab:up,tab:down --c
 export _ZO_FZF_OPTS="$_ZO_FZF_OPTS $FZF_DEFAULT_OPTS"
 
 alias lg="lazygit"
+alias ff="fastfetch"
 alias brewup='brew update && brew upgrade && brew autoremove && brew cleanup'
 
 alias cd="z"
