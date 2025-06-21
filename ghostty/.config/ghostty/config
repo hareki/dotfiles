@@ -1,96 +1,48 @@
-# This is the configuration file for Ghostty.
-#
-# This template file has been automatically created at the following
-# path since Ghostty couldn't find any existing config files on your system:
-#
-#   /Users/hareki/Library/Application Support/com.mitchellh.ghostty/config
-#
-# The template does not set any default options, since Ghostty ships
-# with sensible defaults for all options. Users should only need to set
-# options that they want to change from the default.
-#
-# Run `ghostty +show-config --default --docs` to view a list of
-# all available config options and their default values.
-#
-# Additionally, each config option is also explained in detail
-# on Ghostty's website, at https://ghostty.org/docs/config.
+theme = catppuccin-mocha
 
-# Config syntax crash course
-# ==========================
-# # The config file consists of simple key-value pairs,
-# # separated by equals signs.
-# font-family = Iosevka
-# window-padding-x = 2
-#
-# # Spacing around the equals sign does not matter.
-# # All of these are identical:
-# key=value
-# key= value
-# key =value
-# key = value
-#
-# # Any line beginning with a # is a comment. It's not possible to put
-# # a comment after a config option, since it would be interpreted as a
-# # part of the value. For example, this will have a value of "#123abc":
-# background = #123abc
-#
-# # Empty values are used to reset config keys to default.
-# key =
-
-# # Some config options have unique syntaxes for their value,
-# # which is explained in the docs for that config option.
-# # Just for example:
-# resize-overlay-duration = 4s 200ms
-
+macos-titlebar-style = hidden
+mouse-hide-while-typing = true
 copy-on-select = clipboard
 
-font-size = 20.5
-font-style = SemiBold
-theme = catppuccin-mocha
-# Rosewater
-cursor-color = #f5e0dc
-# Crust
-cursor-text = #11111b
-cursor-style = bar
-cursor-style-blink = true
-mouse-hide-while-typing = true
-# shell-integration-features = no-cursor
-macos-titlebar-style = hidden
-
-
-font-family = Maple Mono NF
-font-feature = +calt, +liga, -zero, -ss02
-
-font-style-bold  = ExtraBold
-font-style-italic  = SemiBold Italic
-font-style-bold-italic  = ExtraBold Italic
-
-
 adjust-cell-height = 22%
-
 window-padding-balance = true
 window-padding-x = 10
 window-padding-y = 12,6
 
+font-size = 20.5
+font-style = SemiBold
+font-family = Maple Mono NF
+font-feature = +calt, +liga, -zero, -ss02
+font-style-bold  = ExtraBold
+font-style-italic  = SemiBold Italic
+font-style-bold-italic  = ExtraBold Italic
 
+cursor-style = bar
+cursor-style-blink = true
+# Rosewater
+cursor-color = #f5e0dc
+# Crust
+cursor-text = #11111b
 
+# Keybindings
+# ----------------------
+# Remap cmd + keys to alt + keys so that tmux can understand them.
+# They was previously esc:<key> but .tmux.conf does not support those key sequences correctly...
+
+# Clipboard management
+keybind = cmd+c=text:\x1bc 
+keybind = cmd+x=text:\x1bx
+keybind = cmd+v=text:\x1bv 
+keybind = cmd+s=text:\x1bs 
+
+# Since cmd + c/v/x are already mapped to alt + c/x/v to be used in neovim and tmux:
 keybind = cmd+shift+c=copy_to_clipboard
 keybind = cmd+shift+v=paste_from_clipboard
 
-# Remap cmd + keys to alt + keys so that tmux can understand them.
-#  They was previous esc:<key> but .tmux.conf does not support that key sequence correctly...
-# Copy to clipboard
-keybind = cmd+c=text:\x1bc 
-keybind = cmd+x=text:\x1bx
-
-# Paste from clipboard
-keybind = cmd+v=text:\x1bv 
-
-# Save (not implemented yet)
-keybind = cmd+s=text:\x1bs 
-
-keybind = cmd+p=text:\x1bp # FloaX
-keybind = cmd+o=text:\x1bo # SessionX
+# FloaX
+keybind = cmd+p=text:\x1bp
+# SessionX
+keybind = cmd+o=text:\x1bo 
 
 # Tmux prefix
 keybind = cmd+d=text:\x1bd
