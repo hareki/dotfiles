@@ -14,40 +14,36 @@ return {
         -- PERF: we don't need this lualine require madness 🤷
         local lualine_require = require("lualine_require")
         lualine_require.require = require
+
         local palette = Util.get_palette()
         local icons = Constant.icons
 
         local mode_hl = {
-            -- NORMAL & friends
-            NORMAL        = { fg = palette.surface0, bg = palette.blue, gui = 'bold' },
-            ['O-PENDING'] = { fg = palette.surface0, bg = palette.blue, gui = 'bold' },
+            NORMAL        = { fg = palette.surface0, bg = palette.blue },
+            ['O-PENDING'] = { fg = palette.surface0, bg = palette.blue },
 
-            -- VISUAL family (Visual, Select, block, etc.)
-            VISUAL        = { fg = palette.base, bg = palette.mauve, gui = 'bold' },
-            ['V-LINE']    = { fg = palette.base, bg = palette.mauve, gui = 'bold' },
-            ['V-BLOCK']   = { fg = palette.base, bg = palette.mauve, gui = 'bold' },
+            VISUAL        = { fg = palette.base, bg = palette.mauve },
+            ['V-LINE']    = { fg = palette.base, bg = palette.mauve },
+            ['V-BLOCK']   = { fg = palette.base, bg = palette.mauve },
 
-            SELECT        = { fg = palette.base, bg = palette.mauve, gui = 'bold' },
-            ['S-LINE']    = { fg = palette.base, bg = palette.mauve, gui = 'bold' },
-            ['S-BLOCK']   = { fg = palette.base, bg = palette.mauve, gui = 'bold' },
+            SELECT        = { fg = palette.base, bg = palette.mauve },
+            ['S-LINE']    = { fg = palette.base, bg = palette.mauve },
+            ['S-BLOCK']   = { fg = palette.base, bg = palette.mauve },
 
-            -- INSERT (also used for Terminal/Shell because the theme re-uses the same colours)
-            INSERT        = { fg = palette.base, bg = palette.green, gui = 'bold' },
-            SHELL         = { fg = palette.base, bg = palette.green, gui = 'bold' },
-            TERMINAL      = { fg = palette.base, bg = palette.green, gui = 'bold' },
+            INSERT        = { fg = palette.base, bg = palette.green },
+            SHELL         = { fg = palette.base, bg = palette.green },
+            TERMINAL      = { fg = palette.base, bg = palette.green },
 
-            -- REPLACE family
-            REPLACE       = { fg = palette.base, bg = palette.red, gui = 'bold' },
-            ['V-REPLACE'] = { fg = palette.base, bg = palette.red, gui = 'bold' },
+            REPLACE       = { fg = palette.base, bg = palette.red },
+            ['V-REPLACE'] = { fg = palette.base, bg = palette.red },
 
-            -- COMMAND/EX/MORE/CONFIRM share the same colours
-            COMMAND       = { fg = palette.base, bg = palette.peach, gui = 'bold' },
-            EX            = { fg = palette.base, bg = palette.peach, gui = 'bold' },
-            MORE          = { fg = palette.base, bg = palette.peach, gui = 'bold' },
-            CONFIRM       = { fg = palette.base, bg = palette.peach, gui = 'bold' },
+            COMMAND       = { fg = palette.base, bg = palette.peach },
+            EX            = { fg = palette.base, bg = palette.peach },
+            MORE          = { fg = palette.base, bg = palette.peach },
+            CONFIRM       = { fg = palette.base, bg = palette.peach },
         }
 
-        local reset_theme = {
+        local theme_reset = {
             normal   = {
                 a = { fg = palette.surface0, bg = palette.mantle },
                 b = { fg = palette.surface0, bg = palette.mantle },
@@ -80,7 +76,7 @@ return {
             return { fg = c.bg, bg = c.fg, gui = c.gui }
         end
 
-        -- From lualine.nvim slanted gaps example
+        -- https://github.com/nvim-lualine/lualine.nvim/blob/a94fc68960665e54408fe37dcf573193c4ce82c9/examples/slanted-gaps.lua#L23
         local empty = require('lualine.component'):extend()
         function empty:draw(default_highlight)
             self.status = ' '
@@ -97,16 +93,17 @@ return {
             separator = { left = "", right = "" },
         }
 
+        local separator = { left = "", right = "", }
+
         return {
             options = {
-                theme = reset_theme,
+                theme = theme_reset,
                 globalstatus = vim.o.laststatus == 3,
                 disabled_filetypes = { statusline = { "dashboard", "netrw" } },
                 padding = { left = 0, right = 0 },
                 sections_separators = { left = '', right = '' },
                 component_separators = { left = '', right = '' },
             },
-
 
             sections = {
                 lualine_a = {
@@ -121,7 +118,7 @@ return {
                                 return mode_hl[mode]
                             end
                         },
-                        separator = { left = "", right = "", },
+                        separator = separator,
                         color = function()
                             local mode = require('lualine.utils.mode').get_mode()
                             return inverse_mode_hl(mode)
@@ -134,7 +131,7 @@ return {
                         "filetype",
                         icon_only = true,
                         colored = false,
-                        separator = { left = "" },
+                        separator = { left = separator.left },
                         color = { bg = palette.mauve, fg = palette.mantle },
 
                     },
@@ -148,7 +145,7 @@ return {
                             modified = " ",
                             readonly = "󰌾",
                         },
-                        separator = { right = "" },
+                        separator = { right = separator.right },
                         color = { fg = palette.mauve, bg = palette.surface0 },
                     },
                     {
@@ -185,7 +182,7 @@ return {
                 lualine_z = {
                     {
                         'lsp_status',
-                        icon = '', -- f013
+                        icon = '',
                         symbols = {
                             spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' },
                             done = '✓',
@@ -211,7 +208,7 @@ return {
                             return Util.git.get_repo_name()
                         end,
                         color = { fg = palette.pink, bg = palette.surface0 },
-                        separator = { left = "", right = "", },
+                        separator = separator,
                         icon = {
                             -- "󱉭 ",
                             " ",
@@ -230,7 +227,7 @@ return {
                             ' ',
                             color = { fg = palette.surface0, bg = palette.green },
                         },
-                        separator = { left = "", right = "", },
+                        separator = separator,
                     },
                 },
             },

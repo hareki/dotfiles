@@ -170,7 +170,7 @@ function M.get_repo_name()
     -- Step 3: Fallback to using the current working directory's name
     local cwd_name = M.get_repo_name_from_path(current_cwd)
     repo_cache.name = cwd_name or "Unknown"
-    return repo_name
+    return repo_cache.name
 end
 
 --- Get the commit hash of the last commit affecting the current line in the current buffer.
