@@ -1,0 +1,10 @@
+style = "full"
+invert = true
+dialect = "uk"
+
+# Always take up full screen
+inline_height = 0
+
+# Update it with homebrew
+update_check = false
+theme.name = "catppuccin-mocha-blue"

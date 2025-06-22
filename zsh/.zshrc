@@ -241,6 +241,7 @@ done
 
 _evalcache mise activate zsh
 _evalcache zoxide init zsh
+_evalcache atuin init zsh --disable-up-arrow
 
 
 if [[ -n "$ZSH_DEBUGRC" ]]; then
