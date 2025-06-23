@@ -1,0 +1,7 @@
+#!/bin/zsh
+
+function load_fzf_completion {
+  unset -f load_fzf_completion
+  source <(fzf --zsh)
+  zle fzf-history-widget
+}

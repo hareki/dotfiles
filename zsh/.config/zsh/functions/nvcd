@@ -1,0 +1,21 @@
+#!/bin/zsh
+
+# [N]eo[V]im and [C]hange [D]irectory
+function nvcd {
+  # Have to use the `command` to explicitly call a command without triggering the alias.
+
+  # No argument given
+  if [[ -z $1 ]]; then
+    command nvim
+    return 0
+  fi
+
+  # Argument is directory => call zoxide first
+  if [[ -d $1 ]]; then
+    z "$1" && command nvim .
+    return 0
+  fi
+
+  # Argument is file
+  command nvim "$1"
+}

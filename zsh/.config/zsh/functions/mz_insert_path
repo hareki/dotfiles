@@ -1,0 +1,16 @@
+#!/bin/zsh
+
+function mz_insert_path {
+  # Export the current PATH variable to the widget's environment
+  local -x PATH="$PATH"
+
+  local path
+  path=$(mz -lp)
+
+  if [[ -z "$path" ]]; then
+    return 0
+  fi
+
+  # Insert the path into the command line at cursor position
+  LBUFFER+="$path"
+}

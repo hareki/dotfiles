@@ -1,2 +1,0 @@
-# Set cursor shape to beam without affecting stdout
-echo -ne '\e[5 q' > /dev/tty
