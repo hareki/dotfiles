@@ -6,7 +6,7 @@
 // – No accent/glow – the terminal’s own cursor is left untouched
 // – All uniforms and helper functions remain 100 % Shadertoy-compatible
 //
-// Author: your beloved ChatGPT o3 and KroneCorylus/shader-playground
+// Author: your beloved ChatGPT o3 based on KroneCorylus/shader-playground
 
 // ────────────────────────────────────────────────────────────────
 // Helpers (unchanged from cursor_blaze)
@@ -69,6 +69,7 @@ vec2 rectCenter(vec4 r) {           // r = (x,y,w,h) in NDC
 // ────────────────────────────────────────────────────────────────
 const vec4  TRAIL_COLOR = vec4(0.498, 0.518, 0.612, 1.0); // #7f849c Overlay1
 const float DURATION    = 0.22;                         // seconds
+const float MIN_TRAIL_PIXELS = 70.0;                     // minimum cursor move before trail shows to avoid constant glowing while typing
 
 // ────────────────────────────────────────────────────────────────
 void mainImage(out vec4 fragColor, in vec2 fragCoord)
@@ -86,6 +87,10 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
                     normalize(iCurrentCursor.zw,0.0));
     vec4 prev = vec4(normalize(iPreviousCursor.xy,1.0),
                      normalize(iPreviousCursor.zw,0.0));
+
+    // small-move suppression
+    float distPx   = distance(iCurrentCursor.xy, iPreviousCursor.xy);
+    float trailVis = step(MIN_TRAIL_PIXELS, distPx);   // 0 = hide, 1 = show
 
     // Parallelogram vertices for the trail
     float vFactor  = startVertexFactor(cur.xy, prev.xy);
@@ -110,7 +115,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
     vec4 col = baseColor;
     col = mix(col, TRAIL_COLOR, 1.0 - smoothstep(sdfTrail, -0.01, 0.001));
     col = mix(col, TRAIL_COLOR, antialias(sdfTrail));
-    col = mix(baseColor, col, clamp(1.0 - alphaMod, 0.0, 1.0));
+    col = mix(baseColor, col, clamp(1.0 - alphaMod, 0.0, 1.0) * trailVis);
 
     // Leave the actual cursor untouched (minimalism!)
     fragColor = mix(col, baseColor, step(sdfCursor, 0.0));
