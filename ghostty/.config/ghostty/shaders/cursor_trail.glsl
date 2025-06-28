@@ -50,8 +50,8 @@ float blend(float t) {       // same non-linear ease as blaze
     return sqr / (2.0 * (sqr - t) + 1.0);
 }
 
-float antialias(in float d) {
-    return 1.0 - smoothstep(0.0, normalize(vec2(2.0),0.0).x, d);
+float antialias(float d, float aaWidth) {              // OPTIMIZE: aaWidth pre-computed once
+    return 1.0 - smoothstep(0.0, aaWidth, d);
 }
 
 float startVertexFactor(vec2 a, vec2 b) {
@@ -75,22 +75,25 @@ const float MIN_TRAIL_PIXELS = 70.0;                     // minimum cursor move 
 void mainImage(out vec4 fragColor, in vec2 fragCoord)
 {
     // Base terminal frame (already contains the normal cursor)
-    fragColor = texture(iChannel0, fragCoord / iResolution.xy);
-    vec4 baseColor = fragColor;
+    vec4 baseColor = texture(iChannel0, fragCoord / iResolution.xy);
+
+    // Current & previous cursor origins in pixels (for early-out test)
+    float distPx = distance(iCurrentCursor.xy, iPreviousCursor.xy);
+    if (distPx < MIN_TRAIL_PIXELS) {                    // OPTIMIZE: skip heavy work for micro hops
+        fragColor = baseColor;
+        return;
+    }
 
     // Normalised pixel coord (-1…1 on short edge)
     vec2 p = normalize(fragCoord, 1.0);
     vec2 offset = vec2(-0.5, 0.5);                     // centre origin
+    float aaWidth = 4.0 / iResolution.y;              // OPTIMIZE: pre-compute once per fragment
 
     // Current & previous cursor rectangles in NDC
     vec4 cur = vec4(normalize(iCurrentCursor.xy,1.0),
                     normalize(iCurrentCursor.zw,0.0));
     vec4 prev = vec4(normalize(iPreviousCursor.xy,1.0),
                      normalize(iPreviousCursor.zw,0.0));
-
-    // small-move suppression
-    float distPx   = distance(iCurrentCursor.xy, iPreviousCursor.xy);
-    float trailVis = step(MIN_TRAIL_PIXELS, distPx);   // 0 = hide, 1 = show
 
     // Parallelogram vertices for the trail
     float vFactor  = startVertexFactor(cur.xy, prev.xy);
@@ -108,14 +111,16 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
     float prog       = blend(clamp((iTime - iTimeCursorChange) / DURATION, 0.0, 1.0));
 
     // Alpha fall-off along the trail
-    float len        = distance(rectCenter(cur), rectCenter(prev));
-    float alphaMod   = distance(p, rectCenter(cur)) / max(len * (1.0 - prog), 1e-4);
+    vec2  centerCur  = rectCenter(cur);               // OPTIMIZE: avoid second rectCenter call
+    vec2  centerPrev = rectCenter(prev);
+    float len        = distance(centerCur, centerPrev);
+    float alphaMod   = distance(p, centerCur) / max(len * (1.0 - prog), 1e-4);
 
     // ─── Draw trail ────────────────────────────────────────────
     vec4 col = baseColor;
     col = mix(col, TRAIL_COLOR, 1.0 - smoothstep(sdfTrail, -0.01, 0.001));
-    col = mix(col, TRAIL_COLOR, antialias(sdfTrail));
-    col = mix(baseColor, col, clamp(1.0 - alphaMod, 0.0, 1.0) * trailVis);
+    col = mix(col, TRAIL_COLOR, antialias(sdfTrail, aaWidth));
+    col = mix(baseColor, col, clamp(1.0 - alphaMod, 0.0, 1.0));
 
     // Leave the actual cursor untouched (minimalism!)
     fragColor = mix(col, baseColor, step(sdfCursor, 0.0));
