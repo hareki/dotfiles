@@ -27,6 +27,7 @@ return {
                 "lazy",
                 "mason",
                 "neo-tree",
+                "NvimTree",
                 "notify",
                 "snacks_notif",
                 "snacks_terminal",

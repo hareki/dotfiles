@@ -138,11 +138,11 @@ return {
                     {
                         "filename",
                         fmt = function(filename)
-                            return filename:gsub("neo%-tree filesystem %[%d+%]", "neo-tree.nvim")
+                            return filename:gsub("NvimTree_%d+", "NvimTree")
                         end,
                         padding = { left = 1, },
                         symbols = {
-                            modified = " ",
+                            modified = "",
                             readonly = "󰌾",
                         },
                         separator = { right = separator.right },

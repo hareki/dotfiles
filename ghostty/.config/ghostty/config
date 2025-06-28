@@ -22,10 +22,11 @@ font-style-bold-italic  = ExtraBold Italic
 
 cursor-style = bar
 cursor-style-blink = true
-# Rosewater
-cursor-color = #f5e0dc
+# Text
+cursor-color = #cdd6f4	
 # Crust
 cursor-text = #11111b
+custom-shader = shaders/cursor_trail.glsl
 
 # Keybindings
 # ----------------------
