@@ -6,6 +6,8 @@ fi
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 export STOW_REPO="$HOME/Repositories/personal/dotfiles"
+# From image.nvim, to make sure ImageMagick work properly
+export DYLD_FALLBACK_LIBRARY_PATH="opt/homebrew/lib:$DYLD_FALLBACK_LIBRARY_PATH"
 
 export HISTFILE=~/.zsh_history
 export HISTSIZE=10000

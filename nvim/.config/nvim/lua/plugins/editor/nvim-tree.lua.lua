@@ -1,27 +1,19 @@
-local HEIGHT_RATIO = Constant.ui.popup_size.lg.HEIGHT
-local WIDTH_RATIO = 0.5
-
-
-
 return {
     "nvim-tree/nvim-tree.lua",
     version = "*",
     lazy = false,
     dependencies = {
-        { "nvim-tree/nvim-web-devicons", },
-        {
-            'b0o/nvim-tree-preview.lua',
-            dependencies = {
-                'nvim-lua/plenary.nvim',
-                '3rd/image.nvim', -- Optional, for previewing images
-            },
-        },
+        "nvim-tree/nvim-web-devicons",
+        "hareki/nvim-tree-preview.lua",
     },
     keys = {
         { "<leader>e", ":NvimTreeToggle<cr>", desc = "Explorer NvimTree", remap = true, silent = true },
     },
     opts = function()
         local palette = Util.get_palette()
+        local float_enabled = true
+        local height_ratio = Constant.ui.popup_size.lg.HEIGHT -- 0.8
+        local width_ratio = Constant.ui.popup_size.lg.WIDTH   -- 0.8
 
         Util.highlights({
             NvimTreeSignColumn = {
@@ -39,6 +31,18 @@ return {
         })
 
         return {
+            update_focused_file = {
+                enable = true,
+                update_root = {
+                    enable = true,
+                    ignore_list = {},
+                },
+                exclude = false,
+            },
+            filters = {
+                enable = true,
+                git_ignored = false,
+            },
             renderer = {
                 icons = {
                     git_placement = "right_align",
@@ -67,10 +71,16 @@ return {
             },
             on_attach = function(bufnr)
                 local preview = require('nvim-tree-preview')
+                local preview_manager = require('nvim-tree-preview.manager')
                 local api = require("nvim-tree.api")
 
-                local function opts(desc)
-                    return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+                local function opts(desc, external_bufnr)
+                    return { desc = 'nvim-tree: ' .. desc, buffer = external_bufnr or bufnr, noremap = true, silent = true, nowait = true }
+                end
+
+                local function close()
+                    preview.close()
+                    api.tree.close()
                 end
 
                 ---@param folder_action 'expand' | 'collapse' | 'toggle'
@@ -85,23 +95,18 @@ return {
 
                         if is_file_node then
                             api.node.open.edit()
-                            api.tree.close()
+                            close()
                             return
                         end
 
-                        if folder_action == "toggle" then
-                            api.node.open.edit()
-                            return
-                        end
-
-                        if folder_action == "expand" and not node.open then
-                            api.node.open.edit()
-                        elseif folder_action == "collapse" and node.open then
+                        if folder_action == "toggle"
+                            or folder_action == 'expand' and not node.open
+                            or folder_action == 'collapse' and node.open
+                        then
                             api.node.open.edit()
                         end
                     end
                 end
-
 
                 vim.keymap.set('n', '<Tab>', function()
                     local ok, node = pcall(api.tree.get_node_under_cursor)
@@ -115,54 +120,62 @@ return {
                     end
                 end, opts 'Preview')
 
-                vim.keymap.set('n', 'P', preview.watch, opts 'Preview (Watch)')
-                vim.keymap.set("n", "<Right>", node_action('expand'), opts("Expand node"))
-                vim.keymap.set("n", "<S-Right>", api.tree.expand_all, opts("Expand all nodes"))
-                vim.keymap.set("n", "<Left>", node_action('collapse'), opts("Collapse node"))
-                vim.keymap.set("n", "<S-Left>", api.tree.collapse_all, opts("Collapse all nodes"))
-                vim.keymap.set("n", "<CR>", node_action('toggle'), opts("Open"))
+                vim.schedule(
+                    function()
+                        preview.watch()
+                        vim.keymap.set("n", "q", close, opts("Close", preview_manager.instance.preview_buf))
+                    end
+                )
+                vim.keymap.set("n", "q", close, opts("Close"))
+                vim.keymap.set("n", "c", api.fs.copy.node, opts("Copy"))
+                vim.keymap.set("n", "x", api.fs.cut, opts("Cut"))
+                vim.keymap.set("n", "p", api.fs.paste, opts("Paste"))
+                vim.keymap.set("n", "/", api.live_filter.start, opts("Live Filter: Start"))
 
                 vim.keymap.set("n", "d", api.fs.remove, opts("Delete"))
                 vim.keymap.set("n", "y", api.fs.copy.filename, opts("Copy Name"))
                 vim.keymap.set("n", "Y", api.fs.copy.relative_path, opts("Copy Relative Path"))
 
-                vim.keymap.set("n", "c", api.fs.copy.node, opts("Copy"))
-                vim.keymap.set("n", "x", api.fs.cut, opts("Cut"))
-                vim.keymap.set("n", "p", api.fs.paste, opts("Paste"))
-
-                vim.keymap.set("n", "q", api.tree.close, opts("Close"))
-                vim.keymap.set("n", "/", api.live_filter.start, opts("Live Filter: Start"))
+                vim.keymap.set("n", "<Right>", node_action('expand'), opts("Expand node"))
+                vim.keymap.set("n", "<S-Right>", api.tree.expand_all, opts("Expand all nodes"))
+                vim.keymap.set("n", "<Left>", node_action('collapse'), opts("Collapse node"))
+                vim.keymap.set("n", "<S-Left>", api.tree.collapse_all, opts("Collapse all nodes"))
+                vim.keymap.set("n", "<CR>", node_action('toggle'), opts("Open"))
             end,
+
             view = {
+                number = true,
                 relativenumber = true,
+                width = float_enabled and function()
+                    return math.floor(vim.opt.columns:get() * width_ratio)
+                end or nil,
+
                 float = {
-                    enable = true,
+                    enable = float_enabled,
                     quit_on_focus_loss = false,
                     open_win_config = function()
                         local screen_w = vim.opt.columns:get()
                         local screen_h = vim.opt.lines:get() - vim.opt.cmdheight:get()
-                        local window_w = screen_w * WIDTH_RATIO
-                        local window_h = screen_h * HEIGHT_RATIO
+                        local window_w = screen_w * width_ratio
+                        local window_h = screen_h * height_ratio
                         local window_w_int = math.floor(window_w)
-                        local window_h_int = math.floor(window_h)
-                        local center_x = (screen_w - window_w) / 2
-                        local center_y = ((vim.opt.lines:get() - window_h) / 2)
-                            - vim.opt.cmdheight:get()
+                        local window_h_int = math.floor(window_h / 2)
+
+                        -- Minus 1 to account for the border
+                        local col = math.floor((screen_w - window_w_int) / 2) - 1
+                        local row = math.floor((screen_h - window_h_int * 2) / 2) - 1
                         return {
                             title = ' NvimTree ',
                             title_pos = 'center',
                             border = 'rounded',
                             relative = 'editor',
-                            row = center_y,
-                            col = center_x,
+                            row = row,
+                            col = col,
                             width = window_w_int,
-                            height = window_h_int,
+                            height = window_h_int - 1,
                         }
                     end,
                 },
-                width = function()
-                    return math.floor(vim.opt.columns:get() * WIDTH_RATIO)
-                end,
             },
         }
     end
