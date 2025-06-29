@@ -12,8 +12,8 @@ return {
     opts = function()
         local palette = Util.get_palette()
         local float_enabled = true
-        local height_ratio = Constant.ui.popup_size.lg.HEIGHT -- 0.8
-        local width_ratio = Constant.ui.popup_size.lg.WIDTH   -- 0.8
+        local height_ratio = Constant.ui.popup_size.lg.HEIGHT
+        local width_ratio = Constant.ui.popup_size.lg.WIDTH
 
         Util.highlights({
             NvimTreeSignColumn = {
@@ -42,6 +42,10 @@ return {
             filters = {
                 enable = true,
                 git_ignored = false,
+            },
+            system_open = {
+                cmd = "open",
+                args = { "-R" },
             },
             renderer = {
                 icons = {
@@ -82,6 +86,42 @@ return {
                     preview.close()
                     api.tree.close()
                 end
+                local function toggle_preview()
+                    local tree_win = api.tree.winid()
+                    if not tree_win or not vim.api.nvim_win_is_valid(tree_win) then
+                        return
+                    end
+
+                    local is_preview_open = preview.is_open()
+
+                    -- Just toggle the preview on/off if float nvim-tree is not enabled
+                    if not float_enabled then
+                        if is_preview_open then
+                            preview.unwatch()
+                        else
+                            preview.watch()
+                        end
+
+                        return
+                    end
+
+                    local screen_h = vim.opt.lines:get() - vim.opt.cmdheight:get()
+                    local window_h = math.floor(screen_h * height_ratio / 2)
+                    local half_height = window_h - 1
+                    local full_height = window_h * 2
+
+                    local cfg = vim.api.nvim_win_get_config(tree_win)
+
+                    if is_preview_open then
+                        cfg.height = full_height
+                        vim.api.nvim_win_set_config(tree_win, cfg)
+                        preview.unwatch()
+                    else
+                        cfg.height = half_height
+                        vim.api.nvim_win_set_config(tree_win, cfg)
+                        preview.watch()
+                    end
+                end
 
                 ---@param folder_action 'expand' | 'collapse' | 'toggle'
                 local function node_action(folder_action)
@@ -108,6 +148,7 @@ return {
                     end
                 end
 
+                -- Toggle focus between nvim-tree and preview window
                 vim.keymap.set('n', '<Tab>', function()
                     local ok, node = pcall(api.tree.get_node_under_cursor)
                     if not ok or not node then
@@ -123,14 +164,23 @@ return {
                 vim.schedule(
                     function()
                         preview.watch()
-                        vim.keymap.set("n", "q", close, opts("Close", preview_manager.instance.preview_buf))
+                        vim.keymap.set("n", "q", close, opts("Close"))
+                        vim.keymap.set("n", "B", toggle_preview, opts("Toggle Preview"))
+
+                        if float_enabled then
+                            local perview_buf = preview_manager.instance.preview_buf
+
+                            vim.keymap.set("n", "B", toggle_preview, opts("Toggle Preview", perview_buf))
+                            vim.keymap.set("n", "q", close, opts("Close", perview_buf))
+                        end
                     end
                 )
-                vim.keymap.set("n", "q", close, opts("Close"))
                 vim.keymap.set("n", "c", api.fs.copy.node, opts("Copy"))
                 vim.keymap.set("n", "x", api.fs.cut, opts("Cut"))
                 vim.keymap.set("n", "p", api.fs.paste, opts("Paste"))
+
                 vim.keymap.set("n", "/", api.live_filter.start, opts("Live Filter: Start"))
+                vim.keymap.set("n", "r", api.node.run.system, opts("Reveal in Finder"))
 
                 vim.keymap.set("n", "d", api.fs.remove, opts("Delete"))
                 vim.keymap.set("n", "y", api.fs.copy.filename, opts("Copy Name"))
@@ -156,14 +206,12 @@ return {
                     open_win_config = function()
                         local screen_w = vim.opt.columns:get()
                         local screen_h = vim.opt.lines:get() - vim.opt.cmdheight:get()
-                        local window_w = screen_w * width_ratio
-                        local window_h = screen_h * height_ratio
-                        local window_w_int = math.floor(window_w)
-                        local window_h_int = math.floor(window_h / 2)
+                        local window_w = math.floor(screen_w * width_ratio)
+                        local window_h = math.floor(screen_h * height_ratio / 2)
 
                         -- Minus 1 to account for the border
-                        local col = math.floor((screen_w - window_w_int) / 2) - 1
-                        local row = math.floor((screen_h - window_h_int * 2) / 2) - 1
+                        local col = math.floor((screen_w - window_w) / 2) - 1
+                        local row = math.floor((screen_h - window_h * 2) / 2) - 1
                         return {
                             title = ' NvimTree ',
                             title_pos = 'center',
@@ -171,8 +219,8 @@ return {
                             relative = 'editor',
                             row = row,
                             col = col,
-                            width = window_w_int,
-                            height = window_h_int - 1,
+                            width = window_w,
+                            height = window_h - 1, -- For the space between the two window
                         }
                     end,
                 },
