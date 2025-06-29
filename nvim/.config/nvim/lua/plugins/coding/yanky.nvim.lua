@@ -64,12 +64,12 @@ return {
         },
 
         {
-            "<A-p>",
+            "<C-p>",
             "<Plug>(YankyPreviousEntry)",
             desc = "Select previous entry through yank history",
         },
         {
-            "<A-n>",
+            "<C-n>",
             "<Plug>(YankyNextEntry)",
             desc = "Select next entry through yank history",
         },

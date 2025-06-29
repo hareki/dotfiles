@@ -105,10 +105,13 @@ return {
                         return
                     end
 
-                    local screen_h = vim.opt.lines:get() - vim.opt.cmdheight:get()
-                    local window_h = math.floor(screen_h * height_ratio / 2)
-                    local half_height = window_h - 1
-                    local full_height = window_h * 2
+                    local size = Util.ui.get_lg_popup_size()
+                    local window_h = math.floor(size.height / 2)
+                    local half_height = window_h - 1 -- Minus 1 for the space between the two windows
+
+                    -- Have to add one extra row if the total height is an odd number to fill out the entire popup size
+                    local offset = Util.ui.get_lg_popup_size().height % 2 == 0 and 0 or 1
+                    local full_height = window_h * 2 + offset
 
                     local cfg = vim.api.nvim_win_get_config(tree_win)
 
@@ -204,14 +207,12 @@ return {
                     enable = float_enabled,
                     quit_on_focus_loss = false,
                     open_win_config = function()
-                        local screen_w = vim.opt.columns:get()
-                        local screen_h = vim.opt.lines:get() - vim.opt.cmdheight:get()
-                        local window_w = math.floor(screen_w * width_ratio)
-                        local window_h = math.floor(screen_h * height_ratio / 2)
+                        local size = Util.ui.get_lg_popup_size()
+                        local window_w = size.width
+                        local window_h = math.floor(size.height / 2)
+                        local col = size.col
+                        local row = size.row
 
-                        -- Minus 1 to account for the border
-                        local col = math.floor((screen_w - window_w) / 2) - 1
-                        local row = math.floor((screen_h - window_h * 2) / 2) - 1
                         return {
                             title = ' NvimTree ',
                             title_pos = 'center',
@@ -220,7 +221,7 @@ return {
                             row = row,
                             col = col,
                             width = window_w,
-                            height = window_h - 1, -- For the space between the two window
+                            height = window_h - 1, -- Minus 1 for the space between the two window
                         }
                     end,
                 },

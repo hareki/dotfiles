@@ -142,7 +142,7 @@ return {
                         end,
                         padding = { left = 1, },
                         symbols = {
-                            modified = "",
+                            modified = " ",
                             readonly = "󰌾",
                         },
                         separator = { right = separator.right },
