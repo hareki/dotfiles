@@ -8,13 +8,14 @@ local M = {}
 ---@field row      integer
 ---@field screen_h integer
 ---@field screen_w integer
+---@param size 'lg'
 ---@param with_border boolean|nil
 ---@return WinConfig
-function M.get_lg_popup_size(with_border)
+function M.get_popup_size(size, with_border)
     local screen_w = vim.opt.columns:get()
     local screen_h = vim.opt.lines:get() - vim.opt.cmdheight:get()
-    local window_w = math.floor(screen_w * Constant.ui.popup_size.lg.WIDTH)
-    local window_h = math.floor(screen_h * Constant.ui.popup_size.lg.HEIGHT)
+    local window_w = math.floor(screen_w * Constant.ui.popup_size[size].WIDTH)
+    local window_h = math.floor(screen_h * Constant.ui.popup_size[size].HEIGHT)
 
     -- Minus 1 to account for the border
     local col = math.floor((screen_w - window_w) / 2) - 1

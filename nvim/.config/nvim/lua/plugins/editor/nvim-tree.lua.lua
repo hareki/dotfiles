@@ -105,12 +105,12 @@ return {
                         return
                     end
 
-                    local size = Util.ui.get_lg_popup_size()
+                    local size = Util.ui.get_popup_size('lg')
                     local window_h = math.floor(size.height / 2)
                     local half_height = window_h - 1 -- Minus 1 for the space between the two windows
 
                     -- Have to add one extra row if the total height is an odd number to fill out the entire popup size
-                    local offset = Util.ui.get_lg_popup_size().height % 2 == 0 and 0 or 1
+                    local offset = Util.ui.get_popup_size('lg').height % 2 == 0 and 0 or 1
                     local full_height = window_h * 2 + offset
 
                     local cfg = vim.api.nvim_win_get_config(tree_win)
@@ -207,7 +207,7 @@ return {
                     enable = float_enabled,
                     quit_on_focus_loss = false,
                     open_win_config = function()
-                        local size = Util.ui.get_lg_popup_size()
+                        local size = Util.ui.get_popup_size('lg')
                         local window_w = size.width
                         local window_h = math.floor(size.height / 2)
                         local col = size.col

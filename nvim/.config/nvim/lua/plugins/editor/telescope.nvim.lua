@@ -7,32 +7,62 @@ return {
     },
     keys = {
         {
-            "<leader>ff",
+            "<leader><space>",
+            "<cmd>Telescope find_files<cr>",
             function()
                 require("telescope.builtin").find_files()
             end,
-            desc = "Find Files",
+            desc = "Files",
         },
         {
-            "<leader>fg",
+            "<leader>fb",
+            function()
+                require("telescope.builtin").buffers({
+                    sort_mru = true,
+                    sort_lastused = true,
+                })
+            end,
+            desc = "Buffers",
+
+        },
+        {
+            "<leader>f/",
             function()
                 require("telescope.builtin").live_grep()
             end,
             desc = "Live Grep",
         },
         {
-            "<leader>fb",
+            "<leader>fh",
             function()
-                require("telescope.builtin").buffers()
+                require("telescope.builtin").highlights()
             end,
-            desc = "Find Buffers",
+            desc = "Highlight Groups",
+        },
+
+        {
+            "<leader>fgb",
+            function()
+                require("telescope.builtin").git_branches()
+            end,
+            desc = "Git Branches",
+        },
+
+        {
+            "<leader>fr",
+            function()
+                require("telescope.builtin").resume()
+            end,
+            desc = "Last Picker",
         },
     },
     opts = function()
+        local state = require("telescope.state")
         local actions = require("telescope.actions")
+        local action_set = require("telescope.actions.set")
+        local action_state = require("telescope.actions.state")
         local layout_strategies = require("telescope.pickers.layout_strategies")
         local builtin = require("telescope.builtin")
-        local lg_size = Constant.ui.popup_size.lg
 
         local function find_command()
             if 1 == vim.fn.executable("rg") then
@@ -66,9 +96,9 @@ return {
             layout.results.height = layout.results.height + 1
 
             -- 2. Seems like telescope.nvim exclude the statusline when centering the layout,
-            -- Which is different from our logic in `Util.ui.get_lg_popup_size()`
+            -- Which is different from our logic in `Util.ui.get_popup_size()`
             -- So we need to adjust/shift the position if needed
-            local target_row = Util.ui.get_lg_popup_size(true).row
+            local target_row = Util.ui.get_popup_size('lg', true).row
             -- The top most component is the prompt window, so we use it as the anchor to adjust the position
             local top_line = layout.prompt.line
 
@@ -87,18 +117,71 @@ return {
             return layout
         end
 
+        -- https://github.com/nvim-telescope/telescope.nvim/issues/2778#issuecomment-2202572413
+        local toggle_focus_preview = function(prompt_bufnr)
+            local picker = action_state.get_current_picker(prompt_bufnr)
+            local prompt_win = picker.prompt_win
+            local previewer = picker.previewer
+            local previewer_win_id = previewer.state.winid
+            local previewer_bufnr = previewer.state.bufnr
+
+            vim.bo[previewer_bufnr].modifiable = false
+
+            vim.keymap.set("n", "<Tab>", function()
+                vim.cmd(string.format("noautocmd lua vim.api.nvim_set_current_win(%s)", prompt_win))
+            end, { buffer = previewer_bufnr })
+
+            vim.keymap.set("n", "q", function()
+                actions.close(prompt_bufnr)
+            end, { buffer = previewer_bufnr })
+
+            vim.cmd(string.format("noautocmd lua vim.api.nvim_set_current_win(%s)", previewer_win_id))
+        end
+
+        vim.api.nvim_create_autocmd("User", {
+            pattern = "TelescopePreviewerLoaded",
+            callback = function()
+                vim.opt_local.number = true
+                vim.opt_local.relativenumber = true
+                vim.opt_local.numberwidth = 1
+                vim.opt_local.cursorline = true
+            end,
+        })
+
+
+        --- @param prompt_bufnr integer
+        --- @param direction 'up' | 'down'
+        local function scroll_results(direction)
+            return function(prompt_bufnr)
+                local status = state.get_status(prompt_bufnr)
+                local winid = status.layout.results.winid
+                local default_speed = vim.api.nvim_win_get_height(winid) / 2
+                local speed = status.picker.layout_config.scroll_speed or default_speed
+
+                action_set.shift_selection(prompt_bufnr, math.floor(speed) * (direction == 'up' and -1 or 1))
+
+                vim.api.nvim_win_call(winid, function()
+                    vim.cmd("normal! zz")
+                end)
+            end
+        end
+
+        local scroll_results_up = scroll_results('up')
+        local scroll_results_down = scroll_results('down')
+
         return {
             defaults = {
-                prompt_prefix = "   ",
+                prompt_prefix = "   ",
                 selection_caret = " ",
-                results_title = false,
                 -- Merge prompt and results windows
+                results_title = false,
                 -- https://github.com/nvim-telescope/telescope.nvim/blob/5972437de807c3bc101565175da66a1aa4f8707a/lua/telescope/themes.lua#L50
                 borderchars = {
                     prompt = { "─", "│", " ", "│", "╭", "╮", "│", "│" },
                     results = { "─", "│", "─", "│", "├", "┤", "╯", "╰" },
                     preview = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
                 },
+
                 -- Make results appear from top to bottom
                 -- https://github.com/nvim-telescope/telescope.nvim/issues/1933
                 sorting_strategy = "ascending",
@@ -109,10 +192,10 @@ return {
                         mirror = true,
 
                         height = function()
-                            return Util.ui.get_lg_popup_size(true).height
+                            return Util.ui.get_popup_size('lg', true).height
                         end,
                         width = function()
-                            return Util.ui.get_lg_popup_size(true).width
+                            return Util.ui.get_popup_size('lg', true).width
                         end,
 
                         preview_height = 0.45,
@@ -137,20 +220,34 @@ return {
                 mappings = {
                     n = {
                         ["q"] = actions.close,
+                        ["<Tab>"] = toggle_focus_preview,
+                        ["<S-Tab>"] = actions.toggle_selection + actions.move_selection_worse,
+                        ["<PageUp>"] = scroll_results_up,
+                        ["<PageDown>"] = scroll_results_down,
                     },
+                    i = {
+                        ["<Tab>"] = toggle_focus_preview,
+                        ["<S-Tab>"] = actions.toggle_selection + actions.move_selection_worse,
+                        ["<PageUp>"] = scroll_results_up,
+                        ["<PageDown>"] = scroll_results_down,
+                    }
                 },
             },
             pickers = vim.tbl_deep_extend("force", default_picker_configs, {
                 find_files = {
                     find_command = find_command,
                     hidden = true,
+                    -- layout_config = { scroll_speed = 3 }  -- Config scroll speed per picker here
                 },
+                -- highlights = {
+                --     previewer = false,
+                -- },
                 buffers = {
                     select_current = true,
                     --https://github.com/nvim-telescope/telescope.nvim/issues/1145#issuecomment-903161099
                     mappings = {
                         n = {
-                            ["x"] = require("telescope.actions").delete_buffer,
+                            ["x"] = actions.delete_buffer,
                         },
                     },
                 },
