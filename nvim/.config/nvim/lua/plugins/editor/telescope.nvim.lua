@@ -96,7 +96,7 @@ return {
             layout.results.height = layout.results.height + 1
 
             -- 2. Seems like telescope.nvim exclude the statusline when centering the layout,
-            -- Which is different from our logic in `Util.ui.get_popup_size()`
+            -- Which is different from our logic in `Util.ui.get_popup_size('lg')`
             -- So we need to adjust/shift the position if needed
             local target_row = Util.ui.get_popup_size('lg', true).row
             -- The top most component is the prompt window, so we use it as the anchor to adjust the position
