@@ -11,13 +11,13 @@ end
 --- @param message string
 --- @return nil
 function M.warn(message)
-    print("WARN: " .. message)
+    vim.notify(message, "warn", { title = "Warning" })
 end
 
 --- @param message string
 --- @return nil
 function M.error(message)
-    print("ERROR: " .. message)
+    vim.notify(message, "error", { title = "Error" })
 end
 
 return M

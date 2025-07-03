@@ -1,11 +1,12 @@
 require("configs.core.ensure-lazy")
 
 -- [[ Configure and install plugins ]]
-local lg_size = Constant.ui.popup_size.lg
+Util.custom_lazy_events()
+local lg = Constant.ui.popup_size.lg
 require('lazy').setup({
     version = "*",
     ui = {
-        size = { width = lg_size.WIDTH, height = lg_size.HEIGHT },
+        size = { width = lg.WIDTH, height = lg.HEIGHT },
         border = "rounded",
         backdrop = 100,
         title = " Lazy ",

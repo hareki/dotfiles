@@ -1,7 +1,7 @@
 return {
     "echasnovski/mini.indentscope",
     version = false,
-    event = { "BufReadPost", "BufNewFile", "BufWritePre" },
+    event = "LazyFile",
     opts = function()
         Util.highlights({
             MiniIndentscopeSymbol = { fg = Util.get_palette().blue },

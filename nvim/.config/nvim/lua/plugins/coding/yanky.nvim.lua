@@ -1,7 +1,7 @@
 return {
     "hareki/yanky.nvim",
     desc = "Better Yank/Paste",
-    event = { "BufReadPost", "BufNewFile", "BufWritePre" },
+    event = "LazyFile",
     dependencies = {
         { "kkharji/sqlite.lua" },
     },
