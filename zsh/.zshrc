@@ -18,8 +18,9 @@ __zsh_config_dir=~/.config/zsh
 source $__zsh_config_dir/plugins.zsh
 _evalcache /opt/homebrew/bin/brew shellenv
 
-# This is for spicetify and lazygit, which only require in interactive shells
-PATH="$PATH:$HOME/.spicetify:$HOME/go/bin"
+# spicetify and lazygit only require in interactive shell
+# while the mise shims path we set in .zshenv is overwiritten by homebrew
+PATH="$PATH:$HOME/.local/share/mise/shims:$HOME/.spicetify:$HOME/go/bin"
 
 # Load configuration files (the order matters)
 for cfg in aliases vi-mode compdef keymaps fzf zoxide; do
@@ -39,7 +40,12 @@ function vivid_ls {
   printf 'export LS_COLORS=%q\n' "$colors"
 }
 
-_evalcache mise activate zsh
+# Don't work well with tmux, it doesn't update the $PATH, have to call "rez"
+# Currently using shims instead, it has some limitations that don't affect me for now
+# A plus side is that it works with non-interactive shell as well
+# https://mise.jdx.dev/dev-tools/shims.html#shims-vs-path
+# _evalcache mise activate zsh
+
 _evalcache zoxide init zsh
 _evalcache atuin init zsh --disable-up-arrow
 _evalcache vivid_ls catppuccin-mocha
