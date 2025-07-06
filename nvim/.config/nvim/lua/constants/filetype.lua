@@ -3,10 +3,10 @@
 local M = {}
 
 M.ESLINT_SUPPORTED = {
-  "javascript",
-  "javascriptreact",
-  "typescript",
-  "typescriptreact",
+  'javascript',
+  'javascriptreact',
+  'typescript',
+  'typescriptreact',
 }
 
 return M

@@ -1,53 +1,53 @@
 return {
-    "lewis6991/gitsigns.nvim",
-    event = "LazyFile",
-    opts = function()
-        Snacks.toggle({
-            name = "Git Signs",
-            get = function()
-                return require("gitsigns.config").config.signcolumn
-            end,
-            set = function(state)
-                require("gitsigns").toggle_signs(state)
-            end,
-        }):map("<leader>uG")
+  'lewis6991/gitsigns.nvim',
+  event = 'LazyFile',
+  opts = function()
+    Snacks.toggle({
+      name = 'Git Signs',
+      get = function()
+        return require('gitsigns.config').config.signcolumn
+      end,
+      set = function(state)
+        require('gitsigns').toggle_signs(state)
+      end,
+    }):map('<leader>uG')
 
-        return {
-            signs = {
-                add = { text = "▎" },
-                change = { text = "▎" },
-                delete = { text = "" },
-                topdelete = { text = "" },
-                changedelete = { text = "▎" },
-                untracked = { text = "▎" },
-            },
-            signs_staged = {
-                add = { text = "▎" },
-                change = { text = "▎" },
-                delete = { text = "" },
-                topdelete = { text = "" },
-                changedelete = { text = "▎" },
-            },
-            preview_config = {
-                border = "rounded",
-            },
-            current_line_blame = true,
-            current_line_blame_formatter = "<author>, <author_time:%R> - <summary>",
-            current_line_blame_opts = {
-                delay = 300,
-                virt_text = true,
-                virt_text_priority = 999,
-            },
-            on_attach = function(buffer)
-                local gs = package.loaded.gitsigns
+    return {
+      signs = {
+        add = { text = '▎' },
+        change = { text = '▎' },
+        delete = { text = '' },
+        topdelete = { text = '' },
+        changedelete = { text = '▎' },
+        untracked = { text = '▎' },
+      },
+      signs_staged = {
+        add = { text = '▎' },
+        change = { text = '▎' },
+        delete = { text = '' },
+        topdelete = { text = '' },
+        changedelete = { text = '▎' },
+      },
+      preview_config = {
+        border = 'rounded',
+      },
+      current_line_blame = true,
+      current_line_blame_formatter = '<author>, <author_time:%R> - <summary>',
+      current_line_blame_opts = {
+        delay = 300,
+        virt_text = true,
+        virt_text_priority = 999,
+      },
+      on_attach = function(buffer)
+        local gs = package.loaded.gitsigns
 
-                local function map(mode, l, r, desc)
-                    vim.keymap.set(mode, l, r, { buffer = buffer, desc = desc })
-                end
+        local function map(mode, l, r, desc)
+          vim.keymap.set(mode, l, r, { buffer = buffer, desc = desc })
+        end
 
-                local function unmap(mode, l)
-                    vim.keymap.del(mode, l, { buffer = buffer })
-                end
+        local function unmap(mode, l)
+          vim.keymap.del(mode, l, { buffer = buffer })
+        end
 
                 -- stylua: ignore start
                 map("n", "]h", function()
@@ -80,7 +80,7 @@ return {
 
                 unmap("n", "<leader>ghp")
                 map("n", "<leader>ghp", require("gitsigns").preview_hunk, "Preview hunk")
-            end,
-        }
-    end,
+      end,
+    }
+  end,
 }

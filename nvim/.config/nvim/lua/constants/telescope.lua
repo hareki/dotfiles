@@ -2,6 +2,6 @@
 ---@field PREVIEW_TITLE string
 local M = {}
 
-M.PREVIEW_TITLE = "Preview"
+M.PREVIEW_TITLE = 'Preview'
 
 return M

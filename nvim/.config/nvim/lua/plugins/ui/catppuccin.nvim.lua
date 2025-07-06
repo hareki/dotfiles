@@ -1,56 +1,82 @@
 return {
-    "catppuccin/nvim",
-    name = "catppuccin",
-    opts = {
-        styles = {                   -- Handles the styles of general hi groups (see `:h highlight-args`):
-            comments = { "italic" }, -- Change the style of comments
-            conditionals = { "italic" },
-            loops = {},
-            functions = {},
-            keywords = {},
-            strings = {},
-            variables = {},
-            numbers = {},
-            booleans = {},
-            properties = {},
-            types = {},
-            operators = {},
-            -- miscs = {}, -- Uncomment to turn off hard-coded styles
+  'catppuccin/nvim',
+  name = 'catppuccin',
+  opts = {
+    default_integrations = false,
+    integrations = {
+      cmp = true,
+      dashboard = true,
+      nvimtree = true,
+      flash = true,
+      fzf = true,
+      grug_far = true,
+      gitsigns = true,
+      indent_blankline = {
+        enabled = true,
+      },
+      lsp_trouble = true,
+      markdown = true,
+      mini = true,
+      native_lsp = {
+        enabled = true,
+        underlines = {
+          errors = { 'undercurl' },
+          hints = { 'undercurl' },
+          warnings = { 'undercurl' },
+          information = { 'undercurl' },
         },
-        integrations = {
-            cmp = true,
-            dashboard = true,
-            nvimtree = true,
-            flash = true,
-            fzf = true,
-            grug_far = true,
-            gitsigns = true,
-            indent_blankline = { enabled = true },
-            lsp_trouble = true,
-            mason = true,
-            markdown = true,
-            mini = true,
-            native_lsp = {
-                enabled = true,
-                underlines = {
-                    errors = { "undercurl" },
-                    hints = { "undercurl" },
-                    warnings = { "undercurl" },
-                    information = { "undercurl" },
-                },
-            },
-            neotest = true,
-            noice = true,
-            notify = true,
-            semantic_tokens = true,
-            snacks = true,
-            telescope = true,
-            treesitter = true,
-            treesitter_context = true,
-            which_key = true,
-        },
+      },
+      noice = true,
+      notify = true,
+      snacks = true,
+      telescope = true,
+      treesitter = true,
+      treesitter_context = true,
+      which_key = true,
     },
-    init = function()
-        vim.cmd.colorscheme("catppuccin-mocha")
-    end,
+  },
+  config = function(_, opts)
+    require('catppuccin').setup(opts)
+    vim.cmd.colorscheme('catppuccin-mocha')
+
+    local palette = Util.get_palette()
+
+    -- Some highlights don't work in `opts.highlight_overrides` or `opts.custom_highlights`
+    -- Had to do this to make sure they are not overwriting by anything
+    Util.highlights({
+      Visual = { bold = false, bg = palette.surface1 },
+      DocumentHighlight = { bg = '#373948' }, --#3b3d4d
+
+      DiagnosticUnderlineInfo = { link = 'LspDiagnosticsUnderlineInformation' },
+      DiagnosticUnderlineHint = { link = 'LspDiagnosticsUnderlineHint' },
+      DiagnosticUnderlineWarn = { link = 'LspDiagnosticsUnderlineWarning' },
+      DiagnosticUnderlineError = { link = 'LspDiagnosticsUnderlineError' },
+
+      LspDiagnosticsUnderlineInformation = { undercurl = true, sp = palette.sky },
+      LspDiagnosticsUnderlineHint = { undercurl = true, sp = palette.teal },
+      LspDiagnosticsUnderlineWarning = { undercurl = true, sp = palette.yellow },
+      LspDiagnosticsUnderlineError = { undercurl = true, sp = palette.red },
+
+      -- Remove the undercurl but keep spell checker on to use cmp-spell
+      SpellBad = { underline = false },
+      SpellCap = { underline = false },
+      SpellRare = { underline = false },
+      SpellLocal = { underline = false },
+
+      LspReferenceText = { link = 'DocumentHighlight' },
+      LspReferenceRead = { link = 'DocumentHighlight' },
+      LspReferenceWrite = { link = 'DocumentHighlight' },
+
+      NormalFloat = { bg = 'none' },
+      FloatTitle = { fg = palette.blue },
+
+      TabLine = {
+        bg = palette.base,
+        fg = palette.surface1,
+      },
+      TabLineFill = {
+        bg = palette.base,
+      },
+    })
+  end,
 }

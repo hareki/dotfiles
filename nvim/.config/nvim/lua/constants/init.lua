@@ -9,7 +9,7 @@ local M = {}
 
 setmetatable(M, {
   __index = function(t, k)
-    t[k] = require("constants." .. k)
+    t[k] = require('constants.' .. k)
     return t[k]
   end,
 })
