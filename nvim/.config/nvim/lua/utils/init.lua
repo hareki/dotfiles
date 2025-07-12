@@ -4,6 +4,7 @@ local CommonUtil = require('utils.common')
 ---@field buffer util.buffer
 ---@field git util.git
 ---@field notification util.notification.
+---@field telescope util.telescope
 ---@field ui util.ui
 local M = {}
 

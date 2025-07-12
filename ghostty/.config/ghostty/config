@@ -38,6 +38,7 @@ keybind = cmd+c=text:\x1bc
 keybind = cmd+x=text:\x1bx
 keybind = cmd+v=text:\x1bv 
 keybind = cmd+s=text:\x1bs 
+keybind = cmd+space=text:\x1b\x20
 
 # Since cmd + c/v/x are already mapped to alt + c/x/v to be used in neovim and tmux:
 keybind = cmd+shift+c=copy_to_clipboard

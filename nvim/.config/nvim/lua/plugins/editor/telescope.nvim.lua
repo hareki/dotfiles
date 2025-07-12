@@ -44,6 +44,16 @@ return {
     },
 
     {
+      '<leader>fy',
+      function()
+        require('telescope').extensions.yank_history.yank_history({
+          preview_title = Constant.telescope.PREVIEW_TITLE,
+        })
+      end,
+      desc = 'Highlight Groups',
+    },
+
+    {
       '<leader>fgb',
       function()
         require('telescope.builtin').git_branches()
@@ -59,6 +69,19 @@ return {
       desc = 'Last Picker',
     },
   },
+  init = function()
+    local _select = vim.ui.select
+
+    vim.ui.select = function(items, opts, on_choice)
+      -- Not necessary, but just to be safe
+      -- If for whatever reason the ui-select extension is not loaded, that will cause infinite recursion
+      vim.ui.select = _select
+      require('lazy').load({ plugins = { 'telescope.nvim' } })
+
+      -- vim.ui.select should already by overwritten telescope-ui-select at this point
+      return vim.ui.select(items, opts, on_choice)
+    end
+  end,
   opts = function()
     local state = require('telescope.state')
     local actions = require('telescope.actions')
@@ -103,9 +126,9 @@ return {
       layout.results.height = layout.results.height + 1
 
       -- 2. Seems like telescope.nvim exclude the statusline when centering the layout,
-      -- Which is different from our logic in `Util.ui.get_popup_size('lg')`
+      -- Which is different from our logic in `Util.ui.get_float_config('lg')`
       -- So we need to adjust/shift the position if needed
-      local target_row = Util.ui.get_popup_size(size, true).row
+      local target_row = Util.ui.get_float_config(size, true).row
       -- The top most component is the prompt window, so we use it as the anchor to adjust the position
       local top_line = layout.prompt.line
 
@@ -180,24 +203,11 @@ return {
     local scroll_results_up = scroll_results('up')
     local scroll_results_down = scroll_results('down')
 
-    ---@param size 'sm' | 'lg'
-    local function layout_config(size)
-      return {
-        size = size, -- Hint to calculate the position
-        height = function()
-          return Util.ui.get_popup_size(size, true).height
-        end,
-        width = function()
-          return Util.ui.get_popup_size(size, true).width
-        end,
-      }
-    end
-
     return {
       extensions = {
         ['ui-select'] = {
           layout_config = {
-            vertical = layout_config('sm'),
+            vertical = Util.telescope.layout_config('sm'),
           },
         },
       },
@@ -224,7 +234,7 @@ return {
             preview_height = 0.45,
             preview_cutoff = 1, -- Preview should always show (unless previewer = false)
             prompt_position = 'top',
-          }, layout_config('lg')),
+          }, Util.telescope.layout_config('lg')),
         },
 
         -- Open files in the first window that is an actual file.
@@ -280,7 +290,7 @@ return {
   config = function(_, opts)
     require('telescope').setup(opts)
 
-    for _, ext in ipairs({ 'ui-select', 'fzf' }) do
+    for _, ext in ipairs({ 'ui-select', 'fzf', 'yank_history' }) do
       require('telescope').load_extension(ext)
     end
   end,

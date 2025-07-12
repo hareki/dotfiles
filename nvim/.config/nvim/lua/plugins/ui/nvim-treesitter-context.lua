@@ -1,6 +1,6 @@
 return {
   'nvim-treesitter/nvim-treesitter-context',
-  event = 'LazyFile',
+  event = 'VeryLazy',
   opts = function()
     Util.highlights({
       TreesitterContextBottom = { bold = false, italic = false },

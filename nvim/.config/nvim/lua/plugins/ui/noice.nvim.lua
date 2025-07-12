@@ -53,7 +53,7 @@ return {
       command_palette = false,
       lsp_doc_border = true,
       long_message_to_split = true,
-      inc_rename = true,
+      inc_rename = false,
     },
   },
   config = function(_, opts)

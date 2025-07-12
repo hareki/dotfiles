@@ -4,6 +4,5 @@
 local M = {}
 
 M.PUT_HL_TIMER = 300
-M.CMP_KIND = 'Yanky'
 
 return M

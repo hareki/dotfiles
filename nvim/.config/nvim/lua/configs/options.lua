@@ -15,6 +15,8 @@ vim.g.loaded_netrwPlugin = 1
 -- For more options, you can see `:help option-list`
 
 local opt = vim.opt
+-- Default floating window border style, but turning this on will mess up telescope (and possibly other plugins as well)
+-- opt.winborder = 'rounded'
 
 opt.number = true
 opt.relativenumber = true

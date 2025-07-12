@@ -7,6 +7,7 @@ return {
   opts = {
     -- title_format = ' %s ', -- File name
     title_format = ' ' .. Constant.telescope.PREVIEW_TITLE .. ' ',
+    zindex = 50, -- The defaul value makes vim.ui.input behind the preview window
     image_preview = {
       enable = true,
     },

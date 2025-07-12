@@ -1,6 +1,9 @@
 return {
   'nvim-lualine/lualine.nvim',
   event = 'VeryLazy',
+  dependencies = {
+    'AndreM222/copilot-lualine',
+  },
   init = function()
     if vim.fn.argc(-1) > 0 then
       -- Set an empty statusline till lualine loads
@@ -179,16 +182,13 @@ return {
         lualine_x = {},
         lualine_y = {},
         lualine_z = {
+
           {
-            'lsp_status',
-            icon = '',
-            symbols = {
-              spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' },
-              done = '✓',
-              separator = ' ',
-            },
-            ignore_lsp = {},
+            'copilot',
+            padding = { left = 0, right = 2 },
+            color = { fg = palette.subtext0, bg = palette.mantle },
           },
+
           {
             'diagnostics',
             sections = { 'error', 'warn', 'info' },

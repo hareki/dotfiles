@@ -1,6 +1,8 @@
 return {
   'catppuccin/nvim',
   name = 'catppuccin',
+  lazy = false,
+  priority = 1000, -- Should be loaded first to register the colorscheme correctly
   opts = {
     default_integrations = false,
     integrations = {
@@ -11,12 +13,16 @@ return {
       fzf = true,
       grug_far = true,
       gitsigns = true,
-      indent_blankline = {
-        enabled = true,
-      },
       lsp_trouble = true,
       markdown = true,
       mini = true,
+      noice = true,
+      notify = true,
+      snacks = true,
+      telescope = true,
+      treesitter = true,
+      treesitter_context = true,
+      which_key = true,
       native_lsp = {
         enabled = true,
         underlines = {
@@ -26,13 +32,13 @@ return {
           information = { 'undercurl' },
         },
       },
-      noice = true,
-      notify = true,
-      snacks = true,
-      telescope = true,
-      treesitter = true,
-      treesitter_context = true,
-      which_key = true,
+      indent_blankline = {
+        enabled = true,
+      },
+      blink_cmp = {
+        enabled = true,
+        style = 'bordered',
+      },
     },
   },
   config = function(_, opts)
@@ -41,11 +47,11 @@ return {
 
     local palette = Util.get_palette()
 
-    -- Some highlights don't work in `opts.highlight_overrides` or `opts.custom_highlights`
-    -- Had to do this to make sure they are not overwriting by anything
+    -- Most of these are not declared in the official catppuccin nvim highlights, so `opts.highlight_overrides` won't work.
     Util.highlights({
+      WinSeparator = { fg = palette.blue },
       Visual = { bold = false, bg = palette.surface1 },
-      DocumentHighlight = { bg = '#373948' }, --#3b3d4d
+      DocumentHighlight = { bg = '#373948' },
 
       DiagnosticUnderlineInfo = { link = 'LspDiagnosticsUnderlineInformation' },
       DiagnosticUnderlineHint = { link = 'LspDiagnosticsUnderlineHint' },
