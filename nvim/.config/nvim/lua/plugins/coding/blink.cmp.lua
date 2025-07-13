@@ -30,12 +30,12 @@ return {
         return kind_index
       end
 
-      ---@param length number
+      ---@param length number | nil
       local function cmdline_min_keyword_length(length)
         return function(ctx)
           -- When typing a command, only show when the keyword is 3 characters or longer
           if ctx.mode == 'cmdline' and string.find(ctx.line, ' ') == nil then
-            return length
+            return length or 3
           end
           return 0
         end
@@ -59,12 +59,34 @@ return {
 
         cmdline = {
           enabled = true,
-          keymap = { preset = 'inherit' },
+          keymap = {
+            preset = 'inherit',
+            ['<Esc>'] = {
+              function(cmp)
+                if cmp.is_menu_visible() then
+                  cmp.hide()
+                  return true
+                end
+              end,
+              -- 'fallback' won't cut it because of this bug in neovim
+              -- https://github.com/neovim/neovim/issues/21585
+              function()
+                -- Feed <C-c> to cancel the command line instead
+                local keys = vim.api.nvim_replace_termcodes('<C-c>', true, false, true)
+                vim.api.nvim_feedkeys(keys, 'n', false)
+                return true
+              end,
+            },
+          },
           sources = { 'buffer', 'cmdline', 'cmdline_history' },
           completion = {
-            menu = { auto_show = true },
+            menu = { auto_show = false },
+            ghost_text = {
+              enabled = false,
+            },
             list = {
               selection = {
+                preselect = true,
                 auto_insert = false,
               },
             },
@@ -79,7 +101,7 @@ return {
           },
           list = {
             selection = {
-              preselect = false,
+              preselect = true,
               -- https://github.com/Saghen/blink.cmp/blob/242fd1f31dd619ccb7fa7b5895e046ad675b411b/doc/configuration/keymap.md#super-tab
               -- preselect = function()
               --   return not require('blink.cmp').snippet_active({ direction = 1 })
@@ -107,9 +129,11 @@ return {
           preset = 'none',
           ['<Up>'] = {
             'select_prev',
+            'fallback',
           },
           ['<Down>'] = {
             'select_next',
+            'fallback',
           },
           ['<CR>'] = { 'accept', 'fallback' },
           ['<A-Space>'] = {
@@ -141,14 +165,14 @@ return {
             },
 
             cmdline = {
-              min_keyword_length = cmdline_min_keyword_length(3),
+              min_keyword_length = cmdline_min_keyword_length(0),
             },
 
             cmdline_history = {
               name = 'cmdline_history',
               module = 'blink.compat.source',
               max_items = 6,
-              min_keyword_length = cmdline_min_keyword_length(3),
+              min_keyword_length = cmdline_min_keyword_length(0),
 
               transform_items = function(_, items)
                 for _, item in ipairs(items) do

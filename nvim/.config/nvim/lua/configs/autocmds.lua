@@ -203,6 +203,7 @@ aucmd('TextYankPost', {
   end,
 })
 
+-- Move QuickFix window to the right side
 vim.api.nvim_create_autocmd('FileType', {
   group = augroup('QuickFixRight'),
   pattern = 'qf', -- “qf” = quick-fix & loc-list
@@ -216,5 +217,20 @@ vim.api.nvim_create_autocmd('FileType', {
 
     vim.cmd(('vertical resize %d'):format(width))
     -- vim.opt_local.winfixwidth = true -- keep that width
+  end,
+})
+
+-- Use the same keymap as switching to cmdline window mode (vim.opt.cedit) to switch back to cmdline mode
+vim.api.nvim_create_autocmd('CmdwinEnter', {
+  callback = function()
+    vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-f>', '<C-c>')
+  end,
+})
+
+vim.api.nvim_create_autocmd('CmdwinEnter', {
+  callback = function()
+    vim.keymap.set({ 'n' }, 'q', '<cmd>:q!<cr><esc>', {
+      silent = true,
+    })
   end,
 })

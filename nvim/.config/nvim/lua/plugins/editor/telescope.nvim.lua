@@ -24,6 +24,7 @@ return {
         require('telescope.builtin').buffers({
           sort_mru = true,
           sort_lastused = true,
+          initial_mode = 'normal',
         })
       end,
       desc = 'Buffers',

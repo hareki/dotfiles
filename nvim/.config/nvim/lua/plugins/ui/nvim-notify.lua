@@ -11,7 +11,7 @@ return {
     {
       '<leader>un',
       function()
-        -- Can possibly use `:Telescope noice` as well
+        -- May use `:Telescope noice` as well
         require('telescope').extensions.notify.notify({
           results_title = '',
           preview_title = Constant.telescope.PREVIEW_TITLE,
@@ -20,68 +20,71 @@ return {
       desc = 'Show Notification History',
     },
   },
-  opts = {
-    stages = 'static',
-    timeout = 4000,
-    render = function(bufnr, notif, highlights, config)
-      local api = vim.api
-      local base = require('notify.render.base')
-      local icon = notif.icon
-      local message = notif.message
-      local namespace = base.namespace()
+  opts = function()
+    local title_key = 'notify_title_with_hl'
+    local max_size = 0.75
 
-      -- Normal body highlight, same as the stock "minimal" renderer
-      api.nvim_buf_set_lines(bufnr, 0, -1, false, message)
-      api.nvim_buf_set_extmark(bufnr, namespace, 0, 0, {
-        hl_group = highlights.icon,
-        end_line = #message - 1,
-        end_col = #message[#message],
-        priority = 50,
-      })
+    return {
+      stages = 'static',
+      timeout = 4000,
+      max_height = function()
+        return math.floor(vim.o.lines * max_size)
+      end,
+      max_width = function()
+        return math.floor(vim.o.columns * max_size)
+      end,
 
-      -- Let the floating-window border itself carry the title
-      local title = notif.title[1] or ''
-      if notif.duplicates then
-        title = string.format('%s (x%d)', title, #notif.duplicates)
-      end
-      title = string.format(' %s %s ', icon, title)
+      render = function(bufnr, notif, hl, _)
+        local base = require('notify.render.base')
+        local ns = base.namespace()
 
-      -- We don't have the win id to set the title yet => temporarly store it in the buffer variable, set it on `on_open`
-      api.nvim_buf_set_var(bufnr, 'notify_border_title', title)
-      api.nvim_buf_set_var(bufnr, 'notify_border_title_hl', highlights.title)
-    end,
+        local title = notif.title[1]
+        if notif.duplicates then
+          title = string.format('%s (x%d)', title, #notif.duplicates)
+        end
+        title = string.format(' %s %s ', notif.icon, title)
 
-    max_height = function()
-      return math.floor(vim.o.lines * 0.75)
-    end,
-    max_width = function()
-      return math.floor(vim.o.columns * 0.75)
-    end,
-    on_open = function(win)
-      local api = vim.api
-      api.nvim_win_set_config(win, { zindex = 100 })
+        local title_with_hl = { { title, hl.title } }
 
-      local buf = api.nvim_win_get_buf(win)
-      local ok1, title = pcall(api.nvim_buf_get_var, buf, 'notify_border_title')
-      local ok2, title_hl = pcall(api.nvim_buf_get_var, buf, 'notify_border_title_hl')
+        -- Set title on first notification (see `on_open` callback)
+        vim.api.nvim_buf_set_var(bufnr, title_key, title_with_hl)
 
-      if ok1 and ok2 and title ~= '' then
-        api.nvim_win_set_config(win, {
+        -- Set title on duplicate notifications
+        for _, win in ipairs(vim.fn.win_findbuf(bufnr)) do
+          if vim.api.nvim_win_is_valid(win) then
+            vim.api.nvim_win_set_config(win, {
+              title = title_with_hl,
+              title_pos = 'center',
+            })
+          end
+        end
+
+        -- Set notification content
+        vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, notif.message)
+        vim.api.nvim_buf_set_extmark(bufnr, ns, 0, 0, {
+          end_line = #notif.message - 1,
+          end_col = #notif.message[#notif.message],
+          priority = 50,
+        })
+      end,
+
+      on_open = function(win)
+        local buf = vim.api.nvim_win_get_buf(win)
+        local title = vim.api.nvim_buf_get_var(buf, title_key)
+
+        vim.api.nvim_win_set_config(win, {
+          zindex = 100,
           title = title,
           title_pos = 'center',
         })
-
-        local winhl = api.nvim_win_get_option(win, 'winhighlight')
-        local prefix = (winhl ~= '' and (winhl .. ',') or '')
-        api.nvim_win_set_option(
-          win,
-          'winhighlight',
-          -- Keep existing highlight mappings and append title_hl mapping to match the notification styles
-          prefix
-            .. 'FloatTitle:'
-            .. title_hl
-        )
-      end
-    end,
-  },
+      end,
+    }
+  end,
+  config = function(_, opts)
+    local notify = vim.notify
+    require('notify').setup(opts)
+    -- HACK: restore vim.notify after notify setup and let `noice.nvim` take over
+    -- This is needed to have early notifications show up in `noice` history
+    vim.notify = notify
+  end,
 }

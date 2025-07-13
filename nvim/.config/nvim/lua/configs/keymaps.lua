@@ -6,7 +6,8 @@ map({ 'n', 'x' }, '<A-x>', '"+d', { desc = 'Cut to system clipboard', remap = tr
 map({ 'n', 'x' }, '<A-v>', '"+p', { desc = 'Paste from system clipboard', remap = true })
 map({ 'i' }, '<A-v>', '<C-o>"+p', { desc = 'Paste from system clipboard', remap = true })
 
-map({ 'i', 'x', 'n', 's' }, '<A-s>', '<cmd>w<cr><esc>', { desc = 'Save File' })
+map({ 'i', 'x', 'n', 's' }, '<A-s>', '<cmd>w<cr><esc>', { desc = 'Save file' })
+map({ 'i', 'x', 'n', 's' }, '<A-r>', '<cmd>e!<cr><esc>', { desc = 'Reload file' })
 
 map({ 'n', 'v' }, '<PageUp>', '<C-u>zz', { desc = 'Scroll up and center' })
 map({ 'n', 'v' }, '<PageDown>', '<C-d>zz', { desc = 'Scroll down and center' })
