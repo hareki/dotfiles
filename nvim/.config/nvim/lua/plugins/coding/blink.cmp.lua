@@ -46,6 +46,10 @@ return {
       local copilot_kind_index = register_kind('Copilot')
 
       return {
+        enabled = function()
+          -- NvimTree live_filter has a blank filetype
+          return not vim.tbl_contains({ '', 'NvimTree' }, vim.bo.filetype)
+        end,
         fuzzy = { implementation = 'prefer_rust_with_warning' },
         signature = { enabled = true, window = { border = 'rounded' } },
         appearance = {
@@ -166,12 +170,14 @@ return {
 
             cmdline = {
               min_keyword_length = cmdline_min_keyword_length(0),
+              max_items = 6,
             },
 
             cmdline_history = {
               name = 'cmdline_history',
               module = 'blink.compat.source',
               max_items = 6,
+              score_offset = -10,
               min_keyword_length = cmdline_min_keyword_length(0),
 
               transform_items = function(_, items)

@@ -1,6 +1,7 @@
 local float_enabled = true
 local cached_opts = nil
 local preview_auto_flag = false
+local tab_switching = false
 local preview_group = vim.api.nvim_create_augroup('NvimTreePreview', { clear = true })
 
 return {
@@ -147,7 +148,8 @@ return {
             api.tree.close()
           end
 
-          local function toggle_preview()
+          ---@param force_state boolean|nil
+          local function toggle_preview(force_state)
             local tree_win = api.tree.winid()
             if not tree_win or not vim.api.nvim_win_is_valid(tree_win) then
               return
@@ -175,15 +177,22 @@ return {
             local full_height = window_h * 2 + offset
 
             local cfg = vim.api.nvim_win_get_config(tree_win)
+            local open = not is_preview_open
+            if force_state ~= nil then
+              open = force_state
+            end
 
-            if is_preview_open then
+            if open then
+              cfg.height = half_height
+              vim.api.nvim_win_set_config(tree_win, cfg)
+              -- Calling watch when is_preview_open = true will results in unwatch being called
+              if not is_preview_open then
+                preview.watch()
+              end
+            else
               cfg.height = full_height
               vim.api.nvim_win_set_config(tree_win, cfg)
               preview.unwatch()
-            else
-              cfg.height = half_height
-              vim.api.nvim_win_set_config(tree_win, cfg)
-              preview.watch()
             end
           end
 
@@ -222,6 +231,8 @@ return {
             local is_file_node = node.nodes == nil
 
             if preview.is_open() and is_file_node then
+              -- Signals that we are just switching between nvim-tree and nvim-tree-preview by pressing <Tab>, not leaving them
+              tab_switching = true
               preview.node(node, { toggle_focus = true })
             end
           end, opts('Preview'))
@@ -243,7 +254,12 @@ return {
           vim.keymap.set('n', 'x', api.fs.cut, opts('Cut'))
           vim.keymap.set('n', 'p', api.fs.paste, opts('Paste'))
 
-          vim.keymap.set('n', '/', api.live_filter.start, opts('Live Filter: Start'))
+          vim.keymap.set('n', '/', function()
+            toggle_preview(false)
+            api.live_filter.start()
+          end, opts('Live Filter: Start'))
+          vim.keymap.set('n', '<Esc>', api.live_filter.clear, opts('Reveal in Finder'))
+
           vim.keymap.set('n', 'r', api.node.run.system, opts('Reveal in Finder'))
 
           vim.keymap.set('n', 'd', api.fs.remove, opts('Delete'))
@@ -271,10 +287,15 @@ return {
               local preview_buf = require('nvim-tree-preview.manager').instance.preview_buf
               local leaving_tree = vim.bo[ev.buf].filetype == 'NvimTree'
               local leaving_preview = ev.buf == preview_buf
+              local is_leaving_preview = leaving_tree or leaving_preview
 
-              if leaving_tree or leaving_preview then
-                toggle_preview() -- close the preview
+              if is_leaving_preview and not tab_switching then
+                toggle_preview(false) -- close the preview
                 preview_auto_flag = true -- remember we closed it
+              end
+
+              if tab_switching then
+                tab_switching = false
               end
             end,
           })
@@ -287,7 +308,7 @@ return {
                 return
               end
 
-              toggle_preview()
+              toggle_preview(true)
               preview_auto_flag = false -- reset the flag
             end,
           })
