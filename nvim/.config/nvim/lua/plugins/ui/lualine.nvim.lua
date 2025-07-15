@@ -18,8 +18,8 @@ return {
     local lualine_require = require('lualine_require')
     lualine_require.require = require
 
-    local palette = Util.get_palette()
-    local icons = Constant.icons
+    local palette = Util.palette()
+    local icons = Const.icons
 
     local mode_hl = {
       NORMAL = { fg = palette.surface0, bg = palette.blue },

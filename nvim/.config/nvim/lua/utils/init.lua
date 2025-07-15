@@ -5,7 +5,7 @@ local CommonUtil = require('utils.common')
 ---@field git util.git
 ---@field notify util.notify
 ---@field telescope util.telescope
----@field ui util.ui
+---@field size util.size
 local M = {}
 
 setmetatable(M, {

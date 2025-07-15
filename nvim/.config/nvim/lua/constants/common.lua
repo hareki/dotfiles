@@ -1,5 +1,4 @@
----@class constant.filetype
----@field ESLINT_SUPPORTED string[]
+---@class constant.common
 local M = {}
 
 M.ESLINT_SUPPORTED = {
@@ -8,5 +7,8 @@ M.ESLINT_SUPPORTED = {
   'typescript',
   'typescriptreact',
 }
+
+M.PREVIEW_TITLE = 'Preview'
+M.PUT_HL_TIMER = 300
 
 return M

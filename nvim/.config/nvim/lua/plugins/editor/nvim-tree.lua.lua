@@ -7,28 +7,50 @@ local preview_group = vim.api.nvim_create_augroup('NvimTreePreview', { clear = t
 return {
   {
     'hareki/nvim-tree-preview.lua',
-    opts = float_enabled
-        and {
-          -- Floating-tree: put preview right below it (centred column layout)
-          win_position = {
-            col = -1,
-            row = function(tree_win)
-              local tree_cfg = vim.api.nvim_win_get_config(tree_win)
-              return tree_cfg.height + 1
-            end,
-          },
+    opts = {
+      win_position = {
+        col = function(_, size)
+          if float_enabled then
+            return -1
+          end
 
-          calculate_win_size = function(tree_win)
-            local tree_cfg = vim.api.nvim_win_get_config(tree_win)
-            local height_offset = Util.ui.get_float_config('lg').height % 2 == 0 and 0 or 1
+          return -size.width - 3
+        end,
+        row = function(tree_win, size)
+          local tree_cfg = vim.api.nvim_win_get_config(tree_win)
 
-            return {
-              width = tree_cfg.width,
-              height = tree_cfg.height + height_offset,
-            }
-          end,
+          if float_enabled then
+            return tree_cfg.height + 1
+          end
+          return math.floor((vim.opt.lines:get() - size.height) / 2) - 1
+        end,
+      },
+
+      calculate_win_size = function(tree_win)
+        local tree_cfg = vim.api.nvim_win_get_config(tree_win)
+
+        local side_preview = Const.size.side_preview
+        local size = Util.size.popup_config('lg')
+
+        -- We need to fill the missing row if the height is an odd number,
+        -- meaing when we can't have equal height for both windows
+        local height_offset = size.height % 2 == 0 and 0 or 1
+
+        if float_enabled then
+          return {
+            width = tree_cfg.width,
+            height = tree_cfg.height + height_offset,
+          }
+        end
+
+        local preview_cols, preview_rows = Util.size.computed_size(side_preview)
+
+        return {
+          width = preview_cols,
+          height = preview_rows,
         }
-      or {},
+      end,
+    },
   },
   {
     'nvim-tree/nvim-tree.lua',
@@ -68,7 +90,7 @@ return {
     },
 
     opts = function()
-      local palette = Util.get_palette()
+      local palette = Util.palette()
 
       Util.highlights({
         NvimTreeSignColumn = {
@@ -168,12 +190,12 @@ return {
               return
             end
 
-            local size = Util.ui.get_float_config('lg')
+            local size = Util.size.popup_config('lg')
             local window_h = math.floor(size.height / 2)
             local half_height = window_h - 1 -- Minus 1 for the space between the two windows
 
             -- Have to add one extra row if the total height is an odd number to fill out the entire popup size
-            local offset = Util.ui.get_float_config('lg').height % 2 == 0 and 0 or 1
+            local offset = Util.size.popup_config('lg').height % 2 == 0 and 0 or 1
             local full_height = window_h * 2 + offset
 
             local cfg = vim.api.nvim_win_get_config(tree_win)
@@ -320,14 +342,15 @@ return {
           side = 'right',
           -- Width when not in float mode
           width = function()
-            return math.floor(vim.opt.columns:get() * 0.4)
+            local panel_cols = Util.size.computed_size(Const.size.side_panel)
+            return panel_cols
           end,
 
           float = {
             enable = float_enabled,
             quit_on_focus_loss = false,
             open_win_config = function()
-              local size = Util.ui.get_float_config('lg')
+              local size = Util.size.popup_config('lg')
               local window_w = size.width
               local window_h = math.floor(size.height / 2)
               local col = size.col

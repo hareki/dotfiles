@@ -199,36 +199,15 @@ aucmd('TextYankPost', {
       if vim.b.visual_multi == nil then
         enable_doc_hl()
       end
-    end, Constant.yanky.PUT_HL_TIMER + 50)
+    end, Const.PUT_HL_TIMER + 50)
   end,
 })
 
--- Move QuickFix window to the right side
-vim.api.nvim_create_autocmd('FileType', {
-  group = augroup('QuickFixRight'),
-  pattern = 'qf', -- “qf” = quick-fix & loc-list
-  callback = function()
-    -- Move this window full-height to the far right: <C-w>L
-    vim.cmd('wincmd L')
-
-    -- Max 35% of the columns, min 20 columns
-    local width = math.floor(vim.o.columns * 0.35)
-    width = math.max(width, 20)
-
-    vim.cmd(('vertical resize %d'):format(width))
-    -- vim.opt_local.winfixwidth = true -- keep that width
-  end,
-})
-
--- Use the same keymap as switching to cmdline window mode (vim.opt.cedit) to switch back to cmdline mode
 vim.api.nvim_create_autocmd('CmdwinEnter', {
   callback = function()
+    -- Use the same keymap as switching to cmdline window mode (vim.opt.cedit) to switch back to cmdline mode
     vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-f>', '<C-c>')
-  end,
-})
 
-vim.api.nvim_create_autocmd('CmdwinEnter', {
-  callback = function()
     vim.keymap.set({ 'n' }, 'q', '<cmd>:q!<cr><esc>', {
       silent = true,
     })

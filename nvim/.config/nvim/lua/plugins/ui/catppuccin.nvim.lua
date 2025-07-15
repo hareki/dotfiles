@@ -45,7 +45,7 @@ return {
     require('catppuccin').setup(opts)
     vim.cmd.colorscheme('catppuccin-mocha')
 
-    local palette = Util.get_palette()
+    local palette = Util.palette()
 
     -- Most of these are not declared in the official catppuccin nvim highlights, so `opts.highlight_overrides` won't work.
     Util.highlights({

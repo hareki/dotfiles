@@ -14,7 +14,7 @@ return {
         -- May use `:Telescope noice` as well
         require('telescope').extensions.notify.notify({
           results_title = '',
-          preview_title = Constant.telescope.PREVIEW_TITLE,
+          preview_title = Const.PREVIEW_TITLE,
         })
       end,
       desc = 'Show Notification History',

@@ -1,31 +1,39 @@
----@class util.ui
+---@class util.size
 local M = {}
+
+---@return integer, integer
+function M.screen_size()
+  local screen_w = vim.opt.columns:get()
+  local screen_h = vim.opt.lines:get() - vim.opt.cmdheight:get()
+  return screen_w, screen_h
+end
+
+function M.computed_size(size)
+  local screen_w, screen_h = M.screen_size()
+  local width_in_cols = math.floor(screen_w * size.WIDTH)
+  local height_in_rows = math.floor(screen_h * size.HEIGHT)
+  return width_in_cols, height_in_rows
+end
 
 ---@class WinConfig
 ---@field width    integer
 ---@field height   integer
 ---@field col      integer
 ---@field row      integer
----@field screen_h integer
----@field screen_w integer
 ---@param size 'lg' | 'sm' | 'input'
 ---@param with_border boolean | nil
 ---@return WinConfig
-function M.get_float_config(size, with_border)
-  local screen_w = vim.opt.columns:get()
-  local screen_h = vim.opt.lines:get() - vim.opt.cmdheight:get()
+function M.popup_config(size, with_border)
+  local screen_w, screen_h = M.screen_size()
   local window_w, window_h
 
   if size == 'input' then
     window_w = 60
     window_h = 1
   else
-    window_w = math.floor(screen_w * Constant.ui.popup_size[size].WIDTH)
-    window_h = math.floor(screen_h * Constant.ui.popup_size[size].HEIGHT)
+    window_w = math.floor(screen_w * Const.size.popup[size].WIDTH)
+    window_h = math.floor(screen_h * Const.size.popup[size].HEIGHT)
   end
-
-  -- local window_w = math.floor(screen_w * Constant.ui.popup_size[size].WIDTH)
-  -- local window_h = math.floor(screen_h * Constant.ui.popup_size[size].HEIGHT)
 
   -- Minus 1 to account for the border
   local col = math.floor((screen_w - window_w) / 2) - 1
@@ -38,8 +46,6 @@ function M.get_float_config(size, with_border)
     height = window_h + (with_border and 2 or 0),
     col = col,
     row = row,
-    screen_h = screen_h,
-    screen_w = screen_w,
   }
 end
 

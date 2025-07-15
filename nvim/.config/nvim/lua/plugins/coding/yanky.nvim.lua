@@ -32,7 +32,7 @@ return {
         -- Use our own aucmd to highlight on yank instead, to differentiate between clipboard and register yank
         on_yank = false,
         on_put = true,
-        timer = Constant.yanky.PUT_HL_TIMER,
+        timer = Const.PUT_HL_TIMER,
       },
       system_clipboard = {
         sync_with_ring = false,

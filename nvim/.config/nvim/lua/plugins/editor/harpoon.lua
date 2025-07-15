@@ -38,7 +38,7 @@ return {
 
       pickers
         .new({}, {
-          preview_title = Constant.telescope.PREVIEW_TITLE,
+          preview_title = Const.PREVIEW_TITLE,
           prompt_title = 'Harpoon',
           finder = require('telescope.finders').new_table({
             results = file_paths,

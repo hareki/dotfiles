@@ -1,14 +1,24 @@
----@class constant
----@field filetype constant.filetype
+local CommonConstant = require('constants.common')
+
+---@class constant.common
 ---@field git constant.git
----@field telescope constant.telescope
----@field yanky constant.yanky
----@field ui constant.ui
+---@field size constant.size
 ---@field icons constant.icons
 local M = {}
 
+-- setmetatable(M, {
+--   __index = function(t, k)
+--     t[k] = require('constants.' .. k)
+--     return t[k]
+--   end,
+-- })
+
 setmetatable(M, {
   __index = function(t, k)
+    if CommonConstant[k] then
+      return CommonConstant[k]
+    end
+
     t[k] = require('constants.' .. k)
     return t[k]
   end,

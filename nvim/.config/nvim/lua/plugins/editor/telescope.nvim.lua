@@ -19,6 +19,15 @@ return {
       desc = 'Files',
     },
     {
+      '<leader>fd',
+      function()
+        require('telescope.builtin').diagnostics({
+          bufnr = 0,
+        })
+      end,
+      desc = 'Diagnostics',
+    },
+    {
       '<leader>fb',
       function()
         require('telescope.builtin').buffers({
@@ -48,7 +57,7 @@ return {
       '<leader>fy',
       function()
         require('telescope').extensions.yank_history.yank_history({
-          preview_title = Constant.telescope.PREVIEW_TITLE,
+          preview_title = Const.PREVIEW_TITLE,
         })
       end,
       desc = 'Highlight Groups',
@@ -109,7 +118,7 @@ return {
     local default_picker_configs = {}
     for picker_name, _ in pairs(builtin) do
       default_picker_configs[picker_name] = {
-        preview_title = Constant.telescope.PREVIEW_TITLE,
+        preview_title = Const.PREVIEW_TITLE,
       }
     end
 
@@ -127,9 +136,9 @@ return {
       layout.results.height = layout.results.height + 1
 
       -- 2. Seems like telescope.nvim exclude the statusline when centering the layout,
-      -- Which is different from our logic in `Util.ui.get_float_config('lg')`
+      -- Which is different from our logic in `Util.size.get_float_config('lg')`
       -- So we need to adjust/shift the position if needed
-      local target_row = Util.ui.get_float_config(size, true).row
+      local target_row = Util.size.popup_config(size, true).row
       -- The top most component is the prompt window, so we use it as the anchor to adjust the position
       local top_line = layout.prompt.line
 
@@ -203,6 +212,7 @@ return {
 
     local scroll_results_up = scroll_results('up')
     local scroll_results_down = scroll_results('down')
+    local open_with_trouble = require('trouble.sources.telescope').open
 
     return {
       extensions = {
@@ -258,12 +268,14 @@ return {
             ['<S-Tab>'] = actions.toggle_selection + actions.move_selection_worse,
             ['<PageUp>'] = scroll_results_up,
             ['<PageDown>'] = scroll_results_down,
+            ['<c-t>'] = open_with_trouble,
           },
           i = {
             ['<Tab>'] = toggle_focus_preview,
             ['<S-Tab>'] = actions.toggle_selection + actions.move_selection_worse,
             ['<PageUp>'] = scroll_results_up,
             ['<PageDown>'] = scroll_results_down,
+            ['<c-t>'] = open_with_trouble,
           },
         },
       },

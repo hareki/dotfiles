@@ -4,7 +4,7 @@ return {
   event = 'LazyFile',
   opts = function()
     Util.highlights({
-      MiniIndentscopeSymbol = { fg = Util.get_palette().blue },
+      MiniIndentscopeSymbol = { fg = Util.palette().blue },
     })
     return {
       -- symbol = "│",

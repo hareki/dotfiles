@@ -1,44 +1,30 @@
 return {
   'folke/trouble.nvim',
   cmd = { 'Trouble' },
-  opts = {
-    modes = {
-      lsp = {
-        win = { position = 'right' },
+  opts = function()
+    local preview_cols, preview_rows = Util.size.computed_size(Const.size.side_preview.md)
+    local panel_cols, _ = Util.size.computed_size(Const.size.side_panel.md)
+    local preview_width_offset = panel_cols + preview_cols + 3
+    local preview_height_offset = math.floor((vim.opt.lines:get() - preview_rows) / 2) - 1
+
+    return {
+      win = { position = 'right', size = panel_cols },
+      preview = {
+        type = 'float',
+        relative = 'win',
+        border = 'rounded',
+        title = Const.PREVIEW_TITLE,
+        title_pos = 'center',
+        position = { preview_height_offset, -preview_width_offset },
+        size = {
+          width = preview_cols,
+          height = preview_rows,
+        },
+        zindex = 200,
       },
-    },
-  },
+    }
+  end,
   keys = {
-    {
-      '<leader>xx',
-      '<cmd>Trouble diagnostics toggle<cr>',
-      desc = 'Diagnostics (Trouble)',
-    },
-    {
-      '<leader>xX',
-      '<cmd>Trouble diagnostics toggle filter.buf=0<cr>',
-      desc = 'Buffer Diagnostics (Trouble)',
-    },
-    {
-      '<leader>cs',
-      '<cmd>Trouble symbols toggle<cr>',
-      desc = 'Symbols (Trouble)',
-    },
-    {
-      '<leader>cS',
-      '<cmd>Trouble lsp toggle<cr>',
-      desc = 'LSP references/definitions/... (Trouble)',
-    },
-    {
-      '<leader>xL',
-      '<cmd>Trouble loclist toggle<cr>',
-      desc = 'Location List (Trouble)',
-    },
-    {
-      '<leader>xQ',
-      '<cmd>Trouble qflist toggle<cr>',
-      desc = 'Quickfix List (Trouble)',
-    },
     {
       '[q',
       function()

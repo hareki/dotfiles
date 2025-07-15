@@ -2,7 +2,7 @@ require('configs.core.ensure-lazy')
 
 -- [[ Configure and install plugins ]]
 Util.custom_lazy_events()
-local lg = Constant.ui.popup_size.lg
+local lg = Const.size.popup.lg
 require('lazy').setup({
   version = '*',
   ui = {

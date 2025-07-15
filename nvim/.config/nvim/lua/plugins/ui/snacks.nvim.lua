@@ -3,7 +3,7 @@ return {
   lazy = false,
   priority = 100, -- The docs recommend loading this plugin early
   opts = function()
-    local float_config = Util.ui.get_float_config('input')
+    local float_config = Util.size.popup_config('input')
 
     return {
       words = {

@@ -1,7 +1,7 @@
 ---@class util.git
 local M = {}
 
-local branch_display_mode = Constant.git.branch_formats.TASK_ID_ONLY
+local branch_display_mode = Const.git.branch_formats.TASK_ID_ONLY
 
 local task_name_start_length = 999
 local task_name_end_length = 10
@@ -21,7 +21,7 @@ local repo_cache = {
 --- @param format string The branch format to validate.
 --- @return boolean True if the format is valid, false otherwise.
 function M.is_valid_branch_format(format)
-  for _, value in pairs(Constant.git.branch_formats) do
+  for _, value in pairs(Const.git.branch_formats) do
     if value == format then
       return true
     end
@@ -52,9 +52,9 @@ function M.format_branch_name(branch_name)
 
   local prefix, task_name, author_name = branch_name:match('^(CU%-%w+)_([^_]+)_(.+)$')
 
-  if branch_display_mode == Constant.git.branch_formats.TASK_ID_ONLY then
+  if branch_display_mode == Const.git.branch_formats.TASK_ID_ONLY then
     return prefix
-  elseif branch_display_mode == Constant.git.branch_formats.TASK_ID_AND_NAME then
+  elseif branch_display_mode == Const.git.branch_formats.TASK_ID_AND_NAME then
     local formatted_task_name
     if #task_name > max_task_name_length then
       -- Show start and end parts of the task name with ellipsis
@@ -65,7 +65,7 @@ function M.format_branch_name(branch_name)
       formatted_task_name = task_name
     end
     return prefix .. '_' .. formatted_task_name
-  elseif branch_display_mode == Constant.git.branch_formats.TASK_ID_AND_AUTHOR then
+  elseif branch_display_mode == Const.git.branch_formats.TASK_ID_AND_AUTHOR then
     return prefix .. '_' .. author_name
   end
 end

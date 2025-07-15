@@ -3,7 +3,7 @@
 local M = {}
 
 --- @param name? "frappe" | "latte" | "macchiato" | "mocha"
-M.get_palette = function(name)
+M.palette = function(name)
   return require('catppuccin.palettes').get_palette(name or 'mocha')
 end
 
