@@ -1,6 +1,6 @@
 --  See `:help vim.keymap.set()`
 local map = vim.keymap.set
-map({ 'n' }, 'q', '<cmd>q<cr>', { desc = 'Close file' })
+map({ 'n' }, 'Q', '<cmd>q<cr>', { desc = 'Close buffer' })
 
 map({ 'n', 'x' }, '<A-c>', '"+y', { desc = 'Yank to system clipboard', remap = true })
 map({ 'n', 'x' }, '<A-x>', '"+d', { desc = 'Cut to system clipboard', remap = true })
