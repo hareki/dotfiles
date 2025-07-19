@@ -7,13 +7,19 @@ return {
     local preview_width_offset = panel_cols + preview_cols + 3
     local preview_height_offset = math.floor((vim.opt.lines:get() - preview_rows) / 2) - 1
 
+    Util.highlights({
+      TroubleNormal = { link = 'NormalFloat' },
+    })
+
     return {
+      -- Prevent trouble from refreshing every time the curosr position changes
+      auto_refresh = false,
       win = { position = 'right', size = panel_cols },
       preview = {
         type = 'float',
         relative = 'win',
         border = 'rounded',
-        title = Const.PREVIEW_TITLE,
+        title = ' ' .. Const.PREVIEW_TITLE .. ' ',
         title_pos = 'center',
         position = { preview_height_offset, -preview_width_offset },
         size = {

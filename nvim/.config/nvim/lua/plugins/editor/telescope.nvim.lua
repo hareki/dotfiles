@@ -212,7 +212,16 @@ return {
 
     local scroll_results_up = scroll_results('up')
     local scroll_results_down = scroll_results('down')
-    local open_with_trouble = require('trouble.sources.telescope').open
+    local telescope_to_trouble = function()
+      require('trouble.sources.telescope').open()
+    end
+
+    local trouble_open = function(source)
+      return function(bufnr)
+        actions.close(bufnr)
+        require('trouble').open(source)
+      end
+    end
 
     return {
       extensions = {
@@ -261,6 +270,7 @@ return {
           end
           return 0
         end,
+
         mappings = {
           n = {
             ['q'] = actions.close,
@@ -268,22 +278,54 @@ return {
             ['<S-Tab>'] = actions.toggle_selection + actions.move_selection_worse,
             ['<PageUp>'] = scroll_results_up,
             ['<PageDown>'] = scroll_results_down,
-            ['<c-t>'] = open_with_trouble,
+            ['<c-t>'] = telescope_to_trouble,
           },
           i = {
             ['<Tab>'] = toggle_focus_preview,
             ['<S-Tab>'] = actions.toggle_selection + actions.move_selection_worse,
             ['<PageUp>'] = scroll_results_up,
             ['<PageDown>'] = scroll_results_down,
-            ['<c-t>'] = open_with_trouble,
+            ['<c-t>'] = telescope_to_trouble,
           },
         },
       },
       pickers = vim.tbl_deep_extend('force', default_picker_configs, {
+        lsp_definitions = {
+          mappings = {
+            n = {
+              ['<c-t>'] = trouble_open('lsp_definitions'),
+            },
+            i = {
+              ['<c-t>'] = trouble_open('lsp_definitions'),
+            },
+          },
+        },
+        lsp_references = {
+          mappings = {
+            n = {
+              ['<c-t>'] = trouble_open('lsp_references'),
+            },
+            i = {
+              ['<c-t>'] = trouble_open('lsp_references'),
+            },
+          },
+        },
+
         find_files = {
           find_command = find_command,
           hidden = true,
           -- layout_config = { scroll_speed = 3 }  -- Config scroll speed per picker here
+        },
+
+        diagnostics = {
+          mappings = {
+            n = {
+              ['<c-t>'] = trouble_open('diagnostics'),
+            },
+            i = {
+              ['<c-t>'] = trouble_open('diagnostics'),
+            },
+          },
         },
         -- highlights = {
         --     previewer = false,
