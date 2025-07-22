@@ -4,8 +4,9 @@ local CommonUtil = require('utils.common')
 ---@field buffer util.buffer
 ---@field git util.git
 ---@field notify util.notify
----@field telescope util.telescope
+---@field progress util.progress
 ---@field size util.size
+---@field telescope util.telescope
 local M = {}
 
 setmetatable(M, {

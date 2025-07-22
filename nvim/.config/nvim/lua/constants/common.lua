@@ -1,7 +1,7 @@
 ---@class constant.common
 local M = {}
 
-M.ESLINT_SUPPORTED = {
+M.JS_FILETYPES = {
   'javascript',
   'javascriptreact',
   'typescript',

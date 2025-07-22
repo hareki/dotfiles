@@ -77,7 +77,7 @@ return {
       end,
     })
 
-    vim.lsp.enable({ 'lua_ls', 'vtsls', 'typos_lsp' })
+    vim.lsp.enable({ 'lua_ls', 'vtsls', 'typos_lsp', 'eslint' })
 
     vim.lsp.config('typos_lsp', {
       init_options = {

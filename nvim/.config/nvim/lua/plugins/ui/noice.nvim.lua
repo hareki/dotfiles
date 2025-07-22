@@ -24,7 +24,10 @@ return {
             { find = '; before #%d+' },
           },
         },
-        view = 'mini',
+        -- view = 'mini',
+        opts = {
+          skip = true,
+        },
       },
       {
         -- Ignore null-ls messages since it's just for cspell
