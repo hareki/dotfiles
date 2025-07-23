@@ -1,4 +1,5 @@
 [tools]
+go = "1.23"
 node = "22"
 
 [settings]
