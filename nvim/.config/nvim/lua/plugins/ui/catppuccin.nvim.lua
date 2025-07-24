@@ -45,10 +45,10 @@ return {
     require('catppuccin').setup(opts)
     vim.cmd.colorscheme('catppuccin-mocha')
 
-    local palette = Util.palette()
+    local palette = require('utils.ui').get_palette()
 
     -- Most of these are not declared in the official catppuccin nvim highlights, so `opts.highlight_overrides` won't work.
-    Util.highlights({
+    require('utils.ui').set_highlights({
       WinSeparator = { fg = palette.blue },
       Visual = { bold = false, bg = palette.surface1 },
       DocumentHighlight = { bg = '#373948' },

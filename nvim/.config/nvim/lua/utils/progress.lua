@@ -1,10 +1,10 @@
----@class util.progress.CreateOpts
+---@class utils.progress.CreateOpts
 ---@field token        string?         -- Stable id that groups begin/report/end
 ---@field client_name  string?         -- Label that Noice prints
 ---@field client_id    integer?        -- Explicit client-id (fallback: first LSP)
 ---@field pending_ms   integer?        -- Delay (in ms) before the first message is shown
 
----@class util.progress.Handle
+---@class utils.progress.Handle
 ---@field token          string
 ---@field client_id      integer
 ---@field client_name    string
@@ -14,11 +14,11 @@
 ---@field _cached_kind   'begin'|'report'|nil
 ---@field _cached_title  string|nil
 ---@field _cached_perc   number|nil
----@field start          fun(self: util.progress.Handle, title?: string, percentage?: number)
----@field report         fun(self: util.progress.Handle, title?: string, percentage?: number)
----@field finish         fun(self: util.progress.Handle, title?: string)
+---@field start          fun(self: utils.progress.Handle, title?: string, percentage?: number)
+---@field report         fun(self: utils.progress.Handle, title?: string, percentage?: number)
+---@field finish         fun(self: utils.progress.Handle, title?: string)
 
----@class util.progress
+---@class utils.progress
 local M = {}
 
 local noice_prog = require('noice.lsp.progress')

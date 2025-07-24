@@ -1,4 +1,4 @@
----@class util.buffer
+---@class utils.buffer
 local M = {}
 
 --- Counts all opened file/regular/normal buffers

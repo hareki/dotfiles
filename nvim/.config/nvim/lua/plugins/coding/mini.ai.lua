@@ -42,7 +42,7 @@ return {}
 --     end,
 --     config = function(_, opts)
 --         require("mini.ai").setup(opts)
---         Util.on_load("which-key.nvim", function()
+--         require('utils.package').on_load("which-key.nvim", function()
 --             vim.schedule(function()
 --                 -- Register all text objects with which-key
 --                 local objects = {

@@ -1,4 +1,4 @@
----@class util.size
+---@class utils.size
 local M = {}
 
 ---@return integer, integer
@@ -24,6 +24,7 @@ end
 ---@param with_border boolean | nil
 ---@return WinConfig
 function M.popup_config(size, with_border)
+  local size_configs = require('configs.size')
   local screen_w, screen_h = M.screen_size()
   local window_w, window_h
 
@@ -31,8 +32,8 @@ function M.popup_config(size, with_border)
     window_w = 60
     window_h = 1
   else
-    window_w = math.floor(screen_w * Const.size.popup[size].WIDTH)
-    window_h = math.floor(screen_h * Const.size.popup[size].HEIGHT)
+    window_w = math.floor(screen_w * size_configs.popup[size].WIDTH)
+    window_h = math.floor(screen_h * size_configs.popup[size].HEIGHT)
   end
 
   -- Minus 1 to account for the border

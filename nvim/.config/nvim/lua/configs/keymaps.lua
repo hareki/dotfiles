@@ -7,18 +7,11 @@ map({ 'n', 'x' }, '<A-x>', '"+d', { desc = 'Cut to system clipboard', remap = tr
 map({ 'n', 'x' }, '<A-v>', '"+p', { desc = 'Paste from system clipboard', remap = true })
 map({ 'i' }, '<A-v>', '<C-o>"+p', { desc = 'Paste from system clipboard', remap = true })
 
-local linters = require('linters')
-linters.register(
-  'eslint',
-  { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' },
-  require('linters.eslint').run
-)
-
 local function async_style_enforce()
   local conform = require('conform')
   local buf = vim.api.nvim_get_current_buf()
 
-  local progress = Util.progress.create({
+  local progress = require('utils.progress').create({
     pending_ms = 0,
     client_name = 'stenfo',
   })
@@ -30,7 +23,7 @@ local function async_style_enforce()
     bufnr = buf,
   }, function(err)
     if err then
-      Util.notify.error('Prettier error: ' .. err)
+      vim.notify('Prettier error: ' .. err, vim.log.levels.ERROR)
       return
     end
 
@@ -45,7 +38,7 @@ local function async_style_enforce()
       end,
       on_done = function(name, ok, lerr)
         if not ok and lerr then
-          Util.notify.warn(('%s failed: %s'):format(name, lerr))
+          vim.notify(('%s failed: %s'):format(name, lerr), vim.log.levels.WARN)
         end
         done_count = done_count + 1
         if done_count == total then

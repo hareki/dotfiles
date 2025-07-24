@@ -1,4 +1,4 @@
----@class constant.icons
+---@class configs.icons
 ---@field misc table<string, string>
 ---@field ft table<string, string>
 ---@field dap table<string, string | table<string, string>>

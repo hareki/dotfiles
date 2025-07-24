@@ -9,6 +9,7 @@ return {
   event = 'VeryLazy',
   dependencies = { 'folke/lazydev.nvim' },
   config = function()
+    local icons = require('configs.icons')
     vim.diagnostic.config({
       -- virtual_lines = true,
       virtual_lines = {
@@ -24,10 +25,10 @@ return {
       },
       signs = {
         text = {
-          [vim.diagnostic.severity.ERROR] = Const.icons.diagnostics.Error,
-          [vim.diagnostic.severity.WARN] = Const.icons.diagnostics.Warn,
-          [vim.diagnostic.severity.HINT] = Const.icons.diagnostics.Hint,
-          [vim.diagnostic.severity.INFO] = Const.icons.diagnostics.Info,
+          [vim.diagnostic.severity.ERROR] = icons.diagnostics.Error,
+          [vim.diagnostic.severity.WARN] = icons.diagnostics.Warn,
+          [vim.diagnostic.severity.HINT] = icons.diagnostics.Hint,
+          [vim.diagnostic.severity.INFO] = icons.diagnostics.Info,
         },
         numhl = {
           [vim.diagnostic.severity.ERROR] = 'ErrorMsg',
@@ -55,16 +56,6 @@ return {
           require('telescope.builtin').lsp_references()
         end, opts('References'))
 
-        -- Trying to use telescope and `require("trouble.sources.telescope").open` exclusively to reduce cognitive overhead
-
-        -- map('n', 'gD', function()
-        --   require('trouble').open('lsp_definitions')
-        -- end, opts('Go to definition'))
-
-        -- map('n', 'gR', function()
-        --   require('trouble').open('lsp_references')
-        -- end, opts('References'))
-
         map('n', 'gh', vim.lsp.buf.hover, opts('Hover'))
         map('n', '<leader>ca', require('actions-preview').code_actions, opts('Code action')) -- Ctrl + Z
         map('n', '<leader>cr', vim.lsp.buf.rename, opts('Rename')) -- F2
@@ -84,6 +75,27 @@ return {
         config = '~/.config/typos/typos.toml',
         diagnosticSeverity = 'Info',
       },
+    })
+
+    local base_on_attach = vim.lsp.config.eslint.on_attach
+
+    vim.lsp.config('eslint', {
+      on_attach = function(client, bufnr)
+        if not base_on_attach then
+          return
+        end
+
+        base_on_attach(client, bufnr)
+
+        local linters = require('utils.linters')
+        local eslint_linter = require('utils.linters.eslint')
+
+        linters.register(
+          'eslint',
+          { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' },
+          eslint_linter.run
+        )
+      end,
     })
   end,
 }

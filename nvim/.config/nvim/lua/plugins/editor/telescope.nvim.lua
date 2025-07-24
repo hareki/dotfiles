@@ -57,7 +57,7 @@ return {
       '<leader>fy',
       function()
         require('telescope').extensions.yank_history.yank_history({
-          preview_title = Const.PREVIEW_TITLE,
+          preview_title = require('configs.common').PREVIEW_TITLE,
         })
       end,
       desc = 'Highlight Groups',
@@ -118,7 +118,7 @@ return {
     local default_picker_configs = {}
     for picker_name, _ in pairs(builtin) do
       default_picker_configs[picker_name] = {
-        preview_title = Const.PREVIEW_TITLE,
+        preview_title = require('configs.common').PREVIEW_TITLE,
       }
     end
 
@@ -134,11 +134,12 @@ return {
       -- 1. Collapse the blank row between *prompt* and *results*
       layout.results.line = layout.results.line - 1
       layout.results.height = layout.results.height + 1
+      local size_utils = require('utils.size')
 
       -- 2. Seems like telescope.nvim exclude the statusline when centering the layout,
-      -- Which is different from our logic in `Util.size.get_float_config('lg')`
+      -- Which is different from our logic in `size_utils.get_float_config('lg')`
       -- So we need to adjust/shift the position if needed
-      local target_row = Util.size.popup_config(size, true).row
+      local target_row = size_utils.popup_config(size, true).row
       -- The top most component is the prompt window, so we use it as the anchor to adjust the position
       local top_line = layout.prompt.line
 
@@ -223,11 +224,13 @@ return {
       end
     end
 
+    local layout_config = require('utils.ui').telescope_layout_config
+
     return {
       extensions = {
         ['ui-select'] = {
           layout_config = {
-            vertical = Util.telescope.layout_config('sm'),
+            vertical = layout_config('sm'),
           },
         },
       },
@@ -254,7 +257,7 @@ return {
             preview_height = 0.45,
             preview_cutoff = 1, -- Preview should always show (unless previewer = false)
             prompt_position = 'top',
-          }, Util.telescope.layout_config('lg')),
+          }, layout_config('lg')),
         },
 
         -- Open files in the first window that is an actual file.

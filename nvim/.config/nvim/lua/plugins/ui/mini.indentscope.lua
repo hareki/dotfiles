@@ -3,8 +3,8 @@ return {
   version = false,
   event = 'LazyFile',
   opts = function()
-    Util.highlights({
-      MiniIndentscopeSymbol = { fg = Util.palette().blue },
+    require('utils.ui').set_highlights({
+      MiniIndentscopeSymbol = { fg = require('utils.ui').get_palette().blue },
     })
     return {
       -- symbol = "│",

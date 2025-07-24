@@ -9,7 +9,7 @@ end
 local aucmd = vim.api.nvim_create_autocmd
 
 local function disable_doc_hl()
-  Util.highlights({
+  require('utils.ui').set_highlights({
     LspReferenceRead = {
       bg = 'none',
     },
@@ -23,7 +23,7 @@ local function disable_doc_hl()
 end
 
 local function enable_doc_hl()
-  Util.highlights({
+  require('utils.ui').set_highlights({
     LspReferenceRead = {
       link = 'DocumentHighlight',
     },
@@ -199,7 +199,7 @@ aucmd('TextYankPost', {
       if vim.b.visual_multi == nil then
         enable_doc_hl()
       end
-    end, Const.PUT_HL_TIMER + 50)
+    end, require('configs.common').PUT_HL_TIMER + 50)
   end,
 })
 

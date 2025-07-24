@@ -6,7 +6,7 @@ return {
   },
   opts = {
     -- title_format = ' %s ', -- File name
-    title_format = ' ' .. Const.PREVIEW_TITLE .. ' ',
+    title_format = ' ' .. require('configs.common').PREVIEW_TITLE .. ' ',
     zindex = 50, -- The defaul value makes vim.ui.input behind the preview window
     image_preview = {
       enable = true,

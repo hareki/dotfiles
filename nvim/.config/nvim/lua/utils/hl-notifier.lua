@@ -1,4 +1,4 @@
----@class util.notify
+---@class utils.notify
 ---@brief [[
 --- A tiny wrapper around nvim-notify that supports
 --- per-chunk highlighting with the familiar `{text, hl}` tuples

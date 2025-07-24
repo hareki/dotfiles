@@ -18,8 +18,8 @@ return {
     local lualine_require = require('lualine_require')
     lualine_require.require = require
 
-    local palette = Util.palette()
-    local icons = Const.icons
+    local palette = require('utils.ui').get_palette()
+    local icons = require('configs.icons')
 
     local mode_hl = {
       NORMAL = { fg = palette.surface0, bg = palette.blue },
@@ -97,6 +97,7 @@ return {
     }
 
     local separator = { left = '', right = '' }
+    local git_utils = require('utils.git')
 
     return {
       options = {
@@ -153,7 +154,7 @@ return {
           {
             'branch',
             icon = '',
-            fmt = Util.git.format_branch_name,
+            fmt = git_utils.format_branch_name,
             color = { fg = palette.subtext0, bg = palette.mantle },
             padding = { left = 2, right = 0 },
           },
@@ -204,7 +205,7 @@ return {
 
           {
             function()
-              return Util.git.get_repo_name()
+              return git_utils.get_repo_name()
             end,
             color = { fg = palette.pink, bg = palette.surface0 },
             separator = separator,

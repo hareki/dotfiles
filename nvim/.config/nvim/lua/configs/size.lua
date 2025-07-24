@@ -1,31 +1,18 @@
----@diagnostic disable: missing-fields
-
----@class constant.size.Dimensions
+---@class configs.size.dimensions
 ---@field WIDTH number
 ---@field HEIGHT number
 
----@class constant.size.Popup
----@field lg constant.size.Dimensions
----@field sm constant.size.Dimensions
----@field WIDTH number
----@field HEIGHT number
-
----@class constant.size.SidePreview
----@field md constant.size.Dimensions
----@field WIDTH number
----@field HEIGHT number
-
----@class constant.size.SidePanel
----@field md constant.size.Dimensions
----@field WIDTH number
----@field HEIGHT number
-
----@class constant.size
----@field popup constant.size.Popup
----@field side_preview constant.size.SidePreview
----@field side_panel constant.size.SidePanel
+---@class configs.size
+---@field popup configs.size.popup
+---@field side_preview configs.size.side_preview
+---@field side_panel configs.size.side_panel
 local M = {}
 
+---@class configs.size.popup
+---@field lg configs.size.dimensions
+---@field sm configs.size.dimensions
+---@field WIDTH number
+---@field HEIGHT number
 M.popup = {
   lg = {
     WIDTH = 0.8,
@@ -44,6 +31,10 @@ setmetatable(M.popup, {
   end,
 })
 
+---@class configs.size.side_preview
+---@field md configs.size.dimensions
+---@field WIDTH number
+---@field HEIGHT number
 M.side_preview = {
   md = {
     WIDTH = 0.5,
@@ -57,6 +48,10 @@ setmetatable(M.side_preview, {
   end,
 })
 
+---@class configs.size.side_panel
+---@field md configs.size.dimensions
+---@field WIDTH number
+---@field HEIGHT number
 M.side_panel = {
   md = {
     WIDTH = 0.35,

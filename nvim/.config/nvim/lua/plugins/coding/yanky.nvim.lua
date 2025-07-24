@@ -7,7 +7,7 @@ return {
   },
   opts = function()
     local palette = require('catppuccin.palettes').get_palette('mocha')
-    Util.highlights({
+    require('utils.ui').set_highlights({
       SystemYankHighlight = {
         fg = palette.base,
         bg = palette.yellow,
@@ -32,7 +32,7 @@ return {
         -- Use our own aucmd to highlight on yank instead, to differentiate between clipboard and register yank
         on_yank = false,
         on_put = true,
-        timer = Const.PUT_HL_TIMER,
+        timer = require('configs.common').PUT_HL_TIMER,
       },
       system_clipboard = {
         sync_with_ring = false,

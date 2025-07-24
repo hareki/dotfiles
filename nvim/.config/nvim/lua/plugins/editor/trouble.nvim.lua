@@ -2,12 +2,14 @@ return {
   'folke/trouble.nvim',
   cmd = { 'Trouble' },
   opts = function()
-    local preview_cols, preview_rows = Util.size.computed_size(Const.size.side_preview.md)
-    local panel_cols, _ = Util.size.computed_size(Const.size.side_panel.md)
+    local size_utils = require('utils.size')
+    local size_configs = require('configs.size')
+    local preview_cols, preview_rows = size_utils.computed_size(size_configs.side_preview.md)
+    local panel_cols, _ = size_utils.computed_size(size_configs.side_panel.md)
     local preview_width_offset = panel_cols + preview_cols + 3
     local preview_height_offset = math.floor((vim.opt.lines:get() - preview_rows) / 2) - 1
 
-    Util.highlights({
+    require('utils.ui').set_highlights({
       TroubleNormal = { link = 'NormalFloat' },
     })
 
@@ -19,7 +21,7 @@ return {
         type = 'float',
         relative = 'win',
         border = 'rounded',
-        title = ' ' .. Const.PREVIEW_TITLE .. ' ',
+        title = ' ' .. require('configs.common').PREVIEW_TITLE .. ' ',
         title_pos = 'center',
         position = { preview_height_offset, -preview_width_offset },
         size = {

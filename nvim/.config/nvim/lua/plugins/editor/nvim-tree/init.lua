@@ -48,9 +48,11 @@ return {
 
       calculate_win_size = function(tree_win)
         local tree_cfg = vim.api.nvim_win_get_config(tree_win)
+        local size_configs = require('configs.size')
 
-        local side_preview = Const.size.side_preview
-        local size = Util.size.popup_config('lg')
+        local side_preview = size_configs.side_preview
+        local size_utils = require('utils.size')
+        local size = size_utils.popup_config('lg')
 
         -- We need to fill the missing row if the total height is an odd number,
         -- meaing when we can't have equal height for both windows
@@ -63,7 +65,7 @@ return {
           }
         end
 
-        local preview_cols, preview_rows = Util.size.computed_size(side_preview)
+        local preview_cols, preview_rows = size_utils.computed_size(side_preview)
 
         return {
           width = preview_cols,
@@ -99,9 +101,12 @@ return {
     },
 
     opts = function()
-      local palette = Util.palette()
+      local ui_utis = require('utils.ui')
+      local palette = ui_utis.get_palette()
+      local size_utils = require('utils.size')
+      local size_configs = require('configs.size')
 
-      Util.highlights({
+      ui_utis.set_highlights({
         NvimTreeSignColumn = {
           link = 'NormalFloat',
         },
@@ -169,7 +174,7 @@ return {
           side = 'right',
           -- Width when not in float mode
           width = function()
-            local panel_cols = Util.size.computed_size(Const.size.side_panel)
+            local panel_cols = size_utils.computed_size(size_configs.side_panel)
             return panel_cols
           end,
 
@@ -177,7 +182,7 @@ return {
             enable = require('plugins.editor.nvim-tree.utils').state.position == 'float',
             quit_on_focus_loss = false,
             open_win_config = function()
-              local size = Util.size.popup_config('lg')
+              local size = size_utils.popup_config('lg')
               local window_w = size.width
               local window_h = math.floor(size.height / 2)
               local col = size.col

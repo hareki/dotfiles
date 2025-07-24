@@ -38,7 +38,7 @@ return {
 
       pickers
         .new({}, {
-          preview_title = Const.PREVIEW_TITLE,
+          preview_title = require('configs.common').PREVIEW_TITLE,
           prompt_title = 'Harpoon',
           finder = require('telescope.finders').new_table({
             results = file_paths,
@@ -75,7 +75,7 @@ return {
           -- local filename = vim.fn.fnamemodify(filepath, ':t')
           local relpath = vim.fn.fnamemodify(filepath, ':.')
 
-          Util.notify.info({
+          require('utils.hl-notifier').info({
             { 'Added ', 'Normal' },
             { relpath, 'NotifyWARNTitle' },
           }, { title = 'harpoon' })

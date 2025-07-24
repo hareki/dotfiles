@@ -1,7 +1,9 @@
----@class util.git
+---@alias utils.git.branch_formats 'id' | 'id_and_name' | 'id_and_author'
+
+---@class utils.git
 local M = {}
 
-local branch_display_mode = Const.git.branch_formats.TASK_ID_ONLY
+local branch_display_mode = 'id'
 
 local task_name_start_length = 999
 local task_name_end_length = 10
@@ -13,32 +15,12 @@ local repo_cache = {
   last_cwd = nil,
 }
 
---- Checks whether a given branch format is valid according to predefined branch formats.
---- Valid branch formats are:
---- - Constant.git.BRANCH_FORMATS.TASK_ID_ONLY
---- - Constant.git.BRANCH_FORMATS.TASK_ID_AND_NAME
---- - Constant.git.BRANCH_FORMATS.TASK_ID_AND_AUTHOR
---- @param format string The branch format to validate.
---- @return boolean True if the format is valid, false otherwise.
-function M.is_valid_branch_format(format)
-  for _, value in pairs(Const.git.branch_formats) do
-    if value == format then
-      return true
-    end
-  end
-  return false
-end
-
---- Sets the branch display format if it is valid and refreshes the status line.
---- @param format_name string The name of the branch format to set.
-function M.set_branch_name_format(format_name)
-  if M.is_valid_branch_format(format_name) then
-    branch_display_mode = format_name
-    LazyVim.notify('Branch name format set to ' .. format_name)
-    require('lualine').refresh()
-  else
-    LazyVim.error('Invalid branch name format: ' .. format_name)
-  end
+--- Sets the branch display format and refreshes the status line.
+--- @param format utils.git.branch_formats The name of the branch format to set.
+function M.set_branch_name_format(format)
+  branch_display_mode = format
+  vim.notify('Branch name format set to ' .. format)
+  require('lualine').refresh()
 end
 
 --- Formats a given branch name according to the selected display mode.
@@ -52,9 +34,9 @@ function M.format_branch_name(branch_name)
 
   local prefix, task_name, author_name = branch_name:match('^(CU%-%w+)_([^_]+)_(.+)$')
 
-  if branch_display_mode == Const.git.branch_formats.TASK_ID_ONLY then
+  if branch_display_mode == 'id' then
     return prefix
-  elseif branch_display_mode == Const.git.branch_formats.TASK_ID_AND_NAME then
+  elseif branch_display_mode == 'id_and_name' then
     local formatted_task_name
     if #task_name > max_task_name_length then
       -- Show start and end parts of the task name with ellipsis
@@ -65,7 +47,7 @@ function M.format_branch_name(branch_name)
       formatted_task_name = task_name
     end
     return prefix .. '_' .. formatted_task_name
-  elseif branch_display_mode == Const.git.branch_formats.TASK_ID_AND_AUTHOR then
+  elseif branch_display_mode == 'id_and_author' then
     return prefix .. '_' .. author_name
   end
 end
@@ -194,7 +176,7 @@ function M.get_current_line_commit()
     return nil
   end
 
-  local relative_file = Util.get_relative_path(file, root)
+  local relative_file = require('utils.path').get_relative_path(file, root)
 
   --- Construct the Git log command to get the last commit for the current line.
   --- @type string[]

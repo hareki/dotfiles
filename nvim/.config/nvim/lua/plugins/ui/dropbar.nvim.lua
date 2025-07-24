@@ -22,7 +22,7 @@ return {
   end,
 
   opts = function(_, opts)
-    Util.highlights({
+    require('utils.ui').set_highlights({
       DropBarKindDir = { link = 'DropBarKindFile' },
     })
 
@@ -48,9 +48,12 @@ return {
         sources = function(buf, _)
           -- Hide the dropbar when in diff view
           -- The second check is for when one buffer is closed
-          if vim.wo.diff or Util.has_dir({
-            dir_name = '.git',
-          }) then
+          if
+            vim.wo.diff
+            or require('utils.path').has_dir({
+              dir_name = '.git',
+            })
+          then
             vim.wo.winbar = ''
             return {}
           end
@@ -97,7 +100,7 @@ return {
       sources = {
         path = {
           relative_to = function()
-            return Util.get_initial_path()
+            return require('utils.path').get_initial_path()
           end,
         },
       },

@@ -1,4 +1,4 @@
----@class constant.common
+---@class configs.common
 local M = {}
 
 M.JS_FILETYPES = {

@@ -1,8 +1,10 @@
-require('configs.core.ensure-lazy')
+local LazyUtils = require('configs.lazy.utils')
+
+LazyUtils.ensure_lazy()
+LazyUtils.register_events()
 
 -- [[ Configure and install plugins ]]
-Util.custom_lazy_events()
-local lg = Const.size.popup.lg
+local lg = require('configs.size').popup.lg
 require('lazy').setup({
   version = '*',
   ui = {
