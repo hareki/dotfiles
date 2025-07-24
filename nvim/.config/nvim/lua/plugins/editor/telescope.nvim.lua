@@ -178,6 +178,10 @@ return {
         actions.close(prompt_bufnr)
       end, { buffer = previewer_bufnr })
 
+      vim.keymap.set('n', '<CR>', function()
+        actions.select_default(prompt_bufnr)
+      end, { buffer = previewer_bufnr })
+
       vim.cmd(string.format('noautocmd lua vim.api.nvim_set_current_win(%s)', previewer_win_id))
     end
 
