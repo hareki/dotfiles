@@ -35,14 +35,11 @@ return {
         prevInput = false,
         nextInput = false,
 
-        smartFocusToggle = {
-          n = '<Tab>',
-        },
-        togglePreviewFocus = {
-          n = '<Tab>',
-        },
         togglePreview = {
           n = 'B',
+        },
+        smartToggleFocus = {
+          n = '<Tab>',
         },
       },
       previewWindow = {
