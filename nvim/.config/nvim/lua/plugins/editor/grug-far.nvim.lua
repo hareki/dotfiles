@@ -1,5 +1,5 @@
 return {
-  'MagicDuck/grug-far.nvim',
+  'hareki/grug-far.nvim',
   cmd = 'GrugFar',
   keys = {
     {
