@@ -35,6 +35,7 @@ return {
         'toggleterm',
         'trouble',
         'dropbar_menu',
+        'grug-far',
       },
       callback = function()
         vim.b.miniindentscope_disable = true
