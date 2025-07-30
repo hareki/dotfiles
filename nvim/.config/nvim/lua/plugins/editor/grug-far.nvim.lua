@@ -28,6 +28,7 @@ return {
 
     return {
       windowCreationCommand = panel_cols .. 'vsplit',
+      wrap = false,
 
       keymaps = {
         openNextLocation = false,
