@@ -85,6 +85,7 @@ return {
       LspReferenceWrite = { link = 'DocumentHighlight' },
 
       NormalFloat = { bg = 'none' },
+      FloatBorder = { bg = palette.base, fg = palette.blue },
       FloatTitle = { fg = palette.blue },
 
       TabLine = {

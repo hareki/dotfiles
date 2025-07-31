@@ -1,5 +1,5 @@
 return {
-  'folke/trouble.nvim',
+  'hareki/trouble.nvim',
   cmd = { 'Trouble' },
   opts = function()
     local size_utils = require('utils.size')
@@ -11,12 +11,47 @@ return {
 
     require('utils.ui').set_highlights({
       TroubleNormal = { link = 'NormalFloat' },
+      TroublePreview = { link = 'Search' },
     })
 
+    local function toggle_focus()
+      local previewManager = require('trouble.view.preview')
+      local preview = previewManager.preview
+
+      if not previewManager.is_open() then
+        return
+      end
+
+      local function set_preview_keymap(key, callback)
+        vim.keymap.set('n', key, callback, { buffer = preview.buf })
+      end
+
+      local trouble_win = vim.api.nvim_get_current_win()
+
+      vim.cmd(string.format('noautocmd lua vim.api.nvim_set_current_win(%s)', preview.win))
+
+      set_preview_keymap('<Tab>', function()
+        vim.cmd(string.format('noautocmd lua vim.api.nvim_set_current_win(%s)', trouble_win))
+      end)
+
+      set_preview_keymap('<CR>', function()
+        local View = require('trouble.view')
+        local first_view = View.get({ open = true })[1]
+        if first_view and preview.item then
+          first_view.view:jump(preview.item)
+        end
+      end)
+
+      set_preview_keymap('q', function()
+        vim.cmd(string.format('noautocmd lua vim.api.nvim_set_current_win(%s)', trouble_win))
+        vim.api.nvim_win_close(preview.win, true)
+      end)
+    end
+
     return {
-      -- Prevent trouble from refreshing every time the curosr position changes
       auto_refresh = false,
       win = { position = 'right', size = panel_cols },
+
       preview = {
         type = 'float',
         relative = 'win',
@@ -29,6 +64,14 @@ return {
           height = preview_rows,
         },
         zindex = 200,
+      },
+
+      keys = {
+        ['<tab>'] = {
+          action = toggle_focus,
+          desc = 'Toggle focus between list & preview',
+        },
+        B = 'toggle_preview',
       },
     }
   end,
