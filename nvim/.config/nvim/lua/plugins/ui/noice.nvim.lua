@@ -2,6 +2,11 @@ return {
   'folke/noice.nvim',
   event = 'VeryLazy',
   opts = {
+    views = {
+      cmdline_popup = {
+        zindex = 999, -- Ensure cmdline popup is always on top
+      },
+    },
     lsp = {
       hover = {
         opts = {
@@ -54,9 +59,9 @@ return {
     presets = {
       bottom_search = false,
       command_palette = false,
+      inc_rename = false,
       lsp_doc_border = true,
       long_message_to_split = true,
-      inc_rename = false,
     },
   },
   config = function(_, opts)
