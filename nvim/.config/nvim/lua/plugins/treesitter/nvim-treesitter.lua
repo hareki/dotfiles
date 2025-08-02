@@ -85,4 +85,8 @@ return {
       },
     },
   },
+  config = function(_, opts)
+    -- Notice the extra '.configs' part...
+    require('nvim-treesitter.configs').setup(opts)
+  end,
 }
