@@ -77,10 +77,9 @@ return {
   {
     'nvim-tree/nvim-tree.lua',
     version = '*',
-    lazy = false, -- Need to load on startup to hijack netrw/directories
+    lazy = true,
     dependencies = {
       'nvim-tree/nvim-web-devicons',
-      'hareki/nvim-tree-preview.lua',
     },
     keys = {
       {
@@ -294,7 +293,8 @@ return {
 
     config = function(_, opts)
       require('nvim-tree').setup(opts)
-
+    end,
+    init = function()
       -- Open a floating tree automatically when Neovim starts on a directory
       vim.api.nvim_create_autocmd('VimEnter', {
         callback = function(data)

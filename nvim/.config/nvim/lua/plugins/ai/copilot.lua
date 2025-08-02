@@ -1,7 +1,7 @@
 return {
   'zbirenbaum/copilot.lua',
   cmd = 'Copilot',
-  event = 'BufReadPost',
+  event = 'InsertEnter',
   opts = function()
     vim.api.nvim_create_autocmd('User', {
       pattern = 'BlinkCmpMenuOpen',
