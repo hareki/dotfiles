@@ -3,6 +3,7 @@ return {
   event = 'LazyFile',
   opts = {
     keymaps = {
+      -- Only use subword text objects
       useDefaults = false,
     },
   },

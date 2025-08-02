@@ -13,6 +13,7 @@ return {
       fzf = true,
       grug_far = true,
       gitsigns = true,
+      rainbow_delimiters = true,
       lsp_trouble = true,
       markdown = true,
       mini = true,

@@ -1,7 +1,23 @@
+local copilot_max_items = 3
+
 return {
   {
     'saghen/blink.compat',
     opts = {},
+  },
+  {
+    'fang2hou/blink-copilot',
+    opts = {
+      max_completions = copilot_max_items,
+      max_attempts = copilot_max_items + 1,
+      kind_name = 'Copilot',
+      kind_icon = ' ',
+      kind_hl = 'BlinkCmpKindCopilot',
+      auto_refresh = {
+        backward = true,
+        forward = true,
+      },
+    },
   },
   {
     'saghen/blink.cmp',
@@ -9,10 +25,11 @@ return {
     version = '*',
     dependencies = {
       -- 'rafamadriz/friendly-snippets',
+      -- 'giuxtaposition/blink-cmp-copilot', => Doesn't support multiple items
       'windwp/nvim-autopairs',
       'dmitmel/cmp-cmdline-history',
       'f3fora/cmp-spell',
-      'giuxtaposition/blink-cmp-copilot',
+      'fang2hou/blink-copilot',
     },
     event = { 'InsertEnter', 'CmdLineEnter' },
     opts = function()
@@ -43,7 +60,6 @@ return {
 
       local history_kind_index = register_kind('History')
       local spell_kind_index = register_kind('Spell')
-      local copilot_kind_index = register_kind('Copilot')
 
       return {
         enabled = function()
@@ -57,7 +73,6 @@ return {
             History = '',
             Spell = '',
             Yanky = '󰅍',
-            Copilot = '',
           },
         },
 
@@ -209,16 +224,10 @@ return {
 
             copilot = {
               name = 'copilot',
-              module = 'blink-cmp-copilot',
+              module = 'blink-copilot',
               async = true,
-              max_items = 3,
+              max_items = copilot_max_items,
               score_offset = 100,
-              transform_items = function(_, items)
-                for _, item in ipairs(items) do
-                  item.kind = copilot_kind_index
-                end
-                return items
-              end,
             },
           },
         },
