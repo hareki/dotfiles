@@ -75,7 +75,7 @@ return {
           -- local filename = vim.fn.fnamemodify(filepath, ':t')
           local relpath = vim.fn.fnamemodify(filepath, ':.')
 
-          require('utils.hl-notifier').info({
+          notifier.info({
             { 'Added ', 'Normal' },
             { relpath, 'NotifyWARNTitle' },
           }, { title = 'harpoon' })

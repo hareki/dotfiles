@@ -106,3 +106,11 @@ map('n', ']e', diagnostic_goto(true, 'ERROR'), { desc = 'Next Error' })
 map('n', '[e', diagnostic_goto(false, 'ERROR'), { desc = 'Prev Error' })
 map('n', ']w', diagnostic_goto(true, 'WARN'), { desc = 'Next Warning' })
 map('n', '[w', diagnostic_goto(false, 'WARN'), { desc = 'Prev Warning' })
+
+map('n', '<leader>T', function()
+  notifier.info('Find files: **test**')
+  notifier.warn({
+    { 'Added ', 'Normal' },
+    { 'Test', 'NotifyWARNTitle' },
+  }, { title = 'harpoon' })
+end, { desc = 'Find files' })
