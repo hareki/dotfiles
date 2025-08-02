@@ -31,7 +31,7 @@ local function get_valid_client_id(bufnr)
 end
 
 local ProgressHandle = {}
-ProgressHandle.__index = ProgressHandle --[[@as util.progress.Handle]]
+ProgressHandle.__index = ProgressHandle --[[@as utils.progress.Handle]]
 
 -- Internal low‑level sender ---------------------------------------------------
 ---@private
@@ -92,8 +92,8 @@ function ProgressHandle:finish(title)
 end
 
 -- Factory --------------------------------------------------------------------
----@param opts util.progress.CreateOpts|nil
----@return util.progress.Handle
+---@param opts utils.progress.CreateOpts|nil
+---@return utils.progress.Handle
 function M.create(opts)
   opts = opts or {}
 
@@ -102,7 +102,7 @@ function M.create(opts)
   local client_name = opts.client_name or 'progress'
   local client_id = opts.client_id or get_valid_client_id(vim.api.nvim_get_current_buf())
 
-  ---@type util.progress.Handle
+  ---@type utils.progress.Handle
   local handle = setmetatable({
     token = token,
     client_id = client_id,

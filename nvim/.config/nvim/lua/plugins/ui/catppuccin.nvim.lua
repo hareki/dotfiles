@@ -62,8 +62,8 @@ return {
     -- Most of these are not declared in the official catppuccin nvim highlights, so `opts.highlight_overrides` won't work.
     require('utils.ui').set_highlights({
       WinSeparator = { fg = palette.blue },
-      Visual = { bold = false, bg = palette.surface1 },
-      DocumentHighlight = { bg = '#373948' },
+      Visual = { bold = false, bg = '#4f5164' }, -- Darkened version of surface2
+      DocumentHighlight = { bg = palette.surface0 },
 
       DiagnosticUnderlineInfo = { link = 'LspDiagnosticsUnderlineInformation' },
       DiagnosticUnderlineHint = { link = 'LspDiagnosticsUnderlineHint' },

@@ -89,6 +89,12 @@ function M.run_by_ft(opts)
   local bufnr = opts.bufnr
   local ft = vim.bo[bufnr].filetype
   local names = M.names_for_filetype(ft)
+
+  if #names == 0 and opts.on_done then
+    opts.on_done('none', true) -- no linters, no error
+    return
+  end
+
   M.run(names, opts)
 end
 

@@ -37,11 +37,12 @@ local function async_style_enforce()
       on_start = function(name)
         progress:report('Linting (' .. name .. ')', percentage * done_count)
       end,
-      on_done = function(name, ok, lerr)
-        if not ok and lerr then
-          vim.notify(('%s failed: %s'):format(name, lerr), vim.log.levels.WARN)
+      on_done = function(name, ok, err)
+        if not ok and err then
+          vim.notify(('%s failed: %s'):format(name, err), vim.log.levels.WARN)
         end
-        done_count = done_count + 1
+
+        done_count = done_count + (name == 'none' and 0 or 1)
         if done_count == total then
           if vim.bo[buf].modified then
             vim.api.nvim_buf_call(buf, function()
