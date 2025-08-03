@@ -93,7 +93,9 @@ function M.get_vertical_offset()
   local window_height = vim.opt.lines:get()
   local content_height = vim.api.nvim_buf_line_count(bufnr)
 
-  local size = math.floor((window_height - content_height) / 2) - 1
+  local remaining_height = window_height - content_height
+  local is_even = remaining_height % 2 == 0
+  local size = math.floor(((window_height - content_height) / 2)) - (is_even and 1 or 0)
   return size
 end
 
