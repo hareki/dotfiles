@@ -297,6 +297,7 @@ return {
     init = function()
       -- Open a floating tree automatically when Neovim starts on a directory
       vim.api.nvim_create_autocmd('VimEnter', {
+        once = true,
         callback = function(data)
           -- Only act if the argument is a directory
           if vim.fn.isdirectory(data.file) == 1 then

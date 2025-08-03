@@ -54,6 +54,7 @@ return {
   cmd = 'Alpha',
   init = function()
     vim.api.nvim_create_autocmd('VimEnter', {
+      once = true,
       callback = function()
         if should_skip_alpha() then
           return
@@ -195,7 +196,38 @@ return {
       end,
     })
 
-    require('alpha').setup(dashboard.config)
+    -- Free up memory, not sure how effective this is, but it should help
+    vim.api.nvim_create_autocmd('User', {
+      once = true,
+      pattern = 'AlphaClosed',
+      callback = function()
+        for k, _ in pairs(dashboard.config) do
+          dashboard.config[k] = nil
+        end
+
+        for k, _ in pairs(dashboard.section) do
+          dashboard.section[k] = nil
+        end
+
+        for k, _ in pairs(dashboard) do
+          dashboard[k] = nil
+        end
+
+        -- No going back to Alpha after closing it
+        pcall(vim.api.nvim_del_user_command, 'Alpha')
+        pcall(vim.api.nvim_del_user_command, 'AlphaRedraw')
+        pcall(vim.api.nvim_del_user_command, 'AlphaRemap')
+
+        for name, _ in pairs(package.loaded) do
+          if name:match('^alpha') then
+            package.loaded[name] = nil
+          end
+        end
+        package.loaded['plugins.ui.alpha-nvim.utils'] = nil
+
+        collectgarbage('collect')
+      end,
+    })
 
     vim.api.nvim_create_autocmd('User', {
       once = true,
@@ -207,5 +239,7 @@ return {
         pcall(vim.cmd.AlphaRedraw)
       end,
     })
+
+    require('alpha').setup(dashboard.config)
   end,
 }
