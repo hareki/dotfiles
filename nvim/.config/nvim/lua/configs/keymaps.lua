@@ -63,10 +63,10 @@ end, { desc = 'Format (Prettier) + ESLint Fix All + Save' })
 
 map({ 'i', 'x', 'n', 's' }, '<A-r>', '<cmd>e!<cr>', { desc = 'Reload file', silent = true })
 
-map({ 'n', 'v' }, '<leader>qa', '<cmd>qa!<cr>', { desc = 'Force quit all', silent = true })
+map({ 'n', 'x' }, '<leader>qa', '<cmd>qa!<cr>', { desc = 'Force quit all', silent = true })
+map({ 'n', 'x' }, '<PageUp>', '<C-u>zz', { desc = 'Scroll up and center' })
+map({ 'n', 'x' }, '<PageDown>', '<C-d>zz', { desc = 'Scroll down and center' })
 
-map({ 'n', 'v' }, '<PageUp>', '<C-u>zz', { desc = 'Scroll up and center' })
-map({ 'n', 'v' }, '<PageDown>', '<C-d>zz', { desc = 'Scroll down and center' })
 map('x', 'x', '"0d', { desc = 'Cut to register 0' })
 
 map('v', '<leader>t', "ygvgc']p", {

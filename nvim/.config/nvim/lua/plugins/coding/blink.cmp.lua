@@ -154,6 +154,24 @@ return {
             'select_next',
             'fallback',
           },
+          ['<PageUp>'] = {
+            function(cmp)
+              if cmp.is_documentation_visible() then
+                return cmp.scroll_documentation_up(4)
+              end
+              return true
+            end,
+            'fallback',
+          },
+          ['<PageDown>'] = {
+            function(cmp)
+              if cmp.is_documentation_visible() then
+                return cmp.scroll_documentation_down(4)
+              end
+              return true
+            end,
+            'fallback',
+          },
           ['<CR>'] = { 'accept', 'fallback' },
           ['<A-Space>'] = {
             function(cmp)

@@ -11,11 +11,16 @@ return {
   config = function()
     local icons = require('configs.icons')
     vim.diagnostic.config({
-      -- virtual_lines = true,
-      virtual_lines = {
+      -- https://neovim.io/doc/user/diagnostic.html#vim.diagnostic.Opts.VirtualLines
+      -- virtual_lines = {
+      --   current_line = true,
+      -- },
+
+      -- https://neovim.io/doc/user/diagnostic.html#vim.diagnostic.Opts.VirtualText
+      virtual_text = {
         current_line = true,
+        prefix = '●',
       },
-      virtual_text = false,
       underline = true,
       update_in_insert = true,
       severity_sort = true,
@@ -56,7 +61,7 @@ return {
           require('telescope.builtin').lsp_references()
         end, opts('References'))
 
-        map('n', 'gh', vim.lsp.buf.hover, opts('Hover'))
+        -- map('n', 'gh', vim.lsp.buf.hover, opts('Hover'))
         map('n', '<leader>ca', require('actions-preview').code_actions, opts('Code action')) -- Ctrl + Z
         map('n', '<leader>cr', vim.lsp.buf.rename, opts('Rename')) -- F2
         map('n', ']]', function()
