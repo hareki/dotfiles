@@ -26,11 +26,6 @@ return {
     local panel_cols, _ = size_utils.computed_size(size_configs.side_panel.md)
     local preview_height_offset = math.floor((vim.opt.lines:get() - preview_rows) / 2) - 1
 
-    require('utils.ui').set_highlights({
-      GrugFarResultsMatch = { link = 'Search' },
-      GrugFarPreview = { link = 'Search' },
-    })
-
     return {
       windowCreationCommand = panel_cols .. 'vsplit',
       wrap = false,

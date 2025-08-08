@@ -8,24 +8,6 @@ return {
   lazy = false, -- As https://github.com/nvimdev/dashboard-nvim/pull/450, dashboard-nvim shouldn't be lazy-loaded to properly handle stdin.
   dependencies = { 'nvim-tree/nvim-web-devicons' },
   opts = function()
-    local ui_utils = require('utils.ui')
-    local palette = ui_utils.get_palette()
-
-    ui_utils.set_highlights({
-      DashboardHeader = { fg = palette.blue },
-      DashboardShortcut = { fg = palette.yellow },
-      DashboardShortcut1 = { fg = palette.pink },
-      DashboardShortcut2 = { fg = palette.yellow },
-      DashboardShortcut3 = { fg = palette.green },
-      DashboardShortcut4 = { fg = palette.mauve },
-      DashboardShortcut5 = { fg = palette.red },
-      DashboardProjectTitle = { fg = palette.blue },
-      DashboardProjectIcon = { fg = palette.blue },
-      DashboardMruTitle = { fg = palette.blue },
-      DashboardFiles = { fg = palette.text },
-      DashboardFooter = { fg = palette.rosewater, italic = true },
-    })
-
     local logo = {
       [[                                                                    ]],
       [[      ████ ██████           █████      ██                     ]],

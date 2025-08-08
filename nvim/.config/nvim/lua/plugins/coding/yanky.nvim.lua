@@ -5,41 +5,19 @@ return {
   dependencies = {
     { 'kkharji/sqlite.lua' },
   },
-  opts = function()
-    local palette = require('catppuccin.palettes').get_palette('mocha')
-    require('utils.ui').set_highlights({
-      SystemYankHighlight = {
-        fg = palette.base,
-        bg = palette.yellow,
-      },
-      SystemPutHighlight = {
-        fg = palette.base,
-        bg = palette.peach,
-      },
-
-      RegisterYankHighlight = {
-        fg = palette.base,
-        bg = palette.blue,
-      },
-      RegisterPutHighlight = {
-        fg = palette.base,
-        bg = palette.teal,
-      },
-    })
-    return {
-      ring = { storage = 'sqlite' },
-      highlight = {
-        -- Use our own aucmd to highlight on yank instead, to differentiate between clipboard and register yank
-        on_yank = false,
-        on_put = true,
-        timer = require('configs.common').PUT_HL_TIMER,
-      },
-      system_clipboard = {
-        sync_with_ring = false,
-        clipboard_register = nil,
-      },
-    }
-  end,
+  opts = {
+    ring = { storage = 'sqlite' },
+    highlight = {
+      -- Use our own aucmd to highlight on yank instead, to differentiate between clipboard and register yank
+      on_yank = false,
+      on_put = true,
+      timer = require('configs.common').PUT_HL_TIMER,
+    },
+    system_clipboard = {
+      sync_with_ring = false,
+      clipboard_register = nil,
+    },
+  },
   keys = {
     { 'y', '<Plug>(YankyYank)', mode = { 'n', 'x' }, desc = 'Yank text' },
     { 'p', '<Plug>(YankyPutAfter)', mode = { 'n', 'x' }, desc = 'Put text after cursor' },

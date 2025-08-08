@@ -9,11 +9,6 @@ return {
     local preview_width_offset = panel_cols + preview_cols + 3
     local preview_height_offset = math.floor((vim.opt.lines:get() - preview_rows) / 2) - 1
 
-    require('utils.ui').set_highlights({
-      TroubleNormal = { link = 'NormalFloat' },
-      TroublePreview = { link = 'Search' },
-    })
-
     local function toggle_focus()
       local previewManager = require('trouble.view.preview')
       local preview = previewManager.preview

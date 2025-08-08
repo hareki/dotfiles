@@ -100,27 +100,8 @@ return {
     },
 
     opts = function()
-      local ui_utis = require('utils.ui')
-      local palette = ui_utis.get_palette()
       local size_utils = require('utils.size')
       local size_configs = require('configs.size')
-
-      ui_utis.set_highlights({
-        NvimTreeSignColumn = {
-          link = 'NormalFloat',
-        },
-        NvimTreeNormal = {
-          link = 'Normal',
-        },
-        NvimTreeCutHL = {
-          bg = palette.maroon,
-          fg = palette.base,
-        },
-        NvimTreeCopiedHL = {
-          bg = palette.surface2,
-          fg = palette.text,
-        },
-      })
 
       state.opts = {
         hijack_cursor = true, --Keeps the cursor on the first letter of the filename when moving in the tree.
