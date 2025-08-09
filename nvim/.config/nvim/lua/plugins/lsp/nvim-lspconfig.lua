@@ -19,6 +19,7 @@ return {
       -- https://neovim.io/doc/user/diagnostic.html#vim.diagnostic.Opts.VirtualText
       virtual_text = {
         current_line = true,
+        source = false,
         prefix = '●',
       },
       underline = true,

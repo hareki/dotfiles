@@ -11,6 +11,12 @@ return {
         error = {
           rendered = ' Error',
         },
+        hint = {
+          highlight = 'RenderMarkdownHint',
+        },
+      },
+      quote = {
+        icon = '▌', -- Thinner line for quotes
       },
     }
   end,

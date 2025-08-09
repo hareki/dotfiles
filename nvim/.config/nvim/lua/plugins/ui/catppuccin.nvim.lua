@@ -120,6 +120,11 @@ return {
           bg = palette.surface2,
           fg = palette.text,
         },
+
+        -- hiphish/rainbow-delimiters.nvim
+        RainbowDelimiterGreen = {
+          fg = palette.pink, -- avoid string color
+        },
       }
     end,
     integrations = {

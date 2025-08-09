@@ -70,28 +70,41 @@ end
 ---@param opts table?
 function M.notify(msg, opts)
   opts = opts or {}
+  local is_markdown = not is_tuple_list(msg)
 
   -- Prepare the message/handler depending on the input shape
   local on_open_cb
-  if is_tuple_list(msg) then
-    msg, on_open_cb = normalize_message(msg, opts)
-  else
+  if is_markdown then
     -- strings / list-of-strings: fall back to Treesitter markdown
     msg = type(msg) == 'table' and table.concat(msg, '\n') or msg
     on_open_cb = function(win)
       apply_win_opts(win)
       vim.treesitter.start(vim.api.nvim_win_get_buf(win), 'markdown')
     end
+  else
+    ---@cast msg table
+    msg, on_open_cb = normalize_message(msg, opts)
   end
 
   -- Allow callers to chain their own callback
   local user_on_open = opts.on_open
   local function combined_open(win)
+    if is_markdown then
+      local buf = vim.api.nvim_win_get_buf(win)
+      vim.api.nvim_buf_set_option(buf, 'filetype', 'markdown')
+    end
+
     if on_open_cb then
       on_open_cb(win)
     end
+
     if user_on_open then
       user_on_open(win)
+    end
+
+    if opts.height_offset then
+      local h = vim.api.nvim_win_get_height(win)
+      pcall(vim.api.nvim_win_set_height, win, h + opts.height_offset)
     end
   end
 
@@ -146,13 +159,14 @@ function M.error(msg, opts)
   )
 end
 
----@param msg string
-function M.debug(msg, ...)
+---@param title string
+function M.debug(title, ...)
+  local msg = ''
   if select('#', ...) > 0 then
     local obj = select('#', ...) == 1 and ... or { ... }
-    msg = msg .. '\n```lua\n' .. vim.inspect(obj) .. '\n```'
+    msg = msg .. '```lua\n' .. vim.inspect(obj) .. '\n```'
   end
-  M.notify(msg, { title = 'Debug' })
+  M.notify(msg, { title = title, height_offset = -1 })
 end
 
 return M

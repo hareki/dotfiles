@@ -23,10 +23,14 @@ return {
 
       local trouble_win = vim.api.nvim_get_current_win()
 
-      vim.cmd(string.format('noautocmd lua vim.api.nvim_set_current_win(%s)', preview.win))
+      require('utils.autocmd').noautocmd(function()
+        vim.api.nvim_set_current_win(preview.win)
+      end)
 
       set_preview_keymap('<Tab>', function()
-        vim.cmd(string.format('noautocmd lua vim.api.nvim_set_current_win(%s)', trouble_win))
+        require('utils.autocmd').noautocmd(function()
+          vim.api.nvim_set_current_win(trouble_win)
+        end)
       end)
 
       set_preview_keymap('<CR>', function()
@@ -38,7 +42,9 @@ return {
       end)
 
       set_preview_keymap('q', function()
-        vim.cmd(string.format('noautocmd lua vim.api.nvim_set_current_win(%s)', trouble_win))
+        require('utils.autocmd').noautocmd(function()
+          vim.api.nvim_set_current_win(trouble_win)
+        end)
         vim.api.nvim_win_close(preview.win, true)
       end)
     end

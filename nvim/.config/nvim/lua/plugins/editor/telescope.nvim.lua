@@ -171,7 +171,9 @@ return {
       vim.bo[previewer_bufnr].modifiable = false
 
       vim.keymap.set('n', '<Tab>', function()
-        vim.cmd(string.format('noautocmd lua vim.api.nvim_set_current_win(%s)', prompt_win))
+        require('utils.autocmd').noautocmd(function()
+          vim.api.nvim_set_current_win(prompt_win)
+        end)
       end, { buffer = previewer_bufnr })
 
       vim.keymap.set('n', 'q', function()
@@ -182,7 +184,9 @@ return {
         actions.select_default(prompt_bufnr)
       end, { buffer = previewer_bufnr })
 
-      vim.cmd(string.format('noautocmd lua vim.api.nvim_set_current_win(%s)', previewer_win_id))
+      require('utils.autocmd').noautocmd(function()
+        vim.api.nvim_set_current_win(previewer_win_id)
+      end)
     end
 
     vim.api.nvim_create_autocmd('User', {
