@@ -4,7 +4,7 @@ options=(
 	style=round
 	width=4.0
 	hidpi=on
-	order=above
+	# order=above
 	active_color=0xff89b4fa
 )
 
