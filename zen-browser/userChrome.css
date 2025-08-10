@@ -1,22 +1,18 @@
-/* Catppuccin Mocha Blue userChrome.css*/
-
-/* Not included in the official */
 * {
-  font-family: 'SF Pro Rounded' !important;
+  font-family: 'Maple Mono NF' !important;
 }
 
-.tab-label-container:not([selected], [multiselected]) {
-  opacity: 1 !important;
+
+#tabbrowser-tabs {
+  @media (-moz-platform: macos) {
+    font-size: 1.2rem !important;
+  }
 }
 
-.urlbarView-row {
-  color: rgba(255, 255, 255, 0.9) !important;
-}
+/* Catppuccin Mocha Blue userChrome.css*/
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --toolbox-textcolor-inactive: #fff !important;
-
     --zen-colors-primary: #313244 !important;
     --zen-primary-color: #89b4fa !important;
     --zen-colors-secondary: #313244 !important;
@@ -41,7 +37,7 @@
     --toolbox-bgcolor-inactive: #181825 !important;
   }
 
-  #permissions-granted-icon{
+  #permissions-granted-icon {
     color: #181825 !important;
   }
 
@@ -134,7 +130,12 @@
     --identity-tab-color: #cba6f7 !important;
     --identity-icon-color: #cba6f7 !important;
   }
+
+  hbox#titlebar {
+    background-color: #181825 !important;
+  }
+
+  #zen-appcontent-navbar-container {
+    background-color: #181825 !important;
+  }
 }
-
-
-
