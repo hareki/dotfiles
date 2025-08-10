@@ -86,19 +86,6 @@
     }
   }
 
-  toolbar .toolbarbutton-1 {
-    &:not([disabled]) {
-      &:is([open], [checked])
-        > :is(
-          .toolbarbutton-icon,
-          .toolbarbutton-text,
-          .toolbarbutton-badge-stack
-        ) {
-        fill: #11111b;
-      }
-    }
-  }
-
   .identity-color-blue {
     --identity-tab-color: #89b4fa !important;
     --identity-icon-color: #89b4fa !important;
