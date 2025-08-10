@@ -3,6 +3,7 @@
 }
 
 
+/* Slightly bigger sidebar font size (1.1 => 1.2) */
 #tabbrowser-tabs {
   @media (-moz-platform: macos) {
     font-size: 1.2rem !important;
