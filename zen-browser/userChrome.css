@@ -10,6 +10,13 @@
   }
 }
 
+.zen-glance-sidebar-container {
+  & toolbarbutton {
+    /* Glance buttons */
+    background: #45475a !important;    
+  }
+}
+
 /* Catppuccin Mocha Blue userChrome.css*/
 
 @media (prefers-color-scheme: dark) {
