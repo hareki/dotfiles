@@ -65,6 +65,10 @@ return {
           height = preview_rows,
         },
         zindex = 200,
+
+        reuse_loaded_buf = false,
+        notify_on_toggle = false,
+        close_on_non_item = true,
       },
 
       keys = {
