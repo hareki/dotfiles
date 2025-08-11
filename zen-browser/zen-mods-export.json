@@ -1,0 +1,47 @@
+{
+  "906c6915-5677-48ff-9bfc-096a02a72379": {
+    "id": "906c6915-5677-48ff-9bfc-096a02a72379",
+    "name": "Floating Status Bar",
+    "description": "Mod for Zen Browser that detaches the status bar from the bottom left corner of the browser window.",
+    "homepage": "https://github.com/AmirhBeigi/zen-floating-statusbar/",
+    "style": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/906c6915-5677-48ff-9bfc-096a02a72379/chrome.css",
+    "readme": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/906c6915-5677-48ff-9bfc-096a02a72379/readme.md",
+    "image": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/906c6915-5677-48ff-9bfc-096a02a72379/image.png",
+    "author": "AmirhBeigi",
+    "version": "1.0.0",
+    "tags": [],
+    "createdAt": "2024-10-06",
+    "updatedAt": "2025-01-26",
+    "enabled": true
+  },
+  "4596d8f9-f0b7-4aeb-aa92-851222dc1888": {
+    "id": "4596d8f9-f0b7-4aeb-aa92-851222dc1888",
+    "name": "Only Close On Hover",
+    "description": "Show tab's close button only on hover, even on the active tab.",
+    "homepage": "",
+    "style": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/4596d8f9-f0b7-4aeb-aa92-851222dc1888/chrome.css",
+    "readme": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/4596d8f9-f0b7-4aeb-aa92-851222dc1888/readme.md",
+    "image": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/4596d8f9-f0b7-4aeb-aa92-851222dc1888/image.png",
+    "author": "p-sw",
+    "version": "1.0.0",
+    "tags": [],
+    "createdAt": "2024-10-12",
+    "updatedAt": "2025-01-26",
+    "enabled": true
+  },
+  "7d577b21-4685-4db2-bb17-d39d08eec199": {
+    "id": "7d577b21-4685-4db2-bb17-d39d08eec199",
+    "name": "Bleeding Corners Fix",
+    "description": "Fixes the white outlines (or artifacts) on the rounded corners that can appear on some pages. May cause higher GPU usage on some devices.",
+    "homepage": "https://github.com/rsiebertdev/zen-themes/tree/main/bleeding-corners-fix",
+    "style": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/7d577b21-4685-4db2-bb17-d39d08eec199/chrome.css",
+    "readme": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/7d577b21-4685-4db2-bb17-d39d08eec199/readme.md",
+    "image": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/7d577b21-4685-4db2-bb17-d39d08eec199/image.png",
+    "author": "rsiebertdev",
+    "version": "1.0.6",
+    "tags": [],
+    "createdAt": "2025-02-17",
+    "updatedAt": "2025-07-27",
+    "enabled": true
+  }
+}
