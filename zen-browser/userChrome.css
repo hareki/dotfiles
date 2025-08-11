@@ -17,6 +17,15 @@
   }
 }
 
+#zen-toast-container {
+  color: #11111b !important;
+  
+  & button {
+    color: inherit !important;
+    background-color: rgba(205, 214, 244, 0.4) !important;
+  }
+}
+
 /* Disable the sidebar from being dragged as a window */
 #TabsToolbar { -moz-window-dragging: no-drag !important; }
 
