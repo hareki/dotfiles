@@ -30,7 +30,7 @@
   "panelOffset": 10,
   "isOverrideColors": true,
   "resultFontColor": "#ced6f2",
-  "candidateFontColor": "#bcc1dc",
+  "candidateFontColor": "#a7acc5",
   "bgColor": "#454759",
   "isShowOptionsPageWhenUpdated": true,
   "isDebugMode": false
