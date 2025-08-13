@@ -72,20 +72,20 @@ return {
         DashboardFooter = { fg = palette.rosewater, italic = true },
 
         -- hareki/yanky.nvim
-        SystemYankHighlight = {
+        YankySystemYanked = {
           fg = palette.base,
           bg = palette.yellow,
         },
-        SystemPutHighlight = {
+        YankySystemPut = {
           fg = palette.base,
           bg = palette.peach,
         },
 
-        RegisterYankHighlight = {
+        YankyRegisterYanked = {
           fg = palette.base,
           bg = palette.blue,
         },
-        RegisterPutHighlight = {
+        YankyRegisterPut = {
           fg = palette.base,
           bg = palette.teal,
         },

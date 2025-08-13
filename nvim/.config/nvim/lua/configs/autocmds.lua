@@ -167,7 +167,6 @@ aucmd({ 'CursorMoved', 'ModeChanged' }, {
   end,
 })
 
--- Different yank colors based on the register name
 -- https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua#L17-L23
 aucmd('TextYankPost', {
   group = augroup('highlight_yank'),
@@ -178,20 +177,6 @@ aucmd('TextYankPost', {
       -- require("tiny-inline-diagnostic").disable()
       disable_doc_hl()
     end, 50)
-
-    local register = vim.v.event.regname
-    if vim.g.checking_same_term == 0 then
-      if register == '+' or register == '*' then
-        vim.highlight.on_yank({
-          higroup = 'SystemYankHighlight',
-        })
-      else
-        vim.highlight.on_yank({
-          higroup = 'RegisterYankHighlight',
-        })
-      end
-    end
-    -- vim.highlight.on_yank({ higroup = "YankRegisterHighlight" })
 
     -- Wait for the highlight to wear out before re-enabling it (default duration = 150ms, we wait for an extra 50ms just in case)
     vim.defer_fn(function()

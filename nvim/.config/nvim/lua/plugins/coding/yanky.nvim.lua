@@ -8,8 +8,7 @@ return {
   opts = {
     ring = { storage = 'sqlite' },
     highlight = {
-      -- Use our own aucmd to highlight on yank instead, to differentiate between clipboard and register yank
-      on_yank = false,
+      on_yank = true,
       on_put = true,
       timer = require('configs.common').PUT_HL_TIMER,
     },
