@@ -3,7 +3,7 @@
     font-family: 'Maple Mono NF' !important;
   }
 
-  /* Sidebar tabs styles */
+  /* ---- Sidebar tabs styles ---- */
   #tabbrowser-tabs {
     font-size: 14px !important;
     --tab-selected-textcolor: #89b4fa !important;
@@ -26,7 +26,7 @@
     }
   }
 
-  /* URL bar styles */
+  /* ---- URL bar styles ---- */
   /* Boxes appear when we type the prefix */
   #urlbar-search-mode-indicator,
   #urlbar-label-box {
@@ -35,6 +35,7 @@
   }
 
   .urlbarView-row {
+    /* Selected URL bar row */
     &[selected] {
       background-color: #89b4fa1a !important;
       & *,
@@ -42,13 +43,14 @@
         color: #89b4fa !important;
       }
 
+      /* Matching text in the URL bar */
       & strong {
         color: #f9e2af !important;
       }
     }
   }
 
-  /* URL bar input  */
+  /* ---- URL bar input  ---- */
   #urlbar[open][zen-floating-urlbar='true'] {
     font-size: 16px !important;
   }
@@ -82,7 +84,7 @@
     -moz-window-dragging: no-drag !important;
   }
 
-  /* Catppuccin Mocha Blue userChrome.css*/
+  /* ---- From https://github.com/catppuccin/zen-browser Mocha Blue with some modifications ---- */
   :root {
     --zen-colors-primary: #313244 !important;
     --zen-primary-color: #89b4fa !important;
