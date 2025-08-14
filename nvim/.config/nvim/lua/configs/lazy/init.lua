@@ -40,6 +40,7 @@ require('lazy').setup({
         'zip',
         'zipPlugin',
         'tar',
+        'matchparen',
         'tarPlugin',
         'getscript',
         'getscriptPlugin',

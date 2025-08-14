@@ -8,34 +8,6 @@ end
 
 local aucmd = vim.api.nvim_create_autocmd
 
-local function disable_doc_hl()
-  require('utils.ui').set_highlights({
-    LspReferenceRead = {
-      bg = 'none',
-    },
-    LspReferenceText = {
-      bg = 'none',
-    },
-    LspReferenceWrite = {
-      bg = 'none',
-    },
-  })
-end
-
-local function enable_doc_hl()
-  require('utils.ui').set_highlights({
-    LspReferenceRead = {
-      link = 'DocumentHighlight',
-    },
-    LspReferenceText = {
-      link = 'DocumentHighlight',
-    },
-    LspReferenceWrite = {
-      link = 'DocumentHighlight',
-    },
-  })
-end
-
 -- Check if we need to reload the file when it changed
 aucmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
   group = augroup('checktime'),
@@ -130,61 +102,6 @@ aucmd({ 'FileType' }, {
   pattern = { 'json', 'jsonc', 'json5' },
   callback = function()
     vim.opt_local.conceallevel = 0
-  end,
-})
-
--- Highlight all occurrences of selected text in visual mode
--- https://github.com/Losams/-VIM-Plugins/blob/master/checkSameTerm.vim
-vim.g.checking_same_term = 0
-aucmd({ 'CursorMoved', 'ModeChanged' }, {
-  pattern = '*',
-  -- Function to check the same term
-  callback = function()
-    local currentmode = vim.api.nvim_get_mode().mode
-    -- Check for any visual mode
-    if currentmode == 'v' or currentmode == 'V' or currentmode == '\22' then
-      vim.g.checking_same_term = 1
-      -- Backing up what we're having in the register
-      local s = vim.fn.getreg('"')
-
-      -- Get currently selected text by yanking them into the register
-      vim.cmd('silent! normal! ygv')
-      local search_term = vim.fn.getreg('"')
-      search_term = vim.fn.escape(search_term, '\\/'):gsub('\n', '\\n')
-      -- Check if the search term is not just blank space or newline characters
-      if search_term:match('^%s*$') == nil and search_term:match('^\\n*$') == nil then
-        vim.cmd('match DocumentHighlight /\\V' .. search_term .. '/')
-      else
-        vim.cmd('match none')
-      end
-
-      -- Restore the text back to the register after searching
-      vim.fn.setreg('"', s)
-      vim.g.checking_same_term = 0
-    else
-      vim.cmd('match none')
-    end
-  end,
-})
-
--- https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua#L17-L23
-aucmd('TextYankPost', {
-  group = augroup('highlight_yank'),
-  callback = function()
-    -- Ensure yank-related events are processed first
-    -- tiny-inline-diagnostic prevent the highlight on yank to work properly so we need to temporarily disable it during the highlight
-    vim.defer_fn(function()
-      -- require("tiny-inline-diagnostic").disable()
-      disable_doc_hl()
-    end, 50)
-
-    -- Wait for the highlight to wear out before re-enabling it (default duration = 150ms, we wait for an extra 50ms just in case)
-    vim.defer_fn(function()
-      -- require("tiny-inline-diagnostic").enable()
-      if vim.b.visual_multi == nil then
-        enable_doc_hl()
-      end
-    end, require('configs.common').PUT_HL_TIMER + 50)
   end,
 })
 

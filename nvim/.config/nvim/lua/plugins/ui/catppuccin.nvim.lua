@@ -11,7 +11,7 @@ return {
 
       return {
         WinSeparator = { fg = palette.blue },
-        Visual = { bold = false, bg = '#4f5164' }, -- Darkened version of surface2
+        Visual = { bg = '#4f5164', style = {} }, -- Darkened version of surface2
         DocumentHighlight = { bg = palette.surface0 },
 
         DiagnosticUnderlineInfo = { link = 'LspDiagnosticsUnderlineInformation' },
