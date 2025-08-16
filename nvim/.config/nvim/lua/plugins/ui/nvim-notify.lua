@@ -28,7 +28,7 @@ return {
     return {
       stages = 'static',
       timeout = 4000,
-      merge_duplicates = false,
+      merge_duplicates = true,
       max_height = function()
         return math.floor(vim.o.lines * max_size)
       end,

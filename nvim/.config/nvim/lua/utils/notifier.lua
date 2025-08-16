@@ -58,9 +58,12 @@ local function normalize_message(chunks, opts)
   local function on_open(win)
     local buf = vim.api.nvim_win_get_buf(win)
     apply_win_opts(win)
-    for _, r in ipairs(regions) do
-      vim.api.nvim_buf_add_highlight(buf, ns, r[3], 0, r[1], r[2])
-    end
+    vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
+    vim.schedule(function()
+      for _, r in ipairs(regions) do
+        vim.api.nvim_buf_add_highlight(buf, ns, r[3], 0, r[1], r[2])
+      end
+    end)
   end
 
   return plain, on_open
@@ -73,29 +76,50 @@ function M.notify(msg, opts)
   local is_markdown = not is_tuple_list(msg)
 
   -- Prepare the message/handler depending on the input shape
-  local on_open_cb
+  local apply_highlight
   if is_markdown then
     -- strings / list-of-strings: fall back to Treesitter markdown
     msg = type(msg) == 'table' and table.concat(msg, '\n') or msg
-    on_open_cb = function(win)
+    apply_highlight = function(win)
       apply_win_opts(win)
       vim.treesitter.start(vim.api.nvim_win_get_buf(win), 'markdown')
     end
   else
     ---@cast msg table
-    msg, on_open_cb = normalize_message(msg, opts)
+    msg, apply_highlight = normalize_message(msg, opts)
   end
 
   -- Allow callers to chain their own callback
   local user_on_open = opts.on_open
-  local function combined_open(win)
+  local autocmd_id = nil
+
+  local function merged_on_open(win)
+    local buf = vim.api.nvim_win_get_buf(win)
+
     if is_markdown then
-      local buf = vim.api.nvim_win_get_buf(win)
       vim.api.nvim_buf_set_option(buf, 'filetype', 'markdown')
     end
 
-    if on_open_cb then
-      on_open_cb(win)
+    if apply_highlight then
+      apply_highlight(win)
+
+      -- Set up autocmd to reapply highlighting on various events that could affect highlights
+      autocmd_id = vim.api.nvim_create_autocmd({
+        'TextChanged',
+        'TextChangedI', -- Content changes
+        'ColorScheme', -- Theme/colorscheme changes
+        'BufEnter',
+        'WinEnter', -- Window/buffer focus changes
+        'FileType', -- Filetype detection changes
+      }, {
+        buffer = buf,
+        callback = function()
+          if vim.api.nvim_win_is_valid(win) then
+            apply_highlight(win)
+          end
+        end,
+        desc = 'Reapply notifier highlighting on content or display changes',
+      })
     end
 
     if user_on_open then
@@ -108,10 +132,18 @@ function M.notify(msg, opts)
     end
   end
 
+  local function on_close()
+    if autocmd_id then
+      pcall(vim.api.nvim_del_autocmd, autocmd_id)
+      autocmd_id = nil
+    end
+  end
+
   local ret = vim[opts.once and 'notify_once' or 'notify'](msg, opts.level, {
     replace = opts.id and notif_ids[opts.id] or nil,
     title = opts.title or 'Notifier',
-    on_open = combined_open,
+    on_open = merged_on_open,
+    on_close = on_close,
   })
 
   if opts.id then

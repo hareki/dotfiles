@@ -19,13 +19,20 @@ return {
       mouse_mode = false,
       border = 'rounded',
       show_headers = false,
+      source_formatters = {
+        ts = function(diagnostic)
+          return require('utils.formatters.ts-errors').format(diagnostic, {
+            href = false,
+          })
+        end,
+      },
       improved_markdown = {
         replace_dashes = false,
         severity_renderer = {
-          ERROR = { text = icons.diagnostics.Error .. 'Error', hl = 'RenderMarkdownError' },
-          WARNING = { text = icons.diagnostics.Warn .. 'Warn', hl = 'RenderMarkdownWarn' },
-          INFO = { text = icons.diagnostics.Info .. 'Info', hl = 'RenderMarkdownInfo' },
-          HINT = { text = icons.diagnostics.Hint .. 'Hint', hl = 'RenderMarkdownHint' },
+          ERROR = { icon = icons.diagnostics.Error, hl = 'RenderMarkdownError' },
+          WARNING = { icon = icons.diagnostics.Warn, hl = 'RenderMarkdownWarn' },
+          INFO = { icon = icons.diagnostics.Info, hl = 'RenderMarkdownInfo' },
+          HINT = { icon = icons.diagnostics.Hint, hl = 'RenderMarkdownHint' },
         },
       },
       on_open = function(eagle_win, eagle_buf)
