@@ -110,7 +110,7 @@ function M.notify(msg, opts)
 
   local ret = vim[opts.once and 'notify_once' or 'notify'](msg, opts.level, {
     replace = opts.id and notif_ids[opts.id] or nil,
-    title = opts.title or 'Trouble',
+    title = opts.title or 'Notifier',
     on_open = combined_open,
   })
 

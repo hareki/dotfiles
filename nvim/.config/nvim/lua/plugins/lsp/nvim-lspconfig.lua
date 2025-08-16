@@ -17,11 +17,11 @@ return {
       -- },
 
       -- https://neovim.io/doc/user/diagnostic.html#vim.diagnostic.Opts.VirtualText
-      virtual_text = {
-        current_line = true,
-        source = false,
-        prefix = '●',
-      },
+      -- virtual_text = {
+      --   current_line = true,
+      --   source = false,
+      --   prefix = '●',
+      -- },
       underline = true,
       update_in_insert = true,
       severity_sort = true,

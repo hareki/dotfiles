@@ -1,4 +1,5 @@
 return {
+  -- noice.nvim will automatlically load this plugin when needed
   'rcarriga/nvim-notify',
   keys = {
     {
@@ -27,6 +28,7 @@ return {
     return {
       stages = 'static',
       timeout = 4000,
+      merge_duplicates = false,
       max_height = function()
         return math.floor(vim.o.lines * max_size)
       end,
@@ -79,12 +81,5 @@ return {
         })
       end,
     }
-  end,
-  config = function(_, opts)
-    local notify = vim.notify
-    require('notify').setup(opts)
-    -- HACK: restore vim.notify after notify setup and let `noice.nvim` take over
-    -- This is needed to have early notifications show up in `noice` history
-    vim.notify = notify
   end,
 }
