@@ -7,7 +7,6 @@ return {
       'nvim-telescope/telescope-fzf-native.nvim',
       build = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release',
     },
-    { 'nvim-telescope/telescope-ui-select.nvim' },
   },
   keys = {
     {
@@ -56,7 +55,10 @@ return {
     {
       '<leader>fy',
       function()
-        require('telescope').extensions.yank_history.yank_history({
+        local telescope = require('telescope')
+        telescope.load_extension('yank_history')
+
+        telescope.extensions.yank_history.yank_history({
           preview_title = require('configs.common').PREVIEW_TITLE,
         })
       end,
@@ -241,6 +243,10 @@ return {
             vertical = layout_config('sm'),
           },
         },
+        undo = {
+          use_delta = false, -- Can't switch to preview buffer when delta is enabled
+          saved_only = true,
+        },
       },
       defaults = {
         prompt_prefix = '   ',
@@ -356,7 +362,7 @@ return {
   config = function(_, opts)
     require('telescope').setup(opts)
 
-    for _, ext in ipairs({ 'ui-select', 'fzf', 'yank_history' }) do
+    for _, ext in ipairs({ 'fzf' }) do
       require('telescope').load_extension(ext)
     end
   end,
