@@ -6,7 +6,7 @@ return {
   },
 
   keys = function(_, keys)
-    local dropbar_pick_key = '<leader>d'
+    local dropbar_pick_key = '<leader>b'
     local wk = require('which-key')
 
     wk.add({

@@ -20,6 +20,9 @@ return {
       words = {
         enabled = true,
       },
+      bigfile = {
+        enabled = true,
+      },
       input = {
         enabled = true,
       },
