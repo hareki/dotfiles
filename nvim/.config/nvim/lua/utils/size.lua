@@ -4,7 +4,7 @@ local M = {}
 ---@return integer, integer
 function M.screen_size()
   local screen_w = vim.opt.columns:get()
-  local screen_h = vim.opt.lines:get() - vim.opt.cmdheight:get()
+  local screen_h = vim.opt.lines:get()
   return screen_w, screen_h
 end
 

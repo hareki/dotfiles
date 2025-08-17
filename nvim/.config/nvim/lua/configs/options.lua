@@ -20,7 +20,7 @@ local opt = vim.opt
 
 opt.number = true
 opt.relativenumber = true
-opt.numberwidth = 1 -- Make current line number and its relative line number on the same column (unless the number is too big)
+opt.numberwidth = 1
 
 -- opt.guicursor = "n-v:block,i-c-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkon1"
 -- opt.guicursor = "n-v:block,i-c-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait0-blinkon400-blinkoff250"
@@ -50,7 +50,7 @@ opt.breakindent = true
 opt.inccommand = 'split' -- Preview substitutions live, as you type!
 opt.cursorline = true -- Show which line your cursor is on
 opt.scrolloff = 6 -- Minimal number of screen lines to keep above and below the cursor.
-opt.signcolumn = 'yes' -- Always show the signcolumn, otherwise it would shift the text each time
+opt.signcolumn = 'number' -- Always show the signcolumn, otherwise it would shift the text each time
 opt.updatetime = 250 -- Decrease update time
 opt.timeoutlen = 300 -- Decrease mapped sequence wait time
 opt.wildmode = 'longest:full,full' -- Command-line completion mode

@@ -114,4 +114,4 @@ map('n', '<leader>T', function()
     { 'Added ', 'Normal' },
     { 'Test', 'NotifyWARNTitle' },
   }, { title = 'harpoon' })
-end, { desc = 'Find files' })
+end, { desc = 'Test' })
