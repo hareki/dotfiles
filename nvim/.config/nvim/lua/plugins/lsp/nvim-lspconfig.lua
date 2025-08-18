@@ -85,6 +85,7 @@ return {
 
     local base_on_attach = vim.lsp.config.eslint.on_attach
 
+    -- HINT: Restart eslint with `:LspRestart eslint`
     vim.lsp.config('eslint', {
       on_attach = function(client, bufnr)
         if not base_on_attach then
@@ -101,6 +102,57 @@ return {
           { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' },
           eslint_linter.run
         )
+      end,
+    })
+
+    vim.api.nvim_create_autocmd('LspAttach', {
+      callback = function(args)
+        local client = vim.lsp.get_client_by_id(args.data.client_id)
+        if not client or client.name ~= 'eslint' then
+          return
+        end
+
+        -- ask server to emit trace
+        client.notify('$/setTrace', { value = 'verbose' })
+
+        local store, max = {}, 200
+        local function push(line)
+          store[#store + 1] = line
+          if #store > max then
+            table.remove(store, 1)
+          end
+        end
+
+        local original_trace = client.handlers['$/logTrace']
+        local original_log = client.handlers['window/logMessage']
+          or vim.lsp.handlers['window/logMessage']
+
+        client.handlers['$/logTrace'] = function(err, params, ctx, cfg)
+          push(
+            ('%s %s%s'):format(os.date('%Y-%m-%d %H:%M:%S '), params.message, params.verbose or '')
+          )
+          if original_trace then
+            return original_trace(err, params, ctx, cfg)
+          end
+        end
+
+        client.handlers['window/logMessage'] = function(err, params, ctx, cfg)
+          local lvl = ({ 'Error', 'Warn', 'Info', 'Log' })[params.type] or tostring(params.type)
+          push(('%s [%s] %s'):format(os.date('%Y-%m-%d %H:%M:%S'), lvl, params.message))
+          if original_log then
+            original_log(err, params, ctx, cfg)
+          end
+        end
+
+        vim.api.nvim_create_user_command('EslintLog', function()
+          local buf = vim.api.nvim_create_buf(false, true)
+          vim.bo[buf].filetype = 'log'
+          vim.api.nvim_buf_set_lines(buf, 0, -1, false, store)
+          vim.cmd('botright 15split')
+          vim.api.nvim_win_set_buf(0, buf)
+        end, {
+          force = true, -- Override any previous definition
+        })
       end,
     })
   end,
