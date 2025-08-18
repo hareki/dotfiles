@@ -275,20 +275,5 @@ return {
     config = function(_, opts)
       require('nvim-tree').setup(opts)
     end,
-    init = function()
-      -- Open a floating tree automatically when Neovim starts on a directory
-      vim.api.nvim_create_autocmd('VimEnter', {
-        once = true,
-        callback = function(data)
-          -- Only act if the argument is a directory
-          if vim.fn.isdirectory(data.file) == 1 then
-            vim.cmd.cd(data.file) -- set cwd to that dir
-            tree.open()
-            -- For some reason BufEnter event can't fire at this point, so we have to manually toggle the preview
-            tree.toggle_preview(state.preview_on_focus)
-          end
-        end,
-      })
-    end,
   },
 }

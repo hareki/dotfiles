@@ -11,7 +11,6 @@ return {
   keys = {
     {
       '<leader><space>',
-      '<cmd>Telescope find_files<cr>',
       function()
         require('telescope.builtin').find_files()
       end,
@@ -93,6 +92,18 @@ return {
       -- vim.ui.select should already by overwritten telescope-ui-select at this point
       return vim.ui.select(items, opts, on_choice)
     end
+
+    -- Open telescope find_files when Neovim starts on a directory
+    vim.api.nvim_create_autocmd('VimEnter', {
+      once = true,
+      callback = function(data)
+        -- Only act if the argument is a directory
+        if vim.fn.isdirectory(data.file) == 1 then
+          vim.cmd.cd(data.file) -- set cwd to that dir
+          require('telescope.builtin').find_files()
+        end
+      end,
+    })
   end,
   opts = function()
     local state = require('telescope.state')
