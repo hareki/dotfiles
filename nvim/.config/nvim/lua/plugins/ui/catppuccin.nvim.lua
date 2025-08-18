@@ -8,6 +8,7 @@ return {
     custom_highlights = function(colors)
       ---@type palette
       local palette = colors
+      local latte = require('utils.ui').get_palette('latte')
 
       return {
         WinSeparator = { fg = palette.blue },
@@ -125,6 +126,16 @@ return {
         RainbowDelimiterGreen = {
           fg = palette.pink, -- avoid string color
         },
+
+        -- lewis6991/gitsigns.nvim
+        GitSignsStagedAddNr = { fg = latte.green },
+        GitSignsStagedUntrackedNr = { link = 'GitSignsStagedAddNr' },
+
+        GitSignsStagedChangeNr = { fg = latte.yellow },
+        GitSignsStagedChangedeleteNr = { link = 'GitSignsStagedChangeNr' },
+
+        GitSignsStagedDeleteNr = { fg = latte.red },
+        GitSignsStagedTopDeleteNr = { link = 'GitSignsStagedDeleteNr' },
       }
     end,
     integrations = {

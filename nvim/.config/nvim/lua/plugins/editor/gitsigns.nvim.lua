@@ -13,6 +13,8 @@ return {
     }):map('<leader>uG')
 
     return {
+      numhl = true,
+      signcolumn = false,
       signs = {
         add = { text = ' ┃' },
         change = { text = ' ┃' },
