@@ -185,61 +185,58 @@ return {
         on_attach = function(tree_bufnr)
           local api = require('nvim-tree.api')
 
-          local function map_opts(desc, ex)
-            return {
+          local map = function(mode, lhs, rhs, desc)
+            vim.keymap.set(mode, lhs, rhs, {
               desc = 'nvim-tree: ' .. desc,
-              buffer = ex or tree_bufnr,
+              buffer = tree_bufnr,
               noremap = true,
               silent = true,
               nowait = true,
-            }
+            })
           end
 
-          vim.keymap.set('n', '<C-t>', function()
+          map('n', '<C-t>', function()
             tree.switch_position('side')
             tree.open({ switching = true })
-          end, map_opts('Switch to side'))
+          end, 'Switch to side')
 
-          vim.keymap.set('n', '<Tab>', function()
+          map('n', '<Tab>', function()
             tree.toggle_focus()
-          end, map_opts('Preview'))
+          end, 'Preview')
 
-          vim.keymap.set('n', 'q', tree.close_all, map_opts('Close'))
-          vim.keymap.set('n', 'B', tree.toggle_preview, map_opts('Toggle preview'))
+          map('n', 'q', tree.close_all, 'Close')
+          map('n', 'B', tree.toggle_preview, 'Toggle preview')
 
-          vim.keymap.set('n', 'c', api.fs.copy.node, map_opts('Copy'))
-          vim.keymap.set('n', 'x', api.fs.cut, map_opts('Cut'))
-          vim.keymap.set('n', 'p', api.fs.paste, map_opts('Paste'))
+          map('n', 'c', api.fs.copy.node, 'Copy')
+          map('n', 'x', api.fs.cut, 'Cut')
+          map('n', 'p', api.fs.paste, 'Paste')
 
-          vim.keymap.set('n', '/', function()
+          map('n', '/', function()
             tree.toggle_preview(false)
             api.live_filter.start()
             state.live_filter_triggered = true
-          end, map_opts('Live Filter: Start'))
-          vim.keymap.set('n', '<Esc>', api.live_filter.clear, map_opts('Clear live filter'))
+          end, 'Live Filter: Start')
+          map('n', '<Esc>', api.live_filter.clear, 'Clear live filter')
 
-          vim.keymap.set('n', 'r', api.node.run.system, map_opts('Reveal in Finder'))
+          map('n', 'r', api.node.run.system, 'Reveal in Finder')
 
-          vim.keymap.set('n', 'd', api.fs.remove, map_opts('Delete'))
-          vim.keymap.set('n', 'y', api.fs.copy.filename, map_opts('Copy name'))
-          vim.keymap.set('n', 'Y', api.fs.copy.relative_path, map_opts('Copy relative path'))
+          map('n', 'd', api.fs.remove, 'Delete')
+          map('n', 'y', api.fs.copy.filename, 'Copy name')
+          map('n', 'Y', api.fs.copy.relative_path, 'Copy relative path')
 
-          vim.keymap.set('n', '<Right>', tree.create_node_action('expand'), map_opts('Expand node'))
-          vim.keymap.set('n', '<S-Right>', api.tree.expand_all, map_opts('Expand all nodes'))
-          vim.keymap.set(
-            'n',
-            '<Left>',
-            tree.create_node_action('collapse'),
-            map_opts('Collapse node')
-          )
-          vim.keymap.set('n', '<S-Left>', api.tree.collapse_all, map_opts('Collapse all nodes'))
-          vim.keymap.set('n', '<CR>', tree.create_node_action('toggle'), map_opts('Open'))
+          map('n', '<Right>', tree.create_node_action('expand'), 'Expand node')
+          map('n', '<S-Right>', api.tree.expand_all, 'Expand all nodes')
+          map('n', '<Left>', tree.create_node_action('collapse'), 'Collapse node')
+          map('n', '<S-Left>', api.tree.collapse_all, 'Collapse all nodes')
+          map('n', '<CR>', tree.create_node_action('toggle'), 'Open')
 
           vim.api.nvim_create_autocmd('BufEnter', {
             group = state.preview_watcher,
             callback = function(ev)
               if ev.buf == tree_bufnr then
-                tree.toggle_preview(state.preview_on_focus)
+                vim.schedule(function()
+                  tree.toggle_preview(state.preview_on_focus)
+                end)
                 return
               end
 

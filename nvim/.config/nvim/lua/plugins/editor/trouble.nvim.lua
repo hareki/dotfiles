@@ -17,7 +17,7 @@ return {
         return
       end
 
-      local function set_preview_keymap(key, callback)
+      local function map(key, callback)
         vim.keymap.set('n', key, callback, { buffer = preview.buf })
       end
 
@@ -27,13 +27,13 @@ return {
         vim.api.nvim_set_current_win(preview.win)
       end)
 
-      set_preview_keymap('<Tab>', function()
+      map('<Tab>', function()
         require('utils.autocmd').noautocmd(function()
           vim.api.nvim_set_current_win(trouble_win)
         end)
       end)
 
-      set_preview_keymap('<CR>', function()
+      map('<CR>', function()
         local View = require('trouble.view')
         local first_view = View.get({ open = true })[1]
         if first_view and preview.item then
@@ -41,7 +41,7 @@ return {
         end
       end)
 
-      set_preview_keymap('q', function()
+      map('q', function()
         require('utils.autocmd').noautocmd(function()
           vim.api.nvim_set_current_win(trouble_win)
         end)

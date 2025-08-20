@@ -183,19 +183,25 @@ return {
 
       vim.bo[previewer_bufnr].modifiable = false
 
-      vim.keymap.set('n', '<Tab>', function()
+      local map = function(mode, lhs, rhs)
+        vim.keymap.set(mode, lhs, rhs, {
+          buffer = previewer_bufnr,
+        })
+      end
+
+      map('n', '<Tab>', function()
         require('utils.autocmd').noautocmd(function()
           vim.api.nvim_set_current_win(prompt_win)
         end)
-      end, { buffer = previewer_bufnr })
+      end)
 
-      vim.keymap.set('n', 'q', function()
+      map('n', 'q', function()
         actions.close(prompt_bufnr)
-      end, { buffer = previewer_bufnr })
+      end)
 
-      vim.keymap.set('n', '<CR>', function()
+      map('n', '<CR>', function()
         actions.select_default(prompt_bufnr)
-      end, { buffer = previewer_bufnr })
+      end)
 
       require('utils.autocmd').noautocmd(function()
         vim.api.nvim_set_current_win(previewer_win_id)
@@ -212,9 +218,9 @@ return {
       end,
     })
 
-    --- @param prompt_bufnr integer
     --- @param direction 'up' | 'down'
     local function scroll_results(direction)
+      --- @param prompt_bufnr integer
       return function(prompt_bufnr)
         local status = state.get_status(prompt_bufnr)
         local winid = status.layout.results.winid
