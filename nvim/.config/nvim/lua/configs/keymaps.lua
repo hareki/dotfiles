@@ -57,7 +57,7 @@ local function async_style_enforce()
   end)
 end
 
-vim.keymap.set({ 'n', 'i' }, '<A-s>', function()
+map({ 'n', 'i' }, '<A-s>', function()
   async_style_enforce()
 end, { desc = 'Format (Prettier) + ESLint Fix All + Save' })
 

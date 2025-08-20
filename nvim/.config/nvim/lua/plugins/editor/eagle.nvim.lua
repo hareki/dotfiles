@@ -56,36 +56,29 @@ return {
         end
 
         local close_eagle = function()
-          vim.api.nvim_win_close(eagle_win, true)
+          pcall(vim.api.nvim_win_close, eagle_win, true)
         end
 
-        vim.keymap.set({ 'n', 'x' }, 'q', close_eagle, eagle_opts('Close eagle'))
-        vim.keymap.set({ 'n', 'x' }, '<Esc>', close_eagle, eagle_opts('Close eagle'))
-        vim.keymap.set({ 'n', 'x' }, '<PageUp>', '<C-u>', eagle_opts('Scroll up'))
-        vim.keymap.set({ 'n', 'x' }, '<PageDown>', '<C-d>', eagle_opts('Scroll down'))
-        vim.keymap.set({ 'n', 'x' }, '<Tab>', function()
+        local map = vim.keymap.set
+
+        map({ 'n', 'x' }, 'q', close_eagle, eagle_opts('Close eagle'))
+        map({ 'n', 'x' }, '<Esc>', close_eagle, eagle_opts('Close eagle'))
+        map({ 'n', 'x' }, '<PageUp>', '<C-u>', eagle_opts('Scroll up'))
+        map({ 'n', 'x' }, '<PageDown>', '<C-d>', eagle_opts('Scroll down'))
+        map({ 'n', 'x' }, '<Tab>', function()
           require('eagle').ignore_cursor_moved = true
           require('utils.autocmd').noautocmd(function()
-            vim.api.nvim.nvim_set_current_win(current_win)
+            vim.api.nvim_set_current_win(current_win)
           end)
         end, eagle_opts('Focus parent window'))
 
-        vim.keymap.set({ 'n', 'x' }, '<Esc>', close_eagle, current_opts('Close eagle'))
-        vim.keymap.set({ 'n', 'x' }, '<Tab>', function()
+        map({ 'n', 'x' }, '<Esc>', close_eagle, current_opts('Close eagle'))
+        map({ 'n', 'x' }, '<Tab>', function()
           require('eagle').ignore_cursor_moved = true
           require('utils.autocmd').noautocmd(function()
             vim.api.nvim_set_current_win(eagle_win)
           end)
         end, current_opts('Focus eagle window'))
-
-        vim.api.nvim_create_autocmd('WinClosed', {
-          once = true,
-          pattern = tostring(eagle_win),
-          callback = function()
-            pcall(vim.keymap.del, { 'n', 'x' }, '<Esc>', { buffer = current_buf })
-            pcall(vim.keymap.del, { 'n', 'x' }, '<Tab>', { buffer = current_buf })
-          end,
-        })
       end,
     }
   end,
