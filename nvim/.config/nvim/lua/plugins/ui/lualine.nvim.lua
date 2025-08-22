@@ -132,23 +132,16 @@ return {
           empty_comp,
 
           {
-            'filetype',
-            icon_only = true,
-            colored = false,
-            separator = { left = separator.left },
-            color = { bg = palette.mauve, fg = palette.mantle },
-          },
-          {
-            'filename',
-            fmt = function(filename)
-              return filename:gsub('NvimTree_%d+', 'NvimTree')
-            end,
-            padding = { left = 1 },
+            require('utils.tab').lualine_component,
+            icon = {
+              ' ',
+              color = { fg = palette.mantle, bg = palette.mauve },
+            },
             symbols = {
               modified = ' ',
               readonly = '󰌾',
             },
-            separator = { right = separator.right },
+            separator = { left = separator.left, right = separator.right },
             color = { fg = palette.mauve, bg = palette.surface0 },
           },
           {

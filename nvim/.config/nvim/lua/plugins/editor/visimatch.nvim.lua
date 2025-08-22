@@ -7,7 +7,7 @@ return {
   init = function()
     -- Load the plugin only when entering visual mode
     vim.api.nvim_create_autocmd('ModeChanged', {
-      pattern = { '*:v', '*:V', '*:\x16' }, -- v, V, <C-v>
+      pattern = { '*:v', '*:V' }, -- v, V, <C-v>
       once = true,
       callback = function()
         require('lazy').load({ plugins = { 'visimatch.nvim' } })

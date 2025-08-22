@@ -32,6 +32,7 @@ return {
           sort_mru = true,
           sort_lastused = true,
           initial_mode = 'normal',
+          entry_maker = require('plugins.editor.telescope.utils').shorten_entry_maker(),
         })
       end,
       desc = 'Buffers',
@@ -99,7 +100,9 @@ return {
       callback = function(data)
         -- Only act if the argument is a directory
         if vim.fn.isdirectory(data.file) == 1 then
-          vim.cmd.cd(data.file) -- set cwd to that dir
+          vim.cmd.cd(data.file) -- Set cwd to that dir
+          -- Prevent the blank buffer left by netrw from showing up in the buffer list
+          vim.bo[vim.api.nvim_get_current_buf()].buflisted = false
           require('telescope.builtin').find_files()
         end
       end,

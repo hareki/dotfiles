@@ -33,13 +33,18 @@ return {
           indicator = '',
         },
       },
+      kinds = {
+        symbols = {
+          Folder = '',
+        },
+      },
     },
 
     -- https://github.com/Bekaboo/dropbar.nvim?tab=readme-ov-file#bar
     -- intercept and limit the lsp items to avoid too deeply nested items
     bar = {
       truncate = false,
-      hover = false,
+      hover = true,
       sources = function(buf, _)
         -- Hide the dropbar when in diff view
         -- The second check is for when one buffer is closed
@@ -71,22 +76,34 @@ return {
         --   sources.path,
         -- }
 
-        local lsp_item_limit = 3
+        local path_item_limit = 5
+        local lsp_item_limit = 4
         local utils = require('dropbar.utils')
+
+        -- Limit path sources to 3 nearest parent directories
+        local path_sources = sources.path
+        local orig_path_get_symbols = path_sources.get_symbols
+
+        path_sources.get_symbols = function(...)
+          local symbols = orig_path_get_symbols(...)
+          -- Take the last 3 items (nearest parent directories)
+          local start_idx = math.max(1, #symbols - path_item_limit + 1)
+          return { unpack(symbols, start_idx, #symbols) }
+        end
 
         local lsp_sources = utils.source.fallback({
           sources.lsp,
           sources.treesitter,
         })
-        local orig_get_symbols = lsp_sources.get_symbols
+        local orig_lsp_get_symbols = lsp_sources.get_symbols
 
         lsp_sources.get_symbols = function(...)
-          local symbols = orig_get_symbols(...)
+          local symbols = orig_lsp_get_symbols(...)
           return { unpack(symbols, 1, math.min(#symbols, lsp_item_limit)) }
         end
 
         return {
-          sources.path,
+          path_sources,
           lsp_sources,
         }
       end,

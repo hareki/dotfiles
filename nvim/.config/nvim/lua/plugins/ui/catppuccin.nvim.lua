@@ -100,7 +100,8 @@ return {
         MiniIndentscopeSymbol = { fg = palette.blue },
 
         -- Bekaboo/dropbar.nvim
-        DropBarKindDir = { link = 'DropBarKindFile' },
+        DropBarKindDir = { fg = palette.text },
+        DropBarKindFile = { fg = palette.yellow, bold = true },
 
         -- hareki/trouble.nvim
         TroubleNormal = { link = 'NormalFloat' },
