@@ -53,6 +53,8 @@ return {
       end,
     })
 
+    local icons = require('configs.icons')
+
     return {
       theme = 'hyper',
       shortcut_type = 'letter',
@@ -73,7 +75,7 @@ return {
           enable = true,
           limit = 4,
           icon = '󰪺 ',
-          item_icon = '󰉋 ',
+          item_icon = icons.kinds.Folder,
           label = ' Projects',
         },
         shortcut = function()

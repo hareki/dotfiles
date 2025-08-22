@@ -101,7 +101,9 @@ return {
 
         -- Bekaboo/dropbar.nvim
         DropBarKindDir = { fg = palette.text },
-        DropBarKindFile = { fg = palette.yellow, bold = true },
+        DropBarKindFileBar = { fg = palette.yellow, bold = true },
+        DropBarIconUIIndicator = { fg = palette.blue, bg = nil },
+        DropBarMenuHoverIcon = { link = 'DropBarMenuIcon' }, -- Disable reversing color when hovering
 
         -- hareki/trouble.nvim
         TroubleNormal = { link = 'NormalFloat' },

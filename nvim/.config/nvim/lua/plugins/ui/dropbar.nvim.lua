@@ -1,5 +1,5 @@
 return {
-  'Bekaboo/dropbar.nvim',
+  'hareki/dropbar.nvim',
   event = 'LazyFile',
   dependencies = {
     'nvim-telescope/telescope-fzf-native.nvim',
@@ -23,6 +23,8 @@ return {
 
   opts = {
     menu = {
+      indicator_side = 'right',
+      preview = false,
       win_configs = {
         border = 'rounded',
       },
@@ -35,7 +37,7 @@ return {
       },
       kinds = {
         symbols = {
-          Folder = '',
+          -- Folder = '',
         },
       },
     },
@@ -80,16 +82,21 @@ return {
         local lsp_item_limit = 4
         local utils = require('dropbar.utils')
 
-        -- Limit path sources to 3 nearest parent directories
-        local path_sources = sources.path
-        local orig_path_get_symbols = path_sources.get_symbols
-
-        path_sources.get_symbols = function(...)
-          local symbols = orig_path_get_symbols(...)
-          -- Take the last 3 items (nearest parent directories)
-          local start_idx = math.max(1, #symbols - path_item_limit + 1)
-          return { unpack(symbols, start_idx, #symbols) }
-        end
+        local custom_path = {
+          get_symbols = function(b, win, cursor)
+            local syms = sources.path.get_symbols(b, win, cursor)
+            local start_idx = math.max(1, #syms - path_item_limit + 1)
+            syms = { unpack(syms, start_idx, #syms) }
+            if #syms > 0 then
+              -- Set a differet highlight group for the last item (the file name) to avoid affecting other places
+              local last = syms[#syms]
+              local hl = (win == vim.api.nvim_get_current_win()) and 'DropBarKindFileBar'
+                or 'DropBarKindFileBarNC'
+              last.name_hl = hl
+            end
+            return syms
+          end,
+        }
 
         local lsp_sources = utils.source.fallback({
           sources.lsp,
@@ -103,7 +110,7 @@ return {
         end
 
         return {
-          path_sources,
+          custom_path,
           lsp_sources,
         }
       end,
