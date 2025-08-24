@@ -1,19 +1,4 @@
 {
-  "906c6915-5677-48ff-9bfc-096a02a72379": {
-    "id": "906c6915-5677-48ff-9bfc-096a02a72379",
-    "name": "Floating Status Bar",
-    "description": "Mod for Zen Browser that detaches the status bar from the bottom left corner of the browser window.",
-    "homepage": "https://github.com/AmirhBeigi/zen-floating-statusbar/",
-    "style": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/906c6915-5677-48ff-9bfc-096a02a72379/chrome.css",
-    "readme": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/906c6915-5677-48ff-9bfc-096a02a72379/readme.md",
-    "image": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/906c6915-5677-48ff-9bfc-096a02a72379/image.png",
-    "author": "AmirhBeigi",
-    "version": "1.0.0",
-    "tags": [],
-    "createdAt": "2024-10-06",
-    "updatedAt": "2025-01-26",
-    "enabled": true
-  },
   "4596d8f9-f0b7-4aeb-aa92-851222dc1888": {
     "id": "4596d8f9-f0b7-4aeb-aa92-851222dc1888",
     "name": "Only Close On Hover",
@@ -26,6 +11,21 @@
     "version": "1.0.0",
     "tags": [],
     "createdAt": "2024-10-12",
+    "updatedAt": "2025-01-26",
+    "enabled": true
+  },
+  "906c6915-5677-48ff-9bfc-096a02a72379": {
+    "id": "906c6915-5677-48ff-9bfc-096a02a72379",
+    "name": "Floating Status Bar",
+    "description": "Mod for Zen Browser that detaches the status bar from the bottom left corner of the browser window.",
+    "homepage": "https://github.com/AmirhBeigi/zen-floating-statusbar/",
+    "style": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/906c6915-5677-48ff-9bfc-096a02a72379/chrome.css",
+    "readme": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/906c6915-5677-48ff-9bfc-096a02a72379/readme.md",
+    "image": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/906c6915-5677-48ff-9bfc-096a02a72379/image.png",
+    "author": "AmirhBeigi",
+    "version": "1.0.0",
+    "tags": [],
+    "createdAt": "2024-10-06",
     "updatedAt": "2025-01-26",
     "enabled": true
   },
@@ -42,6 +42,21 @@
     "tags": [],
     "createdAt": "2025-02-17",
     "updatedAt": "2025-07-27",
+    "enabled": true
+  },
+  "f7c71d9a-bce2-420f-ae44-a64bd92975ab": {
+    "id": "f7c71d9a-bce2-420f-ae44-a64bd92975ab",
+    "name": "Better Unloaded Tabs",
+    "description": "Makes unloaded tabs easier to notice by making them greyscale and transparent.",
+    "homepage": "https://github.com/Felkazz/zen-browser-better-unloaded-tabs",
+    "style": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/f7c71d9a-bce2-420f-ae44-a64bd92975ab/chrome.css",
+    "readme": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/f7c71d9a-bce2-420f-ae44-a64bd92975ab/readme.md",
+    "image": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/f7c71d9a-bce2-420f-ae44-a64bd92975ab/image.png",
+    "author": "Felkazz",
+    "version": "1.0.1",
+    "tags": [],
+    "createdAt": "2024-10-12",
+    "updatedAt": "2025-01-26",
     "enabled": true
   }
 }
