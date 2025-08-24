@@ -101,8 +101,13 @@ return {
         -- Only act if the argument is a directory
         if vim.fn.isdirectory(data.file) == 1 then
           vim.cmd.cd(data.file) -- Set cwd to that dir
-          -- Prevent the blank buffer left by netrw from showing up in the buffer list
-          vim.bo[vim.api.nvim_get_current_buf()].buflisted = false
+          local buf = vim.api.nvim_get_current_buf()
+          local win = vim.api.nvim_get_current_win()
+
+          -- Leftover buffer from opening a directory (netrw)
+          vim.bo[buf].buflisted = false
+          vim.bo[buf].bufhidden = 'wipe'
+          vim.wo[win].cursorline = false
           require('telescope.builtin').find_files()
         end
       end,

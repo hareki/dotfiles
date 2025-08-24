@@ -39,6 +39,9 @@ return {
         FloatBorder = { bg = palette.base, fg = palette.blue },
         FloatTitle = { bg = palette.base, fg = palette.blue },
 
+        LineNr = { fg = palette.overlay0 },
+        CursorLineNr = { fg = palette.blue },
+
         TabLine = {
           bg = palette.base,
           fg = palette.surface1,

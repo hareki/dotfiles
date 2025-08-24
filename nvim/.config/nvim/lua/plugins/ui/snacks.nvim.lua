@@ -4,7 +4,7 @@ return {
   priority = 100, -- The docs recommend loading this plugin early
   keys = {
     {
-      '<leader>gl',
+      '<leader>g',
       function()
         Snacks.lazygit()
       end,

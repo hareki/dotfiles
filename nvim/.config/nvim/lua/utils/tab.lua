@@ -17,20 +17,25 @@ local autocommand_group = vim.api.nvim_create_augroup('TabDefaultNames', { clear
 vim.api.nvim_create_autocmd('TabEnter', {
   group = autocommand_group,
   callback = function()
-    if not vim.t.tab_name or vim.t.tab_name == '' then
-      vim.t.tab_name = 'Tab ' .. current_tab_index()
-    end
-    pcall(function()
-      require('lualine').refresh({ place = { 'statusline' } })
+    vim.schedule(function()
+      local old_name = vim.t.tab_name
+      local diffview = require('diffview.lib').get_current_view()
+      if diffview then
+        vim.t.tab_name = 'Diffview'
+      else
+        vim.t.tab_name = 'Tab ' .. current_tab_index()
+      end
+
+      if old_name ~= vim.t.tab_name then
+        require('lualine').refresh({ place = { 'statusline' } })
+      end
     end)
   end,
 })
 
 vim.api.nvim_create_user_command('TabRename', function(command_opts)
   vim.t.tab_name = command_opts.args
-  pcall(function()
-    require('lualine').refresh({ place = { 'statusline' } })
-  end)
+  require('lualine').refresh({ place = { 'statusline' } })
 end, { nargs = 1 })
 
 return M

@@ -57,6 +57,11 @@ opt.wildmode = 'longest:full,full' -- Command-line completion mode
 opt.winminwidth = 5 -- Minimum window width
 opt.laststatus = 3 -- Global statusline
 
+-- For kevinhwang91/nvim-ufo
+opt.foldlevel = 99
+opt.foldlevelstart = 99
+opt.foldenable = true
+
 opt.showtabline = 0 -- Always hide the tabline
 -- https://github.com/nanozuki/tabby.nvim?tab=readme-ov-file#save-and-restore-in-session
 opt.sessionoptions = 'curdir,folds,globals,help,tabpages,terminal,winsize'
