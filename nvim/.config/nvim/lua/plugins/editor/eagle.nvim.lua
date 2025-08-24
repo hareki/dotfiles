@@ -64,7 +64,7 @@ return {
         eagle_map({ 'n', 'x' }, '<PageDown>', '<C-d>', 'Scroll down')
         eagle_map({ 'n', 'x' }, '<Tab>', function()
           require('eagle').ignore_cursor_moved = true
-          require('utils.autocmd').noautocmd(function()
+          require('utils.common').noautocmd(function()
             vim.api.nvim_set_current_win(current_win)
           end)
         end, 'Focus parent window')
@@ -72,7 +72,7 @@ return {
         current_map({ 'n', 'x' }, '<Esc>', close_eagle, 'Close eagle')
         current_map({ 'n', 'x' }, '<Tab>', function()
           require('eagle').ignore_cursor_moved = true
-          require('utils.autocmd').noautocmd(function()
+          require('utils.common').noautocmd(function()
             vim.api.nvim_set_current_win(eagle_win)
           end)
         end, 'Focus eagle window')

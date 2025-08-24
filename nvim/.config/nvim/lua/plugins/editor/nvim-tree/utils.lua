@@ -108,13 +108,13 @@ function M.toggle_tree_height(action)
     return
   end
 
-  local size_utils = require('utils.size')
-  local size = size_utils.popup_config('lg')
+  local ui_utils = require('utils.ui')
+  local size = ui_utils.popup_config('lg')
   local window_h = math.floor(size.height / 2)
   local half_height = window_h - 1 -- Minus 1 for the space between the two windows
 
   -- Have to add one extra row if the total height is an odd number to fill out the entire popup size
-  local offset = size_utils.popup_config('lg').height % 2 == 0 and 0 or 1
+  local offset = ui_utils.popup_config('lg').height % 2 == 0 and 0 or 1
   local full_height = window_h * 2 + offset
 
   local cfg = vim.api.nvim_win_get_config(tree_win)

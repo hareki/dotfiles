@@ -19,6 +19,11 @@ M.popup = {
     height = 0.8,
   },
 
+  md = {
+    width = 0.65,
+    height = 0.65,
+  },
+
   sm = {
     width = 0.5,
     height = 0.5,

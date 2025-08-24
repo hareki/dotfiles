@@ -12,7 +12,7 @@ return {
     },
   },
   opts = function()
-    local popup_config = require('utils.size').popup_config
+    local popup_config = require('utils.ui').popup_config
     local input_config = popup_config('input')
     local lg_float_config = popup_config('lg')
 

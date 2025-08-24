@@ -50,13 +50,25 @@ local diagnostic_goto = function(next, severity)
   end
 end
 
-map('n', '<leader>cd', vim.diagnostic.open_float, { desc = 'Line Diagnostics' })
-map('n', ']d', diagnostic_goto(true), { desc = 'Next Diagnostic' })
-map('n', '[d', diagnostic_goto(false), { desc = 'Prev Diagnostic' })
-map('n', ']e', diagnostic_goto(true, 'ERROR'), { desc = 'Next Error' })
-map('n', '[e', diagnostic_goto(false, 'ERROR'), { desc = 'Prev Error' })
-map('n', ']w', diagnostic_goto(true, 'WARN'), { desc = 'Next Warning' })
-map('n', '[w', diagnostic_goto(false, 'WARN'), { desc = 'Prev Warning' })
+map('n', '<leader>cd', vim.diagnostic.open_float, { desc = 'Line diagnostics' })
+map('n', ']d', diagnostic_goto(true), { desc = 'Next diagnostic' })
+map('n', '[d', diagnostic_goto(false), { desc = 'Prev diagnostic' })
+map('n', ']e', diagnostic_goto(true, 'ERROR'), { desc = 'Next error' })
+map('n', '[e', diagnostic_goto(false, 'ERROR'), { desc = 'Prev error' })
+map('n', ']w', diagnostic_goto(true, 'WARN'), { desc = 'Next warning' })
+map('n', '[w', diagnostic_goto(false, 'WARN'), { desc = 'Prev warning' })
+
+map('n', '<leader>tn', '<cmd>tabnew<cr>', { desc = 'New tab' })
+map('n', '<leader>t]', '<cmd>tabnext<cr>', { desc = 'Next tab' })
+map('n', '<leader>t[', '<cmd>tabprevious<cr>', { desc = 'Previous tab' })
+map('n', '<leader>td', '<cmd>tabclose<cr>', { desc = 'Close tab' })
+map('n', '<leader>tr', function()
+  vim.ui.input({ prompt = 'Tab name: ' }, function(input)
+    if input and input ~= '' then
+      vim.cmd('TabRename ' .. input)
+    end
+  end)
+end, { desc = 'Rename tab' })
 
 map('n', '<leader>T', function()
   notifier.info('Find files: **test**')

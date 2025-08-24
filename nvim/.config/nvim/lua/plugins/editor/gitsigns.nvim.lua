@@ -138,7 +138,7 @@ return {
                 end)
 
                 preview_map('n', '<Tab>', function()
-                  require('utils.autocmd').noautocmd(function()
+                  require('utils.common').noautocmd(function()
                     popup.ignore_cursor_moved = true
                     vim.api.nvim_set_current_win(current_win_id)
                   end)

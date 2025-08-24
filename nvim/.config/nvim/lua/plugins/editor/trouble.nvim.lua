@@ -9,10 +9,10 @@ return {
     'hareki/trouble.nvim',
     cmd = { 'Trouble' },
     opts = function()
-      local size_utils = require('utils.size')
+      local ui_utils = require('utils.ui')
       local size_configs = require('configs.size')
-      local preview_cols, preview_rows = size_utils.computed_size(size_configs.side_preview.md)
-      local panel_cols, _ = size_utils.computed_size(size_configs.side_panel.md)
+      local preview_cols, preview_rows = ui_utils.computed_size(size_configs.side_preview.md)
+      local panel_cols, _ = ui_utils.computed_size(size_configs.side_panel.md)
       local preview_width_offset = panel_cols + preview_cols + 3
       local preview_height_offset = math.floor((vim.opt.lines:get() - preview_rows) / 2) - 1
 
@@ -30,12 +30,12 @@ return {
 
         local trouble_win = vim.api.nvim_get_current_win()
 
-        require('utils.autocmd').noautocmd(function()
+        require('utils.common').noautocmd(function()
           vim.api.nvim_set_current_win(preview.win)
         end)
 
         map('<Tab>', function()
-          require('utils.autocmd').noautocmd(function()
+          require('utils.common').noautocmd(function()
             vim.api.nvim_set_current_win(trouble_win)
           end)
         end)
@@ -49,7 +49,7 @@ return {
         end)
 
         map('q', function()
-          require('utils.autocmd').noautocmd(function()
+          require('utils.common').noautocmd(function()
             vim.api.nvim_set_current_win(trouble_win)
           end)
           vim.api.nvim_win_close(preview.win, true)

@@ -160,12 +160,12 @@ return {
       -- 1. Collapse the blank row between *prompt* and *results*
       layout.results.line = layout.results.line - 1
       layout.results.height = layout.results.height + 1
-      local size_utils = require('utils.size')
+      local ui_utils = require('utils.ui')
 
       -- 2. Seems like telescope.nvim exclude the statusline when centering the layout,
       -- Which is different from our logic in `size_utils.get_float_config('lg')`
       -- So we need to adjust/shift the position if needed
-      local target_row = size_utils.popup_config(size, true).row
+      local target_row = ui_utils.popup_config(size, true).row
       -- The top most component is the prompt window, so we use it as the anchor to adjust the position
       local top_line = layout.prompt.line
 
@@ -203,7 +203,7 @@ return {
       end
 
       map('n', '<Tab>', function()
-        require('utils.autocmd').noautocmd(function()
+        require('utils.common').noautocmd(function()
           vim.api.nvim_set_current_win(prompt_win)
         end)
       end)
@@ -216,7 +216,7 @@ return {
         actions.select_default(prompt_bufnr)
       end)
 
-      require('utils.autocmd').noautocmd(function()
+      require('utils.common').noautocmd(function()
         vim.api.nvim_set_current_win(previewer_win_id)
       end)
     end

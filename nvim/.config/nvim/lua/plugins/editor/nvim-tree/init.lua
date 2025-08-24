@@ -69,7 +69,7 @@ return {
         local size_configs = require('configs.size')
 
         local side_preview = size_configs.side_preview
-        local size_utils = require('utils.size')
+        local size_utils = require('utils.ui')
         local size = size_utils.popup_config('lg')
 
         -- We need to fill the missing row if the total height is an odd number,
@@ -118,7 +118,7 @@ return {
     },
 
     opts = function()
-      local size_utils = require('utils.size')
+      local size_utils = require('utils.ui')
       local size_configs = require('configs.size')
       local icons = require('configs.icons')
 
@@ -248,6 +248,10 @@ return {
           map('n', '<Left>', tree.create_node_action('collapse'), 'Collapse node')
           map('n', '<S-Left>', api.tree.collapse_all, 'Collapse all nodes')
           map('n', '<CR>', tree.create_node_action('toggle'), 'Open')
+          map('n', 'g?', function()
+            api.tree.toggle_help()
+            vim.api.nvim_win_set_config(require('nvim-tree.help').winnr, { border = 'rounded' })
+          end, 'Help')
 
           vim.api.nvim_create_autocmd('BufEnter', {
             group = state.preview_watcher,

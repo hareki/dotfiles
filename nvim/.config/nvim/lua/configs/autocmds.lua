@@ -114,3 +114,23 @@ vim.api.nvim_create_autocmd('CmdwinEnter', {
     })
   end,
 })
+
+local autocommand_group = vim.api.nvim_create_augroup('TabDefaultNames', { clear = true })
+vim.api.nvim_create_autocmd('TabEnter', {
+  group = autocommand_group,
+  callback = function()
+    vim.schedule(function()
+      local old_name = vim.t.tab_name
+      local diffview = require('diffview.lib').get_current_view()
+      if diffview then
+        vim.t.tab_name = 'Diffview'
+      else
+        vim.t.tab_name = 'Tab ' .. require('utils.tab').current_tab_index()
+      end
+
+      if old_name ~= vim.t.tab_name then
+        require('lualine').refresh({ place = { 'statusline' } })
+      end
+    end)
+  end,
+})

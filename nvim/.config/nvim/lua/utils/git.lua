@@ -50,6 +50,8 @@ function M.format_branch_name(branch_name)
   elseif branch_display_mode == 'id_and_author' then
     return prefix .. '_' .. author_name
   end
+
+  return ''
 end
 
 --- Executes a shell command, optionally in a specified directory, and returns its output.
