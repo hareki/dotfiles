@@ -66,7 +66,6 @@ aucmd('FileType', {
     'neotest-summary',
     'notify',
     'qf',
-    'spectre_panel',
     'startuptime',
     'tsplayground',
   },

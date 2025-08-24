@@ -1,6 +1,6 @@
 ---@class configs.size.dimensions
----@field WIDTH number
----@field HEIGHT number
+---@field width number
+---@field height number
 
 ---@class configs.size
 ---@field popup configs.size.popup
@@ -11,17 +11,17 @@ local M = {}
 ---@class configs.size.popup
 ---@field lg configs.size.dimensions
 ---@field sm configs.size.dimensions
----@field WIDTH number
----@field HEIGHT number
+---@field width number
+---@field height number
 M.popup = {
   lg = {
-    WIDTH = 0.8,
-    HEIGHT = 0.8,
+    width = 0.8,
+    height = 0.8,
   },
 
   sm = {
-    WIDTH = 0.5,
-    HEIGHT = 0.5,
+    width = 0.5,
+    height = 0.5,
   },
 }
 
@@ -33,12 +33,12 @@ setmetatable(M.popup, {
 
 ---@class configs.size.side_preview
 ---@field md configs.size.dimensions
----@field WIDTH number
----@field HEIGHT number
+---@field width number
+---@field height number
 M.side_preview = {
   md = {
-    WIDTH = 0.5,
-    HEIGHT = 0.7,
+    width = 0.5,
+    height = 0.7,
   },
 }
 
@@ -50,12 +50,12 @@ setmetatable(M.side_preview, {
 
 ---@class configs.size.side_panel
 ---@field md configs.size.dimensions
----@field WIDTH number
----@field HEIGHT number
+---@field width number
+---@field height number
 M.side_panel = {
   md = {
-    WIDTH = 0.35,
-    HEIGHT = 1,
+    width = 0.35,
+    height = 1,
   },
 }
 

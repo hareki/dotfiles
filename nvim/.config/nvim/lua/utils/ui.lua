@@ -9,7 +9,7 @@ end
 
 --- A table of custom highlight groups and their corresponding styles.
 --- @param custom_highlights table<string, vim.api.keyset.highlight>
-M.set_highlights = function(custom_highlights)
+M.highlights = function(custom_highlights)
   for group, style in pairs(custom_highlights) do
     M.highlight(group, style)
   end
@@ -22,8 +22,21 @@ M.get_palette = function(name)
   return require('catppuccin.palettes').get_palette(name or 'mocha')
 end
 
+---@param register fun(palette: palette, sub_palette: palette): table<string, vim.api.keyset.highlight>
+M.catppuccin = function(register)
+  return {
+    'catppuccin/nvim',
+    opts = function(_, opts)
+      local palette = M.get_palette()
+      local sub_palette = M.get_palette('latte')
+      opts.custom_highlights =
+        vim.tbl_extend('error', opts.custom_highlights or {}, register(palette, sub_palette))
+    end,
+  }
+end
+
 ---@param size 'sm' | 'lg'
-function M.telescope_layout_config(size)
+function M.telescope_layout(size)
   return {
     size = size, -- Hint to calculate the position
     height = function()

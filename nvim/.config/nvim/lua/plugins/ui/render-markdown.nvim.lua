@@ -1,23 +1,30 @@
 return {
-  'MeanderingProgrammer/render-markdown.nvim',
-  ft = 'markdown',
-  dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' }, -- if you use standalone mini plugins
-  ---@module 'render-markdown'
-  ---@type render.md.UserConfig
-  opts = function()
+  require('utils.ui').catppuccin(function(palette)
     return {
-      completions = { blink = { enabled = true } },
-      callout = {
-        error = {
-          rendered = ' Error',
-        },
-        hint = {
-          highlight = 'RenderMarkdownHint',
-        },
-      },
-      quote = {
-        icon = '▌', -- Thinner line for quotes
-      },
+      RenderMarkdownCode = { bg = palette.base },
     }
-  end,
+  end),
+  {
+    'MeanderingProgrammer/render-markdown.nvim',
+    ft = 'markdown',
+    dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' }, -- if you use standalone mini plugins
+    ---@module 'render-markdown'
+    ---@type render.md.UserConfig
+    opts = function()
+      return {
+        completions = { blink = { enabled = true } },
+        callout = {
+          error = {
+            rendered = ' Error',
+          },
+          hint = {
+            highlight = 'RenderMarkdownHint',
+          },
+        },
+        quote = {
+          icon = '▌', -- Thinner line for quotes
+        },
+      }
+    end,
+  },
 }

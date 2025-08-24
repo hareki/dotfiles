@@ -3,15 +3,14 @@ return {
   name = 'catppuccin',
   lazy = false,
   priority = 1000, -- Should be loaded first to register the colorscheme correctly
-  opts = {
-    default_integrations = false,
-    custom_highlights = function(colors)
-      ---@type palette
-      local palette = colors
-      local latte = require('utils.ui').get_palette('latte')
+  opts = function()
+    local get_palette = require('catppuccin.palettes').get_palette
+    local palette = get_palette()
 
-      return {
-        WinSeparator = { fg = palette.blue },
+    return {
+      default_integrations = false,
+      custom_highlights = {
+        WinSeparator = { fg = palette.overlay0 },
         Visual = { bg = '#4f5164', style = {} }, -- Darkened version of surface2
         DocumentHighlight = { bg = palette.surface0 },
 
@@ -53,150 +52,62 @@ return {
         ['@markup.quote'] = { fg = palette.text },
         ['@markup.italic'] = { fg = palette.flamingo, italic = true },
         ['@markup.strong'] = { fg = palette.flamingo, bold = true },
-
-        -- MeanderingProgrammer/render-markdown.nvim
-        RenderMarkdownCode = { bg = palette.base },
-
-        -- hareki/grug-far.nvim
-        GrugFarResultsMatch = { link = 'Search' },
-        GrugFarPreview = { link = 'Search' },
-
-        -- hareki/dashboard-nvim
-        DashboardHeader = { fg = palette.blue },
-        DashboardShortcut = { fg = palette.yellow },
-        DashboardShortcut1 = { fg = palette.pink },
-        DashboardShortcut2 = { fg = palette.yellow },
-        DashboardShortcut3 = { fg = palette.green },
-        DashboardShortcut4 = { fg = palette.mauve },
-        DashboardShortcut5 = { fg = palette.red },
-        DashboardProjectTitle = { fg = palette.blue },
-        DashboardProjectIcon = { fg = palette.blue },
-        DashboardMruTitle = { fg = palette.blue },
-        DashboardFiles = { fg = palette.text },
-        DashboardFooter = { fg = palette.rosewater, italic = true },
-
-        -- hareki/yanky.nvim
-        YankySystemYanked = {
-          fg = palette.base,
-          bg = palette.yellow,
-        },
-        YankySystemPut = {
-          fg = palette.base,
-          bg = palette.peach,
-        },
-
-        YankyRegisterYanked = {
-          fg = palette.base,
-          bg = palette.blue,
-        },
-        YankyRegisterPut = {
-          fg = palette.base,
-          bg = palette.teal,
-        },
-
-        -- nvim-treesitter/nvim-treesitter-context
-        TreesitterContextBottom = { bold = false, italic = false },
-        TreesitterContext = { link = 'DocumentHighlight' },
-        TreesitterContextLineNumber = { link = 'DocumentHighlight' },
-
-        -- echasnovski/mini.indentscope
-        MiniIndentscopeSymbol = { fg = palette.blue },
-
-        -- Bekaboo/dropbar.nvim
-        DropBarKindDir = { fg = palette.text },
-        DropBarKindFileBar = { fg = palette.yellow, bold = true },
-        DropBarIconUIIndicator = { fg = palette.blue, bg = nil },
-        DropBarMenuHoverIcon = { link = 'DropBarMenuIcon' }, -- Disable reversing color when hovering
-
-        -- hareki/trouble.nvim
-        TroubleNormal = { link = 'NormalFloat' },
-        TroublePreview = { link = 'Search' },
-
-        -- nvim-tree/nvim-tree.lua
-        NvimTreeSignColumn = {
-          link = 'NormalFloat',
-        },
-        NvimTreeNormal = {
-          link = 'Normal',
-        },
-        NvimTreeCutHL = {
-          bg = palette.maroon,
-          fg = palette.base,
-        },
-        NvimTreeCopiedHL = {
-          bg = palette.surface2,
-          fg = palette.text,
-        },
-
-        -- hiphish/rainbow-delimiters.nvim
-        RainbowDelimiterGreen = {
-          fg = palette.pink, -- avoid string color
-        },
-
-        -- lewis6991/gitsigns.nvim
-        GitSignsStagedAddNr = { fg = latte.green },
-        GitSignsStagedUntrackedNr = { link = 'GitSignsStagedAddNr' },
-
-        GitSignsStagedChangeNr = { fg = latte.yellow },
-        GitSignsStagedChangedeleteNr = { link = 'GitSignsStagedChangeNr' },
-
-        GitSignsStagedDeleteNr = { fg = latte.red },
-        GitSignsStagedTopDeleteNr = { link = 'GitSignsStagedDeleteNr' },
-      }
-    end,
-    integrations = {
-      cmp = true,
-      dashboard = true,
-      nvimtree = true,
-      flash = true,
-      fzf = true,
-      grug_far = true,
-      gitsigns = true,
-      rainbow_delimiters = true,
-      lsp_trouble = true,
-      markdown = true,
-      render_markdown = true,
-      mini = true,
-      noice = true,
-      notify = true,
-      snacks = true,
-      telescope = true,
-      treesitter = true,
-      treesitter_context = true,
-      which_key = true,
-      dropbar = {
-        enabled = true,
-        color_mode = false, -- enable color for kind's texts, not just kind's icons
       },
-      native_lsp = {
-        enabled = true,
-        virtual_text = {
-          errors = { 'italic' },
-          hints = { 'italic' },
-          warnings = { 'italic' },
-          information = { 'italic' },
-          ok = { 'italic' },
+      integrations = {
+        cmp = true,
+        dashboard = true,
+        nvimtree = true,
+        flash = true,
+        fzf = true,
+        grug_far = true,
+        gitsigns = true,
+        diffview = true,
+        rainbow_delimiters = true,
+        lsp_trouble = true,
+        markdown = true,
+        render_markdown = true,
+        mini = true,
+        noice = true,
+        notify = true,
+        snacks = true,
+        telescope = true,
+        treesitter = true,
+        treesitter_context = true,
+        which_key = true,
+        dropbar = {
+          enabled = true,
+          color_mode = false, -- enable color for kind's texts, not just kind's icons
         },
-        underlines = {
-          errors = { 'undercurl' },
-          hints = { 'undercurl' },
-          warnings = { 'undercurl' },
-          information = { 'undercurl' },
-          ok = { 'undercurl' },
+        native_lsp = {
+          enabled = true,
+          virtual_text = {
+            errors = { 'italic' },
+            hints = { 'italic' },
+            warnings = { 'italic' },
+            information = { 'italic' },
+            ok = { 'italic' },
+          },
+          underlines = {
+            errors = { 'undercurl' },
+            hints = { 'undercurl' },
+            warnings = { 'undercurl' },
+            information = { 'undercurl' },
+            ok = { 'undercurl' },
+          },
+          inlay_hints = {
+            background = true,
+          },
         },
-        inlay_hints = {
-          background = true,
+        indent_blankline = {
+          enabled = true,
+        },
+        blink_cmp = {
+          enabled = true,
+          style = 'bordered',
         },
       },
-      indent_blankline = {
-        enabled = true,
-      },
-      blink_cmp = {
-        enabled = true,
-        style = 'bordered',
-      },
-    },
-  },
+    }
+  end,
   config = function(_, opts)
     require('catppuccin').setup(opts)
     vim.cmd.colorscheme('catppuccin-mocha')

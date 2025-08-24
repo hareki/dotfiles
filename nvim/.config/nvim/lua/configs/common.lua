@@ -1,14 +1,14 @@
 ---@class configs.common
 local M = {}
 
-M.JS_FILETYPES = {
+M.js_filetypes = {
   'javascript',
   'javascriptreact',
   'typescript',
   'typescriptreact',
 }
 
-M.PREVIEW_TITLE = 'Preview'
-M.PUT_HL_TIMER = 300
+M.preview_title = 'Preview'
+M.put_hl_timer = 300
 
 return M

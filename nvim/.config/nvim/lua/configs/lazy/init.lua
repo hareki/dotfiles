@@ -8,7 +8,7 @@ local lg = require('configs.size').popup.lg
 require('lazy').setup({
   version = '*',
   ui = {
-    size = { width = lg.WIDTH, height = lg.HEIGHT },
+    size = { width = lg.width, height = lg.height },
     border = 'rounded',
     backdrop = 100,
     title = ' Lazy ',

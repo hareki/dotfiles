@@ -2,7 +2,7 @@ return {
   'stevearc/conform.nvim',
   opts = function()
     local perttier_ft = {}
-    for _, ft in ipairs(require('configs.common').JS_FILETYPES) do
+    for _, ft in ipairs(require('configs.common').js_filetypes) do
       perttier_ft[ft] = { 'prettierd', 'prettier', stop_after_first = true }
     end
 

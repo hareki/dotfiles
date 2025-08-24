@@ -10,8 +10,8 @@ end
 
 function M.computed_size(size)
   local screen_w, screen_h = M.screen_size()
-  local width_in_cols = math.floor(screen_w * size.WIDTH)
-  local height_in_rows = math.floor(screen_h * size.HEIGHT)
+  local width_in_cols = math.floor(screen_w * size.width)
+  local height_in_rows = math.floor(screen_h * size.height)
   return width_in_cols, height_in_rows
 end
 
@@ -32,8 +32,8 @@ function M.popup_config(size, with_border)
     window_w = 60
     window_h = 1
   else
-    window_w = math.floor(screen_w * size_configs.popup[size].WIDTH)
-    window_h = math.floor(screen_h * size_configs.popup[size].HEIGHT)
+    window_w = math.floor(screen_w * size_configs.popup[size].width)
+    window_h = math.floor(screen_h * size_configs.popup[size].height)
   end
 
   -- Minus 1 to account for the border

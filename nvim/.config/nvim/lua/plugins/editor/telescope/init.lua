@@ -59,7 +59,7 @@ return {
         telescope.load_extension('yank_history')
 
         telescope.extensions.yank_history.yank_history({
-          preview_title = require('configs.common').PREVIEW_TITLE,
+          preview_title = require('configs.common').preview_title,
         })
       end,
       desc = 'Highlight Groups',
@@ -108,6 +108,11 @@ return {
           vim.bo[buf].buflisted = false
           vim.bo[buf].bufhidden = 'wipe'
           vim.wo[win].cursorline = false
+          vim.wo[win].number = false
+          vim.wo[win].relativenumber = false
+          vim.wo[win].signcolumn = 'no'
+          vim.wo[win].foldcolumn = '0'
+
           require('telescope.builtin').find_files()
         end
       end,
@@ -139,7 +144,7 @@ return {
     local default_picker_configs = {}
     for picker_name, _ in pairs(builtin) do
       default_picker_configs[picker_name] = {
-        preview_title = require('configs.common').PREVIEW_TITLE,
+        preview_title = require('configs.common').preview_title,
       }
     end
 
@@ -259,7 +264,7 @@ return {
       end
     end
 
-    local layout_config = require('utils.ui').telescope_layout_config
+    local layout_config = require('utils.ui').telescope_layout
 
     return {
       extensions = {

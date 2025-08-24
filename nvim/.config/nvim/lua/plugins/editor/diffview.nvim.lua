@@ -1,6 +1,6 @@
 return {
   'sindrets/diffview.nvim',
-  cmd = 'DiffviewOpen',
+  cmd = { 'DiffviewOpen', 'DiffviewFileHistory' },
   keys = {
     {
       '<leader>dc',
@@ -32,23 +32,37 @@ return {
   },
 
   opts = function()
+    local icons = require('configs.icons')
+    local panel_win_config = {
+      position = 'bottom',
+      height = 12,
+    }
     return {
+      enhanced_diff_hl = true,
+      icons = {
+        folder_closed = icons.explorer.folder,
+        folder_open = icons.explorer.folder_open,
+      },
+      signs = {
+        fold_closed = icons.explorer.collapsed,
+        fold_open = icons.explorer.expanded,
+      },
       file_panel = {
-        win_config = {
-          position = 'right',
-          width = 40,
-        },
+        win_config = panel_win_config,
+      },
+      file_history_panel = {
+        win_config = panel_win_config,
       },
       view = {
-
         merge_tool = {
           layout = 'diff3_mixed',
         },
       },
       hooks = {
-        view_opened = function()
-          -- Toggle off the file panel when view initially opens
-          require('diffview.actions').toggle_files()
+        view_opened = function(view)
+          if view.class:name() == 'DiffView' then
+            require('diffview.actions').toggle_files()
+          end
         end,
       },
     }

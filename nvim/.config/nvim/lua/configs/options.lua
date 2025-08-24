@@ -57,6 +57,9 @@ opt.wildmode = 'longest:full,full' -- Command-line completion mode
 opt.winminwidth = 5 -- Minimum window width
 opt.laststatus = 3 -- Global statusline
 
+-- https://github.com/sindrets/diffview.nvim?tab=readme-ov-file#tips-and-faq
+opt.fillchars:append({ diff = '╱' })
+
 -- For kevinhwang91/nvim-ufo
 opt.foldlevel = 99
 opt.foldlevelstart = 99

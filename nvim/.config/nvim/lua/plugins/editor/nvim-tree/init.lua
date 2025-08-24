@@ -2,6 +2,24 @@ local tree = require('plugins.editor.nvim-tree.utils')
 local state = tree.state
 
 return {
+  require('utils.ui').catppuccin(function(palette)
+    return {
+      NvimTreeSignColumn = {
+        link = 'NormalFloat',
+      },
+      NvimTreeNormal = {
+        link = 'Normal',
+      },
+      NvimTreeCutHL = {
+        bg = palette.maroon,
+        fg = palette.base,
+      },
+      NvimTreeCopiedHL = {
+        bg = palette.surface2,
+        fg = palette.text,
+      },
+    }
+  end),
   {
     'hareki/nvim-tree-preview.lua',
     opts = {
@@ -102,6 +120,7 @@ return {
     opts = function()
       local size_utils = require('utils.size')
       local size_configs = require('configs.size')
+      local icons = require('configs.icons')
 
       state.opts = {
         hijack_cursor = true, --Keeps the cursor on the first letter of the filename when moving in the tree.
@@ -126,23 +145,23 @@ return {
             git_placement = 'right_align',
             glyphs = {
               folder = {
-                arrow_closed = '',
-                arrow_open = '',
-                default = '',
-                open = '',
-                empty = '',
-                empty_open = '',
-                symlink = '',
-                symlink_open = '',
+                arrow_closed = icons.explorer.collapsed,
+                arrow_open = icons.explorer.expanded,
+                default = icons.explorer.folder,
+                open = icons.explorer.folder_open,
+                empty = icons.explorer.folder_empty,
+                empty_open = icons.explorer.folder_empty_open,
+                symlink = icons.explorer.folder_symlink,
+                symlink_open = icons.explorer.folder_symlink,
               },
               git = {
-                unstaged = '󰄱',
-                staged = '',
-                unmerged = '',
-                renamed = '󰁕',
-                untracked = '',
-                deleted = '',
-                ignored = '',
+                unstaged = icons.git.unstaged,
+                staged = icons.git.staged,
+                unmerged = icons.git.unmerged,
+                renamed = icons.git.renamed,
+                untracked = icons.git.untracked,
+                deleted = icons.git.deleted,
+                ignored = icons.git.ignored,
               },
             },
           },

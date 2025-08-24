@@ -2,9 +2,9 @@ return {
   'aznhe21/actions-preview.nvim',
   opts = {
     telescope = {
-      preview_title = require('configs.common').PREVIEW_TITLE,
+      preview_title = require('configs.common').preview_title,
       layout_config = {
-        vertical = require('utils.ui').telescope_layout_config('sm'),
+        vertical = require('utils.ui').telescope_layout('sm'),
       },
     },
   },

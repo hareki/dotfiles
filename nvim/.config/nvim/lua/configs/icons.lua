@@ -1,10 +1,4 @@
 ---@class configs.icons
----@field misc table<string, string>
----@field ft table<string, string>
----@field dap table<string, string | table<string, string>>
----@field diagnostics table<string, string>
----@field git table<string, string>
----@field kinds table<string, string>
 local M = {
   misc = {
     dots = '󰇘',
@@ -29,6 +23,22 @@ local M = {
     added = ' ',
     modified = ' ',
     removed = ' ',
+    unstaged = '󰄱',
+    staged = '',
+    unmerged = '',
+    renamed = '󰁕',
+    untracked = '',
+    deleted = '',
+    ignored = '',
+  },
+  explorer = {
+    collapsed = '',
+    expanded = '',
+    folder = '',
+    folder_open = '',
+    folder_empty = '',
+    folder_empty_open = '',
+    folder_symlink = '',
   },
   kinds = {
     Array = ' ',
