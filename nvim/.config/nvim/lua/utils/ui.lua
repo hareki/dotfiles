@@ -35,7 +35,7 @@ M.catppuccin = function(register)
   }
 end
 
----@param size 'sm' | 'lg'
+---@param size 'sm' | 'md' | 'lg'
 function M.telescope_layout(size)
   return {
     size = size, -- Hint to calculate the position

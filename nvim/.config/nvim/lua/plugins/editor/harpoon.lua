@@ -38,7 +38,7 @@ return {
 
       pickers
         .new({}, {
-          preview_title = require('configs.common').preview_title,
+          preview_title = require('plugins.editor.telescope.utils').preview_title,
           prompt_title = 'Harpoon',
           finder = require('telescope.finders').new_table({
             results = file_paths,

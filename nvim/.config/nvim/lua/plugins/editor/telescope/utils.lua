@@ -1,4 +1,6 @@
 local M = {}
+M.preview_title = 'Preview'
+
 -- remove bufnr + flags from Telescope buffers display
 function M.shorten_entry_maker(opts)
   local entry_display = require('telescope.pickers.entry_display')

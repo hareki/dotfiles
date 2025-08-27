@@ -31,7 +31,7 @@ return {
       highlight = {
         on_yank = true,
         on_put = true,
-        timer = require('configs.common').put_hl_timer,
+        timer = 300,
       },
       system_clipboard = {
         sync_with_ring = false,

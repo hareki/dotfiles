@@ -132,7 +132,7 @@ return {
           empty_comp,
 
           {
-            require('utils.tab').lualine_component,
+            require('utils.tab').lualine,
             icon = {
               ' ',
               color = { fg = palette.mantle, bg = palette.mauve },

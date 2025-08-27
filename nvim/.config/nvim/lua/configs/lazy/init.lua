@@ -14,13 +14,13 @@ require('lazy').setup({
     title = ' Lazy ',
   },
   spec = {
+    { import = 'plugins.ui' }, -- must be first for require('utils.ui').catppuccin to work correctly
     { import = 'plugins.ai' },
     { import = 'plugins.coding' },
     { import = 'plugins.editor' },
     { import = 'plugins.formatting' },
     { import = 'plugins.lsp' },
     { import = 'plugins.treesitter' },
-    { import = 'plugins.ui' },
   },
   checker = { enabled = false, notify = false },
   defaults = {
