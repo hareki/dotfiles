@@ -7,7 +7,7 @@ end
 function M.lualine()
   local name = vim.t.tab_name
   if not name or name == '' then
-    name = 'Tab ' .. M.current_tab_index()
+    name = 'tab ' .. M.current_tab_index()
   end
   return name
 end

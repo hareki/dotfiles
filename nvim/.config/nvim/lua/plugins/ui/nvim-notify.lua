@@ -23,7 +23,7 @@ return {
   },
   opts = function()
     local title_key = 'notify_title_with_hl'
-    local max_size = 0.75
+    local max_size = 0.5
 
     return {
       stages = 'static',

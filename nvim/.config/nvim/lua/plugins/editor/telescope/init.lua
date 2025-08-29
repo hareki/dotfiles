@@ -132,7 +132,6 @@ return {
       local state = require('telescope.state')
       local actions = require('telescope.actions')
       local action_set = require('telescope.actions.set')
-      local action_state = require('telescope.actions.state')
       local layout_strategies = require('telescope.pickers.layout_strategies')
       local builtin = require('telescope.builtin')
 
@@ -198,12 +197,16 @@ return {
 
       -- https://github.com/nvim-telescope/telescope.nvim/issues/2778#issuecomment-2202572413
       local toggle_focus_preview = function(prompt_bufnr)
-        local picker = action_state.get_current_picker(prompt_bufnr)
+        local actions_state = require('telescope.actions.state')
+        local telescope_state = require('telescope.state')
+        local reticle_utils = require('plugins.editor.reticle.utils')
+
+        local picker = actions_state.get_current_picker(prompt_bufnr)
         local prompt_win = picker.prompt_win
-        local previewer = picker.previewer
-        local previewer_win_id = previewer.state.winid
-        local previewer_bufnr = previewer.state.bufnr
-        local set_cursorline = require('plugins.editor.reticle.utils').set_cursorline
+        local status = telescope_state.get_status(prompt_bufnr)
+        local previewer_winid = status and status.preview_win or nil
+        local previewer_bufnr = previewer_winid and vim.api.nvim_win_get_buf(previewer_winid) or nil
+        local set_cursorline = reticle_utils.set_cursorline
 
         vim.bo[previewer_bufnr].modifiable = false
 
@@ -214,7 +217,7 @@ return {
         end
 
         map('n', '<Tab>', function()
-          set_cursorline(false, previewer_win_id)
+          set_cursorline(false, previewer_winid)
           require('utils.common').noautocmd(function()
             vim.api.nvim_set_current_win(prompt_win)
           end)
@@ -229,9 +232,9 @@ return {
         end)
 
         require('utils.common').noautocmd(function()
-          vim.api.nvim_set_current_win(previewer_win_id)
+          vim.api.nvim_set_current_win(previewer_winid)
           vim.schedule(function()
-            set_cursorline(true, previewer_win_id)
+            set_cursorline(true, previewer_winid)
           end)
         end)
       end
@@ -291,7 +294,7 @@ return {
             },
           },
           undo = {
-            use_delta = false, -- Can't switch to preview buffer when delta is enabled
+            use_delta = true,
             saved_only = true,
           },
         },

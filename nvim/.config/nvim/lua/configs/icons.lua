@@ -19,6 +19,15 @@ local M = {
     Hint = ' ',
     Info = ' ',
   },
+  file_status = {
+    -- modified = '',
+    -- modified = ' ',
+    -- modified = '󱗜 ',
+    modified = '󰪥 ',
+    readonly = '󰌾 ',
+    new = ' ',
+    unnamed = '',
+  },
   git = {
     added = ' ',
     modified = ' ',

@@ -71,6 +71,11 @@ map('n', '<leader>tr', function()
 end, { desc = 'Rename tab' })
 
 map('n', '<leader>T', function()
+  -- local progress = require('utils.progress').create({
+  --   pending_ms = 0,
+  --   client_name = 'stenfo',
+  -- })
+  -- progress:start('test')
   notifier.info('Find files: **test**')
   notifier.warn({
     { 'Added ', 'Normal' },

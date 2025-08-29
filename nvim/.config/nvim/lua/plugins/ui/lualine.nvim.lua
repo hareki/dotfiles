@@ -137,19 +137,8 @@ return {
               ' ',
               color = { fg = palette.mantle, bg = palette.mauve },
             },
-            symbols = {
-              modified = ' ',
-              readonly = '󰌾',
-            },
             separator = { left = separator.left, right = separator.right },
             color = { fg = palette.mauve, bg = palette.surface0 },
-          },
-          {
-            'branch',
-            icon = '',
-            fmt = git_utils.format_branch_name,
-            color = { fg = palette.subtext0, bg = palette.mantle },
-            padding = { left = 2, right = 0 },
           },
           {
             'diff',
@@ -169,6 +158,18 @@ return {
                 }
               end
             end,
+          },
+          {
+            'branch',
+            icon = '',
+            fmt = git_utils.format_branch_name,
+            color = { fg = palette.subtext0, bg = palette.mantle },
+            padding = { left = 2, right = 0 },
+          },
+          {
+            require('utils.buffer').lualine,
+            padding = { left = 2, right = 0 },
+            color = { fg = palette.peach },
           },
         },
         lualine_b = {},
@@ -192,7 +193,7 @@ return {
               info = icons.diagnostics.Info,
               hint = icons.diagnostics.Hint,
             },
-            always_visible = true,
+            -- always_visible = true,
             padding = { left = 0, right = 2 },
           },
 

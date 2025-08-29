@@ -2,6 +2,11 @@ return {
   'folke/noice.nvim',
   event = 'VeryLazy',
   opts = {
+    format = {
+      spinner = {
+        name = 'circleFullFixed',
+      },
+    },
     views = {
       cmdline_popup = {
         zindex = 999, -- Ensure cmdline popup is always on top
@@ -65,6 +70,12 @@ return {
     },
   },
   config = function(_, opts)
+    -- TODO: open a PR when Folke is active again maybe?
+    require('noice.util.spinners').spinners.circleFullFixed = {
+      frames = { '󰄰', '󰪞', '󰪟', '󰪠', '󰪢', '󰪣', '󰪤', '󰪥' },
+      interval = 120,
+    }
+
     -- HACK: noice shows messages from before it was enabled,
     -- but this is not ideal when Lazy is installing plugins,
     -- so clear the messages in this case.
