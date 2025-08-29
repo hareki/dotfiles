@@ -3,11 +3,20 @@
     font-family: 'Maple Mono NF' !important;
   }
   
+  /* ---- Zen workspaces button ---- */
+  #zen-workspaces-button {
+    & toolbarbutton {
+      &[active="true"], &:hover, &[dragged="true"] {
+        color: #89b4fa !important;
+      }
+    }
+  }
+  
   /* ---- Zen folder ---- */
   zen-folder {
-    --zen-folder-behind-bgcolor: #9399b2 !important;;
-    --zen-folder-front-bgcolor: #313244 !important;;
-    --zen-folder-stroke: #cdd6f4 !important;;
+    --zen-folder-behind-bgcolor: #9399b2 !important;
+    --zen-folder-front-bgcolor: #313244 !important;
+    --zen-folder-stroke: #cdd6f4 !important;
   }
   
   .tab-group-folder-icon {
