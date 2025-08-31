@@ -6,6 +6,7 @@ map({ 'n', 'x' }, '<A-c>', '"+y', { desc = 'Yank to system clipboard', remap = t
 map({ 'n', 'x' }, '<A-x>', '"+d', { desc = 'Cut to system clipboard', remap = true })
 map({ 'n', 'x' }, '<A-v>', '"+p', { desc = 'Paste from system clipboard', remap = true })
 map({ 'i' }, '<A-v>', '<C-o>"+p', { desc = 'Paste from system clipboard', remap = true })
+map({ 'n' }, '<Esc>', '<cmd>nohlsearch<cr>', { desc = 'Clear search highlight' })
 
 map({ 'n', 'i' }, '<A-s>', function()
   require('utils.formatters.async_style_enforcer').run()
@@ -18,12 +19,19 @@ map({ 'n', 'x' }, '<PageUp>', '<C-u>zz', { desc = 'Scroll up and center' })
 map({ 'n', 'x' }, '<PageDown>', '<C-d>zz', { desc = 'Scroll down and center' })
 
 map('x', 'x', '"0d', { desc = 'Cut to register 0' })
+map('n', 'P', '"0p', { desc = 'Paste from register 0', remap = true })
 
 map('v', '<leader>t', "ygvgc']p", {
   remap = true,
   silent = true,
   desc = 'Yank, comment, move below, and paste',
 })
+-- Trimmed, No indent/trailing
+map('n', 'yy', '^yg_', { desc = 'Yank line (trimmed)' })
+map('n', 'dd', function()
+  vim.cmd.normal({ args = { [[^dg_]] }, bang = true }) -- delete from first nonblank to last nonblank
+  vim.cmd.normal({ args = { [["_dd]] }, bang = true }) -- remove remaining indent + newline (blackhole)
+end, { desc = 'Delete line (trimmed)' })
 
 -- Better indenting
 map('v', '<', '<gv')

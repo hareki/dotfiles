@@ -76,7 +76,7 @@ return {
             preview_title = require('plugins.editor.telescope.utils').preview_title,
           })
         end,
-        desc = 'Highlight Groups',
+        desc = 'Yank history',
       },
 
       {
@@ -93,6 +93,13 @@ return {
           require('telescope.builtin').resume()
         end,
         desc = 'Last Picker',
+      },
+      {
+        '<leader>fR',
+        function()
+          require('telescope.builtin').registers()
+        end,
+        desc = 'Registers',
       },
     },
     init = function()

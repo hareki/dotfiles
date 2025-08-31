@@ -35,12 +35,32 @@ return {
         c = ai.gen_spec.treesitter({ a = '@class.outer', i = '@class.inner' }), -- class
         t = { '<([%p%w]-)%f[^<%w][^<>]->.-</%1>', '^<.->().*()</[^/]->$' }, -- tags
         d = { '%f[%d]%d+' }, -- digits
-        w = { -- Word with case
+        w = {
           {
+            -- Acronyms / ALL-CAPS segments (incl. digits)
+            -- e.g. "CONSTANT", "HTTP2"
+            '%f[%a%d]%u+%f[^%a%d]',
+            -- Acronym directly before CamelCase chunk
+            -- e.g. "XML" in "XMLHttpRequest"
+            '%f[%a%d]%u+%f[%u]',
+
+            -- Pascal/Camel subwords
+            -- e.g. "Http" in "XMLHttp"
             '%u[%l%d]+%f[^%l%d]',
-            '%f[%S][%l%d]+%f[^%l%d]',
-            '%f[%P][%l%d]+%f[^%l%d]',
-            '^[%l%d]+%f[^%l%d]',
+
+            -- lower/digit segments (snake parts like "constant" or "case2")
+            '%f[%a%d][%l%d]+%f[^%l%d]',
+
+            -- pure digit runs
+            '%f[%d]%d+%f[^%d]',
+          },
+          '^().*()$',
+        },
+        W = {
+          {
+            -- whole snake/scream chunk (letters/digits connected by underscores)
+            '%f[^_][%w]+_%w+[%w_]*%f[^%w_]', -- at least one underscore
+            '%f[%w][%w]+%f[^%w]', -- single chunk fallback
           },
           '^().*()$',
         },

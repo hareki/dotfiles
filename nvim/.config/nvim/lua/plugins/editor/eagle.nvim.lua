@@ -56,6 +56,8 @@ return {
 
         local close_eagle = function()
           pcall(vim.api.nvim_win_close, eagle_win, true)
+          vim.keymap.del({ 'n', 'x' }, '<Esc>', { buffer = current_buf })
+          vim.keymap.del({ 'n', 'x' }, '<Tab>', { buffer = current_buf })
         end
 
         eagle_map({ 'n', 'x' }, 'q', close_eagle, 'Close eagle')

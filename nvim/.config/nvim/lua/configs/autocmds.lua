@@ -104,7 +104,7 @@ aucmd({ 'FileType' }, {
   end,
 })
 
-vim.api.nvim_create_autocmd('CmdwinEnter', {
+aucmd('CmdwinEnter', {
   callback = function()
     -- Use the same keymap as switching to cmdline window mode (vim.opt.cedit) to switch back to cmdline mode
     vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-f>', '<C-c>')
@@ -116,7 +116,7 @@ vim.api.nvim_create_autocmd('CmdwinEnter', {
 })
 
 local autocommand_group = vim.api.nvim_create_augroup('TabDefaultNames', { clear = true })
-vim.api.nvim_create_autocmd('TabEnter', {
+aucmd('TabEnter', {
   group = autocommand_group,
   callback = function()
     vim.schedule(function()
@@ -132,5 +132,15 @@ vim.api.nvim_create_autocmd('TabEnter', {
         require('lualine').refresh({ place = { 'statusline' } })
       end
     end)
+  end,
+})
+
+aucmd('InsertEnter', {
+  callback = function()
+    if vim.v.hlsearch == 1 then
+      vim.schedule(function()
+        vim.cmd('nohlsearch')
+      end)
+    end
   end,
 })
