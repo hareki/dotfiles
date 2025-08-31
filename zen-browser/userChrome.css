@@ -3,6 +3,10 @@
     font-family: 'Maple Mono NF' !important;
   }
   
+  zen-workspace {
+    --zen-primary-color: #89b4fa !important;
+  }
+  
   /* ---- Zen workspaces button ---- */
   #zen-workspaces-button {
     & toolbarbutton {
