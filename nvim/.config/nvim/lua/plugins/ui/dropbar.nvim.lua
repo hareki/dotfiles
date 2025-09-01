@@ -111,10 +111,10 @@ return {
             sources.lsp,
             sources.treesitter,
           })
-          local orig_lsp_get_symbols = lsp_sources.get_symbols
+          local default_lsp_get_symbols = lsp_sources.get_symbols
 
           lsp_sources.get_symbols = function(...)
-            local symbols = orig_lsp_get_symbols(...)
+            local symbols = default_lsp_get_symbols(...)
             return { unpack(symbols, 1, math.min(#symbols, lsp_item_limit)) }
           end
 

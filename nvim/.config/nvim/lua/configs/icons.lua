@@ -6,6 +6,9 @@ local M = {
   ft = {
     octo = '',
   },
+  telescope = {
+    prompt_prefix = '   ',
+  },
   dap = {
     Stopped = { '󰁕 ', 'DiagnosticWarn', 'DapStoppedLine' },
     Breakpoint = ' ',

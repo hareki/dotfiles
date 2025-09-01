@@ -79,8 +79,17 @@ function M.popup_config(size, with_border)
     window_w = 60
     window_h = 1
   else
-    window_w = math.floor(screen_w * size_configs.popup[size].width)
-    window_h = math.floor(screen_h * size_configs.popup[size].height)
+    local dimensions = size_configs.popup[size]
+    window_w = math.floor(screen_w * dimensions.width)
+    window_h = math.floor(screen_h * dimensions.height)
+
+    if window_w < dimensions.min_width then
+      window_w = dimensions.min_width
+    end
+
+    if window_h < dimensions.min_height then
+      window_h = dimensions.min_height
+    end
   end
 
   -- Minus 1 to account for the border

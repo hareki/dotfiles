@@ -6,6 +6,7 @@ return {
       },
       TelescopeSelection = {
         fg = palette.blue,
+        style = {}, -- turn off the default bold
       },
       TelescopeSelectionCaret = {
         fg = palette.blue,
@@ -164,7 +165,7 @@ return {
         }
       end
 
-      local orig_vertical = layout_strategies.vertical
+      local default_vertical = layout_strategies.vertical
 
       -- Heavily modify the "vertical" strategy, the point is to merge prompt and results windows
       -- In general, this layout mimics the "dropdown" theme, but take the "previewer" panel into account of the height layout
@@ -172,7 +173,7 @@ return {
       layout_strategies.vertical = function(self, max_columns, max_lines, layout_config)
         local size = self.layout_config.vertical.size or 'lg'
         -- 0. Use the default vertical layout as the base
-        local layout = orig_vertical(self, max_columns, max_lines, layout_config)
+        local layout = default_vertical(self, max_columns, max_lines, layout_config)
         -- 1. Collapse the blank row between *prompt* and *results*
         layout.results.line = layout.results.line - 1
         layout.results.height = layout.results.height + 1
@@ -292,6 +293,7 @@ return {
       end
 
       local layout_config = require('utils.ui').telescope_layout
+      local default_get_status_text = require('telescope.config').values.get_status_text
 
       return {
         extensions = {
@@ -306,14 +308,30 @@ return {
           },
         },
         defaults = {
-          prompt_prefix = '   ',
-          selection_caret = ' ',
+          prompt_prefix = require('configs.icons').telescope.prompt_prefix,
+          -- selection_caret = ' ',
+          selection_caret = ' ',
+          entry_prefix = ' ', -- keep list text aligned
+          get_status_text = function(self, opts)
+            -- Prevent flashing the loading asterisk indicator
+            opts.completed = true
+            local text = default_get_status_text(self, opts)
+            if text == '' then
+              return ''
+            end
+
+            -- Remove spaces around /
+            return text:gsub('%s*/%s*', '/') .. ' '
+          end,
           -- Merge prompt and results windows
           results_title = false,
           -- https://github.com/nvim-telescope/telescope.nvim/blob/5972437de807c3bc101565175da66a1aa4f8707a/lua/telescope/themes.lua#L50
           borderchars = {
             prompt = { '─', '│', ' ', '│', '╭', '╮', '│', '│' },
-            results = { '─', '│', '─', '│', '├', '┤', '╯', '╰' },
+            -- Connected edges
+            -- results = { '─', '│', '─', '│', '├', '┤', '╯', '╰' },
+            -- Disconnected edges, similar to snacks picker
+            results = { '─', '│', '─', '│', '│', '│', '╯', '╰' },
             preview = { '─', '│', '─', '│', '╭', '╮', '╯', '╰' },
           },
 

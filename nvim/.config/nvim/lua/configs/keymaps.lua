@@ -78,7 +78,7 @@ map('n', '<leader>tr', function()
   end)
 end, { desc = 'Rename tab' })
 
-map('n', '<leader>T', function()
+map({ 'n', 'x' }, '<leader>T', function()
   -- local progress = require('utils.progress').create({
   --   pending_ms = 0,
   --   client_name = 'stenfo',

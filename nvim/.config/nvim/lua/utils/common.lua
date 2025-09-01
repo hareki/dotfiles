@@ -21,4 +21,14 @@ function M.list_extend(...)
   return result
 end
 
+function M.count_string_keys(t)
+  local n = 0
+  for k in pairs(t) do
+    if type(k) == 'string' then
+      n = n + 1
+    end
+  end
+  return n
+end
+
 return M
