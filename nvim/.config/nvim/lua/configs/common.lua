@@ -2,8 +2,8 @@
 local M = {}
 
 M.preview_title = {
-  telescope = 'Preview',
-  others = ' Preview ',
+  telescope = false,
+  others = '',
 }
 
 return M
