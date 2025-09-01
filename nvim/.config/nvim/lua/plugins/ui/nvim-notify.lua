@@ -30,10 +30,10 @@ return {
       timeout = 4000,
       merge_duplicates = true,
       max_height = function()
-        return math.floor(vim.o.lines * max_size)
+        return math.floor(vim.opt.lines:get() * max_size)
       end,
       max_width = function()
-        return math.floor(vim.o.columns * max_size)
+        return math.floor(vim.opt.columns:get() * max_size)
       end,
 
       render = function(bufnr, notif, hl, _)

@@ -67,7 +67,7 @@ end
 ---@field height   integer
 ---@field col      integer
 ---@field row      integer
----@param size 'lg' | 'md' | 'sm' | 'input'
+---@param size 'lg' | 'md' | 'sm' | 'input' | 'full'
 ---@param with_border boolean | nil
 ---@return WinConfig
 function M.popup_config(size, with_border)
@@ -80,14 +80,23 @@ function M.popup_config(size, with_border)
     window_h = 1
   else
     local dimensions = size_configs.popup[size]
-    window_w = math.floor(screen_w * dimensions.width)
-    window_h = math.floor(screen_h * dimensions.height)
+    if dimensions.width <= 1 then
+      window_w = math.floor(screen_w * dimensions.width)
+    else
+      window_w = dimensions.width
+    end
 
-    if window_w < dimensions.min_width then
+    if dimensions.height <= 1 then
+      window_h = math.floor(screen_h * dimensions.height)
+    else
+      window_h = dimensions.height
+    end
+
+    if dimensions.min_width and window_w < dimensions.min_width then
       window_w = dimensions.min_width
     end
 
-    if window_h < dimensions.min_height then
+    if dimensions.min_height and window_h < dimensions.min_height then
       window_h = dimensions.min_height
     end
   end

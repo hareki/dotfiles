@@ -29,7 +29,7 @@ return {
     opts = function()
       local popup_config = require('utils.ui').popup_config
       local input_config = popup_config('input')
-      local lazygit_config = popup_config('lg')
+      local lazygit_config = popup_config('full')
       local picker_config = popup_config('sm', true)
 
       ---@param direction 'up' | 'down'

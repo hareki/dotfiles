@@ -1,8 +1,8 @@
 ---@class configs.size.dimensions
 ---@field width number
 ---@field height number
----@field min_width number
----@field min_height number
+---@field min_width? number
+---@field min_height? number
 
 ---@class configs.size
 ---@field popup configs.size.popup
@@ -16,6 +16,11 @@ local M = {}
 ---@field width number
 ---@field height number
 M.popup = {
+  full = {
+    width = vim.opt.columns:get(),
+    height = vim.opt.lines:get() - 4, -- 2 for the top and bottom borders, 2 for winbar and statusline
+  },
+
   lg = {
     width = 0.8,
     height = 0.8,
