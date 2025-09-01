@@ -7,7 +7,7 @@ return {
       end,
     },
     telescope = {
-      preview_title = require('plugins.editor.telescope.utils').preview_title,
+      preview_title = require('configs.common').preview_title.telescope,
       layout_config = {
         vertical = require('utils.ui').telescope_layout('md'),
       },

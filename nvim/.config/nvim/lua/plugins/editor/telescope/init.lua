@@ -74,7 +74,7 @@ return {
           telescope.load_extension('yank_history')
 
           telescope.extensions.yank_history.yank_history({
-            preview_title = require('plugins.editor.telescope.utils').preview_title,
+            preview_title = require('configs.common').preview_title.telescope,
           })
         end,
         desc = 'Yank history',
@@ -161,7 +161,7 @@ return {
       local default_picker_configs = {}
       for picker_name, _ in pairs(builtin) do
         default_picker_configs[picker_name] = {
-          preview_title = require('plugins.editor.telescope.utils').preview_title,
+          preview_title = require('configs.common').preview_title.telescope,
         }
       end
 

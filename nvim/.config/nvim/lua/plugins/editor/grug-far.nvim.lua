@@ -53,7 +53,7 @@ return {
         previewWindow = {
           row = preview_height_offset,
           col = -preview_cols - 3,
-          title = ' ' .. require('plugins.editor.telescope.utils').preview_title .. ' ',
+          title = require('configs.common').preview_title.others,
           title_pos = 'center',
           width = preview_cols,
           height = preview_rows,

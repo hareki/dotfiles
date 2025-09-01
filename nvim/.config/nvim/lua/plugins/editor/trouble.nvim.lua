@@ -64,7 +64,7 @@ return {
           type = 'float',
           relative = 'win',
           border = 'rounded',
-          title = ' ' .. require('plugins.editor.telescope.utils').preview_title .. ' ',
+          title = require('configs.common').preview_title.others,
           title_pos = 'center',
           position = { preview_height_offset, -preview_width_offset },
           size = {
