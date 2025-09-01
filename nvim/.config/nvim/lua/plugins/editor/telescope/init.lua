@@ -74,7 +74,7 @@ return {
           telescope.load_extension('yank_history')
 
           telescope.extensions.yank_history.yank_history({
-            preview_title = require('plugins.editor.telescope.utils').preview_title,
+            -- No preview title since we're merging all windows
           })
         end,
         desc = 'Yank history',
@@ -157,11 +157,11 @@ return {
         end
       end
 
-      -- Unify the preview title for all pickers
+      -- Remove preview titles for all pickers to merge windows
       local default_picker_configs = {}
       for picker_name, _ in pairs(builtin) do
         default_picker_configs[picker_name] = {
-          preview_title = require('plugins.editor.telescope.utils').preview_title,
+          preview_title = false,
         }
       end
 
@@ -323,16 +323,17 @@ return {
             -- Remove spaces around /
             return text:gsub('%s*/%s*', '/') .. ' '
           end,
-          -- Merge prompt and results windows
+          -- Merge prompt, results, and preview windows
           results_title = false,
+          preview_title = false,
           -- https://github.com/nvim-telescope/telescope.nvim/blob/5972437de807c3bc101565175da66a1aa4f8707a/lua/telescope/themes.lua#L50
           borderchars = {
             prompt = { '─', '│', ' ', '│', '╭', '╮', '│', '│' },
             -- Connected edges
             -- results = { '─', '│', '─', '│', '├', '┤', '╯', '╰' },
             -- Disconnected edges, similar to snacks picker
-            results = { '─', '│', '─', '│', '│', '│', '╯', '╰' },
-            preview = { '─', '│', '─', '│', '╭', '╮', '╯', '╰' },
+            results = { '─', '│', ' ', '│', '│', '│', '│', '│' },
+            preview = { '─', '│', '─', '│', '│', '│', '╯', '╰' },
           },
 
           -- Make results appear from top to bottom
