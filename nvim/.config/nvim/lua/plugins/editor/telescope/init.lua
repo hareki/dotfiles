@@ -11,6 +11,8 @@ return {
       TelescopeSelectionCaret = {
         fg = palette.blue,
       },
+
+      TelescopeBufferMarker = { fg = palette.peach },
     }
   end),
   {
