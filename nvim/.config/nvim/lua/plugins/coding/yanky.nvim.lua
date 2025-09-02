@@ -39,37 +39,44 @@ return {
       },
     },
     keys = {
-      { 'y', '<Plug>(YankyYank)', mode = { 'n', 'x' }, desc = 'Yank text' },
-      { 'p', '<Plug>(YankyPutAfter)', mode = { 'n', 'x' }, desc = 'Put text after cursor' },
+      { 'y', '<Plug>(YankyYank)', mode = { 'n', 'x' }, desc = 'Yank Text' },
+      {
+        'Y',
+        '<Plug>(YankyYank)$',
+        mode = 'n',
+        desc = 'Yank Text to End',
+      },
+      { 'p', '<Plug>(YankyPutAfter)', mode = { 'n', 'x' }, desc = 'Put Text' },
+      -- Putting text in visual mode without overwriting the yank register
       {
         'p',
         '"_d<Plug>(YankyPutBefore)',
         mode = { 'x' },
-        desc = 'Put yanked text after cursor without overwriting register',
+        desc = 'Put Text',
+      },
+      {
+        'P',
+        '"_d"0<Plug>(YankyPutBefore)',
+        mode = { 'x' },
+        desc = 'Put Text from Register 0',
       },
 
       {
         'P',
         '"0<Plug>(YankyPutBefore)',
         mode = { 'n' },
-        desc = 'Put yanked text after cursor without overwriting register',
-      },
-      {
-        'P',
-        '"_d"0<Plug>(YankyPutBefore)',
-        mode = { 'x' },
-        desc = 'Put yanked text after cursor without overwriting register',
+        desc = 'Put Text from Register 0',
       },
 
       {
         '<S-Up>',
         '<Plug>(YankyPreviousEntry)',
-        desc = 'Select previous entry through yank history',
+        desc = 'Previous Yanky Entry',
       },
       {
         '<S-Down>',
         '<Plug>(YankyNextEntry)',
-        desc = 'Select next entry through yank history',
+        desc = 'Next Yanky Entry',
       },
     },
   },

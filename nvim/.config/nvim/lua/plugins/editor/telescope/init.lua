@@ -31,7 +31,7 @@ return {
         function()
           require('telescope.builtin').find_files()
         end,
-        desc = 'Files',
+        desc = 'Find Files',
       },
       {
         '<leader>fd',
@@ -40,7 +40,7 @@ return {
             bufnr = 0,
           })
         end,
-        desc = 'Diagnostics',
+        desc = 'Find Diagnostics',
       },
       {
         '<leader>fb',
@@ -52,21 +52,21 @@ return {
             entry_maker = require('plugins.editor.telescope.utils').shorten_entry_maker(),
           })
         end,
-        desc = 'Buffers',
+        desc = 'Find Buffers',
       },
       {
         '<leader>f/',
         function()
           require('telescope.builtin').live_grep()
         end,
-        desc = 'Live Grep',
+        desc = 'Find Text',
       },
       {
         '<leader>fh',
         function()
           require('telescope.builtin').highlights()
         end,
-        desc = 'Highlight Groups',
+        desc = 'Find Highlight Groups',
       },
 
       {
@@ -79,7 +79,7 @@ return {
             preview_title = require('configs.common').preview_title.telescope,
           })
         end,
-        desc = 'Yank history',
+        desc = 'Open Yank History',
       },
 
       {
@@ -87,7 +87,7 @@ return {
         function()
           require('telescope.builtin').git_branches()
         end,
-        desc = 'Git Branches',
+        desc = 'Find Git Branches',
       },
 
       {
@@ -95,14 +95,14 @@ return {
         function()
           require('telescope.builtin').resume()
         end,
-        desc = 'Last Picker',
+        desc = 'Open Last Picker',
       },
       {
         '<leader>fR',
         function()
           require('telescope.builtin').registers()
         end,
-        desc = 'Registers',
+        desc = "Find Registers' Contents",
       },
     },
     init = function()

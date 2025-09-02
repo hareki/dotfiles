@@ -22,7 +22,7 @@ return {
           false -- not literally; integrate with typeahead
         )
       end
-    end, { desc = 'Repeat last text-object selection' })
+    end, { desc = 'Repeat Last text-object Selection' })
 
     return {
       n_lines = 500,

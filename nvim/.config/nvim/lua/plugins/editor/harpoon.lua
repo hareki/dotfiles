@@ -80,14 +80,14 @@ return {
             { relpath, 'NotifyWARNTitle' },
           }, { title = 'harpoon' })
         end,
-        desc = 'Harpoon File',
+        desc = 'Harpoon Current File',
       },
       {
-        '<leader>h',
+        '<leader>fp',
         function()
           toggle_telescope(harpoon:list())
         end,
-        desc = 'Harpoon quick menu',
+        desc = 'Harpoon: Quick Menu',
       },
     }
 
@@ -97,7 +97,7 @@ return {
         function()
           require('harpoon'):list():select(i)
         end,
-        desc = 'Harpoon to File ' .. i,
+        desc = 'Harpoon: File ' .. i,
       })
     end
     return keys

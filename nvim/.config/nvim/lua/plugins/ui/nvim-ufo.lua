@@ -15,10 +15,10 @@ return {
         vim.schedule(function()
           vim.keymap.set('n', '<Esc>', function()
             require('ufo.preview').close()
-          end, { buffer = buf, silent = true, desc = 'Close fold preview' })
+          end, { buffer = buf, silent = true, desc = 'Close Fold Preview' })
         end)
       end,
-      desc = 'Peek folded lines',
+      desc = 'Peek Folded Lines',
     },
   },
   opts = {

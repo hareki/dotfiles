@@ -6,28 +6,28 @@ return {
       function()
         require('debugprint.printtag_operations').show_debug_prints_fuzzy_finder()
       end,
-      desc = 'Debug prints',
+      desc = 'Debug Prints: Find',
     },
     {
       '<leader>?r',
       function()
         require('debugprint.counter').reset_debug_prints_counter()
       end,
-      desc = 'Reset counter',
+      desc = 'Reset Counter',
     },
     {
       '<leader>?d',
       function()
         require('debugprint.printtag_operations').deleteprints()
       end,
-      desc = 'Delete',
+      desc = 'Debug Prints: Delete All',
     },
     {
       '<leader>?t',
       function()
         require('debugprint.printtag_operations').toggle_comment_debugprints()
       end,
-      desc = 'Toggle',
+      desc = 'Debug Prints: Toggle Comments',
     },
     {
       '<leader>?v',
@@ -36,7 +36,7 @@ return {
           variable = true,
         })
       end,
-      desc = 'Variable (below)',
+      desc = 'Debug Prints: Put Variable Below',
     },
     {
       '<leader>?V',
@@ -46,14 +46,14 @@ return {
           surround = true,
         })
       end,
-      desc = 'Variable (surround)',
+      desc = 'Debug Prints: Put Variable Surround',
     },
     {
       '<leader>?p',
       function()
         require('debugprint').debugprint({})
       end,
-      desc = 'Plain text',
+      desc = 'Debug Prints: Put Plain Text Below',
     },
   },
   opts = {

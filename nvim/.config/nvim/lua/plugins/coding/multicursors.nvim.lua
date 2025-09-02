@@ -25,7 +25,7 @@ return {
           Snacks.words.disable()
           vim.cmd.MCstart()
         end,
-        desc = 'Multicursors start',
+        desc = 'Multicursors: Start',
       },
     },
 
@@ -57,37 +57,37 @@ return {
       return {
         default_mappings = false,
         normal_keys = {
-          ['n'] = { method = N.find_next, opts = { desc = 'Next match' } },
-          ['N'] = { method = N.find_prev, opts = { desc = 'Previous match' } },
+          ['n'] = { method = N.find_next, opts = { desc = 'Next Match' } },
+          ['N'] = { method = N.find_prev, opts = { desc = 'Previous Match' } },
 
           ['r'] = { method = N.replace, opts = { desc = 'Replace' } },
 
           ['d'] = { method = N.delete, opts = { desc = 'Delete', nowait = false } },
-          ['dd'] = { method = N.delete_line, opts = { desc = 'Delete line' } },
-          ['D'] = { method = N.delete_end, opts = { desc = 'Delete end' } },
+          ['dd'] = { method = N.delete_line, opts = { desc = 'Delete Line' } },
+          ['D'] = { method = N.delete_end, opts = { desc = 'Delete End' } },
 
           ['y'] = { method = N.yank, opts = { desc = 'Yank', nowait = false } },
-          ['yy'] = { method = N.yank_line, opts = { desc = 'Yank line' } },
-          ['Y'] = { method = N.yank_end, opts = { desc = 'Yank end' } },
+          ['yy'] = { method = N.yank_line, opts = { desc = 'Yank Line' } },
+          ['Y'] = { method = N.yank_end, opts = { desc = 'Yank End' } },
 
-          ['s'] = { method = N.skip_find_next, opts = { desc = 'Skip and next' } },
-          ['S'] = { method = N.skip_find_prev, opts = { desc = 'Skip and previous' } },
+          ['s'] = { method = N.skip_find_next, opts = { desc = 'Skip and Next' } },
+          ['S'] = { method = N.skip_find_prev, opts = { desc = 'Skip and Previous' } },
 
-          ['p'] = { method = N.paste_after, opts = { desc = 'Paste after' } },
-          ['P'] = { method = N.paste_before, opts = { desc = 'Paste before' } },
+          ['p'] = { method = N.paste_after, opts = { desc = 'Paste After' } },
+          ['P'] = { method = N.paste_before, opts = { desc = 'Paste Before' } },
 
-          ['}'] = { method = N.skip_goto_next, opts = { desc = 'Undo next match' } },
-          ['{'] = { method = N.skip_goto_prev, opts = { desc = 'Undo previous match' } },
-          [']'] = { method = N.goto_next, opts = { desc = 'Goto next match' } },
-          ['['] = { method = N.goto_prev, opts = { desc = 'Goto previous match' } },
-          ['@'] = { method = N.run_macro, opts = { desc = 'Run macro' } },
-          [':'] = { method = N.normal_command, opts = { desc = 'Normal command' } },
-          ['.'] = { method = N.dot_repeat, opts = { desc = 'Dot repeat' } },
+          ['}'] = { method = N.skip_goto_next, opts = { desc = 'Undo Next Match' } },
+          ['{'] = { method = N.skip_goto_prev, opts = { desc = 'Undo Previous Match' } },
+          [']'] = { method = N.goto_next, opts = { desc = 'Goto Next Match' } },
+          ['['] = { method = N.goto_prev, opts = { desc = 'Goto Previous Match' } },
+          ['@'] = { method = N.run_macro, opts = { desc = 'Run Macro' } },
+          [':'] = { method = N.normal_command, opts = { desc = 'Normal Command' } },
+          ['.'] = { method = N.dot_repeat, opts = { desc = 'Dot Repeat' } },
 
-          ['gU'] = { method = N.upper_case, opts = { desc = 'Upper case' } },
-          ['gu'] = { method = N.lower_case, opts = { desc = 'lower case' } },
+          ['gU'] = { method = N.upper_case, opts = { desc = 'Uppercase' } },
+          ['gu'] = { method = N.lower_case, opts = { desc = 'Lowercase' } },
 
-          ['<C-a>'] = { method = N.find_all_matches, opts = { desc = 'All matches' } },
+          ['<C-a>'] = { method = N.find_all_matches, opts = { desc = 'All Matches' } },
         },
 
         insert_keys = {
@@ -97,43 +97,43 @@ return {
 
           ['<A-BS>'] = {
             method = I.C_w_method,
-            opts = { desc = 'Delete word backward' },
+            opts = { desc = 'Delete Word Backward' },
           },
 
-          ['<A-Right>'] = { method = I.C_Right, opts = { desc = 'Word forward' } },
-          ['<A-Left>'] = { method = I.C_Left, opts = { desc = 'Word backward' } },
+          ['<A-Right>'] = { method = I.C_Right, opts = { desc = 'Word Forward' } },
+          ['<A-Left>'] = { method = I.C_Left, opts = { desc = 'Word Backward' } },
 
           ['<Esc>'] = { method = nil, opts = { desc = 'exit' } },
 
           ['<End>'] = {
             method = I.End_method,
-            opts = { desc = 'End of line' },
+            opts = { desc = 'End of Line' },
           },
           ['<Home>'] = {
             method = I.Home_method,
-            opts = { desc = 'Start of line' },
+            opts = { desc = 'Start of Line' },
           },
-          ['<Right>'] = { method = I.Right_method, opts = { desc = 'Move right' } },
-          ['<Left>'] = { method = I.Left_method, opts = { desc = 'Move left' } },
-          ['<Down>'] = { method = I.Down_method, opts = { desc = 'Move down' } },
-          ['<Up>'] = { method = I.UP_method, opts = { desc = 'Move up' } },
+          ['<Right>'] = { method = I.Right_method, opts = { desc = 'Move Right' } },
+          ['<Left>'] = { method = I.Left_method, opts = { desc = 'Move Left' } },
+          ['<Down>'] = { method = I.Down_method, opts = { desc = 'Move Down' } },
+          ['<Up>'] = { method = I.UP_method, opts = { desc = 'Move Up' } },
         },
 
         extend_keys = {
-          ['w'] = { method = E.w_method, opts = { desc = 'Start word forward' } },
-          ['b'] = { method = E.b_method, opts = { desc = 'Start word backward' } },
-          ['e'] = { method = E.e_method, opts = { desc = 'End word forward' } },
-          ['o'] = { method = E.o_method, opts = { desc = 'Toggle anchor' } },
-          ['<Left>'] = { method = E.h_method, opts = { desc = 'Char left' } },
-          ['<Down>'] = { method = E.j_method, opts = { desc = 'Char down' } },
-          ['<Up>'] = { method = E.k_method, opts = { desc = 'Char up' } },
-          ['<Right>'] = { method = E.l_method, opts = { desc = 'Char right' } },
-          ['t'] = { method = E.node_parent, opts = { desc = 'Expand node' } },
-          ['^'] = { method = E.caret_method, opts = { desc = 'Start of line' } },
-          ['$'] = { method = E.dollar_method, opts = { desc = 'End of line' } },
-          ['u'] = { method = E.undo_history, opts = { desc = 'Undo last extend' } },
-          ['c'] = { method = E.custom_method, opts = { desc = 'Custom motion' } },
-          ['<Esc>'] = { method = nil, opts = { desc = 'exit' } },
+          ['w'] = { method = E.w_method, opts = { desc = 'Start Word Forward' } },
+          ['b'] = { method = E.b_method, opts = { desc = 'Start Word Backward' } },
+          ['e'] = { method = E.e_method, opts = { desc = 'End Word Forward' } },
+          ['o'] = { method = E.o_method, opts = { desc = 'Toggle Anchor' } },
+          ['<Left>'] = { method = E.h_method, opts = { desc = 'Character Left' } },
+          ['<Down>'] = { method = E.j_method, opts = { desc = 'Character Down' } },
+          ['<Up>'] = { method = E.k_method, opts = { desc = 'Character Up' } },
+          ['<Right>'] = { method = E.l_method, opts = { desc = 'Character Right' } },
+          ['t'] = { method = E.node_parent, opts = { desc = 'Expand Node' } },
+          ['^'] = { method = E.caret_method, opts = { desc = 'Start of Line' } },
+          ['$'] = { method = E.dollar_method, opts = { desc = 'End of Line' } },
+          ['u'] = { method = E.undo_history, opts = { desc = 'Undo Last Extend' } },
+          ['c'] = { method = E.custom_method, opts = { desc = 'Custom Motion' } },
+          ['<Esc>'] = { method = nil, opts = { desc = 'Exit' } },
         },
 
         hint_config = {

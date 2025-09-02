@@ -63,24 +63,60 @@ return {
       move = {
         enable = true,
         goto_next_start = {
-          [']f'] = '@function.outer',
-          [']c'] = '@class.outer',
-          [']a'] = '@parameter.inner',
+          [']f'] = {
+            query = '@function.outer',
+            desc = 'Goto Next Function Start',
+          },
+          [']c'] = {
+            query = '@class.outer',
+            desc = 'Goto Next Class Start',
+          },
+          [']a'] = {
+            query = '@parameter.inner',
+            desc = 'Goto Next Parameter Start',
+          },
         },
         goto_next_end = {
-          [']F'] = '@function.outer',
-          [']C'] = '@class.outer',
-          [']A'] = '@parameter.inner',
+          [']F'] = {
+            query = '@function.outer',
+            desc = 'Goto Next Function End',
+          },
+          [']C'] = {
+            query = '@class.outer',
+            desc = 'Goto Next Class End',
+          },
+          [']A'] = {
+            query = '@parameter.inner',
+            desc = 'Goto Next Parameter End',
+          },
         },
         goto_previous_start = {
-          ['[f'] = '@function.outer',
-          ['[c'] = '@class.outer',
-          ['[a'] = '@parameter.inner',
+          ['[f'] = {
+            query = '@function.outer',
+            desc = 'Goto Previous Function Start',
+          },
+          ['[c'] = {
+            query = '@class.outer',
+            desc = 'Goto Previous Class Start',
+          },
+          ['[a'] = {
+            query = '@parameter.inner',
+            desc = 'Goto Previous Parameter Start',
+          },
         },
         goto_previous_end = {
-          ['[F'] = '@function.outer',
-          ['[C'] = '@class.outer',
-          ['[A'] = '@parameter.inner',
+          ['[F'] = {
+            query = '@function.outer',
+            desc = 'Goto Previous Function End',
+          },
+          ['[C'] = {
+            query = '@class.outer',
+            desc = 'Goto Previous Class End',
+          },
+          ['[A'] = {
+            query = '@parameter.inner',
+            desc = 'Goto Previous Parameter End',
+          },
         },
       },
     },

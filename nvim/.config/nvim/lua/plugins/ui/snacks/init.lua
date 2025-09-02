@@ -15,14 +15,14 @@ return {
         function()
           Snacks.lazygit()
         end,
-        desc = 'Lazygit',
+        desc = 'Open Lazygit',
       },
       {
         '<leader>fk',
         function()
           Snacks.picker.keymaps()
         end,
-        desc = 'Keymaps',
+        desc = 'Find Keymaps',
         mode = { 'n', 'x' },
       },
     },
@@ -44,6 +44,8 @@ return {
           picker.list:_move(idx, true, true)
         end
       end
+
+      local snacks_utils = require('plugins.ui.snacks.utils')
 
       return {
         words = { enabled = true },
@@ -80,12 +82,9 @@ return {
           sources = {
             keymaps = {
               layout = { preview = false },
+              transform = snacks_utils.keymap_transform,
               format = function(item, picker)
-                return require('plugins.ui.snacks.utils').keymap_format(
-                  item,
-                  picker,
-                  picker_config.width
-                )
+                return snacks_utils.keymap_format(item, picker, picker_config.width)
               end,
             },
           },

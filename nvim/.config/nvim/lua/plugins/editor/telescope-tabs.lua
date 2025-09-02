@@ -6,7 +6,7 @@ return {
       function()
         require('telescope-tabs').list_tabs()
       end,
-      desc = 'Tabs',
+      desc = 'Find Tabs',
     },
   },
   opts = {

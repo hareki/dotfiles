@@ -111,7 +111,7 @@ return {
 
           tree.open()
         end,
-        desc = 'Explorer NvimTree',
+        desc = 'NvimTree Explorer',
         remap = true,
         silent = true,
       },
@@ -243,11 +243,11 @@ return {
           map('n', 'y', api.fs.copy.filename, 'Copy name')
           map('n', 'Y', api.fs.copy.relative_path, 'Copy relative path')
 
-          map('n', '<Right>', tree.create_node_action('expand'), 'Expand node')
-          map('n', '<S-Right>', api.tree.expand_all, 'Expand all nodes')
-          map('n', '<Left>', tree.create_node_action('collapse'), 'Collapse node')
-          map('n', '<S-Left>', api.tree.collapse_all, 'Collapse all nodes')
-          map('n', '<CR>', tree.create_node_action('toggle'), 'Open')
+          map('n', '<Right>', tree.create_node_action('expand'), 'Expand Node')
+          map('n', '<S-Right>', api.tree.expand_all, 'Expand All Nodes')
+          map('n', '<Left>', tree.create_node_action('collapse'), 'Collapse Node')
+          map('n', '<S-Left>', api.tree.collapse_all, 'Collapse All Nodes')
+          map('n', '<CR>', tree.create_node_action('toggle'), 'Open File/Toggle Folder')
           map('n', 'g?', function()
             api.tree.toggle_help()
             vim.api.nvim_win_set_config(require('nvim-tree.help').winnr, { border = 'rounded' })

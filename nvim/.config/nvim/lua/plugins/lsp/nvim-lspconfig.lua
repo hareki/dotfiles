@@ -56,26 +56,26 @@ return {
 
         map('n', 'gd', function()
           require('telescope.builtin').lsp_definitions()
-        end, opts('Go to definition'))
+        end, opts('Go to Definition'))
 
         map('n', 'gr', function()
           require('telescope.builtin').lsp_references()
-        end, opts('References'))
+        end, opts('Find References'))
 
         -- map('n', 'gh', vim.lsp.buf.hover, opts('Hover'))
         map(
           { 'n', 'x' },
           '<leader>ca',
           require('actions-preview').code_actions,
-          opts('Code action')
+          opts('Code Actions')
         ) -- Ctrl + Z
         map('n', '<leader>cr', vim.lsp.buf.rename, opts('Rename')) -- F2
         map('n', ']]', function()
           Snacks.words.jump(vim.v.count1)
-        end, opts('Next reference'))
+        end, opts('Next Reference'))
         map('n', '[[', function()
           Snacks.words.jump(-vim.v.count1)
-        end, opts('Previous reference'))
+        end, opts('Previous Reference'))
       end,
     })
 

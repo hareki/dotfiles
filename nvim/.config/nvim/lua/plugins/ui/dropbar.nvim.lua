@@ -14,21 +14,15 @@ return {
       'nvim-telescope/telescope-fzf-native.nvim',
     },
 
-    keys = function(_, keys)
-      local dropbar_pick_key = '<leader>b'
-      local wk = require('which-key')
-
-      wk.add({
-        {
-          dropbar_pick_key,
-          icon = '',
-        },
-      })
-
-      return vim.list_extend(keys, {
-        { dropbar_pick_key, "<cmd>lua require('dropbar.api').pick()<cr>", desc = 'Dropbar pick' },
-      })
-    end,
+    keys = {
+      {
+        '<leader>b',
+        function()
+          require('dropbar.api').pick()
+        end,
+        desc = 'Dropbar: Pick',
+      },
+    },
 
     opts = {
       menu = {

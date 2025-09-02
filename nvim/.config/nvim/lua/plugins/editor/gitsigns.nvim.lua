@@ -13,16 +13,6 @@ return {
     'hareki/gitsigns.nvim',
     event = 'LazyFile',
     opts = function()
-      Snacks.toggle({
-        name = 'Git Signs',
-        get = function()
-          return require('gitsigns.config').config.signcolumn
-        end,
-        set = function(state)
-          require('gitsigns').toggle_signs(state)
-        end,
-      }):map('<leader>uG')
-
       return {
         numhl = true,
         signcolumn = false,
@@ -75,7 +65,7 @@ return {
             else
               gs.nav_hunk('prev')
             end
-          end, 'Prev Hunk')
+          end, 'Previous Hunk')
           map('n', ']H', function()
             gs.nav_hunk('last')
           end, 'Last Hunk')
