@@ -46,6 +46,10 @@ keybind = cmd+s=text:\x1bs
 keybind = cmd+shift+c=copy_to_clipboard
 keybind = cmd+shift+v=paste_from_clipboard
 
+# Copilot suggestion navigation
+keybind = cmd+]=text:\x1b]
+keybind = cmd+[=text:\x1b[
+
 # FloaX
 keybind = cmd+p=text:\x1bp
 # SessionX
@@ -54,7 +58,7 @@ keybind = cmd+o=text:\x1bo
 # Tmux prefix
 keybind = cmd+d=text:\x1bd
 
-# Tmux pane nagivation 
+# Tmux pane navigation 
 keybind = cmd+m=text:\x1bm
 keybind = cmd+n=text:\x1bn
 keybind = cmd+e=text:\x1be

@@ -25,6 +25,9 @@ return {
         keymap = {
           accept = '<Tab>',
           accept_word = '<S-Tab>',
+          next = '<M-]>',
+          prev = '<M-[>',
+          dismiss = false,
         },
       },
       panel = { enabled = false },

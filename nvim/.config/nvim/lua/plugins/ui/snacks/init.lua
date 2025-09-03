@@ -3,6 +3,7 @@ return {
     return {
       SnacksPickerCursorLine = { bg = palette.base },
       SnacksPickerPrompt = { fg = palette.blue },
+      SnacksPickerKeymapLhs = { fg = palette.blue },
     }
   end),
   {

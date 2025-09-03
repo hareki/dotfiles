@@ -13,7 +13,7 @@ local function get_formatter_names(buf)
     names[#names + 1] = 'lsp'
   end
 
-  return #names > 0 and table.concat(names, ', ') or 'unknown'
+  return #names > 0 and table.concat(names, ', ') or 'No formatter found'
 end
 
 ---@param debug boolean|nil
@@ -35,34 +35,20 @@ function M.run(debug)
     end
   end
 
-  progress:start('Formatting')
-
-  conform.format({
-    async = true,
-    bufnr = buf,
-    quiet = true,
-  }, function(format_error)
-    if format_error then
-      local msg = debug and 'Format error: ' .. format_error
-        or ('Formatter(s) used: `%s` \nSee `:ConformInfo` for more information'):format(
-          get_formatter_names(buf)
-        )
-
-      notifier.error(msg, {
-        title = 'Formatting Failed',
-      })
-      save()
-      return
-    end
-
-    local total = #linters.names_for_filetype(vim.bo[buf].filetype) + 1 -- Formater is already done
-    local done_count = 1
+  local run_linters = function(formatted)
+    local total = #linters.names_for_filetype(vim.bo[buf].filetype) + (formatted and 1 or 0)
+    local done_count = formatted and 1 or 0
     local percentage = 100 / total
 
     linters.run_by_ft({
       bufnr = buf,
       on_start = function(linter_name)
-        progress:report('Linting (' .. linter_name .. ')', percentage * done_count)
+        local label = 'Linting (' .. linter_name .. ')'
+        if done_count == 0 then
+          progress:start(label)
+        else
+          progress:report(label, percentage * done_count)
+        end
       end,
       on_done = function(linter_name, ok, lint_error)
         if not ok and lint_error then
@@ -81,6 +67,37 @@ function M.run(debug)
         end
       end,
     })
+  end
+
+  local formatters, uses_lsp = require('conform').list_formatters_to_run(buf)
+  local should_format = (formatters and #formatters > 0) or uses_lsp
+
+  if not should_format then
+    run_linters(false)
+    return
+  end
+
+  progress:start('Formatting')
+  conform.format({
+    async = true,
+    bufnr = buf,
+    quiet = true,
+  }, function(format_error)
+    if format_error then
+      local msg = debug and 'Format error: ' .. format_error
+        or ('Formatter(s) used: `%s` \nSee `:ConformInfo` for more information'):format(
+          get_formatter_names(buf)
+        )
+
+      notifier.error(msg, {
+        title = 'Formatting Failed',
+      })
+      save()
+      progress:finish()
+      return
+    end
+
+    run_linters(true)
   end)
 end
 

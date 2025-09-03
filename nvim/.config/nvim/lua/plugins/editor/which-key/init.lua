@@ -11,8 +11,8 @@ return {
     opts_extend = { 'spec' },
     opts = function()
       local desc_override_specs = {}
-      for lhs, desc in pairs(require('plugins.editor.which-key.preset').desc_overrides) do
-        table.insert(desc_override_specs, { lhs, desc = desc })
+      for lhs, spec in pairs(require('plugins.editor.which-key.preset').desc_overrides) do
+        table.insert(desc_override_specs, { lhs, desc = spec.desc, mode = spec.mode })
       end
 
       return {
@@ -57,6 +57,7 @@ return {
             { plugin = 'nvim-tree.lua', icon = ' ', color = 'blue' },
             { plugin = 'eagle.nvim', icon = '󱗆', color = 'yellow' },
             { plugin = 'debugprint.nvim', icon = '󰃤', color = 'red' },
+            { pattern = 'mini.surround', icon = '󰗅 ', color = 'green' },
 
             { pattern = 'diff', icon = '', color = 'yellow' },
             { pattern = 'help', icon = '󰋗', color = 'blue' },
@@ -73,6 +74,7 @@ return {
 
             -- Generic ones, should have lower priority
             { pattern = 'lsp', icon = ' ', color = 'blue' },
+            { pattern = 'copilot', icon = ' ', color = 'azure' },
             { pattern = 'rename', icon = '󰑕', color = 'yellow' },
             { pattern = 'grep', icon = ' ', color = 'green' },
             { pattern = 'find', icon = ' ', color = 'green' },
@@ -81,12 +83,12 @@ return {
             { pattern = 'paste', icon = '', color = 'orange' },
             { pattern = 'peek', icon = '󰈈', color = 'yellow' },
             { pattern = 'reset', icon = '󰑓', color = 'red' },
-            { pattern = 'prev', icon = '󰒮', color = 'grey' },
-            { pattern = 'first', icon = '󰒮', color = 'grey' },
+            { pattern = 'prev', icon = '󰒮' },
+            { pattern = 'first', icon = '󰒮' },
             { pattern = 'around', icon = '󰭶', color = 'purple' },
             { pattern = 'inside', icon = '󰹗', color = 'purple' },
-            { pattern = 'next', icon = '󰒭', color = 'grey' },
-            { pattern = 'last', icon = '󰒭', color = 'grey' },
+            { pattern = 'next', icon = '󰒭' },
+            { pattern = 'last', icon = '󰒭' },
             { pattern = 'cut', icon = '', color = 'yellow' },
             { pattern = 'up', icon = '' },
             { pattern = 'down', icon = '' },
@@ -96,6 +98,7 @@ return {
             { pattern = 'add', icon = '', color = 'green' },
             { pattern = 'blame', icon = ' ', color = 'green' },
             { pattern = 'url', icon = ' ' },
+            { pattern = 'comment', icon = '󰿠' },
           },
         },
       }
