@@ -96,12 +96,6 @@ return {
             { pattern = 'add', icon = '', color = 'green' },
             { pattern = 'blame', icon = ' ', color = 'green' },
             { pattern = 'url', icon = ' ' },
-
-            {
-              pattern = 'matching %(%){}%[%]',
-              icon = '󱃗',
-              color = 'green',
-            },
           },
         },
       }
