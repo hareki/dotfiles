@@ -56,18 +56,6 @@ return {
 
         picker = {
           prompt = require('configs.icons').telescope.prompt_prefix,
-          layout = {
-            preset = 'default',
-            layout = {
-              backdrop = false,
-              height = picker_config.height,
-              width = picker_config.width,
-              max_height = picker_config.height,
-              max_width = picker_config.width,
-              col = picker_config.col,
-              row = picker_config.row,
-            },
-          },
           actions = {
             list_half_page_down = scroll_half_page('down'),
             list_half_page_up = scroll_half_page('up'),
@@ -82,7 +70,19 @@ return {
           },
           sources = {
             keymaps = {
-              layout = { preview = false },
+              layout = {
+                preview = false,
+                preset = 'default',
+                layout = {
+                  backdrop = false,
+                  height = picker_config.height,
+                  width = picker_config.width,
+                  max_height = picker_config.height,
+                  max_width = picker_config.width,
+                  col = picker_config.col,
+                  row = picker_config.row,
+                },
+              },
               transform = snacks_utils.keymap_transform,
               format = function(item, picker)
                 return snacks_utils.keymap_format(item, picker, picker_config.width)
