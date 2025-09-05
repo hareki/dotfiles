@@ -9,7 +9,7 @@ return {
   keys = {
     {
       '<leader>fu',
-      '<cmd>Telescope undo<cr>',
+      '<CMD>Telescope undo<CR>',
       desc = 'Open Undo History',
     },
   },

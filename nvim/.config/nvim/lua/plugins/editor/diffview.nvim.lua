@@ -5,13 +5,13 @@ return {
 
     {
       '<leader>do',
-      '<cmd>DiffviewOpen<cr>',
+      '<CMD>DiffviewOpen<CR>',
       desc = 'Open Diffview',
       silent = true,
     },
     {
       '<leader>df',
-      '<cmd>DiffviewFileHistory %<cr>',
+      '<CMD>DiffviewFileHistory %<CR>',
       desc = 'File History',
       silent = true,
     },

@@ -109,15 +109,15 @@ aucmd('CmdwinEnter', {
     -- Use the same keymap as switching to cmdline window mode (vim.opt.cedit) to switch back to cmdline mode
     vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-f>', '<C-c>')
 
-    vim.keymap.set({ 'n' }, 'q', '<cmd>:q!<cr><esc>', {
+    vim.keymap.set({ 'n' }, 'q', '<CMD>:q!<CR><esc>', {
       silent = true,
     })
   end,
 })
 
-local autocommand_group = vim.api.nvim_create_augroup('TabDefaultNames', { clear = true })
+local tab_enter_group = augroup('TabDefaultNames')
 aucmd('TabEnter', {
-  group = autocommand_group,
+  group = tab_enter_group,
   callback = function()
     vim.schedule(function()
       local old_name = vim.t.tab_name

@@ -61,7 +61,7 @@ end
 function M.exec_cmd(cmd, cwd)
   local full_cmd = cmd
   if cwd then
-    -- Use 'git -C <cwd> <cmd>' to execute the command in the specified directory
+    -- Use 'git -C <cwd> <CMD>' to execute the command in the specified directory
     full_cmd = 'git -C "' .. cwd .. '" ' .. cmd
   end
   -- Open a pipe to execute the command, redirecting stderr to /dev/null

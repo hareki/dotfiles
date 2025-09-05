@@ -24,7 +24,7 @@ return {
   dependencies = { 'dep/plugin' },
   opts = {}, -- or config = function() ... end
   keys = {
-    { '<leader>key', '<cmd>Command<cr>', desc = 'Description' },
+    { '<leader>key', '<CMD>Command<CR>', desc = 'Description' },
   },
 }
 ```

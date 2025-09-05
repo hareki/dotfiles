@@ -1,21 +1,21 @@
 --  See `:help vim.keymap.set()`
 local map = vim.keymap.set
 local del = vim.keymap.del
-map({ 'n' }, 'Q', '<cmd>q<cr>', { desc = 'Close Buffer' })
+map({ 'n' }, 'Q', '<CMD>q<CR>', { desc = 'Close Buffer' })
 
 map({ 'n', 'x' }, '<A-c>', '"+y', { desc = 'Yank to System Clipboard', remap = true })
 map({ 'n', 'x' }, '<A-x>', '"+d', { desc = 'Cut to System Clipboard', remap = true })
 map({ 'n', 'x' }, '<A-v>', '"+p', { desc = 'Paste from System Clipboard', remap = true })
 map({ 'i' }, '<A-v>', '<C-o>"+p', { desc = 'Paste from System Clipboard', remap = true })
-map({ 'n' }, '<Esc>', '<cmd>nohlsearch<cr>', { desc = 'Clear Search Highlight' })
+map({ 'n' }, '<Esc>', '<CMD>nohlsearch<CR>', { desc = 'Clear Search Highlight' })
 
 map({ 'n', 'i' }, '<A-s>', function()
   require('utils.formatters.async_style_enforcer').run()
 end, { desc = 'Format and Save' })
 
-map({ 'i', 'x', 'n', 's' }, '<A-r>', '<cmd>e!<cr>', { desc = 'Reload File', silent = true })
+map({ 'i', 'x', 'n', 's' }, '<A-r>', '<CMD>e!<CR>', { desc = 'Reload File', silent = true })
 
-map({ 'n', 'x' }, '<leader>qa', '<cmd>qa!<cr>', { desc = 'Force Quit All', silent = true })
+map({ 'n', 'x' }, '<leader>qa', '<CMD>qa!<CR>', { desc = 'Force Quit All', silent = true })
 map({ 'n', 'x' }, '<PageUp>', '<C-u>zz', { desc = 'Scroll Up and Center' })
 map({ 'n', 'x' }, '<PageDown>', '<C-d>zz', { desc = 'Scroll Down and Center' })
 
@@ -44,7 +44,7 @@ map(
 )
 map({ 'n', 'x' }, '<Up>', "v:count == 0 ? 'gk' : 'k'", { desc = 'Up', expr = true, silent = true })
 
-map('n', '<leader>l', '<cmd>Lazy<cr>', { desc = 'Open Lazy' })
+map('n', '<leader>l', '<CMD>Lazy<CR>', { desc = 'Open Lazy' })
 map('n', '<leader>-', '<C-W>s', { desc = 'Split Window Below', remap = true })
 map('n', '<leader>\\', '<C-W>v', { desc = 'Split Window Right', remap = true })
 
@@ -63,14 +63,14 @@ map('n', ']e', diagnostic_goto(true, 'ERROR'), { desc = 'Next Error' })
 map('n', '[e', diagnostic_goto(false, 'ERROR'), { desc = 'Previous Error' })
 map('n', ']w', diagnostic_goto(true, 'WARN'), { desc = 'Next Warning' })
 map('n', '[w', diagnostic_goto(false, 'WARN'), { desc = 'Previous Warning' })
-map('n', ']b', '<cmd>bnext<cr>', { desc = 'Next Buffer' })
-map('n', ']B', '<cmd>blast<cr>', { desc = 'Last Buffer' })
-map('n', '[b', '<cmd>bprevious<cr>', { desc = 'Previous Buffer' })
-map('n', '[B', '<cmd>brewind<cr>', { desc = 'First Buffer' })
-map('n', ']t', '<cmd>tabnext<cr>', { desc = 'Next Tab' })
-map('n', ']T', '<cmd>tablast<cr>', { desc = 'Last Tab' })
-map('n', '[t', '<cmd>tabprevious<cr>', { desc = 'Previous Tab' })
-map('n', '[T', '<cmd>tabrewind<cr>', { desc = 'First Tab' }) -- or tabfirst
+map('n', ']b', '<CMD>bnext<CR>', { desc = 'Next Buffer' })
+map('n', ']B', '<CMD>blast<CR>', { desc = 'Last Buffer' })
+map('n', '[b', '<CMD>bprevious<CR>', { desc = 'Previous Buffer' })
+map('n', '[B', '<CMD>brewind<CR>', { desc = 'First Buffer' })
+map('n', ']t', '<CMD>tabnext<CR>', { desc = 'Next Tab' })
+map('n', ']T', '<CMD>tablast<CR>', { desc = 'Last Tab' })
+map('n', '[t', '<CMD>tabprevious<CR>', { desc = 'Previous Tab' })
+map('n', '[T', '<CMD>tabrewind<CR>', { desc = 'First Tab' }) -- or tabfirst
 
 -- Clean up keymaps picker a little
 del('n', ']a')
@@ -90,10 +90,10 @@ del('n', '[<C-Q>')
 del('n', ']<C-T>')
 del('n', '[<C-T>')
 
-map('n', '<leader>tn', '<cmd>tabnew<cr>', { desc = 'New Tab' })
-map('n', '<leader>t]', '<cmd>tabnext<cr>', { desc = 'Next Tab' })
-map('n', '<leader>t[', '<cmd>tabprevious<cr>', { desc = 'Previous Tab' })
-map('n', '<leader>td', '<cmd>tabclose<cr>', { desc = 'Close Tab' })
+map('n', '<leader>tn', '<CMD>tabnew<CR>', { desc = 'New Tab' })
+map('n', '<leader>t]', '<CMD>tabnext<CR>', { desc = 'Next Tab' })
+map('n', '<leader>t[', '<CMD>tabprevious<CR>', { desc = 'Previous Tab' })
+map('n', '<leader>td', '<CMD>tabclose<CR>', { desc = 'Close Tab' })
 map('n', '<leader>tr', function()
   vim.ui.input({ prompt = 'Tab name: ' }, function(input)
     if input and input ~= '' then

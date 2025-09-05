@@ -4,7 +4,7 @@ return {
   keys = {
     {
       'gh',
-      '<cmd>EagleWin<cr>',
+      '<CMD>EagleWin<CR>',
       mode = { 'n', 'x' },
       desc = 'Open Eagle Window',
       silent = true,
