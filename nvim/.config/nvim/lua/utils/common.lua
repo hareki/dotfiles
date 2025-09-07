@@ -31,12 +31,4 @@ function M.count_string_keys(t)
   return n
 end
 
-function M.list_find(t, element)
-  for index, value in ipairs(t) do
-    if value == element then
-      return value, index
-    end
-  end
-end
-
 return M

@@ -44,12 +44,11 @@ local filtered_descriptions = {
 
 function M.keymap_transform(item)
   local desc_overrides = require('plugins.editor.which-key.preset').desc_overrides
-  local find = require('utils.common').list_find
   local keymap = item.item
   local old_desc = keymap.desc
   local override_spec = desc_overrides[keymap.lhs]
   local override_desc = override_spec
-    and find(override_spec.mode, keymap.mode)
+    and vim.tbl_contains(override_spec.mode, keymap.mode)
     and override_spec.desc
   local new_desc = override_desc
     or keymap.desc
