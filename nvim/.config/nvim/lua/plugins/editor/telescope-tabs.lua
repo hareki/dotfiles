@@ -11,10 +11,12 @@ return {
   },
   opts = {
     entry_formatter = function(tab_id, buffer_ids, file_names, file_paths, is_current)
-      return require('utils.tab').get_tab_name(tab_id) .. (is_current and ' ' or '')
+      return require('utils.tab').get_tab_name(tab_id, buffer_ids) .. (is_current and ' ' or '')
     end,
     entry_ordinal = function(tab_id, buffer_ids, file_names)
-      return require('utils.tab').get_tab_name(tab_id) .. ' ' .. table.concat(file_names, ' ')
+      return require('utils.tab').get_tab_name(tab_id, buffer_ids)
+        .. ' '
+        .. table.concat(file_names, ' ')
     end,
   },
   config = function(_, opts)

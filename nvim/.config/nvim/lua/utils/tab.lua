@@ -15,15 +15,18 @@ local name_formatter = {
 }
 
 ---@param tab_id? integer
-M.get_tab_name = function(tab_id)
+---@param buffer_ids? integer[]
+M.get_tab_name = function(tab_id, buffer_ids)
   local name = nil
-  local buf = vim.api.nvim_get_current_buf()
+  -- If the first buffer is a terminal, then all of the other should be too
+  local buf = buffer_ids and buffer_ids[1] or vim.api.nvim_get_current_buf()
+  local tab = tab_id or vim.api.nvim_get_current_tabpage()
   local is_diffview = function()
     if not package.loaded['diffview'] then
       return false
     end
 
-    return require('diffview.lib').get_current_view()
+    return require('diffview.lib').tabpage_to_view(tab)
   end
 
   if vim.bo[buf].buftype == 'terminal' then
