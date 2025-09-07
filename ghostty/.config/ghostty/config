@@ -30,6 +30,7 @@ custom-shader = shaders/cursor_trail.glsl
 
 # Keybindings
 # ----------------------
+
 # Remap cmd + keys to alt + keys so that tmux can understand them.
 # They was previously esc:<key> but .tmux.conf does not support those key sequences correctly...
 
@@ -50,10 +51,11 @@ keybind = cmd+shift+v=paste_from_clipboard
 keybind = cmd+]=text:\x1b]
 keybind = cmd+[=text:\x1b[
 
-# FloaX
-keybind = cmd+p=text:\x1bp
 # SessionX
-keybind = cmd+o=text:\x1bo 
+keybind = cmd+p=text:\x1bp
+
+# Toggle floating terminal (Nvim + FloaX)
+keybind = cmd+t=text:\x1bt
 
 # Tmux prefix
 keybind = cmd+d=text:\x1bd
