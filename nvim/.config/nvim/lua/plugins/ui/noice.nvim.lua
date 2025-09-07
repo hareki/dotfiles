@@ -72,7 +72,7 @@ return {
   config = function(_, opts)
     -- TODO: open a PR when Folke is active again maybe?
     require('noice.util.spinners').spinners.circleFullFixed = {
-      frames = { '󰄰', '󰪞', '󰪟', '󰪠', '󰪢', '󰪣', '󰪤', '󰪥' },
+      frames = require('configs.icons').misc.spinner_frames,
       interval = 120,
     }
 

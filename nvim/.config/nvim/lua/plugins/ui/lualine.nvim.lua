@@ -134,7 +134,7 @@ return {
           {
             require('utils.tab').lualine,
             icon = {
-              ' ',
+              icons.misc.tab,
               color = { fg = palette.mantle, bg = palette.mauve },
             },
             separator = { left = separator.left, right = separator.right },
@@ -180,6 +180,9 @@ return {
 
           {
             'copilot',
+            symbols = {
+              spinners = icons.misc.spinner_frames,
+            },
             padding = { left = 0, right = 2 },
             color = { fg = palette.subtext0, bg = palette.mantle },
           },

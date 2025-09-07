@@ -63,12 +63,9 @@ return {
         end, opts('Find References'))
 
         -- map('n', 'gh', vim.lsp.buf.hover, opts('Hover'))
-        map(
-          { 'n', 'x' },
-          '<leader>ca',
-          require('actions-preview').code_actions,
-          opts('Code Actions')
-        ) -- Ctrl + Z
+        map({ 'n', 'x' }, '<leader>ca', function()
+          require('actions-preview').code_actions()
+        end, opts('Code Actions')) -- Ctrl + Z
         map('n', '<leader>cr', vim.lsp.buf.rename, opts('Rename')) -- F2
         map('n', ']]', function()
           Snacks.words.jump(vim.v.count1)
