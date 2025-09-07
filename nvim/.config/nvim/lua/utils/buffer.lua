@@ -33,6 +33,24 @@ function M.count_file_buffers()
 end
 
 function M.lualine()
+  local ignore_filetypes = {
+    'NvimTree',
+    'lazy',
+    'mason',
+    'TelescopePrompt',
+    'TelescopeResults',
+    'toggleterm',
+    'Trouble',
+    'help',
+    'lspinfo',
+    'checkhealth',
+    '',
+  }
+
+  if vim.tbl_contains(ignore_filetypes, vim.bo.filetype) then
+    return ''
+  end
+
   local bufnr = 0
   local status = require('configs.icons').file_status
   local bo = vim.bo[bufnr]
