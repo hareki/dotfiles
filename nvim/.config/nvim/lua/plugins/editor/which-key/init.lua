@@ -15,6 +15,8 @@ return {
         table.insert(desc_override_specs, { lhs, desc = spec.desc, mode = spec.mode })
       end
 
+      local icons = require('configs.icons')
+
       return {
         preset = 'modern',
         plugins = {
@@ -42,6 +44,7 @@ return {
           { '<leader>q', group = 'Quit' },
           { '<leader>s', group = 'Search' },
           { '<leader>t', group = 'Tab' },
+          { '<leader>z', group = 'Terminal' },
           { '<leader>u', group = 'Notification' },
           { '<leader>?', group = 'Debug' },
         }, desc_override_specs),
@@ -58,6 +61,7 @@ return {
             { plugin = 'eagle.nvim', icon = '󱗆', color = 'yellow' },
             { plugin = 'debugprint.nvim', icon = '󰃤', color = 'red' },
             { pattern = 'mini.surround', icon = '󰗅 ', color = 'green' },
+            { pattern = 'terminal', icon = ' ', color = 'green' },
 
             { pattern = 'diff', icon = '', color = 'yellow' },
             { pattern = 'help', icon = '󰋗', color = 'blue' },
@@ -74,6 +78,7 @@ return {
 
             -- Generic ones, should have lower priority
             { pattern = 'lsp', icon = ' ', color = 'blue' },
+            { pattern = 'tab', icon = icons.misc.tab, color = 'blue' },
             { pattern = 'copilot', icon = ' ', color = 'azure' },
             { pattern = 'rename', icon = '󰑕', color = 'yellow' },
             { pattern = 'grep', icon = ' ', color = 'green' },
