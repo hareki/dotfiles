@@ -32,6 +32,7 @@ return {
       local input_config = popup_config('input')
       local lazygit_config = popup_config('full')
       local picker_config = popup_config('sm', true)
+      local select_width = 50
 
       ---@param direction 'up' | 'down'
       local function scroll_half_page(direction)
@@ -56,6 +57,7 @@ return {
 
         picker = {
           prompt = require('configs.icons').telescope.prompt_prefix,
+          ui_select = true,
           actions = {
             list_half_page_down = scroll_half_page('down'),
             list_half_page_up = scroll_half_page('up'),
@@ -69,6 +71,14 @@ return {
             },
           },
           sources = {
+            select = {
+              layout = {
+                layout = {
+                  width = select_width,
+                  max_width = select_width,
+                },
+              },
+            },
             keymaps = {
               layout = {
                 preview = false,

@@ -299,11 +299,6 @@ return {
 
       return {
         extensions = {
-          ['ui-select'] = {
-            layout_config = {
-              vertical = layout_config('sm'),
-            },
-          },
           undo = {
             use_delta = true,
             saved_only = true,
