@@ -80,7 +80,7 @@ aucmd('FileType', {
       end, {
         buffer = event.buf,
         silent = true,
-        desc = 'Quit buffer',
+        desc = 'Quit Buffer',
       })
     end)
   end,
@@ -115,18 +115,14 @@ aucmd('CmdwinEnter', {
   end,
 })
 
-local tab_enter_group = augroup('TabDefaultNames')
+local tab_watchers = augroup('TabWatchers')
+
 aucmd('TabEnter', {
-  group = tab_enter_group,
+  group = tab_watchers,
   callback = function()
     vim.schedule(function()
       local old_name = vim.t.tab_name
-      local diffview = require('diffview.lib').get_current_view()
-      if diffview then
-        vim.t.tab_name = 'Diffview'
-      else
-        vim.t.tab_name = 'Tab ' .. require('utils.tab').current_tab_index()
-      end
+      vim.t.tab_name = require('utils.tab').get_tab_name()
 
       if old_name ~= vim.t.tab_name then
         require('lualine').refresh({ place = { 'statusline' } })

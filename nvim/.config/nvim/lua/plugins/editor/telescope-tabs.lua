@@ -11,18 +11,10 @@ return {
   },
   opts = {
     entry_formatter = function(tab_id, buffer_ids, file_names, file_paths, is_current)
-      local idx = vim.api.nvim_tabpage_get_number(tab_id)
-      local name = (vim.t[tab_id] and vim.t[tab_id].tab_name)
-      if not name or name == '' then
-        name = ('Tab %d'):format(idx)
-      end
-      -- return is_current and ('[' .. name .. ']') or name
-      return name .. (is_current and ' ' or '')
+      return require('utils.tab').get_tab_name(tab_id) .. (is_current and ' ' or '')
     end,
     entry_ordinal = function(tab_id, buffer_ids, file_names)
-      local idx = vim.api.nvim_tabpage_get_number(tab_id)
-      local name = (vim.t[tab_id] and vim.t[tab_id].tab_name) or ('Tab ' .. idx)
-      return name .. ' ' .. table.concat(file_names, ' ')
+      return require('utils.tab').get_tab_name(tab_id) .. ' ' .. table.concat(file_names, ' ')
     end,
   },
   config = function(_, opts)
