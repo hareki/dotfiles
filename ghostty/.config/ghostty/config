@@ -56,6 +56,8 @@ keybind = cmd+p=text:\x1bp
 
 # Toggle floating terminal (Nvim + FloaX)
 keybind = cmd+t=text:\x1bt
+# Toggle terminal tab (Nvim)
+keybind = cmd+shift+t=text:\x1bT
 
 # Tmux prefix
 keybind = cmd+d=text:\x1bd

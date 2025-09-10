@@ -78,6 +78,32 @@ return {
         '<Plug>(YankyNextEntry)',
         desc = 'Next Yanky Entry',
       },
+
+      -- System clipboard operations
+      {
+        '<A-c>',
+        '"+<Plug>(YankyYank)',
+        mode = { 'n', 'x' },
+        desc = 'Yank to System Clipboard',
+      },
+      {
+        '<A-x>',
+        '"+<Plug>(YankyYank)',
+        mode = { 'n', 'x' },
+        desc = 'Cut to System Clipboard',
+      },
+      {
+        '<A-v>',
+        '"+<Plug>(YankyPutAfter)',
+        mode = { 'n', 'x' },
+        desc = 'Paste from System Clipboard',
+      },
+      {
+        '<A-v>',
+        '<C-o>"+<Plug>(YankyPutBefore)<Right>',
+        mode = 'i',
+        desc = 'Paste from System Clipboard',
+      },
     },
   },
 }

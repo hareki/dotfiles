@@ -1,5 +1,5 @@
 return {
-  'hareki/debugprint.nvim',
+  'andrewferrier/debugprint.nvim',
   keys = {
     {
       '<leader>f?',

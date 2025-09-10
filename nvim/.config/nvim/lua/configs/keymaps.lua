@@ -3,10 +3,6 @@ local map = vim.keymap.set
 local del = vim.keymap.del
 map({ 'n' }, 'Q', '<CMD>q<CR>', { desc = 'Close Buffer' })
 
-map({ 'n', 'x' }, '<A-c>', '"+y', { desc = 'Yank to System Clipboard', remap = true })
-map({ 'n', 'x' }, '<A-x>', '"+d', { desc = 'Cut to System Clipboard', remap = true })
-map({ 'n', 'x' }, '<A-v>', '"+p', { desc = 'Paste from System Clipboard', remap = true })
-map({ 'i' }, '<A-v>', '<C-o>"+p', { desc = 'Paste from System Clipboard', remap = true })
 map({ 'n' }, '<Esc>', '<CMD>nohlsearch<CR>', { desc = 'Clear Search Highlight' })
 
 map({ 'n', 'i' }, '<A-s>', function()
@@ -95,12 +91,14 @@ map('n', '<leader>t]', '<CMD>tabnext<CR>', { desc = 'Next Tab' })
 map('n', '<leader>t[', '<CMD>tabprevious<CR>', { desc = 'Previous Tab' })
 map('n', '<leader>td', '<CMD>tabclose<CR>', { desc = 'Close Tab' })
 map('n', '<leader>tr', function()
-  vim.ui.input({ prompt = 'Tab name: ' }, function(input)
+  vim.ui.input({ prompt = 'Rename the Tab' }, function(input)
     if input and input ~= '' then
       vim.cmd('TabRename ' .. input)
     end
   end)
-end, { desc = 'Rename tab' })
+end, { desc = 'Rename Tab' })
+
+map('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Leave Terminal Mode' })
 
 -- map({ 'n', 'x' }, '<leader>T', function()
 -- local progress = require('utils.progress').create({

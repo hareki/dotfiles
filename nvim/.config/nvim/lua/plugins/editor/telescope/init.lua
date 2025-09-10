@@ -217,8 +217,13 @@ return {
         local previewer_winid = status and status.preview_win or nil
         local previewer_bufnr = previewer_winid and vim.api.nvim_win_get_buf(previewer_winid) or nil
         local set_cursorline = reticle_utils.set_cursorline
+        local default_modifiable = previewer_bufnr and vim.bo[previewer_bufnr].modifiable or false
 
         vim.bo[previewer_bufnr].modifiable = false
+
+        local restore_buf_state = function()
+          vim.bo[previewer_bufnr].modifiable = default_modifiable
+        end
 
         local map = function(mode, lhs, rhs)
           vim.keymap.set(mode, lhs, rhs, {
@@ -227,6 +232,7 @@ return {
         end
 
         map('n', '<Tab>', function()
+          restore_buf_state()
           set_cursorline(false, previewer_winid)
           require('utils.common').noautocmd(function()
             vim.api.nvim_set_current_win(prompt_win)
@@ -234,10 +240,12 @@ return {
         end)
 
         map('n', 'q', function()
+          restore_buf_state()
           actions.close(prompt_bufnr)
         end)
 
         map('n', '<CR>', function()
+          restore_buf_state()
           actions.select_default(prompt_bufnr)
         end)
 
@@ -249,10 +257,15 @@ return {
         end)
       end
 
-      -- Telescope preview options
       vim.api.nvim_create_autocmd('User', {
         pattern = 'TelescopePreviewerLoaded',
-        callback = function()
+        -- Make it look more like the actual window we use to edit files
+        callback = function(ev)
+          local buftype = vim.bo[ev.buf].buftype
+          if buftype == 'terminal' then
+            return
+          end
+
           vim.opt_local.number = true
           vim.opt_local.relativenumber = true
           vim.opt_local.numberwidth = 1
@@ -299,6 +312,7 @@ return {
 
       return {
         extensions = {
+          toggleterm_manager = {},
           undo = {
             use_delta = true,
             saved_only = true,
@@ -311,7 +325,9 @@ return {
           entry_prefix = ' ', -- keep list text aligned
           get_status_text = function(self, opts)
             -- Prevent flashing the loading asterisk indicator
+            opts = opts or {}
             opts.completed = true
+
             local text = default_get_status_text(self, opts)
             if text == '' then
               return ''

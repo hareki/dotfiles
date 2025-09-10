@@ -22,6 +22,15 @@ ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 ZSH_CUSTOM_AUTOUPDATE_NUM_WORKERS=8
 ZSH_CUSTOM_AUTOUPDATE_QUIET=true
 
+# Nvim built-in terminal doesn't support colored underlines 
+typeset -gA ZSH_HIGHLIGHT_STYLES
+ZSH_HIGHLIGHT_STYLES[path]='fg=#cdd6f4'
+ZSH_HIGHLIGHT_STYLES[path_prefix]='fg=#cdd6f4'
+ZSH_HIGHLIGHT_STYLES[path_pathseparator]='fg=#cdd6f4'
+# Remove bold style
+ZSH_HIGHLIGHT_STYLES[unknown-token]='fg=red'
+ZSH_HIGHLIGHT_STYLES[unknown-command]='fg=red'
+
 # Set the root name of the plugins files (.txt and .zsh) antidote will use.
 zsh_plugins="$HOME/.zplugins"
 bundled_zsh_plugins="${zsh_plugins}.bundled.zsh"
