@@ -56,6 +56,7 @@ return {
             { plugin = 'yanky.nvim', pattern = 'yank', icon = '', color = 'yellow' },
             { plugin = 'harpoon', icon = '󰛢', color = 'azure' },
             { plugin = 'dropbar.nvim', icon = '', color = 'purple' },
+            { plugin = 'auto-session', icon = '󰆓', color = 'green' },
             { plugin = 'multicursors.nvim', icon = '' },
             { plugin = 'nvim-tree.lua', icon = ' ', color = 'blue' },
             { plugin = 'eagle.nvim', icon = '󱗆', color = 'yellow' },
@@ -78,6 +79,7 @@ return {
 
             -- Generic ones, should have lower priority
             { pattern = 'lsp', icon = ' ', color = 'blue' },
+            { pattern = 'register', icon = '', color = 'yellow' },
             { pattern = 'tab', icon = icons.misc.tab, color = 'blue' },
             { pattern = 'copilot', icon = ' ', color = 'azure' },
             { pattern = 'rename', icon = '󰑕', color = 'yellow' },

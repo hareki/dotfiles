@@ -1,5 +1,6 @@
 {
   "actions-preview.nvim": { "branch": "master", "commit": "ad3cba1c5b9dc47585173f5b8d84e84f38574936" },
+  "auto-session": { "branch": "main", "commit": "3b5d8947cf16ac582ef00443ede4cdd3dfa23af9" },
   "blink-copilot": { "branch": "main", "commit": "41e91a659bd9b8cba9ba2ea68a69b52ba5a9ebd8" },
   "blink.cmp": { "branch": "main", "commit": "bae4bae0eedd1fa55f34b685862e94a222d5c6f8" },
   "blink.compat": { "branch": "main", "commit": "1454f14a8d855a578ceeba77c62538fa1459a67c" },

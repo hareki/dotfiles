@@ -65,8 +65,8 @@ opt.foldlevelstart = 99
 opt.foldenable = true
 
 opt.showtabline = 0 -- Always hide the tabline
--- https://github.com/nanozuki/tabby.nvim?tab=readme-ov-file#save-and-restore-in-session
-opt.sessionoptions = 'curdir,folds,globals,help,tabpages,terminal,winsize'
+-- https://github.com/rmagatti/auto-session?tab=readme-ov-file#recommended-sessionoptions-config
+opt.sessionoptions = 'blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions'
 
 -- Save undo history
 opt.undofile = true
