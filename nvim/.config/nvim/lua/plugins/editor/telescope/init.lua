@@ -105,39 +105,6 @@ return {
         desc = "Find Registers' Contents",
       },
     },
-    init = function()
-      local _select = vim.ui.select
-
-      vim.ui.select = function(items, opts, on_choice)
-        -- Not necessary, but just to be safe
-        -- If for whatever reason the ui-select extension is not loaded, that will cause infinite recursion
-        vim.ui.select = _select
-        require('lazy').load({ plugins = { 'telescope.nvim' } })
-
-        -- vim.ui.select should already by overwritten telescope-ui-select at this point
-        return vim.ui.select(items, opts, on_choice)
-      end
-
-      -- Open telescope find_files when Neovim starts on a directory
-      vim.api.nvim_create_autocmd('VimEnter', {
-        once = true,
-        callback = function(data)
-          -- Only act if the argument is a directory
-          if vim.fn.isdirectory(data.file) == 1 then
-            vim.cmd.cd(data.file) -- Set cwd to that dir
-            local buf = vim.api.nvim_get_current_buf()
-
-            -- Leftover buffer from opening a directory (netrw)
-            vim.bo[buf].buflisted = false
-            vim.bo[buf].bufhidden = 'wipe'
-            vim.opt_local.number = false
-            vim.opt_local.relativenumber = false
-
-            require('telescope.builtin').find_files()
-          end
-        end,
-      })
-    end,
     opts = function()
       local state = require('telescope.state')
       local actions = require('telescope.actions')

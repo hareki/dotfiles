@@ -14,16 +14,36 @@ return {
   ---@type AutoSession.Config
   opts = function()
     local layout_config = require('utils.ui').telescope_layout('sm')
+
+    -- Open telescope find_files when Neovim starts on a directory
+    vim.api.nvim_create_autocmd('VimEnter', {
+      once = true,
+      callback = function(data)
+        vim.schedule(function()
+          -- Only act if the argument is a directory and there is no session for auto-session to load
+          if
+            vim.fn.isdirectory(data.file) == 0
+            or vim.v.this_session and vim.v.this_session ~= ''
+          then
+            return
+          end
+
+          vim.cmd.cd(data.file) -- Set cwd to that dir
+          local buf = vim.api.nvim_get_current_buf()
+
+          -- Leftover buffer from opening a directory (netrw)
+          vim.bo[buf].buflisted = false
+          vim.bo[buf].bufhidden = 'wipe'
+          vim.opt_local.number = false
+          vim.opt_local.relativenumber = false
+
+          require('telescope.builtin').find_files()
+        end)
+      end,
+    })
+
     return {
       suppressed_dirs = { '~/', '~/Downloads', '/' },
-      -- For some reason auto-session always drop me in insert mode (even without terminal buffers)
-      post_restore_cmds = {
-        function()
-          vim.schedule(function()
-            vim.cmd('stopinsert')
-          end)
-        end,
-      },
       ---@type SessionLens
       session_lens = {
         picker = 'telescope',
