@@ -91,7 +91,7 @@ return {
                 local start_idx = math.max(1, #syms - path_item_limit + 1)
                 syms = { unpack(syms, start_idx, #syms) }
                 if #syms > 0 then
-                  -- Set a differet highlight group for the last item (the file name) to avoid affecting other places
+                  -- Set a different highlight group for the last item (the file name) to avoid affecting other places
                   local last = syms[#syms]
                   local hl = (win == vim.api.nvim_get_current_win()) and 'DropBarKindFileBar'
                     or 'DropBarKindFileBarNC'
