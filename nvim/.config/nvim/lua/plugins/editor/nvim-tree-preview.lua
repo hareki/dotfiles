@@ -4,12 +4,14 @@ return {
     'nvim-lua/plenary.nvim',
     'herisetiawan00/image.nvim',
   },
-  opts = {
-    -- title_format = ' %s ', -- File name
-    title_format = require('configs.common').preview_title.others,
-    zindex = 50, -- The defaul value makes vim.ui.input behind the preview window
-    image_preview = {
-      enable = true,
-    },
-  },
+  opts = function()
+    return {
+      -- title_format = ' %s ', -- File name
+      title_format = require('configs.common').preview_title.others,
+      zindex = 50, -- The defaul value makes vim.ui.input behind the preview window
+      image_preview = {
+        enable = true,
+      },
+    }
+  end,
 }

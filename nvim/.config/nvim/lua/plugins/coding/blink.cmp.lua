@@ -7,17 +7,19 @@ return {
   },
   {
     'fang2hou/blink-copilot',
-    opts = {
-      max_completions = copilot_max_items,
-      max_attempts = copilot_max_items + 1,
-      kind_name = 'Copilot',
-      kind_icon = ' ',
-      kind_hl = 'BlinkCmpKindCopilot',
-      auto_refresh = {
-        backward = true,
-        forward = true,
-      },
-    },
+    opts = function()
+      return {
+        max_completions = copilot_max_items,
+        max_attempts = copilot_max_items + 1,
+        kind_name = 'Copilot',
+        kind_icon = ' ',
+        kind_hl = 'BlinkCmpKindCopilot',
+        auto_refresh = {
+          backward = true,
+          forward = true,
+        },
+      }
+    end,
   },
   {
     'saghen/blink.cmp',

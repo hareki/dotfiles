@@ -22,7 +22,8 @@ return {
     dependencies = {
       {
         'nvim-telescope/telescope-fzf-native.nvim',
-        build = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release',
+        -- https://github.com/nvim-telescope/telescope-fzf-native.nvim/issues/120#issuecomment-2200296884
+        build = 'make',
       },
     },
     keys = {

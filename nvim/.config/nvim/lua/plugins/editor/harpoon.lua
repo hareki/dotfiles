@@ -1,14 +1,16 @@
 return {
   'ThePrimeagen/harpoon',
   branch = 'harpoon2',
-  opts = {
-    menu = {
-      width = vim.api.nvim_win_get_width(0) - 4,
-    },
-    settings = {
-      save_on_toggle = true,
-    },
-  },
+  opts = function()
+    return {
+      menu = {
+        width = vim.api.nvim_win_get_width(0) - 4,
+      },
+      settings = {
+        save_on_toggle = true,
+      },
+    }
+  end,
   keys = function()
     local harpoon = require('harpoon')
 

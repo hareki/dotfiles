@@ -22,75 +22,77 @@ return {
   end),
   {
     'hareki/nvim-tree-preview.lua',
-    opts = {
-      on_close = function()
-        tree.toggle_tree_height('expand')
-      end,
-      keymaps = {
-        ['q'] = tree.close_all,
-        ['<Tab>'] = tree.toggle_focus,
-        ['<C-t>'] = function()
-          tree.switch_position('side')
-          tree.open({ switching = true })
+    opts = function()
+      return {
+        on_close = function()
+          tree.toggle_tree_height('expand')
         end,
-        ['B'] = function()
-          local api = require('nvim-tree.api')
-          api.tree.focus()
-          tree.toggle_preview()
-        end,
-        ['<CR>'] = function()
-          require('nvim-tree.api').node.open.edit()
-          if state.position == 'float' then
-            tree.close_all()
-          end
-        end,
-      },
-      win_position = {
-        col = function(_, size)
-          if state.position == 'float' then
-            return -1
-          end
+        keymaps = {
+          ['q'] = tree.close_all,
+          ['<Tab>'] = tree.toggle_focus,
+          ['<C-t>'] = function()
+            tree.switch_position('side')
+            tree.open({ switching = true })
+          end,
+          ['B'] = function()
+            local api = require('nvim-tree.api')
+            api.tree.focus()
+            tree.toggle_preview()
+          end,
+          ['<CR>'] = function()
+            require('nvim-tree.api').node.open.edit()
+            if state.position == 'float' then
+              tree.close_all()
+            end
+          end,
+        },
+        win_position = {
+          col = function(_, size)
+            if state.position == 'float' then
+              return -1
+            end
 
-          return -size.width - 3
-        end,
+            return -size.width - 3
+          end,
 
-        row = function(tree_win, size)
+          row = function(tree_win, size)
+            local tree_cfg = vim.api.nvim_win_get_config(tree_win)
+
+            if state.position == 'float' then
+              return tree_cfg.height + 1
+            end
+            return math.floor((vim.opt.lines:get() - size.height) / 2) - 1
+          end,
+        },
+
+        calculate_win_size = function(tree_win)
           local tree_cfg = vim.api.nvim_win_get_config(tree_win)
+          local size_configs = require('configs.size')
+
+          local side_preview = size_configs.side_preview
+          local size_utils = require('utils.ui')
+          local size = size_utils.popup_config('lg')
+
+          -- We need to fill the missing row if the total height is an odd number,
+          -- meaing when we can't have equal height for both windows
+          local height_offset = size.height % 2 == 0 and 0 or 1
 
           if state.position == 'float' then
-            return tree_cfg.height + 1
+            return {
+              width = tree_cfg.width,
+              height = tree_cfg.height + height_offset,
+            }
           end
-          return math.floor((vim.opt.lines:get() - size.height) / 2) - 1
-        end,
-      },
 
-      calculate_win_size = function(tree_win)
-        local tree_cfg = vim.api.nvim_win_get_config(tree_win)
-        local size_configs = require('configs.size')
+          local preview_cols, preview_rows = size_utils.computed_size(side_preview)
 
-        local side_preview = size_configs.side_preview
-        local size_utils = require('utils.ui')
-        local size = size_utils.popup_config('lg')
-
-        -- We need to fill the missing row if the total height is an odd number,
-        -- meaing when we can't have equal height for both windows
-        local height_offset = size.height % 2 == 0 and 0 or 1
-
-        if state.position == 'float' then
           return {
-            width = tree_cfg.width,
-            height = tree_cfg.height + height_offset,
+            width = preview_cols,
+            height = preview_rows,
           }
-        end
-
-        local preview_cols, preview_rows = size_utils.computed_size(side_preview)
-
-        return {
-          width = preview_cols,
-          height = preview_rows,
-        }
-      end,
-    },
+        end,
+      }
+    end,
   },
   {
     'nvim-tree/nvim-tree.lua',
