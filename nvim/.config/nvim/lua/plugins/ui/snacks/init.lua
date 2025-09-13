@@ -8,8 +8,7 @@ return {
   end),
   {
     'folke/snacks.nvim',
-    lazy = false,
-    priority = 100,
+    event = 'VeryLazy',
     keys = {
       {
         '<leader>g',

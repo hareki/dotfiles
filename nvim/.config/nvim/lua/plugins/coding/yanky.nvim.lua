@@ -22,7 +22,7 @@ return {
   {
     'hareki/yanky.nvim',
     desc = 'Better Yank/Paste',
-    event = 'LazyFile',
+    event = 'VeryLazy',
     dependencies = {
       { 'kkharji/sqlite.lua' },
     },

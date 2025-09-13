@@ -8,6 +8,6 @@ return {
   end),
   {
     'hiphish/rainbow-delimiters.nvim',
-    event = 'LazyFile',
+    event = 'VeryLazy',
   },
 }

@@ -11,7 +11,7 @@ return {
   end),
   {
     'hareki/gitsigns.nvim',
-    event = 'LazyFile',
+    event = 'VeryLazy',
     opts = function()
       return {
         numhl = true,

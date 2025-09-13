@@ -10,9 +10,11 @@ return {
   {
     'hareki/dropbar.nvim',
     event = 'LazyFile',
-    dependencies = {
-      'nvim-telescope/telescope-fzf-native.nvim',
-    },
+    -- Don't load the plugin eagerly when dropbar starts
+    -- It's only needed when we use the search menus
+    -- dependencies = {
+    --   'nvim-telescope/telescope-fzf-native.nvim',
+    -- },
 
     keys = {
       {
@@ -89,15 +91,20 @@ return {
               get_symbols = function(b, win, cursor)
                 local syms = sources.path.get_symbols(b, win, cursor)
                 local start_idx = math.max(1, #syms - path_item_limit + 1)
-                syms = { unpack(syms, start_idx, #syms) }
-                if #syms > 0 then
+                local sliced = {}
+                if start_idx <= #syms then
+                  for i = start_idx, #syms do
+                    sliced[#sliced + 1] = syms[i]
+                  end
+                end
+                if #sliced > 0 then
                   -- Set a different highlight group for the last item (the file name) to avoid affecting other places
-                  local last = syms[#syms]
+                  local last = sliced[#sliced]
                   local hl = (win == vim.api.nvim_get_current_win()) and 'DropBarKindFileBar'
                     or 'DropBarKindFileBarNC'
                   last.name_hl = hl
                 end
-                return syms
+                return sliced
               end,
             }
 
@@ -109,7 +116,12 @@ return {
 
             lsp_sources.get_symbols = function(...)
               local symbols = default_lsp_get_symbols(...)
-              return { unpack(symbols, 1, math.min(#symbols, lsp_item_limit)) }
+              local limited = {}
+              local max_i = math.min(#symbols, lsp_item_limit)
+              for i = 1, max_i do
+                limited[i] = symbols[i]
+              end
+              return limited
             end
 
             return {

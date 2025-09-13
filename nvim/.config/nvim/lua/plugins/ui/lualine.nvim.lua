@@ -1,6 +1,6 @@
 return {
   'nvim-lualine/lualine.nvim',
-  event = 'LazyFile',
+  event = 'VeryLazy',
   dependencies = {
     'AndreM222/copilot-lualine',
   },

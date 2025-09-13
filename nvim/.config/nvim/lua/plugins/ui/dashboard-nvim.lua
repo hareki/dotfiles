@@ -1,7 +1,3 @@
--- math.random in Lua is deterministic until you seed it yourself.
-math.randomseed(vim.loop.hrtime())
-math.random() -- Discard the first linear-congruential generator (LCG) output, it's quite repeatable.
-
 return {
   require('utils.ui').catppuccin(function(palette)
     return {
@@ -22,9 +18,44 @@ return {
   {
     'hareki/dashboard-nvim',
     enabled = true,
-    lazy = false, -- As https://github.com/nvimdev/dashboard-nvim/pull/450, dashboard-nvim shouldn't be lazy-loaded to properly handle stdin.
     dependencies = { 'nvim-tree/nvim-web-devicons' },
+    -- A complete copy pasta of
+    -- https://github.com/nvimdev/dashboard-nvim/blob/0775e567b6c0be96d01a61795f7b64c1758262f6/plugin/dashboard.lua#L5
+    -- Normally we would just do lazy = false and let the code from the link above do it
+    -- But that will cause nvim-web-devicons to be unnecessarily loaded during startup
+    init = function()
+      local g = vim.api.nvim_create_augroup('dashboard', { clear = true })
+
+      vim.api.nvim_create_autocmd('VimEnter', {
+        group = g,
+        callback = function()
+          for _, v in pairs(vim.v.argv) do
+            if v == '-' then
+              vim.g.read_from_stdin = 1
+              break
+            end
+          end
+        end,
+      })
+
+      vim.api.nvim_create_autocmd('UIEnter', {
+        group = g,
+        callback = function()
+          if
+            vim.fn.argc() == 0
+            and vim.api.nvim_buf_get_name(0) == ''
+            and vim.g.read_from_stdin == nil
+          then
+            require('dashboard'):instance()
+          end
+        end,
+      })
+    end,
     opts = function()
+      -- math.random in Lua is deterministic until you seed it yourself.
+      math.randomseed(vim.loop.hrtime())
+      math.random() -- Discard the first LCG output, it's quite repeatable.
+
       local logo = {
         [[                                                                    ]],
         [[      ████ ██████           █████      ██                     ]],

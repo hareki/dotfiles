@@ -10,6 +10,11 @@ return {
   },
   config = function()
     require('scope').setup()
-    require('telescope').load_extension('scope')
+    -- Defer loading the Telescope extension until Telescope itself loads
+    require('utils.package').on_load('telescope.nvim', function()
+      pcall(function()
+        require('telescope').load_extension('scope')
+      end)
+    end)
   end,
 }

@@ -12,8 +12,6 @@ return {
     }
   end,
   keys = function()
-    local harpoon = require('harpoon')
-
     -- harpoon telecope integration
     -- https://github.com/ThePrimeagen/harpoon/tree/harpoon2?tab=readme-ov-file#telescope
     local function toggle_telescope(harpoon_files)
@@ -56,7 +54,7 @@ return {
               local selected_entry = state.get_selected_entry()
               local current_picker = state.get_current_picker(prompt_buffer_number)
 
-              table.remove(harpoon:list().items, selected_entry.index)
+              table.remove(require('harpoon'):list().items, selected_entry.index)
               current_picker:refresh(make_finder())
             end)
 
@@ -70,7 +68,7 @@ return {
       {
         '<leader>H',
         function()
-          harpoon:list():add()
+          require('harpoon'):list():add()
           -- Full path of the current buffer
           local filepath = vim.api.nvim_buf_get_name(0)
 
@@ -87,7 +85,7 @@ return {
       {
         '<leader>fp',
         function()
-          toggle_telescope(harpoon:list())
+          toggle_telescope(require('harpoon'):list())
         end,
         desc = 'Harpoon: Quick Menu',
       },

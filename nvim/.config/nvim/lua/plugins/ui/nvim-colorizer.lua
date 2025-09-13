@@ -1,13 +1,11 @@
+local filetypes =
+  { 'css', 'scss', 'html', 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' }
+
 return {
   'catgoose/nvim-colorizer.lua',
-  event = 'LazyFile',
+  ft = filetypes,
   opts = {
-    filetypes = {
-      '*',
-      '!lazy',
-      '!DiffviewFiles',
-      '!DiffviewFileHistory',
-    },
+    filetypes = filetypes,
     user_default_options = {
       names = false,
       css = true,
