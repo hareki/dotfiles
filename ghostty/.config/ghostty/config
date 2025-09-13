@@ -20,6 +20,9 @@ font-style-bold  = ExtraBold
 font-style-italic  = SemiBold Italic
 font-style-bold-italic  = ExtraBold Italic
 
+# background-opacity = 0.8
+# background-blur = true
+
 cursor-style = bar
 cursor-style-blink = true
 # Text

@@ -8,6 +8,7 @@ return {
     local palette = get_palette()
 
     return {
+      transparent_background = true,
       default_integrations = false,
       custom_highlights = {
         WinSeparator = { fg = palette.overlay0 },
