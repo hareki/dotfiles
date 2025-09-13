@@ -2,6 +2,9 @@ local LazyUtils = require('configs.lazy.utils')
 
 LazyUtils.ensure_lazy()
 
+-- LazyFile events for reference:
+-- { 'BufReadPost', 'BufNewFile', 'BufWritePre' }
+
 -- [[ Configure and install plugins ]]
 local lg = require('configs.size').popup.lg
 require('lazy').setup({

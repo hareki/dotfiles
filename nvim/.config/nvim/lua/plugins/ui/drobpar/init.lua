@@ -9,7 +9,7 @@ return {
   end),
   {
     'hareki/dropbar.nvim',
-    event = 'VeryLazy',
+    event = { 'BufReadPost', 'BufNewFile' },
     -- Don't load the plugin eagerly when dropbar starts
     -- It's only needed when we use the search menus
     -- dependencies = {
