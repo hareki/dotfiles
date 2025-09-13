@@ -19,11 +19,4 @@ function M.ensure_lazy()
   rtp:prepend(lazypath)
 end
 
-function M.register_events()
-  local Event = require('lazy.core.handler.event')
-  Event.mappings.LazyFile =
-    { id = 'LazyFile', event = { 'BufReadPost', 'BufNewFile', 'BufWritePre' } }
-  Event.mappings['User LazyFile'] = Event.mappings.LazyFile
-end
-
 return M

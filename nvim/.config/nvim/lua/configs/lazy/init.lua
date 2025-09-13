@@ -1,7 +1,6 @@
 local LazyUtils = require('configs.lazy.utils')
 
 LazyUtils.ensure_lazy()
-LazyUtils.register_events()
 
 -- [[ Configure and install plugins ]]
 local lg = require('configs.size').popup.lg
