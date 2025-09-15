@@ -95,7 +95,7 @@ return {
             }
           end
 
-          local preview_cols, preview_rows = size_utils.computed_size(side_preview)
+          local preview_cols, preview_rows = size_utils.computed_size(side_preview.md)
 
           return {
             width = preview_cols,
@@ -186,7 +186,7 @@ return {
           side = 'right',
           -- Width when not in float mode
           width = function()
-            local panel_cols = ui_utils.computed_size(size_configs.side_panel)
+            local panel_cols = ui_utils.computed_size(size_configs.side_panel.md)
             return panel_cols
           end,
 
