@@ -131,7 +131,7 @@ return {
     },
 
     opts = function()
-      local size_utils = require('utils.ui')
+      local ui_utils = require('utils.ui')
       local size_configs = require('configs.size')
       local icons = require('configs.icons')
 
@@ -186,7 +186,7 @@ return {
           side = 'right',
           -- Width when not in float mode
           width = function()
-            local panel_cols = size_utils.computed_size(size_configs.side_panel)
+            local panel_cols = ui_utils.computed_size(size_configs.side_panel)
             return panel_cols
           end,
 
@@ -194,7 +194,7 @@ return {
             enable = require('plugins.editor.nvim-tree.utils').state.position == 'float',
             quit_on_focus_loss = false,
             open_win_config = function()
-              local size = size_utils.popup_config('lg')
+              local size = ui_utils.popup_config('lg')
               local window_w = size.width
               local window_h = math.floor(size.height / 2)
               local col = size.col
@@ -252,7 +252,8 @@ return {
 
           map('n', 'r', api.node.run.system, 'Reveal in Finder')
 
-          map('n', 'd', api.fs.remove, 'Delete')
+          map('n', 'd', api.fs.trash, 'Trash')
+          map('n', 'D', api.fs.remove, 'Remove')
           map('n', 'y', api.fs.copy.filename, 'Copy name')
           map('n', 'Y', api.fs.copy.relative_path, 'Copy relative path')
 
@@ -265,6 +266,13 @@ return {
             api.tree.toggle_help()
             vim.api.nvim_win_set_config(require('nvim-tree.help').winnr, { border = 'rounded' })
           end, 'Help')
+
+          map('n', 'm', api.marks.toggle, 'Toggle Bookmark')
+          map('n', 'M', api.tree.toggle_no_bookmark_filter, 'Toggle Bookmark Filter')
+          map('n', 'bd', api.marks.bulk.trash, 'Trash Bookmarked')
+          map('n', 'bt', api.marks.bulk.delete, 'Delete Bookmarked')
+          map('n', 'bm', api.marks.bulk.move, 'Move Bookmarked')
+          map('n', 'ba', tree.bulk_add_nodes_to_avante, 'Add Bookmarked to Avante')
 
           vim.api.nvim_create_autocmd('BufEnter', {
             group = state.preview_watcher,
@@ -279,17 +287,6 @@ return {
               if state.live_filter_triggered then
                 state.live_filter_triggered = false
                 return
-              end
-
-              if state.position ~= 'float' then
-                return
-              end
-
-              local current_buf = vim.api.nvim_get_current_buf()
-              local preview_buf = tree.preview_buf()
-
-              if current_buf ~= preview_buf and current_buf ~= tree_bufnr then
-                tree.close_all()
               end
             end,
           })

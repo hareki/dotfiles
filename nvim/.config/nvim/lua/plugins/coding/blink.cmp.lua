@@ -32,6 +32,7 @@ return {
       'dmitmel/cmp-cmdline-history',
       'f3fora/cmp-spell',
       'fang2hou/blink-copilot',
+      'Kaiser-Yang/blink-cmp-avante',
     },
     event = { 'InsertEnter', 'CmdLineEnter' },
     opts = function()
@@ -195,12 +196,16 @@ return {
         },
 
         sources = {
-          default = { 'lazydev', 'lsp', 'path', 'snippets', 'buffer', 'spell', 'copilot' },
+          default = { 'lazydev', 'lsp', 'path', 'snippets', 'buffer', 'spell', 'copilot', 'avante' },
           providers = {
             lazydev = {
               name = 'LazyDev',
               module = 'lazydev.integrations.blink',
               score_offset = 10,
+            },
+
+            buffer = {
+              max_items = 6,
             },
 
             cmdline = {
@@ -248,6 +253,12 @@ return {
               async = true,
               max_items = copilot_max_items,
               score_offset = 100,
+            },
+
+            avante = {
+              module = 'blink-cmp-avante',
+              name = 'Avante',
+              opts = {},
             },
           },
         },

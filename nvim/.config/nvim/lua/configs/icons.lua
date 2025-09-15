@@ -11,6 +11,9 @@ local M = {
   telescope = {
     prompt_prefix = '   ',
   },
+  input = {
+    prompt_prefix = '  ',
+  },
   dap = {
     Stopped = { '󰁕 ', 'DiagnosticWarn', 'DapStoppedLine' },
     Breakpoint = ' ',

@@ -55,10 +55,25 @@ function M.screen_size()
   return screen_w, screen_h
 end
 
+local computed_input_size = {
+  height = 1,
+  width = 60,
+}
+
+---@param size configs.size.dimensions | 'input'
 function M.computed_size(size)
-  local screen_w, screen_h = M.screen_size()
-  local width_in_cols = math.floor(screen_w * size.width)
-  local height_in_rows = math.floor(screen_h * size.height)
+  local width_in_cols, height_in_rows
+
+  if size == 'input' then
+    width_in_cols = computed_input_size.width
+    height_in_rows = computed_input_size.height
+  else
+    local screen_w, screen_h = M.screen_size()
+
+    width_in_cols = math.floor(screen_w * size.width)
+    height_in_rows = math.floor(screen_h * size.height)
+  end
+
   return width_in_cols, height_in_rows
 end
 
@@ -76,8 +91,8 @@ function M.popup_config(size, with_border)
   local window_w, window_h
 
   if size == 'input' then
-    window_w = 60
-    window_h = 1
+    window_w = computed_input_size.width
+    window_h = computed_input_size.height
   else
     local dimensions = size_configs.popup[size]
     if dimensions.width <= 1 then

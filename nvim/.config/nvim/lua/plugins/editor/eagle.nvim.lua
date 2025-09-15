@@ -1,6 +1,6 @@
 return {
   'hareki/eagle.nvim',
-  command = 'EagleWin',
+  cmd = 'EagleWin',
   keys = {
     {
       'gh',

@@ -81,7 +81,6 @@ function M.switch_position(position)
     return
   end
 
-  local api = require('nvim-tree.api')
   local nvimtree = require('nvim-tree')
 
   M.state.position = position
@@ -193,6 +192,48 @@ end
 function M.preview_win()
   local manager = require('nvim-tree-preview.manager')
   return manager.instance and manager.instance.preview_win
+end
+
+function M.bulk_add_nodes_to_avante()
+  local api = require('nvim-tree.api')
+  local avante_utils = require('avante.utils')
+
+  local marks = api.marks.list() or {}
+  if vim.tbl_isempty(marks) then
+    notifier.warn('No bookmarks to add to avante')
+    return
+  end
+
+  local paths = {}
+  for _, node in ipairs(marks) do
+    local path = node.absolute_path or node.path or node.name
+    if path then
+      table.insert(paths, avante_utils.uniform_path(path))
+    end
+  end
+
+  local avante = require('avante')
+  local sidebar = avante.get()
+
+  if not sidebar or not sidebar:is_open() then
+    -- Similar logic in avante nvim-tree integration code
+    -- May change it to .edit() if needed
+    require('avante.api').ask()
+    sidebar = avante.get()
+  end
+
+  if not sidebar:is_open() then
+    sidebar:open({})
+  end
+
+  local added = 0
+
+  for _, path in ipairs(paths) do
+    sidebar.file_selector:add_selected_file(path)
+    added = added + 1
+  end
+
+  api.tree.open()
 end
 
 return M

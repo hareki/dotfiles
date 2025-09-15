@@ -5,9 +5,12 @@ return {
     return {
       HydraRed = { fg = palette.red },
       HydraAmaranth = { fg = palette.maroon },
-      HydraBlue = { fg = palette.blue },
       HydraTeal = { fg = palette.teal },
-      HydraPink = { fg = palette.pink },
+
+      -- HACK: switching up the colors to make it look good like "which-key" panel
+      HydraBlue = { fg = palette.yellow },
+      HydraPink = { fg = palette.blue },
+
       MultiCursor = { bg = '#414e70' },
       MultiCursorMain = { bg = '#414e70' },
       MultiCursorSeparator = { link = 'WhichKeySeparator' },
