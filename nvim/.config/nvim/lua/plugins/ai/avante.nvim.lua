@@ -73,24 +73,6 @@ return {
         end,
         desc = 'Avante: Stop',
       },
-      --   {
-      --     '<leader>a+',
-      --     function()
-      --       local tree_ext = require('avante.extensions.nvim_tree')
-      --       tree_ext.add_file()
-      --     end,
-      --     desc = '(Avante) Select file in NvimTree',
-      --     ft = 'NvimTree',
-      --   },
-      --   {
-      --     '<leader>a-',
-      --     function()
-      --       local tree_ext = require('avante.extensions.nvim_tree')
-      --       tree_ext.remove_file()
-      --     end,
-      --     desc = '(Avante) Deselect file in NvimTree',
-      --     ft = 'NvimTree',
-      --   },
     },
     opts = function()
       local ui_utils = require('utils.ui')

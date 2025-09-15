@@ -272,7 +272,6 @@ return {
           map('n', 'bd', api.marks.bulk.trash, 'Trash Bookmarked')
           map('n', 'bt', api.marks.bulk.delete, 'Delete Bookmarked')
           map('n', 'bm', api.marks.bulk.move, 'Move Bookmarked')
-          map('n', 'ba', tree.bulk_add_nodes_to_avante, 'Add Bookmarked to Avante')
 
           vim.api.nvim_create_autocmd('BufEnter', {
             group = state.preview_watcher,
