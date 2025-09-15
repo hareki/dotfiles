@@ -134,6 +134,15 @@ return {
           enabled = false,
         },
         mappings = {
+          diff = {
+            ours = '<leader>co',
+            theirs = '<leader>ct',
+            all_theirs = '<leader>cT',
+            both = '<leader>ca',
+            cursor = '<leader>cc',
+            next = ']x',
+            prev = '[x',
+          },
           sidebar = {
             close_from_input = {
               normal = 'q',
