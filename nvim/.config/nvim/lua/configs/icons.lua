@@ -8,9 +8,6 @@ local M = {
   ft = {
     octo = '',
   },
-  telescope = {
-    prompt_prefix = '   ',
-  },
   input = {
     prompt_prefix = '  ',
   },
@@ -49,6 +46,8 @@ local M = {
     ignored = '',
   },
   explorer = {
+    selected = '󰆤  ',
+    unselected = '󰄰 ',
     collapsed = '',
     expanded = '',
     folder = '',

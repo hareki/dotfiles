@@ -36,7 +36,7 @@ return {
         },
       },
       titles = {
-        preview = require('configs.common').preview_title.telescope,
+        preview = require('configs.picker').telescope_preview_title,
         prompt = 'Terminals',
         results = false,
       },

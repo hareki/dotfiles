@@ -5,7 +5,8 @@ return {
         fg = palette.blue,
       },
       TelescopeSelection = {
-        fg = palette.blue,
+        -- turn off fg override
+        fg = 'NONE',
         style = {}, -- turn off the default bold
       },
       TelescopeSelectionCaret = {
@@ -28,29 +29,13 @@ return {
     },
     keys = {
       {
-        '<leader><space>',
-        function()
-          require('telescope.builtin').find_files()
-        end,
-        desc = 'Find Files',
-      },
-      {
-        '<leader>fd',
-        function()
-          require('telescope.builtin').diagnostics({
-            bufnr = 0,
-          })
-        end,
-        desc = 'Find Diagnostics',
-      },
-      {
         '<leader>fb',
         function()
           require('telescope.builtin').buffers({
             sort_mru = true,
             sort_lastused = true,
             initial_mode = 'normal',
-            entry_maker = require('plugins.editor.telescope.utils').shorten_entry_maker(),
+            entry_maker = require('plugins.editor.telescope.utils').buffer_entry_maker(),
           })
         end,
         desc = 'Find Buffers',
@@ -77,7 +62,7 @@ return {
           telescope.load_extension('yank_history')
 
           telescope.extensions.yank_history.yank_history({
-            preview_title = require('configs.common').preview_title.telescope,
+            preview_title = require('configs.picker').telescope_preview_title,
           })
         end,
         desc = 'Open Yank History',
@@ -131,7 +116,7 @@ return {
       local default_picker_configs = {}
       for picker_name, _ in pairs(builtin) do
         default_picker_configs[picker_name] = {
-          preview_title = require('configs.common').preview_title.telescope,
+          preview_title = require('configs.picker').telescope_preview_title,
         }
       end
 
@@ -287,7 +272,7 @@ return {
           },
         },
         defaults = {
-          prompt_prefix = require('configs.icons').telescope.prompt_prefix,
+          prompt_prefix = require('configs.picker').prompt_prefix,
           -- selection_caret = ' ',
           selection_caret = ' ',
           entry_prefix = ' ', -- keep list text aligned

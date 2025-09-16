@@ -29,7 +29,7 @@ return {
     opts = function()
       return {
         -- title_format = ' %s ', -- File name
-        title_format = require('configs.common').preview_title.others,
+        title_format = require('configs.picker').preview_title,
         zindex = 50, -- The defaul value makes vim.ui.input behind the preview window
         image_preview = {
           enable = true,
@@ -157,6 +157,7 @@ return {
           icons = {
             git_placement = 'right_align',
             glyphs = {
+              bookmark = icons.explorer.selected,
               folder = {
                 arrow_closed = icons.explorer.collapsed,
                 arrow_open = icons.explorer.expanded,

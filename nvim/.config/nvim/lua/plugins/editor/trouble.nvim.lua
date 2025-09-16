@@ -64,7 +64,7 @@ return {
           type = 'float',
           relative = 'win',
           border = 'rounded',
-          title = require('configs.common').preview_title.others,
+          title = require('configs.picker').preview_title,
           title_pos = 'center',
           position = { preview_height_offset, -preview_width_offset },
           size = {

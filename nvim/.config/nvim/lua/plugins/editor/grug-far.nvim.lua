@@ -53,7 +53,7 @@ return {
         previewWindow = {
           row = preview_height_offset,
           col = -preview_cols - 3,
-          title = require('configs.common').preview_title.others,
+          title = require('configs.picker').preview_title,
           title_pos = 'center',
           width = preview_cols,
           height = preview_rows,

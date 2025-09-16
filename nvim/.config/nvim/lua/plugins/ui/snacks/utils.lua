@@ -75,7 +75,7 @@ function M.keymap_format(item, _picker, width)
   local ret = {} ---@type snacks.picker.Highlight[]
   ---@type vim.api.keyset.get_keymap
   local k = item.item
-  local a = Snacks.picker.util.align
+  local align = Snacks.picker.util.align
   local col_width = {
     icon = 3,
     buffer = 6,
@@ -96,26 +96,35 @@ function M.keymap_format(item, _picker, width)
     local Icons = require('which-key.icons')
     local icon, hl = Icons.get({ keymap = k, desc = k.desc })
     if icon then
-      ret[#ret + 1] = { a(icon, col_width.icon), hl }
+      ret[#ret + 1] = { align(icon, col_width.icon), hl }
     else
-      ret[#ret + 1] = { a('', col_width.icon) }
+      ret[#ret + 1] = { align('', col_width.icon) }
     end
   end
-  ret[#ret + 1] = { a(k.desc or '', desc_width, { align = 'left', truncate = true }) }
+  ret[#ret + 1] = { align(k.desc or '', desc_width, { align = 'left', truncate = true }) }
   ret[#ret + 1] = { ' ' }
 
   local lhs = Snacks.util.normkey(k.lhs)
   if k.buffer and k.buffer > 0 then
-    ret[#ret + 1] = { a('buf:' .. k.buffer, col_width.buffer), 'SnacksPickerBufNr' }
+    ret[#ret + 1] = { align('buf:' .. k.buffer, col_width.buffer), 'SnacksPickerBufNr' }
   else
-    ret[#ret + 1] = { a('', col_width.buffer) }
+    ret[#ret + 1] = { align('', col_width.buffer) }
   end
   ret[#ret + 1] = { ' ' }
   ret[#ret + 1] =
-    { a(lhs, col_width.lhs, { align = 'right', truncate = true }), 'SnacksPickerKeymapLhs' }
+    { align(lhs, col_width.lhs, { align = 'right', truncate = true }), 'SnacksPickerKeymapLhs' }
   ret[#ret + 1] = { ' ' }
-  ret[#ret + 1] = { a(k.mode, col_width.mode), 'SnacksPickerKeymapMode' }
+  ret[#ret + 1] = { align(k.mode, col_width.mode), 'SnacksPickerKeymapMode' }
 
+  return ret
+end
+
+function M.buffer(item, picker)
+  local filename = Snacks.picker.format.filename
+  local align = Snacks.picker.util.align
+
+  local ret = {} ---@type snacks.picker.Highlight[]
+  vim.list_extend(ret, filename(item, picker))
   return ret
 end
 

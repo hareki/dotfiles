@@ -1,9 +1,12 @@
 return {
   require('utils.ui').catppuccin(function(palette)
     return {
-      SnacksPickerCursorLine = { bg = palette.base },
       SnacksPickerPrompt = { fg = palette.blue },
+      SnacksPickerCursorLine = { bg = palette.base },
       SnacksPickerKeymapLhs = { fg = palette.blue },
+      SnacksPickerSelected = { bg = palette.base, fg = palette.blue },
+      SnacksPickerDir = { fg = palette.overlay1 },
+      SnacksPickerFile = { fg = palette.text },
     }
   end),
   {
@@ -18,6 +21,27 @@ return {
         desc = 'Open Lazygit',
       },
       {
+        '<leader><leader>',
+        function()
+          Snacks.picker.files()
+        end,
+        desc = 'Find Files',
+      },
+      {
+        '<leader>fd',
+        function()
+          Snacks.picker.diagnostics_buffer()
+        end,
+        desc = 'Find Diagnostics Buffer',
+      },
+      {
+        '<leader>fD',
+        function()
+          Snacks.picker.diagnostics()
+        end,
+        desc = 'Find Diagnostics',
+      },
+      {
         '<leader>fk',
         function()
           Snacks.picker.keymaps()
@@ -28,25 +52,16 @@ return {
     },
     opts = function()
       local popup_config = require('utils.ui').popup_config
-      local input_config = popup_config('input')
-      local lazygit_config = popup_config('full')
-      local picker_config = popup_config('sm', true)
+      local picker_config = require('configs.picker')
+      local icons = require('configs.icons')
+      local input_popup_config = popup_config('input')
+      local full_popup_config = popup_config('full')
+      local sm_popup_config = popup_config('sm', true)
+      local lg_popup_config = popup_config('lg', true)
       local select_width = 50
 
-      ---@param direction 'up' | 'down'
-      local function scroll_half_page(direction)
-        return function(picker)
-          local list_win = picker.layout.opts.wins.list.win
-          local h = vim.api.nvim_win_get_height(list_win)
-          local row = vim.api.nvim_win_get_cursor(list_win)[1]
-          local target_row = row
-            + (math.max(1, math.floor(h / 2))) * (direction == 'up' and -1 or 1)
-          local idx = picker.list:row2idx(target_row)
-          picker.list:_move(idx, true, true)
-        end
-      end
-
-      local snacks_utils = require('plugins.ui.snacks.utils')
+      local utils = require('plugins.ui.snacks.utils')
+      local actions = require('plugins.ui.snacks.actions')
 
       return {
         words = { enabled = true },
@@ -55,20 +70,69 @@ return {
         lazygit = { enabled = true, configure = false },
 
         picker = {
-          prompt = require('configs.icons').telescope.prompt_prefix,
-          ui_select = true,
-          actions = {
-            list_half_page_down = scroll_half_page('down'),
-            list_half_page_up = scroll_half_page('up'),
+          icons = {
+            ui = {
+              selected = icons.explorer.selected,
+              unselected = icons.explorer.unselected,
+            },
           },
+          ui_select = true,
+          prompt = picker_config.prompt_prefix,
+
+          actions = {
+            list_half_page_down = actions.scroll_half_page('down'),
+            list_half_page_up = actions.scroll_half_page('up'),
+            toggle_preview_focus = actions.toggle_preview_focus,
+            select = actions.select,
+            snacks_to_trouble = actions.snacks_to_trouble,
+          },
+
           win = {
+            preview = {
+              keys = {
+                ['<Tab>'] = { 'toggle_preview_focus', mode = { 'i', 'n' } },
+                ['<CR>'] = { 'confirm' },
+                ['<C-t>'] = { 'snacks_to_trouble', mode = { 'i', 'n' } },
+              },
+            },
             input = {
               keys = {
                 ['<PageDown>'] = { 'list_half_page_down', mode = { 'i', 'n' } },
                 ['<PageUp>'] = { 'list_half_page_up', mode = { 'i', 'n' } },
+                ['<Tab>'] = { 'toggle_preview_focus', mode = { 'i', 'n' } },
+                ['m'] = { 'select' },
+                ['<C-t>'] = { 'snacks_to_trouble', mode = { 'i', 'n' } },
               },
             },
           },
+
+          -- Default layout
+          layout = {
+            layout = {
+              backdrop = false,
+              width = lg_popup_config.width,
+              max_width = lg_popup_config.width,
+              height = lg_popup_config.height,
+              max_height = lg_popup_config.height,
+              border = 'none',
+              box = 'vertical',
+              {
+                box = 'vertical',
+                border = 'rounded',
+                title = '{title} {live} {flags}',
+                title_pos = 'center',
+                { win = 'input', height = 1, border = 'bottom' },
+                { win = 'list', border = 'none' },
+              },
+              {
+                win = 'preview',
+                title = picker_config.preview_title,
+                height = 0.5,
+                border = 'rounded',
+              },
+            },
+          },
+
           sources = {
             select = {
               layout = {
@@ -78,23 +142,30 @@ return {
                 },
               },
             },
+
+            buffers = {
+              format = function(item, picker)
+                return utils.buffer(item, picker)
+              end,
+            },
+
             keymaps = {
               layout = {
                 preview = false,
                 preset = 'default',
                 layout = {
                   backdrop = false,
-                  height = picker_config.height,
-                  width = picker_config.width,
-                  max_height = picker_config.height,
-                  max_width = picker_config.width,
-                  col = picker_config.col,
-                  row = picker_config.row,
+                  height = sm_popup_config.height,
+                  width = sm_popup_config.width,
+                  max_height = sm_popup_config.height,
+                  max_width = sm_popup_config.width,
+                  col = sm_popup_config.col,
+                  row = sm_popup_config.row,
                 },
               },
-              transform = snacks_utils.keymap_transform,
+              transform = utils.keymap_transform,
               format = function(item, picker)
-                return snacks_utils.keymap_format(item, picker, picker_config.width)
+                return utils.keymap_format(item, picker, sm_popup_config.width)
               end,
             },
           },
@@ -102,20 +173,20 @@ return {
 
         styles = {
           input = {
-            height = input_config.height,
-            width = input_config.width,
-            col = input_config.col,
-            row = input_config.row,
+            height = input_popup_config.height,
+            width = input_popup_config.width,
+            col = input_popup_config.col,
+            row = input_popup_config.row,
           },
           lazygit = {
             backdrop = false,
             border = 'rounded',
             title = ' Lazygit ',
             title_pos = 'center',
-            height = lazygit_config.height,
-            width = lazygit_config.width,
-            col = lazygit_config.col,
-            row = lazygit_config.row,
+            height = full_popup_config.height,
+            width = full_popup_config.width,
+            col = full_popup_config.col,
+            row = full_popup_config.row,
           },
         },
       }
