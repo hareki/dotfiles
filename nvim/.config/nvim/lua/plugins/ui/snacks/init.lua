@@ -7,6 +7,7 @@ return {
       SnacksPickerSelected = { bg = palette.base, fg = palette.blue },
       SnacksPickerDir = { fg = palette.overlay1 },
       SnacksPickerFile = { fg = palette.text },
+      SnacksPickerTime = { fg = palette.text },
     }
   end),
   {
@@ -42,12 +43,57 @@ return {
         desc = 'Find Diagnostics',
       },
       {
+        '<leader>f/',
+        function()
+          Snacks.picker.grep({
+            title = 'Grep',
+          })
+        end,
+        desc = 'Find Text',
+      },
+      {
+        '<leader>fy',
+        function()
+          Snacks.picker.yanky()
+        end,
+        desc = 'Open Yanky History',
+      },
+      {
+        '<leader>fR',
+        function()
+          Snacks.picker.registers()
+        end,
+        desc = "Find Registers' Contents",
+      },
+      {
         '<leader>fk',
         function()
           Snacks.picker.keymaps()
         end,
         desc = 'Find Keymaps',
         mode = { 'n', 'x' },
+      },
+      {
+        '<leader>fu',
+        function()
+          Snacks.picker.undo()
+        end,
+        desc = 'Open Undo History',
+      },
+
+      {
+        '<leader>fh',
+        function()
+          Snacks.picker.highlights()
+        end,
+        desc = 'Find Highlight Groups',
+      },
+      {
+        '<leader>fgb',
+        function()
+          Snacks.picker.git_branches()
+        end,
+        desc = 'Find Git Branches',
       },
     },
     opts = function()
@@ -141,12 +187,6 @@ return {
                   max_width = select_width,
                 },
               },
-            },
-
-            buffers = {
-              format = function(item, picker)
-                return utils.buffer(item, picker)
-              end,
             },
 
             keymaps = {

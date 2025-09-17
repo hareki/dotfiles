@@ -24,7 +24,10 @@ return {
     desc = 'Better Yank/Paste',
     event = 'VeryLazy',
     dependencies = {
-      { 'kkharji/sqlite.lua' },
+      {
+        'kkharji/sqlite.lua',
+        'folke/snacks.nvim', -- Let yanky self register with snacks
+      },
     },
     opts = {
       ring = { storage = 'sqlite' },

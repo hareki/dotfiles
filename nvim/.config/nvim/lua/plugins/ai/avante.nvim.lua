@@ -97,7 +97,7 @@ return {
         },
 
         selector = {
-          provider = 'telescope',
+          provider = 'snacks',
           -- Options override for custom providers
           provider_opts = {},
         },

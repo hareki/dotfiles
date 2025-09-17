@@ -13,7 +13,7 @@ return {
   ---@module "auto-session"
   ---@type AutoSession.Config
   opts = function()
-    local layout_config = require('utils.ui').telescope_layout('sm')
+    local popup_config = require('utils.ui').popup_config('sm')
 
     -- Open telescope find_files when Neovim starts on a directory
     vim.api.nvim_create_autocmd('VimEnter', {
@@ -46,12 +46,15 @@ return {
       suppressed_dirs = { '~/', '~/Downloads', '/' },
       ---@type SessionLens
       session_lens = {
-        picker = 'telescope',
+        picker = 'snacks',
         load_on_setup = false,
         picker_opts = {
-          layout_config = {
-            width = layout_config.width,
-            height = layout_config.height,
+          preview = false,
+          layout = {
+            width = popup_config.width,
+            max_width = popup_config.width,
+            height = popup_config.height,
+            max_height = popup_config.height,
           },
         },
 

@@ -12,7 +12,6 @@ function M.scroll_half_page(direction)
 end
 
 function M.toggle_preview_focus(picker)
-  vim.notify('Toggle')
   local input_win = picker.layout.opts.wins.input.win
   local preview_win = picker.layout.opts.wins.preview.win
   local current_win = vim.api.nvim_get_current_win()

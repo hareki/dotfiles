@@ -58,7 +58,7 @@ return {
   },
   opts = function()
     return {
-      picker = 'telescope',
+      picker = 'snacks.picker',
       picker_title = 'Debug Prints',
       highlight_lines = false,
       -- Turn off all keymaps by default for performance reasons (mapping overhead + can't lazy load)

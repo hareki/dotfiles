@@ -119,13 +119,4 @@ function M.keymap_format(item, _picker, width)
   return ret
 end
 
-function M.buffer(item, picker)
-  local filename = Snacks.picker.format.filename
-  local align = Snacks.picker.util.align
-
-  local ret = {} ---@type snacks.picker.Highlight[]
-  vim.list_extend(ret, filename(item, picker))
-  return ret
-end
-
 return M

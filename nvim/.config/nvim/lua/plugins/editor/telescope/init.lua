@@ -40,56 +40,6 @@ return {
         end,
         desc = 'Find Buffers',
       },
-      {
-        '<leader>f/',
-        function()
-          require('telescope.builtin').live_grep()
-        end,
-        desc = 'Find Text',
-      },
-      {
-        '<leader>fh',
-        function()
-          require('telescope.builtin').highlights()
-        end,
-        desc = 'Find Highlight Groups',
-      },
-
-      {
-        '<leader>fy',
-        function()
-          local telescope = require('telescope')
-          telescope.load_extension('yank_history')
-
-          telescope.extensions.yank_history.yank_history({
-            preview_title = require('configs.picker').telescope_preview_title,
-          })
-        end,
-        desc = 'Open Yank History',
-      },
-
-      {
-        '<leader>fgb',
-        function()
-          require('telescope.builtin').git_branches()
-        end,
-        desc = 'Find Git Branches',
-      },
-
-      {
-        '<leader>fr',
-        function()
-          require('telescope.builtin').resume()
-        end,
-        desc = 'Open Last Picker',
-      },
-      {
-        '<leader>fR',
-        function()
-          require('telescope.builtin').registers()
-        end,
-        desc = "Find Registers' Contents",
-      },
     },
     opts = function()
       local state = require('telescope.state')
