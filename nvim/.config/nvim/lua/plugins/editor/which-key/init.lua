@@ -19,6 +19,14 @@ return {
 
       return {
         preset = 'modern',
+        replace = {
+          desc = {
+            -- Add one extra space before the descriptions
+            function(desc)
+              return ' ' .. desc
+            end,
+          },
+        },
         plugins = {
           -- Define the presets ourselves to unify the letter case
           presets = {
@@ -51,6 +59,7 @@ return {
         }, desc_override_specs),
 
         icons = {
+          group = '',
           rules = {
             -- Plugin > filetype > pattern
             -- Elements come first have higher priority when multiple patterns match
@@ -79,7 +88,7 @@ return {
             { pattern = 'scroll down', icon = '󱕐 ' },
 
             -- Generic ones, should have lower priority
-            { pattern = 'lsp', icon = ' ', color = 'blue' },
+            { pattern = 'lsp', icon = '  ', color = 'blue' },
             { pattern = 'register', icon = '', color = 'yellow' },
             { pattern = 'tab', icon = icons.misc.tab, color = 'blue' },
             { pattern = 'avante', icon = '󰚩', color = 'azure' },

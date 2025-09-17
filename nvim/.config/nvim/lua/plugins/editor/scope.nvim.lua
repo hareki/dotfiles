@@ -5,7 +5,7 @@ return {
     {
       '<leader>fB',
       '<cmd>Telescope scope buffers<cr>',
-      desc = 'Show All Buffrs from All Tabs',
+      desc = 'Show All Buffers from All Tabs',
     },
   },
   config = function()
