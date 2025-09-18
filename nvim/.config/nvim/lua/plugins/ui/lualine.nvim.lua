@@ -14,7 +14,7 @@ return {
     end
   end,
   opts = function()
-    -- PERF: noice we don't need this lualine require madness 🤷
+    -- PERF: we don't need this lualine require madness 🤷
     local lualine_require = require('lualine_require')
     lualine_require.require = require
 
