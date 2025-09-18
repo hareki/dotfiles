@@ -24,7 +24,7 @@ return {
     'hareki/nvim-tree-preview.lua',
     dependencies = {
       'nvim-lua/plenary.nvim',
-      'herisetiawan00/image.nvim',
+      '3rd/image.nvim',
     },
     opts = function()
       return {
@@ -288,6 +288,17 @@ return {
                 state.live_filter_triggered = false
                 return
               end
+
+              -- if state.position ~= 'float' then
+              --   return
+              -- end
+
+              -- local current_buf = vim.api.nvim_get_current_buf()
+              -- local preview_buf = tree.preview_buf()
+
+              -- if current_buf ~= preview_buf and current_buf ~= tree_bufnr then
+              --   tree.close_all()
+              -- end
             end,
           })
         end,
