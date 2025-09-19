@@ -243,6 +243,7 @@ return {
           map('n', 'c', api.fs.copy.node, 'Copy')
           map('n', 'x', api.fs.cut, 'Cut')
           map('n', 'p', api.fs.paste, 'Paste')
+          map('n', 'n', api.fs.create, 'Create File or Directory')
 
           map('n', '/', function()
             tree.toggle_preview(false)
