@@ -55,7 +55,6 @@ return {
           { '<leader>z', group = 'Terminal' },
           { '<leader>u', group = 'Notification' },
           { '<leader>?', group = 'Debug' },
-          { '<leader>a', group = 'Avante' },
         }, desc_override_specs),
 
         icons = {
@@ -91,7 +90,6 @@ return {
             { pattern = 'lsp', icon = '  ', color = 'blue' },
             { pattern = 'register', icon = '', color = 'yellow' },
             { pattern = 'tab', icon = icons.misc.tab, color = 'blue' },
-            { pattern = 'avante', icon = '󰚩', color = 'azure' },
             { pattern = 'copilot', icon = ' ', color = 'azure' },
             { pattern = 'rename', icon = '󰑕', color = 'yellow' },
             { pattern = 'grep', icon = ' ', color = 'green' },

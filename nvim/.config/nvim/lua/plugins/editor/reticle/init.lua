@@ -9,7 +9,6 @@ return {
       cursorline = {
         'toggleterm',
         'TelescopePrompt',
-        'AvantePromptInput',
       },
     },
   },

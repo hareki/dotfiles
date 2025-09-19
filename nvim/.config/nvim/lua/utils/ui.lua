@@ -61,7 +61,8 @@ local computed_input_size = {
 }
 
 ---@param size configs.size.dimensions | 'input'
-function M.computed_size(size)
+---@param with_border? boolean
+function M.computed_size(size, with_border)
   local width_in_cols, height_in_rows
 
   if size == 'input' then
@@ -74,7 +75,7 @@ function M.computed_size(size)
     height_in_rows = math.floor(screen_h * size.height)
   end
 
-  return width_in_cols, height_in_rows
+  return width_in_cols + (with_border and 2 or 0), height_in_rows + (with_border and 2 or 0)
 end
 
 ---@class WinConfig

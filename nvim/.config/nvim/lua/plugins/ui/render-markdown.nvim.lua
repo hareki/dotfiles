@@ -6,13 +6,13 @@ return {
   end),
   {
     'MeanderingProgrammer/render-markdown.nvim',
-    ft = { 'markdown', 'Avante' },
+    ft = { 'markdown' },
     dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' }, -- if you use standalone mini plugins
     ---@module 'render-markdown'
     ---@type render.md.UserConfig
     opts = function()
       return {
-        file_types = { 'markdown', 'Avante' },
+        file_types = { 'markdown' },
         completions = { blink = { enabled = true } },
         callout = {
           error = {
