@@ -9,6 +9,10 @@ export STOW_REPO="$HOME/Repositories/personal/dotfiles"
 # From image.nvim, to make sure ImageMagick work properly
 export DYLD_FALLBACK_LIBRARY_PATH="opt/homebrew/lib:$DYLD_FALLBACK_LIBRARY_PATH"
 
+# Prevent the dollar sign at the start when restoring sessions with tmux-resurrect
+# https://unix.stackexchange.com/questions/167582/why-zsh-ends-a-line-with-a-highlighted-percent-symbol
+export PROMPT_EOL_MARK=''
+
 export HISTFILE=~/.zsh_history
 export HISTSIZE=10000
 export SAVEHIST=10000
