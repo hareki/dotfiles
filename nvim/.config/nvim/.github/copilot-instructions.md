@@ -1,83 +1,36 @@
-# AI Assistant Project Instructions
+## AI Agent Guide (Concise)
 
-Purpose: Provide just-enough context so an AI agent can safely extend / refactor this Neovim config without breaking core conventions.
+Goal: Safely extend / refactor this Neovim config by following its established architecture, sizing/layout abstractions, and plugin spec conventions.
 
-## 1. High-Level Architecture
+1. Boot Flow: `init.lua` (Lua loader cache) -> `configs/{globals,options,autocmds,usercmds,keymaps,lazy}`. Do not insert other startup side‑effects; add runtime logic via plugin events.
+2. Plugin Specs: Central hub `lua/configs/lazy/init.lua` imports feature folders (`plugins/{ui,ai,coding,editor,formatting,lsp,treesitter}`). Add new area → create folder + add `{ import = 'plugins.<area>' }` in order (UI first for palette helpers).
+3. Reuse Helpers: Layout + palette in `configs/size.lua` & `utils/ui.lua`; notifications `utils/notifier.lua`; formatting pipeline `utils/formatters/async_style_enforcer.lua`; completion kinds `plugins/coding/blink.cmp.lua`; tree layout logic `plugins/editor/nvim-tree/`.
+4. Sizing: Never hard‑code widths/heights. Use size tokens `sm|md|lg|full|input` via `utils.ui.popup_config()` / `telescope_layout()` / values from `configs/size.lua` (`side_panel`, `side_preview`).
+5. Theme Overrides: Inject Catppuccin adjustments early with `require('utils.ui').catppuccin(function(palette) return { Group = { fg = palette.text } } end)` placed in a spec that loads before the target plugin.
+6. Spec Pattern: Each file returns a table: `{ 'repo/name', event=..., opts=function(_,opts) return opts end, config=function(_,opts) require('module').setup(opts) end }`. Avoid mutating unrelated globals; isolate state in a local `utils.lua` if shared.
+7. Keymaps: Global maps live in `configs/keymaps.lua`. Always include `desc`. Preserve custom editing motions: `yy` (trim yank), `dd` (trim + blackhole). Diagnostic jumps follow `diagnostic_goto(next, severity)`—copy that form for new severity filters.
+8. Formatting Workflow: `<A-s>` runs async style enforcer (format + lint). Extend by adding steps inside `utils/formatters/async_style_enforcer.lua` instead of creating parallel commands.
+9. Completion & AI: Blink.cmp kinds registered via helper; Copilot limited to 3 items (`copilot_max_items`). Add new kinds with the same `register_kind()` pattern.
+10. Snippets: `snippets/` split into language + `*-shared.json`. Follow naming; don’t embed editor‑specific commands inside snippet bodies.
+11. Performance: Lazy load by default. Only set `lazy=false, priority=1000` for early theme or global patches. Core disabled built‑ins listed in `configs/lazy/init.lua`; keep aligned when adding plugins.
+12. Floating Panels & Trees: Nvim-tree sizing + dual (float/side) behavior relies on its `state` + shared size helpers—never replace with fixed `vim.api.nvim_open_win` args directly.
+13. Notifications: Use `require('utils.notifier').info|warn|error` (tuple highlighting) instead of `vim.notify` to ensure style & palette consistency.
+14. Highlight Additions: Prefer creating new groups; avoid silently overriding core Catppuccin groups unless intentionally theming.
+15. Refactors: Changing sizing math or UI helpers? Audit usages (`grep popup_config`, `telescope_layout`, `side_panel`). Changes cascade widely.
+16. Validation: After changes run `:Lazy sync`, `:checkhealth`, exercise key features (formatting, telescope, tree, completion), and inspect `:messages` for stack traces.
+17. Common Pitfalls: (a) Forgeting new import in lazy spec (plugin never loads); (b) hard‑coded window dimensions; (c) overriding `<Space>` leader; (d) direct `vim.notify`; (e) highlight name collisions.
+18. Style: Use Stylua rules (see `.stylua.toml` if present). Keep EmmyLua annotations for public helpers (`---@param`, `---@class`). Use trailing commas in multiline tables like existing specs.
+19. Quick Example (plugin spec skeleton):
 
-- **Bootstrap sequence**: `init.lua` enables Lua loader caching, then loads `configs/*` in order: globals → options → autocmds → usercmds → keymaps → lazy. Nothing else should be required at startup.
-- **Plugin management**: `lua/configs/lazy/` contains setup (`init.lua`) + bootstrap utilities (`utils.lua`). All plugins are declared by feature area using `spec` imports (`plugins/ui`, `plugins/ai`, `plugins/coding`, `plugins/editor`, `plugins/formatting`, `plugins/lsp`, `plugins/treesitter`). New functionality → add a file under an existing feature folder or a new folder + add `{ import = 'plugins.<folder>' }` to the spec list (ordering matters: UI first to expose palette helpers early).
-- **UI sizing & layout system**: Centralized in `configs/size.lua` + `utils/ui.lua` (popup centering, adaptive width/height, palette-driven highlight injection for Catppuccin). Uses semantic size tokens (`sm|md|lg|full|input`) with responsive behavior. Reuse these instead of hard‑coding numbers.
-- **State & behavior wrappers**: Many plugin configs expose small utility modules under `lua/plugins/**/<plugin>/utils.lua` or shared helpers under `lua/utils/` (formatters, notifier, progress, git, path, buffer, ui, etc.). Prefer extending these instead of duplicating logic.
+```lua
+return {
+	'author/plugin',
+	event = 'VeryLazy',
+	opts = function(_, opts) return opts end,
+	config = function(_, opts) require('plugin').setup(opts) end,
+}
+```
 
-## 2. Core Conventions
+20. When Unsure: Search existing plugin patterns first (`plugins/editor/`, `plugins/coding/`). Mirror established structure instead of inventing new abstractions.
 
-- **Leader key**: `<Space>` (set early in `configs/options.lua`). Do not change; all mappings assume this.
-- **Signcolumn merge**: `opt.signcolumn = 'number'` merges signs with line numbers. Avoid plugins that assume separate signcolumn width without testing.
-- **Floating windows**: Use `utils.ui.popup_config(size, with_border?)` for consistent centering & size tokens: `sm|md|lg|full|input` (adds border compensation optionally). Side panels/pair previews derive from `configs/size.lua` (`side_panel`, `side_preview`).
-- **Color scheme integration**: Add Catppuccin overrides via `require('utils.ui').catppuccin(function(palette, latte) return { Group = { fg = palette.text } } end)` inside a plugin spec item placed BEFORE the target plugin loads.
-- **Plugin spec pattern**: Return Lua table; keep options in `opts = function(_, opts) return opts end` to allow merging. Avoid mutating unrelated global tables.
-- **Lazy loading preference**: Default to `lazy = true`. Only force eager load (`lazy = false, priority = 1000`) when a plugin must patch something globally very early (like colorschemes).
-- **Performance optimizations**: Core Vim plugins are disabled in `configs/lazy/init.lua` performance section. Lua loader caching enabled in `init.lua`.
-
-## 3. Keymaps & Input Patterns
-
-- **Global keymaps**: Centralized in `configs/keymaps.lua`. When adding user-level maps, place them there unless tightly coupled to a plugin (then define inside that plugin's `on_attach` or `keys` entry). Always provide a `desc` for discoverability (which-key integration implied).
-- **Custom trimming logic**: `yy` → `^yg_` (yank trimmed), `dd` → custom function that trims then blackholes remainder. Do not override casually. If adding similar motions, follow that pattern (operate visually, blackhole register when appropriate).
-- **Diagnostic navigation**: Uses helper `diagnostic_goto(next, severity)` pattern (copy that style for new severity-filtered motions).
-- **Format & save**: `<A-s>` triggers `utils/formatters/async_style_enforcer.lua` for async formatting + linting workflow.
-- **Special cursor config**: Complex `guicursor` setup in `options.lua` with mode-specific blinking. Don't modify without understanding the pattern.
-
-## 4. Plugin Integration Patterns (Examples)
-
-- **Nvim-tree**: Custom dual-mode (float vs side) layout orchestrated via `plugins/editor/nvim-tree/` and a local `state` object. Functions like `tree.open()`, `tree.toggle_preview()`, and dynamic sizing rely on `configs/size` + `utils.ui`. When extending, respect `state.position` and avoid hard-coded window dimensions.
-- **Notifications**: Use `utils/notifier.lua` instead of `vim.notify` directly for consistent markdown + highlight reapplication with tuple syntax `{{text, hl_group}, ...}`.
-- **Formatting**: Asynchronous style enforcement via `utils/formatters/async_style_enforcer.lua`; formatting keymap `<A-s>` triggers that. Hook into that runner if adding new format steps.
-- **Telescope**: Uses `utils.ui.telescope_layout(size)` for consistent popup sizing. Custom highlight integration follows the Catppuccin pattern.
-- **Completion**: Blink.cmp with custom `register_kind()` function for extending completion types. Copilot integration limited to `copilot_max_items = 3`.
-
-## 5. Adding a New Plugin (Checklist)
-
-1. Pick the feature directory (`lua/plugins/<area>/`). If new area: create folder + add an import entry in `configs/lazy/init.lua` (maintain logical ordering: UI first, then tooling layers).
-2. Create `<plugin-name>.lua` returning a spec table. Include: repo string, `event`/`keys`/`ft` for lazy triggers, `opts = function(_, opts) return opts end` pattern for extendability, and `config = function(_, opts) require('<module>').setup(opts) end` when needed.
-3. Reuse shared helpers: sizing (`utils.ui`), palette injection, notifier, path/git utilities.
-4. Provide meaningful `desc` fields for all keymaps.
-5. Avoid global mutations; keep state local or in a dedicated `utils.lua` under the plugin folder if reused across spec pieces.
-
-## 6. Safe Refactor Guidelines
-
-- Before altering size math or popup behavior, inspect both `configs/size.lua` and any plugin utilities consuming it (e.g. telescope, nvim-tree). Changes often cascade.
-- Do not rename exported helper module files (`utils/ui.lua`, `configs/size.lua`) without updating every reference; they are widely required.
-- When adding highlights, ensure groups won't clash with existing Catppuccin ones; prefer explicit new group names over overriding unless intentional.
-
-## 7. Testing & Validation Workflow
-
-- There is no automated test harness; manual validation happens by launching Neovim and triggering lazy load events.
-- After adding plugins or refactors: open Neovim, run `:Lazy sync`, then `:checkhealth` for core health. Use `:messages` + notifier surfaces for runtime errors.
-- For performance issues, verify disabled built-ins list in `configs/lazy/init.lua` still aligns with changes.
-
-## 8. Snippets & Completion
-
-- **Snippets**: Live under `snippets/` (various language JSON files). Follow existing naming & shared snippet split (`*-shared.json`). Add new snippet files with clear language-specific scope.
-- **Completion**: Blink.cmp backend configured in `plugins/coding/blink.cmp.lua`. Uses custom `register_kind()` for extending completion types. Follow the same pattern if extending sources.
-- **Copilot integration**: Limited to max 3 items via `copilot_max_items` constant. Custom kind registration with specific highlight group `BlinkCmpKindCopilot`.
-
-## 9. Style & Formatting
-
-- **Stylua config**: `.stylua.toml` defines formatting rules (respect it). When generating Lua, prefer trailing commas in multiline tables and aligned style similar to existing files.
-- **EmmyLua annotations**: Keep modules annotated with EmmyLua-style comments (`---@class`, `---@param`) when adding public helpers.
-- **Async formatting workflow**: `utils/formatters/async_style_enforcer.lua` handles formatting + linting with progress reporting. Integrates with conform.nvim and custom linters.
-
-## 10. Common Pitfalls
-
-- **Forgetting imports**: Forgetting to include a new feature folder in the lazy spec import (plugin never loads).
-- **Hard-coded dimensions**: Hard-coding window sizes (breaks responsiveness & float/side duality).
-- **Early setting overrides**: Overriding leader or cursor settings before plugins load (mapping drift).
-- **Inconsistent notifications**: Direct `vim.notify` usage causing inconsistent highlighting vs `utils.notifier`.
-- **Highlight conflicts**: Adding highlights without checking existing Catppuccin integration patterns.
-
-## 11. When Unsure
-
-- Search for an existing pattern in `lua/plugins/**` before introducing a new style.
-- If extending a plugin with custom highlights, copy the pattern used in `plugins/editor/nvim-tree/init.lua` (wrapping in `require('utils.ui').catppuccin(...)`).
-
-Keep responses focused: cite specific files, reuse helpers, and preserve lazy-loading semantics.
+Feedback Welcome: If any area feels under‑specified (e.g. completion kinds, layout tokens, formatting pipeline), ask and we can expand that section.
