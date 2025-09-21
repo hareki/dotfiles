@@ -24,7 +24,7 @@ _evalcache /opt/homebrew/bin/brew shellenv
 
 # spicetify and lazygit only require in interactive shell
 # while the mise shims path we set in .zshenv is overwiritten by homebrew
-PATH="$PATH:$HOME/.local/share/mise/shims:$HOME/.spicetify"
+PATH="$PATH:$HOME/.local/share/mise/shims"
 
 # Load configuration files (the order matters)
 for cfg in aliases vi-mode compdef keymaps fzf zoxide; do
