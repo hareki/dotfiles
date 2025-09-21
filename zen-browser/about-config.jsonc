@@ -1,9 +1,0 @@
-// Non-exhaustive list of my key Firefox about:config tweaks
-{
-    "layout.css.devPixelsPerPx": 2.1,
-    "devtools.toolbox.zoomValue": 1.1,
-    "toolkit.legacyUserProfileCustomizations.stylesheets": true,
-    "browser.tabs.fadeOutUnloadedTabs": true,
-    "browser.tabs.fadeOutExplicitlyUnloadedTabs": true,
-    "browser.tabs.min_inactive_duration_before_unload": 300000
-}
