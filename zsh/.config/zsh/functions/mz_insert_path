@@ -4,8 +4,20 @@ function mz_insert_path {
   # Export the current PATH variable to the widget's environment
   local -x PATH="$PATH"
 
+  local use_home=0
+  if [[ $1 == '-a' ]]; then
+    use_home=1
+  fi
+
+  local base_dir
+  if (( use_home )); then
+    base_dir="$HOME"
+  else
+    base_dir="$PWD"
+  fi
+
   local path
-  path=$(mz -lp)
+  path=$(mz -lp "$base_dir")
 
   if [[ -z "$path" ]]; then
     return 0

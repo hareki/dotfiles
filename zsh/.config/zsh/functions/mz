@@ -109,7 +109,8 @@ If [PATH] is provided, it will be used as the root directory to begin the search
     fzf_options+=(
       --preview="bat --color=always --theme=\"Catppuccin Mocha\" {}"
       --preview-window=down:60%
-      -h 80%  # Adjust height when using preview
+      -w 80%
+      -h 80% 
     )
   fi
 
