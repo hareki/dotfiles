@@ -103,7 +103,8 @@ return {
       },
       {
         '<A-v>',
-        '<C-o>"+<Plug>(YankyPutBefore)<Right>',
+        -- Crazy syntax to make the pasted text and cursor position after pasting intuitive
+        '<Left><C-o>"+<Plug>(YankyPutAfter)<Right>',
         mode = 'i',
         desc = 'Paste from System Clipboard',
       },

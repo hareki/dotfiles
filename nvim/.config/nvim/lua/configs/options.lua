@@ -55,6 +55,10 @@ opt.signcolumn = 'number' -- Always show the signcolumn, otherwise it would shif
 opt.wildmode = 'longest:full,full' -- Command-line completion mode
 opt.winminwidth = 5 -- Minimum window width
 opt.laststatus = 3 -- Global statusline
+opt.shiftwidth = 2 -- Number of spaces to use for each step of (auto)indent
+opt.tabstop = 2 -- Number of spaces tabs count for
+opt.softtabstop = 2 -- Number of spaces tabs count for while performing editing operations
+opt.expandtab = true -- Use spaces instead of tabs
 
 -- https://github.com/sindrets/diffview.nvim?tab=readme-ov-file#tips-and-faq
 opt.fillchars:append({ diff = '╱', eob = ' ' })
