@@ -15,6 +15,7 @@ os:
     [ -z "$NVIM" ] && env TERM=wezterm nvim -- "{{dir}}" ||
     (nvim --server "$NVIM" --remote-send "q" && env TERM=wezterm nvim --server "$NVIM" --remote "{{dir}}")
 gui:
+  switchTabsWithPanelJumpKeys: true
   cursorStyle: "blinkingBar"
   scrollHeight: 4
   authorColors:
