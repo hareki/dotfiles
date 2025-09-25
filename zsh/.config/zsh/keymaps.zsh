@@ -8,9 +8,10 @@ zle -N mz_insert_path_home
 
 # ctrl+shift+o
 bindkey '\e[1;6O' mz_insert_path_home
-bindkey '^Y' autosuggest-accept
 # ctrl+shift+y
 bindkey '\e[1;6Y' forward-word
+
+bindkey '^Y' autosuggest-accept
 
 fzf-tab-complete() {
   zle expand-or-complete
