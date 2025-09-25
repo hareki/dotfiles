@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-function _sync_d_autocomplete {
+_sync_d_autocomplete() {
   local -a dirs
   local repo_dir="$STOW_REPO"
 

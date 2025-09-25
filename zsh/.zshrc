@@ -38,7 +38,7 @@ for func in $functions_dir/*(.N); do
   autoload -Uz "${func:t}"
 done
 
-function vivid_ls {                     
+vivid_ls() {                     
   local theme=${1:-catppuccin-mocha} 
   local colors=$(vivid generate "$theme") || return
   printf 'export LS_COLORS=%q\n' "$colors"

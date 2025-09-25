@@ -3,7 +3,7 @@
 # [Y]azi [C]hange [D]irectory
 # Press q to quit and cd into the cwd
 # Press Q to quit without changing directory
-function ycd {
+ycd () {
   local cwd_file
   cwd_file=$(mktemp)
   yazi --cwd-file="$cwd_file" "$@"

@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-function mz_insert_path {
+mz_insert_path() {
   # Export the current PATH variable to the widget's environment
   local -x PATH="$PATH"
 

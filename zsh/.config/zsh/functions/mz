@@ -2,7 +2,7 @@
 
 # [M]y f[Z]f
 # Heavily crafted with the help of ChatGPT
-function mz {
+mz () {
   # Default values
   local type=""
   local root_dir="$HOME"  # Default to home directory

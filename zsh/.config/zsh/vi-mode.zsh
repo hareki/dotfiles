@@ -4,7 +4,7 @@ bindkey -v
 
 # Change cursor shape for different vi modes.
 # https://gist.github.com/LukeSmithxyz/e62f26e55ea8b0ed41a65912fbebbe52
-function zle-keymap-select {
+zle-keymap-select() {
   if [[ ${KEYMAP} == vicmd ]] ||
     [[ $1 = 'block' ]]; then
     echo -ne '\e[1 q'
@@ -17,14 +17,14 @@ function zle-keymap-select {
 }
 zle -N zle-keymap-select
 
-function zle-line-init {
+zle-line-init() {
   zle -K viins # initiate `vi insert` as keymap (can be removed if `bindkey -V` has been set elsewhere)
   echo -ne "\e[5 q"
 }
 zle -N zle-line-init
 
 echo -ne '\e[5 q' # Use beam shape cursor on startup.
-function preexec { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
+preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 
 typeset -f osc52_copy >/dev/null || osc52_copy() {
   local data; data=$(printf %s "$1" | base64)

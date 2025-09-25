@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-function explorer {
+explorer () {
     if [ -z "$1" ]; then
       explorer.exe
     else

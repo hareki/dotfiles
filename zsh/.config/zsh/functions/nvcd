@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 # [N]eo[V]im and [C]hange [D]irectory
-function nvcd {
+nvcd() {
   # Have to use the `command` to explicitly call a command without triggering the alias.
 
   # No argument given

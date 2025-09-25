@@ -4,7 +4,7 @@
 # https://stackoverflow.com/questions/54367011/git-bare-repositories-worktrees-and-tracking-branches?noredirect=1#comment95612475_54367011
 # https://stackoverflow.com/questions/74862356/git-pull-doesnt-pull-latest-changes-when-using-git-worktree/74866544#comment132115905_74862356
 # Git [Bare] [W]ork[T]ree
-function git-bwt {
+git-bwt () {
   if [ -z "$1" ]; then
     echo "Usage: git-bwt <remote-url>"
     return 1
