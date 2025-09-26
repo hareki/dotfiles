@@ -11,6 +11,10 @@
     display: none !important;
   }
   
+  & .urlbar-background {
+	  --zen-urlbar-background-base: #1e1e2e !important;;
+  }
+  
   /* ---- Zen workspaces button ---- */
   #zen-workspaces-button {
     & toolbarbutton {
