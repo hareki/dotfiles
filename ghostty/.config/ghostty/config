@@ -28,10 +28,12 @@ shell-integration = zsh
 shell-integration-features = true
 cursor-style = bar
 cursor-style-blink = true
+
 # Text
 cursor-color = #cdd6f4	
 # Crust
 cursor-text = #11111b
+
 # custom-shader = shaders/cursor_trail.glsl
 
 # Keybindings

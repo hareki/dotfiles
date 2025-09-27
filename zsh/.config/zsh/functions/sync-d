@@ -2,11 +2,25 @@
 
 # [S]ync-[D]otfiles
 sync-d () {
-  if [ -d "$STOW_REPO/$1" ]; then
+  # Fail fast if no argument
+  if [ -z "$1" ]; then
+    echo "Usage: sync-d <dir>" >&2
+    return 1
+  fi
+
+  local dir="$1"
+  local target_dir="$HOME"   # default target
+
+  if [ -d "$STOW_REPO/$dir" ]; then
+    # Ensure target exists
+    mkdir -p "$target_dir" || return 1
     z "$STOW_REPO" || return
-    stow "$1" -t ~
-    z -  > /dev/null
+    stow "$dir" -t "$target_dir"
+    local stow_status=$?
+    z - > /dev/null
+    return $stow_status
   else
-    echo "Directory $STOW_REPO/$1 does not exist."
+    echo "Directory $STOW_REPO/$dir does not exist." >&2
+    return 1
   fi
 }

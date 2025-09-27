@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# A shim script to intercept calls to the real `kitten` binary (located one
+# directory up from this shim) to add some default flags. This works around the
+# issue with ghostty 1.2 bell-features that causes the dock icon to bounce when
+# using `kitten icat`.
+
+KITTY_REAL="$(dirname "$0")/../kitten"
+
+if [[ "${1:-}" == "icat" ]]; then
+  shift
+  # The default --transfer-mode=detect is the real culprit, other flags are just for speed 
+  exec "$KITTY_REAL" icat --detect-support=no --transfer-mode=memory "$@"
+else
+  exec "$KITTY_REAL" "$@"
+fi

@@ -3,6 +3,9 @@
   "logo": {
     // Need the "kitten" cli, we can either download the entire kitty terminal or just the kitten binary from their repo release
     // Learn more: https://github.com/fastfetch-cli/fastfetch/issues/1866
+
+    // I need to create a shims point it to the real kitten binary while intercepting the call to alter some default flags
+    // to workaround the problem it causes with ghostty 1.2 bell-features
     "type": "kitty-icat",
     "source": "~/.config/fastfetch/logo_transparent_cropped.png",
     "position": "left",
