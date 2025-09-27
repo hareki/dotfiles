@@ -71,9 +71,6 @@ keybind = cmd+shift+v=paste_from_clipboard
 keybind = cmd+]=text:\x1b]
 keybind = cmd+[=text:\x1b[
 
-# SessionX
-keybind = cmd+p=text:\x1bp
-
 # Toggle floating terminal (Nvim + FloaX)
 keybind = cmd+t=text:\x1bt
 # Toggle terminal tab (Nvim)
