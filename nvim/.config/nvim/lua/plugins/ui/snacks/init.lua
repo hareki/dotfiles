@@ -24,7 +24,7 @@ return {
       {
         '<leader><leader>',
         function()
-          Snacks.picker.files()
+          require('plugins.ui.snacks.picker_query_persister').files()
         end,
         desc = 'Find Files',
       },
@@ -45,7 +45,7 @@ return {
       {
         '<leader>f/',
         function()
-          Snacks.picker.grep({
+          require('plugins.ui.snacks.picker_query_persister').grep({
             title = 'Grep',
           })
         end,
@@ -148,6 +148,9 @@ return {
                 ['<Tab>'] = { 'toggle_preview_focus', mode = { 'i', 'n' } },
                 ['m'] = { 'select' },
                 ['<C-t>'] = { 'snacks_to_trouble', mode = { 'i', 'n' } },
+                ['<C-Down>'] = { 'history_forward', mode = { 'i', 'n' } },
+                ['<C-Up>'] = { 'history_back', mode = { 'i', 'n' } },
+                ['<C-c>'] = { 'cancel', mode = { 'i', 'n' } },
               },
             },
           },
