@@ -1,8 +1,9 @@
+# Updates
 auto-update = download
 auto-update-channel = stable
 
+# UI
 theme = Catppuccin Mocha
-
 macos-titlebar-style = hidden
 mouse-hide-while-typing = true
 copy-on-select = clipboard
@@ -12,6 +13,7 @@ window-padding-balance = true
 window-padding-x = 10
 window-padding-y = 12,6
 
+# Font
 font-size = 20.5
 adjust-icon-height = 15%
 font-style = SemiBold
@@ -24,19 +26,19 @@ font-style-bold-italic  = ExtraBold Italic
 # background-opacity = 0.8
 # background-blur = true
 
+# Shell & Cursor
 shell-integration = zsh
 shell-integration-features = true
 cursor-style = bar
 cursor-style-blink = true
 
-# Text
+# Cursor
 cursor-color = #cdd6f4	
-# Crust
 cursor-text = #11111b
-
 # custom-shader = shaders/cursor_trail.glsl
 
 # Keybindings
+# Mapped heavily for tmux + neovim + zsh workflows
 # ----------------------
 
 macos-option-as-alt = true
