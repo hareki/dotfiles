@@ -5,8 +5,12 @@
   
   zen-workspace {
     --zen-primary-color: #89b4fa !important;
+    
+    & > arrowscrollbox {
+      margin-top: 6px;
+    }
   }
-  
+
   .zen-current-workspace-indicator {
     display: none !important;
   }
