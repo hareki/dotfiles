@@ -116,7 +116,7 @@ return {
             fmt = string.lower,
             icon = {
               -- "󰀵 ",
-              '  ',
+              ' ',
               color = function()
                 local mode = require('lualine.utils.mode').get_mode()
                 return mode_hl[mode]
@@ -134,7 +134,7 @@ return {
           {
             require('utils.tab').lualine,
             icon = {
-              icons.misc.tab .. ' ',
+              icons.misc.tab,
               color = { fg = palette.mantle, bg = palette.mauve },
             },
             separator = { left = separator.left, right = separator.right },
@@ -208,7 +208,7 @@ return {
             separator = separator,
             icon = {
               -- "󱉭 ",
-              '  ',
+              ' ',
               color = { fg = palette.mantle, bg = palette.pink },
             },
             padding = { left = 0, right = 0 },
@@ -221,7 +221,7 @@ return {
             padding = { left = 0, right = 0 },
             color = { fg = palette.green, bg = palette.surface0 },
             icon = {
-              '  ',
+              ' ',
               color = { fg = palette.surface0, bg = palette.green },
             },
             separator = separator,
