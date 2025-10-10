@@ -55,6 +55,25 @@ return {
         ['@markup.italic'] = { fg = palette.flamingo, italic = true },
         ['@markup.strong'] = { fg = palette.flamingo, bold = true },
       },
+      lsp_styles = {
+        virtual_text = {
+          errors = { 'italic' },
+          hints = { 'italic' },
+          warnings = { 'italic' },
+          information = { 'italic' },
+          ok = { 'italic' },
+        },
+        underlines = {
+          errors = { 'undercurl' },
+          hints = { 'undercurl' },
+          warnings = { 'undercurl' },
+          information = { 'undercurl' },
+          ok = { 'undercurl' },
+        },
+        inlay_hints = {
+          background = true,
+        },
+      },
       integrations = {
         cmp = true,
         dashboard = true,
@@ -79,26 +98,6 @@ return {
         dropbar = {
           enabled = true,
           color_mode = false, -- enable color for kind's texts, not just kind's icons
-        },
-        native_lsp = {
-          enabled = true,
-          virtual_text = {
-            errors = { 'italic' },
-            hints = { 'italic' },
-            warnings = { 'italic' },
-            information = { 'italic' },
-            ok = { 'italic' },
-          },
-          underlines = {
-            errors = { 'undercurl' },
-            hints = { 'undercurl' },
-            warnings = { 'undercurl' },
-            information = { 'undercurl' },
-            ok = { 'undercurl' },
-          },
-          inlay_hints = {
-            background = true,
-          },
         },
         indent_blankline = {
           enabled = true,

@@ -7,7 +7,7 @@ return {
     }
   end),
   {
-    'hiphish/rainbow-delimiters.nvim',
+    'https://gitlab.com/HiPhish/rainbow-delimiters.nvim',
     event = 'VeryLazy',
   },
 }
