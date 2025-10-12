@@ -9,12 +9,18 @@ export ZSH_EVALCACHE_DIR="$HOME/.cache/.zsh-evalcache"
 
 export ANTIDOTE_HOME="$HOME/.cache/antidote"
 
-zstyle ':omz:update' mode auto      # update oh-my-zsh automatically without asking
+# Update oh-my-zsh automatically without asking
+zstyle ':omz:update' mode auto  
+
+# Load multiple ssh agent identities
+zstyle ':omz:plugins:ssh-agent' identities id_ed25519_personal id_ed25519_zigvy
 zstyle ':omz:plugins:ssh-agent' quiet yes
+
 zstyle ':antidote:bundle:*' zcompile 'yes'
 
 zstyle ':fzf-tab:*' fzf-flags --height=11
 zstyle ':fzf-tab:*' use-fzf-default-opts yes
+
 # Force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
 zstyle ':completion:*' menu no
 
