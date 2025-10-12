@@ -28,7 +28,10 @@ font-style-bold-italic  = ExtraBold Italic
 
 # Shell & Cursor
 shell-integration = zsh
-shell-integration-features = true
+
+# Cursor feature will mess up the cursor shape I set in zsh vi-mode
+shell-integration-features = no-cursor
+
 cursor-style = bar
 cursor-style-blink = true
 
