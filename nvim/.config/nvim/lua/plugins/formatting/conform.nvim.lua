@@ -1,21 +1,37 @@
 return {
   'stevearc/conform.nvim',
   opts = function()
-    local perttier_filetypes = {}
-    local js_filetypes = {
-      'javascript',
-      'javascriptreact',
-      'typescript',
-      'typescriptreact',
+    local formatter_groups = {
+      prettier = {
+        filetypes = {
+          'javascript',
+          'javascriptreact',
+          'typescript',
+          'typescriptreact',
+          'css',
+          'scss',
+          'html',
+          'json',
+          'jsonc',
+          'yaml',
+          'markdown',
+          'mdx',
+        },
+        config = { 'prettierd', 'prettier', stop_after_first = true },
+      },
+      stylua = {
+        filetypes = { 'lua' },
+        config = { 'stylua' },
+      },
     }
-    for _, ft in ipairs(js_filetypes) do
-      perttier_filetypes[ft] = { 'prettierd', 'prettier', stop_after_first = true }
+
+    local formatters_by_ft = {}
+    for _, group in pairs(formatter_groups) do
+      for _, ft in ipairs(group.filetypes) do
+        formatters_by_ft[ft] = group.config
+      end
     end
 
-    return {
-      formatters_by_ft = vim.tbl_extend('error', {
-        lua = { 'stylua' },
-      }, perttier_filetypes),
-    }
+    return { formatters_by_ft = formatters_by_ft }
   end,
 }
