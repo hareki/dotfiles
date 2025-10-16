@@ -3,17 +3,17 @@ os:
   # A copycat of this: https://github.com/jesseduffield/lazygit/blob/b62546c391d27d0ecc20b43535077ded4e83c4f2/pkg/config/editor_presets.go#L58
   # Just remove the "remote-tab" and add some double quote here and there with the help of ChatGPT to make it work in yaml format
   edit: >
-    [ -z "$NVIM" ] && env TERM=wezterm nvim -- "{{filename}}" ||
-    (nvim --server "$NVIM" --remote-send "q" && env TERM=wezterm nvim --server "$NVIM" --remote "{{filename}}")
+    [ -z "$NVIM" ] && nvim -- "{{filename}}" ||
+    (nvim --server "$NVIM" --remote-send "q" && nvim --server "$NVIM" --remote "{{filename}}")
 
   editAtLine: >
-    [ -z "$NVIM" ] && env TERM=wezterm nvim +{{line}} -- "{{filename}}" ||
+    [ -z "$NVIM" ] && nvim +{{line}} -- "{{filename}}" ||
     (nvim --server "$NVIM" --remote-send "q" &&
-    env TERM=wezterm nvim --server "$NVIM" --remote-send ":edit {{filename}}\<CR>:call cursor({{line}},1)\<CR>")
+    nvim --server "$NVIM" --remote-send ":edit {{filename}}\<CR>:call cursor({{line}},1)\<CR>")
 
   openDirInEditor: >
-    [ -z "$NVIM" ] && env TERM=wezterm nvim -- "{{dir}}" ||
-    (nvim --server "$NVIM" --remote-send "q" && env TERM=wezterm nvim --server "$NVIM" --remote "{{dir}}")
+    [ -z "$NVIM" ] && nvim -- "{{dir}}" ||
+    (nvim --server "$NVIM" --remote-send "q" && nvim --server "$NVIM" --remote "{{dir}}")
 gui:
   switchTabsWithPanelJumpKeys: true
   cursorStyle: "blinkingBar"
@@ -24,25 +24,25 @@ gui:
 
   # https://github.com/catppuccin/lazygit
   theme:
-   activeBorderColor:
-     - '#89b4fa'
-     - bold
-   inactiveBorderColor:
-     - '#a6adc8'
-   optionsTextColor:
-     - '#89b4fa'
-   selectedLineBgColor:
-     - '#313244'
-   cherryPickedCommitBgColor:
-     - '#45475a'
-   cherryPickedCommitFgColor:
-     - '#89b4fa'
-   unstagedChangesColor:
-     - '#f38ba8'
-   defaultFgColor:
-     - '#cdd6f4'
-   searchingActiveBorderColor:
-     - '#f9e2af'
+    activeBorderColor:
+      - "#89b4fa"
+      - bold
+    inactiveBorderColor:
+      - "#a6adc8"
+    optionsTextColor:
+      - "#89b4fa"
+    selectedLineBgColor:
+      - "#313244"
+    cherryPickedCommitBgColor:
+      - "#45475a"
+    cherryPickedCommitFgColor:
+      - "#89b4fa"
+    unstagedChangesColor:
+      - "#f38ba8"
+    defaultFgColor:
+      - "#cdd6f4"
+    searchingActiveBorderColor:
+      - "#f9e2af"
 git:
   paging:
     colorArg: always
