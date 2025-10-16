@@ -14,7 +14,6 @@ return {
     local icons = require('configs.icons')
     return {
       order = 3, -- LSP info comes first
-      height_offset = -1,
       keyboard_mode = true,
       mouse_mode = false,
       border = 'rounded',
