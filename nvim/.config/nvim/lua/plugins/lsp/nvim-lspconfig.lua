@@ -76,7 +76,16 @@ return {
       end,
     })
 
-    vim.lsp.enable({ 'lua_ls', 'vtsls', 'typos_lsp', 'eslint' })
+    vim.lsp.enable({
+      'lua_ls',
+      'vtsls',
+      'typos_lsp',
+      'eslint',
+      'jsonls',
+      'html',
+      'cssls',
+      'css_variables',
+    })
 
     vim.lsp.config('typos_lsp', {
       init_options = {
@@ -85,16 +94,16 @@ return {
       },
     })
 
-    local base_on_attach = vim.lsp.config.eslint.on_attach
+    local base_on_eslint_attach = vim.lsp.config.eslint.on_attach
 
     -- HINT: Restart eslint with `:LspRestart eslint`
     vim.lsp.config('eslint', {
       on_attach = function(client, bufnr)
-        if not base_on_attach then
+        if not base_on_eslint_attach then
           return
         end
 
-        base_on_attach(client, bufnr)
+        base_on_eslint_attach(client, bufnr)
 
         local linters = require('utils.linters')
         local eslint_linter = require('utils.linters.eslint')
