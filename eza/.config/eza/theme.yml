@@ -1,0 +1,657 @@
+colourful: true
+
+filekinds:
+  normal: { foreground: '#cdd6f4' }
+  directory: { foreground: '#89b4fa' }
+  symlink: { foreground: '#89b4fa' }
+  pipe: { foreground: '#bac2de' }
+  block_device: { foreground: '#eba0ac' }
+  char_device: { foreground: '#eba0ac' }
+  socket: { foreground: '#bac2de' }
+  special: { foreground: '#cba6f7' }
+  executable: { foreground: '#a6e3a1' }
+  mount_point: { foreground: '#94e2d5' }
+
+perms:
+  user_read: { foreground: '#f38ba8', is_bold: true }
+  user_write: { foreground: '#f9e2af', is_bold: true }
+  user_execute_file: { foreground: '#a6e3a1', is_bold: true }
+  user_execute_other: { foreground: '#a6e3a1', is_bold: true }
+  group_read: { foreground: '#f38ba8' }
+  group_write: { foreground: '#f9e2af' }
+  group_execute: { foreground: '#a6e3a1' }
+  other_read: { foreground: '#f38ba8' }
+  other_write: { foreground: '#f9e2af' }
+  other_execute: { foreground: '#a6e3a1' }
+  special_user_file: { foreground: '#cba6f7' }
+  special_other: { foreground: '#7f849c' }
+  attribute: { foreground: '#9399b2' }
+
+size:
+  major: { foreground: '#a6adc8' }
+  minor: { foreground: '#89dceb' }
+  number_byte: { foreground: '#bac2de' }
+  number_kilo: { foreground: '#a6adc8' }
+  number_mega: { foreground: '#89b4fa' }
+  number_giga: { foreground: '#cba6f7' }
+  number_huge: { foreground: '#cba6f7' }
+  unit_byte: { foreground: '#a6adc8' }
+  unit_kilo: { foreground: '#89dceb' }
+  unit_mega: { foreground: '#cba6f7' }
+  unit_giga: { foreground: '#cba6f7' }
+  unit_huge: { foreground: '#94e2d5' }
+
+users:
+  user_you: { foreground: '#cdd6f4' }
+  user_root: { foreground: '#f38ba8' }
+  user_other: { foreground: '#eba0ac' }
+  group_yours: { foreground: '#a6adc8' }
+  group_other: { foreground: '#9399b2' }
+  group_root: { foreground: '#f38ba8' }
+
+links:
+  normal: { foreground: '#89b4fa' }
+  multi_link_file: { foreground: '#89b4fa' }
+
+git:
+  new: { foreground: '#a6e3a1' }
+  modified: { foreground: '#f9e2af' }
+  deleted: { foreground: '#eba0ac' }
+  renamed: { foreground: '#94e2d5' }
+  typechange: { foreground: '#f5c2e7' }
+  ignored: { foreground: '#7f849c' }
+  conflicted: { foreground: '#fab387' }
+
+git_repo:
+  branch_main: { foreground: '#a6adc8' }
+  branch_other: { foreground: '#cba6f7' }
+  git_clean: { foreground: '#a6e3a1' }
+  git_dirty: { foreground: '#eba0ac' }
+
+security_context:
+  colon: { foreground: '#6c7086' }
+  user: { foreground: '#7f849c' }
+  role: { foreground: '#cba6f7' }
+  typ: { foreground: '#585b70' }
+  range: { foreground: '#cba6f7' }
+
+file_type:
+  image: { foreground: '#f9e2af' }
+  video: { foreground: '#f38ba8' }
+  music: { foreground: '#a6e3a1' }
+  lossless: { foreground: '#94e2d5' }
+  crypto: { foreground: '#7f849c' }
+  document: { foreground: '#cdd6f4' }
+  compressed: { foreground: '#f5c2e7' }
+  temp: { foreground: '#eba0ac' }
+  compiled: { foreground: '#74c7ec' }
+  source: { foreground: '#89b4fa' }
+
+extensions:
+  # — JS family
+  js: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰌞', style: { foreground: '#f9e2af' } },
+    } # MiniIconsYellow
+  mjs:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰌞', style: { foreground: '#f9e2af' } },
+    }
+  cjs:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰌞', style: { foreground: '#f9e2af' } },
+    }
+  jsx: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#74c7ec' } },
+    } # javascriptreact → MiniIconsAzure
+
+  # — JSON / YAML / TOML / INI / ENV
+  json: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰘦', style: { foreground: '#f9e2af' } },
+    } # MiniIconsYellow
+  jsonc:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰘦', style: { foreground: '#f9e2af' } },
+    }
+  yaml: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#cba6f7' } },
+    } # MiniIconsPurple
+  yml:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#cba6f7' } },
+    }
+  toml: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#fab387' } },
+    } # MiniIconsOrange
+  ini: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰯂', style: { foreground: '#74c7ec' } },
+    } # dosini → MiniIconsAzure
+  env: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰒓', style: { foreground: '#f9e2af' } },
+    } # closest: pamenv → MiniIconsYellow
+
+  # — TS family
+  ts: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰛦', style: { foreground: '#74c7ec' } },
+    } # typescript → MiniIconsAzure
+  tsx: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#89b4fa' } },
+    } # typescriptreact → MiniIconsBlue
+
+  # — Go / Lua / Kotlin / C#
+  go: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰟓', style: { foreground: '#74c7ec' } },
+    } # MiniIconsAzure
+  lua: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰢱', style: { foreground: '#74c7ec' } },
+    } # MiniIconsAzure
+  kt: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󱈙', style: { foreground: '#89b4fa' } },
+    } # MiniIconsBlue
+  kts:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󱈙', style: { foreground: '#89b4fa' } },
+    }
+  cs: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰌛', style: { foreground: '#a6e3a1' } },
+    } # MiniIconsGreen
+
+  # — Markdown
+  md: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰍔', style: { foreground: '#cdd6f4' } },
+    } # markdown → MiniIconsGrey
+  markdown:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰍔', style: { foreground: '#cdd6f4' } },
+    }
+
+  # — CSS family
+  css: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰌜', style: { foreground: '#74c7ec' } },
+    } # MiniIconsAzure
+  scss: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰟬', style: { foreground: '#f38ba8' } },
+    } # MiniIconsRed
+  sass:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰟬', style: { foreground: '#f38ba8' } },
+    }
+  less: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰌜', style: { foreground: '#cba6f7' } },
+    } # MiniIconsPurple
+
+  # — Rust / build
+  rs: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󱘗', style: { foreground: '#fab387' } },
+    } # rust → MiniIconsOrange
+  lock:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#fab387' } },
+    }
+  makefile: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󱁤', style: { foreground: '#cdd6f4' } },
+    } # make → MiniIconsGrey
+  mk:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󱁤', style: { foreground: '#cdd6f4' } },
+    }
+  cmake: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󱁤', style: { foreground: '#fab387' } },
+    } # cmake → MiniIconsOrange
+
+  # — Shells
+  sh: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#cdd6f4' } },
+    } # MiniIconsGrey
+  bash: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#a6e3a1' } },
+    } # MiniIconsGreen
+  zsh: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#a6e3a1' } },
+    } # MiniIconsGreen
+  fish: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#cdd6f4' } },
+    } # MiniIconsGrey
+  ps1: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰨊', style: { foreground: '#89b4fa' } },
+    } # MiniIconsBlue
+
+  # — C / C++ family
+  c: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰙱', style: { foreground: '#89b4fa' } },
+    } # MiniIconsBlue
+  h: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#89b4fa' } },
+    } # MiniIconsBlue
+  cpp: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰙲', style: { foreground: '#74c7ec' } },
+    } # MiniIconsAzure
+  cxx:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰙲', style: { foreground: '#74c7ec' } },
+    }
+  cc:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰙲', style: { foreground: '#74c7ec' } },
+    }
+  hh: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#74c7ec' } },
+    } # MiniIconsAzure
+  hpp:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#74c7ec' } },
+    }
+  mm: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰀵', style: { foreground: '#fab387' } },
+    } # objcpp → MiniIconsOrange
+
+  # — Python / Ruby / PHP
+  py: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰌠', style: { foreground: '#f9e2af' } },
+    } # python → MiniIconsYellow
+  rb: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰴭', style: { foreground: '#f38ba8' } },
+    } # ruby → MiniIconsRed
+  php: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰌟', style: { foreground: '#cba6f7' } },
+    } # MiniIconsPurple
+
+  # — Data / DB
+  csv: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#a6e3a1' } },
+    } # MiniIconsGreen
+  tsv: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#89b4fa' } },
+    } # MiniIconsBlue
+  parquet: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰆼', style: { foreground: '#94e2d5' } },
+    } # closest DB cyan
+  sqlite:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰆼', style: { foreground: '#94e2d5' } },
+    }
+  db:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰆼', style: { foreground: '#94e2d5' } },
+    }
+
+  # — Docs
+  pdf: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰈦', style: { foreground: '#f38ba8' } },
+    } # MiniIconsRed
+  doc: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰈬', style: { foreground: '#89b4fa' } },
+    } # treat as Blue
+  docx:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰈬', style: { foreground: '#89b4fa' } },
+    }
+  xls: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#a6e3a1' } },
+    } # spreadsheets → Green
+  xlsx:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#a6e3a1' } },
+    }
+  ppt: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#fab387' } },
+    } # slides → Orange
+  pptx:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#fab387' } },
+    }
+  txt: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰦪', style: { foreground: '#f9e2af' } },
+    } # text → MiniIconsYellow
+  rtf: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰚞', style: { foreground: '#89b4fa' } },
+    } # MiniIconsAzure
+  epub: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#cdd6f4' } },
+    } # Grey
+
+  # — Images / SVG
+  png:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#f9e2af' } },
+    }
+  jpg:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#f9e2af' } },
+    }
+  jpeg:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#f9e2af' } },
+    }
+  webp:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#f9e2af' } },
+    }
+  gif:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#f9e2af' } },
+    }
+  ico:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#f9e2af' } },
+    }
+  avif:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#f9e2af' } },
+    }
+  svg: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰜡', style: { foreground: '#f9e2af' } },
+    } # MiniIconsYellow
+  svgz:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰜡', style: { foreground: '#f9e2af' } },
+    }
+
+  # — HTML / video / audio
+  htm: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰌝', style: { foreground: '#fab387' } },
+    } # MiniIconsOrange
+  html:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰌝', style: { foreground: '#fab387' } },
+    }
+  mp4: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#f38ba8' } },
+    } # MiniIconsRed
+  m4v:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#f38ba8' } },
+    }
+  mov:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#f38ba8' } },
+    }
+  mkv:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#f38ba8' } },
+    }
+  webm:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#f38ba8' } },
+    }
+  avi:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#f38ba8' } },
+    }
+  mp3: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#a6e3a1' } },
+    } # MiniIconsGreen
+  flac:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#a6e3a1' } },
+    }
+  wav:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#a6e3a1' } },
+    }
+  ogg:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#a6e3a1' } },
+    }
+  m4a:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#a6e3a1' } },
+    }
+
+  # — Archives
+  zip: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰗄', style: { foreground: '#a6e3a1' } },
+    } # MiniIconsGreen
+  gz:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰗄', style: { foreground: '#a6e3a1' } },
+    }
+  tgz:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰗄', style: { foreground: '#a6e3a1' } },
+    }
+  bz2:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰗄', style: { foreground: '#a6e3a1' } },
+    }
+  xz:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰗄', style: { foreground: '#a6e3a1' } },
+    }
+  zst:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰗄', style: { foreground: '#a6e3a1' } },
+    }
+  rar:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰗄', style: { foreground: '#a6e3a1' } },
+    }
+  '7z':
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰗄', style: { foreground: '#a6e3a1' } },
+    }
+  tar:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰗄', style: { foreground: '#a6e3a1' } },
+    }
+
+  # — Fonts
+  ttf: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#cba6f7' } },
+    } # Purple
+  otf:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#cba6f7' } },
+    }
+  woff:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#cba6f7' } },
+    }
+  woff2:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#cba6f7' } },
+    }
+
+  # — Binaries / classes (kept close to mini where possible)
+  o: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#74c7ec' } },
+    } # Azure
+  a:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#74c7ec' } },
+    }
+  so:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#74c7ec' } },
+    }
+  dll:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#74c7ec' } },
+    }
+  dylib:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#74c7ec' } },
+    }
+  class:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#74c7ec' } },
+    }
+  wasm: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#cba6f7' } },
+    } # align to wat → Purple
+  out:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#74c7ec' } },
+    }
+
+  # — Crypto / Keys
+  asc: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰌆', style: { foreground: '#7f849c' } },
+    } # Grey
+  gpg:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰒓', style: { foreground: '#7f849c' } },
+    }
+  pem: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰌇', style: { foreground: '#f9e2af' } },
+    } # Yellow
+  crt:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰌆', style: { foreground: '#7f849c' } },
+    }
+  key:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '', style: { foreground: '#7f849c' } },
+    }
+
+  # — Logs / dumps
+  log: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰷐', style: { foreground: '#89b4fa' } },
+    } # use "log" blue
+  dump: {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰍉', style: { foreground: '#cdd6f4' } },
+    } # Grey
+
+  # — Temp / junk (kept from your scheme)
+  tmp:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰍽', style: { foreground: '#eba0ac' } },
+    }
+  temp:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰍽', style: { foreground: '#eba0ac' } },
+    }
+  swp:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰘓', style: { foreground: '#eba0ac' } },
+    }
+  DS_Store:
+    {
+      filename: { foreground: '#CDD6F4' },
+      icon: { glyph: '󰈙', style: { foreground: '#eba0ac' } },
+    }
+
+punctuation: { foreground: '#6c7086' }
+date: { foreground: '#f9e2af' }
+inode: { foreground: '#a6adc8' }
+blocks: { foreground: '#6c7086' }
+header: { foreground: '#cdd6f4' }
+octal: { foreground: '#94e2d5' }
+flags: { foreground: '#cba6f7' }
+
+symlink_path: { foreground: '#7F849C' }
+control_char: { foreground: '#74c7ec' }
+broken_symlink: { foreground: '#f38ba8' }
+broken_path_overlay: { foreground: '#585b70' }

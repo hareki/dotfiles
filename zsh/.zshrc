@@ -37,11 +37,10 @@ for func in $functions_dir/*(.N); do
   autoload -Uz "${func:t}"
 done
 
-vivid_ls() {                     
-  local theme=${1:-catppuccin-mocha} 
-  local colors=$(vivid generate "$theme") || return
-  printf 'export LS_COLORS=%q\n' "$colors"
-}
+export EZA_CONFIG_DIR="$XDG_CONFIG_HOME/eza"
+# Centralize eza theme config
+unset EZA_COLORS LS_COLORS
+
 
 # Don't work well with tmux, it doesn't update the $PATH, have to call "rez"
 # Currently using shims instead, it has some limitations that don't affect me for now
@@ -51,7 +50,6 @@ vivid_ls() {
 
 _evalcache zoxide init zsh
 _evalcache atuin init zsh --disable-up-arrow
-_evalcache vivid_ls catppuccin-mocha
 
 if [[ -n "$ZSH_DEBUGRC" ]]; then
   zprof
