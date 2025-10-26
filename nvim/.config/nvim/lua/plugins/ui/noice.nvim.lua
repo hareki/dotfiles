@@ -12,7 +12,7 @@ return {
     opts = {
       format = {
         spinner = {
-          name = 'circleFullFixed',
+          name = 'circleFull',
         },
       },
       views = {
@@ -78,12 +78,6 @@ return {
       },
     },
     config = function(_, opts)
-      -- TODO: open a PR when Folke is active again maybe?
-      require('noice.util.spinners').spinners.circleFullFixed = {
-        frames = require('configs.icons').misc.spinner_frames,
-        interval = 120,
-      }
-
       -- HACK: noice shows messages from before it was enabled,
       -- but this is not ideal when Lazy is installing plugins,
       -- so clear the messages in this case.
