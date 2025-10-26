@@ -15,10 +15,6 @@ alias cl="clear"
 alias ez="nvim ~/.zshrc"
 alias eze="nvim ~/.zshenv"
 
-# `--no-user` flag only takes effect when using in combination with long format
-# The column doesn't provide any useful information in a single user environment anyway
-alias ls="eza --icons=always --no-user"
-
 # [RE-Z]shrc
 # env -i ... is to hard reset the environment variables to empty, must retain the essential ones like TERM
 # this is to make sure the new zsh instance that doesn't inherit any of the previously exported variables.

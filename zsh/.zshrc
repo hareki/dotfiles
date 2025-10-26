@@ -23,7 +23,7 @@ source $__zsh_config_dir/plugins.zsh
 _evalcache /opt/homebrew/bin/brew shellenv
 
 # The mise shims path we set in .zshenv is overwritten by homebrew
-PATH="$PATH:$HOME/.local/share/mise/shims:$HOME/.local/bin/shims:$HOME/.local/bin"
+PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin/shims:$HOME/.local/bin:$PATH"
 
 # Load configuration files (the order matters)
 for cfg in aliases vi-mode compdef keymaps fzf zoxide; do

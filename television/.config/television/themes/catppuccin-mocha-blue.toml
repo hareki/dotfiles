@@ -5,7 +5,7 @@ text_fg = '#cdd6f4'
 dimmed_text_fg = '#6c7086'
 # input
 input_text_fg = '#89b4fa'
-result_count_fg = '#89b4fa'
+result_count_fg = '#6c7086'
 # results
 result_name_fg = '#cdd6f4'
 result_line_number_fg = '#f9e2af'

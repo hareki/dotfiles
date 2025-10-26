@@ -39,7 +39,8 @@ global_history = false
 # │  └───────────────────┘  │
 # │                         │
 # └─────────────────────────┘
-ui_scale = 100
+ui_scale = 80
+merge_input_and_results = true
 # What orientation should tv be (landscape or portrait)
 orientation = "portrait"
 # The theme to use for the UI
@@ -61,22 +62,20 @@ border_type = "rounded" # https://docs.rs/ratatui/latest/ratatui/widgets/block/e
 
 [ui.status_bar]
 # Status bar separators (bubble):
-#separator_open = ""
-#separator_close = ""
-# Status bar separators (box):
-separator_open = ""
-separator_close = ""
-hidden = false
+separator_open = ""
+separator_close = ""
+hidden = true
 
 [ui.results_panel]
 border_type = "rounded"
+header = ""
 # padding = {"left": 0, "right": 0, "top": 0, "bottom": 0}
 
 [ui.preview_panel]
 # Preview panel size (percentage of screen width/height)
 size = 50
-#header = ""
-#footer = ""
+header = ""
+# footer = ""
 scrollbar = false
 border_type = "rounded"
 # padding = {"left": 0, "right": 0, "top": 0, "bottom": 0}

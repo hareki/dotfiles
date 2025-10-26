@@ -1,18 +1,24 @@
 [metadata]
-name = "Files"
-description = "A channel to select files and directories"
-requirements = ["fd", "bat"]
-
-[source]
-command = "fd -t f --color=never -0 --exec eza --icons=always --color=always"
-ansi = true
-
-# [preview]
-# command = "bat -n --color=always {substring:1..}"
-# env = { BAT_THEME = "Catppuccin Mocha" }
+name = "files"
+description = "A channel to select files"
+requirements = ["fd", "bat", "eza", "nvim"]
 
 [ui]
-preview_panel = { "size" = 50, "scrollbar" = false }
+layout = "portrait"
+input_bar = { header = "Files", prompt = "  " }
+
+[source]
+ansi = true
+command = "fd -t f --exec eza --icons=always --color=always"
+output="{strip_ansi|substring:1..}"
+
+[preview]
+# https://docs.rs/string_pipeline/0.12.0/string_pipeline/
+command = "bat -n --color=always {strip_ansi|substring:1..}"
 
 [keybindings]
-shortcut = "f1"
+enter = "actions:edit"
+
+[actions.edit]
+description = "Open selected files in editor"
+command = "nvim {strip_ansi|substring:1..}"

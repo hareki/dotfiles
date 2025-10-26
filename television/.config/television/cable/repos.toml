@@ -1,0 +1,23 @@
+[metadata]
+name = "repos"
+description = "A channel to select git repositories"
+requirements = ["fd", "eza", "nvim"]
+
+[ui]
+layout = "landscape"
+input_bar = { header = "Repositories", prompt = "  " }
+
+[source]
+ansi = true
+command = "fdt '^\\.git$' $HOME/Repositories --exec zsh -c 'cd \"$(dirname \"$1\")\" && eza -d \"$(basename \"$1\")\"' _ {//}"
+output="{strip_ansi|substring:1..}"
+
+[preview]
+command = "cd $(dirname $(fdt -1 {strip_ansi|substring:2..} $HOME/Repositories)); eza --tree --level 1 {strip_ansi|substring:2..}"
+
+[keybindings]
+enter = "actions:edit"
+
+[actions.edit]
+description = "Open selected files in editor"
+command = "nvim $(fdt -1 {strip_ansi|substring:2..} $HOME/Repositories)"
