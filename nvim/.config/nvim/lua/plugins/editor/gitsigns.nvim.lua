@@ -52,6 +52,50 @@ return {
             vim.keymap.del(mode, l, { buffer = buffer })
           end
 
+          local function setup_popup_navigation(popup_type)
+            return function()
+              local popup = require('gitsigns.popup')
+
+              map('n', '<Esc>', function()
+                pcall(vim.api.nvim_win_close, popup.is_open(popup_type), true)
+              end)
+
+              map('n', '<Tab>', function()
+                local popup_win_id = popup.is_open(popup_type)
+                local current_win_id = vim.api.nvim_get_current_win()
+
+                if not popup_win_id or not vim.api.nvim_win_is_valid(popup_win_id) then
+                  return
+                end
+
+                local popup_buf_id = vim.api.nvim_win_get_buf(popup_win_id)
+
+                local popup_map = function(mode, l, r, desc)
+                  vim.keymap.set(mode, l, r, { buffer = popup_buf_id, desc = desc })
+                end
+
+                popup_map('n', 'q', function()
+                  vim.api.nvim_win_close(popup_win_id, true)
+                end)
+
+                popup_map('n', '<Esc>', function()
+                  vim.api.nvim_win_close(popup_win_id, true)
+                end)
+
+                popup_map('n', '<Tab>', function()
+                  require('utils.common').noautocmd(function()
+                    popup.ignore_cursor_moved = true
+                    vim.api.nvim_set_current_win(current_win_id)
+                  end)
+                end)
+
+                if current_win_id ~= popup_win_id then
+                  popup.focus_open(popup_type)
+                end
+              end)
+            end
+          end
+
           map('n', ']h', function()
             if vim.wo.diff then
               vim.cmd.normal({ ']c', bang = true })
@@ -90,55 +134,16 @@ return {
           end, 'Diff This ~')
           map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>', 'GitSigns Select Hunk')
 
+          unmap('n', '<leader>hb')
+          map('n', '<leader>hb', function()
+            require('gitsigns').blame_line({ full = true })
+            vim.schedule(setup_popup_navigation('blame'))
+          end, 'Blame Line')
+
           unmap('n', '<leader>hp')
           map('n', '<leader>hp', function()
             require('gitsigns').preview_hunk()
-
-            vim.schedule(function()
-              map('n', '<Esc>', function()
-                local popup = require('gitsigns.popup')
-                pcall(vim.api.nvim_win_close, popup.is_open('hunk'), true)
-              end)
-
-              map('n', '<Tab>', function()
-                local popup = require('gitsigns.popup')
-                local preview_win_id = popup.is_open('hunk')
-                local current_win_id = vim.api.nvim_get_current_win()
-
-                if not preview_win_id or not vim.api.nvim_win_is_valid(preview_win_id) then
-                  return
-                end
-
-                local preview_buf_id = vim.api.nvim_win_get_buf(preview_win_id)
-
-                local preview_map = function(mode, l, r, desc)
-                  vim.keymap.set(mode, l, r, { buffer = preview_buf_id, desc = desc })
-                end
-
-                preview_map('n', 'q', function()
-                  vim.api.nvim_win_close(preview_win_id, true)
-                end)
-
-                preview_map('n', 'q', function()
-                  vim.api.nvim_win_close(preview_win_id, true)
-                end)
-
-                preview_map('n', '<Esc>', function()
-                  vim.api.nvim_win_close(preview_win_id, true)
-                end)
-
-                preview_map('n', '<Tab>', function()
-                  require('utils.common').noautocmd(function()
-                    popup.ignore_cursor_moved = true
-                    vim.api.nvim_set_current_win(current_win_id)
-                  end)
-                end)
-
-                if current_win_id ~= preview_win_id then
-                  popup.focus_open('hunk')
-                end
-              end)
-            end)
+            vim.schedule(setup_popup_navigation('hunk'))
           end, 'Preview hunk')
         end,
       }
