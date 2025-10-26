@@ -1,87 +1,96 @@
 return {
-  'folke/noice.nvim',
-  event = 'VeryLazy',
-  opts = {
-    format = {
-      spinner = {
-        name = 'circleFullFixed',
-      },
-    },
-    views = {
-      cmdline_popup = {
-        zindex = 999, -- Ensure cmdline popup is always on top
-      },
-    },
-    lsp = {
-      hover = {
-        opts = {
-          border = 'rounded',
+  require('utils.ui').catppuccin(function(palette)
+    return {
+      NoiceCmdlinePopupBorder = { fg = palette.blue },
+      NoiceCmdlinePopupTitle = { fg = palette.blue },
+      NoiceCmdlineIcon = { fg = palette.blue },
+    }
+  end),
+  {
+    'folke/noice.nvim',
+    event = 'VeryLazy',
+    opts = {
+      format = {
+        spinner = {
+          name = 'circleFullFixed',
         },
       },
-      override = {
-        ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
-        ['vim.lsp.util.stylize_markdown'] = true,
-        ['cmp.entry.get_documentation'] = true,
+      views = {
+        cmdline_popup = {
+          zindex = 999, -- Ensure cmdline popup is always on top
+        },
       },
-    },
-    routes = {
-      {
-        filter = {
-          event = 'msg_show',
-          any = {
-            { find = '%d+L, %d+B' },
-            { find = '; after #%d+' },
-            { find = '; before #%d+' },
+      lsp = {
+        hover = {
+          opts = {
+            border = 'rounded',
           },
         },
-        -- view = 'mini',
-        opts = {
-          skip = true,
+        override = {
+          ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
+          ['vim.lsp.util.stylize_markdown'] = true,
+          ['cmp.entry.get_documentation'] = true,
         },
       },
-      {
-        -- Ignore null-ls messages since it's just for cspell
-        filter = {
-          event = 'lsp',
-          kind = 'progress',
-          cond = function(message)
-            local client = vim.tbl_get(message.opts, 'progress', 'client')
-            return client == 'null-ls'
-          end,
+      routes = {
+        {
+          filter = {
+            event = 'msg_show',
+            any = {
+              { find = '%d+L, %d+B' },
+              { find = '; after #%d+' },
+              { find = '; before #%d+' },
+            },
+          },
+          -- view = 'mini',
+          opts = {
+            skip = true,
+          },
         },
-        opts = { skip = true },
-      },
+        {
+          -- Ignore null-ls messages since it's just for cspell
+          filter = {
+            event = 'lsp',
+            kind = 'progress',
+            cond = function(message)
+              local client = vim.tbl_get(message.opts, 'progress', 'client')
+              return client == 'null-ls'
+            end,
+          },
+          opts = { skip = true },
+        },
 
-      --  Ignore "No information available" since there could be multiple LSP clients for the same filetype
-      {
-        filter = {
-          event = 'notify',
-          find = '^No information available$',
+        --  Ignore "No information available" since there could be multiple LSP clients for the same filetype
+        {
+          filter = {
+            event = 'notify',
+            find = '^No information available$',
+          },
+          opts = { skip = true },
         },
-        opts = { skip = true },
+      },
+      presets = {
+        bottom_search = false,
+        command_palette = false,
+        inc_rename = false,
+        lsp_doc_border = true,
+        long_message_to_split = true,
       },
     },
-    presets = {
-      bottom_search = false,
-      command_palette = false,
-      inc_rename = false,
-      lsp_doc_border = true,
-      long_message_to_split = true,
-    },
+    config = function(_, opts)
+      -- TODO: open a PR when Folke is active again maybe?
+      require('noice.util.spinners').spinners.circleFullFixed = {
+        frames = require('configs.icons').misc.spinner_frames,
+        interval = 120,
+      }
+
+      -- HACK: noice shows messages from before it was enabled,
+      -- but this is not ideal when Lazy is installing plugins,
+      -- so clear the messages in this case.
+      if vim.o.filetype == 'lazy' then
+        vim.cmd([[messages clear]])
+      end
+      require('noice').setup(opts)
+    end,
   },
-  config = function(_, opts)
-    -- TODO: open a PR when Folke is active again maybe?
-    require('noice.util.spinners').spinners.circleFullFixed = {
-      frames = require('configs.icons').misc.spinner_frames,
-      interval = 120,
-    }
-
-    -- HACK: noice shows messages from before it was enabled,
-    -- but this is not ideal when Lazy is installing plugins,
-    -- so clear the messages in this case.
-    if vim.o.filetype == 'lazy' then
-      vim.cmd([[messages clear]])
-    end
-    require('noice').setup(opts)
-  end,
 }
