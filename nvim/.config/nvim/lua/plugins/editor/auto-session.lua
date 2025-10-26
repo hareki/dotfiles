@@ -37,7 +37,10 @@ return {
           vim.opt_local.number = false
           vim.opt_local.relativenumber = false
 
-          require('telescope.builtin').find_files()
+          vim.schedule(function()
+            require('snacks')
+            require('plugins.ui.snacks.picker_query_persister').files()
+          end)
         end)
       end,
     })
