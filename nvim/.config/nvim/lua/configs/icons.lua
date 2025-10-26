@@ -3,7 +3,6 @@ local M = {
   misc = {
     dots = '󰇘',
     tab = ' ',
-    spinner_frames = { '󰄰', '󰪞', '󰪟', '󰪠', '󰪢', '󰪣', '󰪤', '󰪥' },
   },
   ft = {
     octo = '',
