@@ -3,17 +3,14 @@ os:
   # A copycat of this: https://github.com/jesseduffield/lazygit/blob/b62546c391d27d0ecc20b43535077ded4e83c4f2/pkg/config/editor_presets.go#L58
   # Just remove the "remote-tab" and add some double quote here and there with the help of ChatGPT to make it work in yaml format
   edit: >
-    [ -z "$NVIM" ] && nvim -- "{{filename}}" ||
-    (nvim --server "$NVIM" --remote-send "q" && nvim --server "$NVIM" --remote "{{filename}}")
+    [ -z "$NVIM" ] && nvim -- "{{filename}}" || (nvim --server "$NVIM" --remote-send "q" && nvim --server "$NVIM" --remote "{{filename}}")
 
   editAtLine: >
-    [ -z "$NVIM" ] && nvim +{{line}} -- "{{filename}}" ||
-    (nvim --server "$NVIM" --remote-send "q" &&
-    nvim --server "$NVIM" --remote-send ":edit {{filename}}\<CR>:call cursor({{line}},1)\<CR>")
+    [ -z "$NVIM" ] && nvim +{{line}} -- "{{filename}}" || (nvim --server "$NVIM" --remote-send "q" && nvim --server "$NVIM" --remote-send ":edit {{filename}}\<CR>:call cursor({{line}},1)\<CR>")
 
   openDirInEditor: >
-    [ -z "$NVIM" ] && nvim -- "{{dir}}" ||
-    (nvim --server "$NVIM" --remote-send "q" && nvim --server "$NVIM" --remote "{{dir}}")
+    [ -z "$NVIM" ] && nvim -- "{{dir}}" || (nvim --server "$NVIM" --remote-send "q" && nvim --server "$NVIM" --remote "{{dir}}")
+
 gui:
   switchTabsWithPanelJumpKeys: true
   cursorStyle: "blinkingBar"
@@ -21,7 +18,6 @@ gui:
   authorColors:
     "*": "#b4befe"
   nerdFontsVersion: "3"
-
   # https://github.com/catppuccin/lazygit
   theme:
     activeBorderColor:
@@ -44,6 +40,6 @@ gui:
     searchingActiveBorderColor:
       - "#f9e2af"
 git:
-  paging:
-    colorArg: always
-    pager: delta --dark --paging=never
+  pagers:
+    - colorArg: always
+      pager: delta --dark --paging=never
