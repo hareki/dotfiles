@@ -1,3 +1,0 @@
-mz_insert_path_home () {
-  mz_insert_path -a
-}

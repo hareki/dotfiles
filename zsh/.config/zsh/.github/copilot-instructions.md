@@ -13,7 +13,6 @@ Focused scope: ultra-fast (~110ms) interactive ZSH environment with lazy loading
 - Naming: Short mnemonic two-letter ergonomics: `fb` = Find Branch, `nvcd` (likely open nvim + cd), `sync-g` / `sync-d` for git/dotfile sync. When adding a function, prefer concise verb-y abbreviation plus optional hyphen for domain (`git-bwt`). Add comment header describing abbreviation expansion.
 - FZF usage: Interactive pickers usually pipe candidate list into `fzf-tmux -p --reverse` with width/height percentages. Follow existing style (`-w 60% -h 50%`). Keep queries resilient (filter output: `sed`, `sort -u`, remove decorations). Return silently if selection empty.
 - Git helpers: Ensure they gracefully handle detached HEAD, missing branches, or remote tracking (see `fb`). When creating repos (`git-bwt`), echo progress lines and exit early on failure (`|| return 1`). Follow green success message pattern with ANSI code `\033[0;32m`.
-- Path insertion widgets: `mz_insert_path` variants rely on an external `mz` command (assumed installed). They modify ZLE buffers (`LBUFFER+="$path"`). Any new ZLE helper should: (1) export dynamic vars if needed, (2) no output unless error, (3) early-return on empty selection.
 - Options: Prefer local scoping (`local var`) and numeric flags (`use_home=0/1`). Use `[[ ]]` tests; quote variable expansions in git/path contexts.
 
 ### Safe Change Guidance
@@ -47,7 +46,7 @@ fn() {
 
 ### External Dependencies (implied)
 
-- Antidote, evalcache, fzf/fzf-tmux, git, zoxide, vivid, mise, powerlevel10k theme, mz (custom path picker), Homebrew.
+- Antidote, evalcache, fzf/fzf-tmux, git, zoxide, vivid, mise, powerlevel10k theme, Homebrew.
   If referencing new tools, add guarded checks (`command -v tool >/dev/null || return 1`) rather than failing loudly at startup.
 
 ### When Extending
