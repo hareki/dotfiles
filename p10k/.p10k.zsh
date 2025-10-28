@@ -37,14 +37,14 @@
   # Zsh >= 5.1 is required.
   [[ $ZSH_VERSION == (5.<1->*|<6->.*) ]] || return
 
-  # Prompt colors.
-  local grey='242'
-  local red='#f38ba8'
-  local yellow='#f9e2af'
-  local blue='#89b4fa'
-  local magenta='#eba0ac'
-  local cyan='#94e2d5'
-  local white='#F1F1F0'
+  # Prompt colors - Catppuccin Mocha
+  local grey='#6c7086' # overlay0
+  local red='#f38ba8' # red
+  local yellow='#f9e2af' # yellow
+  local blue='#89b4fa' # blue
+  local magenta='#eba0ac' # maroon
+  local cyan='#94e2d5' # teal
+  local white='#cdd6f4' # text
 
   # Left prompt segments.
   typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
