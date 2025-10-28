@@ -55,11 +55,11 @@ return {
         local map = vim.keymap.set
 
         map('n', 'gd', function()
-          require('telescope.builtin').lsp_definitions()
+          Snacks.picker.lsp_definitions()
         end, opts('Go to Definition'))
 
         map('n', 'gr', function()
-          require('telescope.builtin').lsp_references()
+          Snacks.picker.lsp_references()
         end, opts('Find References'))
 
         -- map('n', 'gh', vim.lsp.buf.hover, opts('Hover'))

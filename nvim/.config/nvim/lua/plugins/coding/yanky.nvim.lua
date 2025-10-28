@@ -26,7 +26,7 @@ return {
     dependencies = {
       {
         'kkharji/sqlite.lua',
-        'folke/snacks.nvim', -- Let yanky self register with snacks
+        'hareki/snacks.nvim', -- Let yanky self register with snacks
       },
     },
     opts = {

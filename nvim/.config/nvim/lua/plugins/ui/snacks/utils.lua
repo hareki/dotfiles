@@ -69,8 +69,8 @@ function M.keymap_transform(item)
   return item
 end
 
--- Simplified version of: https://github.com/folke/snacks.nvim/blob/bc0630e43be5699bb94dadc302c0d21615421d93/lua/snacks/picker/format.lua#L449
--- Remove the rhs and file columns
+-- Remove the rhs and file columns from
+-- https://github.com/folke/snacks.nvim/blob/bc0630e43be5699bb94dadc302c0d21615421d93/lua/snacks/picker/format.lua#L449
 function M.keymap_format(item, _picker, width)
   local ret = {} ---@type snacks.picker.Highlight[]
   ---@type vim.api.keyset.get_keymap
@@ -115,6 +115,33 @@ function M.keymap_format(item, _picker, width)
     { align(lhs, col_width.lhs, { align = 'right', truncate = true }), 'SnacksPickerKeymapLhs' }
   ret[#ret + 1] = { ' ' }
   ret[#ret + 1] = { align(k.mode, col_width.mode), 'SnacksPickerKeymapMode' }
+
+  return ret
+end
+
+-- Remove buf number and flags from
+-- https://github.com/folke/snacks.nvim/blob/52f30a198a19bf5da6aa95cc642bfbb99b9bbfbf/lua/snacks/picker/format.lua#L638
+function M.buffer_format(item, picker)
+  local ret = {} ---@type snacks.picker.Highlight[]
+  vim.list_extend(ret, Snacks.picker.format.filename(item, picker))
+
+  if item.buftype ~= '' then
+    ret[#ret + 1] = { ' ' }
+    vim.list_extend(ret, {
+      { '[', 'SnacksPickerDelim' },
+      { item.buftype, 'SnacksPickerBufType' },
+      { ']', 'SnacksPickerDelim' },
+    })
+  end
+
+  if item.name == '' and item.filetype ~= '' then
+    ret[#ret + 1] = { ' ' }
+    vim.list_extend(ret, {
+      { '[', 'SnacksPickerDelim' },
+      { item.filetype, 'SnacksPickerFileType' },
+      { ']', 'SnacksPickerDelim' },
+    })
+  end
 
   return ret
 end

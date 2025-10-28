@@ -12,7 +12,7 @@ return {
     }
   end),
   {
-    'folke/snacks.nvim',
+    'hareki/snacks.nvim',
     event = 'VeryLazy',
     keys = {
       {
@@ -51,6 +51,15 @@ return {
           })
         end,
         desc = 'Find Text',
+      },
+      {
+        '<leader>fb',
+        function()
+          require('plugins.ui.snacks.picker_query_persister').buffers({
+            title = 'Buffers',
+          })
+        end,
+        desc = 'Find Buffers',
       },
       {
         '<leader>fy',
@@ -191,6 +200,10 @@ return {
                   max_width = select_width,
                 },
               },
+            },
+
+            buffers = {
+              format = utils.buffer_format,
             },
 
             keymaps = {

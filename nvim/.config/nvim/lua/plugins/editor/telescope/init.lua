@@ -27,20 +27,6 @@ return {
         build = 'make',
       },
     },
-    keys = {
-      {
-        '<leader>fb',
-        function()
-          require('telescope.builtin').buffers({
-            sort_mru = true,
-            sort_lastused = true,
-            initial_mode = 'normal',
-            entry_maker = require('plugins.editor.telescope.utils').buffer_entry_maker(),
-          })
-        end,
-        desc = 'Find Buffers',
-      },
-    },
     opts = function()
       local state = require('telescope.state')
       local actions = require('telescope.actions')

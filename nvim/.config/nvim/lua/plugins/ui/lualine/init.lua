@@ -21,58 +21,28 @@ return {
     local palette = require('utils.ui').get_palette()
     local icons = require('configs.icons')
 
-    local mode_hl = {
-      NORMAL = { fg = palette.surface0, bg = palette.blue },
-      ['O-PENDING'] = { fg = palette.surface0, bg = palette.blue },
+    local mode_hl = {}
+    for _, mode in ipairs({ 'NORMAL', 'O-PENDING' }) do
+      mode_hl[mode] = { fg = palette.surface0, bg = palette.blue }
+    end
+    for _, mode in ipairs({ 'VISUAL', 'V-LINE', 'V-BLOCK', 'SELECT', 'S-LINE', 'S-BLOCK' }) do
+      mode_hl[mode] = { fg = palette.base, bg = palette.mauve }
+    end
+    for _, mode in ipairs({ 'INSERT', 'SHELL', 'TERMINAL' }) do
+      mode_hl[mode] = { fg = palette.base, bg = palette.green }
+    end
+    for _, mode in ipairs({ 'REPLACE', 'V-REPLACE' }) do
+      mode_hl[mode] = { fg = palette.base, bg = palette.red }
+    end
+    for _, mode in ipairs({ 'COMMAND', 'EX', 'MORE', 'CONFIRM' }) do
+      mode_hl[mode] = { fg = palette.base, bg = palette.peach }
+    end
 
-      VISUAL = { fg = palette.base, bg = palette.mauve },
-      ['V-LINE'] = { fg = palette.base, bg = palette.mauve },
-      ['V-BLOCK'] = { fg = palette.base, bg = palette.mauve },
-
-      SELECT = { fg = palette.base, bg = palette.mauve },
-      ['S-LINE'] = { fg = palette.base, bg = palette.mauve },
-      ['S-BLOCK'] = { fg = palette.base, bg = palette.mauve },
-
-      INSERT = { fg = palette.base, bg = palette.green },
-      SHELL = { fg = palette.base, bg = palette.green },
-      TERMINAL = { fg = palette.base, bg = palette.green },
-
-      REPLACE = { fg = palette.base, bg = palette.red },
-      ['V-REPLACE'] = { fg = palette.base, bg = palette.red },
-
-      COMMAND = { fg = palette.base, bg = palette.peach },
-      EX = { fg = palette.base, bg = palette.peach },
-      MORE = { fg = palette.base, bg = palette.peach },
-      CONFIRM = { fg = palette.base, bg = palette.peach },
-    }
-
-    local theme_reset = {
-      normal = {
-        a = { fg = palette.surface0, bg = palette.mantle },
-        b = { fg = palette.surface0, bg = palette.mantle },
-        c = { fg = palette.surface0, bg = palette.mantle },
-      },
-      insert = {
-        a = { fg = palette.surface0, bg = palette.mantle },
-        b = { fg = palette.surface0, bg = palette.mantle },
-        c = { fg = palette.surface0, bg = palette.mantle },
-      },
-      visual = {
-        a = { fg = palette.surface0, bg = palette.mantle },
-        b = { fg = palette.surface0, bg = palette.mantle },
-        c = { fg = palette.surface0, bg = palette.mantle },
-      },
-      replace = {
-        a = { fg = palette.surface0, bg = palette.mantle },
-        b = { fg = palette.surface0, bg = palette.mantle },
-        c = { fg = palette.surface0, bg = palette.mantle },
-      },
-      inactive = {
-        a = { fg = palette.surface0, bg = palette.mantle },
-        b = { fg = palette.surface0, bg = palette.mantle },
-        c = { fg = palette.surface0, bg = palette.mantle },
-      },
-    }
+    local theme_reset = {}
+    local color_reset = { fg = palette.subtext1, bg = palette.mantle }
+    for _, section in ipairs({ 'normal', 'insert', 'visual', 'replace', 'inactive' }) do
+      theme_reset[section] = { a = color_reset, b = color_reset, c = color_reset }
+    end
 
     local function inverse_mode_hl(mode)
       local c = mode_hl[mode]
@@ -228,7 +198,7 @@ return {
           },
         },
       },
-      extensions = { 'neo-tree', 'lazy', 'fzf' },
+      extensions = { require('plugins.ui.lualine.extensions.lazy') },
     }
   end,
 }

@@ -39,7 +39,9 @@ local function wrap_picker(source_name, base_fn)
   end
 end
 
-M.grep = wrap_picker('grep', Snacks.picker.grep)
-M.files = wrap_picker('files', Snacks.picker.files)
+local pickers = { 'grep', 'files', 'buffers' }
+for _, name in ipairs(pickers) do
+  M[name] = wrap_picker(name, Snacks.picker[name])
+end
 
 return M

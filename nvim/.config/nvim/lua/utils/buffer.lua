@@ -71,11 +71,14 @@ function M.lualine()
     end
   end
 
-  if (bo.readonly or not bo.modifiable) and status.readonly ~= '' then
+  local is_readonly = (bo.readonly or not bo.modifiable) and status.readonly ~= ''
+  if is_readonly then
     out[#out + 1] = status.readonly
   end
 
-  if bo.modified and status.modified ~= '' then
+  -- No point of showing modified flag if we can't write to it
+  local is_modified = bo.modified and status.modified ~= '' and not is_readonly
+  if is_modified then
     out[#out + 1] = status.modified
   end
 

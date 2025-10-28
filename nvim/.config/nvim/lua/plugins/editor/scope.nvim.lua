@@ -4,8 +4,10 @@ return {
   keys = {
     {
       '<leader>fB',
-      '<cmd>Telescope scope buffers<cr>',
-      desc = 'Show All Buffers from All Tabs',
+      function()
+        require('plugins.ui.snacks.scope_snacks').buffers()
+      end,
+      desc = 'Find All Buffers',
     },
   },
   config = function()
