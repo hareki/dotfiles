@@ -198,7 +198,6 @@ return {
           },
         },
       },
-      extensions = { require('plugins.ui.lualine.extensions.lazy') },
     }
   end,
 }

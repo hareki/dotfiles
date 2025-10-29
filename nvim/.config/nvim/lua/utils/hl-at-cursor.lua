@@ -98,6 +98,7 @@ local function hl_at_cursor()
     end
     return out
   end
+
   local function uniq_ts(entries)
     local seen, out = {}, {}
     for _, e in ipairs(entries) do
@@ -110,7 +111,7 @@ local function hl_at_cursor()
     return out
   end
 
-  -- Build Markdown lines (with blank line between sections)
+  -- Build Markdown lines
   local lines = {}
 
   local function emit_section(title, items, kind)
@@ -179,10 +180,6 @@ local function hl_at_cursor()
   })
 
   vim.bo[buf].filetype = 'markdown'
-
-  -- vim.schedule(function()
-  --   -- require('render-markdown').set_buf(true)
-  -- end)
 
   local closing = false
   local ignore_cursor_close = false
