@@ -13,7 +13,7 @@ return {
       function()
         require('debugprint.counter').reset_debug_prints_counter()
       end,
-      desc = 'Reset Counter',
+      desc = 'Debug Prints: Reset Counter',
     },
     {
       '<leader>?d',

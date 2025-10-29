@@ -14,22 +14,22 @@ return {
     event = 'VeryLazy',
     opts = function()
       return {
-        numhl = true,
-        signcolumn = false,
+        numhl = false,
+        signcolumn = true,
         signs = {
-          add = { text = ' ┃' },
-          change = { text = ' ┃' },
+          add = { text = '┃' },
+          change = { text = '┃' },
           delete = { text = '' },
           topdelete = { text = '' },
-          changedelete = { text = ' ┃' },
-          untracked = { text = ' ┃' },
+          changedelete = { text = '┃' },
+          untracked = { text = '┃' },
         },
         signs_staged = {
-          add = { text = ' ┃' },
-          change = { text = ' ┃' },
+          add = { text = '┃' },
+          change = { text = '┃' },
           delete = { text = '' },
           topdelete = { text = '' },
-          changedelete = { text = ' ┃' },
+          changedelete = { text = '┃' },
         },
         preview_config = {
           border = 'rounded',

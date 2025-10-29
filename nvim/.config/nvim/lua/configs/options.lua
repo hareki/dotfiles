@@ -51,7 +51,8 @@ opt.breakindent = true
 opt.inccommand = 'split' -- Preview substitutions live, as you type!
 opt.cursorline = true -- Show which line your cursor is on
 opt.scrolloff = 6 -- Minimal number of screen lines to keep above and below the cursor.
-opt.signcolumn = 'number' -- Always show the signcolumn, otherwise it would shift the text each time
+opt.statuscolumn = '%l%s'
+opt.signcolumn = 'yes:1' -- Always show the signcolumn, otherwise it would shift the text each time
 opt.wildmode = 'longest:full,full' -- Command-line completion mode
 opt.winminwidth = 5 -- Minimum window width
 opt.laststatus = 3 -- Global statusline
@@ -70,7 +71,7 @@ opt.foldenable = true
 
 opt.showtabline = 0 -- Always hide the tabline
 -- https://github.com/rmagatti/auto-session?tab=readme-ov-file#recommended-sessionoptions-config
-opt.sessionoptions = 'blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions'
+opt.sessionoptions = 'blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal'
 
 -- Save undo history
 opt.undofile = true
