@@ -20,6 +20,12 @@ map('v', '<leader>t', "ygvgc']p", {
   silent = true,
   desc = 'Yank, Comment, Move Below, and Paste',
 })
+
+map('n', '<leader>?h', '<CMD>HlAtCursor<CR>', {
+  remap = true,
+  silent = true,
+  desc = 'Highlight Groups at Cursor',
+})
 -- Trimmed, No indent/trailing
 map('n', 'yy', '^yg_', { desc = 'Yank Line Trimmed' })
 map('n', 'dd', function()
