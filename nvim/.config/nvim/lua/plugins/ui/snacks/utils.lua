@@ -8,7 +8,7 @@ local M = {}
 local function query_spec_desc(lhs, mode, buffer)
   local wk_config = require('which-key.config')
 
-  -- travese backward
+  -- Traverse backward
   for _, mapping in ipairs(wk_config.mappings) do
     if
       mapping.lhs == lhs

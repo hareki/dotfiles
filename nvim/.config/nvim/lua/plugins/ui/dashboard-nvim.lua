@@ -86,7 +86,7 @@ return {
       }
 
       local random_index = math.random(1, #ambitious)
-      -- Harcoding for now
+      -- Hardcoding for now
       local random_quote = { "“Don't blame others. it won't make you a better person.”" }
         or ambitious[random_index]
 

@@ -72,10 +72,10 @@ return {
   end,
   config = function(_, opts)
     require('mini.ai').setup(opts)
-    local packgage_utils = require('utils.package')
+    local package_utils = require('utils.package')
     local utils = require('plugins.coding.mini-ai.utils')
 
-    packgage_utils.on_load('which-key.nvim', function()
+    package_utils.on_load('which-key.nvim', function()
       vim.schedule(function()
         utils.whichkey(opts)
       end)

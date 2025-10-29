@@ -30,7 +30,7 @@ return {
       return {
         -- title_format = ' %s ', -- File name
         title_format = require('configs.picker').preview_title,
-        zindex = 50, -- The defaul value makes vim.ui.input behind the preview window
+        zindex = 50, -- The default value makes vim.ui.input behind the preview window
         image_preview = {
           enable = true,
         },
@@ -85,7 +85,7 @@ return {
           local size = size_utils.popup_config('lg')
 
           -- We need to fill the missing row if the total height is an odd number,
-          -- meaing when we can't have equal height for both windows
+          -- meaning when we can't have equal height for both windows
           local height_offset = size.height % 2 == 0 and 0 or 1
 
           if state.position == 'float' then
