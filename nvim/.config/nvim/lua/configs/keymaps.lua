@@ -21,7 +21,7 @@ map('v', '<leader>t', "ygvgc']p", {
   desc = 'Yank, Comment, Move Below, and Paste',
 })
 
-map('n', '<leader>?h', '<CMD>HlAtCursor<CR>', {
+map('n', '<leader>?h', '<CMD>Inspect<CR>', {
   remap = true,
   silent = true,
   desc = 'Highlight Groups at Cursor',
