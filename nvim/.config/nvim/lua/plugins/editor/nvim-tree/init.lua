@@ -252,11 +252,11 @@ return {
           end, 'Live Filter: Start')
           map('n', '<Esc>', api.live_filter.clear, 'Clear live filter')
 
-          map('n', 'r', api.node.run.system, 'Reveal in Finder')
-
           map('n', 'd', api.fs.trash, 'Trash')
           map('n', 'D', api.fs.remove, 'Remove')
           map('n', 'y', api.fs.copy.filename, 'Copy name')
+          map('n', 'r', api.fs.rename, 'rename')
+          map('n', 'R', api.node.run.system, 'Reveal in Finder')
           map('n', 'Y', api.fs.copy.relative_path, 'Copy relative path')
 
           map('n', '<Right>', tree.create_node_action('expand'), 'Expand Node')
