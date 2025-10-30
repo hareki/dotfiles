@@ -1,12 +1,12 @@
 return {
   require('utils.ui').catppuccin(function(_, sub_palette)
     return {
-      GitSignsStagedAddNr = { fg = sub_palette.green },
-      GitSignsStagedUntrackedNr = { link = 'GitSignsStagedAddNr' },
-      GitSignsStagedChangeNr = { fg = sub_palette.yellow },
-      GitSignsStagedChangedeleteNr = { link = 'GitSignsStagedChangeNr' },
-      GitSignsStagedDeleteNr = { fg = sub_palette.red },
-      GitSignsStagedTopDeleteNr = { link = 'GitSignsStagedDeleteNr' },
+      GitSignsStagedAdd = { fg = sub_palette.green },
+      GitSignsStagedUntracked = { link = 'GitSignsStagedAdd' },
+      GitSignsStagedChange = { fg = sub_palette.yellow },
+      GitSignsStagedChangedelete = { link = 'GitSignsStagedChange' },
+      GitSignsStagedDelete = { fg = sub_palette.red },
+      GitSignsStagedTopDelete = { link = 'GitSignsStagedDelete' },
     }
   end),
   {
