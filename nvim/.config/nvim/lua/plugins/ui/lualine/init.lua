@@ -5,6 +5,11 @@ return {
     'AndreM222/copilot-lualine',
   },
   init = function()
+    if vim.env.NVIM_NO_STATUS_LINE then
+      vim.o.laststatus = 0
+      return
+    end
+
     if vim.fn.argc(-1) > 0 then
       -- Set an empty statusline till lualine loads
       vim.o.statusline = ' '
@@ -12,6 +17,9 @@ return {
       -- Hide the statusline on the starter page
       vim.o.laststatus = 0
     end
+  end,
+  enabled = function()
+    return not vim.env.NVIM_NO_STATUS_LINE
   end,
   opts = function()
     -- PERF: we don't need this lualine require madness 🤷

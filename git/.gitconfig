@@ -3,6 +3,7 @@
   name = Tu Nguyen
 [core]
   pager = delta
+  editor = NVIM_NO_STATUS_LINE=1 nvim
 
 [interactive]
   diffFilter = delta --color-only
