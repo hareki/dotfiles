@@ -27,28 +27,44 @@ end
 --- @param branch_name string The original branch name to be formatted.
 --- @return string The formatted branch name.
 function M.format_branch_name(branch_name)
-  local is_clickup_format = branch_name:match('^CU%-%w+_.+_.+$')
-  if not is_clickup_format then
+  local prefix
+  local remaining
+
+  if branch_name:match('^CU%-%w+') then
+    prefix, remaining = branch_name:match('^(CU%-%w+)_(.+)$')
+  else
+    remaining, prefix = branch_name:match('^(.*)_(CU%-%w+)$')
+  end
+
+  if not prefix or not remaining or remaining == '' then
     return branch_name
   end
 
-  local prefix, task_name, author_name = branch_name:match('^(CU%-%w+)_([^_]+)_(.+)$')
+  local task_name = remaining
+  local author_name
+
+  local possible_task, possible_author = remaining:match('^(.*)_(.+)$')
+  if possible_task and possible_task ~= '' and possible_author and possible_author ~= '' then
+    task_name = possible_task
+    author_name = possible_author
+  end
 
   if branch_display_mode == 'id' then
     return prefix
   elseif branch_display_mode == 'id_and_name' then
-    local formatted_task_name
+    local formatted_task_name = task_name
     if #task_name > max_task_name_length then
       -- Show start and end parts of the task name with ellipsis
       formatted_task_name = task_name:sub(1, task_name_start_length)
         .. '...'
         .. task_name:sub(-task_name_end_length)
-    else
-      formatted_task_name = task_name
     end
     return prefix .. '_' .. formatted_task_name
   elseif branch_display_mode == 'id_and_author' then
-    return prefix .. '_' .. author_name
+    if author_name then
+      return prefix .. '_' .. author_name
+    end
+    return prefix
   end
 
   return ''
