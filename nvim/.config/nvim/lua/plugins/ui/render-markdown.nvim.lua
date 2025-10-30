@@ -14,7 +14,6 @@ return {
       ---@type render.md.UserConfig
       return {
         file_types = { 'markdown' },
-        completions = { blink = { enabled = true } },
         callout = {
           error = {
             rendered = ' Error',

@@ -79,6 +79,7 @@ return {
     })
 
     vim.lsp.enable({
+      'marksman',
       'lua_ls',
       'vtsls',
       'typos_lsp',

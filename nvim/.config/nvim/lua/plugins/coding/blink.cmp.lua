@@ -1,6 +1,11 @@
 local copilot_max_items = 3
 
 return {
+  require('utils.ui').catppuccin(function(palette)
+    return {
+      BlinkCmpKindRenderMD = { fg = palette.text },
+    }
+  end),
   {
     'saghen/blink.compat',
     opts = {},
@@ -62,6 +67,7 @@ return {
 
       local history_kind_index = register_kind('History')
       local spell_kind_index = register_kind('Spell')
+      local render_markdown_index = register_kind('RenderMD')
 
       return {
         enabled = function()
@@ -75,6 +81,7 @@ return {
             History = '',
             Spell = '',
             Yanky = '󰅍',
+            RenderMD = ' ',
           },
         },
 
@@ -196,6 +203,9 @@ return {
 
         sources = {
           default = { 'lazydev', 'lsp', 'path', 'snippets', 'buffer', 'spell', 'copilot' },
+          per_filetype = {
+            markdown = { inherit_defaults = true, 'markdown' },
+          },
           providers = {
             lazydev = {
               name = 'LazyDev',
@@ -252,6 +262,18 @@ return {
               async = true,
               max_items = copilot_max_items,
               score_offset = 100,
+            },
+
+            markdown = {
+              name = 'markdown',
+              module = 'render-markdown.integ.blink',
+              transform_items = function(_, items)
+                for _, item in ipairs(items) do
+                  item.kind = render_markdown_index
+                  item.kind_hl = 'BlinkCmpKindRenderMD'
+                end
+                return items
+              end,
             },
           },
         },

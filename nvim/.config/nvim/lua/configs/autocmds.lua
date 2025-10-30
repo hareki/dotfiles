@@ -106,6 +106,14 @@ aucmd({ 'FileType' }, {
   end,
 })
 
+aucmd('FileType', {
+  group = augroup('markdown_defaults'),
+  pattern = { 'markdown' },
+  callback = function()
+    vim.opt_local.wrap = true
+  end,
+})
+
 aucmd('CmdwinEnter', {
   callback = function()
     -- Use the same keymap as switching to cmdline window mode (vim.opt.cedit) to switch back to cmdline mode
