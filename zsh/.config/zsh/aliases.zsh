@@ -18,7 +18,3 @@ alias eze="nvim ~/.zshenv"
 # [RE-Z]shrc
 # env -i ... is to hard reset the environment variables to empty, must retain the essential ones like TERM
 # this is to make sure the new zsh instance that doesn't inherit any of the previously exported variables.
-
-# --login is to make sure the new shell behaves exactly like the first time we open the terminal
-# -i to ignore all current environment variables, must set the $TERM in .zprofile/.zshenv
-alias rez="clear && exec env -i zsh --login"
