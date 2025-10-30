@@ -1,6 +1,6 @@
 return {
   'neovim/nvim-lspconfig',
-  -- Don't use 'LazyFile' event, it will mess up the file type detection when opening a direectory with nvim
+  -- Don't use 'LazyFile' event, it will mess up the file type detection when opening a directory with nvim
   -- We can either:
   -- 1. Use 'VeryLazy' event
   -- 2. Use 'BufReadPre' event
