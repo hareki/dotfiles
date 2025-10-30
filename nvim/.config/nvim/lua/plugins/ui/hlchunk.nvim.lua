@@ -8,7 +8,7 @@ return {
         chunk = {
           enable = true,
           style = {
-            { fg = palette.blue },
+            { fg = palette.surface2 },
             { fg = palette.red },
           },
           duration = 200,
