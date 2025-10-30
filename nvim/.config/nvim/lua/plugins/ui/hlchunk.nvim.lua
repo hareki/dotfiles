@@ -8,11 +8,11 @@ return {
         chunk = {
           enable = true,
           style = {
-            { fg = palette.surface2 },
+            { fg = palette.overlay1 },
             { fg = palette.red },
           },
           duration = 200,
-          delay = 210,
+          delay = 200,
           chars = {
             horizontal_line = '─',
             vertical_line = '│',
