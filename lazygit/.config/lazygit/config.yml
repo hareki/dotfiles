@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/hareki/lazygit/master/schema/config.json
 os:
   editPreset: 'nvim-remote'
   # A copycat of this: https://github.com/jesseduffield/lazygit/blob/b62546c391d27d0ecc20b43535077ded4e83c4f2/pkg/config/editor_presets.go#L58

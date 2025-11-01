@@ -23,6 +23,10 @@ return {
         filetypes = { 'lua' },
         config = { 'stylua' },
       },
+      taplo = {
+        filetypes = { 'toml' },
+        config = { 'taplo' },
+      },
     }
 
     local formatters_by_ft = {}

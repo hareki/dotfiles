@@ -79,15 +79,27 @@ return {
     })
 
     vim.lsp.enable({
-      'marksman',
-      'lua_ls',
-      'vtsls',
-      'typos_lsp',
-      'eslint',
-      'jsonls',
-      'html',
-      'cssls',
-      'css_variables',
+      'marksman', -- Markdown
+      'lua_ls', -- Lua
+      'taplo', -- Toml
+      'yamlls', -- Yaml
+      'vtsls', -- Tytescript
+      'typos_lsp', -- Spelling checker
+      'eslint', -- JS/TS linter
+      'jsonls', -- JSON
+      'html', -- HTML
+      'cssls', -- CSS
+      'css_variables', -- CSS
+    })
+
+    vim.lsp.config('yamlls', {
+      settings = {
+        yaml = {
+          schemas = {
+            ['https://json.schemastore.org/github-workflow.json'] = '/.github/workflows/*',
+          },
+        },
+      },
     })
 
     vim.lsp.config('typos_lsp', {
