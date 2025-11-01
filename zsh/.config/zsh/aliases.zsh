@@ -3,7 +3,7 @@ alias ff="fastfetch"
 alias brewup='brew update && brew upgrade && brew autoremove && brew cleanup'
 
 alias cd="z"
-alias nvim="nvcd"
+alias cdi="zi"
 alias ..="z .."
 alias ...="z ..."
 alias ....="z ...."

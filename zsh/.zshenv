@@ -11,6 +11,8 @@ export TERM='xterm-ghostty' # default value, it's just there purely for the "rez
 # Aliases needed in non-interactive shells, others should go in to aliases.zsh for performance
 alias eza='eza --icons=always --color=always --no-user'
 alias fdt='fd --type dir --hidden'
+# Prevent fd from taking 100% CPU for long-running searches
+alias fd='gtimeout 5s fd'
 
 # An alternative to `mise activate --shims`
 # Helpful if mise is not yet available at that point in time.
