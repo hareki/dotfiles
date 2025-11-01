@@ -10,7 +10,7 @@ input_bar = { header = "Files", prompt = "  " }
 [source]
 ansi = true
 command = "fd -t f --exec eza --icons=always --color=always"
-output="{strip_ansi|substring:1..}"
+output = "{strip_ansi|substring:1..}"
 
 [preview]
 # https://docs.rs/string_pipeline/0.12.0/string_pipeline/

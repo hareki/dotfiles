@@ -10,7 +10,7 @@ input_bar = { header = "Dotfiles", prompt = "  " }
 [source]
 ansi = true
 command = "fdt '^\\.config$' $HOME/Repositories/personal/dotfiles --exec zsh -c 'eza \"$1\"' _ {}"
-output="{strip_ansi|substring:1..}" 
+output = "{strip_ansi|substring:1..}"
 
 [preview]
 command = "cd $HOME/Repositories/personal/dotfiles/{strip_ansi|substring:2..}/.config; eza --tree {strip_ansi|substring:2..}"
