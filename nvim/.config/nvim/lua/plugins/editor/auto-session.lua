@@ -20,15 +20,22 @@ return {
       once = true,
       callback = function(data)
         vim.schedule(function()
-          -- Only act if the argument is a directory and there is no session for auto-session to load
-          if
-            vim.fn.isdirectory(data.file) == 0
-            or vim.v.this_session and vim.v.this_session ~= ''
-          then
+          local is_directory = vim.fn.isdirectory(data.file) == 1
+          local has_session = vim.v.this_session and vim.v.this_session ~= ''
+
+          if not is_directory or has_session then
             return
           end
 
-          vim.cmd.cd(data.file) -- Set cwd to that dir
+          -- Set cwd to that dir
+          vim.cmd.cd(data.file)
+
+          -- AutoSession disables autosave when argv cwd mismatches; flip it back after cd
+          local auto_session_config = require('auto-session.config')
+          if auto_session_config.auto_save == false then
+            auto_session_config.auto_save = true
+          end
+
           local buf = vim.api.nvim_get_current_buf()
 
           -- Leftover buffer from opening a directory (netrw)
