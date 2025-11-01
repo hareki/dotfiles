@@ -19,6 +19,7 @@ return {
         kind_name = 'Copilot',
         kind_icon = ' ',
         kind_hl = 'BlinkCmpKindCopilot',
+        debounce = 150,
         auto_refresh = {
           backward = true,
           forward = true,
@@ -182,6 +183,14 @@ return {
             'fallback',
           },
           ['<CR>'] = { 'accept', 'fallback' },
+          ['<Space>'] = {
+            function(cmp)
+              vim.schedule(function()
+                cmp.show()
+              end)
+            end,
+            'fallback',
+          },
           ['<A-Space>'] = {
             function(cmp)
               cmp.show()
