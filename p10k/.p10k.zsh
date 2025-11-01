@@ -38,7 +38,8 @@
   [[ $ZSH_VERSION == (5.<1->*|<6->.*) ]] || return
 
   # Prompt colors - Catppuccin Mocha
-  local grey='#6c7086' # overlay0
+  local grey='#7f849c' # overlay1
+  local grey_vcs='#bac2de' # subtext1
   local green='#a6e3a1' # green
   local red='#f38ba8' # red
   local yellow='#f9e2af' # yellow
@@ -134,7 +135,7 @@
   typeset -g POWERLEVEL9K_COMMAND_EXECUTION_TIME_FOREGROUND=$yellow
 
   # Grey Git prompt. This makes stale prompts indistinguishable from up-to-date ones.
-  typeset -g POWERLEVEL9K_VCS_FOREGROUND=$grey
+  typeset -g POWERLEVEL9K_VCS_FOREGROUND=$grey_vcs
 
   # Disable async loading indicator to make directories that aren't Git repositories
   # indistinguishable from large Git repositories without known state.
