@@ -57,8 +57,11 @@ return {
               local popup = require('gitsigns.popup')
 
               map('n', '<Esc>', function()
-                pcall(vim.api.nvim_win_close, popup.is_open(popup_type), true)
-              end)
+                local popup_win = popup.is_open(popup_type)
+                if popup_win and vim.api.nvim_win_is_valid(popup_win) then
+                  vim.api.nvim_win_close(popup_win, true)
+                end
+              end, 'Close Popup')
 
               map('n', '<Tab>', function()
                 local popup_win_id = popup.is_open(popup_type)
@@ -76,23 +79,21 @@ return {
 
                 popup_map('n', 'q', function()
                   vim.api.nvim_win_close(popup_win_id, true)
-                end)
+                end, 'Close Popup')
 
                 popup_map('n', '<Esc>', function()
                   vim.api.nvim_win_close(popup_win_id, true)
-                end)
+                end, 'Close Popup')
 
                 popup_map('n', '<Tab>', function()
-                  require('utils.common').noautocmd(function()
-                    popup.ignore_cursor_moved = true
-                    vim.api.nvim_set_current_win(current_win_id)
-                  end)
-                end)
+                  popup.ignore_cursor_moved = true
+                  require('utils.common').focus_win(current_win_id)
+                end, 'Focus Original Window')
 
                 if current_win_id ~= popup_win_id then
                   popup.focus_open(popup_type)
                 end
-              end)
+              end, 'Focus Popup Window')
             end
           end
 

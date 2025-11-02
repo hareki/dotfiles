@@ -30,14 +30,10 @@ return {
 
         local trouble_win = vim.api.nvim_get_current_win()
 
-        require('utils.common').noautocmd(function()
-          vim.api.nvim_set_current_win(preview.win)
-        end)
+        require('utils.common').focus_win(preview.win)
 
         map('<Tab>', function()
-          require('utils.common').noautocmd(function()
-            vim.api.nvim_set_current_win(trouble_win)
-          end)
+          require('utils.common').focus_win(trouble_win)
         end)
 
         map('<CR>', function()
@@ -49,9 +45,7 @@ return {
         end)
 
         map('q', function()
-          require('utils.common').noautocmd(function()
-            vim.api.nvim_set_current_win(trouble_win)
-          end)
+          require('utils.common').focus_win(trouble_win)
           vim.api.nvim_win_close(preview.win, true)
         end)
       end
@@ -79,7 +73,7 @@ return {
         },
 
         keys = {
-          ['<tab>'] = {
+          ['<Tab>'] = {
             action = toggle_focus,
             desc = 'Toggle Focus Between List and Preview',
           },
@@ -96,7 +90,7 @@ return {
           else
             local ok, err = pcall(vim.cmd.cprev)
             if not ok then
-              vim.notify(err, vim.log.levels.ERROR)
+              notifier.error(err)
             end
           end
         end,
@@ -110,7 +104,7 @@ return {
           else
             local ok, err = pcall(vim.cmd.cnext)
             if not ok then
-              vim.notify(err, vim.log.levels.ERROR)
+              notifier.error(err)
             end
           end
         end,

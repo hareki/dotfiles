@@ -15,11 +15,12 @@ function M.toggle_preview_focus(picker)
   local input_win = picker.layout.opts.wins.input.win
   local preview_win = picker.layout.opts.wins.preview.win
   local current_win = vim.api.nvim_get_current_win()
+  local common = require('utils.common')
 
   if current_win == input_win then
-    vim.api.nvim_set_current_win(preview_win)
+    common.focus_win(preview_win)
   else
-    vim.api.nvim_set_current_win(input_win)
+    common.focus_win(input_win)
   end
 end
 

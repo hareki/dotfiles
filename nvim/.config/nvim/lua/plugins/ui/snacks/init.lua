@@ -114,7 +114,7 @@ return {
       local full_popup_config = popup_config('full')
       local sm_popup_config = popup_config('sm', true)
       local lg_popup_config = popup_config('lg', true)
-      local select_width = 50
+      local select_width = sm_popup_config.width
 
       local utils = require('plugins.ui.snacks.utils')
       local actions = require('plugins.ui.snacks.actions')

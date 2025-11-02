@@ -66,9 +66,9 @@ return {
     local panel_conflict_keys = {
       { 'n', '[x', actions.prev_conflict, { desc = 'Previous Conflict' } },
       { 'n', ']x', actions.next_conflict, { desc = 'Next Conflict' } },
-      { 'n', '<leader>cO', actions.conflict_choose_all('ours'), { desc = 'Chosoe All OURS' } },
-      { 'n', '<leader>cT', actions.conflict_choose_all('theirs'), { desc = 'Chosoe All THEIRS' } },
-      { 'n', '<leader>cB', actions.conflict_choose_all('base'), { desc = 'Chosoe All BASE' } },
+      { 'n', '<leader>cO', actions.conflict_choose_all('ours'), { desc = 'Choose All OURS' } },
+      { 'n', '<leader>cT', actions.conflict_choose_all('theirs'), { desc = 'Choose All THEIRS' } },
+      { 'n', '<leader>cB', actions.conflict_choose_all('base'), { desc = 'Choose All BASE' } },
       { 'n', '<leader>cA', actions.conflict_choose_all('all'), { desc = 'Choose All WHOLE' } },
       { 'n', 'dX', actions.conflict_choose_all('none'), { desc = 'Delete All Conflict Regions' } },
     }
@@ -161,13 +161,13 @@ return {
           { 'n', 'y', actions.copy_hash, { desc = 'Copy Commit Hash' } },
         }),
         option_panel = {
-          { 'n', '<tab>', actions.select_entry, { desc = 'Change Current Option' } },
+          { 'n', '<Tab>', actions.select_entry, { desc = 'Change Current Option' } },
           { 'n', 'q', actions.close, { desc = 'Close Panel' } },
           help_panel('option_panel'),
         },
         help_panel = {
           { 'n', 'q', actions.close, { desc = 'Close Help Menu' } },
-          { 'n', '<esc>', actions.close, { desc = 'Close Help Menu' } },
+          { 'n', '<Esc>', actions.close, { desc = 'Close Help Menu' } },
         },
       },
     }

@@ -2,9 +2,10 @@ return {
   'ThePrimeagen/harpoon',
   branch = 'harpoon2',
   opts = function()
+    local menu_popup = require('utils.ui').popup_config('sm', true)
     return {
       menu = {
-        width = vim.api.nvim_win_get_width(0) - 4,
+        width = menu_popup.width,
       },
       settings = {
         save_on_toggle = true,
@@ -38,7 +39,7 @@ return {
 
       pickers
         .new({}, {
-          preview_title = require('plugins.editor.telescope.utils').preview_title,
+          preview_title = require('configs.picker').telescope_preview_title,
           prompt_title = 'Harpoon',
           finder = require('telescope.finders').new_table({
             results = file_paths,

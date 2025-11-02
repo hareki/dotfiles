@@ -50,7 +50,6 @@ require('lazy').setup({
         'tohtml',
         'logipat',
         'tutor',
-        'zipPlugin',
       },
     },
   },

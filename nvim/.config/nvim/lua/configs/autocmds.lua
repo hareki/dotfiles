@@ -117,10 +117,14 @@ aucmd('FileType', {
 aucmd('CmdwinEnter', {
   callback = function()
     -- Use the same keymap as switching to cmdline window mode (vim.opt.cedit) to switch back to cmdline mode
-    vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-f>', '<C-c>')
-
-    vim.keymap.set({ 'n' }, 'q', '<CMD>:q!<CR><esc>', {
+    vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-f>', '<C-c>', {
       silent = true,
+      desc = 'Exit Command-line Window Mode',
+    })
+
+    vim.keymap.set({ 'n' }, 'q', '<CMD>:q!<CR><Esc>', {
+      silent = true,
+      desc = 'Quit Command-line Window',
     })
   end,
 })

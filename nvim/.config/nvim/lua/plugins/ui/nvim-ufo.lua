@@ -11,11 +11,35 @@ return {
           return
         end
 
-        local buf = vim.api.nvim_get_current_buf()
         vim.schedule(function()
+          if not vim.api.nvim_win_is_valid(preview_win_id) then
+            return
+          end
+
+          local preview_buf = vim.api.nvim_win_get_buf(preview_win_id)
+
+          local function clear_mapping()
+            pcall(vim.keymap.del, 'n', '<Esc>', { buffer = preview_buf })
+          end
+
+          clear_mapping()
+
           vim.keymap.set('n', '<Esc>', function()
+            clear_mapping()
             require('ufo.preview').close()
-          end, { buffer = buf, silent = true, desc = 'Close Fold Preview' })
+          end, { buffer = preview_buf, silent = true, desc = 'Close Fold Preview' })
+
+          vim.api.nvim_create_autocmd('BufWipeout', {
+            buffer = preview_buf,
+            once = true,
+            callback = clear_mapping,
+          })
+
+          vim.api.nvim_create_autocmd('WinClosed', {
+            pattern = tostring(preview_win_id),
+            once = true,
+            callback = clear_mapping,
+          })
         end)
       end,
       desc = 'Peek Folded Lines',

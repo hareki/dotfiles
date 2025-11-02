@@ -59,24 +59,20 @@ return {
           vim.keymap.del({ 'n', 'x' }, '<Tab>', { buffer = current_buf })
         end
 
-        eagle_map({ 'n', 'x' }, 'q', close_eagle, 'Close eagle')
-        eagle_map({ 'n', 'x' }, '<Esc>', close_eagle, 'Close eagle')
-        eagle_map({ 'n', 'x' }, '<PageUp>', '<C-u>', 'Scroll up')
-        eagle_map({ 'n', 'x' }, '<PageDown>', '<C-d>', 'Scroll down')
+        eagle_map({ 'n', 'x' }, 'q', close_eagle, 'Close Eagle')
+        eagle_map({ 'n', 'x' }, '<Esc>', close_eagle, 'Close Eagle')
+        eagle_map({ 'n', 'x' }, '<PageUp>', '<C-u>', 'Scroll Up')
+        eagle_map({ 'n', 'x' }, '<PageDown>', '<C-d>', 'Scroll Down')
         eagle_map({ 'n', 'x' }, '<Tab>', function()
           require('eagle').ignore_cursor_moved = true
-          require('utils.common').noautocmd(function()
-            vim.api.nvim_set_current_win(current_win)
-          end)
-        end, 'Focus parent window')
+          require('utils.common').focus_win(current_win)
+        end, 'Focus Parent Window')
 
-        current_map({ 'n', 'x' }, '<Esc>', close_eagle, 'Close eagle')
+        current_map({ 'n', 'x' }, '<Esc>', close_eagle, 'Close Eagle')
         current_map({ 'n', 'x' }, '<Tab>', function()
           require('eagle').ignore_cursor_moved = true
-          require('utils.common').noautocmd(function()
-            vim.api.nvim_set_current_win(eagle_win)
-          end)
-        end, 'Focus eagle window')
+          require('utils.common').focus_win(eagle_win)
+        end, 'Focus Eagle Window')
       end,
     }
   end,

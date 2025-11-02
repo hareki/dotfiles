@@ -123,9 +123,7 @@ return {
         map('n', '<Tab>', function()
           restore_buf_state()
           set_cursorline(false, previewer_winid)
-          require('utils.common').noautocmd(function()
-            vim.api.nvim_set_current_win(prompt_win)
-          end)
+          require('utils.common').focus_win(prompt_win)
         end)
 
         map('n', 'q', function()
@@ -138,12 +136,11 @@ return {
           actions.select_default(prompt_bufnr)
         end)
 
-        require('utils.common').noautocmd(function()
-          vim.api.nvim_set_current_win(previewer_winid)
+        if require('utils.common').focus_win(previewer_winid) then
           vim.schedule(function()
             set_cursorline(true, previewer_winid)
           end)
-        end)
+        end
       end
 
       vim.api.nvim_create_autocmd('User', {

@@ -19,7 +19,7 @@ local repo_cache = {
 --- @param format utils.git.branch_formats The name of the branch format to set.
 function M.set_branch_name_format(format)
   branch_display_mode = format
-  vim.notify('Branch name format set to ' .. format)
+  notifier.info('Branch name format set to ' .. format)
   require('lualine').refresh()
 end
 
@@ -190,7 +190,7 @@ function M.get_current_line_commit()
   --- @type string|nil
   local root = Snacks.git.get_root()
   if not root then
-    vim.notify('Not inside a Git repository', vim.log.levels.ERROR)
+    notifier.error('Not inside a Git repository')
     return nil
   end
 
@@ -215,10 +215,7 @@ function M.get_current_line_commit()
 
   -- Check for Git command errors.
   if vim.v.shell_error ~= 0 then
-    vim.notify(
-      'Git command failed. Ensure the file is tracked and has sufficient history.',
-      vim.log.levels.ERROR
-    )
+    notifier.error('Git command failed. Ensure the file is tracked and has sufficient history.')
     return nil
   end
 

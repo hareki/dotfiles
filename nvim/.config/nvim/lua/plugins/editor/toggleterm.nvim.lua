@@ -37,12 +37,6 @@ return {
       }
     end
 
-    local aucmd = vim.api.nvim_create_autocmd
-    aucmd('TabLeave', {
-      callback = function()
-        prev_tab_id = vim.api.nvim_get_current_tabpage()
-      end,
-    })
     return {
       highlights = default_highlights,
       direction = 'float',
