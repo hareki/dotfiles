@@ -18,7 +18,7 @@ zstyle ':omz:plugins:ssh-agent' quiet yes
 
 zstyle ':antidote:bundle:*' zcompile 'yes'
 
-zstyle ':fzf-tab:*' fzf-flags --height=11
+zstyle ':fzf-tab:*' fzf-flags --height=11 # Match atuin config inline_height
 zstyle ':fzf-tab:*' use-fzf-default-opts yes
 
 # Force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix

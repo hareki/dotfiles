@@ -1,9 +1,12 @@
 style = "full"
 invert = true
 dialect = "uk"
+show_help = false
+show_tabs = false
 
-inline_height = 20
+inline_height = 11 # Match fzf-tab height
 
 # Update it with homebrew
 update_check = false
+show_numeric_shortcuts = false
 theme.name = "catppuccin-mocha-blue"
