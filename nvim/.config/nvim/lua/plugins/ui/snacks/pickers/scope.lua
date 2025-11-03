@@ -49,7 +49,7 @@ local function find_buffer_tabpage(bufnr)
   return nil
 end
 
-local function scope_buffers(user_opts)
+return function(user_opts)
   local scope_core = require('scope.core')
   local picker_sources = require('snacks.picker.config.sources')
   local base_cfg = picker_sources.buffers or {}
@@ -286,7 +286,3 @@ local function scope_buffers(user_opts)
 
   return Snacks.picker(picker_opts)
 end
-
-return {
-  buffers = scope_buffers,
-}

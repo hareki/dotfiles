@@ -129,10 +129,8 @@ aucmd('CmdwinEnter', {
   end,
 })
 
-local tab_watchers = augroup('TabWatchers')
-
 aucmd('TabEnter', {
-  group = tab_watchers,
+  group = augroup('tab_watchers'),
   callback = function()
     vim.schedule(function()
       local old_name = vim.t.tab_name
@@ -145,6 +143,32 @@ aucmd('TabEnter', {
   end,
 })
 
+-- Close all diffview tabs on exit so that auto-session doesn't save them
+aucmd('VimLeavePre', {
+  group = augroup('close_diffview_tabs_on_exit'),
+  callback = function()
+    local diffview_tabs = {}
+    local prefix = 'diffview-tab'
+
+    for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
+      local tab_vars = vim.t[tab]
+      local name = tab_vars and tab_vars.tab_name
+
+      if type(name) == 'string' and name:sub(1, #prefix) == prefix then
+        table.insert(diffview_tabs, tab)
+      end
+    end
+
+    for _, tab in ipairs(diffview_tabs) do
+      if vim.api.nvim_tabpage_is_valid(tab) then
+        pcall(vim.api.nvim_set_current_tabpage, tab)
+        pcall(vim.cmd, 'silent! tabclose')
+      end
+    end
+  end,
+})
+
+-- Clear search highlight when entering insert mode
 aucmd('InsertEnter', {
   callback = function()
     if vim.v.hlsearch == 1 then

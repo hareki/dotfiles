@@ -46,7 +46,7 @@ return {
 
           vim.schedule(function()
             require('snacks')
-            require('plugins.ui.snacks.picker_query_persister').files()
+            Snacks.picker.files()
           end)
         end)
       end,

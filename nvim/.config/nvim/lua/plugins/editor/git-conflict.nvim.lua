@@ -12,7 +12,7 @@ return {
     }
   end),
   {
-    'akinsho/git-conflict.nvim',
+    'hareki/git-conflict.nvim',
     event = { 'BufReadPost', 'BufNewFile' },
     opts = function()
       local keymaps = {

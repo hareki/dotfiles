@@ -5,7 +5,7 @@ return {
     {
       '<leader>fB',
       function()
-        require('plugins.ui.snacks.scope_snacks').buffers()
+        require('plugins.ui.snacks.pickers.scope')()
       end,
       desc = 'Find All Buffers',
     },

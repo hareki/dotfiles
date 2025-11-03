@@ -25,7 +25,7 @@ return {
       {
         '<leader><leader>',
         function()
-          require('plugins.ui.snacks.picker_query_persister').files()
+          Snacks.picker.files()
         end,
         desc = 'Find Files',
       },
@@ -46,7 +46,7 @@ return {
       {
         '<leader>f/',
         function()
-          require('plugins.ui.snacks.picker_query_persister').grep({
+          Snacks.picker.grep({
             title = 'Grep',
           })
         end,
@@ -55,7 +55,7 @@ return {
       {
         '<leader>fb',
         function()
-          require('plugins.ui.snacks.picker_query_persister').buffers({
+          Snacks.picker.buffers({
             title = 'Buffers',
           })
         end,
@@ -104,6 +104,13 @@ return {
           Snacks.picker.git_branches()
         end,
         desc = 'Find Git Branches',
+      },
+      {
+        '<leader>ft',
+        function()
+          require('plugins.ui.snacks.pickers.tabs')()
+        end,
+        desc = 'Find Tabs',
       },
     },
     opts = function()
@@ -178,7 +185,7 @@ return {
               {
                 box = 'vertical',
                 border = 'rounded',
-                title = '{title} {live} {flags}',
+                title = '{title} {live}',
                 title_pos = 'center',
                 { win = 'input', height = 1, border = 'bottom' },
                 { win = 'list', border = 'none' },
@@ -204,6 +211,13 @@ return {
 
             buffers = {
               format = utils.buffer_format,
+              win = {
+                input = {
+                  keys = {
+                    ['x'] = { 'bufdelete', mode = { 'n' } }, -- close selected buffer from input (normal mode)
+                  },
+                },
+              },
             },
 
             files = {
