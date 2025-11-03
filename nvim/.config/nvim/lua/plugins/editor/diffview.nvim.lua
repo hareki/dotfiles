@@ -40,7 +40,8 @@ return {
   },
 
   opts = function()
-    local log_popup_config = require('utils.ui').popup_config('md')
+    local ui = require('utils.ui')
+    local log_popup_config = ui.popup_config('md')
     local actions = require('diffview.actions')
     local icons = require('configs.icons')
     local panel_win_config = {
@@ -58,8 +59,8 @@ return {
     local view_conflict_keys = {
       { 'n', '<leader>co', actions.conflict_choose('ours'), { desc = 'Choose OURS' } },
       { 'n', '<leader>ct', actions.conflict_choose('theirs'), { desc = 'Choose THEIRS' } },
-      { 'n', '<leader>cb', actions.conflict_choose('base'), { desc = 'Choose BASE' } },
-      { 'n', '<leader>ca', actions.conflict_choose('all'), { desc = 'Choose ALL' } },
+      { 'n', '<leader>cn', actions.conflict_choose('base'), { desc = 'Choose NONE' } },
+      { 'n', '<leader>cb', actions.conflict_choose('all'), { desc = 'Choose BOTH' } },
       { 'n', 'dx', actions.conflict_choose('none'), { desc = 'Delete the Conflict Region' } },
     }
 
@@ -68,8 +69,8 @@ return {
       { 'n', ']x', actions.next_conflict, { desc = 'Next Conflict' } },
       { 'n', '<leader>cO', actions.conflict_choose_all('ours'), { desc = 'Choose All OURS' } },
       { 'n', '<leader>cT', actions.conflict_choose_all('theirs'), { desc = 'Choose All THEIRS' } },
-      { 'n', '<leader>cB', actions.conflict_choose_all('base'), { desc = 'Choose All BASE' } },
-      { 'n', '<leader>cA', actions.conflict_choose_all('all'), { desc = 'Choose All WHOLE' } },
+      { 'n', '<leader>cN', actions.conflict_choose_all('base'), { desc = 'Choose All NONE' } },
+      { 'n', '<leader>cB', actions.conflict_choose_all('all'), { desc = 'Choose All BOTH' } },
       { 'n', 'dX', actions.conflict_choose_all('none'), { desc = 'Delete All Conflict Regions' } },
     }
 

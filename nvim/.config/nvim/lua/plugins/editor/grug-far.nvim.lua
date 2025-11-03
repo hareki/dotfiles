@@ -1,8 +1,11 @@
 return {
-  require('utils.ui').catppuccin(function()
+  require('utils.ui').catppuccin(function(palette)
     return {
       GrugFarResultsMatch = { link = 'Search' },
       GrugFarPreview = { link = 'Search' },
+      GrugFarResultsAddIndicator = { fg = palette.green },
+      GrugFarResultsChangeIndicator = { fg = palette.yellow },
+      GrugFarResultsRemoveIndicator = { fg = palette.red },
     }
   end),
   {

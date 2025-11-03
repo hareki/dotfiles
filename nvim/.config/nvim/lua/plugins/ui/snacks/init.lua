@@ -206,6 +206,12 @@ return {
               format = utils.buffer_format,
             },
 
+            files = {
+              hidden = true,
+              -- ignored = true,
+              -- follow = true,
+            },
+
             keymaps = {
               layout = {
                 preview = false,

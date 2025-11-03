@@ -1,5 +1,5 @@
 local filetypes =
-  { 'css', 'scss', 'html', 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' }
+  { 'css', 'scss', 'html', 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'lua' }
 
 return {
   'catgoose/nvim-colorizer.lua',

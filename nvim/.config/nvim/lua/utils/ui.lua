@@ -127,8 +127,19 @@ function M.popup_config(size, with_border)
     width = window_w + (with_border and 2 or 0),
     height = window_h + (with_border and 2 or 0),
     col = col,
-    row = row,
+    row = row - (size == 'full' and 1 or 0), -- Off center by one row for full screen to cover the winbar
   }
+end
+
+--- @param groups string[] | string
+function M.clear_hls(groups)
+  if type(groups) == 'string' then
+    groups = { groups }
+  end
+
+  for _, group in ipairs(groups) do
+    vim.cmd('highlight clear ' .. group)
+  end
 end
 
 return M

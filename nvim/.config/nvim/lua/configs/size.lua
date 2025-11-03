@@ -16,7 +16,7 @@ local M = {}
 M.popup = {
   full = {
     width = vim.opt.columns:get(),
-    height = vim.opt.lines:get() - 4, -- 2 for the top and bottom borders, 2 for winbar and statusline
+    height = vim.opt.lines:get() - 3, -- 2 for the top and bottom borders, 1 for and statusline (cover the winbar)
   },
 
   lg = {
