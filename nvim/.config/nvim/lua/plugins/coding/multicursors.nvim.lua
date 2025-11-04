@@ -106,7 +106,7 @@ return {
           ['<A-Right>'] = { method = I.C_Right, opts = { desc = 'Word Forward' } },
           ['<A-Left>'] = { method = I.C_Left, opts = { desc = 'Word Backward' } },
 
-          ['<Esc>'] = { method = nil, opts = { desc = 'exit' } },
+          ['<Esc>'] = { method = nil, opts = { desc = 'Exit' } },
 
           ['<End>'] = {
             method = I.End_method,

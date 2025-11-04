@@ -20,7 +20,9 @@ local repo_cache = {
 function M.set_branch_name_format(format)
   branch_display_mode = format
   notifier.info('Branch name format set to ' .. format)
-  require('lualine').refresh()
+  if require('plugins.ui.lualine.util').have_status_line() then
+    require('lualine').refresh({ place = { 'statusline' } })
+  end
 end
 
 --- Formats a given branch name according to the selected display mode.

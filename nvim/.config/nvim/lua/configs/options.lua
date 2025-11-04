@@ -55,7 +55,7 @@ opt.statuscolumn = '%l%s'
 opt.signcolumn = 'yes:1' -- Always show the signcolumn, otherwise it would shift the text each time
 opt.wildmode = 'longest:full,full' -- Command-line completion mode
 opt.winminwidth = 5 -- Minimum window width
-opt.laststatus = vim.env.NVIM_NO_STATUS_LINE and 0 or 3 -- 3 = Global status line
+opt.laststatus = require('plugins.ui.lualine.util').have_status_line() and 3 or 0 -- 3 = Global status line
 opt.shiftwidth = 2 -- Number of spaces to use for each step of (auto)indent
 opt.tabstop = 2 -- Number of spaces tabs count for
 opt.softtabstop = 2 -- Number of spaces tabs count for while performing editing operations

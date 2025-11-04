@@ -69,7 +69,7 @@ return {
       }
 
       -- https://zenquotes.io/
-      local ambitious = {
+      local zen_quotes = {
         {
           'Most people fail in life not because they aim too high and miss,',
           'but because they aim too low and hit.',
@@ -83,12 +83,11 @@ return {
           'is he who has never tried.',
         },
         { 'There is little success where there is little laughter.' },
+        { "“Don't blame others. it won't make you a better person.”" },
       }
 
-      local random_index = math.random(1, #ambitious)
-      -- Hardcoding for now
-      local random_quote = { "“Don't blame others. it won't make you a better person.”" }
-        or ambitious[random_index]
+      local random_index = math.random(1, #zen_quotes)
+      local random_quote = zen_quotes[random_index]
 
       vim.api.nvim_create_autocmd('User', {
         pattern = 'DashboardLoaded',
@@ -96,8 +95,8 @@ return {
           local buf = ev.data.buf
           local map = vim.keymap.set
 
-          map({ 'n', 'v' }, '<PageUp>', '<C-u>', { desc = 'Scroll up', buffer = buf })
-          map({ 'n', 'v' }, '<PageDown>', '<C-d>', { desc = 'Scroll down', buffer = buf })
+          map({ 'n', 'v' }, '<PageUp>', '<C-u>', { desc = 'Scroll Up', buffer = buf })
+          map({ 'n', 'v' }, '<PageDown>', '<C-d>', { desc = 'Scroll Down', buffer = buf })
         end,
       })
 

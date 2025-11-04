@@ -1,22 +1,15 @@
 ---@class configs.size.dimensions
----@field width number
----@field height number
----@field min_width? number
----@field min_height? number
+---@field height_offset? number
+---@field width_offset? number
 
 ---@class configs.size
----@field popup configs.size.popup
----@field side_preview configs.size.side_preview
----@field side_panel configs.size.side_panel
 local M = {}
 
----@class configs.size.popup
----@field lg configs.size.dimensions
----@field sm configs.size.dimensions
 M.popup = {
   full = {
-    width = vim.opt.columns:get(),
-    height = vim.opt.lines:get() - 3, -- 2 for the top and bottom borders, 1 for and statusline (cover the winbar)
+    width = 1,
+    height = 1,
+    height_offset = -3, -- 2 for the top/bottom borders, 1 for cover the winbar, we cover the statusline
   },
 
   lg = {
@@ -41,8 +34,6 @@ M.popup = {
   },
 }
 
----@class configs.size.side_preview
----@field md configs.size.dimensions
 M.side_preview = {
   md = {
     width = 0.5,
@@ -52,8 +43,6 @@ M.side_preview = {
   },
 }
 
----@class configs.size.side_panel
----@field md configs.size.dimensions
 M.side_panel = {
   md = {
     width = 0.35,

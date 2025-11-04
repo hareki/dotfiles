@@ -108,6 +108,14 @@ function M.popup_config(size, with_border)
       window_h = dimensions.height
     end
 
+    if dimensions.width_offset then
+      window_w = math.max(window_w + dimensions.width_offset, 1)
+    end
+
+    if dimensions.height_offset then
+      window_h = math.max(window_h + dimensions.height_offset, 1)
+    end
+
     if dimensions.min_width and window_w < dimensions.min_width then
       window_w = dimensions.min_width
     end

@@ -255,7 +255,7 @@ return {
           map('n', 'd', api.fs.trash, 'Trash')
           map('n', 'D', api.fs.remove, 'Remove')
           map('n', 'y', api.fs.copy.filename, 'Copy name')
-          map('n', 'r', api.fs.rename, 'rename')
+          map('n', 'r', api.fs.rename, 'Rename')
           map('n', 'R', api.node.run.system, 'Reveal in Finder')
           map('n', 'Y', api.fs.copy.relative_path, 'Copy relative path')
 
