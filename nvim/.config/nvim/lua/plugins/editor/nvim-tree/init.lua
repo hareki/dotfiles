@@ -220,7 +220,7 @@ return {
 
           local map = function(mode, lhs, rhs, desc)
             vim.keymap.set(mode, lhs, rhs, {
-              desc = 'nvim-tree: ' .. desc,
+              desc = 'NvimTree: ' .. desc,
               buffer = tree_bufnr,
               noremap = true,
               silent = true,
@@ -231,14 +231,14 @@ return {
           map('n', '<C-t>', function()
             tree.switch_position('side')
             tree.open({ switching = true })
-          end, 'Switch to side')
+          end, 'Switch to Side')
 
           map('n', '<Tab>', function()
             tree.toggle_focus()
           end, 'Preview')
 
           map('n', 'q', tree.close_all, 'Close')
-          map('n', 'B', tree.toggle_preview, 'Toggle preview')
+          map('n', 'B', tree.toggle_preview, 'Toggle Preview')
 
           map('n', 'c', api.fs.copy.node, 'Copy')
           map('n', 'x', api.fs.cut, 'Cut')
@@ -250,14 +250,14 @@ return {
             api.live_filter.start()
             state.live_filter_triggered = true
           end, 'Live Filter: Start')
-          map('n', '<Esc>', api.live_filter.clear, 'Clear live filter')
+          map('n', '<Esc>', api.live_filter.clear, 'Clear Live Filter')
 
           map('n', 'd', api.fs.trash, 'Trash')
           map('n', 'D', api.fs.remove, 'Remove')
-          map('n', 'y', api.fs.copy.filename, 'Copy name')
+          map('n', 'y', api.fs.copy.filename, 'Copy Name')
           map('n', 'r', api.fs.rename, 'Rename')
           map('n', 'R', api.node.run.system, 'Reveal in Finder')
-          map('n', 'Y', api.fs.copy.relative_path, 'Copy relative path')
+          map('n', 'Y', api.fs.copy.relative_path, 'Copy Relative Path')
 
           map('n', '<Right>', tree.create_node_action('expand'), 'Expand Node')
           map('n', '<S-Right>', api.tree.expand_all, 'Expand All Nodes')

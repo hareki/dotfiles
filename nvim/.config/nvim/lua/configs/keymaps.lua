@@ -99,7 +99,7 @@ map('n', '<leader>td', '<CMD>tabclose<CR>', { desc = 'Close Tab' })
 map('n', '<leader>tr', function()
   vim.ui.input({ prompt = 'Rename the Tab' }, function(input)
     if input and input ~= '' then
-      vim.cmd('TabRename ' .. input)
+      vim.cmd({ cmd = 'TabRename', args = { input } })
     end
   end)
 end, { desc = 'Rename Tab' })

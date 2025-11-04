@@ -110,24 +110,26 @@ return {
     })
 
     local base_on_eslint_attach = vim.lsp.config.eslint.on_attach
+    local eslint_registered = false
 
     -- HINT: Restart eslint with `:LspRestart eslint`
     vim.lsp.config('eslint', {
       on_attach = function(client, bufnr)
-        if not base_on_eslint_attach then
+        if base_on_eslint_attach then
+          base_on_eslint_attach(client, bufnr)
+        end
+
+        if eslint_registered then
           return
         end
 
-        base_on_eslint_attach(client, bufnr)
-
-        local linters = require('utils.linters')
-        local eslint_linter = require('utils.linters.eslint')
-
-        linters.register(
+        require('utils.linters').register(
           'eslint',
           { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' },
-          eslint_linter.run
+          require('utils.linters.eslint').run
         )
+
+        eslint_registered = true
       end,
     })
 

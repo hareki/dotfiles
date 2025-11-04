@@ -398,7 +398,9 @@ return function(user_opts)
       table.sort(tabnrs, function(a, b)
         return a > b
       end)
-      if #tabnrs == 1 then
+
+      local total_tabs = #vim.api.nvim_list_tabpages()
+      if #tabnrs >= total_tabs then
         notifier.error('Cannot close last tab page')
         return
       end

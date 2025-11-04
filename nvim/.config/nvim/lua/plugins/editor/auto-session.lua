@@ -9,9 +9,6 @@ return {
     },
   },
 
-  ---enables autocomplete for opts
-  ---@module "auto-session"
-  ---@type AutoSession.Config
   opts = function()
     local popup_config = require('utils.ui').popup_config('sm')
 
@@ -28,7 +25,7 @@ return {
           end
 
           -- Set cwd to that dir
-          vim.cmd.cd(data.file)
+          vim.cmd({ cmd = 'cd', args = { data.file } })
 
           -- AutoSession disables autosave when argv cwd mismatches; flip it back after cd
           local auto_session_config = require('auto-session.config')
@@ -45,13 +42,16 @@ return {
           vim.opt_local.relativenumber = false
 
           vim.schedule(function()
-            require('snacks')
+            require('lazy').load({ plugins = { 'snacks.nvim' } })
             Snacks.picker.files()
           end)
         end)
       end,
     })
 
+    ---enables autocomplete for opts
+    ---@module "auto-session"
+    ---@type AutoSession.Config
     return {
       suppressed_dirs = { '~/', '~/Downloads', '/' },
       ---@type SessionLens

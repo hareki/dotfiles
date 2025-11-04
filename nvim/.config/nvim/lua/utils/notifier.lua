@@ -118,7 +118,7 @@ function M.notify(msg, opts)
             apply_highlight(win)
           end
         end,
-        desc = 'Reapply notifier highlighting on content or display changes',
+        desc = 'Reapply Notifier Highlighting on Content or Display Changes',
       })
     end
 

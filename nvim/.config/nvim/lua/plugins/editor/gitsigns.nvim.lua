@@ -145,7 +145,7 @@ return {
           map('n', '<leader>hp', function()
             require('gitsigns').preview_hunk()
             vim.schedule(setup_popup_navigation('hunk'))
-          end, 'Preview hunk')
+          end, 'Preview Hunk')
         end,
       }
     end,

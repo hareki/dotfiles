@@ -105,6 +105,12 @@ return {
         local status = telescope_state.get_status(prompt_bufnr)
         local previewer_winid = status and status.preview_win or nil
         local previewer_bufnr = previewer_winid and vim.api.nvim_win_get_buf(previewer_winid) or nil
+
+        if not (previewer_winid and vim.api.nvim_win_is_valid(previewer_winid)) then
+          require('utils.common').focus_win(prompt_win)
+          return
+        end
+
         local set_cursorline = reticle_utils.set_cursorline
         local default_modifiable = previewer_bufnr and vim.bo[previewer_bufnr].modifiable or false
 

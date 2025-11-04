@@ -21,8 +21,6 @@
 ---@class utils.progress
 local M = {}
 
-local noice_prog = require('noice.lsp.progress')
-
 ---@param bufnr integer|nil
 ---@return integer
 local function get_valid_client_id(bufnr)
@@ -39,7 +37,7 @@ ProgressHandle.__index = ProgressHandle --[[@as utils.progress.Handle]]
 ---@param title      string|nil
 ---@param percentage number|nil
 function ProgressHandle:_send(kind, title, percentage)
-  noice_prog.progress({
+  require('noice.lsp.progress').progress({
     client_id = self.client_id,
     params = {
       token = self.token,

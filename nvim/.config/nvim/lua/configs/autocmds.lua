@@ -133,19 +133,21 @@ aucmd('CmdwinEnter', {
   end,
 })
 
-aucmd('TabEnter', {
-  group = augroup('tab_watchers'),
-  callback = function()
-    vim.schedule(function()
-      local old_name = vim.t.tab_name
-      vim.t.tab_name = require('utils.tab').get_tab_name()
+if require('plugins.ui.lualine.util').have_status_line() then
+  aucmd('TabEnter', {
+    group = augroup('tab_watchers'),
+    callback = function()
+      vim.schedule(function()
+        local old_name = vim.t.tab_name
+        vim.t.tab_name = require('utils.tab').get_tab_name()
 
-      if old_name ~= vim.t.tab_name then
-        require('lualine').refresh({ place = { 'statusline' } })
-      end
-    end)
-  end,
-})
+        if old_name ~= vim.t.tab_name and package.loaded['lualine'] then
+          require('lualine').refresh({ place = { 'statusline' } })
+        end
+      end)
+    end,
+  })
+end
 
 -- Close all diffview tabs on exit so that auto-session doesn't save them
 aucmd('VimLeavePre', {

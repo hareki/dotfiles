@@ -1,6 +1,8 @@
 ---@class configs.size.dimensions
 ---@field height_offset? number
 ---@field width_offset? number
+---@field height number
+---@field width number
 
 ---@class configs.size
 local M = {}
