@@ -1,4 +1,6 @@
 local tab_utils = require('utils.tab')
+local snacks_utils = require('plugins.ui.snacks.utils')
+local notifier = require('utils.notifier')
 
 local function unique_insert(list, value)
   if value == nil then
@@ -101,15 +103,25 @@ end
 return function(user_opts)
   local picker_sources = require('snacks.picker.config.sources')
   local base_cfg = picker_sources.tabs or {}
-  local opts = vim.deepcopy(user_opts or {})
 
-  local keys_cfg = opts.keys or {}
-  local close_i = keys_cfg.close_tab_i or '<C-d>'
-  local close_n = keys_cfg.close_tab_n or 'x'
-  local show_preview = opts.show_preview
-  if show_preview == nil then
-    show_preview = true
+  local default_user_opts = {
+    keys = {
+      close_tab_i = '<C-d>',
+      close_tab_n = 'x',
+    },
+    show_preview = true,
+  }
+
+  local opts = vim.tbl_deep_extend('force', {}, default_user_opts, user_opts or {})
+
+  if type(opts.keys) ~= 'table' then
+    opts.keys = {}
   end
+
+  local keys_cfg = opts.keys
+  local close_i = keys_cfg.close_tab_i
+  local close_n = keys_cfg.close_tab_n
+  local show_preview = opts.show_preview
 
   if opts.keys then
     opts.keys.close_tab_i = nil
@@ -130,8 +142,208 @@ return function(user_opts)
   picker_opts.items = items
   picker_opts.source = picker_opts.source or 'tabs'
   picker_opts.title = picker_opts.title or 'Tabs'
-  picker_opts.preview = show_preview and 'file' or false
   picker_opts.finder = nil
+
+  local function build_toggleterm_lookup()
+    local ok, toggleterm = pcall(require, 'toggleterm.terminal')
+    if not ok then
+      return {}
+    end
+
+    local lookup = {}
+    local ok_terms, terms = pcall(toggleterm.get_all, true)
+    if not ok_terms then
+      return lookup
+    end
+
+    for _, term in ipairs(terms) do
+      if type(term) == 'table' and term.bufnr then
+        lookup[term.bufnr] = term
+      end
+    end
+
+    return lookup
+  end
+
+  local function make_preview_items(tab_item)
+    if not tab_item then
+      return {}
+    end
+
+    local toggleterm_lookup = build_toggleterm_lookup()
+    local current_buf = vim.api.nvim_get_current_buf()
+    local alternate_buf = vim.fn.bufnr('#')
+    local seen = {}
+    local bufnrs = {}
+
+    local function add_buf(bufnr)
+      if bufnr == nil or seen[bufnr] then
+        return
+      end
+
+      if not vim.api.nvim_buf_is_valid(bufnr) then
+        return
+      end
+
+      local buftype = vim.bo[bufnr].buftype or ''
+      if buftype ~= '' and buftype ~= 'terminal' then
+        return
+      end
+      seen[bufnr] = true
+      bufnrs[#bufnrs + 1] = bufnr
+    end
+
+    for _, bufnr in ipairs(tab_item.buffer_ids or {}) do
+      add_buf(bufnr)
+    end
+
+    if tab_item.tabpage and vim.api.nvim_tabpage_is_valid(tab_item.tabpage) then
+      for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tab_item.tabpage)) do
+        add_buf(vim.api.nvim_win_get_buf(win))
+      end
+    end
+
+    local ok_scope, scope_core = pcall(require, 'scope.core')
+    if ok_scope then
+      pcall(scope_core.revalidate)
+      local scoped = scope_core.cache and scope_core.cache[tab_item.tabpage]
+      if scoped then
+        for _, bufnr in ipairs(scoped) do
+          add_buf(bufnr)
+        end
+      end
+    end
+
+    if vim.tbl_isempty(bufnrs) then
+      return {}
+    end
+
+    table.sort(bufnrs, function(a, b)
+      local info_a = vim.fn.getbufinfo(a)[1]
+      local info_b = vim.fn.getbufinfo(b)[1]
+      local last_a = info_a and info_a.lastused or 0
+      local last_b = info_b and info_b.lastused or 0
+      return last_a > last_b
+    end)
+
+    local result = {}
+    for _, bufnr in ipairs(bufnrs) do
+      local buftype = vim.bo[bufnr].buftype or ''
+      local name = vim.api.nvim_buf_get_name(bufnr)
+      local display_name
+      local file = name
+
+      if buftype == '' then
+        if name == '' then
+          display_name = '[No Name]'
+          file = display_name
+        else
+          display_name = vim.fn.fnamemodify(name, ':t')
+        end
+      else
+        local term = toggleterm_lookup[bufnr]
+        local term_name = term and term.display_name
+
+        if term_name == nil or term_name == '' then
+          term_name = term and term.id and tostring(term.id) or nil
+        end
+
+        if not term_name then
+          local ok_toggle_number, toggle_number =
+            pcall(vim.api.nvim_buf_get_var, bufnr, 'toggle_number')
+          if ok_toggle_number and toggle_number ~= nil then
+            term_name = tostring(toggle_number)
+          end
+        end
+
+        term_name = term_name or tostring(bufnr)
+        display_name = term_name
+        file = term_name
+      end
+
+      local entry = {
+        bufnr = bufnr,
+        buf = buftype == '' and bufnr or nil,
+        name = display_name,
+        file = file,
+        buftype = buftype,
+        filetype = vim.bo[bufnr].filetype or '',
+        current = bufnr == current_buf,
+        alternate = bufnr == alternate_buf,
+      }
+
+      result[#result + 1] = entry
+    end
+
+    return result
+  end
+
+  local function preview_tab_buffers(ctx)
+    if not ctx.item then
+      ctx.preview:reset()
+      return
+    end
+
+    ctx.preview:reset()
+    ctx.preview:set_title(string.format('Tab %d Buffers', ctx.item.tabnr or 0))
+    -- ctx.preview:minimal()
+    ctx.preview:wo({
+      number = true,
+    })
+
+    local items_for_preview = make_preview_items(ctx.item)
+    if vim.tbl_isempty(items_for_preview) then
+      ctx.preview:notify('No file or terminal buffers', 'info', { item = false })
+      return
+    end
+
+    local highlight = Snacks.picker.highlight
+    local width = 0
+    if ctx.win and vim.api.nvim_win_is_valid(ctx.win) then
+      width = vim.api.nvim_win_get_width(ctx.win)
+    elseif
+      ctx.preview.win
+      and ctx.preview.win.win
+      and vim.api.nvim_win_is_valid(ctx.preview.win.win)
+    then
+      width = vim.api.nvim_win_get_width(ctx.preview.win.win)
+    end
+    if width <= 0 then
+      width = vim.o.columns
+    end
+    width = math.max(width, 1)
+
+    local lines = {}
+    local extmarks = {}
+    local ns = ctx.preview:ns()
+
+    for idx, buffer_item in ipairs(items_for_preview) do
+      local spec = snacks_utils.buffer_format(buffer_item, ctx.picker)
+      spec = highlight.resolve(spec, width)
+      local text, marks = highlight.to_text(spec)
+      lines[idx] = text
+
+      for _, mark in ipairs(marks) do
+        if type(mark) == 'table' and mark.col then
+          extmarks[#extmarks + 1] = { row = idx - 1, mark = mark }
+        end
+      end
+    end
+
+    ctx.preview:set_lines(lines)
+    vim.api.nvim_buf_clear_namespace(ctx.buf, ns, 0, -1)
+
+    for _, ext in ipairs(extmarks) do
+      local mark = vim.deepcopy(ext.mark)
+      local col = mark.col or 0
+      mark.col = nil
+      mark.row = nil
+      mark.field = nil
+      pcall(vim.api.nvim_buf_set_extmark, ctx.buf, ns, ext.row, col, mark)
+    end
+  end
+
+  picker_opts.preview = show_preview and preview_tab_buffers or false
 
   local function focus_tab(tabpage, win)
     if not vim.api.nvim_tabpage_is_valid(tabpage) then
