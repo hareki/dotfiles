@@ -2,13 +2,9 @@
 local M = {}
 
 M.get_initial_path = function()
-  -- Get the first argument passed to Neovim (which is usually the path)
-  local first_arg = vim.fn.argv(0)
-
-  -- If the path is relative, resolve it to an absolute path
-  local initial_path = vim.fn.fnamemodify(tostring(first_arg), ':p')
-
-  return initial_path
+  -- We always set the cwd to match what's passed in neovim args if it's a directory in
+  -- plugins/editor/auto-session.lua
+  return vim.fn.getcwd()
 end
 
 --- Get the file path relative to the given root.
