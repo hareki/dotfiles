@@ -86,6 +86,22 @@ aucmd('FileType', {
   end,
 })
 
+-- Open help vertically to the right
+aucmd('FileType', {
+  group = augroup('help_right'),
+  pattern = { 'help' },
+  command = 'wincmd L',
+})
+
+-- Stop starting auto comment insertion on new lines
+aucmd('FileType', {
+  group = augroup('stop_auto_comment'),
+  pattern = '*',
+  callback = function()
+    vim.opt_local.formatoptions:remove({ 'c', 'r', 'o' })
+  end,
+})
+
 -- Make it easier to close man-files when opened inline
 aucmd('FileType', {
   group = augroup('man_unlisted'),
