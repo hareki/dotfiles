@@ -203,7 +203,12 @@ M.lsp = {
 
 M.desc_overrides = {
   ['gc'] = { desc = 'Toggle Comment', mode = { 'n' } },
+  ['gb'] = { desc = 'Toggle Comment Blockwise', mode = { 'n' } },
+  ['gbc'] = { desc = 'Toggle Comment Current Block', mode = { 'n' } },
   ['gcc'] = { desc = 'Toggle Comment Line', mode = { 'n' } },
+  ['gco'] = { desc = 'Insert Comment Below', mode = { 'n' } },
+  ['gcO'] = { desc = 'Insert Comment Above', mode = { 'n' } },
+  ['gcA'] = { desc = 'Insert Comment End of Line', mode = { 'n' } },
   ['[<leader>'] = { desc = 'Add Empty Line Above Cursor', mode = { 'n' } },
   [']<leader>'] = { desc = 'Add Empty Line Below Cursor', mode = { 'n' } },
   ['grn'] = { desc = 'LSP: Rename', mode = { 'n' } },
