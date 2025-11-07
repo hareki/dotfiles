@@ -99,6 +99,13 @@ return {
         desc = 'Find Highlight Groups',
       },
       {
+        '<leader>fH',
+        function()
+          Snacks.picker.help()
+        end,
+        desc = 'Find Helps',
+      },
+      {
         '<leader>fgb',
         function()
           Snacks.picker.git_branches()
