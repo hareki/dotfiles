@@ -68,6 +68,21 @@ return {
           },
           opts = { skip = true },
         },
+        {
+          filter = {
+            event = 'lsp',
+            kind = 'progress',
+            cond = function(message)
+              local progress = message.opts.progress or {}
+              if progress.kind == 'end' then
+                require('dropbar.utils.bar').exec('update')
+              end
+
+              return false -- Don't match the condition for "opts"
+            end,
+          },
+          opts = {}, -- Don't do anything, just use this as a hook to refresh dropbar
+        },
       },
       presets = {
         bottom_search = false,

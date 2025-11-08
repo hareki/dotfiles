@@ -1,21 +1,84 @@
 return {
   require('utils.ui').catppuccin(function(palette)
-    return {
-      DropBarKindDir = { fg = palette.text },
-      DropBarKindFileBar = { fg = palette.yellow, bold = true },
+    local highlights = {
+      DropBarKindDir = { fg = palette.overlay1 },
+      DropBarKindFileBar = { fg = palette.blue, bold = true },
       DropBarIconUIIndicator = { fg = palette.blue, bg = nil },
       DropBarMenuHoverIcon = { link = 'DropBarMenuIcon' }, -- Disable reversing color when hovering
+      DropBarIconUISeparator = { fg = palette.overlay1 },
+      DropBarMenuHoverEntry = { link = 'Visual' },
+      DropBarMenuHoverSymbol = { bold = true },
     }
+
+    -- From https://github.com/catppuccin/nvim/blob/main/lua/catppuccin/groups/integrations/dropbar.lua
+    -- I just don't like the default colors for kinds, so declare them all myself
+    local dropbar_kind_suffixes = {
+      'Array',
+      'Boolean',
+      'BreakStatement',
+      'Call',
+      'CaseStatement',
+      'Class',
+      'Constant',
+      'Constructor',
+      'ContinueStatement',
+      'Declaration',
+      'Delete',
+      'DoStatement',
+      'ElseStatement',
+      'Enum',
+      'EnumMember',
+      'Event',
+      'Field',
+      'File',
+      'Folder',
+      'ForStatement',
+      'Function',
+      'Identifier',
+      'IfStatement',
+      'Interface',
+      'Keyword',
+      'List',
+      'Macro',
+      'MarkdownH1',
+      'MarkdownH2',
+      'MarkdownH3',
+      'MarkdownH4',
+      'MarkdownH5',
+      'MarkdownH6',
+      'Method',
+      'Module',
+      'Namespace',
+      'Null',
+      'Number',
+      'Object',
+      'Operator',
+      'Package',
+      'Property',
+      'Reference',
+      'Repeat',
+      'Scope',
+      'Specifier',
+      'Statement',
+      'String',
+      'Struct',
+      'SwitchStatement',
+      'Type',
+      'TypeParameter',
+      'Unit',
+      'Value',
+      'Variable',
+      'WhileStatement',
+    }
+    for _, kind in ipairs(dropbar_kind_suffixes) do
+      local group = 'DropBarKind' .. kind
+      highlights[group] = highlights[group] or { fg = palette.text }
+    end
+    return highlights
   end),
   {
     'hareki/dropbar.nvim',
     event = { 'BufReadPost', 'BufNewFile' },
-    -- Don't load the plugin eagerly when dropbar starts
-    -- It's only needed when we use the search menus
-    -- dependencies = {
-    --   'nvim-telescope/telescope-fzf-native.nvim',
-    -- },
-
     keys = {
       {
         '<leader>b',
@@ -43,13 +106,13 @@ return {
           },
           kinds = {
             symbols = {
-              -- Folder = '',
+              Folder = '',
             },
           },
         },
 
         -- https://github.com/Bekaboo/dropbar.nvim?tab=readme-ov-file#bar
-        -- intercept and limit the lsp items to avoid too deeply nested items
+        -- Intercept and limit the lsp items to avoid too deeply nested items
         bar = {
           enable = require('plugins.ui.drobpar.utils').enable,
           truncate = false,
@@ -79,11 +142,7 @@ return {
               return {}
             end
 
-            -- return {
-            --   sources.path,
-            -- }
-
-            local path_item_limit = 5
+            local path_item_limit = 10
             local lsp_item_limit = 4
             local utils = require('dropbar.utils')
 
@@ -110,7 +169,6 @@ return {
 
             local lsp_sources = utils.source.fallback({
               sources.lsp,
-              sources.treesitter,
             })
             local default_lsp_get_symbols = lsp_sources.get_symbols
 

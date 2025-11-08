@@ -95,10 +95,6 @@ return {
         treesitter = true,
         treesitter_context = true,
         which_key = true,
-        dropbar = {
-          enabled = true,
-          color_mode = false, -- enable color for kind's texts, not just kind's icons
-        },
         indent_blankline = {
           enabled = true,
         },

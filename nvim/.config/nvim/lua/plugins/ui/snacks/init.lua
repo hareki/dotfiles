@@ -3,6 +3,7 @@ return {
     return {
       SnacksPickerPrompt = { fg = palette.blue },
       SnacksPickerCursorLine = { bg = palette.base },
+      SnacksPickerPreviewCursorLine = { link = 'CursorLine' },
       SnacksPickerKeymapLhs = { fg = palette.blue },
       SnacksPickerSelected = { bg = palette.base, fg = palette.text },
       SnacksPickerUnselected = { bg = palette.base, fg = palette.text },
@@ -163,6 +164,10 @@ return {
                 ['<Tab>'] = { 'toggle_preview_focus', mode = { 'i', 'n' } },
                 ['<CR>'] = { 'confirm' },
                 ['<C-t>'] = { 'snacks_to_trouble', mode = { 'i', 'n' } },
+              },
+              wo = {
+                number = true,
+                relativenumber = true,
               },
             },
             input = {

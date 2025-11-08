@@ -34,16 +34,16 @@ return {
       mode_hl[mode] = { fg = palette.surface0, bg = palette.blue }
     end
     for _, mode in ipairs({ 'VISUAL', 'V-LINE', 'V-BLOCK', 'SELECT', 'S-LINE', 'S-BLOCK' }) do
-      mode_hl[mode] = { fg = palette.base, bg = palette.mauve }
+      mode_hl[mode] = { fg = palette.surface0, bg = palette.mauve }
     end
     for _, mode in ipairs({ 'INSERT', 'SHELL', 'TERMINAL' }) do
-      mode_hl[mode] = { fg = palette.base, bg = palette.green }
+      mode_hl[mode] = { fg = palette.surface0, bg = palette.green }
     end
     for _, mode in ipairs({ 'REPLACE', 'V-REPLACE' }) do
-      mode_hl[mode] = { fg = palette.base, bg = palette.red }
+      mode_hl[mode] = { fg = palette.surface0, bg = palette.red }
     end
     for _, mode in ipairs({ 'COMMAND', 'EX', 'MORE', 'CONFIRM' }) do
-      mode_hl[mode] = { fg = palette.base, bg = palette.peach }
+      mode_hl[mode] = { fg = palette.surface0, bg = palette.peach }
     end
 
     local theme_reset = {}
