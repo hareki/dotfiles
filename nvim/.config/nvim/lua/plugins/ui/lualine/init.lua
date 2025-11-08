@@ -47,7 +47,7 @@ return {
     end
 
     local theme_reset = {}
-    local color_reset = { fg = palette.subtext1, bg = palette.mantle }
+    local color_reset = { fg = palette.subtext1, bg = palette.base }
     for _, section in ipairs({ 'normal', 'insert', 'visual', 'replace', 'inactive' }) do
       theme_reset[section] = { a = color_reset, b = color_reset, c = color_reset }
     end
@@ -69,7 +69,7 @@ return {
 
     local empty_comp = {
       empty,
-      color = { fg = palette.mantle, bg = palette.mantle },
+      color = { fg = palette.base, bg = palette.base },
       padding = { left = 0, right = 0 },
       separator = { left = '', right = '' },
     }
@@ -113,7 +113,7 @@ return {
             require('utils.tab').lualine,
             icon = {
               icons.misc.tab,
-              color = { fg = palette.mantle, bg = palette.mauve },
+              color = { fg = palette.base, bg = palette.mauve },
             },
             separator = { left = separator.left, right = separator.right },
             color = { fg = palette.mauve, bg = palette.surface0 },
@@ -141,7 +141,7 @@ return {
             'branch',
             icon = '',
             fmt = git_utils.format_branch_name,
-            color = { fg = palette.subtext0, bg = palette.mantle },
+            color = { fg = palette.subtext0, bg = palette.base },
             padding = { left = 2, right = 0 },
           },
           {
@@ -162,7 +162,7 @@ return {
               spinners = icons.misc.spinner_frames,
             },
             padding = { left = 0, right = 2 },
-            color = { fg = palette.subtext0, bg = palette.mantle },
+            color = { fg = palette.subtext0, bg = palette.base },
           },
 
           {
@@ -187,7 +187,7 @@ return {
             icon = {
               -- "󱉭 ",
               ' ',
-              color = { fg = palette.mantle, bg = palette.pink },
+              color = { fg = palette.base, bg = palette.pink },
             },
             padding = { left = 0, right = 0 },
           },
