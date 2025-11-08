@@ -16,6 +16,9 @@ os:
      nvim --server "$NVIM" --remote "{{dir}}")
 
 gui:
+  sidePanelWidth: 35
+  screenMode: half
+  mainPanelSplitMode: auto
   switchTabsWithPanelJumpKeys: true
   cursorStyle: 'blinkingBar'
   scrollHeight: 4
