@@ -1,5 +1,5 @@
 -- We need special treatment for telescope.nvim and reticle.nvim interaction
--- Since most of telescope pickers will do noautocmd when switching window
+-- Since most of telescope/snacks pickers will do noautocmd when switching window
 local M = {}
 
 M.always_highlight_number = true

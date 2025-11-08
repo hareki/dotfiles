@@ -16,11 +16,16 @@ function M.toggle_preview_focus(picker)
   local preview_win = picker.layout.opts.wins.preview.win
   local current_win = vim.api.nvim_get_current_win()
   local common = require('utils.common')
+  local reticle_utils = require('plugins.editor.reticle.utils')
 
-  if current_win == input_win then
-    common.focus_win(preview_win)
-  else
+  if current_win == preview_win then
     common.focus_win(input_win)
+    reticle_utils.set_cursorline(false, preview_win)
+    return
+  end
+
+  if common.focus_win(preview_win) then
+    reticle_utils.set_cursorline(true, preview_win)
   end
 end
 
