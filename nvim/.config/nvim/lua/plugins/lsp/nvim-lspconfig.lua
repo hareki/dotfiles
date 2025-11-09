@@ -90,6 +90,7 @@ return {
       'html', -- HTML
       'cssls', -- CSS
       'css_variables', -- CSS
+      'copilot', -- GitHub Copilot
     })
 
     vim.lsp.config('yamlls', {
