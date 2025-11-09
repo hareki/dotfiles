@@ -113,10 +113,10 @@ return {
             require('utils.tab').lualine,
             icon = {
               icons.misc.tab,
-              color = { fg = palette.base, bg = palette.mauve },
+              color = { fg = palette.base, bg = palette.flamingo },
             },
             separator = { left = separator.left, right = separator.right },
-            color = { fg = palette.mauve, bg = palette.surface0 },
+            color = { fg = palette.flamingo, bg = palette.surface0 },
           },
           {
             'diff',
@@ -201,12 +201,12 @@ return {
             function()
               return git_utils.get_repo_name()
             end,
-            color = { fg = palette.pink, bg = palette.surface0 },
+            color = { fg = palette.blue, bg = palette.surface0 },
             separator = separator,
             icon = {
               -- "󱉭 ",
-              ' ',
-              color = { fg = palette.base, bg = palette.pink },
+              '󰉋 ',
+              color = { fg = palette.base, bg = palette.blue },
             },
             padding = { left = 0, right = 0 },
           },
@@ -216,10 +216,10 @@ return {
           {
             'progress',
             padding = { left = 0, right = 0 },
-            color = { fg = palette.green, bg = palette.surface0 },
+            color = { fg = palette.maroon, bg = palette.surface0 },
             icon = {
-              ' ',
-              color = { fg = palette.surface0, bg = palette.green },
+              ' ',
+              color = { fg = palette.surface0, bg = palette.maroon },
             },
             separator = separator,
             fmt = function(progress)
