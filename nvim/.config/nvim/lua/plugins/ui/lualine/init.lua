@@ -159,6 +159,11 @@ return {
           {
             'copilot',
             symbols = {
+              status = {
+                icons = {
+                  unknown = ' ',
+                },
+              },
               spinners = 'circle_full',
             },
             padding = { left = 0, right = 0 },
@@ -217,6 +222,24 @@ return {
               color = { fg = palette.surface0, bg = palette.green },
             },
             separator = separator,
+            fmt = function(progress)
+              local trimmed = progress:match('^%s*(.-)%s*$') or progress
+              local digits = trimmed:match('^(%d+)%%%%$')
+
+              if not digits then
+                return trimmed:lower()
+              end
+
+              if #digits == 1 then
+                digits = '0' .. digits
+              end
+
+              if digits == '00' then
+                return 'top'
+              end
+
+              return digits .. '%%'
+            end,
           },
         },
       },
