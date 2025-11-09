@@ -234,8 +234,7 @@ return {
 
             files = {
               hidden = true,
-              -- ignored = true,
-              -- follow = true,
+              transform = utils.files_transform,
             },
 
             keymaps = {

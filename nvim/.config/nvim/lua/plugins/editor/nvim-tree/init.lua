@@ -155,6 +155,7 @@ return {
         filters = {
           enable = true,
           git_ignored = false,
+          custom = { '^\\.DS_Store$' },
         },
         system_open = {
           cmd = 'open',

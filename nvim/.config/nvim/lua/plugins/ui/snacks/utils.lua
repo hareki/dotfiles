@@ -42,6 +42,16 @@ local filtered_descriptions = {
   'autopairs map key', -- nvim-autopairs
 }
 
+local function is_ds_store(path)
+  return type(path) == 'string' and path:match('%.DS_Store$') ~= nil
+end
+
+function M.files_transform(item)
+  if is_ds_store(item.file) then
+    return false
+  end
+end
+
 function M.keymap_transform(item)
   local desc_overrides = require('plugins.editor.which-key.preset').desc_overrides
   local keymap = item.item
