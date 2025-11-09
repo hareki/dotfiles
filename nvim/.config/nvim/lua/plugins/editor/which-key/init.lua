@@ -55,6 +55,7 @@ return {
           { '<leader>z', group = 'Terminal' },
           { '<leader>u', group = 'Notification' },
           { '<leader>?', group = 'Debug' },
+          { '<leader>a', group = 'Sidekick AI' },
         }, desc_override_specs),
 
         icons = {
@@ -70,6 +71,7 @@ return {
             { plugin = 'nvim-tree.lua', icon = ' ', color = 'blue' },
             { plugin = 'eagle.nvim', icon = '󱗆', color = 'yellow' },
             { plugin = 'debugprint.nvim', icon = '󰃤', color = 'red' },
+            { pattern = 'sidekick', icon = ' ', color = 'azure' },
             { pattern = 'mini.surround', icon = '󰗅 ', color = 'green' },
             { pattern = 'terminal', icon = ' ', color = 'green' },
 
@@ -115,6 +117,8 @@ return {
             { pattern = 'blame', icon = ' ', color = 'green' },
             { pattern = 'url', icon = ' ' },
             { pattern = 'comment', icon = '󰿠' },
+            { pattern = 'prompt', icon = '󰍩', color = 'blue' },
+            { pattern = 'send file', icon = '󰈪', color = 'cyan' },
           },
         },
       }

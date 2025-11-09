@@ -2,7 +2,7 @@ return {
   'nvim-lualine/lualine.nvim',
   event = 'VeryLazy',
   dependencies = {
-    'AndreM222/copilot-lualine',
+    'hareki/copilot-lualine',
   },
   init = function()
     if vim.env.NVIM_NO_STATUS_LINE then
@@ -159,10 +159,20 @@ return {
           {
             'copilot',
             symbols = {
-              spinners = icons.misc.spinner_frames,
+              spinners = 'circle_full',
             },
-            padding = { left = 0, right = 2 },
+            padding = { left = 0, right = 0 },
             color = { fg = palette.subtext0, bg = palette.base },
+          },
+          {
+            function()
+              local status = require('sidekick.status').cli()
+              return (#status > 0 and #status or '')
+            end,
+            cond = function()
+              return #require('sidekick.status').cli() > 0
+            end,
+            padding = { left = 0, right = 0 },
           },
 
           {
@@ -175,8 +185,12 @@ return {
               hint = icons.diagnostics.Hint,
             },
             -- always_visible = true,
-            padding = { left = 0, right = 2 },
+            padding = { left = 2, right = 0 },
           },
+
+          -- Hack to workaround the fact that copilot and sidekick.cli count are two separate components
+          empty_comp,
+          empty_comp,
 
           {
             function()
