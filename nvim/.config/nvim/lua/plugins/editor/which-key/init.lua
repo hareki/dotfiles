@@ -44,18 +44,18 @@ return {
           scroll_up = '<S-PageUp>', -- binding to scroll up inside the popup
         },
         spec = vim.list_extend({
-          { '<leader>c', group = 'Code' },
-          { '<leader>f', group = 'Find' },
+          { '<leader>c', group = 'Code', mode = { 'n', 'v' } },
+          { '<leader>f', group = 'Find', mode = { 'n', 'v' } },
           { '<leader>fg', group = 'Git: Find' },
           { '<leader>d', group = 'Diffview' },
-          { '<leader>h', group = 'Hunk' },
-          { '<leader>q', group = 'Quit' },
-          { '<leader>s', group = 'Search' },
+          { '<leader>h', group = 'Hunk', mode = { 'n', 'v' } },
+          { '<leader>q', group = 'Quit', mode = { 'n', 'v' } },
+          { '<leader>s', group = 'Search', mode = { 'n', 'v' } },
           { '<leader>t', group = 'Tab' },
           { '<leader>z', group = 'Terminal' },
           { '<leader>u', group = 'Notification' },
           { '<leader>?', group = 'Debug' },
-          { '<leader>a', group = 'Sidekick AI' },
+          { '<leader>a', group = 'Sidekick AI', mode = { 'n', 'v' } },
         }, desc_override_specs),
 
         icons = {
