@@ -72,6 +72,9 @@ keybind = cmd+shift+v=paste_from_clipboard
 keybind = cmd+]=text:\x1b]
 keybind = cmd+[=text:\x1b[
 
+# Close buffer keymap in Neovim
+keybind = cmd+w=text:\x1bw
+
 # Toggle floating terminal (Nvim + FloaX)
 keybind = cmd+t=text:\x1bt
 # Toggle terminal tab (Nvim)

@@ -10,6 +10,7 @@ map({ 'n', 'i' }, '<A-s>', function()
 end, { desc = 'Format and Save' })
 
 map({ 'i', 'x', 'n', 's' }, '<A-r>', '<CMD>e!<CR>', { desc = 'Reload File', silent = true })
+map({ 'i', 'x', 'n', 's' }, '<A-w>', '<CMD>bd<CR>', { desc = 'Close Buffer', silent = true })
 
 map({ 'n', 'x' }, '<leader>qa', '<CMD>qa!<CR>', { desc = 'Force Quit All', silent = true })
 map({ 'n', 'x' }, '<PageUp>', '<C-u>zz', { desc = 'Scroll Up and Center' })
