@@ -26,6 +26,17 @@ return {
             border = 'rounded',
           },
         },
+        signature = {
+          enabled = false,
+          ---@type NoiceViewOptions
+          opts = {
+            border = 'rounded',
+            size = {
+              row = 10,
+              col = 60,
+            },
+          },
+        },
         override = {
           ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
           ['vim.lsp.util.stylize_markdown'] = true,
