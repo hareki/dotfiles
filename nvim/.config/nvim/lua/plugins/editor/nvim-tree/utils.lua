@@ -5,7 +5,7 @@ local M = {}
 M.state = {
   position = 'float',
   opts = nil,
-  preview_on_focus = true,
+  preview_on_focus = false, -- Preview is off on startup
   preview_watcher = nil,
   live_filter_triggered = false,
 }
