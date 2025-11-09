@@ -18,6 +18,9 @@ return {
         bg = palette.surface2,
         fg = palette.text,
       },
+      NvimTreeLiveFilterPrefix = {
+        fg = palette.yellow,
+      },
     }
   end),
   {
@@ -137,6 +140,10 @@ return {
 
       state.opts = {
         hijack_cursor = true, --Keeps the cursor on the first letter of the filename when moving in the tree.
+        live_filter = {
+          prefix = require('configs.picker').prompt_prefix,
+          always_show_folders = false,
+        },
         update_focused_file = {
           enable = true,
           update_root = {
