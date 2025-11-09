@@ -176,12 +176,15 @@ return {
                 ['<PageDown>'] = { 'list_half_page_down', mode = { 'i', 'n' } },
                 ['<PageUp>'] = { 'list_half_page_up', mode = { 'i', 'n' } },
                 ['<Tab>'] = { 'toggle_preview_focus', mode = { 'i', 'n' } },
-                ['m'] = { 'select' },
+
                 ['<C-t>'] = { 'snacks_to_trouble', mode = { 'i', 'n' } },
                 ['<C-Down>'] = { 'history_forward', mode = { 'i', 'n' } },
                 ['<C-Up>'] = { 'history_back', mode = { 'i', 'n' } },
+
                 ['<C-c>'] = { 'cancel', mode = { 'i', 'n' } },
                 ['<C-a>'] = { 'sidekick_send', mode = { 'n', 'i' } },
+                ['<C-p>'] = { 'select_and_prev', mode = { 'i', 'n' } },
+                ['<C-n>'] = { 'select_and_next', mode = { 'i', 'n' } },
               },
             },
           },

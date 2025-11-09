@@ -13,58 +13,6 @@ return {
     }
   end,
   keys = function()
-    -- harpoon telecope integration
-    -- https://github.com/ThePrimeagen/harpoon/tree/harpoon2?tab=readme-ov-file#telescope
-    local function toggle_telescope(harpoon_files)
-      local conf = require('telescope.config').values
-      local pickers = require('telescope.pickers')
-
-      local file_paths = {}
-
-      for _, item in ipairs(harpoon_files.items) do
-        table.insert(file_paths, item.value)
-      end
-
-      local make_finder = function()
-        local paths = {}
-
-        for _, item in ipairs(harpoon_files.items) do
-          table.insert(paths, item.value)
-        end
-
-        return require('telescope.finders').new_table({
-          results = paths,
-        })
-      end
-
-      pickers
-        .new({}, {
-          preview_title = require('configs.picker').telescope_preview_title,
-          prompt_title = 'Harpoon',
-          finder = require('telescope.finders').new_table({
-            results = file_paths,
-          }),
-          previewer = conf.grep_previewer({}),
-          sorter = conf.generic_sorter({}),
-
-          -- Delete harpooned file mapping
-          -- https://github.com/prdanelli/dotfiles/blob/05a0fe693c622ac8b8e60c8ba8b7a3cdf9cb5057/neovim-lazy/lua/plugins/harpoon.lua#L13
-          attach_mappings = function(prompt_buffer_number, map)
-            map('n', 'x', function()
-              local state = require('telescope.actions.state')
-              local selected_entry = state.get_selected_entry()
-              local current_picker = state.get_current_picker(prompt_buffer_number)
-
-              table.remove(require('harpoon'):list().items, selected_entry.index)
-              current_picker:refresh(make_finder())
-            end)
-
-            return true
-          end,
-        })
-        :find()
-    end
-
     local keys = {
       {
         '<leader>H',
@@ -86,7 +34,7 @@ return {
       {
         '<leader>fp',
         function()
-          toggle_telescope(require('harpoon'):list())
+          require('plugins.ui.snacks.pickers.harpoon')()
         end,
         desc = 'Harpoon: Quick Menu',
       },

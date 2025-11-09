@@ -9,6 +9,9 @@ return {
         fg = 'NONE',
         style = {}, -- turn off the default bold
       },
+      TelescopeMultiIcon = {
+        fg = palette.blue,
+      },
       TelescopeSelectionCaret = {
         fg = palette.blue,
       },
@@ -215,6 +218,7 @@ return {
           -- selection_caret = ' ',
           selection_caret = ' ',
           entry_prefix = ' ', -- keep list text aligned
+          multi_icon = vim.trim(require('configs.icons').explorer.selected) .. ' ',
           get_status_text = function(self, opts)
             -- Prevent flashing the loading asterisk indicator
             opts = opts or {}
@@ -272,14 +276,16 @@ return {
             n = {
               ['q'] = actions.close,
               ['<Tab>'] = toggle_focus_preview,
-              ['<S-Tab>'] = actions.toggle_selection + actions.move_selection_worse,
+              ['<C-n>'] = actions.toggle_selection + actions.move_selection_worse,
+              ['<C-p>'] = actions.toggle_selection + actions.move_selection_better,
               ['<PageUp>'] = scroll_results_up,
               ['<PageDown>'] = scroll_results_down,
               ['<c-t>'] = telescope_to_trouble,
             },
             i = {
               ['<Tab>'] = toggle_focus_preview,
-              ['<S-Tab>'] = actions.toggle_selection + actions.move_selection_worse,
+              ['<C-n>'] = actions.toggle_selection + actions.move_selection_worse,
+              ['<C-p>'] = actions.toggle_selection + actions.move_selection_better,
               ['<PageUp>'] = scroll_results_up,
               ['<PageDown>'] = scroll_results_down,
               ['<c-t>'] = telescope_to_trouble,
@@ -345,6 +351,8 @@ return {
       for _, ext in ipairs({ 'fzf' }) do
         require('telescope').load_extension(ext)
       end
+
+      vim.api.nvim_set_hl(0, 'TelescopeMultiSelection', {})
     end,
   },
 }

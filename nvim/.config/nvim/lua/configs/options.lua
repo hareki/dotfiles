@@ -62,7 +62,7 @@ opt.softtabstop = 2 -- Number of spaces tabs count for while performing editing 
 opt.expandtab = true -- Use spaces instead of tabs
 
 -- https://github.com/sindrets/diffview.nvim?tab=readme-ov-file#tips-and-faq
-opt.fillchars:append({ diff = '╱', eob = ' ' })
+opt.fillchars:append({ diff = '╱', eob = ' ', lastline = '.' })
 
 -- For kevinhwang91/nvim-ufo
 opt.foldlevel = 99

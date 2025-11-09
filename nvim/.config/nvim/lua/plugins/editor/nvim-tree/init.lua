@@ -165,7 +165,7 @@ return {
           icons = {
             git_placement = 'right_align',
             glyphs = {
-              bookmark = icons.explorer.selected,
+              bookmark = vim.trim(icons.explorer.selected),
               folder = {
                 arrow_closed = icons.explorer.collapsed,
                 arrow_open = icons.explorer.expanded,
@@ -277,7 +277,8 @@ return {
             vim.api.nvim_win_set_config(require('nvim-tree.help').winnr, { border = 'rounded' })
           end, 'Help')
 
-          map('n', 'm', api.marks.toggle, 'Toggle Bookmark')
+          map('n', '<C-n>', tree.mark_and_next, 'Bookmark and Next')
+          map('n', '<C-p>', tree.mark_and_prev, 'Bookmark and Previous')
           map('n', 'M', api.tree.toggle_no_bookmark_filter, 'Toggle Bookmark Filter')
           map('n', 'bd', api.marks.bulk.trash, 'Trash Bookmarked')
           map('n', 'bt', api.marks.bulk.delete, 'Delete Bookmarked')

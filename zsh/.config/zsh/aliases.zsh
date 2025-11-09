@@ -1,6 +1,6 @@
 alias lg="lazygit"
 alias ff="fastfetch"
-alias brewup='brew update && brew upgrade && brew autoremove && brew cleanup'
+alias yay='brew update && brew upgrade && brew autoremove && brew cleanup && npm update -g'
 
 alias cd="z"
 alias cdi="zi"

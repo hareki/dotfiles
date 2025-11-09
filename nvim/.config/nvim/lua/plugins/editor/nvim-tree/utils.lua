@@ -194,4 +194,18 @@ function M.preview_win()
   return manager.instance and manager.instance.preview_win
 end
 
+function M.mark_and_next()
+  local api = require('nvim-tree.api')
+
+  api.marks.toggle()
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Down>', true, false, true), 'n', false)
+end
+
+function M.mark_and_prev()
+  local api = require('nvim-tree.api')
+
+  api.marks.toggle()
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Up>', true, false, true), 'n', false)
+end
+
 return M
