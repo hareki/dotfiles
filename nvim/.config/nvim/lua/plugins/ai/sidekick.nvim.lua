@@ -54,7 +54,7 @@ return {
       {
         '<A-a>',
         function()
-          require('sidekick.cli').toggle({ name = 'opencode' })
+          require('sidekick.cli').toggle({ name = 'copilot' })
         end,
         desc = 'Sidekick Toggle',
         mode = { 'n', 't', 'i', 'x' },
