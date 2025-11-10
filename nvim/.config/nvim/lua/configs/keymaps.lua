@@ -106,17 +106,3 @@ map('n', '<leader>tr', function()
 end, { desc = 'Rename Tab' })
 
 map('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Leave Terminal Mode' })
-
--- map({ 'n', 'x' }, '<leader>T', function()
--- local progress = require('utils.progress').create({
---   pending_ms = 0,
---   client_name = 'stenfo',
--- })
--- progress:start('test')
-
--- notifier.info('Find files: **test**')
--- notifier.warn({
---   { 'Added ', 'Normal' },
---   { 'Test', 'NotifyWARNTitle' },
--- }, { title = 'harpoon' })
--- end, { desc = 'Test' })
