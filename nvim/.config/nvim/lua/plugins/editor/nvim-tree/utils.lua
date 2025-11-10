@@ -8,6 +8,7 @@ M.state = {
   preview_on_focus = false, -- Preview is off on startup
   preview_watcher = nil,
   live_filter_triggered = false,
+  size = 'vertical_lg',
 }
 
 function M.clean_up()
@@ -108,7 +109,7 @@ function M.toggle_tree_height(action)
   end
 
   local ui_utils = require('utils.ui')
-  local size = ui_utils.popup_config('lg')
+  local size = ui_utils.popup_config(M.state.size)
   local window_h = math.floor(size.height / 2)
   local half_height = window_h - 1 -- Minus 1 for the space between the two windows
 
@@ -206,6 +207,32 @@ function M.mark_and_prev()
 
   api.marks.toggle()
   vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Up>', true, false, true), 'n', false)
+end
+
+--- Format the root folder label by replacing home directory with  icon
+--- and separating path components with
+--- @param path string The absolute path to format
+--- @return string The formatted path
+function M.format_root_label(path)
+  local home = vim.env.HOME
+  local formatted = path
+
+  if home and vim.startswith(path, home) then
+    if path == home then
+      -- If we're exactly at home, just show the icon
+      return ' '
+    end
+    formatted = '  ' .. path:sub(#home + 2) -- +2 to skip the trailing slash
+  else
+    -- If outside home, remove leading slash to avoid empty first component
+    if vim.startswith(path, '/') then
+      formatted = path:sub(2)
+    end
+  end
+
+  formatted = formatted:gsub('/', ' ')
+
+  return formatted
 end
 
 return M

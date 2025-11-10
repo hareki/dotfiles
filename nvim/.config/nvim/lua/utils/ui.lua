@@ -35,7 +35,7 @@ M.catppuccin = function(register)
   }
 end
 
----@param size 'sm' | 'md' | 'lg'
+---@param size 'sm' | 'md' | 'lg' | 'vertical_lg' | 'full'
 function M.telescope_layout(size)
   return {
     size = size, -- Hint to calculate the position
@@ -83,7 +83,7 @@ end
 ---@field height   integer
 ---@field col      integer
 ---@field row      integer
----@param size 'lg' | 'md' | 'sm' | 'input' | 'full'
+---@param size 'lg' | 'md' | 'sm' | 'input' | 'full' | 'vertical_lg'
 ---@param with_border boolean | nil
 ---@return WinConfig
 function M.popup_config(size, with_border)

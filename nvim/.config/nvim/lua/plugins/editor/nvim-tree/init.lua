@@ -2,7 +2,7 @@ local tree = require('plugins.editor.nvim-tree.utils')
 local state = tree.state
 
 return {
-  require('utils.ui').catppuccin(function(palette)
+  require('utils.ui').catppuccin(function(palette, sub_palette)
     return {
       NvimTreeSignColumn = {
         link = 'NormalFloat',
@@ -20,6 +20,13 @@ return {
       },
       NvimTreeLiveFilterPrefix = {
         fg = palette.yellow,
+      },
+      NvimTreeGitStagedIcon = {
+        fg = sub_palette.yellow,
+      },
+      NvimTreeRootFolder = {
+        fg = palette.text,
+        style = {},
       },
     }
   end),
@@ -85,7 +92,7 @@ return {
 
           local side_preview = size_configs.side_preview
           local size_utils = require('utils.ui')
-          local size = size_utils.popup_config('lg')
+          local size = size_utils.popup_config(tree.state.size)
 
           -- We need to fill the missing row if the total height is an odd number,
           -- meaning when we can't have equal height for both windows
@@ -125,6 +132,7 @@ return {
             return
           end
 
+          api.tree.reload()
           tree.open()
         end,
         desc = 'NvimTree Explorer',
@@ -157,13 +165,40 @@ return {
           git_ignored = false,
           custom = { '^\\.DS_Store$' },
         },
+        git = {
+          enable = true,
+          show_on_dirs = false,
+          show_on_open_dirs = true,
+          disable_for_dirs = {},
+          timeout = 400,
+        },
+        diagnostics = {
+          enable = true,
+          show_on_dirs = false,
+          show_on_open_dirs = true,
+          debounce_delay = 500,
+          icons = {
+            error = icons.diagnostics.Error,
+            warning = icons.diagnostics.Warn,
+            info = icons.diagnostics.Info,
+            hint = icons.diagnostics.Hint,
+          },
+        },
         system_open = {
           cmd = 'open',
           args = { '-R' },
         },
         renderer = {
+          root_folder_label = tree.format_root_label,
+          indent_width = 2,
+          special_files = {},
+          highlight_diagnostics = 'none',
           icons = {
-            git_placement = 'right_align',
+            show = {
+              folder_arrow = false,
+            },
+            git_placement = 'after',
+            diagnostics_placement = 'after',
             glyphs = {
               bookmark = vim.trim(icons.explorer.selected),
               folder = {
@@ -190,8 +225,8 @@ return {
         },
 
         view = {
-          number = true,
-          relativenumber = true,
+          number = false,
+          relativenumber = false,
           side = 'right',
           -- Width when not in float mode
           width = function()
@@ -203,14 +238,14 @@ return {
             enable = require('plugins.editor.nvim-tree.utils').state.position == 'float',
             quit_on_focus_loss = false,
             open_win_config = function()
-              local size = ui_utils.popup_config('lg')
+              local size = ui_utils.popup_config(tree.state.size)
               local window_w = size.width
               local window_h = math.floor(size.height / 2)
               local col = size.col
               local row = size.row
 
               return {
-                title = ' NvimTree ',
+                title = ' Explorer ',
                 title_pos = 'center',
                 border = 'rounded',
                 relative = 'editor',
@@ -283,6 +318,7 @@ return {
           map('n', 'bd', api.marks.bulk.trash, 'Trash Bookmarked')
           map('n', 'bt', api.marks.bulk.delete, 'Delete Bookmarked')
           map('n', 'bm', api.marks.bulk.move, 'Move Bookmarked')
+          map('n', '<A-r>', api.tree.reload, 'Refresh')
 
           vim.api.nvim_create_autocmd('BufEnter', {
             group = state.preview_watcher,
@@ -298,17 +334,6 @@ return {
                 state.live_filter_triggered = false
                 return
               end
-
-              -- if state.position ~= 'float' then
-              --   return
-              -- end
-
-              -- local current_buf = vim.api.nvim_get_current_buf()
-              -- local preview_buf = tree.preview_buf()
-
-              -- if current_buf ~= preview_buf and current_buf ~= tree_bufnr then
-              --   tree.close_all()
-              -- end
             end,
           })
         end,

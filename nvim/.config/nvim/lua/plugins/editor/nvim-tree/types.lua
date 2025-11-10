@@ -6,3 +6,4 @@
 --- @field preview_on_focus boolean
 --- @field preview_watcher integer | nil
 --- @field live_filter_triggered boolean
+--- @field size 'vertical_lg'
