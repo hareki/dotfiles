@@ -61,7 +61,10 @@ local function normalize_message(chunks, opts)
     vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
     vim.schedule(function()
       for _, r in ipairs(regions) do
-        vim.api.nvim_buf_add_highlight(buf, ns, r[3], 0, r[1], r[2])
+        vim.api.nvim_buf_set_extmark(buf, ns, 0, r[1], {
+          end_col = r[2],
+          hl_group = r[3],
+        })
       end
     end)
   end
@@ -97,7 +100,7 @@ function M.notify(msg, opts)
     local buf = vim.api.nvim_win_get_buf(win)
 
     if is_markdown then
-      vim.api.nvim_buf_set_option(buf, 'filetype', 'markdown')
+      vim.api.nvim_set_option_value('filetype', 'markdown', { buf = buf })
     end
 
     if apply_highlight then
