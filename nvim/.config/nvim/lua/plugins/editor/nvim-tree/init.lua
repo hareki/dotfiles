@@ -135,7 +135,7 @@ return {
           api.tree.reload()
           tree.open()
         end,
-        desc = 'NvimTree Explorer',
+        desc = 'Explorer',
         remap = true,
         silent = true,
       },

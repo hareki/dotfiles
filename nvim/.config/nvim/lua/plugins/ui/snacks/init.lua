@@ -21,7 +21,7 @@ return {
         function()
           Snacks.lazygit()
         end,
-        desc = 'Open Lazygit',
+        desc = 'Lazygit',
       },
       {
         '<leader><leader>',

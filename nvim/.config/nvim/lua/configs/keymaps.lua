@@ -47,7 +47,7 @@ map(
 )
 map({ 'n', 'x' }, '<Up>', "v:count == 0 ? 'gk' : 'k'", { desc = 'Up', expr = true, silent = true })
 
-map('n', '<leader>l', '<CMD>Lazy<CR>', { desc = 'Open Lazy' })
+map('n', '<leader>l', '<CMD>Lazy<CR>', { desc = 'Lazy.nvim' })
 map('n', '<leader>-', '<C-W>s', { desc = 'Split Window Below', remap = true })
 map('n', '<leader>\\', '<C-W>v', { desc = 'Split Window Right', remap = true })
 
