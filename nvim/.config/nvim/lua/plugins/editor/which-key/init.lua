@@ -7,7 +7,7 @@ return {
   end),
   {
     'folke/which-key.nvim',
-    event = 'VeryLazy',
+    event = { 'BufReadPost', 'BufNewFile' },
     opts_extend = { 'spec' },
     opts = function()
       local desc_override_specs = {}
@@ -48,7 +48,7 @@ return {
           { '<leader>f', group = 'Find', mode = { 'n', 'v' } },
           { '<leader>fg', group = 'Git: Find' },
           { '<leader>d', group = 'Diffview' },
-          { '<leader>h', group = 'Hunk', mode = { 'n', 'v' } },
+          { '<leader>h', group = 'Gitsigns', mode = { 'n', 'v' } },
           { '<leader>q', group = 'Quit', mode = { 'n', 'v' } },
           { '<leader>s', group = 'Search', mode = { 'n', 'v' } },
           { '<leader>t', group = 'Tab' },
@@ -74,10 +74,10 @@ return {
             { pattern = 'sidekick', icon = ' ', color = 'azure' },
             { pattern = 'mini.surround', icon = '󰗅 ', color = 'green' },
             { pattern = 'terminal', icon = ' ', color = 'green' },
+            { pattern = 'gitsigns', icon = '', color = 'yellow' },
 
             { pattern = 'diff', icon = '', color = 'yellow' },
             { pattern = 'help', icon = '󰋗', color = 'blue' },
-            { pattern = 'hunk', icon = '', color = 'yellow' },
             { pattern = 'buffer', icon = ' ', color = 'cyan' },
             { pattern = 'undo', icon = '', color = 'purple' },
             { pattern = 'diagnostic', icon = '󱖫 ', color = 'blue' },

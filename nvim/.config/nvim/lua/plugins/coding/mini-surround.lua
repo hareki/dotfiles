@@ -4,7 +4,6 @@ local mappings = {
 }
 return {
   'echasnovski/mini.surround',
-  lazy = true,
   keys = {
     { 's', '<nop>', mode = { 'x' }, desc = 'Mini Surround: Start' },
     { mappings.add, desc = 'Mini Surround: Add', mode = { 'x' } },
