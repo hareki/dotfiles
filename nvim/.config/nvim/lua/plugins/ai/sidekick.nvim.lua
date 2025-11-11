@@ -1,3 +1,4 @@
+local cli_name = 'copilot'
 return {
   require('utils.ui').catppuccin(function()
     return {
@@ -24,8 +25,9 @@ return {
             float = {
               width = lg_popup_config.width,
               height = lg_popup_config.height,
-              row = lg_popup_config.row,
-              col = lg_popup_config.col,
+              -- Sidekick will take anything smaller or equal 1 as a percentage of the screen
+              row = lg_popup_config.row + 0.1,
+              col = lg_popup_config.col + 0.1,
               border = 'rounded',
             },
           },
@@ -54,7 +56,7 @@ return {
       {
         '<A-a>',
         function()
-          require('sidekick.cli').toggle({ name = 'copilot' })
+          require('sidekick.cli').toggle({ name = cli_name })
         end,
         desc = 'Sidekick Toggle',
         mode = { 'n', 't', 'i', 'x' },
@@ -62,7 +64,10 @@ return {
       {
         '<leader>at',
         function()
-          require('sidekick.cli').send({ msg = '{this}' })
+          require('sidekick.cli').send({
+            msg = '{this}',
+            filter = { name = cli_name },
+          })
         end,
         mode = { 'x', 'n' },
         desc = 'Send This',
@@ -70,14 +75,20 @@ return {
       {
         '<leader>af',
         function()
-          require('sidekick.cli').send({ msg = '{file}' })
+          require('sidekick.cli').send({
+            msg = '{file}',
+            filter = { name = cli_name },
+          })
         end,
         desc = 'Send File',
       },
       {
         '<leader>av',
         function()
-          require('sidekick.cli').send({ msg = '{selection}' })
+          require('sidekick.cli').send({
+            msg = '{selection}',
+            filter = { name = cli_name },
+          })
         end,
         mode = { 'x' },
         desc = 'Send Visual Selection',

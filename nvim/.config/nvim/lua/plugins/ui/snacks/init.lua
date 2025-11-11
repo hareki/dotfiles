@@ -120,16 +120,33 @@ return {
         end,
         desc = 'Find Tabs',
       },
+      {
+        '<leader>.',
+        function()
+          Snacks.scratch()
+        end,
+        desc = 'Toggle Scratch Buffer',
+      },
+      {
+        '<leader>f.',
+        function()
+          Snacks.scratch.select()
+        end,
+        desc = 'Select Scratch Buffer',
+      },
     },
     opts = function()
       local popup_config = require('utils.ui').popup_config
       local picker_config = require('configs.picker')
       local icons = require('configs.icons')
-      local input_popup_config = popup_config('input')
-      local full_popup_config = popup_config('full')
-      local sm_popup_config = popup_config('sm', true)
-      local lg_popup_config = popup_config('lg', true)
-      local select_width = sm_popup_config.width
+      local config = {
+        input = popup_config('input'),
+        full = popup_config('full'),
+        sm = popup_config('sm', true),
+        lg_border = popup_config('lg', true),
+        lg = popup_config('lg'),
+      }
+      local select_width = config.sm.width
 
       local utils = require('plugins.ui.snacks.utils')
       local actions = require('plugins.ui.snacks.actions')
@@ -139,6 +156,7 @@ return {
         bigfile = { enabled = true },
         input = { enabled = true },
         lazygit = { enabled = true, configure = false },
+        scratch = { enabled = true },
 
         picker = {
           icons = {
@@ -193,10 +211,10 @@ return {
           layout = {
             layout = {
               backdrop = false,
-              width = lg_popup_config.width,
-              max_width = lg_popup_config.width,
-              height = lg_popup_config.height,
-              max_height = lg_popup_config.height,
+              width = config.lg_border.width,
+              max_width = config.lg_border.width,
+              height = config.lg_border.height,
+              max_height = config.lg_border.height,
               border = 'none',
               box = 'vertical',
               {
@@ -242,23 +260,33 @@ return {
               transform = utils.files_transform,
             },
 
+            scratch = {
+              win = {
+                input = {
+                  keys = {
+                    ['x'] = { 'scratch_delete', mode = { 'n' } },
+                  },
+                },
+              },
+            },
+
             keymaps = {
               layout = {
                 preview = false,
                 preset = 'default',
                 layout = {
                   backdrop = false,
-                  height = sm_popup_config.height,
-                  width = sm_popup_config.width,
-                  max_height = sm_popup_config.height,
-                  max_width = sm_popup_config.width,
-                  col = sm_popup_config.col,
-                  row = sm_popup_config.row,
+                  height = config.sm.height,
+                  width = config.sm.width,
+                  max_height = config.sm.height,
+                  max_width = config.sm.width,
+                  col = config.sm.col,
+                  row = config.sm.row,
                 },
               },
               transform = utils.keymap_transform,
               format = function(item, picker)
-                return utils.keymap_format(item, picker, sm_popup_config.width)
+                return utils.keymap_format(item, picker, config.sm.width)
               end,
             },
           },
@@ -266,20 +294,26 @@ return {
 
         styles = {
           input = {
-            height = input_popup_config.height,
-            width = input_popup_config.width,
-            col = input_popup_config.col,
-            row = input_popup_config.row,
+            height = config.input.height,
+            width = config.input.width,
+            col = config.input.col,
+            row = config.input.row,
+          },
+          scratch = {
+            height = config.lg.height,
+            width = config.lg.width,
+            col = config.lg.col,
+            row = config.lg.row,
           },
           lazygit = {
             backdrop = false,
             border = 'rounded',
             title = ' Lazygit ',
             title_pos = 'center',
-            height = full_popup_config.height,
-            width = full_popup_config.width,
-            col = full_popup_config.col,
-            row = full_popup_config.row,
+            height = config.full.height,
+            width = config.full.width,
+            col = config.full.col,
+            row = config.full.row,
           },
         },
       }

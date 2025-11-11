@@ -1,5 +1,5 @@
 return {
-  -- noice.nvim will automatlically load this plugin when needed
+  -- noice.nvim will automatically load this plugin when needed
   'rcarriga/nvim-notify',
   keys = {
     {
@@ -16,6 +16,22 @@ return {
         require('telescope').extensions.notify.notify({
           results_title = '',
           preview_title = require('configs.picker').telescope_preview_title,
+          previewer = require('telescope.previewers').new_buffer_previewer({
+            define_preview = function(self, entry, status)
+              local notification = entry.value
+              local max_width = vim.api.nvim_win_get_config(status.preview_win).width or 1
+              local buf = self.state.bufnr
+
+              require('notify').open(notification, {
+                buffer = buf,
+                max_width = max_width,
+              })
+
+              vim.api.nvim_set_option_value('wrap', true, { win = status.preview_win })
+              vim.api.nvim_set_option_value('filetype', 'markdown', { buf = buf })
+              vim.api.nvim_set_option_value('syntax', 'markdown', { buf = buf })
+            end,
+          }),
         })
       end,
       desc = 'Show Notification History',
