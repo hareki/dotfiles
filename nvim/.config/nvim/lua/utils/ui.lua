@@ -3,13 +3,13 @@ local M = {}
 
 --- @param group string
 --- @param style vim.api.keyset.highlight
-M.highlight = function(group, style)
+function M.highlight(group, style)
   vim.api.nvim_set_hl(0, group, style)
 end
 
 --- A table of custom highlight groups and their corresponding styles.
 --- @param custom_highlights table<string, vim.api.keyset.highlight>
-M.highlights = function(custom_highlights)
+function M.highlights(custom_highlights)
   for group, style in pairs(custom_highlights) do
     M.highlight(group, style)
   end
@@ -18,12 +18,12 @@ end
 
 --- @param name? "frappe" | "latte" | "macchiato" | "mocha"
 --- @return palette
-M.get_palette = function(name)
+function M.get_palette(name)
   return require('catppuccin.palettes').get_palette(name or 'mocha')
 end
 
 ---@param register fun(palette: palette, sub_palette: palette): table<string, vim.api.keyset.highlight>
-M.catppuccin = function(register)
+function M.catppuccin(register)
   return {
     'catppuccin/nvim',
     opts = function(_, opts)
@@ -48,7 +48,8 @@ function M.telescope_layout(size)
   }
 end
 
----@return integer, integer
+---@return integer screen_w
+---@return integer screen_h
 function M.screen_size()
   local screen_w = vim.opt.columns:get()
   local screen_h = vim.opt.lines:get()

@@ -1,5 +1,7 @@
+---@class utils.common
 local M = {}
 
+---Execute a function without triggering autocommands
 ---@param fn fun()
 function M.noautocmd(fn)
   local ei = vim.o.eventignore
@@ -11,6 +13,7 @@ function M.noautocmd(fn)
   end
 end
 
+---Extend multiple arrays into a single array
 ---@param ... table[]
 ---@return table
 function M.list_extend(...)
@@ -23,8 +26,9 @@ function M.list_extend(...)
   return result
 end
 
+---Focus a window without triggering autocommands
 ---@param win integer|nil
----@return boolean
+---@return boolean success
 function M.focus_win(win)
   if not win or win == 0 or not vim.api.nvim_win_is_valid(win) then
     return false
@@ -37,6 +41,9 @@ function M.focus_win(win)
   return true
 end
 
+---Count the number of string keys in a table
+---@param t table
+---@return integer
 function M.count_string_keys(t)
   local n = 0
   for k in pairs(t) do

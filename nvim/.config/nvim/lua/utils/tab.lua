@@ -16,7 +16,8 @@ local name_formatter = {
 
 ---@param tab_id? integer
 ---@param buffer_ids? integer[]
-M.get_tab_name = function(tab_id, buffer_ids)
+---@return string
+function M.get_tab_name(tab_id, buffer_ids)
   local name = nil
   -- If the first buffer is a terminal, then all of the other should be too
   local buf = buffer_ids and buffer_ids[1] or vim.api.nvim_get_current_buf()
@@ -40,6 +41,7 @@ M.get_tab_name = function(tab_id, buffer_ids)
   return name
 end
 
+---@return string
 function M.lualine()
   local existing_name = vim.t.tab_name
 
