@@ -53,7 +53,7 @@ return {
     end,
     opts = function()
       -- math.random in Lua is deterministic until you seed it yourself.
-      math.randomseed(vim.loop.hrtime())
+      math.randomseed(vim.uv.hrtime())
       math.random() -- Discard the first LCG output, it's quite repeatable.
 
       local logo = {

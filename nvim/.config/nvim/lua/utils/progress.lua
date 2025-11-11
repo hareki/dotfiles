@@ -96,7 +96,7 @@ function M.create(opts)
   opts = opts or {}
 
   local pending_ms = opts.pending_ms or 0
-  local token = opts.token or ('token:' .. vim.loop.hrtime())
+  local token = opts.token or ('token:' .. vim.uv.hrtime())
   local client_name = opts.client_name or 'progress'
   local client_id = opts.client_id or get_valid_client_id(vim.api.nvim_get_current_buf())
 

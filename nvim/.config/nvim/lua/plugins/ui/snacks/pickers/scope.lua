@@ -1,5 +1,5 @@
 local filter = vim.tbl_filter
-local uv = vim.uv or vim.loop
+local uv = vim.uv
 
 local function extend_without_duplicates(l0, l1)
   local result = {}
@@ -83,7 +83,7 @@ return function(user_opts)
   opts.cwd_only = nil
   opts.only_cwd = nil
 
-  local cwd = cwd_only and (uv and uv.cwd and uv.cwd() or vim.loop.cwd()) or cwd_filter
+  local cwd = cwd_only and (uv and uv.cwd and uv.cwd()) or cwd_filter
 
   local bufnrs = filter(
     function(b)

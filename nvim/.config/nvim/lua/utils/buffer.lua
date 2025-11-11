@@ -64,8 +64,7 @@ function M.lualine()
     end
   else
     if bo.buftype == '' then
-      local uv = vim.uv or vim.loop
-      if not uv.fs_stat(name) and status.new ~= '' then
+      if not vim.uv.fs_stat(name) and status.new ~= '' then
         out[#out + 1] = status.new
       end
     end
