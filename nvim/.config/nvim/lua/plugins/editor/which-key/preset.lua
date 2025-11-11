@@ -220,10 +220,10 @@ M.desc_overrides = {
   ['<C-S>'] = { desc = 'LSP: Signature Help', mode = { 's', 'i' } },
   ['K'] = { desc = 'LSP: Hover', mode = { 'n' } },
   ['gx'] = { desc = 'Open URL', mode = { 'n' } },
-  ['<Tab>'] = { desc = 'Copilot: Accept Suggestion', mode = { 'i' } },
-  ['<S-Tab>'] = { desc = 'Copilot: Accept Suggestion (Word)', mode = { 'i' } },
-  ['<M-]>'] = { desc = 'Copilot: Next Suggestion', mode = { 'i' } },
-  ['<M-[>'] = { desc = 'Copilot: Previous Suggestion', mode = { 'i' } },
+  -- ['<Tab>'] = { desc = 'Copilot: Accept Suggestion', mode = { 'i' } },
+  -- ['<S-Tab>'] = { desc = 'Copilot: Accept Suggestion (Word)', mode = { 'i' } },
+  -- ['<M-]>'] = { desc = 'Copilot: Next Suggestion', mode = { 'i' } },
+  -- ['<M-[>'] = { desc = 'Copilot: Previous Suggestion', mode = { 'i' } },
 
   -- Default mappings having descriptions like :help &-default, :help v_#-default,...
   ['&'] = { desc = 'Repeat Last Substitute (Keep Flags)', mode = { 'n' } },
