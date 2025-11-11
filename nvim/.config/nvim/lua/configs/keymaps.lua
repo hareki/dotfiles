@@ -23,7 +23,6 @@ map('v', '<leader>t', "ygvgc']p", {
 })
 
 map('n', '<leader>?h', '<CMD>HlAtCursor<CR>', {
-  remap = true,
   silent = true,
   desc = 'Highlight Groups at Cursor',
 })
