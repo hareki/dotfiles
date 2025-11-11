@@ -3,7 +3,7 @@
 local M = {}
 ---@alias NotifyOpts { level?: number, title?: string, once?: boolean, id?:string, on_open?: fun(), default_hl?: string }
 
----@alias MessageTuple {string, string?}
+---@alias MessageTuple { [1]: string, [2]?: string }
 ---@alias Message string|string[]|MessageTuple[]
 
 ---@type table<string, any>
