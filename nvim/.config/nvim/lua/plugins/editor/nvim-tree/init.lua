@@ -118,6 +118,7 @@ return {
   {
     'nvim-tree/nvim-tree.lua',
     version = '*',
+    event = 'VeryLazy',
     dependencies = {
       'nvim-tree/nvim-web-devicons',
     },
@@ -176,6 +177,10 @@ return {
           show_on_dirs = false,
           show_on_open_dirs = true,
           debounce_delay = 500,
+          severity = {
+            min = vim.diagnostic.severity.HINT,
+            max = vim.diagnostic.severity.ERROR,
+          },
           icons = {
             error = icons.diagnostics.Error,
             warning = icons.diagnostics.Warn,
