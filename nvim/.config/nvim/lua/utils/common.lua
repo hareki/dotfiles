@@ -26,7 +26,37 @@ function M.list_extend(...)
   return result
 end
 
----Focus a window without triggering autocommands
+function M.is_float_win(win)
+  local ok, cfg = pcall(vim.api.nvim_win_get_config, win)
+  return ok and cfg and ((cfg.relative and cfg.relative ~= '') or cfg.external == true)
+end
+
+function M.repaint_render_markdown(win)
+  local render_md = require('render-markdown')
+  if not vim.api.nvim_win_is_valid(win) then
+    return
+  end
+
+  -- Run in that window’s context without autocommands
+  M.noautocmd(function()
+    vim.api.nvim_win_call(win, function()
+      -- Soft refresh that doesn’t change user state
+      local is_soft_successful = pcall(function()
+        render_md.expand()
+        render_md.contract()
+      end)
+
+      if not is_soft_successful then
+        -- Hard refresh
+        pcall(render_md.buf_disable)
+        pcall(render_md.buf_enable)
+      end
+    end)
+  end)
+end
+
+---Focus a window without triggering autocommands.
+---If current window is a floating markdown preview, repaint it after moving.
 ---@param win integer|nil
 ---@return boolean success
 function M.focus_win(win)
@@ -34,9 +64,21 @@ function M.focus_win(win)
     return false
   end
 
+  local function is_markdown_buf(win_id)
+    local buf = vim.api.nvim_win_get_buf(win_id)
+    return vim.bo[buf].filetype == 'markdown'
+  end
+
+  local src = vim.api.nvim_get_current_win()
+  local need_repaint = M.is_float_win(src) and is_markdown_buf(src)
+
   M.noautocmd(function()
     vim.api.nvim_set_current_win(win)
   end)
+
+  if need_repaint then
+    M.repaint_render_markdown(src)
+  end
 
   return true
 end
