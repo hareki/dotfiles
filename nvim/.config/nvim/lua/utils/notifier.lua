@@ -140,6 +140,10 @@ function M.notify(msg, opts)
       pcall(vim.api.nvim_del_autocmd, autocmd_id)
       autocmd_id = nil
     end
+    -- Clean up notification ID from cache to prevent memory leak
+    if opts.id then
+      notif_ids[opts.id] = nil
+    end
   end
 
   local ret = vim[opts.once and 'notify_once' or 'notify'](msg, opts.level, {
@@ -196,11 +200,14 @@ end
 
 ---@param title string
 function M.debug(title, ...)
-  local msg = ''
+  local parts = {}
   if select('#', ...) > 0 then
     local obj = select('#', ...) == 1 and ... or { ... }
-    msg = msg .. '```lua\n' .. vim.inspect(obj) .. '\n```'
+    parts[1] = '```lua\n'
+    parts[2] = vim.inspect(obj)
+    parts[3] = '\n```'
   end
+  local msg = table.concat(parts)
   M.notify(msg, { title = title, height_offset = -1 })
 end
 

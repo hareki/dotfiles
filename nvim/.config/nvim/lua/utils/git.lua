@@ -13,12 +13,18 @@ local max_task_name_length = task_name_start_length + task_name_end_length
 local repo_cache = {
   name = nil,
   last_cwd = nil,
+  toplevel = nil, -- Cache the toplevel to avoid repeated git calls
 }
+
+-- Cache for formatted branch names
+local branch_format_cache = {}
 
 --- Sets the branch display format and refreshes the status line.
 --- @param format utils.git.branch_formats The name of the branch format to set.
 function M.set_branch_name_format(format)
   branch_display_mode = format
+  -- Clear cache when format changes
+  branch_format_cache = {}
   notifier.info('Branch name format set to ' .. format)
   if require('plugins.ui.lualine.util').have_status_line() then
     require('lualine').refresh({ place = { 'statusline' } })
@@ -29,6 +35,12 @@ end
 --- @param branch_name string The original branch name to be formatted.
 --- @return string The formatted branch name.
 function M.format_branch_name(branch_name)
+  -- Check cache first
+  local cache_key = branch_display_mode .. ':' .. branch_name
+  if branch_format_cache[cache_key] then
+    return branch_format_cache[cache_key]
+  end
+
   local prefix
   local remaining
 
@@ -39,6 +51,7 @@ function M.format_branch_name(branch_name)
   end
 
   if not prefix or not remaining or remaining == '' then
+    branch_format_cache[cache_key] = branch_name
     return branch_name
   end
 
@@ -51,8 +64,9 @@ function M.format_branch_name(branch_name)
     author_name = possible_author
   end
 
+  local result
   if branch_display_mode == 'id' then
-    return prefix
+    result = prefix
   elseif branch_display_mode == 'id_and_name' then
     local formatted_task_name = task_name
     if #task_name > max_task_name_length then
@@ -61,51 +75,61 @@ function M.format_branch_name(branch_name)
         .. '...'
         .. task_name:sub(-task_name_end_length)
     end
-    return prefix .. '_' .. formatted_task_name
+    result = prefix .. '_' .. formatted_task_name
   elseif branch_display_mode == 'id_and_author' then
     if author_name then
-      return prefix .. '_' .. author_name
+      result = prefix .. '_' .. author_name
+    else
+      result = prefix
     end
-    return prefix
+  else
+    result = ''
   end
 
-  return ''
+  -- Cache the result
+  branch_format_cache[cache_key] = result
+  return result
 end
 
---- Executes a shell command, optionally in a specified directory, and returns its output.
---- @param cmd string The shell command to execute.
+--- Executes a git command synchronously and returns its output.
+--- @param cmd string The git command to execute (without the 'git' prefix).
 --- @param cwd string|nil The directory in which to execute the command. Defaults to current directory if nil.
 --- @return string|nil The trimmed output of the command, or nil if an error occurs.
 function M.exec_cmd(cmd, cwd)
-  local full_cmd = cmd
+  local args = vim.split(cmd, '%s+')
+  local git_cmd = { 'git' }
+
   if cwd then
-    -- Use 'git -C <cwd> <CMD>' to execute the command in the specified directory
-    full_cmd = 'git -C "' .. cwd .. '" ' .. cmd
+    vim.list_extend(git_cmd, { '-C', cwd })
   end
-  -- Open a pipe to execute the command, redirecting stderr to /dev/null
-  local handle = io.popen(full_cmd .. ' 2>/dev/null')
-  if handle then
-    local result = handle:read('*a')
-    handle:close()
-    if result and result ~= '' then
-      -- Trim whitespace and newlines
-      return result:gsub('%s+', '')
-    end
+
+  vim.list_extend(git_cmd, args)
+
+  local result = vim.system(git_cmd, { text = true }):wait()
+
+  if result.code == 0 and result.stdout and result.stdout ~= '' then
+    -- Trim whitespace and newlines
+    return result.stdout:gsub('%s+$', ''):gsub('^%s+', '')
   end
+
   return nil
 end
 
 --- Retrieves the repository name from the remote origin URL.
 --- @return string|nil The repository name extracted from the remote URL, or nil if not found.
 function M.get_repo_name_from_remote()
-  -- Execute the basename command to strip the .git suffix
-  -- Command: basename -s .git $(git config --get remote.origin.url)
-  local cmd = 'basename -s .git $(git config --get remote.origin.url)'
-  local repo_name = M.exec_cmd(cmd)
-  if repo_name and repo_name ~= '' then
-    return repo_name
+  local url = M.exec_cmd('config --get remote.origin.url')
+  if not url or url == '' then
+    return nil
   end
-  return nil
+
+  -- Remove .git suffix if present
+  url = url:gsub('%.git$', '')
+
+  -- Extract the last path component (repo name)
+  local repo_name = url:match('([^/]+)$')
+
+  return repo_name
 end
 
 --- Determines whether a specified directory is a bare Git repository.
@@ -131,13 +155,17 @@ end
 function M.get_repo_name()
   local current_cwd = vim.fn.getcwd()
 
-  -- Check if the CWD has changed since the last cache
-  if repo_cache.name and repo_cache.last_cwd == current_cwd then
+  -- Get toplevel to determine if we're in the same repo
+  local toplevel = M.exec_cmd('rev-parse --show-toplevel')
+
+  -- Check if we're still in the same repo (same toplevel)
+  if repo_cache.name and repo_cache.toplevel == toplevel then
     return repo_cache.name
   end
 
-  -- Update the last known CWD
+  -- Update cache markers
   repo_cache.last_cwd = current_cwd
+  repo_cache.toplevel = toplevel
 
   -- Step 1: Attempt to get the repository name from the remote URL
   local repo_name = M.get_repo_name_from_remote()
@@ -147,7 +175,6 @@ function M.get_repo_name()
   end
 
   -- Step 2: Determine if the parent of the top-level directory is a bare repository
-  local toplevel = M.exec_cmd('rev-parse --show-toplevel')
   if toplevel and toplevel ~= '' then
     -- Extract the parent directory of the top-level directory
     local parent_dir = toplevel:match('(.+)/[^/\\]+$') or toplevel:match('(.+)\\[^\\]+$')

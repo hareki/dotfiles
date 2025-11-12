@@ -13,15 +13,12 @@ function M.count_file_buffers()
   local count = 0
   local bufs = vim.api.nvim_list_bufs()
 
-  local buflisted = vim.fn.buflisted
-  local get_option = vim.api.nvim_get_option_value
-  local buf_get_name = vim.api.nvim_buf_get_name
-
   for _, bufnr in ipairs(bufs) do
-    if buflisted(bufnr) == 1 then
-      local buftype = get_option('buftype', { buf = bufnr })
+    -- Use pure Lua API instead of crossing to Vimscript
+    if vim.bo[bufnr].buflisted then
+      local buftype = vim.bo[bufnr].buftype
       if buftype == '' then
-        local bufname = buf_get_name(bufnr)
+        local bufname = vim.api.nvim_buf_get_name(bufnr)
         if bufname ~= '' then
           count = count + 1
         end
