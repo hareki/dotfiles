@@ -37,20 +37,9 @@ function M.repaint_render_markdown(win)
     return
   end
 
-  -- Run in that window’s context without autocommands
   M.noautocmd(function()
     vim.api.nvim_win_call(win, function()
-      -- Soft refresh that doesn’t change user state
-      local is_soft_successful = pcall(function()
-        render_md.expand()
-        render_md.contract()
-      end)
-
-      if not is_soft_successful then
-        -- Hard refresh
-        pcall(render_md.buf_disable)
-        pcall(render_md.buf_enable)
-      end
+      render_md.enable()
     end)
   end)
 end
