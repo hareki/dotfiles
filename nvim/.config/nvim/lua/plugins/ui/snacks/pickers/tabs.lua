@@ -1,6 +1,5 @@
 local tab_utils = require('utils.tab')
 local snacks_utils = require('plugins.ui.snacks.utils')
-local notifier = require('utils.notifier')
 
 local function unique_insert(list, value)
   if value == nil then
@@ -58,6 +57,7 @@ local function build_tab_items()
     end
 
     local first_buf = buffer_ids[1]
+    ---@type string|nil
     local first_path = first_buf and vim.api.nvim_buf_get_name(first_buf) or nil
     if first_path == '' then
       first_path = nil
@@ -145,10 +145,7 @@ return function(user_opts)
   picker_opts.finder = nil
 
   local function build_toggleterm_lookup()
-    local ok, toggleterm = pcall(require, 'toggleterm.terminal')
-    if not ok then
-      return {}
-    end
+    local toggleterm = require('toggleterm.terminal')
 
     local lookup = {}
     local ok_terms, terms = pcall(toggleterm.get_all, true)
@@ -203,14 +200,13 @@ return function(user_opts)
       end
     end
 
-    local ok_scope, scope_core = pcall(require, 'scope.core')
-    if ok_scope then
-      pcall(scope_core.revalidate)
-      local scoped = scope_core.cache and scope_core.cache[tab_item.tabpage]
-      if scoped then
-        for _, bufnr in ipairs(scoped) do
-          add_buf(bufnr)
-        end
+    local scope_core = require('scope.core')
+    pcall(scope_core.revalidate)
+
+    local scoped = scope_core.cache and scope_core.cache[tab_item.tabpage]
+    if scoped then
+      for _, bufnr in ipairs(scoped) do
+        add_buf(bufnr)
       end
     end
 
