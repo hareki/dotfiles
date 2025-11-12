@@ -57,6 +57,9 @@ opt.tabstop = 2 -- Number of spaces tabs count for
 opt.softtabstop = 2 -- Number of spaces tabs count for while performing editing operations
 opt.expandtab = true -- Use spaces instead of tabs
 
+-- Prevent changing cwd when navigating to files outside of cwd (e.g going to definition)
+opt.viewoptions:remove('curdir')
+
 -- https://github.com/sindrets/diffview.nvim?tab=readme-ov-file#tips-and-faq
 opt.fillchars:append({ diff = '╱', eob = ' ', lastline = '.' })
 
