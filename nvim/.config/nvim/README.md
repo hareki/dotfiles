@@ -1,6 +1,6 @@
 ## 💤 My Personal Neovim Config
 
-![image](./images/demo.png)
+![image](./assets/docs/demo.png)
 
 Configured from scratch (no distro), inspired by Kickstart & LazyVim, then optimized hard for: fast cold start, per‑plugin isolation, consistent floating UX, minimal diff forks.
 
