@@ -49,6 +49,7 @@ return {
         function()
           Snacks.picker.grep({
             title = 'Grep',
+            regex = false,
           })
         end,
         desc = 'Find Text',
