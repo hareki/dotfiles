@@ -184,7 +184,7 @@ aucmd('VimLeavePre', {
     for _, tab in ipairs(diffview_tabs) do
       if vim.api.nvim_tabpage_is_valid(tab) then
         pcall(vim.api.nvim_set_current_tabpage, tab)
-        pcall(vim.cmd, 'silent! tabclose')
+        vim.cmd('silent! tabclose')
       end
     end
   end,
