@@ -333,9 +333,7 @@ return {
             group = state.preview_watcher,
             callback = function(ev)
               if ev.buf == tree_bufnr then
-                vim.schedule(function()
-                  tree.toggle_preview(state.preview_on_focus)
-                end)
+                tree.toggle_preview(state.preview_on_focus)
                 return
               end
 
