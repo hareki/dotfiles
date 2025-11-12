@@ -27,9 +27,16 @@ return {
                 max_width = max_width,
               })
 
-              vim.api.nvim_set_option_value('wrap', true, { win = status.preview_win })
-              vim.api.nvim_set_option_value('filetype', 'markdown', { buf = buf })
-              vim.api.nvim_set_option_value('syntax', 'markdown', { buf = buf })
+              vim.schedule(function()
+                vim.api.nvim_set_option_value('wrap', true, { win = status.preview_win })
+                vim.api.nvim_set_option_value('filetype', 'markdown', { buf = buf })
+                require('render-markdown').render({
+                  buf = buf,
+                  config = {
+                    render_modes = true,
+                  },
+                })
+              end)
             end,
           }),
         })

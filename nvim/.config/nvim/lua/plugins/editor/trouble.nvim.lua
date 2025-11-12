@@ -20,7 +20,7 @@ return {
         local previewManager = require('trouble.view.preview')
         local preview = previewManager.preview
 
-        if not previewManager.is_open() then
+        if not previewManager.is_open() or not preview then
           return
         end
 
@@ -86,6 +86,7 @@ return {
         '[q',
         function()
           if require('trouble').is_open() then
+            ---@diagnostic disable-next-line: missing-parameter, missing-fields
             require('trouble').prev({ skip_groups = true, jump = true })
           else
             local ok, err = pcall(vim.cmd.cprev)
@@ -100,6 +101,7 @@ return {
         ']q',
         function()
           if require('trouble').is_open() then
+            ---@diagnostic disable-next-line: missing-parameter, missing-fields
             require('trouble').next({ skip_groups = true, jump = true })
           else
             local ok, err = pcall(vim.cmd.cnext)

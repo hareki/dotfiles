@@ -309,9 +309,9 @@ local function hl_at_cursor()
     desc = 'Return Focus to Source Window',
   })
 
-  pcall(vim.api.nvim_set_option_value, 'conceallevel', 2, { win = win })
-  pcall(vim.api.nvim_set_option_value, 'wrap', false, { win = win })
-  pcall(vim.api.nvim_set_option_value, 'signcolumn', 'no', { win = win })
+  vim.api.nvim_set_option_value('conceallevel', 2, { win = win })
+  vim.api.nvim_set_option_value('wrap', false, { win = win })
+  vim.api.nvim_set_option_value('signcolumn', 'no', { win = win })
 
   vim.keymap.set('n', 'q', close_popup, { buffer = buf, nowait = true, silent = true })
   vim.keymap.set('n', '<Esc>', close_popup, { buffer = buf, nowait = true, silent = true })
