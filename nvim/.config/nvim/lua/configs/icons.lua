@@ -24,9 +24,6 @@ local M = {
     Info = ' ',
   },
   file_status = {
-    -- modified = '',
-    -- modified = ' ',
-    -- modified = '󱗜 ',
     modified = '󰪥 ',
     readonly = '󰌾 ',
     new = ' ',

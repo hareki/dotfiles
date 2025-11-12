@@ -11,7 +11,7 @@ M.popup = {
   full = {
     width = 1,
     height = 1,
-    height_offset = -3, -- 2 for the top/bottom borders, 1 for cover the winbar, we cover the statusline
+    height_offset = -3, -- 2 for the top/bottom borders, 1 for the winbar, we cover the statusline
   },
 
   lg = {

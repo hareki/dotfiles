@@ -130,11 +130,11 @@ aucmd('FileType', {
   end,
 })
 
+-- Use the same keymap as switching to cmdline window mode (vim.opt.cedit) to switch back to cmdline mode
 aucmd('CmdwinEnter', {
   callback = function(event)
     local buf = event.buf
 
-    -- Use the same keymap as switching to cmdline window mode (vim.opt.cedit) to switch back to cmdline mode
     vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-f>', '<C-c>', {
       buffer = buf,
       silent = true,
@@ -149,6 +149,7 @@ aucmd('CmdwinEnter', {
   end,
 })
 
+-- Refresh lualine tab names on TabEnter
 if require('plugins.ui.lualine.util').have_status_line() then
   aucmd('TabEnter', {
     group = augroup('tab_watchers'),

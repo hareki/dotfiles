@@ -16,7 +16,7 @@ require('lazy').setup({
     title = ' Lazy ',
   },
   spec = {
-    { import = 'plugins.ui' }, -- must be first for require('utils.ui').catppuccin to work correctly
+    { import = 'plugins.ui' }, -- Must be first for require('utils.ui').catppuccin to work correctly
     { import = 'plugins.ai' },
     { import = 'plugins.coding' },
     { import = 'plugins.editor' },
@@ -26,7 +26,7 @@ require('lazy').setup({
   },
   checker = { enabled = false, notify = false },
   defaults = {
-    lazy = true,
+    lazy = true, -- Don't eaglerly load plugins by default
     version = false, -- Always use the latest git commit
   },
   performance = {

@@ -9,7 +9,6 @@ return {
   event = 'VeryLazy',
   dependencies = { 'folke/lazydev.nvim' },
   config = function()
-    local icons = require('configs.icons')
     vim.diagnostic.config({
       -- https://neovim.io/doc/user/diagnostic.html#vim.diagnostic.Opts.VirtualLines
       -- virtual_lines = {
@@ -141,8 +140,8 @@ return {
           return
         end
 
-        -- ask server to emit trace
-        client.notify('$/setTrace', { value = 'verbose' })
+        -- Ask server to emit trace
+        client:notify('$/setTrace', { value = 'verbose' })
 
         local store, max = {}, 200
         local function push(line)

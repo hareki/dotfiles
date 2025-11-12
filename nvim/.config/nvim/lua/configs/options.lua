@@ -22,10 +22,6 @@ opt.number = true
 opt.relativenumber = true
 opt.numberwidth = 1
 
--- opt.guicursor = "n-v:block,i-c-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkon1"
--- opt.guicursor = "n-v:block,i-c-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait0-blinkon400-blinkoff250"
--- opt.guicursor =
--- "n-v:block-blinkwait0-blinkon400-blinkoff250,i-c-ci-ve:ver25-blinkwait0-blinkon400-blinkoff250,r-cr:hor20-blinkwait0-blinkon400-blinkoff250,o:hor50"
 opt.guicursor = table.concat({
   -- Normal & Visual ⇒ solid block that starts blinking after 700 ms
   'n-v:block-blinkwait0-blinkon400-blinkoff250',

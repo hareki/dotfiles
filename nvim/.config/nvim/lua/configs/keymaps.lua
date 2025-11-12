@@ -1,6 +1,24 @@
---  See `:help vim.keymap.set()`
-local map = vim.keymap.set
 local del = vim.keymap.del
+
+-- Clean up Snacks keymaps picker a little
+del('n', ']a')
+del('n', '[a')
+del('n', '[A')
+del('n', ']A')
+del('n', ']l')
+del('n', '[l')
+del('n', ']L')
+del('n', '[L')
+del('n', ']Q')
+del('n', '[Q')
+del('n', ']<C-L>')
+del('n', '[<C-L>')
+del('n', ']<C-Q>')
+del('n', '[<C-Q>')
+del('n', ']<C-T>')
+del('n', '[<C-T>')
+
+local map = vim.keymap.set
 map({ 'n' }, 'Q', '<CMD>q<CR>', { desc = 'Close Buffer' })
 
 map({ 'n' }, '<Esc>', '<CMD>nohlsearch<CR>', { desc = 'Clear Search Highlight' })
@@ -65,6 +83,7 @@ map('n', ']e', diagnostic_goto(true, 'ERROR'), { desc = 'Next Error' })
 map('n', '[e', diagnostic_goto(false, 'ERROR'), { desc = 'Previous Error' })
 map('n', ']w', diagnostic_goto(true, 'WARN'), { desc = 'Next Warning' })
 map('n', '[w', diagnostic_goto(false, 'WARN'), { desc = 'Previous Warning' })
+
 map('n', ']b', '<CMD>bnext<CR>', { desc = 'Next Buffer' })
 map('n', ']B', '<CMD>blast<CR>', { desc = 'Last Buffer' })
 map('n', '[b', '<CMD>bprevious<CR>', { desc = 'Previous Buffer' })
@@ -73,24 +92,6 @@ map('n', ']t', '<CMD>tabnext<CR>', { desc = 'Next Tab' })
 map('n', ']T', '<CMD>tablast<CR>', { desc = 'Last Tab' })
 map('n', '[t', '<CMD>tabprevious<CR>', { desc = 'Previous Tab' })
 map('n', '[T', '<CMD>tabrewind<CR>', { desc = 'First Tab' }) -- or tabfirst
-
--- Clean up keymaps picker a little
-del('n', ']a')
-del('n', '[a')
-del('n', '[A')
-del('n', ']A')
-del('n', ']l')
-del('n', '[l')
-del('n', ']L')
-del('n', '[L')
-del('n', ']Q')
-del('n', '[Q')
-del('n', ']<C-L>')
-del('n', '[<C-L>')
-del('n', ']<C-Q>')
-del('n', '[<C-Q>')
-del('n', ']<C-T>')
-del('n', '[<C-T>')
 
 map('n', '<leader>tn', '<CMD>tabnew<CR>', { desc = 'New Tab' })
 map('n', '<leader>t]', '<CMD>tabnext<CR>', { desc = 'Next Tab' })
