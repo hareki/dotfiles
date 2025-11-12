@@ -1,6 +1,3 @@
-local tree = require('plugins.editor.nvim-tree.utils')
-local state = tree.state
-
 return {
   require('utils.ui').catppuccin(function(palette, sub_palette)
     return {
@@ -37,6 +34,9 @@ return {
       '3rd/image.nvim',
     },
     opts = function()
+      local tree = require('plugins.editor.nvim-tree.utils')
+      local state = tree.state
+
       return {
         -- title_format = ' %s ', -- File name
         title_format = require('configs.picker').preview_title,
@@ -127,6 +127,9 @@ return {
         '<leader>e',
         function()
           local api = require('nvim-tree.api')
+          local tree = require('plugins.editor.nvim-tree.utils')
+          local state = tree.state
+
           if api.tree.is_tree_buf() and state.position == 'float' then
             tree.close_all()
             return
@@ -145,6 +148,8 @@ return {
       local ui_utils = require('utils.ui')
       local size_configs = require('configs.size')
       local icons = require('configs.icons')
+      local tree = require('plugins.editor.nvim-tree.utils')
+      local state = tree.state
 
       state.opts = {
         hijack_cursor = true, --Keeps the cursor on the first letter of the filename when moving in the tree.

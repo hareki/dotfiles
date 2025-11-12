@@ -112,7 +112,7 @@ end
 --- @param path string The directory path to check.
 --- @return boolean True if the directory is a bare repository, false otherwise.
 function M.is_bare_repo(path)
-  if not path or path == '' then
+  if not path then
     return false
   end
   local result = M.exec_cmd('rev-parse --is-bare-repository', path)
