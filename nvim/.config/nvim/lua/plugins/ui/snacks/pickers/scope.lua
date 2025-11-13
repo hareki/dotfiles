@@ -49,6 +49,23 @@ local function find_buffer_tabpage(bufnr)
   return nil
 end
 
+---@class ScopePickerScopeOpts
+---@field show_all_buffers? boolean Show all buffers including unloaded ones (default: true)
+---@field ignore_current_buffer? boolean Exclude the current buffer from results (default: false)
+---@field cwd_only? boolean Filter buffers to only those in the current working directory (default: false)
+---@field only_cwd? boolean Alias for cwd_only (deprecated, use cwd_only instead)
+---@field cwd? string Filter buffers by a specific directory path
+---@field sort_mru? boolean Sort buffers by most recently used (default: false)
+---@field sort_lastused? boolean Sort with current/alternate buffer at top (default: true)
+---@field title? string Picker window title
+---@field preview? string|boolean Preview mode for the picker
+---@field confirm? function Custom confirm action handler
+---@field actions? table<string, function> Additional picker actions
+---@field win? table Window configuration options
+---@field on_show? function Callback when picker is shown
+
+---@param user_opts? ScopePickerScopeOpts
+---@return table|nil
 return function(user_opts)
   local scope_core = require('scope.core')
   local picker_sources = require('snacks.picker.config.sources')
@@ -198,9 +215,11 @@ return function(user_opts)
   local function scope_confirm(picker, _, action)
     local selection = picker:selected({ fallback = true })
     local primary = selection[1]
+
     if not primary or not primary.buf or not vim.api.nvim_buf_is_valid(primary.buf) then
       return
     end
+
     picker:norm(function()
       picker_actions.jump(picker, primary, action)
       local tabpage = primary.scope_tabpage or find_buffer_tabpage(primary.buf)

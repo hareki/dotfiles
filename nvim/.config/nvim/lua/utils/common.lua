@@ -31,17 +31,22 @@ function M.is_float_win(win)
   return ok and cfg and ((cfg.relative and cfg.relative ~= '') or cfg.external == true)
 end
 
-function M.repaint_render_markdown(win)
+local function repaint_render_markdown(win_id)
   local render_md = require('render-markdown')
-  if not vim.api.nvim_win_is_valid(win) then
+  if not vim.api.nvim_win_is_valid(win_id) then
     return
   end
 
   M.noautocmd(function()
-    vim.api.nvim_win_call(win, function()
+    vim.api.nvim_win_call(win_id, function()
       render_md.enable()
     end)
   end)
+end
+
+local function is_markdown_buf(win_id)
+  local buf = vim.api.nvim_win_get_buf(win_id)
+  return vim.bo[buf].filetype == 'markdown'
 end
 
 ---Focus a window without triggering autocommands.
@@ -53,11 +58,6 @@ function M.focus_win(win)
     return false
   end
 
-  local function is_markdown_buf(win_id)
-    local buf = vim.api.nvim_win_get_buf(win_id)
-    return vim.bo[buf].filetype == 'markdown'
-  end
-
   local src = vim.api.nvim_get_current_win()
   local need_repaint = M.is_float_win(src) and is_markdown_buf(src)
 
@@ -66,7 +66,7 @@ function M.focus_win(win)
   end)
 
   if need_repaint then
-    M.repaint_render_markdown(src)
+    repaint_render_markdown(src)
   end
 
   return true

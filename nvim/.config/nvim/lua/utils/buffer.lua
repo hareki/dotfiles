@@ -1,34 +1,6 @@
 ---@class utils.buffer
 local M = {}
 
---- Counts all opened file/regular/normal buffers
----
---- A buffer is considered a normal file buffer if:
---- 1. It is listed (`buflisted` is true).
---- 2. Its `buftype` is empty (`''`).
---- 3. It has a non-empty name (not a "No Name" buffer).
----
---- @return number The count of opened normal file buffers, excluding "No Name" buffers.
-function M.count_file_buffers()
-  local count = 0
-  local bufs = vim.api.nvim_list_bufs()
-
-  for _, bufnr in ipairs(bufs) do
-    -- Use pure Lua API instead of crossing to Vimscript
-    if vim.bo[bufnr].buflisted then
-      local buftype = vim.bo[bufnr].buftype
-      if buftype == '' then
-        local bufname = vim.api.nvim_buf_get_name(bufnr)
-        if bufname ~= '' then
-          count = count + 1
-        end
-      end
-    end
-  end
-
-  return count
-end
-
 function M.lualine()
   local ignore_filetypes = {
     'NvimTree',

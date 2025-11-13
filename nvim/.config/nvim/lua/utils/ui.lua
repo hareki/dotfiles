@@ -1,22 +1,6 @@
 ---@class utils.ui
 local M = {}
 
--- Cache for popup configs to avoid recalculation
-local popup_config_cache = {}
-local last_screen_size = { width = 0, height = 0 }
-
---- Clear popup config cache when screen is resized
-local function clear_popup_cache()
-  popup_config_cache = {}
-end
-
--- Set up autocmd to clear cache on resize
-vim.api.nvim_create_autocmd('VimResized', {
-  group = vim.api.nvim_create_augroup('utils_ui_cache', { clear = true }),
-  callback = clear_popup_cache,
-  desc = 'Clear UI Layout Cache on Resize',
-})
-
 --- @param group string
 --- @param style vim.api.keyset.highlight
 function M.highlight(group, style)
@@ -104,23 +88,8 @@ end
 ---@param with_border boolean | nil
 ---@return WinConfig
 function M.popup_config(size, with_border)
-  -- Create cache key
-  local cache_key = size .. ':' .. tostring(with_border or false)
-  local screen_w, screen_h = M.screen_size()
-
-  -- Check if screen size changed
-  if screen_w ~= last_screen_size.width or screen_h ~= last_screen_size.height then
-    clear_popup_cache()
-    last_screen_size.width = screen_w
-    last_screen_size.height = screen_h
-  end
-
-  -- Return cached result if available
-  if popup_config_cache[cache_key] then
-    return popup_config_cache[cache_key]
-  end
-
   local size_configs = require('configs.size')
+  local screen_w, screen_h = M.screen_size()
   local window_w, window_h
 
   if size == 'input' then
@@ -161,7 +130,7 @@ function M.popup_config(size, with_border)
   local col = math.floor((screen_w - window_w) / 2) - 1
   local row = math.floor((screen_h - window_h) / 2) - 1
 
-  local result = {
+  return {
     -- Some plugins like telescope takes the border into account for the size when rendering the popup
     -- In that case, we should add 2 to the width and height to maintain the same size with the others that do not
     width = window_w + (with_border and 2 or 0),
@@ -169,10 +138,6 @@ function M.popup_config(size, with_border)
     col = col,
     row = row - (size == 'full' and 1 or 0), -- Off center by one row for full screen to cover the winbar
   }
-
-  -- Cache the result
-  popup_config_cache[cache_key] = result
-  return result
 end
 
 --- @param groups string[] | string

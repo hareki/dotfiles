@@ -13,7 +13,7 @@ local max_task_name_length = task_name_start_length + task_name_end_length
 local repo_cache = {
   name = nil,
   last_cwd = nil,
-  toplevel = nil, -- Cache the toplevel to avoid repeated git calls
+  toplevel = nil,
 }
 
 -- Cache for formatted branch names
@@ -109,7 +109,8 @@ function M.exec_cmd(cmd, cwd)
 
   if result.code == 0 and result.stdout and result.stdout ~= '' then
     -- Trim whitespace and newlines
-    return result.stdout:gsub('%s+$', ''):gsub('^%s+', '')
+    local trimmed = result.stdout:gsub('%s+$', ''):gsub('^%s+', '')
+    return trimmed
   end
 
   return nil
