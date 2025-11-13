@@ -150,7 +150,7 @@ aucmd('CmdwinEnter', {
 })
 
 -- Refresh lualine tab names on TabEnter
-if require('plugins.ui.lualine.util').have_status_line() then
+if require('plugins.ui.lualine.utils').have_status_line() then
   aucmd('TabEnter', {
     group = augroup('tab_watchers'),
     callback = function()

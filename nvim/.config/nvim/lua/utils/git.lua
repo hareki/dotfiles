@@ -26,7 +26,7 @@ function M.set_branch_name_format(format)
   -- Clear cache when format changes
   branch_format_cache = {}
   notifier.info('Branch name format set to ' .. format)
-  if require('plugins.ui.lualine.util').have_status_line() then
+  if require('plugins.ui.lualine.utils').have_status_line() then
     require('lualine').refresh({ place = { 'statusline' } })
   end
 end

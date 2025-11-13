@@ -24,7 +24,17 @@ return {
         { lhs = ']x', rhs = '<Plug>(git-conflict-next-conflict)', desc = 'Next Conflict' },
       }
 
+      local ui = require('utils.ui')
+      local utils = require('plugins.editor.git-conflict.utils')
+      local palette = ui.get_palette()
+      local highlight = ui.highlight
+
       local group = vim.api.nvim_create_augroup('GitConflictKeymaps', { clear = true })
+
+      -- Track cursor movement in conflict buffers
+      local cursor_autocmd_ids = {}
+      local last_conflict_state = {}
+      local is_diffview_tab = nil
 
       vim.api.nvim_create_autocmd('User', {
         group = group,
@@ -37,6 +47,37 @@ return {
               buffer = event.buf,
             })
           end
+
+          if not cursor_autocmd_ids[event.buf] then
+            last_conflict_state[event.buf] = nil -- Reset state for this buffer
+
+            cursor_autocmd_ids[event.buf] = vim.api.nvim_create_autocmd(
+              { 'CursorMoved', 'CursorMovedI' },
+              {
+                group = group,
+                buffer = event.buf,
+                callback = function()
+                  local in_conflict, region = utils.cursor_in_conflict()
+                  local should_increase_contrast = in_conflict
+                    and (
+                      is_diffview_tab and region ~= 'current' and region ~= 'incoming'
+                      or not is_diffview_tab and region ~= 'separator'
+                    )
+
+                  -- Only update highlight if state changed
+                  if last_conflict_state[event.buf] ~= should_increase_contrast then
+                    last_conflict_state[event.buf] = should_increase_contrast
+
+                    if should_increase_contrast then
+                      highlight('GitSignsCurrentLineBlame', { fg = palette.subtext0 })
+                    else
+                      highlight('GitSignsCurrentLineBlame', { fg = palette.surface1 })
+                    end
+                  end
+                end,
+              }
+            )
+          end
         end,
       })
 
@@ -44,6 +85,7 @@ return {
         group = group,
         pattern = 'GitConflictResolved',
         callback = function(event)
+          -- Clean up keymaps
           for _, map in ipairs(keymaps) do
             if event.buf and vim.api.nvim_buf_is_valid(event.buf) then
               local ok = pcall(vim.keymap.del, 'n', map.lhs, { buffer = event.buf })
@@ -54,24 +96,25 @@ return {
               pcall(vim.keymap.del, 'n', map.lhs)
             end
           end
+
+          -- Clean up cursor tracking
+          if event.buf and cursor_autocmd_ids[event.buf] then
+            pcall(vim.api.nvim_del_autocmd, cursor_autocmd_ids[event.buf])
+            cursor_autocmd_ids[event.buf] = nil
+            last_conflict_state[event.buf] = nil
+          end
+
+          -- Reset GitSigns highlight to default
+          highlight('GitSignsCurrentLineBlame', { fg = palette.surface1 })
         end,
       })
-
-      local function in_diffview_tab()
-        local tab_utils = require('utils.tab')
-        local tab_name = vim.t.tab_name or tab_utils.get_tab_name()
-        if type(tab_name) ~= 'string' then
-          return false
-        end
-
-        return tab_name:find('^diffview%-tab') ~= nil
-      end
 
       return {
         default_mappings = false,
         default_commands = false,
         cond = function()
-          return not in_diffview_tab()
+          is_diffview_tab = utils.in_diffview_tab()
+          return not is_diffview_tab
         end,
       }
     end,

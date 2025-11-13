@@ -19,7 +19,7 @@ return {
     end
   end,
   enabled = function()
-    return require('plugins.ui.lualine.util').have_status_line()
+    return require('plugins.ui.lualine.utils').have_status_line()
   end,
   opts = function()
     -- PERF: we don't need this lualine require madness 🤷
