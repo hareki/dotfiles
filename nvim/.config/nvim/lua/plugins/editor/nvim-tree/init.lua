@@ -152,18 +152,26 @@ return {
       local state = tree.state
 
       state.opts = {
-        hijack_cursor = true, --Keeps the cursor on the first letter of the filename when moving in the tree.
+        --Keeps the cursor on the first letter of the filename when moving in the tree.
+        hijack_cursor = true,
+
+        -- We will hijack the directories ourselves for the floating view to work correctly
+        hijack_directories = {
+          enable = false,
+          auto_open = false,
+        },
+
         live_filter = {
           prefix = require('configs.picker').prompt_prefix,
           always_show_folders = false,
         },
+
         update_focused_file = {
           enable = true,
+          -- Prevent changing cwd when navigating to files outside of the tree root
           update_root = {
-            enable = true,
-            ignore_list = {},
+            enable = false,
           },
-          exclude = false,
         },
         filters = {
           enable = true,
@@ -344,12 +352,6 @@ return {
             end,
           })
         end,
-
-        -- We will hijack the directories ourselves for the floating view to work correctly
-        hijack_directories = {
-          enable = false,
-          auto_open = false,
-        },
       }
 
       return state.opts
