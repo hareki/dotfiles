@@ -1,5 +1,7 @@
 local M = {}
 
+local running_bufs = {}
+
 local function get_formatter_names(buf)
   local list, uses_lsp = require('conform').list_formatters_to_run(buf)
 
@@ -18,9 +20,23 @@ end
 
 ---@param debug boolean|nil
 function M.run(debug)
+  local buf = vim.api.nvim_get_current_buf()
+
+  -- Prevent concurrent format+lint operations on the same buffer
+  if running_bufs[buf] then
+    local notifier = require('utils.notifier')
+    notifier.warn('Formatting already in progress', { title = 'Style Enforcer' })
+    return
+  end
+
+  running_bufs[buf] = true
+
+  local function cleanup()
+    running_bufs[buf] = nil
+  end
+
   local conform = require('conform')
   local linters = require('utils.linters')
-  local buf = vim.api.nvim_get_current_buf()
 
   local progress = require('utils.progress').create({
     pending_ms = 0,
@@ -64,6 +80,7 @@ function M.run(debug)
         if done_count == total then
           save()
           progress:finish()
+          cleanup()
         end
       end,
     })
@@ -94,6 +111,7 @@ function M.run(debug)
       })
       save()
       progress:finish()
+      cleanup()
       return
     end
 

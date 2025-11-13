@@ -81,6 +81,18 @@ return {
         end,
       })
 
+      -- Clean up state tables when buffers are deleted to prevent memory leak
+      vim.api.nvim_create_autocmd('BufDelete', {
+        group = group,
+        callback = function(event)
+          if cursor_autocmd_ids[event.buf] then
+            pcall(vim.api.nvim_del_autocmd, cursor_autocmd_ids[event.buf])
+            cursor_autocmd_ids[event.buf] = nil
+            last_conflict_state[event.buf] = nil
+          end
+        end,
+      })
+
       vim.api.nvim_create_autocmd('User', {
         group = group,
         pattern = 'GitConflictResolved',

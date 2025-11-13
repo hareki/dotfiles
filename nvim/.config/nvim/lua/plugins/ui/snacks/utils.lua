@@ -24,6 +24,18 @@ end
 
 M.cache = {}
 
+-- Set up autocmd to clean up cache entries when buffers are deleted
+vim.api.nvim_create_autocmd('BufDelete', {
+  callback = function(event)
+    local buf_pattern = ':' .. event.buf .. '$'
+    for key in pairs(M.cache) do
+      if key:match(buf_pattern) then
+        M.cache[key] = nil
+      end
+    end
+  end,
+})
+
 local function query_spec_desc_cached(lhs, mode, buffer)
   buffer = buffer or vim.api.nvim_get_current_buf()
   local cache_key = string.format('%s:%s:%d', lhs, mode, buffer)
