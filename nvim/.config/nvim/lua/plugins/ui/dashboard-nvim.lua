@@ -18,7 +18,7 @@ return {
   {
     'hareki/dashboard-nvim',
     enabled = true,
-    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    dependencies = { 'echasnovski/mini.icons' },
     -- A complete copy pasta of
     -- https://github.com/nvimdev/dashboard-nvim/blob/0775e567b6c0be96d01a61795f7b64c1758262f6/plugin/dashboard.lua#L5
     -- Normally we would just do lazy = false and let the code from the link above do it
