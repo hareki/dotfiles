@@ -1,5 +1,41 @@
 * {
-  font-family: "Maple Mono NF" !important;
+  font-family: 'Maple Mono NF' !important;
+}
+
+/* Unified site panel */
+.panel-viewcontainer {
+  background-color: #1e1e2e !important;
+}
+
+#zen-site-data-header {
+  & toolbarbutton {
+    &:hover::before {
+      opacity: 1;
+    }
+
+    &::before {
+      border: none !important;
+      box-shadow: none !important;
+      background: var(--toolbarbutton-hover-background) !important;
+      opacity: 0;
+    }
+  }
+}
+
+/* Folder popup */
+#zen-folder-tabs-popup {
+  & .tabs-list-header {
+    background: #1e1e2e !important;
+  }
+
+  & .zen-folder-tabs-list-scrollbox {
+    background: #1e1e2e !important;
+    scrollbar-color: color-mix(in srgb, currentColor 26%, transparent) transparent !important;
+  }
+}
+
+.tab-list-item-secondary-label {
+  font-size: 0.9em !important;
 }
 
 /* Remove shadow around the webpage */
@@ -27,9 +63,9 @@ zen-workspace {
 /* ---- Zen workspaces button ---- */
 #zen-workspaces-button {
   & toolbarbutton {
-    &[active="true"],
+    &[active='true'],
     &:hover,
-    &[dragged="true"] {
+    &[dragged='true'] {
       color: #89b4fa !important;
     }
   }
@@ -59,12 +95,12 @@ zen-folder {
 }
 
 /* "New Tab" button when selected */
-toolbarbutton[in-urlbar="true"] {
-  & image[label="New Tab"] {
+toolbarbutton[in-urlbar='true'] {
+  & image[label='New Tab'] {
     fill: #89b4fa !important;
   }
 
-  & label[value="New Tab"] {
+  & label[value='New Tab'] {
     color: #89b4fa !important;
   }
 }
@@ -94,7 +130,7 @@ toolbarbutton[in-urlbar="true"] {
 }
 
 /* ---- URL bar input  ---- */
-#urlbar[open][zen-floating-urlbar="true"] {
+#urlbar[open][zen-floating-urlbar='true'] {
   font-size: 16px !important;
 }
 
