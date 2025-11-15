@@ -22,6 +22,10 @@
   }
 }
 
+.menupopup-arrowscrollbox {
+  background-color: #1e1e2e !important;
+}
+
 /* Folder popup */
 #zen-folder-tabs-popup {
   & .tabs-list-header {
