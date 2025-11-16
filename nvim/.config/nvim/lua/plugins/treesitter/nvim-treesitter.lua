@@ -40,6 +40,8 @@ return {
       'vimdoc',
       'xml',
       'yaml',
+      'css',
+      'styled',
     },
     incremental_selection = {
       enable = true,

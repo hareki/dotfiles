@@ -63,6 +63,7 @@
   "toggleterm-manager.nvim": { "branch": "main", "commit": "a03e6a0fa8908cb986504f156b5ca799954e63fe" },
   "toggleterm.nvim": { "branch": "main", "commit": "b53120573467801612da51164f2cea4c7cad2d4e" },
   "trouble.nvim": { "branch": "main", "commit": "cdd56e07e84fcea5a93d413806ee8ca590da5aa0" },
+  "typescript-tools.nvim": { "branch": "master", "commit": "675fe41a3d0d0b4482a4a783a7a92fbae2acbd61" },
   "vim-tmux-navigator": { "branch": "master", "commit": "c45243dc1f32ac6bcf6068e5300f3b2b237e576a" },
   "visimatch.nvim": { "branch": "main", "commit": "4334be61a9d3a6b268179144c6354349e445eb89" },
   "which-key.nvim": { "branch": "main", "commit": "3aab2147e74890957785941f0c1ad87d0a44c15a" },

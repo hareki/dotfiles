@@ -82,7 +82,6 @@ return {
       'lua_ls', -- Lua
       'taplo', -- Toml
       'yamlls', -- Yaml
-      'vtsls', -- Tytescript
       'typos_lsp', -- Spelling checker
       'eslint', -- JS/TS linter
       'jsonls', -- JSON
@@ -90,6 +89,7 @@ return {
       'cssls', -- CSS
       'css_variables', -- CSS
       'copilot', -- GitHub Copilot
+      -- 'vtsls', -- Tytescript (Trying out typescript-tools.nvim)
     })
 
     vim.lsp.config('yamlls', {
