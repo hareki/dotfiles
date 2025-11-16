@@ -37,6 +37,7 @@ return {
       on_open = function(eagle_win, eagle_buf)
         local current_buf = vim.api.nvim_get_current_buf()
         local current_win = vim.api.nvim_get_current_win()
+
         local eagle_map = function(mode, lhs, rhs, desc)
           vim.keymap.set(mode, lhs, rhs, {
             buffer = eagle_buf,
@@ -53,11 +54,24 @@ return {
           })
         end
 
+        local current_unmap = function(mode, lhs, desc)
+          pcall(function()
+            vim.keymap.del(mode, lhs, { buffer = current_buf })
+          end)
+        end
+
         local close_eagle = function()
           pcall(vim.api.nvim_win_close, eagle_win, true)
-          vim.keymap.del({ 'n', 'x' }, '<Esc>', { buffer = current_buf })
-          vim.keymap.del({ 'n', 'x' }, '<Tab>', { buffer = current_buf })
         end
+
+        vim.api.nvim_create_autocmd('WinClosed', {
+          pattern = tostring(eagle_win),
+          once = true,
+          callback = function()
+            current_unmap({ 'n', 'x' }, '<Esc>', 'Close Eagle')
+            current_unmap({ 'n', 'x' }, '<Tab>', 'Focus Eagle Window')
+          end,
+        })
 
         eagle_map({ 'n', 'x' }, 'q', close_eagle, 'Close Eagle')
         eagle_map({ 'n', 'x' }, '<Esc>', close_eagle, 'Close Eagle')

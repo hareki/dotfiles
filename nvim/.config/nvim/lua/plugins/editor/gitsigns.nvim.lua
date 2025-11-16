@@ -53,45 +53,62 @@ return {
         on_attach = function(buffer)
           local gs = package.loaded.gitsigns
 
-          local function map(mode, l, r, desc)
+          local function current_map(mode, l, r, desc)
             vim.keymap.set(mode, l, r, { buffer = buffer, desc = desc })
           end
-
-          local function unmap(mode, l)
-            vim.keymap.del(mode, l, { buffer = buffer })
+          local function current_unmap(mode, l)
+            pcall(function()
+              vim.keymap.del(mode, l, { buffer = buffer })
+            end)
           end
 
           local function setup_popup_navigation(popup_type)
             return function()
               local popup = require('gitsigns.popup')
+              local popup_win_id = popup.is_open(popup_type)
 
-              map('n', '<Esc>', function()
-                local popup_win = popup.is_open(popup_type)
-                if popup_win and vim.api.nvim_win_is_valid(popup_win) then
-                  vim.api.nvim_win_close(popup_win, true)
+              if not popup_win_id then
+                return
+              end
+
+              local popup_buf_id = vim.api.nvim_win_get_buf(popup_win_id)
+
+              local popup_map = function(mode, l, r, desc)
+                vim.keymap.set(mode, l, r, { buffer = popup_buf_id, desc = desc })
+              end
+
+              local close_popup = function()
+                if popup_win_id and vim.api.nvim_win_is_valid(popup_win_id) then
+                  vim.api.nvim_win_close(popup_win_id, true)
                 end
+              end
+
+              vim.api.nvim_create_autocmd('WinClosed', {
+                pattern = tostring(popup_win_id),
+                once = true,
+                callback = function()
+                  current_unmap('n', '<Esc>')
+                  current_unmap('n', '<Tab>')
+                end,
+              })
+
+              current_map('n', '<Esc>', function()
+                close_popup()
               end, 'Close Popup')
 
-              map('n', '<Tab>', function()
-                local popup_win_id = popup.is_open(popup_type)
+              current_map('n', '<Tab>', function()
                 local current_win_id = vim.api.nvim_get_current_win()
 
                 if not popup_win_id or not vim.api.nvim_win_is_valid(popup_win_id) then
                   return
                 end
 
-                local popup_buf_id = vim.api.nvim_win_get_buf(popup_win_id)
-
-                local popup_map = function(mode, l, r, desc)
-                  vim.keymap.set(mode, l, r, { buffer = popup_buf_id, desc = desc })
-                end
-
                 popup_map('n', 'q', function()
-                  vim.api.nvim_win_close(popup_win_id, true)
+                  close_popup()
                 end, 'Close Popup')
 
                 popup_map('n', '<Esc>', function()
-                  vim.api.nvim_win_close(popup_win_id, true)
+                  close_popup()
                 end, 'Close Popup')
 
                 popup_map('n', '<Tab>', function()
@@ -106,52 +123,59 @@ return {
             end
           end
 
-          map('n', ']h', function()
+          current_map('n', ']h', function()
             if vim.wo.diff then
               vim.cmd.normal({ ']c', bang = true })
             else
               gs.nav_hunk('next')
             end
           end, 'Next Hunk')
-          map('n', '[h', function()
+
+          current_map('n', '[h', function()
             if vim.wo.diff then
               vim.cmd.normal({ '[c', bang = true })
             else
               gs.nav_hunk('prev')
             end
           end, 'Previous Hunk')
-          map('n', ']H', function()
+
+          current_map('n', ']H', function()
             gs.nav_hunk('last')
           end, 'Last Hunk')
-          map('n', '[H', function()
+
+          current_map('n', '[H', function()
             gs.nav_hunk('first')
           end, 'First Hunk')
-          map({ 'n', 'v' }, '<leader>hs', ':Gitsigns stage_hunk<CR>', 'Stage Hunk')
-          map({ 'n', 'v' }, '<leader>hr', ':Gitsigns reset_hunk<CR>', 'Reset Hunk')
-          map('n', '<leader>hS', gs.stage_buffer, 'Stage Buffer')
-          map('n', '<leader>hu', gs.undo_stage_hunk, 'Undo Stage Hunk')
-          map('n', '<leader>hR', gs.reset_buffer, 'Reset Buffer')
-          map('n', '<leader>hp', gs.preview_hunk_inline, 'Preview Hunk Inline')
-          map('n', '<leader>hb', function()
+
+          current_map({ 'n', 'v' }, '<leader>hs', ':Gitsigns stage_hunk<CR>', 'Stage Hunk')
+          current_map({ 'n', 'v' }, '<leader>hr', ':Gitsigns reset_hunk<CR>', 'Reset Hunk')
+          current_map('n', '<leader>hS', gs.stage_buffer, 'Stage Buffer')
+          current_map('n', '<leader>hu', gs.undo_stage_hunk, 'Undo Stage Hunk')
+          current_map('n', '<leader>hR', gs.reset_buffer, 'Reset Buffer')
+          current_map('n', '<leader>hp', gs.preview_hunk_inline, 'Preview Hunk Inline')
+
+          current_map('n', '<leader>hb', function()
             gs.blame_line({ full = true })
           end, 'Blame Line')
-          map('n', '<leader>hB', function()
+
+          current_map('n', '<leader>hB', function()
             gs.blame()
           end, 'Blame Buffer')
-          map('n', '<leader>hd', gs.diffthis, 'Diff This')
-          map('n', '<leader>hD', function()
+
+          current_map('n', '<leader>hd', gs.diffthis, 'Diff This')
+          current_map('n', '<leader>hD', function()
             gs.diffthis('~')
           end, 'Diff This ~')
-          map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>', 'GitSigns Select Hunk')
+          current_map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>', 'GitSigns Select Hunk')
 
-          unmap('n', '<leader>hb')
-          map('n', '<leader>hb', function()
+          current_unmap('n', '<leader>hb')
+          current_map('n', '<leader>hb', function()
             require('gitsigns').blame_line({ full = true })
             vim.schedule(setup_popup_navigation('blame'))
           end, 'Blame Line')
 
-          unmap('n', '<leader>hp')
-          map('n', '<leader>hp', function()
+          current_unmap('n', '<leader>hp')
+          current_map('n', '<leader>hp', function()
             require('gitsigns').preview_hunk()
             vim.schedule(setup_popup_navigation('hunk'))
           end, 'Preview Hunk')
