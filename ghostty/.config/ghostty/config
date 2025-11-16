@@ -102,3 +102,6 @@ keybind = cmd+7=text:\x1b7
 keybind = cmd+8=text:\x1b8
 keybind = cmd+9=text:\x1b9
 keybind = cmd+0=text:\x1b0
+
+# Shift enter to insert new line in claude/copilot
+keybind = shift+enter=text:\x1b\r
