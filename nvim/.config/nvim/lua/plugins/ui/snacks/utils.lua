@@ -143,6 +143,7 @@ end
 
 -- Remove buf number and flags from
 -- https://github.com/folke/snacks.nvim/blob/52f30a198a19bf5da6aa95cc642bfbb99b9bbfbf/lua/snacks/picker/format.lua#L638
+---@param item snacks.picker.Item
 function M.buffer_format(item, picker)
   local ret = {} ---@type snacks.picker.Highlight[]
   vim.list_extend(ret, Snacks.picker.format.filename(item, picker))
@@ -163,6 +164,11 @@ function M.buffer_format(item, picker)
       { item.filetype, 'SnacksPickerFileType' },
       { ']', 'SnacksPickerDelim' },
     })
+  end
+
+  local bufnr = item.buf or item.item.bufnr
+  if bufnr and vim.bo[bufnr].modified then
+    ret[#ret + 1] = { require('configs.icons').file_status.modified, 'Number' }
   end
 
   return ret
