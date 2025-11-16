@@ -1,6 +1,8 @@
 local M = {}
 
 local running_bufs = {}
+-- Timeout to prevent permanent locks (10 seconds)
+local TIMEOUT_MS = 10000
 
 local function get_formatter_names(buf)
   local list, uses_lsp = require('conform').list_formatters_to_run(buf)
@@ -22,6 +24,10 @@ end
 function M.run(debug)
   local buf = vim.api.nvim_get_current_buf()
 
+  if not vim.api.nvim_buf_is_valid(buf) then
+    return
+  end
+
   -- Prevent concurrent format+lint operations on the same buffer
   if running_bufs[buf] then
     local notifier = require('utils.notifier')
@@ -31,7 +37,17 @@ function M.run(debug)
 
   running_bufs[buf] = true
 
+  -- Set timeout to auto-cleanup if something goes wrong
+  local timeout_timer = vim.fn.timer_start(TIMEOUT_MS, function()
+    if running_bufs[buf] then
+      running_bufs[buf] = nil
+      notifier.warn('Formatting/linting timed out', { title = 'Style Enforcer' })
+    end
+  end)
+
   local function cleanup()
+    -- Cancel timeout timer and clean up lock
+    pcall(vim.fn.timer_stop, timeout_timer)
     running_bufs[buf] = nil
   end
 
@@ -44,6 +60,9 @@ function M.run(debug)
   })
 
   local save = function()
+    if not vim.api.nvim_buf_is_valid(buf) then
+      return
+    end
     if vim.bo[buf].modified then
       vim.api.nvim_buf_call(buf, function()
         vim.cmd.write()
@@ -52,38 +71,53 @@ function M.run(debug)
   end
 
   local run_linters = function(formatted)
+    if not vim.api.nvim_buf_is_valid(buf) then
+      cleanup()
+      return
+    end
+
     local total = #linters.names_for_filetype(vim.bo[buf].filetype) + (formatted and 1 or 0)
     local done_count = formatted and 1 or 0
     local percentage = 100 / total
 
-    linters.run_by_ft({
-      bufnr = buf,
-      on_start = function(linter_name)
-        local label = 'Linting (' .. linter_name .. ')'
-        if done_count == 0 then
-          progress:start(label)
-        else
-          progress:report(label, percentage * done_count)
-        end
-      end,
-      on_done = function(linter_name, ok, lint_error)
-        if not ok and lint_error then
-          local msg = debug and ('Linter %s error: %s'):format(linter_name, lint_error)
-            or ('Linter used: %s'):format(linter_name)
+    local ok, err = pcall(function()
+      linters.run_by_ft({
+        bufnr = buf,
+        on_start = function(linter_name)
+          local label = 'Linting (' .. linter_name .. ')'
+          if done_count == 0 then
+            progress:start(label)
+          else
+            progress:report(label, percentage * done_count)
+          end
+        end,
+        on_done = function(linter_name, ok, lint_error)
+          if not ok and lint_error then
+            local msg = debug and ('Linter %s error: %s'):format(linter_name, lint_error)
+              or ('Linter used: %s'):format(linter_name)
 
-          notifier.warn(msg, {
-            title = 'Linting Failed',
-          })
-        end
+            notifier.warn(msg, {
+              title = 'Linting Failed',
+            })
+          end
 
-        done_count = done_count + (linter_name == 'none' and 0 or 1)
-        if done_count == total then
-          save()
-          progress:finish()
-          cleanup()
-        end
-      end,
-    })
+          done_count = done_count + (linter_name == 'none' and 0 or 1)
+          if done_count == total then
+            save()
+            progress:finish()
+            cleanup()
+          end
+        end,
+      })
+    end)
+
+    -- If linter setup fails, ensure cleanup
+    if not ok then
+      notifier.error('Linter setup failed: ' .. tostring(err), { title = 'Style Enforcer' })
+      save()
+      progress:finish()
+      cleanup()
+    end
   end
 
   local formatters, uses_lsp = require('conform').list_formatters_to_run(buf)
