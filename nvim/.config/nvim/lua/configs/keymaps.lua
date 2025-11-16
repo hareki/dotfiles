@@ -27,6 +27,19 @@ map({ 'n', 'i' }, '<A-s>', function()
   require('utils.formatters.async_style_enforcer').run()
 end, { desc = 'Format and Save' })
 
+map({ 'n', 'i' }, '<leader>F', function()
+  require('utils.formatters.async_style_enforcer').run({
+    save = false,
+  })
+end, { desc = 'Format' })
+
+-- Mapped to Ctrl+Shift+S in ghostty config
+-- Test the keymap Neovim will receive with
+-- :echo keytrans(getcharstr())
+map({ 'n', 'i' }, '<F40>', function()
+  require('utils.formatters.async_style_enforcer').run_all()
+end, { desc = 'Format and Save All' })
+
 map({ 'i', 'x', 'n', 's' }, '<A-r>', '<CMD>e!<CR>', { desc = 'Reload File', silent = true })
 map({ 'i', 'x', 'n', 's' }, '<A-w>', '<CMD>bd<CR>', { desc = 'Close Buffer', silent = true })
 

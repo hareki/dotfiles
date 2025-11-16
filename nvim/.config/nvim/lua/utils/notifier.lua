@@ -43,7 +43,9 @@ local function normalize_message(chunks, opts)
   local default_hl = opts.default_hl or 'Normal'
   local ns = vim.api.nvim_create_namespace(opts.ns or 'trouble_notify_hl')
 
-  local parts, regions, col = {}, {}, 0
+  local parts, regions = {}, {}
+  local line, col = 0, 0
+
   for _, item in ipairs(chunks) do
     local text, group
     if type(item) == 'string' then -- bare string
@@ -52,8 +54,22 @@ local function normalize_message(chunks, opts)
       text, group = item[1], item[2] or default_hl
     end
     table.insert(parts, text)
-    regions[#regions + 1] = { col, col + #text, group } -- [start,stop,hl]
-    col = col + #text
+
+    -- Handle multi-line text by splitting on newlines
+    local lines = vim.split(text, '\n', { plain = true })
+    for i, line_text in ipairs(lines) do
+      local byte_len = #line_text
+      if i == 1 then
+        -- First line: continues current line
+        regions[#regions + 1] = { line, col, col + byte_len, group }
+        col = col + byte_len
+      else
+        -- Subsequent lines: new line starts at col 0
+        line = line + 1
+        regions[#regions + 1] = { line, 0, byte_len, group }
+        col = byte_len
+      end
+    end
   end
   local plain = table.concat(parts)
 
@@ -65,10 +81,13 @@ local function normalize_message(chunks, opts)
     vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
     vim.schedule(function()
       for _, r in ipairs(regions) do
-        vim.api.nvim_buf_set_extmark(buf, ns, 0, r[1], {
-          end_col = r[2],
-          hl_group = r[3],
-        })
+        -- r = {line, start_col, end_col, hl_group}
+        if r[2] ~= r[3] then -- Only apply if there's actual content (not empty line)
+          vim.api.nvim_buf_set_extmark(buf, ns, r[1], r[2], {
+            end_col = r[3],
+            hl_group = r[4],
+          })
+        end
       end
     end)
   end

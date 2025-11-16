@@ -48,9 +48,10 @@ macos-option-as-alt = true
 # Remap cmd + keys to alt + keys so that tmux can understand them.
 # They was previously esc:<key> but .tmux.conf does not support those key sequences correctly...
 
-# Special sequences for zsh keybinding to consume in keymaps.zsh, since we can't normally bind shift key
+# Special sequences for zsh keybinding to consume in keymaps.zsh or in neovim, since we can't normally bind shift key
 keybind = cmd+shift+o=text:\x1b[1;6O
 keybind = ctrl+shift+y=text:\x1b[1;6Y
+keybind = cmd+shift+s=text:\x1b[1;6S
 
 # zsh autin-search
 keybind = cmd+f=text:\x1bf
