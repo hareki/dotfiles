@@ -71,18 +71,16 @@ aucmd('FileType', {
   },
   callback = function(event)
     vim.bo[event.buf].buflisted = false
-    vim.schedule(function()
-      vim.keymap.set('n', 'q', function()
-        vim.cmd('close')
-        pcall(vim.api.nvim_buf_delete, event.buf, {
-          force = true,
-        })
-      end, {
-        buffer = event.buf,
-        silent = true,
-        desc = 'Quit Buffer',
+    vim.keymap.set('n', 'q', function()
+      vim.cmd('close')
+      pcall(vim.api.nvim_buf_delete, event.buf, {
+        force = true,
       })
-    end)
+    end, {
+      buffer = event.buf,
+      silent = true,
+      desc = 'Quit Buffer',
+    })
   end,
 })
 
@@ -116,9 +114,7 @@ aucmd({ 'FileType' }, {
   group = augroup('json_conceal'),
   pattern = { 'json', 'jsonc', 'json5' },
   callback = function()
-    vim.schedule(function()
-      vim.opt_local.conceallevel = 0
-    end)
+    vim.opt_local.conceallevel = 0
   end,
 })
 
