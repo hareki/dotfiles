@@ -1,4 +1,4 @@
-local cli_name = 'claude'
+local cli_name = 'copilot'
 return {
   require('utils.ui').catppuccin(function()
     return {
@@ -34,9 +34,6 @@ return {
           mux = {
             backend = 'tmux',
             enabled = true,
-          },
-          tools = {
-            copilot = { cmd = { 'copilot' } },
           },
         },
       }
