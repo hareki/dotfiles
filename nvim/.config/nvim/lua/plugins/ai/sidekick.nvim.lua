@@ -1,4 +1,4 @@
-local cli_name = 'copilot'
+local cli_name = 'claude'
 return {
   require('utils.ui').catppuccin(function()
     return {

@@ -68,6 +68,7 @@ aucmd('FileType', {
     'qf',
     'startuptime',
     'tsplayground',
+    'eslint-log',
   },
   callback = function(event)
     vim.bo[event.buf].buflisted = false

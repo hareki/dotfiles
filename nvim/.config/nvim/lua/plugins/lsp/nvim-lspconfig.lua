@@ -143,12 +143,14 @@ return {
         -- Ask server to emit trace
         client:notify('$/setTrace', { value = 'verbose' })
 
+        -- Use circular buffer to avoid O(n) table.remove operation
         local store, max = {}, 200
+        local store_index = 0 -- Current write position
+        local store_count = 0 -- Number of entries written
         local function push(line)
-          store[#store + 1] = line
-          if #store > max then
-            table.remove(store, 1)
-          end
+          store_index = (store_index % max) + 1
+          store[store_index] = line
+          store_count = store_count + 1
         end
 
         local original_trace = client.handlers['$/logTrace']
@@ -173,9 +175,27 @@ return {
         end
 
         vim.api.nvim_create_user_command('EslintLog', function()
+          -- Reconstruct log in correct order from circular buffer
+          local lines = {}
+          local actual_count = math.min(store_count, max)
+
+          if store_count <= max then
+            -- Haven't wrapped around yet, store is in order
+            for i = 1, actual_count do
+              lines[i] = store[i]
+            end
+          else
+            -- Wrapped around, need to reconstruct order
+            local start_idx = (store_index % max) + 1
+            for i = 1, max do
+              local idx = ((start_idx + i - 2) % max) + 1
+              lines[i] = store[idx]
+            end
+          end
+
           local buf = vim.api.nvim_create_buf(false, true)
-          vim.bo[buf].filetype = 'log'
-          vim.api.nvim_buf_set_lines(buf, 0, -1, false, store)
+          vim.bo[buf].filetype = 'eslint-log'
+          vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
           vim.cmd('botright 15split')
           vim.api.nvim_win_set_buf(0, buf)
         end, {
