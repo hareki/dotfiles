@@ -14,6 +14,7 @@
 ---@field _cached_kind   'begin'|'report'|nil
 ---@field _cached_title  string|nil
 ---@field _cached_perc   number|nil
+---@field _timer_id      integer|nil
 ---@field start          fun(self: utils.progress.Handle, title?: string, percentage?: number)
 ---@field report         fun(self: utils.progress.Handle, title?: string, percentage?: number)
 ---@field finish         fun(self: utils.progress.Handle, title?: string)
@@ -85,6 +86,11 @@ function ProgressHandle:report(title, percentage)
 end
 
 function ProgressHandle:finish(title)
+  -- Cancel pending timer to prevent memory leak
+  if self._timer_id then
+    pcall(vim.fn.timer_stop, self._timer_id)
+    self._timer_id = nil
+  end
   -- percentage is not sent for the `end` kind
   self:_queue_or_send('end', title, nil)
 end
@@ -111,24 +117,27 @@ function M.create(opts)
     _pending = pending_ms > 0,
     _aborted = false,
     _cached_kind = nil,
+    _timer_id = nil,
   }, ProgressHandle)
 
   -- If a delay is requested, defer the first real send
   if pending_ms > 0 then
-    vim.defer_fn(function()
+    handle._timer_id = vim.fn.timer_start(pending_ms, function()
       -- If aborted we simply exit ‑ nothing should be displayed
       if handle._aborted then
+        handle._timer_id = nil
         return
       end
 
       -- Mark the handle as ready; future events go through immediately
       handle._pending = false
+      handle._timer_id = nil
 
       -- Flush the *latest* cached state (if any)
       if handle._cached_kind then
         ProgressHandle._send(handle, handle._cached_kind, handle._cached_title, handle._cached_perc)
       end
-    end, pending_ms)
+    end)
   end
 
   return handle
