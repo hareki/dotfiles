@@ -16,16 +16,20 @@ local repo_cache = {
   toplevel = nil,
 }
 
--- Cache for formatted branch names
-local branch_format_cache = {}
+local branch_format_cache = {} -- LRU cache for formatted branch names (max 100 entries to prevent unbounded growth)
+local branch_format_cache_order = {} -- Track access order for LRU
+local BRANCH_CACHE_MAX_SIZE = 100
 
 --- Sets the branch display format and refreshes the status line.
 --- @param format utils.git.branch_formats The name of the branch format to set.
 function M.set_branch_name_format(format)
   branch_display_mode = format
-  -- Clear cache when format changes
+  -- Clear both cache and order when format changes
   branch_format_cache = {}
+  branch_format_cache_order = {}
+
   notifier.info('Branch name format set to ' .. format)
+
   if require('plugins.ui.lualine.utils').have_status_line() then
     require('lualine').refresh({ place = { 'statusline' } })
   end
@@ -38,6 +42,14 @@ function M.format_branch_name(branch_name)
   -- Check cache first
   local cache_key = branch_display_mode .. ':' .. branch_name
   if branch_format_cache[cache_key] then
+    -- Move to end of LRU order (most recently used)
+    for i, key in ipairs(branch_format_cache_order) do
+      if key == cache_key then
+        table.remove(branch_format_cache_order, i)
+        break
+      end
+    end
+    table.insert(branch_format_cache_order, cache_key)
     return branch_format_cache[cache_key]
   end
 
@@ -86,8 +98,14 @@ function M.format_branch_name(branch_name)
     result = ''
   end
 
-  -- Cache the result
+  -- Evict least recently used if cache is full
+  if #branch_format_cache_order >= BRANCH_CACHE_MAX_SIZE then
+    local oldest_key = table.remove(branch_format_cache_order, 1)
+    branch_format_cache[oldest_key] = nil
+  end
+
   branch_format_cache[cache_key] = result
+  table.insert(branch_format_cache_order, cache_key)
   return result
 end
 
@@ -156,10 +174,14 @@ end
 function M.get_repo_name()
   local current_cwd = vim.fn.getcwd()
 
+  if repo_cache.name and repo_cache.last_cwd == current_cwd then
+    return repo_cache.name
+  end
+
   -- Get toplevel to determine if we're in the same repo
   local toplevel = M.exec_cmd('rev-parse --show-toplevel')
 
-  -- Check if we're still in the same repo (same toplevel)
+  -- Check if we're still in the same repo (same toplevel) and cache is recent
   if repo_cache.name and repo_cache.toplevel == toplevel then
     return repo_cache.name
   end
