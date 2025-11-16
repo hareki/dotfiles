@@ -9,6 +9,10 @@ local M = {}
 ---@type table<string, any>
 local notif_ids = {}
 
+-- Track autocmd IDs to prevent memory leak when notifications are replaced
+---@type table<any, integer|nil>
+local notif_autocmds = {}
+
 local function apply_win_opts(win)
   local w = vim.wo[win]
   w.conceallevel = 3
@@ -140,10 +144,22 @@ function M.notify(msg, opts)
       pcall(vim.api.nvim_del_autocmd, autocmd_id)
       autocmd_id = nil
     end
+
+    local notif_handle = opts.id and notif_ids[opts.id]
+    if notif_handle and notif_autocmds[notif_handle] then
+      notif_autocmds[notif_handle] = nil
+    end
+
     -- Clean up notification ID from cache to prevent memory leak
     if opts.id then
       notif_ids[opts.id] = nil
     end
+  end
+
+  -- Clean up old autocmd if we're replacing a notification
+  if opts.id and notif_ids[opts.id] and notif_autocmds[notif_ids[opts.id]] then
+    pcall(vim.api.nvim_del_autocmd, notif_autocmds[notif_ids[opts.id]])
+    notif_autocmds[notif_ids[opts.id]] = nil
   end
 
   local ret = vim[opts.once and 'notify_once' or 'notify'](msg, opts.level, {
@@ -156,6 +172,12 @@ function M.notify(msg, opts)
   if opts.id then
     notif_ids[opts.id] = ret
   end
+
+  -- Track autocmd ID for cleanup
+  if autocmd_id then
+    notif_autocmds[ret] = autocmd_id
+  end
+
   return ret
 end
 
