@@ -14,6 +14,15 @@ return {
     event = 'VeryLazy',
     opts = function()
       return {
+        diff_opts = {
+          -- Use native git diff instead of Neovim's built in xdiff to better match VS Code's diff behavior
+          internal = false,
+
+          ignore_whitespace = false,
+          ignore_whitespace_change = false,
+          ignore_whitespace_change_at_eol = false,
+          ignore_blank_lines = false,
+        },
         numhl = false,
         signcolumn = true,
         signs = {
