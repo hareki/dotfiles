@@ -59,6 +59,7 @@ map('n', '<leader>?h', '<CMD>HlAtCursor<CR>', {
 })
 -- Trimmed, No indent/trailing
 map('n', 'yy', '^yg_', { desc = 'Yank Line Trimmed' })
+map('n', 'hh', '^"+yg_', { desc = 'Yank Line Trimmed to System Clipboard' })
 map('n', 'dd', function()
   vim.cmd.normal({ args = { [[^dg_]] }, bang = true }) -- delete from first nonblank to last nonblank
   vim.cmd.normal({ args = { [["_dd]] }, bang = true }) -- remove remaining indent + newline (blackhole)

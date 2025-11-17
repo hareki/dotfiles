@@ -58,16 +58,9 @@ keybind = cmd+f=text:\x1bf
 
 keybind = cmd+r=text:\x1br
 keybind = cmd+space=text:\x1b\x20
-
-# Clipboard management
-keybind = cmd+c=text:\x1bc 
-keybind = cmd+x=text:\x1bx
-keybind = cmd+v=text:\x1bv 
 keybind = cmd+s=text:\x1bs 
-
-# Since cmd + c/v/x are already mapped to alt + c/x/v to be used in neovim and tmux:
-keybind = cmd+shift+c=copy_to_clipboard
-keybind = cmd+shift+v=paste_from_clipboard
+keybind = cmd+c=copy_to_clipboard
+keybind = cmd+v=paste_from_clipboard
 
 # Copilot suggestion navigation
 keybind = cmd+]=text:\x1b]

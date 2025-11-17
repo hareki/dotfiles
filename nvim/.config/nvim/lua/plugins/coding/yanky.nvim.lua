@@ -49,7 +49,15 @@ return {
         mode = 'n',
         desc = 'Yank Text to End',
       },
+      { 'h', '"+<Plug>(YankyYank)', mode = { 'n', 'x' }, desc = 'Yank Text to System Clipboard' },
+      {
+        'H',
+        '"+<Plug>(YankyYank)$',
+        mode = 'n',
+        desc = 'Yank to End to System Clipboard',
+      },
       { 'p', '<Plug>(YankyPutAfter)', mode = { 'n', 'x' }, desc = 'Put Text' },
+      { 'k', '"+<Plug>(YankyPutAfter)', mode = { 'n', 'x' }, desc = 'Put from System Clipboard' },
       -- Putting text in visual mode without overwriting the yank register
       {
         'p',
@@ -80,33 +88,6 @@ return {
         '<S-Down>',
         '<Plug>(YankyNextEntry)',
         desc = 'Next Yanky Entry',
-      },
-
-      -- System clipboard operations
-      {
-        '<A-c>',
-        '"+<Plug>(YankyYank)',
-        mode = { 'n', 'x' },
-        desc = 'Yank to System Clipboard',
-      },
-      {
-        '<A-x>',
-        '"+<Plug>(YankyYank)',
-        mode = { 'n', 'x' },
-        desc = 'Cut to System Clipboard',
-      },
-      {
-        '<A-v>',
-        '"+<Plug>(YankyPutAfter)',
-        mode = { 'n', 'x' },
-        desc = 'Paste from System Clipboard',
-      },
-      {
-        '<A-v>',
-        -- Crazy syntax to make the pasted text and cursor position after pasting intuitive
-        '<Left><C-o>"+<Plug>(YankyPutAfter)<Right>',
-        mode = 'i',
-        desc = 'Paste from System Clipboard',
       },
     },
   },
