@@ -185,15 +185,17 @@ return {
           ['<CR>'] = { 'accept', 'fallback' },
           ['<Space>'] = {
             function(cmp)
-              vim.schedule(function()
+              if not cmp.is_menu_visible() then
                 cmp.show()
-              end)
+              end
             end,
             'fallback',
           },
           ['<A-Space>'] = {
             function(cmp)
-              cmp.show()
+              if not cmp.is_menu_visible() then
+                cmp.show()
+              end
             end,
           },
           ['<Tab>'] = {
