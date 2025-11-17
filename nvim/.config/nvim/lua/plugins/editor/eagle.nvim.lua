@@ -9,6 +9,13 @@ return {
       desc = 'Open Eagle Window',
       silent = true,
     },
+    {
+      'gH',
+      '<CMD>EagleWinLineDiagnostic<CR>',
+      mode = { 'n', 'x' },
+      desc = 'Open Eagle Window',
+      silent = true,
+    },
   },
   opts = function()
     local icons = require('configs.icons')
