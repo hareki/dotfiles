@@ -73,11 +73,11 @@ return {
 
               local popup_buf_id = vim.api.nvim_win_get_buf(popup_win_id)
 
-              local popup_map = function(mode, l, r, desc)
+              local function popup_map(mode, l, r, desc)
                 vim.keymap.set(mode, l, r, { buffer = popup_buf_id, desc = desc })
               end
 
-              local close_popup = function()
+              local function close_popup()
                 if popup_win_id and vim.api.nvim_win_is_valid(popup_win_id) then
                   vim.api.nvim_win_close(popup_win_id, true)
                 end

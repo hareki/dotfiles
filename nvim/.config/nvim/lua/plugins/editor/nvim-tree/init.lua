@@ -278,7 +278,7 @@ return {
         on_attach = function(tree_bufnr)
           local api = require('nvim-tree.api')
 
-          local map = function(mode, lhs, rhs, desc)
+          local function map(mode, lhs, rhs, desc)
             vim.keymap.set(mode, lhs, rhs, {
               desc = 'NvimTree: ' .. desc,
               buffer = tree_bufnr,

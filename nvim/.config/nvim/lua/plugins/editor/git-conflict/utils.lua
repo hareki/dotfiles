@@ -1,5 +1,5 @@
 local M = {}
-M.in_diffview_tab = function()
+function M.in_diffview_tab()
   local tab_name = vim.t.tab_name
   if type(tab_name) ~= 'string' then
     return false
@@ -11,7 +11,7 @@ end
 --- Detect if cursor is currently inside a conflict block
 ---@return boolean in_conflict true if cursor is in a conflict block
 ---@return string|nil region 'current', 'incoming', 'ancestor', 'current_separator', 'ancestor_separator', 'separator', or 'incoming_separator'
-M.cursor_in_conflict = function()
+function M.cursor_in_conflict()
   local bufnr = vim.api.nvim_get_current_buf()
   local cursor = vim.api.nvim_win_get_cursor(0)
   local line = cursor[1] - 1 -- Convert to 0-based

@@ -50,7 +50,7 @@ return {
         local current_buf = vim.api.nvim_get_current_buf()
         local current_win = vim.api.nvim_get_current_win()
 
-        local eagle_map = function(mode, lhs, rhs, desc)
+        local function eagle_map(mode, lhs, rhs, desc)
           vim.keymap.set(mode, lhs, rhs, {
             buffer = eagle_buf,
             silent = true,
@@ -58,7 +58,7 @@ return {
           })
         end
 
-        local current_map = function(mode, lhs, rhs, desc)
+        local function current_map(mode, lhs, rhs, desc)
           vim.keymap.set(mode, lhs, rhs, {
             buffer = current_buf,
             silent = true,
@@ -66,13 +66,13 @@ return {
           })
         end
 
-        local current_unmap = function(mode, lhs, desc)
+        local function current_unmap(mode, lhs, desc)
           pcall(function()
             vim.keymap.del(mode, lhs, { buffer = current_buf })
           end)
         end
 
-        local close_eagle = function()
+        local function close_eagle()
           pcall(vim.api.nvim_win_close, eagle_win, true)
         end
 

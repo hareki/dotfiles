@@ -13,11 +13,11 @@ local state = {
   },
 }
 
-local trim_trailing_whitespace = function(text)
+local function trim_trailing_whitespace(text)
   return (text or ''):gsub('%s*$', '')
 end
 
-local is_typescript_diagnostic = function(diagnostic)
+local function is_typescript_diagnostic(diagnostic)
   local source = diagnostic.source
   if not source and diagnostic.user_data and diagnostic.user_data.lsp then
     source = diagnostic.user_data.lsp.source
@@ -25,7 +25,7 @@ local is_typescript_diagnostic = function(diagnostic)
   return state.supported_sources[source] or type(diagnostic.code) == 'number'
 end
 
-local normalize_range = function(diagnostic)
+local function normalize_range(diagnostic)
   local range = diagnostic.range
   if not range and diagnostic.user_data and diagnostic.user_data.lsp then
     range = diagnostic.user_data.lsp.range
@@ -46,7 +46,7 @@ local normalize_range = function(diagnostic)
   }
 end
 
-local get_code = function(diagnostic)
+local function get_code(diagnostic)
   if diagnostic.code ~= nil then
     return diagnostic.code
   end
@@ -56,7 +56,7 @@ local get_code = function(diagnostic)
   return nil
 end
 
-local build_cli_input = function(diagnostic)
+local function build_cli_input(diagnostic)
   return {
     range = normalize_range(diagnostic),
     message = diagnostic.message or '',
@@ -74,7 +74,7 @@ local build_cli_input = function(diagnostic)
   }
 end
 
-local compute_cache_key = function(diagnostic)
+local function compute_cache_key(diagnostic)
   local r = normalize_range(diagnostic)
   local parts = {
     diagnostic.source
@@ -90,7 +90,7 @@ local compute_cache_key = function(diagnostic)
   return table.concat(parts, '\31')
 end
 
-local maybe_evict_cache = function()
+local function maybe_evict_cache()
   local size = 0
   for _ in pairs(state.cache) do
     size = size + 1
@@ -109,7 +109,7 @@ local maybe_evict_cache = function()
   end
 end
 
-local cache_get = function(key)
+local function cache_get(key)
   local e = state.cache[key]
   if e then
     e.hits = e.hits + 1
@@ -117,12 +117,12 @@ local cache_get = function(key)
   end
 end
 
-local cache_set = function(key, value)
+local function cache_set(key, value)
   state.cache[key] = { value = value, hits = 1 }
   maybe_evict_cache()
 end
 
-local run_cli = function(input_object)
+local function run_cli(input_object)
   local json_text = vim.fn.json_encode(input_object)
   local exe = state.executable_path
 
@@ -150,7 +150,7 @@ local run_cli = function(input_object)
 end
 
 -- Strip the first line (the header with links) + a single blank line after it.
-local strip_cli_header = function(md)
+local function strip_cli_header(md)
   if type(md) ~= 'string' or md == '' then
     return md
   end
@@ -164,7 +164,7 @@ local strip_cli_header = function(md)
   return rest
 end
 
-M.format = function(diagnostic, opts)
+function M.format(diagnostic, opts)
   if type(diagnostic) ~= 'table' or not diagnostic.message then
     return ''
   end

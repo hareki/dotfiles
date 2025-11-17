@@ -50,7 +50,7 @@ return {
         title_pos = 'center',
       },
       on_open = function(term)
-        local map = function(mode, lhs, rhs, desc)
+        local function map(mode, lhs, rhs, desc)
           vim.keymap.set(mode, lhs, rhs, {
             noremap = true,
             silent = true,

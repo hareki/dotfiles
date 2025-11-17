@@ -2,7 +2,7 @@
 local M = {}
 
 ---@return string
-M.get_initial_path = function()
+function M.get_initial_path()
   -- We always set the cwd to match what's passed in neovim args if it's a directory in
   -- plugins/editor/auto-session.lua
   return vim.fn.getcwd()
@@ -12,7 +12,7 @@ end
 ---@param file string The file path
 ---@param root string The root path
 ---@return string
-M.get_relative_path = function(file, root)
+function M.get_relative_path(file, root)
   -- Ensure both paths are absolute
   local absolute_file = vim.fn.fnamemodify(file, ':p')
   local absolute_root = vim.fn.fnamemodify(root, ':p')
@@ -43,7 +43,7 @@ end
 --- Checks whether a directory with the specified name exists in the given path components.
 --- @param opts util.common.HasDirOptions  A table containing the options.
 --- @return boolean            `true` if the directory is found in the path components, otherwise `false`.
-M.has_dir = function(opts)
+function M.has_dir(opts)
   local dir_name = opts.dir_name
   local path = opts.path or vim.fn.expand('%:p:h')
   for dir in string.gmatch(path, '[^/]+') do

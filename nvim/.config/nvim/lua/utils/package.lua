@@ -1,7 +1,7 @@
 ---@class utils.package
 local M = {}
 
-M.is_loaded = function(name)
+function M.is_loaded(name)
   local Config = require('lazy.core.config')
   return Config.plugins[name] and Config.plugins[name]._.loaded
 end
@@ -9,7 +9,7 @@ end
 -- LazyVim
 ---@param name string
 ---@param fn fun(name:string)
-M.on_load = function(name, fn)
+function M.on_load(name, fn)
   if M.is_loaded(name) then
     fn(name)
   else
@@ -26,12 +26,12 @@ M.on_load = function(name, fn)
 end
 
 ---@param name string
-M.get_plugin = function(name)
+function M.get_plugin(name)
   return require('lazy.core.config').spec.plugins[name]
 end
 
 ---@param name string
-M.opts = function(name)
+function M.opts(name)
   local plugin = M.get_plugin(name)
   if not plugin then
     return {}

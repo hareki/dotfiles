@@ -82,7 +82,7 @@ map('n', '<leader>l', '<CMD>Lazy<CR>', { desc = 'Lazy.nvim' })
 map('n', '<leader>-', '<C-W>s', { desc = 'Split Window Below', remap = true })
 map('n', '<leader>\\', '<C-W>v', { desc = 'Split Window Right', remap = true })
 
-local diagnostic_goto = function(next, severity)
+local function diagnostic_goto(next, severity)
   local count = next and 1 or -1
   severity = severity and vim.diagnostic.severity[severity] or nil
   return function()

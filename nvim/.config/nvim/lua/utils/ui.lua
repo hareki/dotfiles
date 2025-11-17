@@ -3,13 +3,13 @@ local M = {}
 
 --- @param group string
 --- @param style vim.api.keyset.highlight
-M.highlight = function(group, style)
+function M.highlight(group, style)
   vim.api.nvim_set_hl(0, group, style)
 end
 
 --- A table of custom highlight groups and their corresponding styles.
 --- @param custom_highlights table<string, vim.api.keyset.highlight>
-M.highlights = function(custom_highlights)
+function M.highlights(custom_highlights)
   for group, style in pairs(custom_highlights) do
     M.highlight(group, style)
   end
@@ -18,12 +18,12 @@ end
 
 --- @param name? "frappe" | "latte" | "macchiato" | "mocha"
 --- @return palette
-M.get_palette = function(name)
+function M.get_palette(name)
   return require('catppuccin.palettes').get_palette(name or 'mocha')
 end
 
 ---@param register fun(palette: palette, sub_palette: palette): table<string, vim.api.keyset.highlight>
-M.catppuccin = function(register)
+function M.catppuccin(register)
   return {
     'catppuccin/nvim',
     opts = function(_, opts)
@@ -36,7 +36,7 @@ M.catppuccin = function(register)
 end
 
 ---@param size 'sm' | 'md' | 'lg' | 'vertical_lg' | 'full'
-M.telescope_layout = function(size)
+function M.telescope_layout(size)
   return {
     size = size, -- Hint to calculate the position
     height = function()
@@ -50,7 +50,7 @@ end
 
 ---@return integer screen_w
 ---@return integer screen_h
-M.screen_size = function()
+function M.screen_size()
   local screen_w = vim.opt.columns:get()
   local screen_h = vim.opt.lines:get()
   return screen_w, screen_h
@@ -63,7 +63,7 @@ local computed_input_size = {
 
 ---@param size configs.size.dimensions | 'input'
 ---@param with_border? boolean
-M.computed_size = function(size, with_border)
+function M.computed_size(size, with_border)
   local width_in_cols, height_in_rows
 
   if size == 'input' then
@@ -87,7 +87,7 @@ end
 ---@param size 'lg' | 'md' | 'sm' | 'input' | 'full' | 'vertical_lg'
 ---@param with_border boolean | nil
 ---@return WinConfig
-M.popup_config = function(size, with_border)
+function M.popup_config(size, with_border)
   local size_configs = require('configs.size')
   local screen_w, screen_h = M.screen_size()
   local window_w, window_h
@@ -141,7 +141,7 @@ M.popup_config = function(size, with_border)
 end
 
 --- @param groups string[] | string
-M.clear_hls = function(groups)
+function M.clear_hls(groups)
   if type(groups) == 'string' then
     groups = { groups }
   end

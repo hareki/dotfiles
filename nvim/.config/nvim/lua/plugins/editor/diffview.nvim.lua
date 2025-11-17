@@ -89,7 +89,7 @@ return {
     }
 
     local list_extend = require('utils.common').list_extend
-    local help_panel = function(id)
+    local function help_panel(id)
       return { 'n', 'g?', actions.help(id), { desc = 'Open the Help Panel' } }
     end
 

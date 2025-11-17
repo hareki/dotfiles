@@ -1,7 +1,7 @@
 local tab_utils = require('utils.tab')
 local snacks_utils = require('plugins.ui.snacks.utils')
 
-local unique_insert = function(list, value)
+local function unique_insert(list, value)
   if value == nil then
     return false
   end
@@ -12,7 +12,7 @@ local unique_insert = function(list, value)
   return false
 end
 
-local append_buffer_metadata = function(win, buffer_ids, file_names, file_paths)
+local function append_buffer_metadata(win, buffer_ids, file_names, file_paths)
   if not vim.api.nvim_win_is_valid(win) then
     return
   end
@@ -36,7 +36,7 @@ local append_buffer_metadata = function(win, buffer_ids, file_names, file_paths)
   table.insert(file_paths, name)
 end
 
-local build_tab_items = function()
+local function build_tab_items()
   local tabs = vim.api.nvim_list_tabpages()
   if vim.tbl_isempty(tabs) then
     return {}, 1

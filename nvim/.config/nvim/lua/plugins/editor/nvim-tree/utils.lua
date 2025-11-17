@@ -11,7 +11,7 @@ M.state = {
   size = 'vertical_lg',
 }
 
-M.clean_up = function()
+function M.clean_up()
   if M.state.preview_watcher == nil then
     return
   end
@@ -21,7 +21,7 @@ M.clean_up = function()
   M.state.preview_watcher = nil
 end
 
-M.close_all = function()
+function M.close_all()
   local api = require('nvim-tree.api')
   local preview = require('nvim-tree-preview')
 
@@ -31,7 +31,7 @@ M.close_all = function()
   api.tree.close()
 end
 
-M.watch = function()
+function M.watch()
   local preview = require('nvim-tree-preview')
 
   if not preview.is_open() then
@@ -40,14 +40,14 @@ M.watch = function()
   end
 end
 
-M.unwatch = function()
+function M.unwatch()
   local preview = require('nvim-tree-preview')
   preview.unwatch()
   M.state.preview_on_focus = false
 end
 
 ---@param folder_action 'expand' | 'collapse' | 'toggle'
-M.create_node_action = function(folder_action)
+function M.create_node_action(folder_action)
   return function()
     local api = require('nvim-tree.api')
 
@@ -77,7 +77,7 @@ M.create_node_action = function(folder_action)
 end
 
 ---@param position nvim-tree.Position
-M.switch_position = function(position)
+function M.switch_position(position)
   if position == M.state.position then
     return
   end
@@ -96,7 +96,7 @@ M.switch_position = function(position)
 end
 
 ---@param action 'expand' | 'collapse'
-M.toggle_tree_height = function(action)
+function M.toggle_tree_height(action)
   if M.state.position ~= 'float' then
     return
   end
@@ -129,7 +129,7 @@ M.toggle_tree_height = function(action)
 end
 
 ---@param force_state boolean|nil
-M.toggle_preview = function(force_state)
+function M.toggle_preview(force_state)
   local api = require('nvim-tree.api')
   local preview = require('nvim-tree-preview')
 
@@ -161,7 +161,7 @@ M.toggle_preview = function(force_state)
   end
 end
 
-M.toggle_focus = function()
+function M.toggle_focus()
   local manager = require('nvim-tree-preview.manager')
   manager.instance:toggle_focus()
 end
@@ -170,7 +170,7 @@ end
 --- @field switching boolean|nil
 
 --- @param opts nvim-tree.OpenParams|nil
-M.open = function(opts)
+function M.open(opts)
   local api = require('nvim-tree.api')
   local switching = opts and opts.switching or false
 
@@ -184,25 +184,25 @@ M.open = function(opts)
 end
 
 --- @return number|nil
-M.preview_buf = function()
+function M.preview_buf()
   local manager = require('nvim-tree-preview.manager')
   return manager.instance and manager.instance.preview_buf
 end
 
 --- @return number|nil
-M.preview_win = function()
+function M.preview_win()
   local manager = require('nvim-tree-preview.manager')
   return manager.instance and manager.instance.preview_win
 end
 
-M.mark_and_next = function()
+function M.mark_and_next()
   local api = require('nvim-tree.api')
 
   api.marks.toggle()
   vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Down>', true, false, true), 'n', false)
 end
 
-M.mark_and_prev = function()
+function M.mark_and_prev()
   local api = require('nvim-tree.api')
 
   api.marks.toggle()
@@ -213,7 +213,7 @@ end
 --- and separating path components with
 --- @param path string The absolute path to format
 --- @return string The formatted path
-M.format_root_label = function(path)
+function M.format_root_label(path)
   local home = vim.env.HOME
   local formatted = path
 

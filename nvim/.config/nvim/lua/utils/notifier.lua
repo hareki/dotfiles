@@ -13,7 +13,7 @@ local notif_ids = {}
 ---@type table<any, integer|nil>
 local notif_autocmds = {}
 
-local apply_win_opts = function(win)
+local function apply_win_opts(win)
   local w = vim.wo[win]
   w.conceallevel = 3
   w.concealcursor = 'n'
@@ -21,7 +21,7 @@ local apply_win_opts = function(win)
 end
 
 ---Return true if tbl looks like { {txt, hl}, {txt, hl}, … }.
-local is_tuple_list = function(tbl)
+local function is_tuple_list(tbl)
   if type(tbl) ~= 'table' then
     return false
   end
@@ -38,7 +38,7 @@ end
 ---@param opts   table? { default_hl?: string, ns?: string }
 ---@return string plain     flattened text for vim.notify
 ---@return function on_open callback that reapplies extmarks
-local normalize_message = function(chunks, opts)
+local function normalize_message(chunks, opts)
   opts = opts or {}
   local default_hl = opts.default_hl or 'Normal'
   local ns = vim.api.nvim_create_namespace(opts.ns or 'trouble_notify_hl')
@@ -97,7 +97,7 @@ end
 
 ---@param msg  string|table
 ---@param opts table?
-M.notify = function(msg, opts)
+function M.notify(msg, opts)
   opts = opts or {}
   local is_markdown = not is_tuple_list(msg)
 
@@ -206,7 +206,7 @@ end
 
 ---@param msg Message
 ---@param opts? NotifyOpts
-M.info = function(msg, opts)
+function M.info(msg, opts)
   M.notify(
     msg,
     vim.tbl_extend(
@@ -219,7 +219,7 @@ end
 
 ---@param msg Message
 ---@param opts? NotifyOpts
-M.warn = function(msg, opts)
+function M.warn(msg, opts)
   M.notify(
     msg,
     vim.tbl_extend(
@@ -232,7 +232,7 @@ end
 
 ---@param msg Message
 ---@param opts? NotifyOpts
-M.error = function(msg, opts)
+function M.error(msg, opts)
   M.notify(
     msg,
     vim.tbl_extend(
@@ -244,7 +244,7 @@ M.error = function(msg, opts)
 end
 
 ---@param title string
-M.debug = function(title, ...)
+function M.debug(title, ...)
   local parts = {}
   if select('#', ...) > 0 then
     local obj = select('#', ...) == 1 and ... or { ... }

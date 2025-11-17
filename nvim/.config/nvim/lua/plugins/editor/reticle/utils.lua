@@ -4,7 +4,7 @@ local M = {}
 
 M.always_highlight_number = true
 
-M.set_cursorline = function(enable, win)
+function M.set_cursorline(enable, win)
   if M.always_highlight_number then
     vim.api.nvim_set_option_value('cursorlineopt', enable and 'both' or 'number', { win = win })
     vim.api.nvim_set_option_value('cursorline', true, { win = win })

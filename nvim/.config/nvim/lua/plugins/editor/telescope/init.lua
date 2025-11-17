@@ -98,7 +98,7 @@ return {
       end
 
       -- https://github.com/nvim-telescope/telescope.nvim/issues/2778#issuecomment-2202572413
-      local toggle_focus_preview = function(prompt_bufnr)
+      local function toggle_focus_preview(prompt_bufnr)
         local actions_state = require('telescope.actions.state')
         local telescope_state = require('telescope.state')
         local reticle_utils = require('plugins.editor.reticle.utils')
@@ -119,11 +119,11 @@ return {
 
         vim.bo[previewer_bufnr].modifiable = false
 
-        local restore_buf_state = function()
+        local function restore_buf_state()
           vim.bo[previewer_bufnr].modifiable = default_modifiable
         end
 
-        local map = function(mode, lhs, rhs)
+        local function map(mode, lhs, rhs)
           vim.keymap.set(mode, lhs, rhs, {
             buffer = previewer_bufnr,
           })
@@ -191,11 +191,11 @@ return {
 
       local scroll_results_up = scroll_results('up')
       local scroll_results_down = scroll_results('down')
-      local telescope_to_trouble = function()
+      local function telescope_to_trouble()
         require('trouble.sources.telescope').open()
       end
 
-      local trouble_open = function(source)
+      local function trouble_open(source)
         return function(bufnr)
           actions.close(bufnr)
           require('trouble').open(source)

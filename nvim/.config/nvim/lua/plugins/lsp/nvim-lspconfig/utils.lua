@@ -1,7 +1,7 @@
 local M = {}
 
 ---@param diagnostic vim.Diagnostic
-M.get_pos_key = function(diagnostic)
+function M.get_pos_key(diagnostic)
   return string.format(
     '%d:%d-%d:%d',
     diagnostic.lnum,
@@ -14,7 +14,7 @@ end
 ---Fix zero-width or out-of-bounds diagnostics to underline at least one character
 ---@param bufnr integer Buffer number
 ---@param diagnostic vim.Diagnostic
-M.fix_diagnostic_range = function(bufnr, diagnostic)
+function M.fix_diagnostic_range(bufnr, diagnostic)
   -- Get the line to check if col is out of bounds
   local line = vim.api.nvim_buf_get_lines(bufnr, diagnostic.lnum, diagnostic.lnum + 1, false)[1]
   if not line then
@@ -88,7 +88,7 @@ end
 
 ---@param diagnostic vim.Diagnostic
 ---@return vim.Diagnostic?
-M.create_underline_hack = function(diagnostic)
+function M.create_underline_hack(diagnostic)
   local has_unnecessary = diagnostic._tags and diagnostic._tags.unnecessary
   if not has_unnecessary then
     return nil

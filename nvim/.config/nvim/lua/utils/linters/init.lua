@@ -18,14 +18,14 @@ entries = {}
 ---@param name string
 ---@param filetypes string[]  -- filetypes this linter supports
 ---@param runner fun(opts:{bufnr:integer,on_done:fun(ok:boolean,err?:string)})
-M.register = function(name, filetypes, runner)
+function M.register(name, filetypes, runner)
   entries[#entries + 1] = { name = name, filetypes = filetypes, runner = runner }
 end
 
 ---Return names (in order) for a filetype.
 ---@param ft string
 ---@return string[]
-M.names_for_filetype = function(ft)
+function M.names_for_filetype(ft)
   local out = {}
   for _, entry in ipairs(entries) do
     for _, filetype in ipairs(entry.filetypes) do
@@ -39,7 +39,7 @@ M.names_for_filetype = function(ft)
 end
 
 ---Internal: run names sequentially
-local run_next = function(names, opts, idx)
+local function run_next(names, opts, idx)
   idx = idx or 1
   local name = names[idx]
   if not name then
@@ -79,13 +79,13 @@ end
 ---Run a provided list of linter names.
 ---@param names string[]
 ---@param opts linters.RunOpts
-M.run = function(names, opts)
+function M.run(names, opts)
   run_next(names, opts, 1)
 end
 
 ---Auto-run all linters that match the buffer's filetype.
 ---@param opts linters.RunOpts
-M.run_by_ft = function(opts)
+function M.run_by_ft(opts)
   local bufnr = opts.bufnr
   local ft = vim.bo[bufnr].filetype
   local names = M.names_for_filetype(ft)

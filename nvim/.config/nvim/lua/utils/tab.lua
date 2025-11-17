@@ -1,7 +1,7 @@
 local M = {}
 
 --- @param prefix string
-local generate_formatter = function(prefix)
+local function generate_formatter(prefix)
   ---@param tab_id? integer
   return function(tab_id)
     return string.format('%s:%d', prefix, tab_id or vim.api.nvim_get_current_tabpage())
@@ -17,12 +17,12 @@ local name_formatter = {
 ---@param tab_id? integer
 ---@param buffer_ids? integer[]
 ---@return string
-M.get_tab_name = function(tab_id, buffer_ids)
+function M.get_tab_name(tab_id, buffer_ids)
   local name = nil
   -- If the first buffer is a terminal, then all of the other should be too
   local buf = buffer_ids and buffer_ids[1] or vim.api.nvim_get_current_buf()
   local tab = tab_id or vim.api.nvim_get_current_tabpage()
-  local is_diffview = function()
+  local function is_diffview()
     if not package.loaded['diffview'] then
       return false
     end
@@ -42,7 +42,7 @@ M.get_tab_name = function(tab_id, buffer_ids)
 end
 
 ---@return string
-M.lualine = function()
+function M.lualine()
   local existing_name = vim.t.tab_name
 
   if not existing_name then

@@ -22,7 +22,7 @@ local BRANCH_CACHE_MAX_SIZE = 100
 
 --- Sets the branch display format and refreshes the status line.
 --- @param format utils.git.branch_formats The name of the branch format to set.
-M.set_branch_name_format = function(format)
+function M.set_branch_name_format(format)
   branch_display_mode = format
   -- Clear both cache and order when format changes
   branch_format_cache = {}
@@ -38,7 +38,7 @@ end
 --- Formats a given branch name according to the selected display mode.
 --- @param branch_name string The original branch name to be formatted.
 --- @return string The formatted branch name.
-M.format_branch_name = function(branch_name)
+function M.format_branch_name(branch_name)
   -- Check cache first
   local cache_key = branch_display_mode .. ':' .. branch_name
   if branch_format_cache[cache_key] then
@@ -113,7 +113,7 @@ end
 --- @param cmd string The git command to execute (without the 'git' prefix).
 --- @param cwd string|nil The directory in which to execute the command. Defaults to current directory if nil.
 --- @return string|nil The trimmed output of the command, or nil if an error occurs.
-M.exec_cmd = function(cmd, cwd)
+function M.exec_cmd(cmd, cwd)
   local args = vim.split(cmd, '%s+')
   local git_cmd = { 'git' }
 
@@ -136,7 +136,7 @@ end
 
 --- Retrieves the repository name from the remote origin URL.
 --- @return string|nil The repository name extracted from the remote URL, or nil if not found.
-M.get_repo_name_from_remote = function()
+function M.get_repo_name_from_remote()
   local url = M.exec_cmd('config --get remote.origin.url')
   if not url or url == '' then
     return nil
@@ -154,7 +154,7 @@ end
 --- Determines whether a specified directory is a bare Git repository.
 --- @param path string The directory path to check.
 --- @return boolean True if the directory is a bare repository, false otherwise.
-M.is_bare_repo = function(path)
+function M.is_bare_repo(path)
   if not path then
     return false
   end
@@ -165,13 +165,13 @@ end
 --- Extracts the repository name from a given file system path.
 --- @param path string The file system path from which to extract the repository name.
 --- @return string|nil The repository name (last component of the path), or nil if invalid.
-M.get_repo_name_from_path = function(path)
+function M.get_repo_name_from_path(path)
   return path:match('([^/\\]+)$')
 end
 
 --- Retrieves the repository name using multiple strategies and caches the result.
 --- @return string|nil The repository name determined by the implemented logic.
-M.get_repo_name = function()
+function M.get_repo_name()
   local current_cwd = vim.fn.getcwd()
 
   if repo_cache.name and repo_cache.last_cwd == current_cwd then
@@ -229,7 +229,7 @@ end
 --- Get the commit hash of the last commit affecting the current line in the current buffer.
 ---
 --- @return string|nil The commit hash if found, or nil if not.
-M.get_current_line_commit = function()
+function M.get_current_line_commit()
   --- Get the current line number.
   --- @type integer
   local line = vim.api.nvim_win_get_cursor(0)[1]
@@ -287,7 +287,7 @@ end
 --- Open Diffview to compare a commit with its previous state.
 ---
 --- @param commit? string The commit hash or reference to compare.
-M.diff_parent = function(commit)
+function M.diff_parent(commit)
   if not commit or commit == '' then
     -- No commit provided, show the current changes (both staged and unstaged) compared with the last commit
     vim.cmd('DiffviewOpen')

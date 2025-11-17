@@ -2,7 +2,7 @@
 local M = {}
 
 -- taken from MiniExtra.gen_ai_spec.buffer
-M.buffer = function(ai_type)
+function M.buffer(ai_type)
   local start_line, end_line = 1, vim.fn.line('$')
   if ai_type == 'i' then
     -- Skip first and last blank lines for `i` textobject
@@ -21,7 +21,7 @@ end
 
 -- register all text objects with which-key
 ---@param opts table
-M.whichkey = function(opts)
+function M.whichkey(opts)
   local objects = {
     { ' ', desc = 'whitespace' },
     { '"', desc = '" string' },

@@ -24,7 +24,7 @@ local M = {}
 
 ---@param bufnr integer|nil
 ---@return integer
-local get_valid_client_id = function(bufnr)
+local function get_valid_client_id(bufnr)
   local client = vim.lsp.get_clients({ bufnr = bufnr or 0 })[1]
   return client and client.id or 0 -- 0 is the “anonymous” id in LSP
 end
@@ -99,7 +99,7 @@ end
 ---Create a new progress handle for showing progress notifications
 ---@param opts utils.progress.CreateOpts|nil
 ---@return utils.progress.Handle
-M.create = function(opts)
+function M.create(opts)
   opts = opts or {}
 
   local pending_ms = opts.pending_ms or 0
