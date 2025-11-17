@@ -1,7 +1,7 @@
 local M = {}
 
 --- @param prefix string
-local function generate_formatter(prefix)
+local generate_formatter = function(prefix)
   ---@param tab_id? integer
   return function(tab_id)
     return string.format('%s:%d', prefix, tab_id or vim.api.nvim_get_current_tabpage())
@@ -17,7 +17,7 @@ local name_formatter = {
 ---@param tab_id? integer
 ---@param buffer_ids? integer[]
 ---@return string
-function M.get_tab_name(tab_id, buffer_ids)
+M.get_tab_name = function(tab_id, buffer_ids)
   local name = nil
   -- If the first buffer is a terminal, then all of the other should be too
   local buf = buffer_ids and buffer_ids[1] or vim.api.nvim_get_current_buf()
@@ -42,7 +42,7 @@ function M.get_tab_name(tab_id, buffer_ids)
 end
 
 ---@return string
-function M.lualine()
+M.lualine = function()
   local existing_name = vim.t.tab_name
 
   if not existing_name then

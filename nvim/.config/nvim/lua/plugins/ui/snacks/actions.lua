@@ -1,6 +1,6 @@
 local M = {}
 ---@param direction 'up' | 'down'
-function M.scroll_half_page(direction)
+M.scroll_half_page = function(direction)
   return function(picker)
     local list_win = picker.layout.opts.wins.list.win
     local h = vim.api.nvim_win_get_height(list_win)
@@ -11,7 +11,7 @@ function M.scroll_half_page(direction)
   end
 end
 
-function M.toggle_preview_focus(picker)
+M.toggle_preview_focus = function(picker)
   local input_win = picker.layout.opts.wins.input.win
   local preview_win = picker.layout.opts.wins.preview.win
   local current_win = vim.api.nvim_get_current_win()
@@ -29,15 +29,15 @@ function M.toggle_preview_focus(picker)
   end
 end
 
-function M.select(picker)
+M.select = function(picker)
   picker.list:select()
 end
 
-function M.snacks_to_trouble(picker)
+M.snacks_to_trouble = function(picker)
   require('trouble.sources.snacks').open(picker)
 end
 
-function M.sidekick_send(...)
+M.sidekick_send = function(...)
   return require('sidekick.cli.picker.snacks').send(...)
 end
 

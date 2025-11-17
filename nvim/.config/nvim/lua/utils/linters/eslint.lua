@@ -1,7 +1,7 @@
 local M = {}
 
 ---@param opts { bufnr: integer, on_done: fun(ok: boolean, err?: string) }
-function M.run(opts)
+M.run = function(opts)
   local bufnr = opts.bufnr
   local eslint = vim.lsp.get_clients({ name = 'eslint', bufnr = bufnr })[1]
   if not eslint then

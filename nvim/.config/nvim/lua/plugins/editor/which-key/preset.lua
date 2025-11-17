@@ -236,7 +236,7 @@ M.desc_overrides = {
   ['Q'] = { desc = 'Replay Last Macro on Each Selected Line', mode = { 'x' } },
 }
 
-function M.setup()
+M.setup = function()
   local wk = require('which-key')
   wk.add(M.operators)
   wk.add(M.motions)

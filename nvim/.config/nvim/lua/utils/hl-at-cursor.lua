@@ -1,5 +1,5 @@
 -- Show all highlight groups affecting the cursor (Markdown popup)
-local function hl_at_cursor()
+local hl_at_cursor = function()
   local bufnr = 0
   local pos = vim.api.nvim_win_get_cursor(0)
   local row0, col0 = pos[1] - 1, pos[2]

@@ -5,7 +5,7 @@ local M = {}
 ---@param mode string The mode to search for (required)
 ---@param buffer? number The buffer id to search for (optional)
 ---@return string? # The description of the first matching spec, or nil if not found
-local function query_spec_desc(lhs, mode, buffer)
+local query_spec_desc = function(lhs, mode, buffer)
   local wk_config = require('which-key.config')
 
   -- Traverse backward
@@ -36,7 +36,7 @@ vim.api.nvim_create_autocmd('BufDelete', {
   end,
 })
 
-local function query_spec_desc_cached(lhs, mode, buffer)
+local query_spec_desc_cached = function(lhs, mode, buffer)
   buffer = buffer or vim.api.nvim_get_current_buf()
   local cache_key = string.format('%s:%s:%d', lhs, mode, buffer)
 
@@ -54,17 +54,17 @@ local filtered_descriptions = {
   'autopairs map key', -- nvim-autopairs
 }
 
-local function is_ds_store(path)
+local is_ds_store = function(path)
   return type(path) == 'string' and path:match('%.DS_Store$') ~= nil
 end
 
-function M.files_transform(item)
+M.files_transform = function(item)
   if is_ds_store(item.file) then
     return false
   end
 end
 
-function M.keymap_transform(item)
+M.keymap_transform = function(item)
   local desc_overrides = require('plugins.editor.which-key.preset').desc_overrides
   local keymap = item.item
   local old_desc = keymap.desc
@@ -93,7 +93,7 @@ end
 
 -- Remove the rhs and file columns from
 -- https://github.com/folke/snacks.nvim/blob/bc0630e43be5699bb94dadc302c0d21615421d93/lua/snacks/picker/format.lua#L449
-function M.keymap_format(item, _picker, width)
+M.keymap_format = function(item, _picker, width)
   local ret = {} ---@type snacks.picker.Highlight[]
   ---@type vim.api.keyset.get_keymap
   local k = item.item
@@ -144,7 +144,7 @@ end
 -- Remove buf number and flags from
 -- https://github.com/folke/snacks.nvim/blob/52f30a198a19bf5da6aa95cc642bfbb99b9bbfbf/lua/snacks/picker/format.lua#L638
 ---@param item snacks.picker.Item
-function M.buffer_format(item, picker)
+M.buffer_format = function(item, picker)
   local ret = {} ---@type snacks.picker.Highlight[]
   vim.list_extend(ret, Snacks.picker.format.filename(item, picker))
 

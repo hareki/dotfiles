@@ -4,7 +4,7 @@ local M = {}
 -- https://github.com/Bekaboo/dropbar.nvim/blob/a0ad7e24e9dfde6f0b11f6a436f56aeceaf58e9b/lua/dropbar/configs.lua#L265
 -- And disable terminal buffers
 ---@type boolean|fun(buf: integer, win: integer, info: table?): boolean
-function M.enable(buf, win, _)
+M.enable = function(buf, win, _)
   buf = vim._resolve_bufnr(buf)
   if not vim.api.nvim_buf_is_valid(buf) or not vim.api.nvim_win_is_valid(win) then
     return false

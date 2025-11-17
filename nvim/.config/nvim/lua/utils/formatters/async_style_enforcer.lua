@@ -4,7 +4,7 @@ local running_bufs = {}
 -- Timeout to prevent permanent locks (10 seconds)
 local TIMEOUT_MS = 10000
 
-local function get_formatter_names(buf)
+local get_formatter_names = function(buf)
   local list, uses_lsp = require('conform').list_formatters_to_run(buf)
 
   local names = {}
@@ -21,7 +21,7 @@ local function get_formatter_names(buf)
 end
 
 ---@param opts? { debug?: boolean, buf?: integer, save?: boolean }
-function M.run(opts)
+M.run = function(opts)
   opts = opts or {}
   local debug = opts.debug
   local buf = opts.buf or vim.api.nvim_get_current_buf()
@@ -163,7 +163,7 @@ end
 
 ---Run format+lint on all buffers from scope.nvim
 ---@param debug boolean|nil
-function M.run_all(debug)
+M.run_all = function(debug)
   local scope_core = require('scope.core')
   local notifier = require('utils.notifier')
 

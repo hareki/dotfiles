@@ -1,7 +1,7 @@
 local filter = vim.tbl_filter
 local uv = vim.uv
 
-local function extend_without_duplicates(l0, l1)
+local extend_without_duplicates = function(l0, l1)
   local result = {}
   for _, v in ipairs(l0) do
     table.insert(result, v)
@@ -14,7 +14,7 @@ local function extend_without_duplicates(l0, l1)
   return result
 end
 
-local function apply_cwd_only_aliases(opts)
+local apply_cwd_only_aliases = function(opts)
   local has_cwd_only = opts.cwd_only ~= nil
   local has_only_cwd = opts.only_cwd ~= nil
 
@@ -26,7 +26,7 @@ local function apply_cwd_only_aliases(opts)
   return opts
 end
 
-local function get_all_scope_buffers()
+local get_all_scope_buffers = function()
   local scope_core = require('scope.core')
   local scope_buffs = {}
   for _, bufs in pairs(scope_core.cache) do
@@ -37,7 +37,7 @@ local function get_all_scope_buffers()
   return scope_buffs
 end
 
-local function find_buffer_tabpage(bufnr)
+local find_buffer_tabpage = function(bufnr)
   local scope_core = require('scope.core')
   for tabpage, bufs in pairs(scope_core.cache) do
     for _, b in pairs(bufs) do

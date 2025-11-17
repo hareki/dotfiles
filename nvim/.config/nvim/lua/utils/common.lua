@@ -3,7 +3,7 @@ local M = {}
 
 ---Execute a function without triggering autocommands
 ---@param fn fun()
-function M.noautocmd(fn)
+M.noautocmd = function(fn)
   local ei = vim.o.eventignore
   vim.o.eventignore = 'all'
   local ok, err = pcall(fn)
@@ -16,7 +16,7 @@ end
 ---Extend multiple arrays into a single array
 ---@param ... table[]
 ---@return table
-function M.list_extend(...)
+M.list_extend = function(...)
   local result = {}
   for _, keymap_array in ipairs({ ... }) do
     if keymap_array then
@@ -26,12 +26,12 @@ function M.list_extend(...)
   return result
 end
 
-function M.is_float_win(win)
+M.is_float_win = function(win)
   local ok, cfg = pcall(vim.api.nvim_win_get_config, win)
   return ok and cfg and ((cfg.relative and cfg.relative ~= '') or cfg.external == true)
 end
 
-local function repaint_render_markdown(win_id)
+local repaint_render_markdown = function(win_id)
   local render_md = require('render-markdown')
   if not vim.api.nvim_win_is_valid(win_id) then
     return
@@ -44,7 +44,7 @@ local function repaint_render_markdown(win_id)
   end)
 end
 
-local function is_markdown_buf(win_id)
+local is_markdown_buf = function(win_id)
   local buf = vim.api.nvim_win_get_buf(win_id)
   return vim.bo[buf].filetype == 'markdown'
 end
@@ -53,7 +53,7 @@ end
 ---If current window is a floating markdown preview, repaint it after moving.
 ---@param win integer|nil
 ---@return boolean success
-function M.focus_win(win)
+M.focus_win = function(win)
   if not win or win == 0 or not vim.api.nvim_win_is_valid(win) then
     return false
   end
@@ -75,7 +75,7 @@ end
 ---Count the number of string keys in a table
 ---@param t table
 ---@return integer
-function M.count_string_keys(t)
+M.count_string_keys = function(t)
   local n = 0
   for k in pairs(t) do
     if type(k) == 'string' then

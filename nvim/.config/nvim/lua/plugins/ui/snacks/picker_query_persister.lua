@@ -5,7 +5,7 @@ local last_queries = {
   files = '',
 }
 
-local function wrap_picker(source_name, base_fn)
+local wrap_picker = function(source_name, base_fn)
   return function(opts)
     opts = opts or {}
     local defaults = require('snacks.picker.config.sources')[source_name]

@@ -1,7 +1,7 @@
 ---@class utils.buffer
 local M = {}
 
-function M.lualine()
+M.lualine = function()
   local ignore_filetypes = {
     'NvimTree',
     'lazy',
