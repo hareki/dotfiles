@@ -20,6 +20,11 @@ return {
     ---@diagnostic disable-next-line: duplicate-set-field
     vim.diagnostic.set = function(namespace, bufnr, diagnostics, opts)
       if diagnostics then
+        -- Fix zero-width or out-of-bounds diagnostics
+        for _, diagnostic in ipairs(diagnostics) do
+          utils.fix_diagnostic_range(bufnr, diagnostic)
+        end
+
         -- Group diagnostics by position to check if underline would already be present
         local positions = {}
         for _, diagnostic in ipairs(diagnostics) do
@@ -28,7 +33,8 @@ return {
           table.insert(positions[key], diagnostic)
         end
 
-        local duplicates = {}
+        -- Create duplicates for unnecessary diagnostics to get both styling effects
+        local underline_hacks = {}
         for _, diagnostic in ipairs(diagnostics) do
           local has_unnecessary = diagnostic._tags and diagnostic._tags.unnecessary
 
@@ -47,21 +53,17 @@ return {
             end
 
             -- Only duplicate if no underline would be present otherwise
-            if not has_underline and diagnostic.severity < vim.diagnostic.severity.HINT then
-              local dup = vim.deepcopy(diagnostic)
-              dup._tags = nil
-              dup.source = 'underline-hack'
-              dup.code = nil
-              dup.message = ''
-              dup.user_data = nil
-
-              table.insert(duplicates, dup)
+            if not has_underline then
+              local dup = utils.create_underline_hack(diagnostic)
+              if dup then
+                table.insert(underline_hacks, dup)
+              end
             end
           end
         end
 
-        -- Append duplicates to get both styling effects
-        vim.list_extend(diagnostics, duplicates)
+        -- Append to get both styling effects
+        vim.list_extend(diagnostics, underline_hacks)
       end
 
       return original_set(namespace, bufnr, diagnostics, opts)
