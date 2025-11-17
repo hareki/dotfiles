@@ -108,7 +108,14 @@ function M.notify(msg, opts)
     msg = type(msg) == 'table' and table.concat(msg, '\n') or msg
     apply_highlight = function(win)
       apply_win_opts(win)
-      vim.treesitter.start(vim.api.nvim_win_get_buf(win), 'markdown')
+      local bufnr = vim.api.nvim_win_get_buf(win)
+      vim.api.nvim_set_option_value('filetype', 'markdown', { buf = bufnr })
+      require('render-markdown').render({
+        buf = bufnr,
+        config = {
+          render_modes = true,
+        },
+      })
     end
   else
     ---@cast msg table
@@ -123,28 +130,25 @@ function M.notify(msg, opts)
     local buf = vim.api.nvim_win_get_buf(win)
 
     if is_markdown then
+      vim.api.nvim_buf_set_var(buf, 'notify_is_markdown', is_markdown)
       vim.api.nvim_set_option_value('filetype', 'markdown', { buf = buf })
     end
 
     if apply_highlight then
       apply_highlight(win)
 
-      -- Set up autocmd to reapply highlighting on various events that could affect highlights
       autocmd_id = vim.api.nvim_create_autocmd({
-        'TextChanged',
-        'TextChangedI', -- Content changes
-        'ColorScheme', -- Theme/colorscheme changes
-        'BufEnter',
-        'WinEnter', -- Window/buffer focus changes
-        'FileType', -- Filetype detection changes
+        'FileType',
       }, {
         buffer = buf,
         callback = function()
-          if vim.api.nvim_win_is_valid(win) then
-            apply_highlight(win)
+          if not vim.api.nvim_win_is_valid(win) then
+            return
           end
+
+          apply_highlight(win)
         end,
-        desc = 'Reapply Notifier Highlighting on Content or Display Changes',
+        desc = 'Reapply Notifier Highlighting for Duplicate Messages',
       })
     end
 
