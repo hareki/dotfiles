@@ -34,6 +34,11 @@ return {
           HINT = { icon = icons.diagnostics.Hint, hl = 'RenderMarkdownHint' },
         },
       },
+      --- @param diagnostic vim.Diagnostic
+      diagnostic_filter = function(diagnostic)
+        return diagnostic.source ~= 'underline-hack'
+      end,
+
       on_open = function(eagle_win, eagle_buf)
         local current_buf = vim.api.nvim_get_current_buf()
         local current_win = vim.api.nvim_get_current_win()

@@ -9,6 +9,64 @@ return {
   event = 'VeryLazy',
   dependencies = { 'folke/lazydev.nvim' },
   config = function()
+    local utils = require('plugins.lsp.nvim-lspconfig.utils')
+
+    -- HACK: Intercept vim.diagnostic.set to apply both unnecessary and severity-based styling (if severity < HINT)
+    local original_set = vim.diagnostic.set
+    ---@param namespace integer The diagnostic namespace
+    ---@param bufnr integer Buffer number
+    ---@param diagnostics vim.Diagnostic[]
+    ---@param opts? vim.diagnostic.Opts Display options to pass to |vim.diagnostic.show()|
+    ---@diagnostic disable-next-line: duplicate-set-field
+    vim.diagnostic.set = function(namespace, bufnr, diagnostics, opts)
+      if diagnostics then
+        -- Group diagnostics by position to check if underline would already be present
+        local positions = {}
+        for _, diagnostic in ipairs(diagnostics) do
+          local key = utils.get_pos_key(diagnostic)
+          positions[key] = positions[key] or {}
+          table.insert(positions[key], diagnostic)
+        end
+
+        local duplicates = {}
+        for _, diagnostic in ipairs(diagnostics) do
+          local has_unnecessary = diagnostic._tags and diagnostic._tags.unnecessary
+
+          if has_unnecessary then
+            local key = utils.get_pos_key(diagnostic)
+            local position_diagnostics = positions[key]
+
+            local has_underline = false
+            -- Check if there's already a diagnostic at this exact position with same/higher severity without unnecessary tag
+            for _, other in ipairs(position_diagnostics) do
+              local other_has_unnecessary = other._tags and other._tags.unnecessary
+              if not other_has_unnecessary and other.severity <= diagnostic.severity then
+                has_underline = true
+                break
+              end
+            end
+
+            -- Only duplicate if no underline would be present otherwise
+            if not has_underline and diagnostic.severity < vim.diagnostic.severity.HINT then
+              local dup = vim.deepcopy(diagnostic)
+              dup._tags = nil
+              dup.source = 'underline-hack'
+              dup.code = nil
+              dup.message = ''
+              dup.user_data = nil
+
+              table.insert(duplicates, dup)
+            end
+          end
+        end
+
+        -- Append duplicates to get both styling effects
+        vim.list_extend(diagnostics, duplicates)
+      end
+
+      return original_set(namespace, bufnr, diagnostics, opts)
+    end
+
     vim.diagnostic.config({
       -- https://neovim.io/doc/user/diagnostic.html#vim.diagnostic.Opts.VirtualLines
       -- virtual_lines = {
