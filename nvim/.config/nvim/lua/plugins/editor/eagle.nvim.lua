@@ -1,19 +1,19 @@
 return {
   'hareki/eagle.nvim',
-  cmd = 'EagleWin',
+  cmd = { 'EagleWin', 'EagleWinLineDiagnostic' },
   keys = {
     {
       'gh',
       '<CMD>EagleWin<CR>',
       mode = { 'n', 'x' },
-      desc = 'Open Eagle Window',
+      desc = 'Open Eagle LSP and Diagnostics',
       silent = true,
     },
     {
       'gH',
       '<CMD>EagleWinLineDiagnostic<CR>',
       mode = { 'n', 'x' },
-      desc = 'Open Eagle Window',
+      desc = 'Open Eagle Line Diagnostics',
       silent = true,
     },
   },

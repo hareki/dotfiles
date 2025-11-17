@@ -86,7 +86,10 @@ local function diagnostic_goto(next, severity)
   local count = next and 1 or -1
   severity = severity and vim.diagnostic.severity[severity] or nil
   return function()
-    vim.diagnostic.jump({ severity = severity, float = true, count = count })
+    vim.diagnostic.jump({ severity = severity, float = false, count = count })
+    vim.schedule(function()
+      vim.cmd('EagleWinLineDiagnostic')
+    end)
   end
 end
 
