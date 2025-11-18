@@ -113,7 +113,7 @@ map('n', '[T', '<CMD>tabrewind<CR>', { desc = 'First Tab' }) -- or tabfirst
 map('n', '<leader>tn', '<CMD>tabnew<CR>', { desc = 'New Tab' })
 map('n', '<leader>t]', '<CMD>tabnext<CR>', { desc = 'Next Tab' })
 map('n', '<leader>t[', '<CMD>tabprevious<CR>', { desc = 'Previous Tab' })
-map('n', '<leader>td', '<CMD>tabclose<CR>', { desc = 'Close Tab' })
+map('n', '<leader>tx', '<CMD>tabclose<CR>', { desc = 'Close Tab' })
 map('n', '<leader>tr', function()
   vim.ui.input({ prompt = 'Rename the Tab' }, function(input)
     if input and input ~= '' then

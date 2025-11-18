@@ -1,16 +1,5 @@
 local M = {}
 
----@param diagnostic vim.Diagnostic
-function M.get_pos_key(diagnostic)
-  return string.format(
-    '%d:%d-%d:%d',
-    diagnostic.lnum,
-    diagnostic.col,
-    diagnostic.end_lnum,
-    diagnostic.end_col
-  )
-end
-
 ---Fix zero-width or out-of-bounds diagnostics to underline at least one character
 ---@param bufnr integer Buffer number
 ---@param diagnostic vim.Diagnostic
@@ -86,9 +75,28 @@ function M.fix_diagnostic_range(bufnr, diagnostic)
   end
 end
 
+---@param bufnr integer Buffer number
+---@param diagnostics vim.Diagnostic[]
+function M.fix_all_diagnostic_ranges(bufnr, diagnostics)
+  for _, diagnostic in ipairs(diagnostics) do
+    M.fix_diagnostic_range(bufnr, diagnostic)
+  end
+end
+
+---@param diagnostic vim.Diagnostic
+local function get_pos_key(diagnostic)
+  return string.format(
+    '%d:%d-%d:%d',
+    diagnostic.lnum or -1,
+    diagnostic.col or -1,
+    diagnostic.end_lnum or -1,
+    diagnostic.end_col or -1
+  )
+end
+
 ---@param diagnostic vim.Diagnostic
 ---@return vim.Diagnostic?
-function M.create_underline_hack(diagnostic)
+local function create_underline_diagnostic(diagnostic)
   local has_unnecessary = diagnostic._tags and diagnostic._tags.unnecessary
   if not has_unnecessary then
     return nil
@@ -106,6 +114,73 @@ function M.create_underline_hack(diagnostic)
   dup.user_data = nil
 
   return dup
+end
+
+-- HACK: Intercept vim.diagnostic.set to apply both unnecessary and severity-based styling (if severity < HINT)
+---@param diagnostics vim.Diagnostic[]
+function M.apply_underline_hack(diagnostics)
+  -- Group diagnostics by position to check if underline would already be present
+  local positions = {}
+  for _, diagnostic in ipairs(diagnostics) do
+    local key = get_pos_key(diagnostic)
+    positions[key] = positions[key] or {}
+    table.insert(positions[key], diagnostic)
+  end
+
+  -- Create duplicates for unnecessary diagnostics to get both styling effects
+  local underline_hacks = {}
+  for _, diagnostic in ipairs(diagnostics) do
+    local has_unnecessary = diagnostic._tags and diagnostic._tags.unnecessary
+
+    if has_unnecessary then
+      local key = get_pos_key(diagnostic)
+      local position_diagnostics = positions[key]
+
+      local has_underline = false
+      -- Check if there's already a diagnostic at this exact position with same/higher severity without unnecessary tag
+      for _, other in ipairs(position_diagnostics) do
+        local other_has_unnecessary = other._tags and other._tags.unnecessary
+        if not other_has_unnecessary and other.severity <= diagnostic.severity then
+          has_underline = true
+          break
+        end
+      end
+
+      -- Only duplicate if no underline would be present otherwise
+      if not has_underline then
+        local dup = create_underline_diagnostic(diagnostic)
+        if dup then
+          table.insert(underline_hacks, dup)
+        end
+      end
+    end
+  end
+
+  -- Append to get both styling effects
+  vim.list_extend(diagnostics, underline_hacks)
+end
+
+function M.load_lsp_configs()
+  local lsp_config_path = vim.fn.stdpath('config') .. '/lua/plugins/lsp/nvim-lspconfig/lsp'
+  for name, file_type in vim.fs.dir(lsp_config_path) do
+    if file_type == 'file' and name:match('%.lua$') then
+      local server_name = name:gsub('%.lua$', '')
+      local config = require('plugins.lsp.nvim-lspconfig.lsp.' .. server_name)
+
+      local opts = config.opts
+      if type(opts) == 'function' then
+        opts = opts()
+      end
+
+      -- Configure the LSP server
+      vim.lsp.config(server_name, opts)
+
+      -- Run setup if provided
+      if config.setup then
+        config.setup()
+      end
+    end
+  end
 end
 
 return M

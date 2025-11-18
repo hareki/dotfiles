@@ -95,6 +95,7 @@ return {
         treesitter = true,
         treesitter_context = true,
         which_key = true,
+        mason = true,
         indent_blankline = {
           enabled = true,
         },

@@ -7,11 +7,10 @@ return {
   -- 3 Putting vim.lsp.enable() in the init function
   -- https://www.reddit.com/r/neovim/comments/1l7pz1l/starting_from_0112_i_have_a_weird_issue
   event = 'VeryLazy',
-  dependencies = { 'folke/lazydev.nvim' },
+  dependencies = { 'folke/lazydev.nvim', 'mason-org/mason.nvim' },
   config = function()
     local utils = require('plugins.lsp.nvim-lspconfig.utils')
 
-    -- HACK: Intercept vim.diagnostic.set to apply both unnecessary and severity-based styling (if severity < HINT)
     local original_set = vim.diagnostic.set
     ---@param namespace integer The diagnostic namespace
     ---@param bufnr integer Buffer number
@@ -20,50 +19,8 @@ return {
     ---@diagnostic disable-next-line: duplicate-set-field
     vim.diagnostic.set = function(namespace, bufnr, diagnostics, opts)
       if diagnostics then
-        -- Fix zero-width or out-of-bounds diagnostics
-        for _, diagnostic in ipairs(diagnostics) do
-          utils.fix_diagnostic_range(bufnr, diagnostic)
-        end
-
-        -- Group diagnostics by position to check if underline would already be present
-        local positions = {}
-        for _, diagnostic in ipairs(diagnostics) do
-          local key = utils.get_pos_key(diagnostic)
-          positions[key] = positions[key] or {}
-          table.insert(positions[key], diagnostic)
-        end
-
-        -- Create duplicates for unnecessary diagnostics to get both styling effects
-        local underline_hacks = {}
-        for _, diagnostic in ipairs(diagnostics) do
-          local has_unnecessary = diagnostic._tags and diagnostic._tags.unnecessary
-
-          if has_unnecessary then
-            local key = utils.get_pos_key(diagnostic)
-            local position_diagnostics = positions[key]
-
-            local has_underline = false
-            -- Check if there's already a diagnostic at this exact position with same/higher severity without unnecessary tag
-            for _, other in ipairs(position_diagnostics) do
-              local other_has_unnecessary = other._tags and other._tags.unnecessary
-              if not other_has_unnecessary and other.severity <= diagnostic.severity then
-                has_underline = true
-                break
-              end
-            end
-
-            -- Only duplicate if no underline would be present otherwise
-            if not has_underline then
-              local dup = utils.create_underline_hack(diagnostic)
-              if dup then
-                table.insert(underline_hacks, dup)
-              end
-            end
-          end
-        end
-
-        -- Append to get both styling effects
-        vim.list_extend(diagnostics, underline_hacks)
+        utils.fix_all_diagnostic_ranges(bufnr, diagnostics)
+        utils.apply_underline_hack(diagnostics)
       end
 
       return original_set(namespace, bufnr, diagnostics, opts)
@@ -106,148 +63,37 @@ return {
 
     vim.api.nvim_create_autocmd('LspAttach', {
       callback = function(args)
-        local function opts(desc)
-          return {
+        local function map(mode, lhs, rhs, desc)
+          vim.keymap.set(mode, lhs, rhs, {
             buffer = args.buf,
             desc = desc,
-          }
+          })
         end
-
-        local map = vim.keymap.set
 
         map('n', 'gd', function()
           Snacks.picker.lsp_definitions()
-        end, opts('Go to Definition'))
+        end, 'Go to Definition')
 
         map('n', 'gr', function()
           Snacks.picker.lsp_references()
-        end, opts('Find References'))
+        end, 'Find References')
 
-        -- map('n', 'gh', vim.lsp.buf.hover, opts('Hover'))
+        map({ 'n', 'x' }, 'gh', '<CMD>EagleWin<CR>', 'Open Eagle LSP and Diagnostics')
+        map({ 'n', 'x' }, 'gH', '<CMD>EagleWinLineDiagnostic<CR>', 'Open Eagle Line Diagnostics')
         map({ 'n', 'x' }, '<leader>ca', function()
           require('actions-preview').code_actions()
-        end, opts('Code Actions')) -- Ctrl + Z
-        map('n', '<leader>cr', vim.lsp.buf.rename, opts('Rename')) -- F2
+        end, 'Code Actions') -- Ctrl + Z
+        map('n', '<leader>cr', vim.lsp.buf.rename, 'Rename') -- F2
         map('n', ']]', function()
           Snacks.words.jump(vim.v.count1)
-        end, opts('Next Reference'))
+        end, 'Next Reference')
         map('n', '[[', function()
           Snacks.words.jump(-vim.v.count1)
-        end, opts('Previous Reference'))
+        end, 'Previous Reference')
       end,
     })
 
-    vim.lsp.config('yamlls', {
-      settings = {
-        yaml = {
-          schemas = {
-            ['https://json.schemastore.org/github-workflow.json'] = '/.github/workflows/*',
-          },
-        },
-      },
-    })
-
-    vim.lsp.config('typos_lsp', {
-      init_options = {
-        config = '~/.config/typos/typos.toml',
-        diagnosticSeverity = 'Info',
-      },
-    })
-
-    local base_on_eslint_attach = vim.lsp.config.eslint.on_attach
-    local eslint_registered = false
-
-    -- HINT: Restart eslint with `:LspRestart eslint`
-    vim.lsp.config('eslint', {
-      on_attach = function(client, bufnr)
-        if base_on_eslint_attach then
-          base_on_eslint_attach(client, bufnr)
-        end
-
-        if eslint_registered then
-          return
-        end
-
-        require('utils.linters').register(
-          'eslint',
-          { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' },
-          require('utils.linters.eslint').run
-        )
-
-        eslint_registered = true
-      end,
-    })
-
-    vim.api.nvim_create_autocmd('LspAttach', {
-      callback = function(args)
-        local client = vim.lsp.get_client_by_id(args.data.client_id)
-        if not client or client.name ~= 'eslint' then
-          return
-        end
-
-        -- Ask server to emit trace
-        client:notify('$/setTrace', { value = 'verbose' })
-
-        -- Use circular buffer to avoid O(n) table.remove operation
-        local store, max = {}, 200
-        local store_index = 0 -- Current write position
-        local store_count = 0 -- Number of entries written
-        local function push(line)
-          store_index = (store_index % max) + 1
-          store[store_index] = line
-          store_count = store_count + 1
-        end
-
-        local original_trace = client.handlers['$/logTrace']
-        local original_log = client.handlers['window/logMessage']
-          or vim.lsp.handlers['window/logMessage']
-
-        client.handlers['$/logTrace'] = function(err, params, ctx, cfg)
-          push(
-            ('%s %s%s'):format(os.date('%Y-%m-%d %H:%M:%S '), params.message, params.verbose or '')
-          )
-          if original_trace then
-            return original_trace(err, params, ctx, cfg)
-          end
-        end
-
-        client.handlers['window/logMessage'] = function(err, params, ctx, cfg)
-          local lvl = ({ 'Error', 'Warn', 'Info', 'Log' })[params.type] or tostring(params.type)
-          push(('%s [%s] %s'):format(os.date('%Y-%m-%d %H:%M:%S'), lvl, params.message))
-          if original_log then
-            original_log(err, params, ctx, cfg)
-          end
-        end
-
-        vim.api.nvim_create_user_command('EslintLog', function()
-          -- Reconstruct log in correct order from circular buffer
-          local lines = {}
-          local actual_count = math.min(store_count, max)
-
-          if store_count <= max then
-            -- Haven't wrapped around yet, store is in order
-            for i = 1, actual_count do
-              lines[i] = store[i]
-            end
-          else
-            -- Wrapped around, need to reconstruct order
-            local start_idx = (store_index % max) + 1
-            for i = 1, max do
-              local idx = ((start_idx + i - 2) % max) + 1
-              lines[i] = store[idx]
-            end
-          end
-
-          local buf = vim.api.nvim_create_buf(false, true)
-          vim.bo[buf].filetype = 'eslint-log'
-          vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-          vim.cmd('botright 15split')
-          vim.api.nvim_win_set_buf(0, buf)
-        end, {
-          force = true, -- Override any previous definition
-        })
-      end,
-    })
+    utils.load_lsp_configs()
 
     vim.lsp.enable({
       'marksman', -- Markdown
@@ -261,7 +107,7 @@ return {
       'cssls', -- CSS
       'css_variables', -- CSS
       'copilot', -- GitHub Copilot
-      -- 'vtsls', -- Tytescript (Trying out typescript-tools.nvim)
+      'stylua', -- Lua formatter
     })
   end,
 }

@@ -1,22 +1,6 @@
 return {
   'hareki/eagle.nvim',
   cmd = { 'EagleWin', 'EagleWinLineDiagnostic' },
-  keys = {
-    {
-      'gh',
-      '<CMD>EagleWin<CR>',
-      mode = { 'n', 'x' },
-      desc = 'Open Eagle LSP and Diagnostics',
-      silent = true,
-    },
-    {
-      'gH',
-      '<CMD>EagleWinLineDiagnostic<CR>',
-      mode = { 'n', 'x' },
-      desc = 'Open Eagle Line Diagnostics',
-      silent = true,
-    },
-  },
   opts = function()
     local icons = require('configs.icons')
     return {
