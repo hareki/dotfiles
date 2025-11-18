@@ -53,6 +53,9 @@ keybind = cmd+shift+o=text:\x1b[1;6O
 keybind = ctrl+shift+y=text:\x1b[1;6Y
 keybind = cmd+shift+s=text:\x1b[1;6S
 
+# Neovim doesn't recognize text:\x1b[1;6W
+keybind = cmd+shift+w=text:\x1b[1;6F
+
 # zsh autin-search
 keybind = cmd+f=text:\x1bf
 

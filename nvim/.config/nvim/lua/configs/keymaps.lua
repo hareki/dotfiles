@@ -41,7 +41,17 @@ map({ 'n', 'i' }, '<F40>', function()
 end, { desc = 'Format and Save All' })
 
 map({ 'i', 'x', 'n', 's' }, '<A-r>', '<CMD>e!<CR>', { desc = 'Reload File', silent = true })
-map({ 'i', 'x', 'n', 's' }, '<A-w>', '<CMD>bd<CR>', { desc = 'Close Buffer', silent = true })
+map({ 'i', 'x', 'n', 's' }, '<A-w>', function()
+  Snacks.bufdelete()
+end, { desc = 'Close Buffer' })
+
+-- Mapped to Ctrl+Shift+W in ghostty config
+-- Test the keymap Neovim will receive with
+-- :echo keytrans(getcharstr())
+map({ 'i', 'x', 'n', 's' }, '<C-S-End>', function()
+  Snacks.bufdelete.other()
+  notifier.info('Closed Other Buffers')
+end, { desc = 'Close Other Buffers' })
 
 map({ 'n', 'x' }, '<leader>qa', '<CMD>qa!<CR>', { desc = 'Force Quit All', silent = true })
 map({ 'n', 'x' }, '<PageUp>', '<C-u>zz', { desc = 'Scroll Up and Center' })
