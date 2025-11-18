@@ -42,11 +42,11 @@ export EZA_CONFIG_DIR="$XDG_CONFIG_HOME/eza"
 unset EZA_COLORS LS_COLORS
 
 
-# Don't work well with tmux, it doesn't update the $PATH, have to call "rez"
-# Currently using shims instead, it has some limitations that don't affect me for now
-# A plus side is that it works with non-interactive shell as well
+# evalcache doesn't play nice with `mise activate zsh` due to its dynamic nature, especially in tmux
+# Performance penalty is negligible, fallback to use shims in non-interactive shells (check .zshenv)
 # https://mise.jdx.dev/dev-tools/shims.html#shims-vs-path
 # _evalcache mise activate zsh
+eval "$(mise activate zsh)"
 
 _evalcache zoxide init zsh
 _evalcache atuin init zsh --disable-up-arrow
