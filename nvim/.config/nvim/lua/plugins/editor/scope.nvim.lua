@@ -1,6 +1,7 @@
 return {
   'tiagovla/scope.nvim',
   event = 'VeryLazy',
+  config = true,
   keys = {
     {
       '<leader>fB',
