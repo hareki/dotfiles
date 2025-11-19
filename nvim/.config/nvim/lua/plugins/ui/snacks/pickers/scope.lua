@@ -68,15 +68,13 @@ end
 ---@return table|nil
 return function(user_opts)
   local scope_core = require('scope.core')
-  local picker_sources = require('snacks.picker.config.sources')
-  local base_cfg = picker_sources.buffers or {}
-  local opts = apply_cwd_only_aliases(vim.deepcopy(user_opts or {}))
+  local opts = apply_cwd_only_aliases(user_opts or {})
   local buffer_format = require('plugins.ui.snacks.utils').buffer_format
-  local picker_util = Snacks.picker.util
   local picker_actions = Snacks.picker.actions
 
   scope_core.revalidate()
 
+  -- Extract scope-specific options with defaults
   local show_all_buffers = opts.show_all_buffers
   if show_all_buffers == nil then
     show_all_buffers = true
@@ -84,24 +82,11 @@ return function(user_opts)
   local ignore_current_buffer = opts.ignore_current_buffer == true
   local cwd_only = opts.cwd_only == true
   local cwd_filter = opts.cwd
-  local sort_mru = opts.sort_mru == true
-  local sort_lastused = opts.sort_lastused
-  if sort_lastused == nil then
-    sort_lastused = base_cfg.sort_lastused
-  end
-  if sort_lastused == nil then
-    sort_lastused = true
-  end
 
-  opts.show_all_buffers = nil
-  opts.ignore_current_buffer = nil
-  opts.sort_mru = nil
-  opts.sort_lastused = nil
-  opts.cwd_only = nil
-  opts.only_cwd = nil
-
+  -- Compute cwd for filtering if needed
   local cwd = cwd_only and (uv and uv.cwd and uv.cwd()) or cwd_filter
 
+  -- Get filtered buffer numbers from scope
   local bufnrs = filter(
     function(b)
       if not show_all_buffers and not vim.api.nvim_buf_is_loaded(b) then
@@ -137,45 +122,13 @@ return function(user_opts)
     return
   end
 
-  if sort_mru then
-    table.sort(bufnrs, function(a, b)
-      return vim.fn.getbufinfo(a)[1].lastused > vim.fn.getbufinfo(b)[1].lastused
-    end)
-  end
-
-  local buffers = {}
-  local default_selection_idx = 1
-  for _, bufnr in ipairs(bufnrs) do
-    local flag = bufnr == vim.fn.bufnr('') and '%' or (bufnr == vim.fn.bufnr('#') and '#' or ' ')
-    local info = vim.fn.getbufinfo(bufnr)[1]
-    local tabpage = find_buffer_tabpage(bufnr)
-
-    if sort_lastused and not ignore_current_buffer and flag == '#' then
-      default_selection_idx = 2
-    end
-
-    local element = {
-      bufnr = bufnr,
-      flag = flag,
-      info = info,
-      tabpage = tabpage,
-    }
-
-    if sort_lastused and (flag == '#' or flag == '%') then
-      local idx = ((buffers[1] ~= nil and buffers[1].flag == '%') and 2 or 1)
-      table.insert(buffers, idx, element)
-    else
-      table.insert(buffers, element)
-    end
-  end
-
+  -- Build items from buffer numbers
   local items = {}
   local current_buf = vim.api.nvim_get_current_buf()
   local alternate_buf = vim.fn.bufnr('#')
 
-  for idx, buf in ipairs(buffers) do
-    local bufnr = buf.bufnr
-    local info = buf.info
+  for _, bufnr in ipairs(bufnrs) do
+    local info = vim.fn.getbufinfo(bufnr)[1]
     local mark = vim.api.nvim_buf_get_mark(bufnr, '"')
     if not mark or mark[1] == 0 then
       mark = { info.lnum, 0 }
@@ -185,15 +138,7 @@ return function(user_opts)
       name = '[Scratch]'
     end
 
-    local flags = table.concat({
-      buf.flag,
-      info.hidden == 1 and 'h' or (#(info.windows or {}) > 0 and 'a' or ''),
-      vim.bo[bufnr].readonly and '=' or '',
-      info.changed == 1 and '+' or '',
-    })
-
-    local item = {
-      idx = idx,
+    items[#items + 1] = {
       buf = bufnr,
       bufnr = bufnr,
       name = name,
@@ -202,14 +147,10 @@ return function(user_opts)
       filetype = vim.bo[bufnr].filetype,
       info = info,
       pos = mark,
-      flags = flags,
-      scope_tabpage = buf.tabpage,
+      scope_tabpage = find_buffer_tabpage(bufnr),
       current = bufnr == current_buf,
       alternate = bufnr == alternate_buf,
     }
-
-    item.text = picker_util.text(item, { 'buf', 'name', 'filetype', 'buftype' })
-    items[#items + 1] = item
   end
 
   local function scope_confirm(picker, _, action)
@@ -252,56 +193,52 @@ return function(user_opts)
     end)
   end
 
-  local picker_opts = vim.tbl_deep_extend('force', {}, base_cfg, opts)
-  picker_opts.source = picker_opts.source or 'scope_buffers'
-  picker_opts.finder = nil
-  picker_opts.hidden = nil
-  picker_opts.unloaded = nil
-  picker_opts.current = nil
-  picker_opts.nofile = nil
-  picker_opts.modified = nil
-  picker_opts.sort_lastused = nil
-  picker_opts.items = items
-  picker_opts.title = picker_opts.title or 'Scope Buffers'
-  picker_opts.format = buffer_format
-  picker_opts.preview = picker_opts.preview or 'file'
+  -- Merge user opts with scope-specific overrides
+  local picker_opts = vim.tbl_deep_extend('force', {}, opts, {
+    source = 'scope_buffers',
+    title = opts.title or 'Scope Buffers',
+    items = items,
+    finder = nil,
+    format = buffer_format,
+    preview = opts.preview or 'file',
+    confirm = opts.confirm or scope_confirm,
 
-  picker_opts.actions = picker_opts.actions or {}
-  picker_opts.actions.scope_select_window = select_window
+    actions = vim.tbl_extend('force', opts.actions or {}, {
+      scope_select_window = select_window,
+    }),
 
-  if picker_opts.confirm == nil then
-    picker_opts.confirm = scope_confirm
-  end
-
-  picker_opts.win = picker_opts.win or {}
-  picker_opts.win.input = picker_opts.win.input or {}
-  picker_opts.win.list = picker_opts.win.list or {}
-
-  picker_opts.win.input.keys = vim.tbl_extend('force', picker_opts.win.input.keys or {}, {
-    ['<C-w>'] = {
-      'scope_select_window',
-      mode = { 'n', 'i' },
-      desc = 'Open buffer in current window',
+    win = {
+      input = {
+        keys = vim.tbl_extend(
+          'force',
+          (opts.win and opts.win.input and opts.win.input.keys) or {},
+          {
+            ['<C-w>'] = {
+              'scope_select_window',
+              mode = { 'n', 'i' },
+              desc = 'Open buffer in current window',
+            },
+          }
+        ),
+      },
+      list = {
+        keys = vim.tbl_extend('force', (opts.win and opts.win.list and opts.win.list.keys) or {}, {
+          ['<C-w>'] = {
+            'scope_select_window',
+            mode = { 'n', 'i' },
+            desc = 'Open buffer in current window',
+          },
+        }),
+      },
     },
   })
-  picker_opts.win.list.keys = vim.tbl_extend('force', picker_opts.win.list.keys or {}, {
-    ['<C-w>'] = {
-      'scope_select_window',
-      mode = { 'n', 'i' },
-      desc = 'Open buffer in current window',
-    },
-  })
 
-  local existing_on_show = picker_opts.on_show
-  picker_opts.on_show = function(picker)
-    if existing_on_show then
-      pcall(existing_on_show, picker)
-    end
-    if default_selection_idx and default_selection_idx > 1 then
-      picker.list:view(default_selection_idx)
-      picker_actions.list_scroll_center(picker)
-    end
-  end
+  -- Clean up scope-specific options that shouldn't be passed to Snacks
+  picker_opts.show_all_buffers = nil
+  picker_opts.ignore_current_buffer = nil
+  picker_opts.cwd_only = nil
+  picker_opts.only_cwd = nil
+  picker_opts.cwd = nil
 
   return Snacks.picker(picker_opts)
 end
