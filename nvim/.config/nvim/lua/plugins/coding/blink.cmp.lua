@@ -202,7 +202,9 @@ return {
           },
           ['<A-Space>'] = {
             function(cmp)
-              if not cmp.is_menu_visible() then
+              if cmp.is_menu_visible() then
+                cmp.show({ providers = { 'copilot' } })
+              else
                 cmp.show()
               end
             end,
@@ -222,9 +224,10 @@ return {
         },
 
         sources = {
-          default = { 'lazydev', 'lsp', 'path', 'snippets', 'buffer', 'spell', 'copilot' },
+          default = { 'lsp', 'path', 'snippets', 'buffer', 'spell', 'copilot' },
           per_filetype = {
             markdown = { inherit_defaults = true, 'markdown' },
+            lua = { inherit_defaults = true, 'lazydev' },
           },
           providers = {
             lazydev = {
@@ -281,7 +284,7 @@ return {
               module = 'blink-copilot',
               async = true,
               max_items = copilot_max_items,
-              score_offset = 100,
+              score_offset = -100, -- prefetch the source, but push it to the very bottom, only show on <A-Space>
             },
 
             markdown = {
