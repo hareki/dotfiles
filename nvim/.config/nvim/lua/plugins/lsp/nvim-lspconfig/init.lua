@@ -108,6 +108,7 @@ return {
       'css_variables', -- CSS
       'copilot', -- GitHub Copilot
       'stylua', -- Lua formatter
+      'vtsls', -- TypeScript
     })
   end,
 }

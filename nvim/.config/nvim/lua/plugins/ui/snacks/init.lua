@@ -160,6 +160,7 @@ return {
         input = { enabled = true },
         lazygit = { enabled = true, configure = false },
         scratch = { enabled = true },
+        rename = { enabled = true },
 
         picker = {
           icons = {
