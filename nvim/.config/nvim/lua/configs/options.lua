@@ -71,7 +71,7 @@ opt.foldenable = true
 
 opt.showtabline = 0 -- Always hide the tabline
 -- https://github.com/rmagatti/auto-session?tab=readme-ov-file#recommended-sessionoptions-config
-opt.sessionoptions = 'blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal'
+opt.sessionoptions = 'blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,globals' -- "globals" option is needed for scope.nvim
 
 -- Save undo history
 opt.undofile = true

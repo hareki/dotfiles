@@ -1,6 +1,9 @@
 return {
   'rmagatti/auto-session',
   lazy = false,
+  dependencies = {
+    'tiagovla/scope.nvim',
+  },
   keys = {
     {
       '<leader>fs',
@@ -54,6 +57,13 @@ return {
     ---@type AutoSession.Config
     return {
       suppressed_dirs = { '~/', '~/Downloads', '/' },
+      pre_save_cmds = {
+        'ScopeSaveState',
+      },
+      post_restore_cmds = {
+        'ScopeLoadState',
+      },
+
       ---@type SessionLens
       session_lens = {
         picker = 'snacks',
