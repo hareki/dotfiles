@@ -182,8 +182,16 @@ return {
             end,
             'fallback',
           },
-          -- ['<CR>'] = { 'accept', 'fallback' },
-          ['<C-y>'] = { 'accept', 'fallback' },
+          ['<CR>'] = { 'accept', 'fallback' },
+          -- ['<Esc>'] = {
+          --   function(cmp)
+          --     if cmp.is_menu_visible() then
+          --       cmp.hide()
+          --       return true
+          --     end
+          --   end,
+          --   'fallback',
+          -- },
           ['<Space>'] = {
             function(cmp)
               if not cmp.is_menu_visible() then
