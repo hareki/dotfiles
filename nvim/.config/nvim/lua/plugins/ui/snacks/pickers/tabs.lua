@@ -384,6 +384,9 @@ return function(user_opts)
       return
     end
 
+    -- Capture the current picker state before closing
+    local picker_query = picker.input and picker.input:get() or ''
+
     picker:norm(function()
       local tabnrs = {}
       for _, item in ipairs(selection) do
@@ -401,11 +404,35 @@ return function(user_opts)
         return
       end
 
+      -- Save picker's current tab
+      local picker_tab = vim.api.nvim_get_current_tabpage()
+      local picker_tabnr = vim.api.nvim_tabpage_get_number(picker_tab)
+      local closing_picker_tab = vim.tbl_contains(tabnrs, picker_tabnr)
+
       for _, tabnr in ipairs(tabnrs) do
         vim.cmd(string.format('%dtabclose', tabnr))
       end
+
+      -- If we closed the picker's tab, re-open the picker
+      if closing_picker_tab then
+        picker:close()
+        vim.schedule(function()
+          local new_picker_opts = vim.deepcopy(picker_opts)
+          new_picker_opts.items, default_selection_idx = build_tab_items()
+          if not vim.tbl_isempty(new_picker_opts.items) then
+            local new_picker = Snacks.picker(new_picker_opts)
+            if picker_query and picker_query ~= '' and new_picker.input then
+              vim.schedule(function()
+                new_picker.input:set(picker_query)
+              end)
+            end
+          end
+        end)
+        return
+      end
     end)
 
+    -- Only refresh if we didn't close the picker's tab
     local refreshed = rebuild_items()
     if not refreshed then
       picker:close()
