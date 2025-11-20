@@ -6,14 +6,17 @@ return {
     }
   end),
   {
-    'folke/sidekick.nvim',
+    'hareki/sidekick.nvim',
     event = 'VeryLazy',
     opts = function()
       local popup_config = require('utils.ui').popup_config
       local lg_popup_config = popup_config('lg')
+
       ---@class sidekick.Config
       return {
         nes = {
+          mode = 'pending',
+          debounce = 75,
           diff = {
             inline = 'chars',
           },
@@ -98,6 +101,28 @@ return {
         mode = { 'n', 'x' },
         desc = 'Select Prompt',
       },
+      {
+        '<A-Space>',
+        function()
+          if not require('sidekick.nes').have() then
+            notifier.warn('No next edit suggestion found')
+          end
+
+          require('sidekick.nes').render_nes()
+        end,
+        desc = 'Render Next Edit Suggestions',
+      },
     },
   },
+
+  config = function(_, opts)
+    require('sidekick').setup(opts)
+
+    vim.api.nvim_create_autocmd('User', {
+      pattern = 'SidekickNesDone',
+      callback = function()
+        require('sidekick.nes').render_nes()
+      end,
+    })
+  end,
 }

@@ -157,6 +157,13 @@ return {
         lualine_z = {
 
           {
+            function()
+              local have_nes = require('sidekick.nes').have()
+              return have_nes and '' or ''
+            end,
+            color = { fg = palette.yellow, bg = palette.base },
+          },
+          {
             'copilot',
             symbols = {
               status = {
@@ -166,7 +173,7 @@ return {
               },
               spinners = 'circle_full',
             },
-            padding = { left = 0, right = 0 },
+            padding = { left = 2, right = 0 },
             color = { fg = palette.subtext0, bg = palette.base },
           },
           {

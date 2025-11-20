@@ -284,7 +284,7 @@ return {
               module = 'blink-copilot',
               async = true,
               max_items = copilot_max_items,
-              score_offset = -100, -- prefetch the source, but push it to the very bottom, only show on <A-Space>
+              score_offset = -1000, -- prefetch the source, but push it to the very bottom, only show on <A-Space>
             },
 
             markdown = {

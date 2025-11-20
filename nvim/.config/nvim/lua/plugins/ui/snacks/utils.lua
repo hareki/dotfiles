@@ -166,7 +166,7 @@ function M.buffer_format(item, picker)
     })
   end
 
-  local bufnr = item.buf or item.item.bufnr
+  local bufnr = item.buf or item.bufnr or (item.item and item.item.bufnr)
   if bufnr and vim.bo[bufnr].modified then
     ret[#ret + 1] = { require('configs.icons').file_status.modified, 'Number' }
   end
