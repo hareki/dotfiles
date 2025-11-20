@@ -419,13 +419,17 @@ return function(user_opts)
         vim.schedule(function()
           local new_picker_opts = vim.deepcopy(picker_opts)
           new_picker_opts.items, default_selection_idx = build_tab_items()
-          if not vim.tbl_isempty(new_picker_opts.items) then
-            local new_picker = Snacks.picker(new_picker_opts)
-            if picker_query and picker_query ~= '' and new_picker.input then
-              vim.schedule(function()
-                new_picker.input:set(picker_query)
-              end)
-            end
+
+          if vim.tbl_isempty(new_picker_opts.items) then
+            return
+          end
+
+          local new_picker = Snacks.picker(new_picker_opts)
+          -- Restore the previous query
+          if picker_query and picker_query ~= '' and new_picker.input then
+            vim.schedule(function()
+              new_picker.input:set(picker_query)
+            end)
           end
         end)
         return
