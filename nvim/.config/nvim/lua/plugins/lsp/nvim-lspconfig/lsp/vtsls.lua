@@ -19,6 +19,31 @@ local ts_config = {
 local js_config = ts_config
 
 return {
+  setup = function()
+    vim.api.nvim_create_autocmd('LspAttach', {
+      callback = function(args)
+        local client = vim.lsp.get_client_by_id(args.data.client_id)
+
+        if not (client and client.name == 'vtsls') then
+          return
+        end
+
+        vim.keymap.set('n', '<leader>cu', function()
+          vim.lsp.buf.code_action({
+            apply = true,
+            context = {
+              only = { 'source.removeUnused.ts' },
+              diagnostics = {},
+            },
+          })
+        end, {
+          buffer = args.buf,
+          desc = 'Remove Unused Imports',
+        })
+      end,
+    })
+  end,
+
   opts = function()
     local npm_global_root = vim.fn.trim(vim.fn.system('npm root -g'))
 
