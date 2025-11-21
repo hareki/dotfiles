@@ -9,9 +9,9 @@ local function generate_formatter(prefix)
 end
 
 local name_formatter = {
-  default = generate_formatter('editor-tab'),
-  terminal = generate_formatter('terminal-tab'),
-  diffview = generate_formatter('diffview-tab'),
+  default = generate_formatter('editor'),
+  terminal = generate_formatter('terminal'),
+  diffview = generate_formatter('diffview'),
 }
 
 ---@param tab_id? integer
