@@ -137,6 +137,14 @@ return {
         end,
         desc = 'Select Scratch Buffer',
       },
+      {
+        '<A-t>',
+        mode = { 'n', 't', 'i' },
+        function()
+          Snacks.terminal.toggle(nil, { win = { position = 'float' } })
+        end,
+        desc = 'Toggle Floating Terminal',
+      },
     },
     opts = function()
       local popup_config = require('utils.ui').popup_config
@@ -306,6 +314,15 @@ return {
             row = config.input.row,
           },
           scratch = {
+            height = config.lg.height,
+            width = config.lg.width,
+            col = config.lg.col,
+            row = config.lg.row,
+          },
+          terminal = {
+            title = ' Terminal ',
+            title_pos = 'center',
+            border = 'rounded',
             height = config.lg.height,
             width = config.lg.width,
             col = config.lg.col,

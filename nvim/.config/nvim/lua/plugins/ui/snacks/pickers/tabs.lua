@@ -144,30 +144,11 @@ return function(user_opts)
   picker_opts.title = picker_opts.title or 'Tabs'
   picker_opts.finder = nil
 
-  local function build_toggleterm_lookup()
-    local toggleterm = require('toggleterm.terminal')
-
-    local lookup = {}
-    local ok_terms, terms = pcall(toggleterm.get_all, true)
-    if not ok_terms then
-      return lookup
-    end
-
-    for _, term in ipairs(terms) do
-      if type(term) == 'table' and term.bufnr then
-        lookup[term.bufnr] = term
-      end
-    end
-
-    return lookup
-  end
-
   local function make_preview_items(tab_item)
     if not tab_item then
       return {}
     end
 
-    local toggleterm_lookup = build_toggleterm_lookup()
     local current_buf = vim.api.nvim_get_current_buf()
     local alternate_buf = vim.fn.bufnr('#')
     local seen = {}
@@ -237,24 +218,12 @@ return function(user_opts)
           display_name = vim.fn.fnamemodify(name, ':t')
         end
       else
-        local term = toggleterm_lookup[bufnr]
-        local term_name = term and term.display_name
-
-        if term_name == nil or term_name == '' then
-          term_name = term and term.id and tostring(term.id) or nil
+        if name == '' then
+          display_name = string.format('[%s]', buftype)
+        else
+          display_name = vim.fn.fnamemodify(name, ':t')
         end
-
-        if not term_name then
-          local ok_toggle_number, toggle_number =
-            pcall(vim.api.nvim_buf_get_var, bufnr, 'toggle_number')
-          if ok_toggle_number and toggle_number ~= nil then
-            term_name = tostring(toggle_number)
-          end
-        end
-
-        term_name = term_name or tostring(bufnr)
-        display_name = term_name
-        file = term_name
+        file = name ~= '' and name or display_name
       end
 
       local entry = {
