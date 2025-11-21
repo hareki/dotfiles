@@ -250,6 +250,8 @@ return {
 
             buffers = {
               format = utils.buffer_format,
+              matcher = { sort_empty = true }, -- Required for sort to work with empty search
+              sort = utils.buffer_sort,
               win = {
                 input = {
                   keys = {

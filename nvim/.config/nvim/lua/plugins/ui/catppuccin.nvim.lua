@@ -54,6 +54,8 @@ return {
         ['@markup.quote'] = { fg = palette.text },
         ['@markup.italic'] = { fg = palette.flamingo, italic = true },
         ['@markup.strong'] = { fg = palette.flamingo, bold = true },
+
+        ModifiedIndicator = { fg = palette.yellow },
       },
       lsp_styles = {
         virtual_text = {

@@ -57,6 +57,9 @@ return {
     ---@type AutoSession.Config
     return {
       suppressed_dirs = { '~/', '~/Downloads', '/' },
+      -- Prevent session deletion when exiting from terminal buffers
+      -- Terminal buffers can appear "empty" causing auto-session to delete the session
+      auto_delete_empty_sessions = false,
       pre_save_cmds = {
         'ScopeSaveState',
       },

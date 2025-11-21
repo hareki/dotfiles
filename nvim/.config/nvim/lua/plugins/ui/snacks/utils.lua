@@ -141,21 +141,12 @@ function M.keymap_format(item, _picker, width)
   return ret
 end
 
--- Remove buf number and flags from
+-- Remove buf number, buf type and flags from
 -- https://github.com/folke/snacks.nvim/blob/52f30a198a19bf5da6aa95cc642bfbb99b9bbfbf/lua/snacks/picker/format.lua#L638
 ---@param item snacks.picker.Item
 function M.buffer_format(item, picker)
   local ret = {} ---@type snacks.picker.Highlight[]
   vim.list_extend(ret, Snacks.picker.format.filename(item, picker))
-
-  if item.buftype ~= '' then
-    ret[#ret + 1] = { ' ' }
-    vim.list_extend(ret, {
-      { '[', 'SnacksPickerDelim' },
-      { item.buftype, 'SnacksPickerBufType' },
-      { ']', 'SnacksPickerDelim' },
-    })
-  end
 
   if item.name == '' and item.filetype ~= '' then
     ret[#ret + 1] = { ' ' }
@@ -168,10 +159,47 @@ function M.buffer_format(item, picker)
 
   local bufnr = item.buf or item.bufnr or (item.item and item.item.bufnr)
   if bufnr and vim.bo[bufnr].modified then
-    ret[#ret + 1] = { require('configs.icons').file_status.modified, 'Number' }
+    ret[#ret + 1] = { require('configs.icons').file_status.modified, 'ModifiedIndicator' }
   end
 
   return ret
+end
+
+-- Sort buffers by modified state, score, text length, and index, which is mostly the default, except for the modified state
+function M.buffer_sort(a, b)
+  -- Safely get modified state with pcall to handle fast event context
+  local function get_modified(bufnr)
+    if not bufnr then
+      return false
+    end
+    local ok, modified = pcall(vim.api.nvim_buf_get_option, bufnr, 'modified')
+    return ok and modified or false
+  end
+
+  local a_bufnr = a.buf or a.bufnr or (a.item and a.item.bufnr)
+  local b_bufnr = b.buf or b.bufnr or (b.item and b.item.bufnr)
+  local a_modified = get_modified(a_bufnr)
+  local b_modified = get_modified(b_bufnr)
+
+  -- Modified buffers first
+  if a_modified ~= b_modified then
+    return a_modified
+  end
+
+  -- Then by score (descending)
+  if a.score ~= b.score then
+    return a.score > b.score
+  end
+
+  -- Then by text length (shorter first)
+  local a_len = #(a.text or '')
+  local b_len = #(b.text or '')
+  if a_len ~= b_len then
+    return a_len < b_len
+  end
+
+  -- Finally by index
+  return (a.idx or 0) < (b.idx or 0)
 end
 
 return M

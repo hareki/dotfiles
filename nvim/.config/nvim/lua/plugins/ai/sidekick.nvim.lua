@@ -109,6 +109,10 @@ return {
           end
 
           require('sidekick.nes').render_nes()
+
+          vim.schedule(function()
+            require('sidekick.nes').jump()
+          end)
         end,
         desc = 'Render Next Edit Suggestions',
       },

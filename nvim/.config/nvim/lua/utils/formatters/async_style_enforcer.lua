@@ -183,7 +183,6 @@ function M.run_all(debug)
     return
   end
 
-  local total = #all_scope_buffers
   local completed = 0
   local failed = 0
 
@@ -207,7 +206,7 @@ function M.run_all(debug)
       local display_path = buf_display_path(buf)
 
       -- Wrap in pcall to catch errors and continue processing other buffers
-      local ok, err = pcall(M.run, debug, buf)
+      local ok, err = pcall(M.run, { debug = debug, buf = buf })
 
       if not ok then
         failed = failed + 1

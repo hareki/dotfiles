@@ -22,6 +22,7 @@ return {
     return require('plugins.ui.lualine.utils').have_status_line()
   end,
   opts = function()
+    local buffer_comp = require('plugins.ui.lualine.components.buffer')
     -- PERF: we don't need this lualine require madness 🤷
     local lualine_require = require('lualine_require')
     lualine_require.require = require
@@ -144,10 +145,19 @@ return {
             color = { fg = palette.subtext0, bg = palette.base },
             padding = { left = 2, right = 0 },
           },
+
+          empty_comp,
+          empty_comp,
+
           {
-            require('utils.buffer').lualine,
-            padding = { left = 2, right = 0 },
-            color = { fg = palette.peach },
+            buffer_comp.current_buffer_flags,
+            padding = { left = 0, right = 0 },
+            color = { fg = palette.yellow },
+          },
+          {
+            buffer_comp.global_modified_flag,
+            padding = { left = 0, right = 0 },
+            color = { fg = palette.red },
           },
         },
         lualine_b = {},
