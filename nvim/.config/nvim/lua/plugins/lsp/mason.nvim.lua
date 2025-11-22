@@ -28,6 +28,7 @@ return {
         'taplo',
         'typos-lsp',
         'yaml-language-server',
+        'tree-sitter-cli',
       },
     }
   end,
