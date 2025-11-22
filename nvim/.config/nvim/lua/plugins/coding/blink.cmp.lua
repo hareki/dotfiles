@@ -4,14 +4,13 @@ return {
   require('utils.ui').catppuccin(function(palette)
     return {
       BlinkCmpKindRenderMD = { fg = palette.text },
+      BlinkCmpLabelMatch = { fg = palette.blue },
+      BlinkCmpLabel = { fg = palette.text },
+      BlinkCmpKindVariable = { link = '@variable' },
     }
   end),
   {
     'saghen/blink.compat',
-    opts = {},
-  },
-  {
-    'xzbdmw/colorful-menu.nvim',
     opts = {},
   },
   {
@@ -86,8 +85,35 @@ return {
           kind_icons = {
             History = '',
             Spell = '',
-            Yanky = '󰅍',
-            RenderMD = ' ',
+            Yanky = '󰨸',
+            RenderMD = '',
+
+            -- lspkind.nvim codicon preset
+            Text = '',
+            Method = '',
+            Function = '',
+            Constructor = '',
+            Field = '',
+            Variable = '',
+            Class = '',
+            Interface = '',
+            Module = '',
+            Property = '',
+            Unit = '',
+            Value = '',
+            Enum = '',
+            Keyword = '',
+            Snippet = '',
+            Color = '',
+            File = '',
+            Reference = '',
+            Folder = '',
+            EnumMember = '',
+            Constant = '',
+            Struct = '',
+            Event = '',
+            Operator = '',
+            TypeParameter = '',
           },
         },
 
@@ -153,18 +179,19 @@ return {
             scrollbar = false,
             draw = {
               padding = { 1, 1 },
-              columns = { { 'kind_icon' }, { 'label', gap = 1 } },
+              columns = {
+                { 'kind_icon' },
+                { 'label', 'label_description', gap = 1 },
+                -- { 'kind_icon', 'label', 'label_description', gap = 1 },
+              },
               components = {
                 label = {
-                  text = function(ctx)
-                    return require('colorful-menu').blink_components_text(ctx)
-                  end,
-                  highlight = function(ctx)
-                    return require('colorful-menu').blink_components_highlight(ctx)
-                  end,
+                  width = { fill = false, max = 15 },
+                },
+                label_description = {
+                  width = { max = 20 },
                 },
               },
-              treesitter = { 'lsp' },
             },
           },
         },
@@ -252,7 +279,8 @@ return {
             },
 
             buffer = {
-              max_items = 6,
+              max_items = 3,
+              score_offset = -10,
             },
 
             cmdline = {
@@ -264,7 +292,6 @@ return {
               name = 'cmdline_history',
               module = 'blink.compat.source',
               max_items = 6,
-              score_offset = -10,
               min_keyword_length = cmdline_min_keyword_length(0),
 
               transform_items = function(_, items)
@@ -282,7 +309,7 @@ return {
               module = 'blink.compat.source',
               max_items = 3,
               min_keyword_length = 4,
-              score_offset = -5,
+              score_offset = -10,
               transform_items = function(_, items)
                 for _, item in ipairs(items) do
                   item.kind = spell_kind_index
@@ -299,7 +326,10 @@ return {
               module = 'blink-copilot',
               async = true,
               max_items = copilot_max_items,
-              score_offset = -1000, -- prefetch the source, but push it to the very bottom, only show on <A-Space>
+              should_show_items = function(ctx)
+                -- Only show items if 'copilot' is the sole provider to avoid distraction
+                return ctx.providers[1] == 'copilot' and #ctx.providers == 1
+              end,
             },
 
             markdown = {

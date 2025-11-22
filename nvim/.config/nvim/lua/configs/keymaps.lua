@@ -141,3 +141,4 @@ map('n', '<leader>tr', function()
 end, { desc = 'Rename Tab' })
 
 map('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Leave Terminal Mode' })
+map('n', '<CR>', 'a<CR><Esc>', { desc = 'Break line after cursor' })

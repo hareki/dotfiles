@@ -1,7 +1,7 @@
 {
   "useState": {
     "prefix": "us",
-    "body": "const [${1:state}, set${1:state}] = useState(${2:initValue})$0",
+    "body": "const [${1:state}, set${1:State}] = useState(${2:initValue})$0",
     "description": "React useState() hook"
   },
   "useRef": {
