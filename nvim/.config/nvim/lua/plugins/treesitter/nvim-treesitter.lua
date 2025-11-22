@@ -3,6 +3,7 @@ return {
   version = false, -- last release is way too old and doesn't work on Windows
   build = ':TSUpdate',
   event = { 'VeryLazy' },
+  branch = 'master', -- The new "main" branch is immature, tree-sitter-styled breaks, colors look weird
   lazy = vim.fn.argc(-1) == 0, -- load treesitter early when opening a file from the cmdline
   cmd = { 'TSUpdateSync', 'TSUpdate', 'TSInstall' },
   keys = {
