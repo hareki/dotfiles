@@ -89,6 +89,9 @@ return {
             { pattern = 'scroll down', icon = '󱕐 ' },
 
             -- Generic ones, should have lower priority
+            { pattern = 'typescript', icon = ' ', color = 'blue' },
+            { pattern = 'mason', icon = ' ', color = 'yellow' },
+            { pattern = 'code actions', icon = '', color = 'yellow' },
             { pattern = 'lsp', icon = '  ', color = 'blue' },
             { pattern = 'register', icon = '', color = 'yellow' },
             { pattern = 'tab', icon = icons.misc.tab, color = 'blue' },

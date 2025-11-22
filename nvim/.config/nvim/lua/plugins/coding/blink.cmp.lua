@@ -310,7 +310,7 @@ return {
               module = 'blink.compat.source',
               max_items = 3,
               min_keyword_length = 4,
-              score_offset = -10,
+              score_offset = -20,
               transform_items = function(_, items)
                 for _, item in ipairs(items) do
                   item.kind = spell_kind_index
