@@ -56,7 +56,7 @@ map({ 'i', 'x', 'n', 's' }, '<C-S-End>', function()
   notifier.info('Closed Other Buffers')
 end, { desc = 'Close Other Buffers' })
 
-map({ 'n', 'x' }, '<leader>qa', '<CMD>qa!<CR>', { desc = 'Force Quit All', silent = true })
+map({ 'n', 'x' }, '<leader>qa', '<CMD>qa<CR>', { desc = 'Quit All', silent = true })
 map({ 'n', 'x' }, '<PageUp>', '<C-u>zz', { desc = 'Scroll Up and Center' })
 map({ 'n', 'x' }, '<PageDown>', '<C-d>zz', { desc = 'Scroll Down and Center' })
 
