@@ -44,6 +44,7 @@ opt.wrap = false -- Disable line wrapping
 opt.mouse = 'a' -- Enable mouse mode
 opt.showmode = false -- Don't show the mode, since it's already in the status line
 opt.breakindent = true
+opt.swapfile = false -- Don't use swapfiles
 opt.inccommand = 'split' -- Preview substitutions live, as you type!
 opt.cursorline = true -- Show which line your cursor is on
 opt.scrolloff = 6 -- Minimal number of screen lines to keep above and below the cursor.
