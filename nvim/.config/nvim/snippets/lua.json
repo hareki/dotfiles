@@ -1,42 +1,23 @@
 {
   "function": {
     "prefix": "fu",
-    "body": [
-      "local function ${1:name}($2)",
-      "\t${0:-- code}",
-      "end"
-    ]
+    "body": ["local function ${1:name}($2)", "\t${0:-- code}", "end"]
   },
   "pairs": {
     "prefix": "forp",
-    "body": [
-      "for i, ${1:x} in pairs(${2:table}) do",
-      "\t$0",
-      "end"
-    ]
+    "body": ["for i, ${1:x} in pairs(${2:table}) do", "\t$0", "end"]
   },
   "ipairs": {
     "prefix": "forip",
-    "body": [
-      "for i, ${1:x} in ipairs(${2:table}) do",
-      "\t$0",
-      "end"
-    ]
+    "body": ["for i, ${1:x} in ipairs(${2:table}) do", "\t$0", "end"]
   },
   "if": {
     "prefix": "if",
-    "body": [
-      "if ${1:true} then",
-      "\t$0",
-      "end"
-    ]
+    "body": ["if ${1:true} then", "\t$0", "end"]
   },
   "elseif": {
     "prefix": "elif",
-    "body": [
-      "elseif ${1:true} then",
-      "\t$0"
-    ]
+    "body": ["elseif ${1:true} then", "\t$0"]
   },
   "comment": {
     "prefix": "---",

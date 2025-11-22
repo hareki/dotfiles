@@ -62,6 +62,11 @@ return {
       },
       post_restore_cmds = {
         'ScopeLoadState',
+        function()
+          vim.schedule(function()
+            pcall(vim.cmd.ColorizerAttachToBuffer)
+          end)
+        end,
       },
 
       ---@type SessionLens

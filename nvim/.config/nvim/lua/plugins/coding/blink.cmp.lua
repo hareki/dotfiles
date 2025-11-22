@@ -11,6 +11,10 @@ return {
     opts = {},
   },
   {
+    'xzbdmw/colorful-menu.nvim',
+    opts = {},
+  },
+  {
     'fang2hou/blink-copilot',
     opts = function()
       return {
@@ -74,6 +78,7 @@ return {
         enabled = function()
           -- NvimTree live_filter has a blank filetype
           return not vim.tbl_contains({ '', 'NvimTree' }, vim.bo.filetype)
+            and not vim.snippet.active()
         end,
         fuzzy = { implementation = 'prefer_rust_with_warning' },
         signature = { enabled = true, window = { border = 'rounded' } },
@@ -148,7 +153,17 @@ return {
             scrollbar = false,
             draw = {
               padding = { 1, 1 },
-              columns = { { 'label' }, { 'kind_icon' }, { 'kind' } },
+              columns = { { 'kind_icon' }, { 'label', gap = 1 } },
+              components = {
+                label = {
+                  text = function(ctx)
+                    return require('colorful-menu').blink_components_text(ctx)
+                  end,
+                  highlight = function(ctx)
+                    return require('colorful-menu').blink_components_highlight(ctx)
+                  end,
+                },
+              },
               treesitter = { 'lsp' },
             },
           },

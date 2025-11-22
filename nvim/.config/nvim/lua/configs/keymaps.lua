@@ -21,7 +21,10 @@ del('n', '[<C-T>')
 local map = vim.keymap.set
 map({ 'n' }, 'Q', '<CMD>q<CR>', { desc = 'Close Buffer' })
 
-map({ 'n' }, '<Esc>', '<CMD>nohlsearch<CR>', { desc = 'Clear Search Highlight' })
+map({ 'n' }, '<Esc>', function()
+  vim.cmd.nohlsearch()
+  vim.snippet.stop()
+end, { desc = 'Clear Highlight' })
 
 map({ 'n', 'i' }, '<A-s>', function()
   require('utils.formatters.async_style_enforcer').run()
@@ -106,10 +109,15 @@ end
 map('n', '<leader>cd', vim.diagnostic.open_float, { desc = 'Line Diagnostics' })
 map('n', ']d', diagnostic_goto(true), { desc = 'Next Diagnostic' })
 map('n', '[d', diagnostic_goto(false), { desc = 'Previous Diagnostic' })
+
 map('n', ']e', diagnostic_goto(true, 'ERROR'), { desc = 'Next Error' })
 map('n', '[e', diagnostic_goto(false, 'ERROR'), { desc = 'Previous Error' })
+
 map('n', ']w', diagnostic_goto(true, 'WARN'), { desc = 'Next Warning' })
 map('n', '[w', diagnostic_goto(false, 'WARN'), { desc = 'Previous Warning' })
+
+map('n', ']i', diagnostic_goto(true, 'INFO'), { desc = 'Next Info' })
+map('n', '[i', diagnostic_goto(false, 'INFO'), { desc = 'Previous Info' })
 
 map('n', ']b', '<CMD>bnext<CR>', { desc = 'Next Buffer' })
 map('n', ']B', '<CMD>blast<CR>', { desc = 'Last Buffer' })

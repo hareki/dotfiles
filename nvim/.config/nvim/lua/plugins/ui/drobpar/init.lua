@@ -142,8 +142,8 @@ return {
               return {}
             end
 
-            local path_item_limit = 10
-            local lsp_item_limit = 4
+            local path_item_limit = 5
+            local lsp_item_limit = 6
             local utils = require('dropbar.utils')
 
             local custom_path = {

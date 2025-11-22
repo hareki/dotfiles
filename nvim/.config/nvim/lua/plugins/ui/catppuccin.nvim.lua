@@ -6,13 +6,14 @@ return {
   opts = function()
     local get_palette = require('catppuccin.palettes').get_palette
     local palette = get_palette()
+    local color = require('configs.color')
 
     return {
       transparent_background = true,
       default_integrations = false,
       custom_highlights = {
         WinSeparator = { fg = palette.overlay0 },
-        Visual = { bg = '#4f5164', style = {} }, -- Darkened version of surface2
+        Visual = { bg = color.darkened_surface2, style = {} },
         DocumentHighlight = { bg = palette.surface0 },
 
         DiagnosticUnderlineInfo = { link = 'LspDiagnosticsUnderlineInformation' },
@@ -56,6 +57,7 @@ return {
         ['@markup.strong'] = { fg = palette.flamingo, bold = true },
 
         ModifiedIndicator = { fg = palette.yellow },
+        SnippetTabStop = { bg = color.light_blue },
       },
       lsp_styles = {
         virtual_text = {

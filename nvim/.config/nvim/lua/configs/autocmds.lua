@@ -198,15 +198,3 @@ aucmd('InsertEnter', {
     end
   end,
 })
-
--- Cancel snippet when entering normal mode
-aucmd('ModeChanged', {
-  group = augroup('cancel_snippet'),
-  pattern = { 's:n' },
-  callback = function()
-    if vim.snippet.active() then
-      notifier.info('stopping snippet')
-      vim.snippet.stop()
-    end
-  end,
-})

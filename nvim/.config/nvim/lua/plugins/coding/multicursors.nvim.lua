@@ -2,6 +2,8 @@ local ui_utils = require('utils.ui')
 
 return {
   ui_utils.catppuccin(function(palette)
+    local color = require('configs.color')
+
     return {
       HydraRed = { fg = palette.red },
       HydraAmaranth = { fg = palette.maroon },
@@ -11,8 +13,8 @@ return {
       HydraBlue = { fg = palette.yellow },
       HydraPink = { fg = palette.blue },
 
-      MultiCursor = { bg = '#414e70' },
-      MultiCursorMain = { bg = '#414e70' },
+      MultiCursor = { bg = color.light_blue },
+      MultiCursorMain = { bg = color.light_blue },
       MultiCursorSeparator = { link = 'WhichKeySeparator' },
     }
   end),
