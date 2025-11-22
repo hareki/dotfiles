@@ -1,12 +1,12 @@
 {
   "consoleLog": {
     "prefix": "clg",
-    "body": ["console.log(${1:first})"],
+    "body": ["console.log(${1})"],
     "description": "Displays a message in the console"
   },
   "consoleError": {
     "prefix": "cle",
-    "body": ["console.error(${1:first})"],
+    "body": ["console.error(${1})"],
     "description": "Displays an error message in the console"
   },
   "Switch Statement": {

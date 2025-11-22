@@ -154,6 +154,7 @@ return {
         },
 
         completion = {
+          accept = { auto_brackets = { enabled = false } },
           ghost_text = { enabled = true },
           trigger = {
             show_on_backspace = true,
