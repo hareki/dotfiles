@@ -1,9 +1,14 @@
 return {
   'nvim-lualine/lualine.nvim',
-  event = 'VeryLazy',
+  event = { 'BufReadPost', 'BufNewFile', 'BufWritePre' },
   dependencies = {
     'hareki/copilot-lualine',
   },
+
+  enabled = function()
+    return require('plugins.ui.lualine.utils').have_status_line()
+  end,
+
   init = function()
     if vim.env.NVIM_NO_STATUS_LINE then
       vim.o.laststatus = 0
@@ -18,9 +23,7 @@ return {
       vim.o.laststatus = 0
     end
   end,
-  enabled = function()
-    return require('plugins.ui.lualine.utils').have_status_line()
-  end,
+
   opts = function()
     local buffer_comp = require('plugins.ui.lualine.components.buffer')
     -- PERF: we don't need this lualine require madness 🤷

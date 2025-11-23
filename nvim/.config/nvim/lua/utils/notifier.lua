@@ -243,8 +243,7 @@ function M.error(msg, opts)
   )
 end
 
----@param title string
-function M.debug(title, ...)
+function M.debug(...)
   local parts = {}
   if select('#', ...) > 0 then
     local obj = select('#', ...) == 1 and ... or { ... }
@@ -253,7 +252,7 @@ function M.debug(title, ...)
     parts[3] = '\n```'
   end
   local msg = table.concat(parts)
-  M.notify(msg, { title = title, height_offset = -1 })
+  M.warn(msg, { title = 'Debug 󰃤', height_offset = -1 })
 end
 
 return M

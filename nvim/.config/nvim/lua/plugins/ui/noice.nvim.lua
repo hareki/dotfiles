@@ -5,7 +5,7 @@ return {
       NoiceCmdlinePopupTitle = { fg = palette.blue },
       NoiceCmdlineIcon = { fg = palette.blue },
       NoiceConfirmBorder = { fg = palette.yellow },
-      NoiceFormatConfirmDefault = { link = 'NoiceFormatConfirm' },
+      NoiceFormatConfirmDefault = { link = 'NoiceFormatConfirm' }, -- Make "Default" option have the same color as the others
     }
   end),
   {

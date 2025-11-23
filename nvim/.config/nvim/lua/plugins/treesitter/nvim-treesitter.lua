@@ -1,11 +1,10 @@
 return {
   'nvim-treesitter/nvim-treesitter',
-  version = false, -- last release is way too old and doesn't work on Windows
   build = ':TSUpdate',
-  event = { 'VeryLazy' },
-  branch = 'master', -- The new "main" branch is immature, tree-sitter-styled breaks, colors look weird
-  lazy = vim.fn.argc(-1) == 0, -- load treesitter early when opening a file from the cmdline
+  event = { 'BufReadPost', 'BufNewFile', 'BufWritePre' },
   cmd = { 'TSUpdateSync', 'TSUpdate', 'TSInstall' },
+  branch = 'master', -- The new "main" branch is immature, tree-sitter-styled breaks, colors look weird
+  version = false, -- Last release is way too old and doesn't work on Windows
   keys = {
     { '<c-space>', desc = 'Increment Selection' },
     { '<bs>', desc = 'Decrement Selection', mode = 'x' },

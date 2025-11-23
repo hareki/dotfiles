@@ -3,8 +3,15 @@ return {
   cmd = { 'EagleWin', 'EagleWinLineDiagnostic' },
   opts = function()
     local icons = require('configs.icons')
+    local max_size = 0.5
     return {
       order = 3, -- LSP info comes first
+      get_max_height = function()
+        return math.floor(vim.opt.lines:get() * max_size)
+      end,
+      get_max_width = function()
+        return math.floor(vim.opt.columns:get() * max_size)
+      end,
       keyboard_mode = true,
       mouse_mode = false,
       border = 'rounded',

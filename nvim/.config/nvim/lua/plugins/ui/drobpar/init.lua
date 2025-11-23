@@ -78,7 +78,7 @@ return {
   end),
   {
     'hareki/dropbar.nvim',
-    event = { 'BufReadPost', 'BufNewFile' },
+    event = { 'BufReadPost', 'BufNewFile', 'BufWritePre' },
     keys = {
       {
         '<leader>b',

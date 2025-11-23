@@ -75,9 +75,11 @@ return {
 
       return {
         enabled = function()
-          -- NvimTree live_filter has a blank filetype
-          return not vim.tbl_contains({ '', 'NvimTree' }, vim.bo.filetype)
-            and not vim.snippet.active()
+          local mode = vim.api.nvim_get_mode().mode
+          local is_ignored_filetype = vim.tbl_contains({ '', 'NvimTree' }, vim.bo.filetype) -- NvimTree live_filter has a blank filetype
+          local is_filling_in_snippet = vim.snippet.active() and mode == 'i'
+
+          return not (is_ignored_filetype or is_filling_in_snippet)
         end,
         fuzzy = { implementation = 'prefer_rust_with_warning' },
         signature = { enabled = true, window = { border = 'rounded' } },
@@ -179,15 +181,14 @@ return {
             border = 'rounded',
             scrollbar = false,
             draw = {
-              padding = { 1, 1 },
+              padding = { 1, 0 }, -- For some reason it already has 1 padding on the right
               columns = {
                 { 'kind_icon' },
                 { 'label', 'label_description', gap = 1 },
-                -- { 'kind_icon', 'label', 'label_description', gap = 1 },
               },
               components = {
                 label = {
-                  width = { fill = false, max = 15 },
+                  width = { fill = false, max = 20 },
                 },
                 label_description = {
                   width = { max = 20 },
