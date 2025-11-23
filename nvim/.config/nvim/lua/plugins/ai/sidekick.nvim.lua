@@ -16,7 +16,7 @@ return {
       return {
         nes = {
           mode = 'pending',
-          debounce = 75,
+          debounce = 150,
           diff = {
             inline = 'chars',
           },

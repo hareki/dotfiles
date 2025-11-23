@@ -1,13 +1,19 @@
+local mappings = {
+  incremental = '<C-Space>',
+  decremental = '<BS>',
+}
+
 return {
   'nvim-treesitter/nvim-treesitter',
   build = ':TSUpdate',
+  main = 'nvim-treesitter.configs',
   event = { 'BufReadPost', 'BufNewFile', 'BufWritePre' },
   cmd = { 'TSUpdateSync', 'TSUpdate', 'TSInstall' },
   branch = 'master', -- The new "main" branch is immature, tree-sitter-styled breaks, colors look weird
   version = false, -- Last release is way too old and doesn't work on Windows
   keys = {
-    { '<c-space>', desc = 'Increment Selection' },
-    { '<bs>', desc = 'Decrement Selection', mode = 'x' },
+    { mappings.incremental, desc = 'Incremental Selection' },
+    { mappings.decremental, desc = 'Decremental Selection', mode = 'x' },
   },
   opts_extend = { 'ensure_installed' },
   ---@type TSConfig
@@ -46,10 +52,10 @@ return {
     incremental_selection = {
       enable = true,
       keymaps = {
-        init_selection = '<C-space>',
-        node_incremental = '<C-space>',
+        init_selection = mappings.incremental,
+        node_incremental = mappings.incremental,
         scope_incremental = false,
-        node_decremental = '<bs>',
+        node_decremental = mappings.decremental,
       },
     },
     textobjects = {
@@ -114,8 +120,4 @@ return {
       },
     },
   },
-  config = function(_, opts)
-    -- Notice the extra '.configs' part...
-    require('nvim-treesitter.configs').setup(opts)
-  end,
 }
