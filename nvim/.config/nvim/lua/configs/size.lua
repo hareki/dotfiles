@@ -61,4 +61,8 @@ M.side_panel = {
   },
 }
 
+M.inline_popup = {
+  max_height = 0.5,
+}
+
 return M

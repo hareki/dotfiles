@@ -3,7 +3,7 @@ return {
   cmd = { 'EagleWin', 'EagleWinLineDiagnostic' },
   opts = function()
     local icons = require('configs.icons')
-    local max_size = 0.5
+    local max_size = require('configs.size').inline_popup.max_height
     return {
       order = 3, -- LSP info comes first
       get_max_height = function()

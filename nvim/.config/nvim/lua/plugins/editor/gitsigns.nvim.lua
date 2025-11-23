@@ -43,6 +43,9 @@ return {
         preview_config = {
           border = 'rounded',
         },
+        get_popup_max_height = function()
+          return math.floor(vim.opt.lines:get() * require('configs.size').inline_popup.max_height)
+        end,
         current_line_blame = true,
         current_line_blame_formatter = '<author>, <author_time:%R> - <summary>',
         current_line_blame_opts = {
@@ -152,11 +155,6 @@ return {
           current_map('n', '<leader>hS', gs.stage_buffer, 'Stage Buffer')
           current_map('n', '<leader>hu', gs.undo_stage_hunk, 'Undo Stage Hunk')
           current_map('n', '<leader>hR', gs.reset_buffer, 'Reset Buffer')
-          current_map('n', '<leader>hp', gs.preview_hunk_inline, 'Preview Hunk Inline')
-
-          current_map('n', '<leader>hb', function()
-            gs.blame_line({ full = true })
-          end, 'Blame Line')
 
           current_map('n', '<leader>hB', function()
             gs.blame()
@@ -168,13 +166,10 @@ return {
           end, 'Diff This ~')
           current_map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>', 'GitSigns Select Hunk')
 
-          current_unmap('n', '<leader>hb')
           current_map('n', '<leader>hb', function()
-            require('gitsigns').blame_line({ full = true })
-            vim.schedule(setup_popup_navigation('blame'))
+            require('gitsigns').blame_line({ full = true }, setup_popup_navigation('blame'))
           end, 'Blame Line')
 
-          current_unmap('n', '<leader>hp')
           current_map('n', '<leader>hp', function()
             require('gitsigns').preview_hunk()
             vim.schedule(setup_popup_navigation('hunk'))

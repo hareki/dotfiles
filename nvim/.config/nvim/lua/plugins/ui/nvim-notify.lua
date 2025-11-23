@@ -12,11 +12,15 @@ return {
     {
       '<leader>un',
       function()
+        local notify = require('telescope').extensions.notify.notify
+        local preview_title = require('configs.picker').telescope_preview_title
+        local new_buffer_previewer = require('telescope.previewers').new_buffer_previewer
+
         -- May use `:Telescope noice` as well
-        require('telescope').extensions.notify.notify({
+        notify({
           results_title = '',
-          preview_title = require('configs.picker').telescope_preview_title,
-          previewer = require('telescope.previewers').new_buffer_previewer({
+          preview_title = preview_title,
+          previewer = new_buffer_previewer({
             define_preview = function(self, entry, status)
               local notification = entry.value
               local max_width = vim.api.nvim_win_get_config(status.preview_win).width or 1
@@ -46,7 +50,7 @@ return {
   },
   opts = function()
     local title_key = 'notify_title_with_hl'
-    local max_size = 0.5
+    local max_size = require('configs.size').inline_popup.max_height
 
     return {
       stages = 'static',
