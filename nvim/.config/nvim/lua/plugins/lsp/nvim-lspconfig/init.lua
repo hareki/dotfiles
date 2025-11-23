@@ -100,7 +100,7 @@ return {
       'lua_ls', -- Lua
       'taplo', -- Toml
       'yamlls', -- Yaml
-      'typos_lsp', -- Spelling checker
+      'typos_lsp', -- Spell checker
       'eslint', -- JS/TS linter
       'jsonls', -- JSON
       'html', -- HTML
@@ -109,6 +109,7 @@ return {
       'copilot', -- GitHub Copilot
       'stylua', -- Lua formatter
       'vtsls', -- TypeScript
+      'tailwindcss', -- Tailwind
     })
   end,
 }

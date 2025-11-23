@@ -270,6 +270,9 @@ return {
             lua = { inherit_defaults = true, 'lazydev' },
           },
           providers = {
+            lsp = {
+              opts = { tailwind_color_icon = '' },
+            },
             lazydev = {
               name = 'LazyDev',
               module = 'lazydev.integrations.blink',
