@@ -29,19 +29,19 @@
     "updatedAt": "2025-01-26",
     "enabled": true
   },
-  "4596d8f9-f0b7-4aeb-aa92-851222dc1888": {
-    "id": "4596d8f9-f0b7-4aeb-aa92-851222dc1888",
-    "name": "Only Close On Hover",
-    "description": "Show tab's close button only on hover, even on the active tab.",
-    "homepage": "",
-    "style": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/4596d8f9-f0b7-4aeb-aa92-851222dc1888/chrome.css",
-    "readme": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/4596d8f9-f0b7-4aeb-aa92-851222dc1888/readme.md",
-    "image": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/4596d8f9-f0b7-4aeb-aa92-851222dc1888/image.png",
-    "author": "p-sw",
-    "version": "1.0.0",
+  "20e8cc78-3dac-4db0-81a4-814672fb50af": {
+    "id": "20e8cc78-3dac-4db0-81a4-814672fb50af",
+    "name": "Left Side Glance Buttons",
+    "description": "Move the at a glance buttons to the left side of the window.",
+    "homepage": "https://github.com/psu/zen-mods",
+    "style": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/20e8cc78-3dac-4db0-81a4-814672fb50af/chrome.css",
+    "readme": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/20e8cc78-3dac-4db0-81a4-814672fb50af/readme.md",
+    "image": "https://raw.githubusercontent.com/zen-browser/theme-store/main/themes/20e8cc78-3dac-4db0-81a4-814672fb50af/image.png",
+    "author": "psu",
+    "version": "1.0.2",
     "tags": [],
-    "createdAt": "2024-10-12",
-    "updatedAt": "2025-01-26",
+    "createdAt": "2025-03-28",
+    "updatedAt": "2025-10-22",
     "enabled": true
   }
 }
