@@ -12,5 +12,16 @@ return {
   },
   opts = {
     mappings = mappings,
+    custom_surroundings = {
+      -- Revert default behavior, I want left brackets to leave no whitespace while right brackets do
+      [')'] = { input = { '%b()', '^.%s*().-()%s*.$' }, output = { left = '( ', right = ' )' } },
+      ['('] = { input = { '%b()', '^.().*().$' }, output = { left = '(', right = ')' } },
+      [']'] = { input = { '%b[]', '^.%s*().-()%s*.$' }, output = { left = '[ ', right = ' ]' } },
+      ['['] = { input = { '%b[]', '^.().*().$' }, output = { left = '[', right = ']' } },
+      ['}'] = { input = { '%b{}', '^.%s*().-()%s*.$' }, output = { left = '{ ', right = ' }' } },
+      ['{'] = { input = { '%b{}', '^.().*().$' }, output = { left = '{', right = '}' } },
+      ['>'] = { input = { '%b<>', '^.%s*().-()%s*.$' }, output = { left = '< ', right = ' >' } },
+      ['<'] = { input = { '%b<>', '^.().*().$' }, output = { left = '<', right = '>' } },
+    },
   },
 }
