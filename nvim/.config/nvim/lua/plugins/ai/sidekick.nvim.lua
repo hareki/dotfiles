@@ -15,8 +15,10 @@ return {
       ---@class sidekick.Config
       return {
         nes = {
-          mode = 'pending',
-          debounce = 150,
+          auto_render = function(ev)
+            return ev.event == 'User' and ev.match == 'SidekickNesDone'
+          end,
+          debounce = 100,
           diff = {
             inline = 'chars',
           },
@@ -118,15 +120,4 @@ return {
       },
     },
   },
-
-  config = function(_, opts)
-    require('sidekick').setup(opts)
-
-    vim.api.nvim_create_autocmd('User', {
-      pattern = 'SidekickNesDone',
-      callback = function()
-        require('sidekick.nes').render_nes()
-      end,
-    })
-  end,
 }
