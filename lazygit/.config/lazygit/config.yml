@@ -18,10 +18,11 @@ os:
 gui:
   sidePanelWidth: 35
   screenMode: half
-  mainPanelSplitMode: auto
+  mainPanelSplitMode: flexible
   switchTabsWithPanelJumpKeys: true
   cursorStyle: 'blinkingBar'
-  scrollHeight: 4
+  scrollHeight: 6
+  scrollOffMargin: 6
   authorColors:
     '*': '#b4befe'
   nerdFontsVersion: '3'
