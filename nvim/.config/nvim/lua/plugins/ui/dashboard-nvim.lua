@@ -90,6 +90,7 @@ return {
       local random_quote = zen_quotes[random_index]
 
       vim.api.nvim_create_autocmd('User', {
+        group = vim.api.nvim_create_augroup('dashboard_keymaps', { clear = true }),
         pattern = 'DashboardLoaded',
         callback = function(ev)
           local buf = ev.data.buf

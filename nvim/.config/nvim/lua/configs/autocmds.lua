@@ -198,3 +198,24 @@ aucmd('InsertEnter', {
     end
   end,
 })
+
+aucmd('ModeChanged', {
+  group = augroup('stop_snippet_on_normal_mode'),
+  -- pattern = '[is]*:n*', -- Only fire when leaving Insert/Select-like modes for Normal(-like) modes
+  pattern = '[is]:n', -- Stricter version
+  desc = 'Stop vim.snippet session when actually ending in Normal mode',
+  callback = function()
+    -- Defer the stop to avoid interfering with blink.cmp juggling between modes internally
+    vim.defer_fn(function()
+      local mode = vim.api.nvim_get_mode().mode
+      -- Are we still in in normal-like mode after a short delay?
+      if mode:sub(1, 1) ~= 'n' then
+        return
+      end
+
+      if vim.snippet.active() then
+        vim.snippet.stop()
+      end
+    end, 20)
+  end,
+})

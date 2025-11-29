@@ -33,7 +33,9 @@ return {
         require('utils.common').focus_win(preview.win)
 
         map('<Tab>', function()
-          require('utils.common').focus_win(trouble_win)
+          if vim.api.nvim_win_is_valid(trouble_win) then
+            require('utils.common').focus_win(trouble_win)
+          end
         end)
 
         map('<CR>', function()
@@ -45,8 +47,12 @@ return {
         end)
 
         map('q', function()
-          require('utils.common').focus_win(trouble_win)
-          vim.api.nvim_win_close(preview.win, true)
+          if vim.api.nvim_win_is_valid(trouble_win) then
+            require('utils.common').focus_win(trouble_win)
+          end
+          if vim.api.nvim_win_is_valid(preview.win) then
+            vim.api.nvim_win_close(preview.win, true)
+          end
         end)
       end
 

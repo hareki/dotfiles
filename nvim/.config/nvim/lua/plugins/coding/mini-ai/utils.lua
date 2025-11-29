@@ -40,7 +40,6 @@ function M.whichkey(opts)
     { 'b', desc = ')]} block' },
     { 'c', desc = 'class' },
     { 'd', desc = 'digit(s)' },
-    { 'e', desc = 'CamelCase / snake_case' },
     { 'f', desc = 'function' },
     { 'g', desc = 'entire file' },
     { 'i', desc = 'indent' },
@@ -48,6 +47,8 @@ function M.whichkey(opts)
     { 'q', desc = 'quote `"\'' },
     { 't', desc = 'tag' },
     { 'u', desc = 'use/call' },
+    { 'w', desc = 'subword (camelCase/snake_case)' },
+    { 'W', desc = 'WORD (snake_case chunk)' },
     { '{', desc = '{} block' },
     { '}', desc = '{} with ws' },
   }

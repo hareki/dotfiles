@@ -1,9 +1,7 @@
 return {
   'rmagatti/auto-session',
   lazy = false,
-  dependencies = {
-    'tiagovla/scope.nvim',
-  },
+  dependencies = { 'tiagovla/scope.nvim' },
   keys = {
     {
       '<leader>fs',
@@ -12,9 +10,7 @@ return {
     },
   },
 
-  opts = function()
-    local popup_config = require('utils.ui').popup_config('sm')
-
+  init = function()
     -- Open telescope find_files when Neovim starts on a directory
     vim.api.nvim_create_autocmd('VimEnter', {
       once = true,
@@ -51,8 +47,12 @@ return {
         end)
       end,
     })
+  end,
 
-    ---enables autocomplete for opts
+  opts = function()
+    local popup_config = require('utils.ui').popup_config('sm')
+
+    ---Enables autocomplete for opts
     ---@module "auto-session"
     ---@type AutoSession.Config
     return {

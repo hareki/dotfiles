@@ -48,6 +48,7 @@ return {
       'yaml',
       'css',
       'styled',
+      'scss',
     },
     incremental_selection = {
       enable = true,

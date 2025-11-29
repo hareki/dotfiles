@@ -26,6 +26,7 @@ M.cache = {}
 
 -- Set up autocmd to clean up cache entries when buffers are deleted
 vim.api.nvim_create_autocmd('BufDelete', {
+  group = vim.api.nvim_create_augroup('snacks_utils_cache_cleanup', { clear = true }),
   callback = function(event)
     local buf_pattern = ':' .. event.buf .. '$'
     for key in pairs(M.cache) do
@@ -172,7 +173,7 @@ function M.buffer_sort(a, b)
     if not bufnr then
       return false
     end
-    local ok, modified = pcall(vim.api.nvim_buf_get_option, bufnr, 'modified')
+    local ok, modified = pcall(vim.api.nvim_get_option_value, 'modified', { buf = bufnr })
     return ok and modified or false
   end
 

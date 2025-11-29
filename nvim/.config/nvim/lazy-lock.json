@@ -56,7 +56,7 @@
   "reticle.nvim": { "branch": "main", "commit": "66bfa2b1c28fd71bb8ae4e871e0cd9e9c509ea86" },
   "scope.nvim": { "branch": "main", "commit": "228aabdb1b9cc74f0c0ccec88e79873857236e49" },
   "sidekick.nvim": { "branch": "main", "commit": "d26b272dd66ad3e75ca15352b23696ee9ae9b55a" },
-  "snacks.nvim": { "branch": "main", "commit": "11e451282ca3ef7f7c2a44a4ba3b9bea828e7a18" },
+  "snacks.nvim": { "branch": "main", "commit": "ba3afd56bb0c6353c0bfb01c9fd7e46f7e8a65dc" },
   "sqlite.lua": { "branch": "master", "commit": "50092d60feb242602d7578398c6eb53b4a8ffe7b" },
   "telescope-fzf-native.nvim": { "branch": "main", "commit": "6fea601bd2b694c6f2ae08a6c6fab14930c60e2c" },
   "telescope.nvim": { "branch": "master", "commit": "f0caedf064aa8c926325d7fe64c141d29b8e7853" },

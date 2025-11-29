@@ -42,6 +42,7 @@ return {
       local I = require('multicursors.insert_mode')
 
       vim.api.nvim_create_autocmd('User', {
+        group = vim.api.nvim_create_augroup('multicursors_exit_cleanup', { clear = true }),
         pattern = 'MultiCursorExit',
         callback = function()
           Snacks.words.enable()

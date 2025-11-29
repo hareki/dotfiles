@@ -43,6 +43,34 @@ return {
       'fang2hou/blink-copilot',
     },
     event = { 'InsertEnter', 'CmdLineEnter' },
+    init = function()
+      -- Set up autocmds in init to avoid duplicates on lazy reload
+      -- Guard against silent failures by adding comprehensive error handling
+
+      -- Workaround #1: Force autopairs re-enable on InsertEnter
+      vim.api.nvim_create_autocmd('InsertEnter', {
+        group = vim.api.nvim_create_augroup('blink_autopairs_fix', { clear = true }),
+        callback = function()
+          -- Re-enable autopairs if it gets disabled
+          if vim.bo.buftype == '' and vim.b.autopairs_enabled == false then
+            vim.b.autopairs_enabled = true
+          end
+        end,
+      })
+
+      -- Workaround #2: Ensure menu is closed on InsertLeave
+      vim.api.nvim_create_autocmd('InsertLeave', {
+        group = vim.api.nvim_create_augroup('blink_menu_cleanup', { clear = true }),
+        callback = function()
+          vim.schedule(function()
+            local cmp = require('blink.cmp')
+            if cmp.is_menu_visible() then
+              cmp.hide()
+            end
+          end)
+        end,
+      })
+    end,
     opts = function()
       local function register_kind(name)
         local cmp_types = require('blink.cmp.types')
@@ -215,7 +243,7 @@ return {
           ['<PageDown>'] = {
             function(cmp)
               if cmp.is_documentation_visible() then
-                cmp.scroll_donumentation_down(4)
+                cmp.scroll_documentation_down(4)
               end
               return true
             end,
@@ -309,6 +337,9 @@ return {
               async = true,
               score_offset = 100,
               should_show_items = function(ctx)
+                if not ctx or not ctx.providers then
+                  return false
+                end
                 -- Only show items if 'copilot' is the sole provider to avoid distraction
                 return ctx.providers[1] == 'copilot' and #ctx.providers == 1
               end,

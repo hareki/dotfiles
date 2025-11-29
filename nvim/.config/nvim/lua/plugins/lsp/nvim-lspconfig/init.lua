@@ -62,6 +62,7 @@ return {
     })
 
     vim.api.nvim_create_autocmd('LspAttach', {
+      group = vim.api.nvim_create_augroup('lsp_attach_keymaps', { clear = true }),
       callback = function(args)
         local function map(mode, lhs, rhs, desc)
           vim.keymap.set(mode, lhs, rhs, {
@@ -77,6 +78,10 @@ return {
         map('n', 'gr', function()
           Snacks.picker.lsp_references()
         end, 'Find References')
+
+        map('n', 'gR', function()
+          Snacks.picker.lsp_references({ filter = { buf = 0 } })
+        end, 'Find References in Current Buffer')
 
         map({ 'n', 'x' }, 'gh', '<CMD>EagleWin<CR>', 'Open Eagle LSP and Diagnostics')
         map({ 'n', 'x' }, 'gH', '<CMD>EagleWinLineDiagnostic<CR>', 'Open Eagle Line Diagnostics')

@@ -23,7 +23,10 @@ map({ 'n' }, 'Q', '<CMD>q<CR>', { desc = 'Close Buffer' })
 
 map({ 'n' }, '<Esc>', function()
   vim.cmd.nohlsearch()
-  vim.snippet.stop()
+
+  if vim.snippet.active() then
+    vim.snippet.stop()
+  end
 end, { desc = 'Clear Highlight' })
 
 map({ 'n', 'i' }, '<A-s>', function()

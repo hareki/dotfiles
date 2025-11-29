@@ -24,10 +24,8 @@ return {
     desc = 'Better Yank/Paste',
     event = 'VeryLazy',
     dependencies = {
-      {
-        'kkharji/sqlite.lua',
-        'hareki/snacks.nvim', -- Let yanky self register with snacks
-      },
+      'kkharji/sqlite.lua',
+      'hareki/snacks.nvim', -- Let yanky self register with snacks
     },
     opts = {
       ring = { storage = 'sqlite' },
@@ -56,7 +54,7 @@ return {
         mode = 'n',
         desc = 'Yank to End to System Clipboard',
       },
-      { 'p', '<Plug>(YankyPutAfter)', mode = { 'n', 'x' }, desc = 'Put Text' },
+      { 'p', '<Plug>(YankyPutAfter)', mode = { 'n' }, desc = 'Put Text' },
       { 'k', '"+<Plug>(YankyPutAfter)', mode = { 'n', 'x' }, desc = 'Put from System Clipboard' },
       -- Putting text in visual mode without overwriting the yank register
       {

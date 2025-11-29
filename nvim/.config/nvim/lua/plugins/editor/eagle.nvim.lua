@@ -57,7 +57,7 @@ return {
           })
         end
 
-        local function current_unmap(mode, lhs, desc)
+        local function current_unmap(mode, lhs)
           pcall(function()
             vim.keymap.del(mode, lhs, { buffer = current_buf })
           end)
@@ -71,8 +71,8 @@ return {
           pattern = tostring(eagle_win),
           once = true,
           callback = function()
-            current_unmap({ 'n', 'x' }, '<Esc>', 'Close Eagle')
-            current_unmap({ 'n', 'x' }, '<Tab>', 'Focus Eagle Window')
+            current_unmap({ 'n', 'x' }, '<Esc>')
+            current_unmap({ 'n', 'x' }, '<Tab>')
           end,
         })
 

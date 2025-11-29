@@ -9,6 +9,7 @@ return {
 
     vim.api.nvim_create_autocmd('User', {
       pattern = 'MiniAiSelectObject',
+      group = vim.api.nvim_create_augroup('mini_ai_record_last_object', { clear = true }),
       callback = function(ev)
         last_obj = ev.data -- "iw", "af", "g", ...
       end,

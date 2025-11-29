@@ -18,6 +18,7 @@ local js_config = ts_config
 return {
   setup = function()
     vim.api.nvim_create_autocmd('LspAttach', {
+      group = vim.api.nvim_create_augroup('vtsls_lsp_attach', { clear = true }),
       callback = function(args)
         local client = vim.lsp.get_client_by_id(args.data.client_id)
 
