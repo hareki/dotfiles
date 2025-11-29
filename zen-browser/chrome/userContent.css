@@ -10,17 +10,18 @@
       --color-accent-primary-active: rgb(163, 197, 251) !important;
       background-color: #1e1e2e !important;
       --in-content-page-background: #1e1e2e !important;
-      --in-content-primary-button-background: var(
-        --color-accent-primary
-      ) !important;
-      --in-content-primary-button-background-hover: var(
-        --color-accent-primary-hover
-      ) !important;
-      --in-content-primary-button-background-active: var(
-        --color-accent-primary-active
-      ) !important;
+      --in-content-primary-button-background: var(--color-accent-primary) !important;
+      --in-content-primary-button-background-hover: var(--color-accent-primary-hover) !important;
+      --in-content-primary-button-background-active: var(--color-accent-primary-active) !important;
       --in-content-button-text-color: var(--color-accent-primary) !important;
       --toggle-background-color-pressed: var(--color-accent-primary) !important;
+    }
+  }
+
+  @-moz-document url-prefix("about:logins") {
+    :root {
+      --background-color-canvas: #1e1e2e !important;
+      --background-color-box: #1e1e2e !important;
     }
   }
 
@@ -40,7 +41,8 @@
     }
 
     .search-wrapper .logo-and-wordmark .logo {
-      background: url('zen-logo-mocha.svg'),
+      background:
+        url('zen-logo-mocha.svg'),
         url('https://raw.githubusercontent.com/IAmJafeth/zen-browser/main/themes/Mocha/Blue/zen-logo-mocha.svg')
           no-repeat center !important;
       display: inline-block !important;
