@@ -1,4 +1,4 @@
-local copilot_max_items = 3
+local copilot_max_items = 2
 
 return {
   require('utils.ui').catppuccin(function(palette)
@@ -22,7 +22,7 @@ return {
         kind_name = 'Copilot',
         kind_icon = ' ',
         kind_hl = 'BlinkCmpKindCopilot',
-        debounce = 150,
+        debounce = 200,
         auto_refresh = {
           backward = true,
           forward = true,
@@ -152,11 +152,11 @@ return {
           accept = { auto_brackets = { enabled = false } },
           ghost_text = { enabled = true },
           trigger = {
-            prefetch_on_insert = true,
+            prefetch_on_insert = false,
             show_on_backspace = true,
             show_on_backspace_after_insert_enter = true,
             show_on_insert = true,
-            show_in_snippet = false,
+            show_in_snippet = true,
           },
           list = {
             selection = {
@@ -207,39 +207,20 @@ return {
           ['<PageUp>'] = {
             function(cmp)
               if cmp.is_documentation_visible() then
-                return cmp.scroll_documentation_up(4)
+                cmp.scroll_documentation_up(4)
               end
               return true
             end,
-            'fallback',
           },
           ['<PageDown>'] = {
             function(cmp)
               if cmp.is_documentation_visible() then
-                return cmp.scroll_documentation_down(4)
+                cmp.scroll_donumentation_down(4)
               end
               return true
             end,
-            'fallback',
           },
           ['<CR>'] = { 'accept', 'fallback' },
-          -- ['<Esc>'] = {
-          --   function(cmp)
-          --     if cmp.is_menu_visible() then
-          --       cmp.hide()
-          --       return true
-          --     end
-          --   end,
-          --   'fallback',
-          -- },
-          ['<Space>'] = {
-            function(cmp)
-              if not cmp.is_menu_visible() then
-                cmp.show()
-              end
-            end,
-            'fallback',
-          },
           ['<A-Space>'] = {
             function(cmp)
               if cmp.is_menu_visible() then
@@ -247,16 +228,11 @@ return {
               else
                 cmp.show()
               end
+
+              return true
             end,
           },
           ['<Tab>'] = {
-            function(cmp)
-              if cmp.snippet_active() then
-                return cmp.accept()
-              else
-                return cmp.select_and_accept()
-              end
-            end,
             'snippet_forward',
             'fallback',
           },
@@ -264,7 +240,7 @@ return {
         },
 
         sources = {
-          default = { 'lsp', 'path', 'snippets', 'buffer', 'spell', 'copilot' },
+          default = { 'copilot', 'lsp', 'path', 'snippets', 'buffer', 'spell' },
           per_filetype = {
             markdown = { inherit_defaults = true, 'markdown' },
             lua = { inherit_defaults = true, 'lazydev' },
@@ -331,7 +307,7 @@ return {
               name = 'copilot',
               module = 'blink-copilot',
               async = true,
-              max_items = copilot_max_items,
+              score_offset = 100,
               should_show_items = function(ctx)
                 -- Only show items if 'copilot' is the sole provider to avoid distraction
                 return ctx.providers[1] == 'copilot' and #ctx.providers == 1

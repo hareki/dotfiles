@@ -20,16 +20,8 @@ return {
     return {
       suggestion = {
         enabled = false,
-
-        auto_trigger = true,
+        auto_trigger = false,
         hide_during_completion = true,
-        keymap = {
-          accept = '<Tab>',
-          accept_word = '<S-Tab>',
-          next = '<M-]>',
-          prev = '<M-[>',
-          dismiss = false,
-        },
       },
       panel = { enabled = false },
       filetypes = {
