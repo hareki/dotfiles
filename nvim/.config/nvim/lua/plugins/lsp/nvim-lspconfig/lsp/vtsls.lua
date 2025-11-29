@@ -17,6 +17,32 @@ local js_config = ts_config
 
 return {
   setup = function()
+    -- Async fetch npm global root, then update vtsls config with the styled plugin
+    vim.system({ 'npm', 'root', '-g' }, { text = true }, function(result)
+      if result.code ~= 0 or not result.stdout then
+        return
+      end
+
+      vim.schedule(function()
+        local npm_global_root = vim.trim(result.stdout)
+        vim.lsp.config('vtsls', {
+          settings = {
+            vtsls = {
+              tsserver = {
+                globalPlugins = {
+                  {
+                    name = '@styled/typescript-styled-plugin',
+                    location = npm_global_root,
+                    enableForWorkspaceTypeScriptVersions = true,
+                  },
+                },
+              },
+            },
+          },
+        })
+      end)
+    end)
+
     vim.api.nvim_create_autocmd('LspAttach', {
       group = vim.api.nvim_create_augroup('vtsls_lsp_attach', { clear = true }),
       callback = function(args)
@@ -101,33 +127,20 @@ return {
     })
   end,
 
-  opts = function()
-    local npm_global_root = vim.fn.trim(vim.fn.system('npm root -g'))
-
-    return {
-      settings = {
-        complete_function_calls = false,
-        typescript = ts_config,
-        javascript = js_config,
-        vtsls = {
-          enableMoveToFileCodeAction = true,
-          autoUseWorkspaceTsdk = true,
-          tsserver = {
-            globalPlugins = {
-              {
-                name = '@styled/typescript-styled-plugin',
-                location = npm_global_root,
-                enableForWorkspaceTypeScriptVersions = true,
-              },
-            },
-          },
-          experimental = {
-            completion = {
-              enableServerSideFuzzyMatch = true,
-            },
+  opts = {
+    settings = {
+      complete_function_calls = false,
+      typescript = ts_config,
+      javascript = js_config,
+      vtsls = {
+        enableMoveToFileCodeAction = true,
+        autoUseWorkspaceTsdk = true,
+        experimental = {
+          completion = {
+            enableServerSideFuzzyMatch = true,
           },
         },
       },
-    }
-  end,
+    },
+  },
 }
