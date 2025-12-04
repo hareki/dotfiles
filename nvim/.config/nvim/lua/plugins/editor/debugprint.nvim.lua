@@ -57,10 +57,22 @@ return {
     },
   },
   opts = function()
+    local js_like = {
+      left = 'console.log("',
+      right = '")',
+      mid_var = '", ',
+      right_var = ')',
+    }
     return {
       picker = 'snacks.picker',
       picker_title = 'Debug Prints',
       highlight_lines = false,
+      filetypes = {
+        ['javascript'] = js_like,
+        ['javascriptreact'] = js_like,
+        ['typescript'] = js_like,
+        ['typescriptreact'] = js_like,
+      },
       -- Turn off all keymaps by default for performance reasons (mapping overhead + can't lazy load)
       -- Also, I want to customize the descriptions
       keymaps = {
