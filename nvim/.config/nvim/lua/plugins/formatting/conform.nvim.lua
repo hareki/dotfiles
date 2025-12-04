@@ -17,7 +17,7 @@ return {
           'jsonc',
           'yaml',
         },
-        config = { 'prettierd', 'prettier', stop_after_first = true },
+        config = { 'prettier', stop_after_first = true },
       },
       stylua = {
         filetypes = { 'lua' },

@@ -208,8 +208,13 @@ aucmd('ModeChanged', {
     -- Defer the stop to avoid interfering with blink.cmp juggling between modes internally
     vim.defer_fn(function()
       local mode = vim.api.nvim_get_mode().mode
-      -- Are we still in in normal-like mode after a short delay?
+      -- Are we still in normal-like mode after a short delay?
       if mode:sub(1, 1) ~= 'n' then
+        return
+      end
+
+      local cmp = require('blink.cmp')
+      if cmp.is_visible() then
         return
       end
 

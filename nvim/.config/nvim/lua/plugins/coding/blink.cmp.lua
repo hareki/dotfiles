@@ -1,4 +1,4 @@
-local copilot_max_items = 2
+local copilot_max_items = 3
 
 return {
   require('utils.ui').catppuccin(function(palette)
@@ -43,34 +43,6 @@ return {
       'fang2hou/blink-copilot',
     },
     event = { 'InsertEnter', 'CmdLineEnter' },
-    init = function()
-      -- Set up autocmds in init to avoid duplicates on lazy reload
-      -- Guard against silent failures by adding comprehensive error handling
-
-      -- Workaround #1: Force autopairs re-enable on InsertEnter
-      vim.api.nvim_create_autocmd('InsertEnter', {
-        group = vim.api.nvim_create_augroup('blink_autopairs_fix', { clear = true }),
-        callback = function()
-          -- Re-enable autopairs if it gets disabled
-          if vim.bo.buftype == '' and vim.b.autopairs_enabled == false then
-            vim.b.autopairs_enabled = true
-          end
-        end,
-      })
-
-      -- Workaround #2: Ensure menu is closed on InsertLeave
-      vim.api.nvim_create_autocmd('InsertLeave', {
-        group = vim.api.nvim_create_augroup('blink_menu_cleanup', { clear = true }),
-        callback = function()
-          vim.schedule(function()
-            local cmp = require('blink.cmp')
-            if cmp.is_menu_visible() then
-              cmp.hide()
-            end
-          end)
-        end,
-      })
-    end,
     opts = function()
       local function register_kind(name)
         local cmp_types = require('blink.cmp.types')
@@ -157,6 +129,10 @@ return {
                 -- Feed <C-c> to cancel the command line instead
                 local keys = vim.api.nvim_replace_termcodes('<C-c>', true, false, true)
                 vim.api.nvim_feedkeys(keys, 'n', false)
+                -- Manually trigger CmdlineLeave to ensure blink.cmp cleans up
+                vim.schedule(function()
+                  vim.api.nvim_exec_autocmds('CmdlineLeave', {})
+                end)
                 return true
               end,
             },
@@ -251,14 +227,15 @@ return {
           ['<CR>'] = { 'accept', 'fallback' },
           ['<A-Space>'] = {
             function(cmp)
+              -- Only return true if cmp.show() actually succeeds
+              -- This prevents silent failures when blink.cmp is in a bad state
               if cmp.is_menu_visible() then
-                cmp.show({ providers = { 'copilot' } })
+                return cmp.show({ providers = { 'copilot' } })
               else
-                cmp.show()
+                return cmp.show()
               end
-
-              return true
             end,
+            'fallback',
           },
           ['<Tab>'] = {
             'snippet_forward',

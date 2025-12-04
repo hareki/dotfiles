@@ -24,7 +24,10 @@ map({ 'n' }, 'Q', '<CMD>q<CR>', { desc = 'Close Buffer' })
 map({ 'n' }, '<Esc>', function()
   vim.cmd.nohlsearch()
 
-  if vim.snippet.active() then
+  -- Only stop snippets if we're not in the middle of completion
+  -- to avoid interfering with blink.cmp's state transitions
+  local cmp = require('blink.cmp')
+  if vim.snippet.active() and not cmp.is_visible() then
     vim.snippet.stop()
   end
 end, { desc = 'Clear Highlight' })

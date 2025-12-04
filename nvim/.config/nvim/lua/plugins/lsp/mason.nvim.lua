@@ -18,7 +18,7 @@ return {
         'vtsls',
         'stylua',
         'marksman',
-        'prettierd',
+        'prettier',
 
         'json-lsp',
         'css-lsp',
