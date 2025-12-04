@@ -2,7 +2,6 @@ return {
   'nvim-treesitter/nvim-treesitter-textobjects',
   event = 'VeryLazy',
   branch = 'master', -- The new "main" branch is immature, tree-sitter-styled breaks, colors look weird
-  enabled = true,
   config = function()
     local package = require('utils.package')
     -- If treesitter is already loaded, we need to run config again for textobjects
