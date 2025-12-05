@@ -24,7 +24,7 @@ return {
           -- local filename = vim.fn.fnamemodify(filepath, ':t')
           local relpath = vim.fn.fnamemodify(filepath, ':.')
 
-          notifier.info({
+          Notifier.info({
             { 'Added ', 'Normal' },
             { relpath, 'NotifyWARNTitle' },
           }, { title = 'harpoon' })

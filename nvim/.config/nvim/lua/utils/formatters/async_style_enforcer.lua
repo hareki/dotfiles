@@ -41,7 +41,7 @@ function M.run(opts)
 
   -- Prevent concurrent format+lint operations on the same buffer
   if running_bufs[buf] then
-    notifier.warn('Formatting already in progress', { title = 'Style Enforcer' })
+    Notifier.warn('Formatting already in progress', { title = 'Style Enforcer' })
     finish(false, 'Already in progress')
     return
   end
@@ -52,7 +52,7 @@ function M.run(opts)
   local timeout_timer = vim.fn.timer_start(TIMEOUT_MS, function()
     if running_bufs[buf] then
       running_bufs[buf] = nil
-      notifier.warn('Formatting/linting timed out', { title = 'Style Enforcer' })
+      Notifier.warn('Formatting/linting timed out', { title = 'Style Enforcer' })
       finish(false, 'Timed out')
     end
   end)
@@ -116,7 +116,7 @@ function M.run(opts)
             local msg = debug and ('Linter %s error: %s'):format(linter_name, lint_error)
               or ('Linter used: %s'):format(linter_name)
 
-            notifier.warn(msg, {
+            Notifier.warn(msg, {
               title = 'Linting Failed',
             })
           end
@@ -133,7 +133,7 @@ function M.run(opts)
 
     -- If linter setup fails, ensure cleanup
     if not ok then
-      notifier.error('Linter setup failed: ' .. tostring(err), { title = 'Style Enforcer' })
+      Notifier.error('Linter setup failed: ' .. tostring(err), { title = 'Style Enforcer' })
       write()
       progress:finish()
       cleanup(false, err)
@@ -166,7 +166,7 @@ function M.run(opts)
           get_formatter_names(buf)
         )
 
-      notifier.error(msg, {
+      Notifier.error(msg, {
         title = 'Formatting Failed',
       })
       write()
@@ -196,7 +196,7 @@ function M.run_all(debug)
   end
 
   if #all_scope_buffers == 0 then
-    notifier.warn('No buffers to format', { title = 'Style Enforcer' })
+    Notifier.warn('No buffers to format', { title = 'Style Enforcer' })
     return
   end
 
@@ -281,9 +281,9 @@ function M.run_all(debug)
 
     -- Choose warn/info depending on whether there were failures
     if #error_paths > 0 then
-      notifier.warn(chunks, { title = 'Style Enforcer' })
+      Notifier.warn(chunks, { title = 'Style Enforcer' })
     else
-      notifier.info(chunks, { title = 'Style Enforcer' })
+      Notifier.info(chunks, { title = 'Style Enforcer' })
     end
   end
 
@@ -316,7 +316,7 @@ function M.run_all(debug)
 
   -- If all buffers were skipped (already running), show nothing
   if pending_count == 0 and skipped_count > 0 then
-    notifier.warn('All buffers are already being formatted', { title = 'Style Enforcer' })
+    Notifier.warn('All buffers are already being formatted', { title = 'Style Enforcer' })
   end
 end
 

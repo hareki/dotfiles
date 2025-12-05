@@ -22,7 +22,7 @@ return {
         local current_commit = git.get_current_line_commit()
 
         if not current_commit then
-          notifier.warn('No commit history for this line')
+          Notifier.warn('No commit history for this line')
           return
         end
 

@@ -28,7 +28,7 @@ function M.set_branch_name_format(format)
   branch_format_cache = {}
   branch_format_cache_order = {}
 
-  notifier.info('Branch name format set to ' .. format)
+  Notifier.info('Branch name format set to ' .. format)
 
   if require('plugins.ui.lualine.utils').have_status_line() then
     require('lualine').refresh({ place = { 'statusline' } })
@@ -242,7 +242,7 @@ function M.get_current_line_commit()
   --- @type string|nil
   local root = Snacks.git.get_root()
   if not root then
-    notifier.error('Not inside a Git repository')
+    Notifier.error('Not inside a Git repository')
     return nil
   end
 
@@ -267,7 +267,7 @@ function M.get_current_line_commit()
 
   -- Check for Git command errors.
   if vim.v.shell_error ~= 0 then
-    notifier.error('Git command failed. Ensure the file is tracked and has sufficient history.')
+    Notifier.error('Git command failed. Ensure the file is tracked and has sufficient history.')
     return nil
   end
 

@@ -97,7 +97,7 @@ return {
           else
             local ok, err = pcall(vim.cmd.cprev)
             if not ok then
-              notifier.error(err)
+              Notifier.error(err)
             end
           end
         end,
@@ -112,7 +112,7 @@ return {
           else
             local ok, err = pcall(vim.cmd.cnext)
             if not ok then
-              notifier.error(err)
+              Notifier.error(err)
             end
           end
         end,

@@ -59,7 +59,7 @@ end, { desc = 'Close Buffer' })
 -- :echo keytrans(getcharstr())
 map({ 'i', 'x', 'n', 's' }, '<C-S-End>', function()
   Snacks.bufdelete.other()
-  notifier.info('Closed Other Buffers')
+  Notifier.info('Closed Other Buffers')
 end, { desc = 'Close Other Buffers' })
 
 map({ 'n', 'x' }, '<leader>qa', '<CMD>qa<CR>', { desc = 'Quit All', silent = true })

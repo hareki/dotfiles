@@ -7,7 +7,7 @@ local capabilities = {
     local content = table.concat(lines, '\n')
 
     if vim.fn.executable('jq') == 0 then
-      notifier.error('jq is not installed. Install it to use JSON sorting.', vim.log.levels.WARN)
+      Notifier.error('jq is not installed. Install it to use JSON sorting.', vim.log.levels.WARN)
       return
     end
 
@@ -20,7 +20,7 @@ local capabilities = {
       :wait()
 
     if job.code ~= 0 then
-      notifier.error(
+      Notifier.error(
         'Failed to sort JSON: ' .. (job.stderr or 'Unknown error'),
         vim.log.levels.ERROR
       )
@@ -50,7 +50,7 @@ return {
             return
           end
 
-          notifier.error('Unhandled JSON Code Action')
+          Notifier.error('Unhandled JSON Code Action')
         end,
       },
     }

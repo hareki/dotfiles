@@ -18,13 +18,13 @@
 --- - https://github.com/sponsors/tjdevries
 ---
 ---@brief ]]
-local lazy = {}
+local M = {}
 
 --- Require on index.
 ---
 --- Will only require the module after the first index of a module.
 --- Only works for modules that export a table.
-lazy.require_on_index = function(require_path)
+M.on_index = function(require_path)
   return setmetatable({}, {
     __index = function(_, key)
       return require(require_path)[key]
@@ -40,7 +40,7 @@ end
 ---
 --- If you want to require an exported value from the module,
 --- see instead |lazy.require_on_exported_call()|
-lazy.require_on_module_call = function(require_path)
+M.on_module_call = function(require_path)
   return setmetatable({}, {
     __call = function(_, ...)
       return require(require_path)(...)
@@ -63,7 +63,7 @@ end
 --- lazy_func(42)  -- <- Only loads the module now
 ---
 --- </pre>
-lazy.require_on_exported_call = function(require_path)
+M.on_exported_call = function(require_path)
   return setmetatable({}, {
     __index = function(_, k)
       return function(...)
@@ -73,4 +73,4 @@ lazy.require_on_exported_call = function(require_path)
   })
 end
 
-return lazy
+return M

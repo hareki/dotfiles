@@ -107,7 +107,7 @@ return {
         '<A-Space>',
         function()
           if not require('sidekick.nes').have() then
-            notifier.warn('No next edit suggestion found')
+            Notifier.warn('No next edit suggestion found')
           end
 
           require('sidekick.nes').render_nes()
