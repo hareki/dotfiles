@@ -213,8 +213,9 @@ aucmd('ModeChanged', {
         return
       end
 
-      local cmp = require('blink.cmp')
-      if cmp.is_visible() then
+      local cmp = package.loaded['blink.cmp']
+      local cmp_visible = cmp and cmp.is_visible and cmp.is_visible()
+      if cmp_visible then
         return
       end
 

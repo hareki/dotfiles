@@ -26,8 +26,10 @@ map({ 'n' }, '<Esc>', function()
 
   -- Only stop snippets if we're not in the middle of completion
   -- to avoid interfering with blink.cmp's state transitions
-  local cmp = require('blink.cmp')
-  if vim.snippet.active() and not cmp.is_visible() then
+  local cmp = package.loaded['blink.cmp']
+  local cmp_visible = cmp and cmp.is_visible and cmp.is_visible()
+
+  if vim.snippet.active() and not cmp_visible then
     vim.snippet.stop()
   end
 end, { desc = 'Clear Highlight' })

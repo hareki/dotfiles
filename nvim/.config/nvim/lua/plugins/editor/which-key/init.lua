@@ -23,6 +23,9 @@ return {
           desc = {
             -- Add one extra space before the descriptions
             function(desc)
+              if not desc then
+                return ''
+              end
               return ' ' .. desc
             end,
           },

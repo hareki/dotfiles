@@ -95,6 +95,12 @@ function M.run(opts)
     end
 
     local total = #linters.names_for_filetype(vim.bo[buf].filetype) + (formatted and 1 or 0)
+    if total == 0 then
+      write()
+      cleanup()
+      return
+    end
+
     local done_count = formatted and 1 or 0
     local percentage = 100 / total
     local had_lint_error = false
