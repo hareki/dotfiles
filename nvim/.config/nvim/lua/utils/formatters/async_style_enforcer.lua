@@ -20,21 +20,29 @@ local function get_formatter_names(buf)
   return #names > 0 and table.concat(names, ', ') or 'No formatter found'
 end
 
----@param opts? { debug?: boolean, buf?: integer, save?: boolean }
+---@param opts? { debug?: boolean, buf?: integer, save?: boolean, on_done?: fun(ok: boolean, err?: string) }
 function M.run(opts)
   opts = opts or {}
   local debug = opts.debug
   local buf = opts.buf or vim.api.nvim_get_current_buf()
   local save = opts.save ~= false
+  local on_done = opts.on_done
+
+  local function finish(ok, err)
+    if on_done then
+      on_done(ok, err)
+    end
+  end
 
   if not vim.api.nvim_buf_is_valid(buf) then
+    finish(false, 'Invalid buffer')
     return
   end
 
   -- Prevent concurrent format+lint operations on the same buffer
   if running_bufs[buf] then
-    local notifier = require('utils.notifier')
     notifier.warn('Formatting already in progress', { title = 'Style Enforcer' })
+    finish(false, 'Already in progress')
     return
   end
 
@@ -45,13 +53,15 @@ function M.run(opts)
     if running_bufs[buf] then
       running_bufs[buf] = nil
       notifier.warn('Formatting/linting timed out', { title = 'Style Enforcer' })
+      finish(false, 'Timed out')
     end
   end)
 
-  local function cleanup()
+  local function cleanup(ok, err)
     -- Cancel timeout timer and clean up lock
     pcall(vim.fn.timer_stop, timeout_timer)
     running_bufs[buf] = nil
+    finish(ok, err)
   end
 
   local conform = require('conform')
@@ -80,13 +90,14 @@ function M.run(opts)
 
   local function run_linters(formatted)
     if not vim.api.nvim_buf_is_valid(buf) then
-      cleanup()
+      cleanup(false, 'Buffer became invalid')
       return
     end
 
     local total = #linters.names_for_filetype(vim.bo[buf].filetype) + (formatted and 1 or 0)
     local done_count = formatted and 1 or 0
     local percentage = 100 / total
+    local had_lint_error = false
 
     local ok, err = pcall(function()
       linters.run_by_ft({
@@ -99,8 +110,9 @@ function M.run(opts)
             progress:report(label, percentage * done_count)
           end
         end,
-        on_done = function(linter_name, ok, lint_error)
-          if not ok and lint_error then
+        on_done = function(linter_name, linter_ok, lint_error)
+          if not linter_ok and lint_error then
+            had_lint_error = true
             local msg = debug and ('Linter %s error: %s'):format(linter_name, lint_error)
               or ('Linter used: %s'):format(linter_name)
 
@@ -113,7 +125,7 @@ function M.run(opts)
           if done_count == total then
             write()
             progress:finish()
-            cleanup()
+            cleanup(not had_lint_error)
           end
         end,
       })
@@ -124,8 +136,14 @@ function M.run(opts)
       notifier.error('Linter setup failed: ' .. tostring(err), { title = 'Style Enforcer' })
       write()
       progress:finish()
-      cleanup()
+      cleanup(false, err)
     end
+  end
+
+  -- Recheck buffer validity before formatting (could have been deleted during setup)
+  if not vim.api.nvim_buf_is_valid(buf) then
+    cleanup(false, 'Buffer became invalid')
+    return
   end
 
   local formatters, uses_lsp = require('conform').list_formatters_to_run(buf)
@@ -153,7 +171,7 @@ function M.run(opts)
       })
       write()
       progress:finish()
-      cleanup()
+      cleanup(false, format_error)
       return
     end
 
@@ -165,7 +183,6 @@ end
 ---@param debug boolean|nil
 function M.run_all(debug)
   local scope_core = require('scope.core')
-  local notifier = require('utils.notifier')
 
   scope_core.revalidate()
 
@@ -183,12 +200,11 @@ function M.run_all(debug)
     return
   end
 
-  local completed = 0
-  local failed = 0
-
   -- Track successes and failures by path (relative to cwd)
   local success_paths = {}
   local error_paths = {}
+  local pending_count = 0
+  local skipped_count = 0
 
   -- Helper to get a nice display path
   local function buf_display_path(bufnr)
@@ -200,32 +216,7 @@ function M.run_all(debug)
     return vim.fn.fnamemodify(name, ':.')
   end
 
-  for _, buf in ipairs(all_scope_buffers) do
-    -- Skip if already running on this buffer
-    if not running_bufs[buf] then
-      local display_path = buf_display_path(buf)
-
-      -- Wrap in pcall to catch errors and continue processing other buffers
-      local ok, err = pcall(M.run, { debug = debug, buf = buf })
-
-      if not ok then
-        failed = failed + 1
-        table.insert(error_paths, display_path)
-        notifier.error(
-          ('Buffer %s failed: %s'):format(display_path, tostring(err)),
-          { title = 'Style Enforcer' }
-        )
-      else
-        table.insert(success_paths, display_path)
-      end
-
-      completed = completed + 1
-    else
-      completed = completed + 1
-    end
-  end
-
-  vim.schedule(function()
+  local function show_results()
     -- If nothing was actually started (everything was already running), do nothing
     if #success_paths == 0 and #error_paths == 0 then
       return
@@ -294,7 +285,39 @@ function M.run_all(debug)
     else
       notifier.info(chunks, { title = 'Style Enforcer' })
     end
-  end)
+  end
+
+  for _, buf in ipairs(all_scope_buffers) do
+    -- Skip if already running on this buffer
+    if running_bufs[buf] then
+      skipped_count = skipped_count + 1
+    else
+      pending_count = pending_count + 1
+      local display_path = buf_display_path(buf)
+
+      M.run({
+        debug = debug,
+        buf = buf,
+        on_done = function(ok, _err)
+          if ok then
+            table.insert(success_paths, display_path)
+          else
+            table.insert(error_paths, display_path)
+          end
+
+          pending_count = pending_count - 1
+          if pending_count == 0 then
+            vim.schedule(show_results)
+          end
+        end,
+      })
+    end
+  end
+
+  -- If all buffers were skipped (already running), show nothing
+  if pending_count == 0 and skipped_count > 0 then
+    notifier.warn('All buffers are already being formatted', { title = 'Style Enforcer' })
+  end
 end
 
 return M

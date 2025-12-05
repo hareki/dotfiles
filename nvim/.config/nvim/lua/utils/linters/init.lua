@@ -11,8 +11,8 @@ local M = {}
 ---@field runner fun(opts: { bufnr: integer, on_done: fun(ok: boolean, err?: string) })
 
 -- preserve order of registration
-local entries ---@type linters.Entry[]
-entries = {}
+---@type linters.Entry[]
+local entries = {}
 
 ---Register a linter.
 ---@param name string

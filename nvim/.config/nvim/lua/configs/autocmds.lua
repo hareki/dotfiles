@@ -135,13 +135,13 @@ aucmd('CmdwinEnter', {
     vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-f>', '<C-c>', {
       buffer = buf,
       silent = true,
-      desc = 'Exit Command-line Window Mode',
+      desc = 'Exit Command-Line Window Mode',
     })
 
     vim.keymap.set({ 'n' }, 'q', '<CMD>:q!<CR><Esc>', {
       buffer = buf,
       silent = true,
-      desc = 'Quit Command-line Window',
+      desc = 'Quit Command-Line Window',
     })
   end,
 })

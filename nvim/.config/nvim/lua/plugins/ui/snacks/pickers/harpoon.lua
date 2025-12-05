@@ -25,7 +25,7 @@ return function(user_opts)
 
   local items = build_harpoon_items()
   if vim.tbl_isempty(items) then
-    require('utils.notifier').info('Harpoon list is empty')
+    notifier.info('Harpoon list is empty')
     return
   end
 

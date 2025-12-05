@@ -124,7 +124,8 @@ function M.notify(msg, opts)
 
   -- Allow callers to chain their own callback
   local user_on_open = opts.on_open
-  local autocmd_id = nil
+  -- Track autocmd_id in a table so it can be shared between on_open and on_close
+  local state = { autocmd_id = nil, notif_handle = nil }
 
   local function merged_on_open(win)
     local buf = vim.api.nvim_win_get_buf(win)
@@ -137,7 +138,7 @@ function M.notify(msg, opts)
     if apply_highlight then
       apply_highlight(win)
 
-      autocmd_id = vim.api.nvim_create_autocmd({
+      state.autocmd_id = vim.api.nvim_create_autocmd({
         'FileType',
       }, {
         buffer = buf,
@@ -150,6 +151,11 @@ function M.notify(msg, opts)
         end,
         desc = 'Reapply Notifier Highlighting for Duplicate Messages',
       })
+
+      -- Track autocmd ID for cleanup if we have a notification handle
+      if state.notif_handle then
+        notif_autocmds[state.notif_handle] = state.autocmd_id
+      end
     end
 
     if user_on_open then
@@ -163,14 +169,13 @@ function M.notify(msg, opts)
   end
 
   local function on_close()
-    if autocmd_id then
-      pcall(vim.api.nvim_del_autocmd, autocmd_id)
-      autocmd_id = nil
+    if state.autocmd_id then
+      pcall(vim.api.nvim_del_autocmd, state.autocmd_id)
+      state.autocmd_id = nil
     end
 
-    local notif_handle = opts.id and notif_ids[opts.id]
-    if notif_handle and notif_autocmds[notif_handle] then
-      notif_autocmds[notif_handle] = nil
+    if state.notif_handle and notif_autocmds[state.notif_handle] then
+      notif_autocmds[state.notif_handle] = nil
     end
 
     -- Clean up notification ID from cache to prevent memory leak
@@ -192,13 +197,11 @@ function M.notify(msg, opts)
     on_close = on_close,
   })
 
+  -- Store handle for tracking
+  state.notif_handle = ret
+
   if opts.id then
     notif_ids[opts.id] = ret
-  end
-
-  -- Track autocmd ID for cleanup
-  if autocmd_id then
-    notif_autocmds[ret] = autocmd_id
   end
 
   return ret
