@@ -37,8 +37,4 @@ function M.snacks_to_trouble(picker)
   require('trouble.sources.snacks').open(picker)
 end
 
-function M.sidekick_send(...)
-  return require('sidekick.cli.picker.snacks').send(...)
-end
-
 return M

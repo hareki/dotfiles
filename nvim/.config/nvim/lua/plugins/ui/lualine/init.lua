@@ -170,13 +170,6 @@ return {
         lualine_z = {
 
           {
-            function()
-              local have_nes = require('sidekick.nes').have()
-              return have_nes and '' or ''
-            end,
-            color = { fg = palette.yellow, bg = palette.base },
-          },
-          {
             'copilot',
             symbols = {
               status = {
@@ -188,16 +181,6 @@ return {
             },
             padding = { left = 2, right = 0 },
             color = { fg = palette.subtext0, bg = palette.base },
-          },
-          {
-            function()
-              local status = require('sidekick.status').cli()
-              return (#status > 0 and #status or '')
-            end,
-            cond = function()
-              return #require('sidekick.status').cli() > 0
-            end,
-            padding = { left = 0, right = 0 },
           },
 
           {
@@ -214,6 +197,7 @@ return {
           },
 
           -- Hack to workaround the fact that copilot and sidekick.cli count are two separate components
+          -- NOTE: temporarily remove sidekick.nvim but keep this just in case
           empty_comp,
           empty_comp,
 

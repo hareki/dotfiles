@@ -186,7 +186,6 @@ return {
             toggle_preview_focus = actions.toggle_preview_focus,
             select = actions.select,
             snacks_to_trouble = actions.snacks_to_trouble,
-            sidekick_send = actions.sidekick_send,
           },
 
           win = {
@@ -212,7 +211,6 @@ return {
                 ['<C-Up>'] = { 'history_back', mode = { 'i', 'n' } },
 
                 ['<C-c>'] = { 'cancel', mode = { 'i', 'n' } },
-                ['<C-a>'] = { 'sidekick_send', mode = { 'n', 'i' } },
                 ['<C-p>'] = { 'select_and_prev', mode = { 'i', 'n' } },
                 ['<C-n>'] = { 'select_and_next', mode = { 'i', 'n' } },
               },
