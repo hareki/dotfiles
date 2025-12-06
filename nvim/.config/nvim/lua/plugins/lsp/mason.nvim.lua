@@ -28,7 +28,6 @@ return {
 
         'lua-language-server',
         'yaml-language-server',
-        'copilot-language-server',
         'tailwindcss-language-server',
         'css-variables-language-server',
       },

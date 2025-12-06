@@ -111,7 +111,6 @@ return {
       'html', -- HTML
       'cssls', -- CSS
       'css_variables', -- CSS
-      'copilot', -- GitHub Copilot
       'stylua', -- Lua formatter
       'vtsls', -- TypeScript
       'tailwindcss', -- Tailwind
