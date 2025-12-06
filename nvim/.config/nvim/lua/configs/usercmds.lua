@@ -53,6 +53,43 @@ vim.api.nvim_create_user_command('BlinkDebug', function(opts)
       cmp.resubscribe()
     end)
     Notifier.info('blink.cmp reset attempted')
+  elseif action == 'fix' then
+    -- More aggressive fix: reload keymaps and resubscribe
+    local fixed = {}
+
+    -- 1. Hide any visible completion
+    pcall(function()
+      cmp.hide()
+      table.insert(fixed, 'Hidden completion')
+    end)
+
+    -- 2. Stop any active snippets
+    if vim.snippet.active() then
+      pcall(vim.snippet.stop)
+      table.insert(fixed, 'Stopped snippet')
+    end
+
+    -- 3. Resubscribe to text change events
+    pcall(function()
+      cmp.resubscribe()
+      table.insert(fixed, 'Resubscribed to events')
+    end)
+
+    -- 4. Re-trigger keymap application by simulating InsertEnter
+    vim.schedule(function()
+      -- Briefly leave and re-enter insert mode to trigger keymap re-application
+      local mode = vim.api.nvim_get_mode().mode
+      if mode == 'i' or mode == 'ic' or mode == 'ix' then
+        vim.api.nvim_exec_autocmds('InsertEnter', { modeline = false })
+        table.insert(fixed, 'Re-triggered InsertEnter')
+      end
+
+      Notifier.info('blink.cmp fix applied:\n• ' .. table.concat(fixed, '\n• '), {
+        title = 'BlinkDebug Fix',
+        timeout = 5000,
+      })
+    end)
+    return
   elseif action == 'reload' then
     -- Reload the copilot source specifically
     pcall(function()
@@ -144,7 +181,7 @@ vim.api.nvim_create_user_command('BlinkDebug', function(opts)
 end, {
   nargs = '?',
   complete = function()
-    return { 'reset', 'reload', 'dump' }
+    return { 'fix', 'reset', 'reload', 'dump' }
   end,
-  desc = 'Debug blink.cmp state (reset/reload/dump/info)',
+  desc = 'Debug blink.cmp state (fix/reset/reload/dump/info)',
 })

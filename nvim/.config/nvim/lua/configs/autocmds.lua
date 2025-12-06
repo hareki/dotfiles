@@ -222,6 +222,6 @@ aucmd('ModeChanged', {
       if vim.snippet.active() then
         vim.snippet.stop()
       end
-    end, 20)
+    end, 50)
   end,
 })

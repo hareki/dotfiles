@@ -32,17 +32,14 @@ return {
   },
   {
     'saghen/blink.cmp',
-    -- Use a release tag to download pre-built binaries
-    version = '*',
+    version = '*', -- Use a release tag to download pre-built binaries
     dependencies = {
-      -- 'rafamadriz/friendly-snippets',
-      -- 'giuxtaposition/blink-cmp-copilot', => Doesn't support multiple items
       'windwp/nvim-autopairs',
       'dmitmel/cmp-cmdline-history',
       'f3fora/cmp-spell',
       'fang2hou/blink-copilot',
     },
-    event = { 'InsertEnter', 'CmdLineEnter' },
+    event = 'VeryLazy',
     opts = function()
       local function register_kind(name)
         local cmp_types = require('blink.cmp.types')
@@ -192,11 +189,18 @@ return {
               return true
             end,
           },
-          ['<CR>'] = { 'accept', 'fallback' },
+          ['<CR>'] = {
+            function(cmp)
+              -- Only accept if menu is actually visible and we have items
+              if cmp.is_menu_visible() then
+                return cmp.accept()
+              end
+              return false -- Fallback to normal <CR>
+            end,
+            'fallback',
+          },
           ['<A-Space>'] = {
             function(cmp)
-              -- Only return true if cmp.show() actually succeeds
-              -- This prevents silent failures when blink.cmp is in a bad state
               if cmp.is_menu_visible() then
                 return cmp.show({ providers = { 'copilot' } })
               else

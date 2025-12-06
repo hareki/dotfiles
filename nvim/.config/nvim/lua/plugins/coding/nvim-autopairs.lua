@@ -1,6 +1,6 @@
 return {
   'windwp/nvim-autopairs',
-  event = 'InsertEnter',
+  event = 'VeryLazy',
   opts = function()
     return {
       disable_filetype = { 'TelescopePrompt', 'vim', 'snacks_picker_input' },
