@@ -78,7 +78,9 @@ return {
   end),
   {
     'hareki/dropbar.nvim',
-    event = { 'BufReadPost', 'BufNewFile', 'BufWritePre' },
+    -- Prevent layout shifting
+    lazy = false,
+    priority = 500,
     keys = {
       {
         '<leader>b',
@@ -114,7 +116,7 @@ return {
         -- https://github.com/Bekaboo/dropbar.nvim?tab=readme-ov-file#bar
         -- Intercept and limit the lsp items to avoid too deeply nested items
         bar = {
-          enable = require('plugins.ui.drobpar.utils').enable,
+          enable = require('plugins.ui.dropbar.utils').enable,
           truncate = false,
           hover = true,
           sources = function(buf, _)

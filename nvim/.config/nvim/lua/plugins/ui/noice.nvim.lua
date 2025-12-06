@@ -10,7 +10,10 @@ return {
   end),
   {
     'folke/noice.nvim',
-    event = 'VeryLazy',
+
+    -- Prevent layout shifting (it hides the cmdline row)
+    lazy = false,
+    priority = 500,
 
     opts = {
       format = {

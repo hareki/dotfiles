@@ -1,20 +1,16 @@
 return {
   'nvim-lualine/lualine.nvim',
-  event = { 'BufReadPost', 'BufNewFile', 'BufWritePre' },
-  dependencies = {
-    'hareki/copilot-lualine',
-  },
+
+  -- Prevent layout shifting
+  lazy = false,
+  priority = 500,
+  dependencies = { 'hareki/copilot-lualine' },
 
   enabled = function()
     return require('plugins.ui.lualine.utils').have_status_line()
   end,
 
   init = function()
-    if vim.env.NVIM_NO_STATUS_LINE then
-      vim.o.laststatus = 0
-      return
-    end
-
     if vim.fn.argc(-1) > 0 then
       -- Set an empty statusline till lualine loads
       vim.o.statusline = ' '
