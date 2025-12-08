@@ -92,12 +92,12 @@ return {
               -- https://github.com/neovim/neovim/issues/21585
               function()
                 -- Feed <C-c> to cancel the command line instead
+                -- NOTE: Do NOT manually trigger CmdlineLeave here!
+                -- <C-c> already fires CmdlineLeave naturally, and firing it again
+                -- causes blink.cmp's internal state to corrupt (autocmds get unregistered,
+                -- context.mode gets stuck on 'default', completion stops working).
                 local keys = vim.api.nvim_replace_termcodes('<C-c>', true, false, true)
                 vim.api.nvim_feedkeys(keys, 'n', false)
-                -- Manually trigger CmdlineLeave to ensure blink.cmp cleans up
-                vim.schedule(function()
-                  vim.api.nvim_exec_autocmds('CmdlineLeave', {})
-                end)
                 return true
               end,
             },

@@ -98,70 +98,466 @@ vim.api.nvim_create_user_command('BlinkDebug', function(opts)
     Notifier.info('blink.cmp copilot source reloaded')
   elseif action == 'dump' then
     local mode = vim.api.nvim_get_mode()
+    local bufnr = vim.api.nvim_get_current_buf()
+    local winnr = vim.api.nvim_get_current_win()
 
     local info = {
       'blink.cmp Deep Dump:',
-      '─────────────────────',
-      ('mode: %s (blocking=%s)'):format(mode.mode, tostring(mode.blocking)),
-      ('buf ft/bt: %s / %s'):format(vim.bo.filetype, vim.bo.buftype),
-      ('modifiable: %s paste: %s iminsert: %s'):format(
+      '═════════════════════════════════════════════════════════',
+      '',
+      '▸ Environment:',
+      ('  mode: %s (blocking=%s)'):format(mode.mode, tostring(mode.blocking)),
+      ('  buf: %d ft=%s bt=%s'):format(bufnr, vim.bo.filetype, vim.bo.buftype),
+      ('  win: %d type=%s'):format(winnr, vim.fn.win_gettype(winnr)),
+      ('  modifiable: %s readonly: %s'):format(
         tostring(vim.bo.modifiable),
-        tostring(vim.o.paste),
-        tostring(vim.bo.iminsert)
+        tostring(vim.bo.readonly)
       ),
-      safe('cmp.is_active', function()
-        return cmp.is_active()
-      end),
-      safe('cmp.is_visible', function()
-        return cmp.is_visible()
-      end),
-      safe('cmp.is_menu_visible', function()
-        return cmp.is_menu_visible()
-      end),
-      safe('cmp.is_ghost_text_visible', function()
-        return cmp.is_ghost_text_visible()
-      end),
-      safe('cmp.snippet_active', function()
-        return cmp.snippet_active()
-      end),
-      safe('cmp.context.mode', function()
-        return cmp.get_context and cmp.get_context().mode
-      end),
-      'Keymaps (insert mode):',
-      '  ' .. map_info('<A-Space>'),
-      '  ' .. map_info('<CR>'),
-      '  ' .. map_info('<Tab>'),
-      '  ' .. map_info('<Esc>'),
+      ('  paste: %s iminsert: %s'):format(tostring(vim.o.paste), tostring(vim.bo.iminsert)),
+      ('  changedtick: %d'):format(vim.api.nvim_buf_get_changedtick(bufnr)),
+      (function()
+        local cursor = vim.api.nvim_win_get_cursor(winnr)
+        return ('  cursor: [%d, %d]'):format(cursor[1], cursor[2])
+      end)(),
     }
 
-    local ap_info = {}
-    local ap_ok, ap_state = pcall(require, 'nvim-autopairs.state')
-    if ap_ok then
-      table.insert(ap_info, 'nvim-autopairs:')
-      table.insert(ap_info, '  disabled: ' .. tostring(ap_state.disabled))
-      table.insert(ap_info, '  ts_node: ' .. tostring(ap_state.ts_node and ap_state.ts_node:type()))
-      table.insert(ap_info, '  before_char: ' .. tostring(ap_state.before_char))
-      table.insert(ap_info, '  last_event: ' .. tostring(ap_state.last_event))
+    -- blink.cmp public API state
+    table.insert(info, '')
+    table.insert(info, '▸ blink.cmp Public API:')
+    table.insert(
+      info,
+      safe('  is_active', function()
+        return cmp.is_active()
+      end)
+    )
+    table.insert(
+      info,
+      safe('  is_visible', function()
+        return cmp.is_visible()
+      end)
+    )
+    table.insert(
+      info,
+      safe('  is_menu_visible', function()
+        return cmp.is_menu_visible()
+      end)
+    )
+    table.insert(
+      info,
+      safe('  is_ghost_text_visible', function()
+        return cmp.is_ghost_text_visible()
+      end)
+    )
+    table.insert(
+      info,
+      safe('  is_signature_visible', function()
+        return cmp.is_signature_visible()
+      end)
+    )
+    table.insert(
+      info,
+      safe('  is_documentation_visible', function()
+        return cmp.is_documentation_visible()
+      end)
+    )
+    table.insert(
+      info,
+      safe('  snippet_active', function()
+        return cmp.snippet_active()
+      end)
+    )
+    table.insert(
+      info,
+      safe('  snippet_active(fwd)', function()
+        return cmp.snippet_active({ direction = 1 })
+      end)
+    )
+    table.insert(
+      info,
+      safe('  snippet_active(bwd)', function()
+        return cmp.snippet_active({ direction = -1 })
+      end)
+    )
+
+    -- Context details
+    table.insert(info, '')
+    table.insert(info, '▸ Completion Context:')
+    local ctx = nil
+    pcall(function()
+      ctx = cmp.get_context()
+    end)
+    if ctx then
+      table.insert(info, ('  id: %s'):format(tostring(ctx.id)))
+      table.insert(info, ('  mode: %s'):format(tostring(ctx.mode)))
+      table.insert(info, ('  bufnr: %s'):format(tostring(ctx.bufnr)))
+      table.insert(
+        info,
+        ('  cursor: [%s, %s]'):format(tostring(ctx.cursor[1]), tostring(ctx.cursor[2]))
+      )
+      table.insert(info, ('  line: "%s"'):format(ctx.line and ctx.line:sub(1, 80) or 'nil'))
+      if ctx.bounds then
+        table.insert(
+          info,
+          ('  bounds: line=%d start=%d len=%d'):format(
+            ctx.bounds.line_number or -1,
+            ctx.bounds.start_col or -1,
+            ctx.bounds.length or -1
+          )
+        )
+      end
+      if ctx.trigger then
+        table.insert(info, ('  trigger.kind: %s'):format(tostring(ctx.trigger.kind)))
+        table.insert(
+          info,
+          ('  trigger.initial_kind: %s'):format(tostring(ctx.trigger.initial_kind))
+        )
+        table.insert(info, ('  trigger.character: %s'):format(tostring(ctx.trigger.character)))
+      end
+      table.insert(
+        info,
+        ('  providers: %s'):format(ctx.providers and table.concat(ctx.providers, ', ') or 'nil')
+      )
+      table.insert(info, ('  timestamp: %s'):format(tostring(ctx.timestamp)))
     else
-      table.insert(ap_info, 'nvim-autopairs.state unavailable')
-    end
-    vim.list_extend(info, ap_info)
-
-    local autocmds = {}
-    local ok_autocmd, ac = pcall(vim.api.nvim_get_autocmds, {
-      event = { 'InsertEnter', 'InsertLeave', 'ModeChanged' },
-      group = 'blink.cmp',
-    })
-    if ok_autocmd then
-      autocmds = ac
+      table.insert(info, '  <no active context>')
     end
 
-    table.insert(info, 'blink.cmp autocmds (#' .. tostring(#autocmds) .. '):')
-    for _, a in ipairs(autocmds) do
-      table.insert(info, string.format('  %s %s', a.event, a.pattern or '*'))
+    -- Completion list state
+    table.insert(info, '')
+    table.insert(info, '▸ Completion List:')
+    local ok_list, list = pcall(require, 'blink.cmp.completion.list')
+    if ok_list and list then
+      table.insert(info, ('  items count: %d'):format(list.items and #list.items or 0))
+      table.insert(info, ('  selected_item_idx: %s'):format(tostring(list.selected_item_idx)))
+      table.insert(info, ('  preview_undo: %s'):format(tostring(list.preview_undo ~= nil)))
+      local selected = list.get_selected_item and list.get_selected_item()
+      if selected then
+        table.insert(
+          info,
+          ('  selected_item.label: %s'):format(
+            selected.label and selected.label:sub(1, 30) or 'nil'
+          )
+        )
+        table.insert(info, ('  selected_item.kind: %s'):format(tostring(selected.kind)))
+      end
+    else
+      table.insert(info, '  <list module unavailable>')
     end
 
-    Notifier.info(table.concat(info, '\n'), { title = 'BlinkDebug Dump', timeout = 15000 })
+    -- Menu window state
+    table.insert(info, '')
+    table.insert(info, '▸ Menu Window:')
+    local ok_menu, menu = pcall(require, 'blink.cmp.completion.windows.menu')
+    if ok_menu and menu then
+      local win = menu.win
+      if win then
+        table.insert(info, ('  win:is_open(): %s'):format(tostring(win:is_open())))
+        table.insert(info, ('  win.id: %s'):format(tostring(win.id)))
+        -- auto_show can be a function, boolean, or table
+        local auto_show_val = menu.auto_show
+        local auto_show_str
+        if type(auto_show_val) == 'function' then
+          local ok_as, as_result = pcall(auto_show_val)
+          auto_show_str = ok_as and ('fn()→%s'):format(tostring(as_result)) or 'fn()→err'
+        elseif type(auto_show_val) == 'table' then
+          auto_show_str = vim.inspect(auto_show_val, { newline = ' ', indent = '' }):sub(1, 80)
+        else
+          auto_show_str = tostring(auto_show_val)
+        end
+        table.insert(info, ('  auto_show: %s'):format(auto_show_str))
+      else
+        table.insert(info, '  win: nil')
+      end
+    else
+      table.insert(info, '  <menu module unavailable>')
+    end
+
+    -- Trigger internal state
+    table.insert(info, '')
+    table.insert(info, '▸ Trigger State:')
+    local ok_trigger, trigger = pcall(require, 'blink.cmp.completion.trigger')
+    if ok_trigger and trigger then
+      table.insert(info, ('  context: %s'):format(tostring(trigger.context ~= nil)))
+      table.insert(info, ('  current_context_id: %s'):format(tostring(trigger.current_context_id)))
+
+      -- buffer_events
+      if trigger.buffer_events then
+        local be = trigger.buffer_events
+        table.insert(info, '  buffer_events:')
+        table.insert(info, ('    textchangedi_id: %s'):format(tostring(be.textchangedi_id)))
+        table.insert(
+          info,
+          ('    ignore_next_text_changed: %s'):format(tostring(be.ignore_next_text_changed))
+        )
+        table.insert(
+          info,
+          ('    ignore_next_cursor_moved: %s'):format(tostring(be.ignore_next_cursor_moved))
+        )
+        table.insert(info, ('    last_char: "%s"'):format(tostring(be.last_char)))
+        table.insert(
+          info,
+          ('    has_context(): %s'):format(tostring(be.has_context and be.has_context()))
+        )
+        table.insert(info, ('    show_in_snippet: %s'):format(tostring(be.show_in_snippet)))
+      else
+        table.insert(info, '  buffer_events: nil ⚠️  BROKEN!')
+      end
+
+      -- cmdline_events
+      if trigger.cmdline_events then
+        local ce = trigger.cmdline_events
+        table.insert(info, '  cmdline_events:')
+        table.insert(
+          info,
+          ('    ignore_next_text_changed: %s'):format(tostring(ce.ignore_next_text_changed))
+        )
+        table.insert(
+          info,
+          ('    ignore_next_cursor_moved: %s'):format(tostring(ce.ignore_next_cursor_moved))
+        )
+      else
+        table.insert(info, '  cmdline_events: nil')
+      end
+
+      -- term_events
+      if trigger.term_events then
+        table.insert(info, '  term_events: present')
+      else
+        table.insert(info, '  term_events: nil')
+      end
+
+      -- Event emitters
+      table.insert(info, ('  show_emitter: %s'):format(tostring(trigger.show_emitter ~= nil)))
+      table.insert(info, ('  hide_emitter: %s'):format(tostring(trigger.hide_emitter ~= nil)))
+    else
+      table.insert(info, '  <trigger module unavailable>')
+    end
+
+    -- Sources state
+    table.insert(info, '')
+    table.insert(info, '▸ Sources:')
+    local ok_sources, sources = pcall(require, 'blink.cmp.sources.lib')
+    if ok_sources and sources then
+      local ok_ids, provider_ids = pcall(function()
+        return sources.get_enabled_provider_ids('default')
+      end)
+      if ok_ids then
+        table.insert(info, ('  enabled (default): %s'):format(table.concat(provider_ids, ', ')))
+      end
+      local ok_cmdline_ids, cmdline_ids = pcall(function()
+        return sources.get_enabled_provider_ids('cmdline')
+      end)
+      if ok_cmdline_ids then
+        table.insert(info, ('  enabled (cmdline): %s'):format(table.concat(cmdline_ids, ', ')))
+      end
+    else
+      table.insert(info, '  <sources module unavailable>')
+    end
+
+    -- Config state
+    table.insert(info, '')
+    table.insert(info, '▸ Config:')
+    local ok_config, config = pcall(require, 'blink.cmp.config')
+    if ok_config and config then
+      table.insert(
+        info,
+        safe('  enabled()', function()
+          return config.enabled()
+        end)
+      )
+      table.insert(
+        info,
+        ('  cmdline.enabled: %s'):format(tostring(config.cmdline and config.cmdline.enabled))
+      )
+      table.insert(
+        info,
+        ('  signature.enabled: %s'):format(tostring(config.signature and config.signature.enabled))
+      )
+      if config.completion and config.completion.trigger then
+        local t = config.completion.trigger
+        table.insert(info, ('  trigger.show_on_keyword: %s'):format(tostring(t.show_on_keyword)))
+        table.insert(info, ('  trigger.show_on_insert: %s'):format(tostring(t.show_on_insert)))
+        table.insert(info, ('  trigger.show_in_snippet: %s'):format(tostring(t.show_in_snippet)))
+      end
+    else
+      table.insert(info, '  <config module unavailable>')
+    end
+
+    -- Keymaps
+    table.insert(info, '')
+    table.insert(info, '▸ Keymaps (insert mode):')
+    table.insert(info, '  ' .. map_info('<A-Space>'))
+    table.insert(info, '  ' .. map_info('<CR>'))
+    table.insert(info, '  ' .. map_info('<Tab>'))
+    table.insert(info, '  ' .. map_info('<S-Tab>'))
+    table.insert(info, '  ' .. map_info('<Esc>'))
+    table.insert(info, '  ' .. map_info('<Up>'))
+    table.insert(info, '  ' .. map_info('<Down>'))
+
+    -- Keymaps cmdline mode
+    table.insert(info, '')
+    table.insert(info, '▸ Keymaps (cmdline mode):')
+    local function cmdline_map_info(lhs)
+      local map = vim.fn.maparg(lhs, 'c', false, true)
+      if not map or map.lhs == nil or map.lhs == '' then
+        return lhs .. ': <none>'
+      end
+      local rhs = map.rhs or ''
+      if map.callback then
+        rhs = '<Lua callback>'
+      end
+      if rhs == '' then
+        rhs = '<no rhs>'
+      end
+      local desc = map.desc and (' (' .. map.desc .. ')') or ''
+      return string.format('%s: %s%s', lhs, rhs, desc)
+    end
+    table.insert(info, '  ' .. cmdline_map_info('<Tab>'))
+    table.insert(info, '  ' .. cmdline_map_info('<S-Tab>'))
+    table.insert(info, '  ' .. cmdline_map_info('<CR>'))
+    table.insert(info, '  ' .. cmdline_map_info('<Esc>'))
+
+    -- nvim-autopairs state
+    table.insert(info, '')
+    table.insert(info, '▸ nvim-autopairs:')
+    local ap_ok, ap = pcall(require, 'nvim-autopairs')
+    if ap_ok and ap then
+      table.insert(info, '  loaded: true')
+      -- State is on the main module as M.state
+      if ap.state then
+        table.insert(info, ('  state.disabled: %s'):format(tostring(ap.state.disabled)))
+        table.insert(info, ('  state.ts_node: %s'):format(tostring(ap.state.ts_node)))
+        table.insert(info, ('  state.expr_quote: %s'):format(tostring(ap.state.expr_quote)))
+        -- rules is a table keyed by buffer number
+        local rules_count = 0
+        if ap.state.rules then
+          for _ in pairs(ap.state.rules) do
+            rules_count = rules_count + 1
+          end
+        end
+        table.insert(info, ('  state.rules (buffers): %d'):format(rules_count))
+        -- Current buffer rules
+        local buf_rules = ap.get_buf_rules and ap.get_buf_rules() or {}
+        table.insert(info, ('  current buf rules: %d'):format(#buf_rules))
+      else
+        table.insert(info, '  state: nil')
+      end
+      -- Config
+      if ap.config then
+        table.insert(info, ('  config.map_cr: %s'):format(tostring(ap.config.map_cr)))
+        table.insert(info, ('  config.map_bs: %s'):format(tostring(ap.config.map_bs)))
+        table.insert(info, ('  config.check_ts: %s'):format(tostring(ap.config.check_ts)))
+        table.insert(
+          info,
+          ('  config.disable_in_macro: %s'):format(tostring(ap.config.disable_in_macro))
+        )
+      end
+    else
+      table.insert(info, '  loaded: false')
+    end
+
+    -- vim.snippet state
+    table.insert(info, '')
+    table.insert(info, '▸ vim.snippet:')
+    table.insert(info, ('  active(): %s'):format(tostring(vim.snippet.active())))
+    table.insert(
+      info,
+      ('  active({direction=1}): %s'):format(tostring(vim.snippet.active({ direction = 1 })))
+    )
+    table.insert(
+      info,
+      ('  active({direction=-1}): %s'):format(tostring(vim.snippet.active({ direction = -1 })))
+    )
+
+    -- Autocmds (grouped by event, showing counts)
+    table.insert(info, '')
+    table.insert(info, '▸ Autocmds (no group, has callback):')
+    local events_to_check = {
+      'InsertCharPre',
+      'TextChangedI',
+      'CursorMoved',
+      'CursorMovedI',
+      'InsertEnter',
+      'InsertLeave',
+      'ModeChanged',
+      'BufLeave',
+      'CompleteChanged',
+      'CmdlineEnter',
+      'CmdlineLeave',
+      'CmdlineChanged',
+    }
+    local event_counts = {}
+    local total_count = 0
+    for _, event in ipairs(events_to_check) do
+      local ok_ac, acs = pcall(vim.api.nvim_get_autocmds, { event = event })
+      if ok_ac then
+        local count = 0
+        for _, ac in ipairs(acs) do
+          if ac.group == nil and ac.callback ~= nil then
+            count = count + 1
+          end
+        end
+        if count > 0 then
+          event_counts[event] = count
+          total_count = total_count + count
+        end
+      end
+    end
+    table.insert(info, ('  Total: %d'):format(total_count))
+    for _, event in ipairs(events_to_check) do
+      if event_counts[event] then
+        table.insert(info, ('  %s: %d'):format(event, event_counts[event]))
+      end
+    end
+
+    -- on_key handlers (count)
+    table.insert(info, '')
+    table.insert(info, '▸ Registered Modules:')
+    local modules_to_check = {
+      'blink.cmp',
+      'blink.cmp.completion.trigger',
+      'blink.cmp.completion.list',
+      'blink.cmp.completion.windows.menu',
+      'blink.cmp.completion.windows.documentation',
+      'blink.cmp.completion.windows.ghost_text',
+      'blink.cmp.completion.windows.signature',
+      'blink.cmp.lib.buffer_events',
+      'blink.cmp.lib.cmdline_events',
+      'blink.cmp.lib.term_events',
+      'blink.cmp.keymap',
+      'blink.cmp.sources.lib',
+      'blink.cmp.fuzzy',
+      'blink.cmp.config',
+      'blink-copilot',
+      'nvim-autopairs',
+    }
+    for _, mod in ipairs(modules_to_check) do
+      local loaded = package.loaded[mod] ~= nil
+      table.insert(info, ('  %s: %s'):format(mod, loaded and '✓' or '✗'))
+    end
+
+    -- Recent messages (last few lines from :messages)
+    table.insert(info, '')
+    table.insert(info, '▸ Recent Messages (last 5):')
+    local messages = vim.fn.execute('messages')
+    local msg_lines = vim.split(messages, '\n')
+    local start_idx = math.max(1, #msg_lines - 4)
+    for i = start_idx, #msg_lines do
+      local line = msg_lines[i]
+      if line and line ~= '' then
+        table.insert(info, '  ' .. line:sub(1, 60))
+      end
+    end
+
+    -- Timestamp
+    table.insert(info, '')
+    table.insert(
+      info,
+      '═════════════════════════════════════════════════════════'
+    )
+    table.insert(info, ('Captured at: %s'):format(os.date('%Y-%m-%d %H:%M:%S')))
+
+    Notifier.info(table.concat(info, '\n'), { title = 'BlinkDebug Dump', timeout = 30000 })
   else
     -- Show debug info
     local info = {
