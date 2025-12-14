@@ -101,25 +101,122 @@ vim.api.nvim_create_user_command('BlinkDebug', function(opts)
     local bufnr = vim.api.nvim_get_current_buf()
     local winnr = vim.api.nvim_get_current_win()
 
+    -- Pre-collect critical state for health check
+    local health_issues = {}
+    local ok_trigger, trigger = pcall(require, 'blink.cmp.completion.trigger')
+
+    -- Check 1: buffer_events exists
+    if ok_trigger and trigger then
+      if not trigger.buffer_events then
+        table.insert(health_issues, 'buffer_events is nil')
+      elseif trigger.buffer_events.textchangedi_id == -1 then
+        table.insert(health_issues, 'textchangedi_id is -1 (not registered)')
+      else
+        -- Check if the autocmd still exists
+        local textchangedi_id = trigger.buffer_events.textchangedi_id
+        local autocmd_exists = false
+        local ok_acs, all_text_changed =
+          pcall(vim.api.nvim_get_autocmds, { event = 'TextChangedI' })
+        if ok_acs then
+          for _, ac in ipairs(all_text_changed) do
+            if ac.id == textchangedi_id then
+              autocmd_exists = true
+              break
+            end
+          end
+        end
+        if not autocmd_exists then
+          table.insert(
+            health_issues,
+            ('TextChangedI autocmd id=%d missing'):format(textchangedi_id)
+          )
+        end
+      end
+
+      -- Check 2: Event emitters exist
+      if not trigger.show_emitter then
+        table.insert(health_issues, 'show_emitter is nil')
+      end
+      if not trigger.hide_emitter then
+        table.insert(health_issues, 'hide_emitter is nil')
+      end
+    else
+      table.insert(health_issues, 'trigger module not loaded')
+    end
+
+    -- Check 3: Ungrouped autocmd count (should be ~25-30)
+    local ungrouped_autocmd_count = 0
+    local critical_events =
+      { 'InsertCharPre', 'TextChangedI', 'CursorMovedI', 'InsertEnter', 'InsertLeave' }
+    for _, event in ipairs(critical_events) do
+      local ok_ac, acs = pcall(vim.api.nvim_get_autocmds, { event = event })
+      if ok_ac then
+        for _, ac in ipairs(acs) do
+          if ac.group == nil and ac.callback ~= nil then
+            ungrouped_autocmd_count = ungrouped_autocmd_count + 1
+          end
+        end
+      end
+    end
+    if ungrouped_autocmd_count < 5 then
+      table.insert(
+        health_issues,
+        ('Only %d ungrouped autocmds (expected ~15+)'):format(ungrouped_autocmd_count)
+      )
+    end
+
+    -- Check 4: Config enabled
+    local ok_config, config = pcall(require, 'blink.cmp.config')
+    if ok_config and config then
+      local config_enabled = false
+      pcall(function()
+        config_enabled = config.enabled()
+      end)
+      if not config_enabled then
+        table.insert(health_issues, 'config.enabled() returns false')
+      end
+    end
+
     local info = {
       'blink.cmp Deep Dump:',
       '═════════════════════════════════════════════════════════',
-      '',
-      '▸ Environment:',
-      ('  mode: %s (blocking=%s)'):format(mode.mode, tostring(mode.blocking)),
-      ('  buf: %d ft=%s bt=%s'):format(bufnr, vim.bo.filetype, vim.bo.buftype),
-      ('  win: %d type=%s'):format(winnr, vim.fn.win_gettype(winnr)),
+    }
+
+    -- Health Check Summary at the TOP
+    table.insert(info, '')
+    if #health_issues == 0 then
+      table.insert(info, '▸ Health Check: ✓ ALL PASSED')
+    else
+      table.insert(info, '▸ Health Check: ⚠️  ISSUES DETECTED!')
+      for _, issue in ipairs(health_issues) do
+        table.insert(info, ('  ❌ %s'):format(issue))
+      end
+    end
+
+    table.insert(info, '')
+    table.insert(info, '▸ Environment:')
+    table.insert(info, ('  mode: %s (blocking=%s)'):format(mode.mode, tostring(mode.blocking)))
+    table.insert(info, ('  buf: %d ft=%s bt=%s'):format(bufnr, vim.bo.filetype, vim.bo.buftype))
+    table.insert(info, ('  win: %d type=%s'):format(winnr, vim.fn.win_gettype(winnr)))
+    table.insert(
+      info,
       ('  modifiable: %s readonly: %s'):format(
         tostring(vim.bo.modifiable),
         tostring(vim.bo.readonly)
-      ),
-      ('  paste: %s iminsert: %s'):format(tostring(vim.o.paste), tostring(vim.bo.iminsert)),
-      ('  changedtick: %d'):format(vim.api.nvim_buf_get_changedtick(bufnr)),
+      )
+    )
+    table.insert(
+      info,
+      ('  paste: %s iminsert: %s'):format(tostring(vim.o.paste), tostring(vim.bo.iminsert))
+    )
+    table.insert(info, ('  changedtick: %d'):format(vim.api.nvim_buf_get_changedtick(bufnr)))
+    table.insert(
+      info,
       (function()
         local cursor = vim.api.nvim_win_get_cursor(winnr)
         return ('  cursor: [%d, %d]'):format(cursor[1], cursor[2])
-      end)(),
-    }
+      end)()
+    )
 
     -- blink.cmp public API state
     table.insert(info, '')
@@ -509,6 +606,121 @@ vim.api.nvim_create_user_command('BlinkDebug', function(opts)
         table.insert(info, ('  %s: %d'):format(event, event_counts[event]))
       end
     end
+
+    -- CRITICAL: Check if the TextChangedI autocmd with blink's ID still exists
+    table.insert(info, '')
+    table.insert(info, '▸ Critical Autocmd Validation:')
+    if ok_trigger and trigger and trigger.buffer_events then
+      local be = trigger.buffer_events
+      local textchangedi_id = be.textchangedi_id
+      if textchangedi_id and textchangedi_id > 0 then
+        -- Check if this autocmd ID still exists
+        local autocmd_exists = false
+        local ok_acs, all_text_changed =
+          pcall(vim.api.nvim_get_autocmds, { event = 'TextChangedI' })
+        if ok_acs then
+          for _, ac in ipairs(all_text_changed) do
+            if ac.id == textchangedi_id then
+              autocmd_exists = true
+              break
+            end
+          end
+        end
+        table.insert(
+          info,
+          ('  TextChangedI id=%d exists: %s %s'):format(
+            textchangedi_id,
+            tostring(autocmd_exists),
+            autocmd_exists and '✓' or '⚠️  MISSING!'
+          )
+        )
+      else
+        table.insert(info, '  TextChangedI id: invalid or -1 ⚠️')
+      end
+    end
+
+    -- Check vim.on_key handlers (blink uses these for backspace detection and ctrl+c)
+    table.insert(info, '')
+    table.insert(info, '▸ vim.on_key Status:')
+    -- We can't enumerate on_key handlers, but we can check if the namespace exists
+    local on_key_info = 'Cannot enumerate (no API), but blink.cmp uses vim.on_key for:'
+    table.insert(info, '  ' .. on_key_info)
+    table.insert(info, '    - Backspace detection in buffer_events')
+    table.insert(info, '    - Ctrl+C detection for InsertLeave')
+    table.insert(info, '    - Cmdline key tracking')
+
+    -- Check for any scheduled callbacks that might interfere
+    table.insert(info, '')
+    table.insert(info, '▸ Deferred State:')
+    table.insert(info, ('  vim.in_fast_event(): %s'):format(tostring(vim.in_fast_event())))
+    table.insert(info, ('  vim.fn.state(): "%s"'):format(vim.fn.state()))
+
+    -- Check pumvisible (native completion menu)
+    table.insert(info, ('  vim.fn.pumvisible(): %d'):format(vim.fn.pumvisible()))
+
+    -- Check if we're in a macro or recording
+    table.insert(info, ('  vim.fn.reg_recording(): "%s"'):format(vim.fn.reg_recording()))
+    table.insert(info, ('  vim.fn.reg_executing(): "%s"'):format(vim.fn.reg_executing()))
+
+    -- Check for block visual mode (can affect autopairs)
+    local current_mode = vim.api.nvim_get_mode().mode
+    local is_visual_block = current_mode == '\22'
+      or current_mode == '<C-V>'
+      or current_mode:match('v')
+    table.insert(
+      info,
+      ('  is_visual/block: %s (mode=%s)'):format(tostring(is_visual_block), current_mode)
+    )
+
+    -- Direct function call test
+    table.insert(info, '')
+    table.insert(info, '▸ Direct API Call Test:')
+    -- Test if cmp.show() would work
+    local show_test_result = 'untested'
+    pcall(function()
+      -- Don't actually show, just check if the function exists and is callable
+      if type(cmp.show) == 'function' then
+        show_test_result = 'function exists'
+      else
+        show_test_result = 'NOT A FUNCTION ⚠️'
+      end
+    end)
+    table.insert(info, ('  cmp.show: %s'):format(show_test_result))
+
+    -- Test resubscribe
+    local resubscribe_test = 'untested'
+    pcall(function()
+      if type(cmp.resubscribe) == 'function' then
+        resubscribe_test = 'function exists'
+      else
+        resubscribe_test = 'NOT A FUNCTION ⚠️'
+      end
+    end)
+    table.insert(info, ('  cmp.resubscribe: %s'):format(resubscribe_test))
+
+    -- Check keymap module state
+    table.insert(info, '')
+    table.insert(info, '▸ Keymap Module:')
+    local ok_keymap, keymap = pcall(require, 'blink.cmp.keymap')
+    if ok_keymap and keymap then
+      table.insert(info, '  module loaded: true')
+      -- Check if setup was called by looking for internal state
+      local has_setup = type(keymap.setup) == 'function'
+      table.insert(info, ('  has setup fn: %s'):format(tostring(has_setup)))
+    else
+      table.insert(info, '  module loaded: false ⚠️')
+    end
+
+    -- Buffer-local variables that might affect behavior
+    table.insert(info, '')
+    table.insert(info, '▸ Buffer Variables:')
+    local blink_var = vim.b.blink_cmp
+    table.insert(info, ('  vim.b.blink_cmp: %s'):format(tostring(blink_var)))
+    local autopairs_var = vim.b['nvim-autopairs']
+    table.insert(info, ('  vim.b["nvim-autopairs"]: %s'):format(tostring(autopairs_var)))
+    local autopairs_keymaps = vim.b.autopairs_keymaps
+    local ap_km_count = autopairs_keymaps and #autopairs_keymaps or 0
+    table.insert(info, ('  vim.b.autopairs_keymaps: %d keys'):format(ap_km_count))
 
     -- on_key handlers (count)
     table.insert(info, '')
