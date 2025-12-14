@@ -22,6 +22,7 @@ return {
 
   opts = function()
     local buffer_comp = require('plugins.ui.lualine.components.buffer')
+    local macro_comp = require('plugins.ui.lualine.components.macro')
     -- PERF: we don't need this lualine require madness 🤷
     local lualine_require = require('lualine_require')
     lualine_require.require = require
@@ -142,6 +143,14 @@ return {
             icon = '',
             fmt = git_utils.format_branch_name,
             color = { fg = palette.subtext0, bg = palette.base },
+            padding = { left = 2, right = 0 },
+          },
+
+          {
+            macro_comp.recording,
+            cond = macro_comp.is_recording,
+            icon = ' ',
+            color = { fg = palette.red, bg = palette.base },
             padding = { left = 2, right = 0 },
           },
 
