@@ -17,17 +17,35 @@ return {
       {
         '<leader>H',
         function()
-          require('harpoon'):list():add()
-          -- Full path of the current buffer
+          local harpoon = require('harpoon')
+          local list = harpoon:list()
+          local item = list.config.create_list_item(list.config)
+          local list_item, index = list:get_by_value(item.value)
+
           local filepath = vim.api.nvim_buf_get_name(0)
+          local relpath = require('utils.path').get_relative_path(filepath, vim.fn.getcwd())
 
-          -- local filename = vim.fn.fnamemodify(filepath, ':t')
-          local relpath = vim.fn.fnamemodify(filepath, ':.')
-
-          Notifier.info({
-            { 'Added ', 'Normal' },
-            { relpath, 'NotifyWARNTitle' },
-          }, { title = 'harpoon' })
+          if list_item then
+            Notifier.warn({
+              { 'Already in list: ', 'Normal' },
+              { relpath, 'NotifyWARNTitle' },
+              { '\nIndex: ', 'Normal' },
+              { tostring(index), 'NotifyWARNTitle' },
+              { ', Total: ', 'Normal' },
+              { tostring(list:length()), 'NotifyWARNTitle' },
+            }, { title = 'harpoon' })
+          else
+            list:add(item)
+            local _, new_index = list:get_by_value(item.value)
+            Notifier.info({
+              { 'Added ', 'Normal' },
+              { relpath, 'NotifyWARNTitle' },
+              { '\nIndex: ', 'Normal' },
+              { tostring(new_index), 'NotifyWARNTitle' },
+              { ', Total: ', 'Normal' },
+              { tostring(list:length()), 'NotifyWARNTitle' },
+            }, { title = 'harpoon' })
+          end
         end,
         desc = 'Harpoon Current File',
       },
