@@ -213,16 +213,10 @@ aucmd('ModeChanged', {
         return
       end
 
-      local cmp = package.loaded['blink.cmp']
-      local cmp_visible = cmp and cmp.is_visible and cmp.is_visible()
-      if cmp_visible then
-        return
-      end
-
       if vim.snippet.active() then
         vim.snippet.stop()
       end
-    end, 50)
+    end, 20)
   end,
 })
 

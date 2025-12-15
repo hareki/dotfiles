@@ -39,7 +39,7 @@ return {
       'f3fora/cmp-spell',
       'fang2hou/blink-copilot',
     },
-    event = 'VeryLazy',
+    event = { 'InsertEnter', 'CmdLineEnter' },
     opts = function()
       local function register_kind(name)
         local cmp_types = require('blink.cmp.types')
@@ -189,16 +189,7 @@ return {
               return true
             end,
           },
-          ['<CR>'] = {
-            function(cmp)
-              -- Only accept if menu is actually visible and we have items
-              if cmp.is_menu_visible() then
-                return cmp.accept()
-              end
-              return false -- Fallback to normal <CR>
-            end,
-            'fallback',
-          },
+          ['<CR>'] = { 'accept', 'fallback' },
           ['<A-Space>'] = {
             function(cmp)
               if cmp.is_menu_visible() then
