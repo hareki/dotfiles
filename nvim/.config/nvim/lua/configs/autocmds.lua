@@ -225,3 +225,26 @@ aucmd('ModeChanged', {
     end, 50)
   end,
 })
+
+-- Prevent accidental jumplist navigation in non-file buffers
+aucmd('BufEnter', {
+  group = augroup('disable_ctrl_o_non_file'),
+  callback = function(event)
+    local buf = event.buf
+    local buftype = vim.bo[buf].buftype
+
+    if buftype ~= '' then
+      vim.keymap.set('n', '<C-o>', '<Nop>', {
+        buffer = buf,
+        silent = true,
+        desc = 'Disabled Jumplist Back in Non-file Buffers',
+      })
+
+      vim.keymap.set('n', '<C-i>', '<Nop>', {
+        buffer = buf,
+        silent = true,
+        desc = 'Disabled Jumplist Forward in Non-file Buffers',
+      })
+    end
+  end,
+})
