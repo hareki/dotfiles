@@ -16,7 +16,8 @@ os:
      nvim --server "$NVIM" --remote "{{dir}}")
 
 gui:
-  sidePanelWidth: 35
+  showFileTree: true
+  sidePanelWidth: 45
   screenMode: half
   mainPanelSplitMode: flexible
   switchTabsWithPanelJumpKeys: true
