@@ -149,7 +149,7 @@ return {
         diff4 = {
           help_panel({ 'view', 'diff4' }),
         },
-        -- --------------------------
+
         file_panel = list_extend(common_keymaps, explorer_keys, {
           help_panel('file_panel'),
           { 'n', ']v', actions.listing_style, { desc = 'Cycle Views' } }, -- List and Tree

@@ -1,4 +1,5 @@
 local M = {}
+
 function M.in_diffview_tab()
   local tab_name = vim.t.tab_name
   if type(tab_name) ~= 'string' then
@@ -26,6 +27,7 @@ function M.cursor_in_conflict()
       start_line = i
       break
     end
+
     -- Early exit if we hit another conflict end marker (but not the current line)
     if i ~= line and line_text:match('^>>>>>>>') then
       return false, nil

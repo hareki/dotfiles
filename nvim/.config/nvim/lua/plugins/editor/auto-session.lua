@@ -11,7 +11,7 @@ return {
   },
 
   init = function()
-    -- Open telescope find_files when Neovim starts on a directory
+    -- Open snacks files picker when Neovim starts on a directory
     vim.api.nvim_create_autocmd('VimEnter', {
       once = true,
       callback = function(data)

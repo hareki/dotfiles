@@ -19,6 +19,7 @@ return {
       },
     }
   end),
+
   {
     'hareki/yanky.nvim',
     desc = 'Better Yank/Paste',
@@ -44,17 +45,15 @@ return {
       {
         'Y',
         '<Plug>(YankyYank)$',
-        mode = 'n',
         desc = 'Yank Text to End',
       },
       { 'h', '"+<Plug>(YankyYank)', mode = { 'n', 'x' }, desc = 'Yank Text to System Clipboard' },
       {
         'H',
         '"+<Plug>(YankyYank)$',
-        mode = 'n',
         desc = 'Yank to End to System Clipboard',
       },
-      { 'p', '<Plug>(YankyPutAfter)', mode = { 'n' }, desc = 'Put Text' },
+      { 'p', '<Plug>(YankyPutAfter)', desc = 'Put Text' },
       { 'k', '"+<Plug>(YankyPutAfter)', mode = { 'n', 'x' }, desc = 'Put from System Clipboard' },
       -- Putting text in visual mode without overwriting the yank register
       {
@@ -73,7 +72,6 @@ return {
       {
         'P',
         '"0<Plug>(YankyPutBefore)',
-        mode = { 'n' },
         desc = 'Put Text from Register 0',
       },
 
@@ -86,6 +84,17 @@ return {
         '<S-Down>',
         '<Plug>(YankyNextEntry)',
         desc = 'Next Yanky Entry',
+      },
+      -- Trimmed, No indent/trailing
+      { 'yy', '^yg_', desc = 'Yank Line Trimmed' },
+      { 'hh', '^"+yg_', desc = 'Yank Line Trimmed to System Clipboard' },
+      {
+        'dd',
+        function()
+          vim.cmd.normal({ args = { [[^dg_]] }, bang = true }) -- Delete from first nonblank to last nonblank
+          vim.cmd.normal({ args = { [["_dd]] }, bang = true }) -- Remove remaining indent + newline (blackhole)
+        end,
+        desc = 'Delete Line Trimmed',
       },
     },
   },

@@ -3,30 +3,22 @@ return {
   keys = {
     {
       '<leader>f?',
-      function()
-        require('debugprint.printtag_operations').show_debug_prints_fuzzy_finder()
-      end,
+      '<CMD>Debugprint search<CR>',
       desc = 'Debug Prints: Find',
     },
     {
       '<leader>?r',
-      function()
-        require('debugprint.counter').reset_debug_prints_counter()
-      end,
+      '<CMD>Debugprint resetcounter<CR>',
       desc = 'Debug Prints: Reset Counter',
     },
     {
       '<leader>?d',
-      function()
-        require('debugprint.printtag_operations').deleteprints()
-      end,
+      '<CMD>Debugprint delete<CR>',
       desc = 'Debug Prints: Delete All',
     },
     {
       '<leader>?t',
-      function()
-        require('debugprint.printtag_operations').toggle_comment_debugprints()
-      end,
+      '<CMD>Debugprint commenttoggle<CR>',
       desc = 'Debug Prints: Toggle Comments',
     },
     {

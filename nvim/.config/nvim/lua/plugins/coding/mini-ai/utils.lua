@@ -1,7 +1,7 @@
 ---@class util.mini
 local M = {}
 
--- taken from MiniExtra.gen_ai_spec.buffer
+-- Taken from MiniExtra.gen_ai_spec.buffer
 function M.buffer(ai_type)
   local start_line, end_line = 1, vim.fn.line('$')
   if ai_type == 'i' then
@@ -19,7 +19,7 @@ function M.buffer(ai_type)
   return { from = { line = start_line, col = 1 }, to = { line = end_line, col = to_col } }
 end
 
--- register all text objects with which-key
+-- Register all text objects with which-key
 ---@param opts table
 function M.whichkey(opts)
   local objects = {

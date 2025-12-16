@@ -1,7 +1,7 @@
 -- trouble.nvim notifier with supported custom highlight groups
 -- https://github.com/folke/trouble.nvim/blob/main/lua/trouble/util.lua
 local M = {}
----@alias NotifyOpts { level?: number, title?: string, once?: boolean, id?:string, on_open?: fun(), default_hl?: string }
+---@alias NotifierOpts { level?: number, title?: string, once?: boolean, id?:string, on_open?: fun(), default_hl?: string }
 
 ---@alias MessageTuple { [1]: string, [2]?: string }
 ---@alias Message string|string[]|MessageTuple[]
@@ -208,7 +208,7 @@ function M.notify(msg, opts)
 end
 
 ---@param msg Message
----@param opts? NotifyOpts
+---@param opts? NotifierOpts
 function M.info(msg, opts)
   M.notify(
     msg,
@@ -221,7 +221,7 @@ function M.info(msg, opts)
 end
 
 ---@param msg Message
----@param opts? NotifyOpts
+---@param opts? NotifierOpts
 function M.warn(msg, opts)
   M.notify(
     msg,
@@ -234,7 +234,7 @@ function M.warn(msg, opts)
 end
 
 ---@param msg Message
----@param opts? NotifyOpts
+---@param opts? NotifierOpts
 function M.error(msg, opts)
   M.notify(
     msg,

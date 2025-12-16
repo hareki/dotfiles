@@ -92,10 +92,6 @@ return {
               -- https://github.com/neovim/neovim/issues/21585
               function()
                 -- Feed <C-c> to cancel the command line instead
-                -- NOTE: Do NOT manually trigger CmdlineLeave here!
-                -- <C-c> already fires CmdlineLeave naturally, and firing it again
-                -- causes blink.cmp's internal state to corrupt (autocmds get unregistered,
-                -- context.mode gets stuck on 'default', completion stops working).
                 local keys = vim.api.nvim_replace_termcodes('<C-c>', true, false, true)
                 vim.api.nvim_feedkeys(keys, 'n', false)
                 return true
@@ -165,6 +161,10 @@ return {
 
         keymap = {
           preset = 'none',
+          ['<CR>'] = { 'accept', 'fallback' },
+          ['<Tab>'] = { 'snippet_forward', 'fallback' },
+          ['<S-Tab>'] = { 'snippet_backward', 'fallback' },
+
           ['<Up>'] = {
             'select_prev',
             'fallback',
@@ -173,6 +173,7 @@ return {
             'select_next',
             'fallback',
           },
+
           ['<PageUp>'] = {
             function(cmp)
               if cmp.is_documentation_visible() then
@@ -189,7 +190,7 @@ return {
               return true
             end,
           },
-          ['<CR>'] = { 'accept', 'fallback' },
+
           ['<A-Space>'] = {
             function(cmp)
               if cmp.is_menu_visible() then
@@ -200,11 +201,6 @@ return {
             end,
             'fallback',
           },
-          ['<Tab>'] = {
-            'snippet_forward',
-            'fallback',
-          },
-          ['<S-Tab>'] = { 'snippet_backward', 'fallback' },
         },
 
         sources = {
@@ -292,6 +288,7 @@ return {
                 if not ctx or not ctx.providers then
                   return false
                 end
+
                 -- Only show items if 'copilot' is the sole provider to avoid distraction
                 return ctx.providers[1] == 'copilot' and #ctx.providers == 1
               end,

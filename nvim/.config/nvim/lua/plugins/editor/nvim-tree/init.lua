@@ -1,30 +1,13 @@
 return {
   require('utils.ui').catppuccin(function(palette, sub_palette)
     return {
-      NvimTreeSignColumn = {
-        link = 'NormalFloat',
-      },
-      NvimTreeNormal = {
-        link = 'Normal',
-      },
-      NvimTreeCutHL = {
-        bg = palette.maroon,
-        fg = palette.base,
-      },
-      NvimTreeCopiedHL = {
-        bg = palette.surface2,
-        fg = palette.text,
-      },
-      NvimTreeLiveFilterPrefix = {
-        fg = palette.yellow,
-      },
-      NvimTreeGitStagedIcon = {
-        fg = sub_palette.yellow,
-      },
-      NvimTreeRootFolder = {
-        fg = palette.text,
-        style = {},
-      },
+      NvimTreeSignColumn = { link = 'NormalFloat' },
+      NvimTreeNormal = { link = 'Normal' },
+      NvimTreeCutHL = { bg = palette.maroon, fg = palette.base },
+      NvimTreeCopiedHL = { bg = palette.surface2, fg = palette.text },
+      NvimTreeLiveFilterPrefix = { fg = palette.yellow },
+      NvimTreeGitStagedIcon = { fg = sub_palette.yellow },
+      NvimTreeRootFolder = { fg = palette.text, style = {} },
     }
   end),
   {
@@ -41,10 +24,7 @@ return {
         -- title_format = ' %s ', -- File name
         title_format = require('configs.picker').preview_title,
         zindex = 50, -- The default value makes vim.ui.input behind the preview window
-        image_preview = {
-          enable = true,
-        },
-
+        image_preview = { enable = true },
         on_close = function()
           tree.toggle_tree_height('expand')
         end,

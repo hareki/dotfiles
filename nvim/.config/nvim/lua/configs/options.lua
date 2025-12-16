@@ -2,21 +2,21 @@
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
-vim.g.have_nerd_font = true
+local g = vim.g
+
+g.mapleader = ' '
+g.maplocalleader = ' '
+g.have_nerd_font = true
 
 -- Disable netrw
-vim.g.loaded_netrw = 1
-vim.g.loaded_netrwPlugin = 1
+g.loaded_netrw = 1
+g.loaded_netrwPlugin = 1
 
 -- [[ Setting options ]]
 -- See `:help opt`
 -- For more options, you can see `:help option-list`
 
 local opt = vim.opt
--- Default floating window border style, but turning this on will mess up telescope (and possibly other plugins as well)
--- opt.winborder = 'rounded'
 
 opt.number = true
 opt.relativenumber = true

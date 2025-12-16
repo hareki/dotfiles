@@ -1,6 +1,5 @@
-local LazyUtils = require('configs.lazy.utils')
-
-LazyUtils.ensure_lazy()
+local lazy_utils = require('configs.lazy.utils')
+lazy_utils.ensure_lazy()
 
 -- LazyFile events for reference:
 -- { 'BufReadPost', 'BufNewFile', 'BufWritePre' }
