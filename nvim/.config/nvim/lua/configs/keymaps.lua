@@ -36,7 +36,7 @@ for _, key in ipairs({
 end
 
 map({ 'n' }, 'Q', '<CMD>q<CR>', { desc = 'Close Buffer' })
-map('n', '<CR>', 'a<CR><Esc>', { desc = 'Break line after cursor' })
+map('n', '<CR>', 'a<CR><Esc>', { desc = 'Break Line After Cursor' })
 map('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Leave Terminal Mode' })
 
 map({ 'n' }, '<Esc>', function()

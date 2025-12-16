@@ -216,7 +216,7 @@ return function(user_opts)
             ['<C-w>'] = {
               'scope_select_window',
               mode = { 'n', 'i' },
-              desc = 'Open buffer in current window',
+              desc = 'Open Buffer in Current Window',
             },
           }
         ),
@@ -226,7 +226,7 @@ return function(user_opts)
           ['<C-w>'] = {
             'scope_select_window',
             mode = { 'n', 'i' },
-            desc = 'Open buffer in current window',
+            desc = 'Open Buffer in Current Window',
           },
         }),
       },

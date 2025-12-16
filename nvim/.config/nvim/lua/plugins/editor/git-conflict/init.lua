@@ -16,10 +16,10 @@ return {
     event = { 'BufReadPost', 'BufNewFile' },
     opts = function()
       local keymaps = {
-        { lhs = '<leader>co', rhs = '<Plug>(git-conflict-ours)', desc = 'Choose OURS' },
-        { lhs = '<leader>ct', rhs = '<Plug>(git-conflict-theirs)', desc = 'Choose THEIRS' },
-        { lhs = '<leader>cb', rhs = '<Plug>(git-conflict-both)', desc = 'Choose BOTH' },
-        { lhs = '<leader>cn', rhs = '<Plug>(git-conflict-none)', desc = 'Choose NONE' },
+        { lhs = '<leader>co', rhs = '<Plug>(git-conflict-ours)', desc = 'Choose Ours' },
+        { lhs = '<leader>ct', rhs = '<Plug>(git-conflict-theirs)', desc = 'Choose Theirs' },
+        { lhs = '<leader>cb', rhs = '<Plug>(git-conflict-both)', desc = 'Choose Both' },
+        { lhs = '<leader>cn', rhs = '<Plug>(git-conflict-none)', desc = 'Choose None' },
         { lhs = '[x', rhs = '<Plug>(git-conflict-prev-conflict)', desc = 'Previous Conflict' },
         { lhs = ']x', rhs = '<Plug>(git-conflict-next-conflict)', desc = 'Next Conflict' },
       }

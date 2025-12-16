@@ -84,8 +84,8 @@ return {
 
           ['}'] = { method = N.skip_goto_next, opts = { desc = 'Undo Next Match' } },
           ['{'] = { method = N.skip_goto_prev, opts = { desc = 'Undo Previous Match' } },
-          [']'] = { method = N.goto_next, opts = { desc = 'Goto Next Match' } },
-          ['['] = { method = N.goto_prev, opts = { desc = 'Goto Previous Match' } },
+          [']'] = { method = N.goto_next, opts = { desc = 'Go to Next Match' } },
+          ['['] = { method = N.goto_prev, opts = { desc = 'Go to Previous Match' } },
           ['@'] = { method = N.run_macro, opts = { desc = 'Run Macro' } },
           [':'] = { method = N.normal_command, opts = { desc = 'Normal Command' } },
           ['.'] = { method = N.dot_repeat, opts = { desc = 'Dot Repeat' } },

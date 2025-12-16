@@ -203,7 +203,7 @@ aucmd('ModeChanged', {
   group = augroup('stop_snippet_on_normal_mode'),
   -- pattern = '[is]*:n*', -- Only fire when leaving Insert/Select-like modes for Normal(-like) modes
   pattern = '[is]:n', -- Stricter version
-  desc = 'Stop vim.snippet session when actually ending in Normal mode',
+  desc = 'Stop Snippet Session in Normal Mode',
   callback = function()
     -- Defer the stop to avoid interfering with blink.cmp juggling between modes internally
     vim.defer_fn(function()
@@ -231,13 +231,13 @@ aucmd('BufEnter', {
       vim.keymap.set('n', '<C-o>', '<Nop>', {
         buffer = buf,
         silent = true,
-        desc = 'Disabled Jumplist Back in Non-file Buffers',
+        desc = 'Disable Jumplist Back in Non-File Buffers',
       })
 
       vim.keymap.set('n', '<C-i>', '<Nop>', {
         buffer = buf,
         silent = true,
-        desc = 'Disabled Jumplist Forward in Non-file Buffers',
+        desc = 'Disable Jumplist Forward in Non-File Buffers',
       })
     end
   end,

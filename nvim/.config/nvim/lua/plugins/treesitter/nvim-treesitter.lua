@@ -65,57 +65,57 @@ return {
         goto_next_start = {
           [']f'] = {
             query = '@function.outer',
-            desc = 'Goto Next Function Start',
+            desc = 'Go to Next Function Start',
           },
           [']c'] = {
             query = '@class.outer',
-            desc = 'Goto Next Class Start',
+            desc = 'Go to Next Class Start',
           },
           [']a'] = {
             query = '@parameter.inner',
-            desc = 'Goto Next Parameter Start',
+            desc = 'Go to Next Parameter Start',
           },
         },
         goto_next_end = {
           [']F'] = {
             query = '@function.outer',
-            desc = 'Goto Next Function End',
+            desc = 'Go to Next Function End',
           },
           [']C'] = {
             query = '@class.outer',
-            desc = 'Goto Next Class End',
+            desc = 'Go to Next Class End',
           },
           [']A'] = {
             query = '@parameter.inner',
-            desc = 'Goto Next Parameter End',
+            desc = 'Go to Next Parameter End',
           },
         },
         goto_previous_start = {
           ['[f'] = {
             query = '@function.outer',
-            desc = 'Goto Previous Function Start',
+            desc = 'Go to Previous Function Start',
           },
           ['[c'] = {
             query = '@class.outer',
-            desc = 'Goto Previous Class Start',
+            desc = 'Go to Previous Class Start',
           },
           ['[a'] = {
             query = '@parameter.inner',
-            desc = 'Goto Previous Parameter Start',
+            desc = 'Go to Previous Parameter Start',
           },
         },
         goto_previous_end = {
           ['[F'] = {
             query = '@function.outer',
-            desc = 'Goto Previous Function End',
+            desc = 'Go to Previous Function End',
           },
           ['[C'] = {
             query = '@class.outer',
-            desc = 'Goto Previous Class End',
+            desc = 'Go to Previous Class End',
           },
           ['[A'] = {
             query = '@parameter.inner',
-            desc = 'Goto Previous Parameter End',
+            desc = 'Go to Previous Parameter End',
           },
         },
       },

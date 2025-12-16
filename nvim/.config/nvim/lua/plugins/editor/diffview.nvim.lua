@@ -57,20 +57,20 @@ return {
     }
 
     local view_conflict_keys = {
-      { 'n', '<leader>co', actions.conflict_choose('ours'), { desc = 'Choose OURS' } },
-      { 'n', '<leader>ct', actions.conflict_choose('theirs'), { desc = 'Choose THEIRS' } },
-      { 'n', '<leader>cn', actions.conflict_choose('base'), { desc = 'Choose NONE' } },
-      { 'n', '<leader>cb', actions.conflict_choose('all'), { desc = 'Choose BOTH' } },
+      { 'n', '<leader>co', actions.conflict_choose('ours'), { desc = 'Choose Ours' } },
+      { 'n', '<leader>ct', actions.conflict_choose('theirs'), { desc = 'Choose Theirs' } },
+      { 'n', '<leader>cn', actions.conflict_choose('base'), { desc = 'Choose None' } },
+      { 'n', '<leader>cb', actions.conflict_choose('all'), { desc = 'Choose Both' } },
       { 'n', 'dx', actions.conflict_choose('none'), { desc = 'Delete the Conflict Region' } },
     }
 
     local panel_conflict_keys = {
       { 'n', '[x', actions.prev_conflict, { desc = 'Previous Conflict' } },
       { 'n', ']x', actions.next_conflict, { desc = 'Next Conflict' } },
-      { 'n', '<leader>cO', actions.conflict_choose_all('ours'), { desc = 'Choose All OURS' } },
-      { 'n', '<leader>cT', actions.conflict_choose_all('theirs'), { desc = 'Choose All THEIRS' } },
-      { 'n', '<leader>cN', actions.conflict_choose_all('base'), { desc = 'Choose All NONE' } },
-      { 'n', '<leader>cB', actions.conflict_choose_all('all'), { desc = 'Choose All BOTH' } },
+      { 'n', '<leader>cO', actions.conflict_choose_all('ours'), { desc = 'Choose All Ours' } },
+      { 'n', '<leader>cT', actions.conflict_choose_all('theirs'), { desc = 'Choose All Theirs' } },
+      { 'n', '<leader>cN', actions.conflict_choose_all('base'), { desc = 'Choose All None' } },
+      { 'n', '<leader>cB', actions.conflict_choose_all('all'), { desc = 'Choose All Both' } },
       { 'n', 'dX', actions.conflict_choose_all('none'), { desc = 'Delete All Conflict Regions' } },
     }
 
