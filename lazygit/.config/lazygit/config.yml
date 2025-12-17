@@ -17,7 +17,7 @@ os:
 
 gui:
   showFileTree: true
-  sidePanelWidth: 45
+  sidePanelWidth: 40
   screenMode: half
   mainPanelSplitMode: flexible
   switchTabsWithPanelJumpKeys: true
