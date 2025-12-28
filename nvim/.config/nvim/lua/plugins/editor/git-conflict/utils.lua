@@ -22,7 +22,7 @@ function M.cursor_in_conflict()
   local search_start = math.max(0, line - 500) -- Limit backward search to 500 lines
 
   for i = line, search_start, -1 do
-    local line_text = vim.fn.getline(i + 1)
+    local line_text = vim.api.nvim_buf_get_lines(bufnr, i, i + 1, false)[1] or ''
     if line_text:match('^<<<<<<<') then
       start_line = i
       break
@@ -46,7 +46,7 @@ function M.cursor_in_conflict()
   local max_search = math.min(line_count - 1, start_line + 500) -- Limit forward search
 
   for i = start_line + 1, max_search do
-    local line_text = vim.fn.getline(i + 1)
+    local line_text = vim.api.nvim_buf_get_lines(bufnr, i, i + 1, false)[1] or ''
 
     if not ancestor_line and line_text:match('^|||||||') then
       ancestor_line = i

@@ -172,7 +172,7 @@ end
 --- Retrieves the repository name using multiple strategies and caches the result.
 --- @return string|nil The repository name determined by the implemented logic.
 function M.get_repo_name()
-  local current_cwd = vim.fn.getcwd()
+  local current_cwd = vim.uv.cwd()
 
   if repo_cache.name and repo_cache.last_cwd == current_cwd then
     return repo_cache.name
@@ -263,13 +263,13 @@ function M.get_current_line_commit()
 
   --- Execute the Git command and capture the output.
   --- @type string[]
-  local output = vim.fn.systemlist(cmd)
-
-  -- Check for Git command errors.
-  if vim.v.shell_error ~= 0 then
+  local res = vim.system(cmd, { text = true }):wait()
+  if not res or res.code ~= 0 then
     Notifier.error('Git command failed. Ensure the file is tracked and has sufficient history.')
     return nil
   end
+
+  local output = vim.split((res.stdout or ''):gsub('\n$', ''), '\n')
 
   --- Extract the current commit hash from the Git command output.
   --- @type string|nil
@@ -290,10 +290,10 @@ end
 function M.diff_parent(commit)
   if not commit or commit == '' then
     -- No commit provided, show the current changes (both staged and unstaged) compared with the last commit
-    vim.cmd('DiffviewOpen')
+    vim.cmd.DiffviewOpen()
   else
     --- Open Diffview with the commit range using commit~1.
-    vim.cmd(string.format('DiffviewOpen %s~1..%s', commit, commit))
+    vim.cmd.DiffviewOpen({ args = { string.format('%s~1..%s', commit, commit) } })
   end
 end
 

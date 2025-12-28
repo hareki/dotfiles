@@ -3,7 +3,8 @@ local M = {}
 
 -- Taken from MiniExtra.gen_ai_spec.buffer
 function M.buffer(ai_type)
-  local start_line, end_line = 1, vim.fn.line('$')
+  local bufnr = vim.api.nvim_get_current_buf()
+  local start_line, end_line = 1, vim.api.nvim_buf_line_count(bufnr)
   if ai_type == 'i' then
     -- Skip first and last blank lines for `i` textobject
     local first_nonblank, last_nonblank =
@@ -15,7 +16,8 @@ function M.buffer(ai_type)
     start_line, end_line = first_nonblank, last_nonblank
   end
 
-  local to_col = math.max(vim.fn.getline(end_line):len(), 1)
+  local last_line = vim.api.nvim_buf_get_lines(bufnr, end_line - 1, end_line, false)[1] or ''
+  local to_col = math.max(#last_line, 1)
   return { from = { line = start_line, col = 1 }, to = { line = end_line, col = to_col } }
 end
 
@@ -23,34 +25,34 @@ end
 ---@param opts table
 function M.whichkey(opts)
   local objects = {
-    { ' ', desc = 'whitespace' },
-    { '"', desc = '" string' },
-    { "'", desc = "' string" },
-    { '(', desc = '() block' },
-    { ')', desc = '() block with ws' },
-    { '<', desc = '<> block' },
-    { '>', desc = '<> block with ws' },
-    { '?', desc = 'user prompt' },
-    { 'U', desc = 'use/call without dot' },
-    { '[', desc = '[] block' },
-    { ']', desc = '[] block with ws' },
-    { '_', desc = 'underscore' },
-    { '`', desc = '` string' },
-    { 'a', desc = 'argument' },
-    { 'b', desc = ')]} block' },
-    { 'c', desc = 'class' },
-    { 'd', desc = 'digit(s)' },
-    { 'f', desc = 'function' },
-    { 'g', desc = 'entire file' },
-    { 'i', desc = 'indent' },
-    { 'o', desc = 'block, conditional, loop' },
-    { 'q', desc = 'quote `"\'' },
-    { 't', desc = 'tag' },
-    { 'u', desc = 'use/call' },
-    { 'w', desc = 'subword (camelCase/snake_case)' },
+    { ' ', desc = 'Whitespace' },
+    { '"', desc = '" String' },
+    { "'", desc = "' String" },
+    { '(', desc = '() Block' },
+    { ')', desc = '() Block with Ws' },
+    { '<', desc = '<> Block' },
+    { '>', desc = '<> Block with Ws' },
+    { '?', desc = 'User Prompt' },
+    { 'U', desc = 'Use/Call without Dot' },
+    { '[', desc = '[] Block' },
+    { ']', desc = '[] Block with Ws' },
+    { '_', desc = 'Underscore' },
+    { '`', desc = '` String' },
+    { 'a', desc = 'Argument' },
+    { 'b', desc = ')]} Block' },
+    { 'c', desc = 'Class' },
+    { 'd', desc = 'Digit(s)' },
+    { 'f', desc = 'Function' },
+    { 'g', desc = 'Entire File' },
+    { 'i', desc = 'Indent' },
+    { 'o', desc = 'Block, Conditional, Loop' },
+    { 'q', desc = 'Quote `"\'' },
+    { 't', desc = 'Tag' },
+    { 'u', desc = 'Use/Call' },
+    { 'w', desc = 'Subword (camelCase/snake_case)' },
     { 'W', desc = 'WORD (snake_case chunk)' },
-    { '{', desc = '{} block' },
-    { '}', desc = '{} with ws' },
+    { '{', desc = '{} Block' },
+    { '}', desc = '{} with Ws' },
   }
 
   ---@type wk.Spec[]

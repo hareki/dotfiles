@@ -32,7 +32,7 @@ local function append_buffer_metadata(win, buffer_ids, file_names, file_paths)
     return
   end
 
-  table.insert(file_names, vim.fn.fnamemodify(name, ':t'))
+  table.insert(file_names, vim.fs.basename(name))
   table.insert(file_paths, name)
 end
 
@@ -215,13 +215,13 @@ return function(user_opts)
           display_name = '[No Name]'
           file = display_name
         else
-          display_name = vim.fn.fnamemodify(name, ':t')
+          display_name = vim.fs.basename(name)
         end
       else
         if name == '' then
           display_name = string.format('[%s]', buftype)
         else
-          display_name = vim.fn.fnamemodify(name, ':t')
+          display_name = vim.fs.basename(name)
         end
         file = name ~= '' and name or display_name
       end

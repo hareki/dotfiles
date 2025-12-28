@@ -123,30 +123,17 @@ local function cache_set(key, value)
 end
 
 local function run_cli(input_object)
-  local json_text = vim.fn.json_encode(input_object)
+  local json_text = vim.json.encode(input_object)
   local exe = state.executable_path
-
-  if vim.system then
-    local res = vim.system({ exe, '-i', json_text }, { text = true }):wait()
-    if res.code == 0 and res.stdout and #res.stdout > 0 then
-      return trim_trailing_whitespace(res.stdout)
-    end
-    local res2 = vim.system({ exe }, { text = true, stdin = json_text }):wait()
-    if res2.code == 0 and res2.stdout and #res2.stdout > 0 then
-      return trim_trailing_whitespace(res2.stdout)
-    end
-    return nil
-  else
-    local out = vim.fn.system({ exe, '-i', json_text })
-    if vim.v.shell_error == 0 then
-      return trim_trailing_whitespace(out)
-    end
-    local out2 = vim.fn.system(exe, json_text)
-    if vim.v.shell_error == 0 then
-      return trim_trailing_whitespace(out2)
-    end
-    return nil
+  local res = vim.system({ exe, '-i', json_text }, { text = true }):wait()
+  if res and res.code == 0 and res.stdout and #res.stdout > 0 then
+    return trim_trailing_whitespace(res.stdout)
   end
+  local res2 = vim.system({ exe }, { text = true, stdin = json_text }):wait()
+  if res2 and res2.code == 0 and res2.stdout and #res2.stdout > 0 then
+    return trim_trailing_whitespace(res2.stdout)
+  end
+  return nil
 end
 
 -- Strip the first line (the header with links) + a single blank line after it.

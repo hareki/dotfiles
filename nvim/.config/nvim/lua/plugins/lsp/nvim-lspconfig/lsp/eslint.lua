@@ -90,7 +90,7 @@ return {
           local buf = vim.api.nvim_create_buf(false, true)
           vim.bo[buf].filetype = 'eslint-log'
           vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-          vim.cmd('botright 15split')
+          vim.cmd.split({ mods = { split = 'botright' }, range = { 15 } })
           vim.api.nvim_win_set_buf(0, buf)
         end, {
           force = true, -- Override any previous definition

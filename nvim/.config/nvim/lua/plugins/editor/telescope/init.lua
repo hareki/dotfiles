@@ -123,9 +123,10 @@ return {
           vim.bo[previewer_bufnr].modifiable = default_modifiable
         end
 
-        local function map(mode, lhs, rhs)
+        local function map(mode, lhs, rhs, desc)
           vim.keymap.set(mode, lhs, rhs, {
             buffer = previewer_bufnr,
+            desc = desc,
           })
         end
 
@@ -133,12 +134,12 @@ return {
           restore_buf_state()
           set_cursorline(false, previewer_winid)
           require('utils.common').focus_win(prompt_win)
-        end)
+        end, 'Focus Prompt Window')
 
         map('n', 'q', function()
           restore_buf_state()
           actions.close(prompt_bufnr)
-        end)
+        end, 'Close Telescope')
 
         map('n', '<CR>', function()
           restore_buf_state()
@@ -185,7 +186,7 @@ return {
           )
 
           vim.api.nvim_win_call(winid, function()
-            vim.cmd('normal! zz')
+            vim.cmd.normal({ args = { 'zz' }, bang = true })
           end)
         end
       end

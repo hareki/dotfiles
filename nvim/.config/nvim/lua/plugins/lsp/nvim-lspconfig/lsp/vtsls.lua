@@ -76,16 +76,33 @@ return {
               ---@type string[]
               local files = result.body.files
               table.insert(files, 1, 'Enter new path...')
+              local cwd = vim.uv.cwd()
+              local home = vim.env.HOME
+
+              local function shorten_path(path)
+                local normalized = vim.fs.normalize(path)
+                local rel = cwd and vim.fs.relpath(cwd, normalized) or nil
+                local display = rel or normalized
+                if home and display:sub(1, #home) == home then
+                  display = '~' .. display:sub(#home + 1)
+                end
+                return display
+              end
+
+              local function parent_dir(path)
+                local dir = vim.fs.dirname(path)
+                return dir and (dir:sub(-1) == '/' and dir or (dir .. '/')) or ''
+              end
               vim.ui.select(files, {
                 prompt = 'Select move destination:',
                 format_item = function(f)
-                  return vim.fn.fnamemodify(f, ':~:.')
+                  return shorten_path(f)
                 end,
               }, function(f)
                 if f and f:find('^Enter new path') then
                   vim.ui.input({
                     prompt = 'Enter move destination:',
-                    default = vim.fn.fnamemodify(fname, ':h') .. '/',
+                    default = parent_dir(fname),
                     completion = 'file',
                   }, function(newf)
                     return newf and move(newf)
@@ -102,7 +119,8 @@ return {
   end,
 
   opts = function()
-    local npm_global_root = vim.fn.trim(vim.fn.system('npm root -g'))
+    local npm_root = vim.system({ 'npm', 'root', '-g' }, { text = true }):wait()
+    local npm_global_root = npm_root and vim.trim(npm_root.stdout or '') or ''
 
     return {
       settings = {

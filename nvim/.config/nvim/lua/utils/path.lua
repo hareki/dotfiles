@@ -5,7 +5,7 @@ local M = {}
 function M.get_initial_path()
   -- We always set the cwd to match what's passed in neovim args if it's a directory in
   -- plugins/editor/auto-session.lua
-  return vim.fn.getcwd()
+  return vim.uv.cwd()
 end
 
 --- Get the file path relative to the given root.
@@ -13,27 +13,10 @@ end
 ---@param root string The root path
 ---@return string
 function M.get_relative_path(file, root)
-  -- Ensure both paths are absolute
-  local absolute_file = vim.fn.fnamemodify(file, ':p')
-  local absolute_root = vim.fn.fnamemodify(root, ':p')
-
-  -- Normalize paths by removing trailing slashes
-  if absolute_root:sub(-1) == '/' then
-    absolute_root = absolute_root:sub(1, -2)
-  end
-  if absolute_file:sub(-1) == '/' then
-    absolute_file = absolute_file:sub(1, -2)
-  end
-
-  -- Check if the file path starts with the root path
-  if absolute_file:sub(1, #absolute_root) == absolute_root then
-    -- Extract the relative path by removing the root path and the following slash
-    local relative = absolute_file:sub(#absolute_root + 2)
-    return relative
-  else
-    -- If the file is not inside the root, return the absolute path
-    return absolute_file
-  end
+  local normalized_file = vim.fs.normalize(file)
+  local normalized_root = vim.fs.normalize(root)
+  local rel = vim.fs.relpath(normalized_root, normalized_file)
+  return rel or normalized_file
 end
 
 --- @class util.common.HasDirOptions
@@ -45,7 +28,16 @@ end
 --- @return boolean            `true` if the directory is found in the path components, otherwise `false`.
 function M.has_dir(opts)
   local dir_name = opts.dir_name
-  local path = opts.path or vim.fn.expand('%:p:h')
+  local path = opts.path
+  if not path or path == '' then
+    path = vim.api.nvim_buf_get_name(0)
+    if path ~= '' then
+      path = vim.fs.dirname(path)
+    end
+    if not path or path == '' then
+      path = vim.uv.cwd() or ''
+    end
+  end
   for dir in string.gmatch(path, '[^/]+') do
     if dir == dir_name then
       return true

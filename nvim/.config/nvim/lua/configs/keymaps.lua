@@ -8,7 +8,7 @@ local function diagnostic_goto(next, severity)
   return function()
     vim.diagnostic.jump({ severity = severity, float = false, count = count })
     vim.schedule(function()
-      vim.cmd('EagleWinLineDiagnostic')
+      vim.cmd.EagleWinLineDiagnostic()
     end)
   end
 end

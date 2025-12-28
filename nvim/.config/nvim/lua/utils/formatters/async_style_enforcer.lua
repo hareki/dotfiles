@@ -49,17 +49,23 @@ function M.run(opts)
   running_bufs[buf] = true
 
   -- Set timeout to auto-cleanup if something goes wrong
-  local timeout_timer = vim.fn.timer_start(TIMEOUT_MS, function()
-    if running_bufs[buf] then
-      running_bufs[buf] = nil
-      Notifier.warn('Formatting/linting timed out', { title = 'Style Enforcer' })
-      finish(false, 'Timed out')
-    end
+  local timeout_timer = vim.uv.new_timer()
+  timeout_timer:start(TIMEOUT_MS, 0, function()
+    vim.schedule(function()
+      if running_bufs[buf] then
+        running_bufs[buf] = nil
+        Notifier.warn('Formatting/linting timed out', { title = 'Style Enforcer' })
+        finish(false, 'Timed out')
+      end
+    end)
   end)
 
   local function cleanup(ok, err)
     -- Cancel timeout timer and clean up lock
-    pcall(vim.fn.timer_stop, timeout_timer)
+    if timeout_timer then
+      pcall(timeout_timer.stop, timeout_timer)
+      pcall(timeout_timer.close, timeout_timer)
+    end
     running_bufs[buf] = nil
     finish(ok, err)
   end
@@ -195,7 +201,7 @@ function M.run_all(debug)
   local all_scope_buffers = {}
   for _, bufs in pairs(scope_core.cache) do
     for _, buf in pairs(bufs) do
-      if vim.api.nvim_buf_is_valid(buf) and vim.fn.buflisted(buf) == 1 and vim.bo[buf].modified then
+      if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].buflisted and vim.bo[buf].modified then
         table.insert(all_scope_buffers, buf)
       end
     end
@@ -218,8 +224,9 @@ function M.run_all(debug)
     if name == '' then
       return '[No Name]'
     end
-    -- relative to current working directory
-    return vim.fn.fnamemodify(name, ':.')
+    local cwd = vim.uv.cwd()
+    local rel = cwd and vim.fs.relpath(cwd, name) or nil
+    return rel or name
   end
 
   local function show_results()

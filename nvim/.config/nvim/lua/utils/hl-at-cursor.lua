@@ -313,8 +313,18 @@ local function hl_at_cursor()
   vim.api.nvim_set_option_value('wrap', false, { win = win })
   vim.api.nvim_set_option_value('signcolumn', 'no', { win = win })
 
-  vim.keymap.set('n', 'q', close_popup, { buffer = buf, nowait = true, silent = true })
-  vim.keymap.set('n', '<Esc>', close_popup, { buffer = buf, nowait = true, silent = true })
+  vim.keymap.set('n', 'q', close_popup, {
+    buffer = buf,
+    nowait = true,
+    silent = true,
+    desc = 'Close Highlight Popup',
+  })
+  vim.keymap.set('n', '<Esc>', close_popup, {
+    buffer = buf,
+    nowait = true,
+    silent = true,
+    desc = 'Close Highlight Popup',
+  })
 end
 
 return hl_at_cursor

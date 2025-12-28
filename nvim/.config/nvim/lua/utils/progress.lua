@@ -14,7 +14,7 @@
 ---@field _cached_kind   'begin'|'report'|nil
 ---@field _cached_title  string|nil
 ---@field _cached_perc   number|nil
----@field _timer_id      integer|nil
+---@field _timer         userdata|nil
 ---@field start          fun(self: utils.progress.Handle, title?: string, percentage?: number)
 ---@field report         fun(self: utils.progress.Handle, title?: string, percentage?: number)
 ---@field finish         fun(self: utils.progress.Handle, title?: string)
@@ -87,9 +87,10 @@ end
 
 function ProgressHandle:finish(title)
   -- Cancel pending timer to prevent memory leak
-  if self._timer_id then
-    pcall(vim.fn.timer_stop, self._timer_id)
-    self._timer_id = nil
+  if self._timer then
+    pcall(self._timer.stop, self._timer)
+    pcall(self._timer.close, self._timer)
+    self._timer = nil
   end
   -- percentage is not sent for the `end` kind
   self:_queue_or_send('end', title, nil)
@@ -117,26 +118,38 @@ function M.create(opts)
     _pending = pending_ms > 0,
     _aborted = false,
     _cached_kind = nil,
-    _timer_id = nil,
+    _timer = nil,
   }, ProgressHandle)
 
   -- If a delay is requested, defer the first real send
   if pending_ms > 0 then
-    handle._timer_id = vim.fn.timer_start(pending_ms, function()
-      -- If aborted we simply exit ‑ nothing should be displayed
-      if handle._aborted then
-        handle._timer_id = nil
-        return
-      end
+    handle._timer = vim.uv.new_timer()
+    handle._timer:start(pending_ms, 0, function()
+      vim.schedule(function()
+        -- If aborted we simply exit ‑ nothing should be displayed
+        if handle._aborted then
+          handle._timer = nil
+          return
+        end
 
-      -- Mark the handle as ready; future events go through immediately
-      handle._pending = false
-      handle._timer_id = nil
+        -- Mark the handle as ready; future events go through immediately
+        handle._pending = false
+        if handle._timer then
+          pcall(handle._timer.stop, handle._timer)
+          pcall(handle._timer.close, handle._timer)
+          handle._timer = nil
+        end
 
-      -- Flush the *latest* cached state (if any)
-      if handle._cached_kind then
-        ProgressHandle._send(handle, handle._cached_kind, handle._cached_title, handle._cached_perc)
-      end
+        -- Flush the *latest* cached state (if any)
+        if handle._cached_kind then
+          ProgressHandle._send(
+            handle,
+            handle._cached_kind,
+            handle._cached_title,
+            handle._cached_perc
+          )
+        end
+      end)
     end)
   end
 

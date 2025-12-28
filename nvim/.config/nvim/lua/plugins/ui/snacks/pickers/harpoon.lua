@@ -14,7 +14,7 @@ return function(user_opts)
         file = filepath,
         buf = valid_buf and bufnr or nil,
         bufnr = valid_buf and bufnr or nil,
-        name = vim.fn.fnamemodify(filepath, ':t'),
+        name = vim.fs.basename(filepath),
         buftype = valid_buf and vim.bo[bufnr].buftype or '',
         filetype = valid_buf and vim.bo[bufnr].filetype or '',
         text = filepath,

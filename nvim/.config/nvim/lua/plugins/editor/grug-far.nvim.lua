@@ -16,7 +16,11 @@ return {
         '<leader>sr',
         function()
           local grug = require('grug-far')
-          local ext = vim.bo.buftype == '' and vim.fn.expand('%:e')
+          local ext = nil
+          if vim.bo.buftype == '' then
+            local name = vim.api.nvim_buf_get_name(0)
+            ext = name:match('%.([^%.]+)$')
+          end
           grug.open({
             transient = true,
             prefills = {

@@ -112,7 +112,7 @@ return function(user_opts)
     end,
     extend_without_duplicates(
       vim.tbl_filter(function(b)
-        return vim.fn.buflisted(b) == 1
+        return vim.bo[b].buflisted
       end, vim.api.nvim_list_bufs()),
       get_all_scope_buffers()
     )

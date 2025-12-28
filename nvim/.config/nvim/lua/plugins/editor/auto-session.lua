@@ -16,7 +16,8 @@ return {
       once = true,
       callback = function(data)
         vim.schedule(function()
-          local is_directory = vim.fn.isdirectory(data.file) == 1
+          local stat = vim.uv.fs_stat(data.file)
+          local is_directory = stat and stat.type == 'directory'
           local has_session = vim.v.this_session and vim.v.this_session ~= ''
 
           if not is_directory or has_session then

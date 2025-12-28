@@ -147,7 +147,7 @@ function M.clear_hls(groups)
   end
 
   for _, group in ipairs(groups) do
-    vim.cmd('highlight clear ' .. group)
+    vim.api.nvim_set_hl(0, group, {})
   end
 end
 

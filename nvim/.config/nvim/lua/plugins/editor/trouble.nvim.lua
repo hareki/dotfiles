@@ -24,8 +24,8 @@ return {
           return
         end
 
-        local function map(key, callback)
-          vim.keymap.set('n', key, callback, { buffer = preview.buf })
+        local function map(key, callback, desc)
+          vim.keymap.set('n', key, callback, { buffer = preview.buf, desc = desc })
         end
 
         local trouble_win = vim.api.nvim_get_current_win()
@@ -36,7 +36,7 @@ return {
           if vim.api.nvim_win_is_valid(trouble_win) then
             require('utils.common').focus_win(trouble_win)
           end
-        end)
+        end, 'Focus Trouble Window')
 
         map('<CR>', function()
           local View = require('trouble.view')
@@ -44,7 +44,7 @@ return {
           if first_view and preview.item then
             first_view.view:jump(preview.item)
           end
-        end)
+        end, 'Jump to Item')
 
         map('q', function()
           if vim.api.nvim_win_is_valid(trouble_win) then
@@ -53,7 +53,7 @@ return {
           if vim.api.nvim_win_is_valid(preview.win) then
             vim.api.nvim_win_close(preview.win, true)
           end
-        end)
+        end, 'Close Preview')
       end
 
       return {

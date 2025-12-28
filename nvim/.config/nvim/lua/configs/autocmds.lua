@@ -13,7 +13,7 @@ aucmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
   group = augroup('checktime'),
   callback = function()
     if vim.o.buftype ~= 'nofile' then
-      vim.cmd('checktime')
+      vim.cmd.checktime()
     end
   end,
 })
@@ -22,9 +22,14 @@ aucmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
 aucmd({ 'VimResized' }, {
   group = augroup('resize_splits'),
   callback = function()
-    local current_tab = vim.fn.tabpagenr()
-    vim.cmd('tabdo wincmd =')
-    vim.cmd('tabnext ' .. current_tab)
+    local current_tab = vim.api.nvim_get_current_tabpage()
+
+    for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
+      vim.api.nvim_set_current_tabpage(tabpage)
+      vim.cmd.wincmd({ args = { '=' } })
+    end
+
+    vim.api.nvim_set_current_tabpage(current_tab)
   end,
 })
 
@@ -73,10 +78,8 @@ aucmd('FileType', {
   callback = function(event)
     vim.bo[event.buf].buflisted = false
     vim.keymap.set('n', 'q', function()
-      vim.cmd('close')
-      pcall(vim.api.nvim_buf_delete, event.buf, {
-        force = true,
-      })
+      pcall(vim.api.nvim_win_close, 0, true)
+      pcall(vim.api.nvim_buf_delete, event.buf, { force = true })
     end, {
       buffer = event.buf,
       silent = true,
@@ -182,7 +185,7 @@ aucmd('VimLeavePre', {
     for _, tab in ipairs(diffview_tabs) do
       if vim.api.nvim_tabpage_is_valid(tab) then
         pcall(vim.api.nvim_set_current_tabpage, tab)
-        vim.cmd('silent! tabclose')
+        vim.cmd.tabclose({ mods = { silent = true } })
       end
     end
   end,
@@ -193,7 +196,7 @@ aucmd('InsertEnter', {
   callback = function()
     if vim.v.hlsearch == 1 then
       vim.schedule(function()
-        vim.cmd('nohlsearch')
+        vim.cmd.nohlsearch()
       end)
     end
   end,
