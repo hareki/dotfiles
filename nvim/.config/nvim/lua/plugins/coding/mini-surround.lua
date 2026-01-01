@@ -3,6 +3,7 @@ local mappings = {
   delete = 'sd', -- Delete surrounding
   replace = 'sr',
 }
+
 return {
   'echasnovski/mini.surround',
   keys = {

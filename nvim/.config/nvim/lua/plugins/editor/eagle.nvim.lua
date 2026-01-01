@@ -7,10 +7,10 @@ return {
     return {
       order = 3, -- LSP info comes first
       get_max_height = function()
-        return math.floor(vim.opt.lines:get() * max_size)
+        return math.floor(vim.o.lines * max_size)
       end,
       get_max_width = function()
-        return math.floor(vim.opt.columns:get() * max_size)
+        return math.floor(vim.o.columns * max_size)
       end,
       keyboard_mode = true,
       mouse_mode = false,
@@ -44,7 +44,6 @@ return {
         local function eagle_map(mode, lhs, rhs, desc)
           vim.keymap.set(mode, lhs, rhs, {
             buffer = eagle_buf,
-            silent = true,
             desc = desc,
           })
         end
@@ -52,7 +51,6 @@ return {
         local function current_map(mode, lhs, rhs, desc)
           vim.keymap.set(mode, lhs, rhs, {
             buffer = current_buf,
-            silent = true,
             desc = desc,
           })
         end

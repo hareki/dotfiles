@@ -1,3 +1,4 @@
+---@class utils.linters.eslint
 local M = {}
 
 ---@param opts { bufnr: integer, on_done: fun(ok: boolean, err?: string) }

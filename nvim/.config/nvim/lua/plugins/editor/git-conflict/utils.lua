@@ -1,5 +1,8 @@
 local M = {}
 
+-- Maximum number of lines to search backward/forward for conflict markers
+local CONFLICT_SEARCH_RANGE = 500
+
 function M.in_diffview_tab()
   local tab_name = vim.t.tab_name
   if type(tab_name) ~= 'string' then
@@ -19,7 +22,7 @@ function M.cursor_in_conflict()
 
   -- Search backwards from cursor for conflict start (limit search range)
   local start_line = nil
-  local search_start = math.max(0, line - 500) -- Limit backward search to 500 lines
+  local search_start = math.max(0, line - CONFLICT_SEARCH_RANGE)
 
   for i = line, search_start, -1 do
     local line_text = vim.api.nvim_buf_get_lines(bufnr, i, i + 1, false)[1] or ''
@@ -43,7 +46,7 @@ function M.cursor_in_conflict()
   local ancestor_line = nil
   local end_line = nil
   local line_count = vim.api.nvim_buf_line_count(bufnr)
-  local max_search = math.min(line_count - 1, start_line + 500) -- Limit forward search
+  local max_search = math.min(line_count - 1, start_line + CONFLICT_SEARCH_RANGE)
 
   for i = start_line + 1, max_search do
     local line_text = vim.api.nvim_buf_get_lines(bufnr, i, i + 1, false)[1] or ''

@@ -41,7 +41,7 @@ aucmd('BufReadPost', {
     local buf = event.buf
 
     -- Skip if the filetype is excluded or we've already restored once
-    if vim.tbl_contains(exclude, vim.bo[buf].filetype) or vim.b[buf].restored_last_position then
+    if vim.list_contains(exclude, vim.bo[buf].filetype) or vim.b[buf].restored_last_position then
       return
     end
 
@@ -82,7 +82,6 @@ aucmd('FileType', {
       pcall(vim.api.nvim_buf_delete, event.buf, { force = true })
     end, {
       buffer = event.buf,
-      silent = true,
       desc = 'Quit Buffer',
     })
   end,
@@ -132,18 +131,17 @@ aucmd('FileType', {
 
 -- Use the same keymap as switching to cmdline window mode (vim.opt.cedit) to switch back to cmdline mode
 aucmd('CmdwinEnter', {
+  group = augroup('cmdwin_keymaps'),
   callback = function(event)
     local buf = event.buf
 
     vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-f>', '<C-c>', {
       buffer = buf,
-      silent = true,
       desc = 'Exit Command-Line Window Mode',
     })
 
     vim.keymap.set({ 'n' }, 'q', '<CMD>:q!<CR><Esc>', {
       buffer = buf,
-      silent = true,
       desc = 'Quit Command-Line Window',
     })
   end,
@@ -193,6 +191,7 @@ aucmd('VimLeavePre', {
 
 -- Clear search highlight when entering insert mode
 aucmd('InsertEnter', {
+  group = augroup('clear_hlsearch_on_insert'),
   callback = function()
     if vim.v.hlsearch == 1 then
       vim.schedule(function()
@@ -201,6 +200,8 @@ aucmd('InsertEnter', {
     end
   end,
 })
+
+local SNIPPET_STOP_DELAY_MS = 20
 
 aucmd('ModeChanged', {
   group = augroup('stop_snippet_on_normal_mode'),
@@ -219,7 +220,7 @@ aucmd('ModeChanged', {
       if vim.snippet.active() then
         vim.snippet.stop()
       end
-    end, 20)
+    end, SNIPPET_STOP_DELAY_MS)
   end,
 })
 
@@ -233,13 +234,11 @@ aucmd('BufEnter', {
     if buftype ~= '' then
       vim.keymap.set('n', '<C-o>', '<Nop>', {
         buffer = buf,
-        silent = true,
         desc = 'Disable Jumplist Back in Non-File Buffers',
       })
 
       vim.keymap.set('n', '<C-i>', '<Nop>', {
         buffer = buf,
-        silent = true,
         desc = 'Disable Jumplist Forward in Non-File Buffers',
       })
     end

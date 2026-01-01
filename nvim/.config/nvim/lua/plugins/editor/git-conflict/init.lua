@@ -42,7 +42,6 @@ return {
         callback = function(event)
           for _, map in ipairs(keymaps) do
             vim.keymap.set('n', map.lhs, map.rhs, {
-              silent = true,
               desc = 'Git Conflict: ' .. map.desc,
               buffer = event.buf,
             })

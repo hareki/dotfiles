@@ -1,4 +1,4 @@
----@class util.mini
+---@class plugins.coding.mini-ai.utils
 local M = {}
 
 -- Taken from MiniExtra.gen_ai_spec.buffer

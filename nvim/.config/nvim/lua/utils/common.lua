@@ -26,6 +26,9 @@ function M.list_extend(...)
   return result
 end
 
+---Check if a window is a floating window
+---@param win integer Window handle (0 for current)
+---@return boolean True if the window is floating
 function M.is_float_win(win)
   local ok, cfg = pcall(vim.api.nvim_win_get_config, win)
   return ok and cfg and ((cfg.relative and cfg.relative ~= '') or cfg.external == true)

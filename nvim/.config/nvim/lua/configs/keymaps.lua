@@ -69,18 +69,16 @@ map({ 'i', 'x', 'n', 's' }, '<C-S-End>', function()
   Notifier.info('Closed Other Buffers')
 end, { desc = 'Close Other Buffers' })
 
-map({ 'n', 'x' }, '<leader>qa', '<CMD>qa<CR>', { desc = 'Quit All', silent = true })
+map({ 'n', 'x' }, '<leader>qa', '<CMD>qa<CR>', { desc = 'Quit All' })
 map({ 'n', 'x' }, '<PageUp>', '<C-u>zz', { desc = 'Scroll Up and Center' })
 map({ 'n', 'x' }, '<PageDown>', '<C-d>zz', { desc = 'Scroll Down and Center' })
 
 map('v', '<leader>t', "ygvgc']p", {
   remap = true,
-  silent = true,
   desc = 'Yank, Comment, Move Below, and Paste',
 })
 
 map('n', '<leader>?h', '<CMD>HlAtCursor<CR>', {
-  silent = true,
   desc = 'Highlight Groups at Cursor',
 })
 

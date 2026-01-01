@@ -1,17 +1,17 @@
----@class linters.RunOpts
+---@class utils.linters.RunOpts
 ---@field bufnr integer
 ---@field on_start fun(name: string, idx: integer, total: integer) | nil
 ---@field on_done  fun(name: string, ok: boolean, err?: string) | nil
 
 local M = {}
 
----@class linters.Entry
+---@class utils.linters.Entry
 ---@field name string
 ---@field filetypes string[]
 ---@field runner fun(opts: { bufnr: integer, on_done: fun(ok: boolean, err?: string) })
 
 -- preserve order of registration
----@type linters.Entry[]
+---@type utils.linters.Entry[]
 local entries = {}
 
 ---Register a linter.
@@ -78,13 +78,13 @@ end
 
 ---Run a provided list of linter names.
 ---@param names string[]
----@param opts linters.RunOpts
+---@param opts utils.linters.RunOpts
 function M.run(names, opts)
   run_next(names, opts, 1)
 end
 
 ---Auto-run all linters that match the buffer's filetype.
----@param opts linters.RunOpts
+---@param opts utils.linters.RunOpts
 function M.run_by_ft(opts)
   local bufnr = opts.bufnr
   local ft = vim.bo[bufnr].filetype

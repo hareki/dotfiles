@@ -109,7 +109,7 @@ function M.notify(msg, opts)
     apply_highlight = function(win)
       apply_win_opts(win)
       local bufnr = vim.api.nvim_win_get_buf(win)
-      vim.api.nvim_set_option_value('filetype', 'markdown', { buf = bufnr })
+      vim.bo[bufnr].filetype = 'markdown'
       require('render-markdown').render({
         buf = bufnr,
         config = {
@@ -131,8 +131,8 @@ function M.notify(msg, opts)
     local buf = vim.api.nvim_win_get_buf(win)
 
     if is_markdown then
-      vim.api.nvim_buf_set_var(buf, 'notify_is_markdown', is_markdown)
-      vim.api.nvim_set_option_value('filetype', 'markdown', { buf = buf })
+      vim.b[buf].notify_is_markdown = is_markdown
+      vim.bo[buf].filetype = 'markdown'
     end
 
     if apply_highlight then

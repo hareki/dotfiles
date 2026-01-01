@@ -51,8 +51,8 @@ end
 ---@return integer screen_w
 ---@return integer screen_h
 function M.screen_size()
-  local screen_w = vim.opt.columns:get()
-  local screen_h = vim.opt.lines:get()
+  local screen_w = vim.o.columns
+  local screen_h = vim.o.lines
   return screen_w, screen_h
 end
 
@@ -79,14 +79,14 @@ function M.computed_size(size, with_border)
   return width_in_cols + (with_border and 2 or 0), height_in_rows + (with_border and 2 or 0)
 end
 
----@class WinConfig
+---@class utils.ui.WinConfig
 ---@field width    integer
 ---@field height   integer
 ---@field col      integer
 ---@field row      integer
 ---@param size 'lg' | 'md' | 'sm' | 'input' | 'full' | 'vertical_lg'
 ---@param with_border boolean | nil
----@return WinConfig
+---@return utils.ui.WinConfig
 function M.popup_config(size, with_border)
   local size_configs = require('configs.size')
   local screen_w, screen_h = M.screen_size()

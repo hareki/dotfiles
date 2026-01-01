@@ -27,7 +27,7 @@ return {
           vim.keymap.set('n', '<Esc>', function()
             clear_mapping()
             require('ufo.preview').close()
-          end, { buffer = preview_buf, silent = true, desc = 'Close Fold Preview' })
+          end, { buffer = preview_buf, desc = 'Close Fold Preview' })
 
           vim.api.nvim_create_autocmd('BufWipeout', {
             buffer = preview_buf,

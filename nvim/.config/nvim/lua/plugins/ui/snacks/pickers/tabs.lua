@@ -5,7 +5,7 @@ local function unique_insert(list, value)
   if value == nil then
     return false
   end
-  if not vim.tbl_contains(list, value) then
+  if not vim.list_contains(list, value) then
     table.insert(list, value)
     return true
   end
@@ -376,7 +376,7 @@ return function(user_opts)
       -- Save picker's current tab
       local picker_tab = vim.api.nvim_get_current_tabpage()
       local picker_tabnr = vim.api.nvim_tabpage_get_number(picker_tab)
-      local closing_picker_tab = vim.tbl_contains(tabnrs, picker_tabnr)
+      local closing_picker_tab = vim.list_contains(tabnrs, picker_tabnr)
 
       for _, tabnr in ipairs(tabnrs) do
         vim.cmd(string.format('%dtabclose', tabnr))

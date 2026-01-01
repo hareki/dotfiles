@@ -1,4 +1,4 @@
----@class utils.buffer
+---@class plugins.ui.lualine.components.buffer
 local M = {}
 
 local IGNORE_FILETYPES = {
@@ -51,7 +51,7 @@ function M.current_buffer_flags()
     return cache.current_buffer_flags
   end
 
-  if vim.tbl_contains(IGNORE_FILETYPES, vim.bo.filetype) then
+  if vim.list_contains(IGNORE_FILETYPES, vim.bo.filetype) then
     cache.current_buffer_flags = ''
     cache.last_bufnr = bufnr
     return ''
@@ -112,7 +112,7 @@ function M.global_modified_flag()
         and bo.buftype == ''
         and bo.modified
         and bo.modifiable
-        and not vim.tbl_contains(IGNORE_FILETYPES, bo.filetype)
+        and not vim.list_contains(IGNORE_FILETYPES, bo.filetype)
       then
         count = count + 1
       end

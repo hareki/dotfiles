@@ -224,7 +224,7 @@ return {
               score_offset = -10,
               should_show_items = function()
                 local filetype = vim.api.nvim_get_option_value('filetype', { buf = 0 })
-                local is_ignored_filetype = vim.tbl_contains({ '', 'NvimTree' }, filetype) -- NvimTree live_filter has a blank filetype
+                local is_ignored_filetype = vim.list_contains({ '', 'NvimTree' }, filetype) -- NvimTree live_filter has a blank filetype
                 return not is_ignored_filetype
               end,
             },

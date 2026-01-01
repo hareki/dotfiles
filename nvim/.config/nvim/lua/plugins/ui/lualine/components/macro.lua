@@ -1,4 +1,4 @@
----@class utils.macro
+---@class plugins.ui.lualine.components.macro
 local M = {}
 
 function M.recording()

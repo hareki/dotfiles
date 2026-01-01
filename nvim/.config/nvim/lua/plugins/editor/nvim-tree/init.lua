@@ -62,7 +62,7 @@ return {
             if state.position == 'float' then
               return tree_cfg.height + 1
             end
-            return math.floor((vim.opt.lines:get() - size.height) / 2) - 1
+            return math.floor((vim.o.lines - size.height) / 2) - 1
           end,
         },
 
@@ -120,7 +120,6 @@ return {
         end,
         desc = 'Explorer',
         remap = true,
-        silent = true,
       },
     },
 
@@ -263,7 +262,6 @@ return {
               desc = 'NvimTree: ' .. desc,
               buffer = tree_bufnr,
               noremap = true,
-              silent = true,
               nowait = true,
             })
           end

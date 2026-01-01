@@ -1,6 +1,7 @@
+---@class utils.tab
 local M = {}
 
---- @param prefix string
+---@param prefix string
 local function generate_formatter(prefix)
   ---@param tab_id? integer
   return function(tab_id)

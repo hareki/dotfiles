@@ -38,7 +38,7 @@ return {
       local size_configs = require('configs.size')
       local preview_cols, preview_rows = ui_utils.computed_size(size_configs.side_preview.md)
       local panel_cols, _ = ui_utils.computed_size(size_configs.side_panel.md)
-      local preview_height_offset = math.floor((vim.opt.lines:get() - preview_rows) / 2) - 1
+      local preview_height_offset = math.floor((vim.o.lines - preview_rows) / 2) - 1
 
       return {
         windowCreationCommand = panel_cols .. 'vsplit',

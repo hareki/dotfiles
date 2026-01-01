@@ -7,7 +7,7 @@ local function extend_without_duplicates(l0, l1)
     table.insert(result, v)
   end
   for _, v in ipairs(l1) do
-    if not vim.tbl_contains(result, v) then
+    if not vim.list_contains(result, v) then
       table.insert(result, v)
     end
   end
@@ -49,7 +49,7 @@ local function find_buffer_tabpage(bufnr)
   return nil
 end
 
----@class ScopePickerScopeOpts
+---@class plugins.ui.snacks.pickers.scope.Opts
 ---@field show_all_buffers? boolean Show all buffers including unloaded ones (default: true)
 ---@field ignore_current_buffer? boolean Exclude the current buffer from results (default: false)
 ---@field cwd_only? boolean Filter buffers to only those in the current working directory (default: false)
@@ -64,7 +64,7 @@ end
 ---@field win? table Window configuration options
 ---@field on_show? function Callback when picker is shown
 
----@param user_opts? ScopePickerScopeOpts
+---@param user_opts? plugins.ui.snacks.pickers.scope.Opts
 ---@return table|nil
 return function(user_opts)
   local scope_core = require('scope.core')

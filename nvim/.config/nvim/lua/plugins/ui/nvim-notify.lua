@@ -32,8 +32,8 @@ return {
               })
 
               vim.schedule(function()
-                vim.api.nvim_set_option_value('wrap', true, { win = status.preview_win })
-                vim.api.nvim_set_option_value('filetype', 'markdown', { buf = buf })
+                vim.wo[status.preview_win].wrap = true
+                vim.bo[buf].filetype = 'markdown'
                 require('render-markdown').render({
                   buf = buf,
                   config = {
@@ -57,10 +57,10 @@ return {
       timeout = 4000,
       merge_duplicates = true,
       max_height = function()
-        return math.floor(vim.opt.lines:get() * max_size)
+        return math.floor(vim.o.lines * max_size)
       end,
       max_width = function()
-        return math.floor(vim.opt.columns:get() * max_size)
+        return math.floor(vim.o.columns * max_size)
       end,
 
       render = function(bufnr, notif, hl, _)
@@ -76,7 +76,7 @@ return {
         local title_with_hl = { { title, hl.title } }
 
         -- Set title on first notification (see `on_open` callback)
-        vim.api.nvim_buf_set_var(bufnr, title_key, title_with_hl)
+        vim.b[bufnr][title_key] = title_with_hl
 
         -- Set title on duplicate notifications
         for _, win in ipairs(vim.fn.win_findbuf(bufnr)) do
@@ -99,7 +99,7 @@ return {
 
       on_open = function(win)
         local buf = vim.api.nvim_win_get_buf(win)
-        local title = vim.api.nvim_buf_get_var(buf, title_key)
+        local title = vim.b[buf][title_key]
 
         vim.api.nvim_win_set_config(win, {
           zindex = 100,

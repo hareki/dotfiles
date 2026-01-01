@@ -5,9 +5,10 @@ local M = {}
 
 local branch_display_mode = 'id'
 
-local task_name_start_length = 999
-local task_name_end_length = 10
-local max_task_name_length = task_name_start_length + task_name_end_length
+-- Task name truncation settings: show first TASK_NAME_START_LENGTH chars + '...' + last TASK_NAME_END_LENGTH chars
+local TASK_NAME_START_LENGTH = 999
+local TASK_NAME_END_LENGTH = 10
+local max_task_name_length = TASK_NAME_START_LENGTH + TASK_NAME_END_LENGTH
 
 -- A cache table to store the repository name and last known CWD
 local repo_cache = {
@@ -20,8 +21,8 @@ local branch_format_cache = {} -- LRU cache for formatted branch names (max 100 
 local branch_format_cache_order = {} -- Track access order for LRU
 local BRANCH_CACHE_MAX_SIZE = 100
 
---- Sets the branch display format and refreshes the status line.
---- @param format utils.git.branch_formats The name of the branch format to set.
+---Sets the branch display format and refreshes the status line.
+---@param format utils.git.branch_formats The name of the branch format to set.
 function M.set_branch_name_format(format)
   branch_display_mode = format
   -- Clear both cache and order when format changes
@@ -35,9 +36,9 @@ function M.set_branch_name_format(format)
   end
 end
 
---- Formats a given branch name according to the selected display mode.
---- @param branch_name string The original branch name to be formatted.
---- @return string The formatted branch name.
+---Formats a given branch name according to the selected display mode.
+---@param branch_name string The original branch name to be formatted.
+---@return string The formatted branch name.
 function M.format_branch_name(branch_name)
   -- Check cache first
   local cache_key = branch_display_mode .. ':' .. branch_name
@@ -83,9 +84,9 @@ function M.format_branch_name(branch_name)
     local formatted_task_name = task_name
     if #task_name > max_task_name_length then
       -- Show start and end parts of the task name with ellipsis
-      formatted_task_name = task_name:sub(1, task_name_start_length)
+      formatted_task_name = task_name:sub(1, TASK_NAME_START_LENGTH)
         .. '...'
-        .. task_name:sub(-task_name_end_length)
+        .. task_name:sub(-TASK_NAME_END_LENGTH)
     end
     result = prefix .. '_' .. formatted_task_name
   elseif branch_display_mode == 'id_and_author' then
@@ -226,20 +227,16 @@ function M.get_repo_name()
   return repo_cache.name
 end
 
---- Get the commit hash of the last commit affecting the current line in the current buffer.
----
---- @return string|nil The commit hash if found, or nil if not.
+---Get the commit hash of the last commit affecting the current line in the current buffer.
+---@return string|nil The commit hash if found, or nil if not.
 function M.get_current_line_commit()
-  --- Get the current line number.
-  --- @type integer
+  ---@type integer
   local line = vim.api.nvim_win_get_cursor(0)[1]
 
-  --- Get the current file path.
-  --- @type string
+  ---@type string
   local file = vim.api.nvim_buf_get_name(0)
 
-  --- Get Git root directory.
-  --- @type string|nil
+  ---@type string|nil
   local root = Snacks.git.get_root()
   if not root then
     Notifier.error('Not inside a Git repository')
@@ -248,8 +245,7 @@ function M.get_current_line_commit()
 
   local relative_file = require('utils.path').get_relative_path(file, root)
 
-  --- Construct the Git log command to get the last commit for the current line.
-  --- @type string[]
+  ---@type string[]
   local cmd = {
     'git',
     '-C',
@@ -261,8 +257,6 @@ function M.get_current_line_commit()
     string.format('%d,%d:%s', line, line, relative_file),
   }
 
-  --- Execute the Git command and capture the output.
-  --- @type string[]
   local res = vim.system(cmd, { text = true }):wait()
   if not res or res.code ~= 0 then
     Notifier.error('Git command failed. Ensure the file is tracked and has sufficient history.')
@@ -271,8 +265,7 @@ function M.get_current_line_commit()
 
   local output = vim.split((res.stdout or ''):gsub('\n$', ''), '\n')
 
-  --- Extract the current commit hash from the Git command output.
-  --- @type string|nil
+  ---@type string|nil
   local current_commit = nil
   for _, out_line in ipairs(output) do
     current_commit = out_line:match('^commit%s+([0-9a-f]+)')
@@ -284,9 +277,8 @@ function M.get_current_line_commit()
   return current_commit
 end
 
---- Open Diffview to compare a commit with its previous state.
----
---- @param commit? string The commit hash or reference to compare.
+---Open Diffview to compare a commit with its previous state.
+---@param commit? string The commit hash or reference to compare.
 function M.diff_parent(commit)
   if not commit or commit == '' then
     -- No commit provided, show the current changes (both staged and unstaged) compared with the last commit

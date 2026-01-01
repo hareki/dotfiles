@@ -291,38 +291,33 @@ local function hl_at_cursor()
   vim.keymap.set('n', '<Tab>', focus_popup, {
     buffer = origin_buf,
     nowait = true,
-    silent = true,
     desc = 'Focus Highlight Popup',
   })
 
   vim.keymap.set('n', '<Esc>', origin_escape, {
     buffer = origin_buf,
     nowait = true,
-    silent = true,
     desc = 'Close Highlight Popup',
   })
 
   vim.keymap.set('n', '<Tab>', focus_origin, {
     buffer = buf,
     nowait = true,
-    silent = true,
     desc = 'Return Focus to Source Window',
   })
 
-  vim.api.nvim_set_option_value('conceallevel', 2, { win = win })
-  vim.api.nvim_set_option_value('wrap', false, { win = win })
-  vim.api.nvim_set_option_value('signcolumn', 'no', { win = win })
+  vim.wo[win].conceallevel = 2
+  vim.wo[win].wrap = false
+  vim.wo[win].signcolumn = 'no'
 
   vim.keymap.set('n', 'q', close_popup, {
     buffer = buf,
     nowait = true,
-    silent = true,
     desc = 'Close Highlight Popup',
   })
   vim.keymap.set('n', '<Esc>', close_popup, {
     buffer = buf,
     nowait = true,
-    silent = true,
     desc = 'Close Highlight Popup',
   })
 end

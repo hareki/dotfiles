@@ -44,7 +44,7 @@ return {
           border = 'rounded',
         },
         get_popup_max_height = function()
-          return math.floor(vim.opt.lines:get() * require('configs.size').inline_popup.max_height)
+          return math.floor(vim.o.lines * require('configs.size').inline_popup.max_height)
         end,
         current_line_blame = true,
         current_line_blame_formatter = '<author>, <author_time:%R> - <summary>',
