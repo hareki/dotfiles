@@ -165,7 +165,7 @@ return {
       return {
         words = { enabled = true },
         bigfile = { enabled = true },
-        input = { enabled = true },
+        input = { enabled = true, start_in_insert = false },
         lazygit = { enabled = true, configure = false },
         scratch = { enabled = true },
         rename = { enabled = true },

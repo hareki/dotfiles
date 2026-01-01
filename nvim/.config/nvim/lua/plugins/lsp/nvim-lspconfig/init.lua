@@ -86,7 +86,7 @@ return {
         map({ 'n', 'x' }, 'gh', '<CMD>EagleWin<CR>', 'Open Eagle LSP and Diagnostics')
         map({ 'n', 'x' }, 'gH', '<CMD>EagleWinLineDiagnostic<CR>', 'Open Eagle Line Diagnostics')
         map({ 'n', 'x' }, '<leader>ca', function()
-          require('actions-preview').code_actions()
+          require('tiny-code-action').code_action({})
         end, 'Code Actions') -- Ctrl + Z
         map('n', '<leader>cr', vim.lsp.buf.rename, 'Rename') -- F2
         map('n', ']]', function()
