@@ -1,43 +1,45 @@
 return {
   'hareki/diffview.nvim',
   cmd = { 'DiffviewOpen', 'DiffviewFileHistory' },
-  keys = {
+  keys = function()
+    return {
 
-    {
-      '<leader>do',
-      '<CMD>DiffviewOpen<CR>',
-      desc = 'Open Diffview',
-      silent = true,
-    },
-    {
-      '<leader>df',
-      '<CMD>DiffviewFileHistory %<CR>',
-      desc = 'File History',
-      silent = true,
-    },
-    {
-      '<leader>dl',
-      function()
-        local git = require('utils.git')
-        local current_commit = git.get_current_line_commit()
+      {
+        '<leader>do',
+        '<CMD>DiffviewOpen<CR>',
+        desc = 'Open Diffview',
+        silent = true,
+      },
+      {
+        '<leader>df',
+        '<CMD>DiffviewFileHistory %<CR>',
+        desc = 'File History',
+        silent = true,
+      },
+      {
+        '<leader>dl',
+        function()
+          local git = require('utils.git')
+          local current_commit = git.get_current_line_commit()
 
-        if not current_commit then
-          Notifier.warn('No commit history for this line')
-          return
-        end
+          if not current_commit then
+            Notifier.warn('No commit history for this line')
+            return
+          end
 
-        git.diff_parent(current_commit)
-      end,
-      desc = 'Diff Current Line',
-    },
-    {
-      '<leader>dt',
-      function()
-        require('utils.git').diff_parent()
-      end,
-      desc = 'Diff Parent',
-    },
-  },
+          git.diff_parent(current_commit)
+        end,
+        desc = 'Diff Current Line',
+      },
+      {
+        '<leader>dt',
+        function()
+          require('utils.git').diff_parent()
+        end,
+        desc = 'Diff Parent',
+      },
+    }
+  end,
 
   opts = function()
     local ui = require('utils.ui')

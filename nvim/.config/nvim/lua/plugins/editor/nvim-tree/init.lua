@@ -102,26 +102,28 @@ return {
     dependencies = {
       'echasnovski/mini.icons',
     },
-    keys = {
-      {
-        '<leader>e',
-        function()
-          local api = require('nvim-tree.api')
-          local tree = require('plugins.editor.nvim-tree.utils')
-          local state = tree.state
+    keys = function()
+      return {
+        {
+          '<leader>e',
+          function()
+            local api = require('nvim-tree.api')
+            local tree = require('plugins.editor.nvim-tree.utils')
+            local state = tree.state
 
-          if api.tree.is_tree_buf() and state.position == 'float' then
-            tree.close_all()
-            return
-          end
+            if api.tree.is_tree_buf() and state.position == 'float' then
+              tree.close_all()
+              return
+            end
 
-          api.tree.reload()
-          tree.open()
-        end,
-        desc = 'Explorer',
-        remap = true,
-      },
-    },
+            api.tree.reload()
+            tree.open()
+          end,
+          desc = 'Explorer',
+          remap = true,
+        },
+      }
+    end,
 
     opts = function()
       local ui_utils = require('utils.ui')

@@ -2,58 +2,62 @@ return {
   'kevinhwang91/nvim-ufo',
   event = 'VeryLazy',
   dependencies = { 'kevinhwang91/promise-async' },
-  keys = {
-    {
-      'zh',
-      function()
-        local preview_win_id = require('ufo').peekFoldedLinesUnderCursor()
-        if preview_win_id == nil then
-          return
-        end
-
-        vim.schedule(function()
-          if not vim.api.nvim_win_is_valid(preview_win_id) then
+  keys = function()
+    return {
+      {
+        'zh',
+        function()
+          local preview_win_id = require('ufo').peekFoldedLinesUnderCursor()
+          if preview_win_id == nil then
             return
           end
 
-          local preview_buf = vim.api.nvim_win_get_buf(preview_win_id)
+          vim.schedule(function()
+            if not vim.api.nvim_win_is_valid(preview_win_id) then
+              return
+            end
 
-          local function clear_mapping()
-            pcall(vim.keymap.del, 'n', '<Esc>', { buffer = preview_buf })
-          end
+            local preview_buf = vim.api.nvim_win_get_buf(preview_win_id)
 
-          clear_mapping()
+            local function clear_mapping()
+              pcall(vim.keymap.del, 'n', '<Esc>', { buffer = preview_buf })
+            end
 
-          vim.keymap.set('n', '<Esc>', function()
             clear_mapping()
-            require('ufo.preview').close()
-          end, { buffer = preview_buf, desc = 'Close Fold Preview' })
 
-          vim.api.nvim_create_autocmd('BufWipeout', {
-            buffer = preview_buf,
-            once = true,
-            callback = clear_mapping,
-          })
+            vim.keymap.set('n', '<Esc>', function()
+              clear_mapping()
+              require('ufo.preview').close()
+            end, { buffer = preview_buf, desc = 'Close Fold Preview' })
 
-          vim.api.nvim_create_autocmd('WinClosed', {
-            pattern = tostring(preview_win_id),
-            once = true,
-            callback = clear_mapping,
-          })
-        end)
-      end,
-      desc = 'Peek Folded Lines',
-    },
-  },
-  opts = {
-    -- https://github.com/kevinhwang91/nvim-ufo/blob/1ebb9ea3507f3a40ce8b0489fb259ab32b1b5877/README.md?plain=1#L97
-    provider_selector = function()
-      return { 'treesitter', 'indent' }
-    end,
-    preview = {
-      win_config = {
-        winblend = 0,
+            vim.api.nvim_create_autocmd('BufWipeout', {
+              buffer = preview_buf,
+              once = true,
+              callback = clear_mapping,
+            })
+
+            vim.api.nvim_create_autocmd('WinClosed', {
+              pattern = tostring(preview_win_id),
+              once = true,
+              callback = clear_mapping,
+            })
+          end)
+        end,
+        desc = 'Peek Folded Lines',
       },
-    },
-  },
+    }
+  end,
+  opts = function()
+    return {
+      -- https://github.com/kevinhwang91/nvim-ufo/blob/1ebb9ea3507f3a40ce8b0489fb259ab32b1b5877/README.md?plain=1#L97
+      provider_selector = function()
+        return { 'treesitter', 'indent' }
+      end,
+      preview = {
+        win_config = {
+          winblend = 0,
+        },
+      },
+    }
+  end,
 }

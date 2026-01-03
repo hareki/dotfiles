@@ -15,137 +15,139 @@ return {
   {
     'hareki/snacks.nvim',
     event = 'VeryLazy',
-    keys = {
-      {
-        '<leader>g',
-        function()
-          Snacks.lazygit()
-        end,
-        desc = 'Lazygit',
-      },
-      {
-        '<leader><leader>',
-        function()
-          Snacks.picker.files()
-        end,
-        desc = 'Find Files',
-      },
-      {
-        '<leader>fd',
-        function()
-          Snacks.picker.diagnostics_buffer()
-        end,
-        desc = 'Find Diagnostics Buffer',
-      },
-      {
-        '<leader>fD',
-        function()
-          Snacks.picker.diagnostics()
-        end,
-        desc = 'Find Diagnostics',
-      },
-      {
-        '<leader>f/',
-        function()
-          Snacks.picker.grep({
-            title = 'Grep',
-            regex = false,
-          })
-        end,
-        desc = 'Find Text',
-      },
-      {
-        '<leader>fb',
-        function()
-          Snacks.picker.buffers({
-            title = 'Buffers',
-          })
-        end,
-        desc = 'Find Buffers',
-      },
-      {
-        '<leader>fy',
-        function()
-          -- yanky will inject itself into the Snacks namespace
-          ---@diagnostic disable-next-line: undefined-field
-          Snacks.picker.yanky()
-        end,
-        desc = 'Open Yanky History',
-      },
-      {
-        '<leader>fR',
-        function()
-          Snacks.picker.registers()
-        end,
-        desc = "Find Registers' Contents",
-      },
-      {
-        '<leader>fk',
-        function()
-          Snacks.picker.keymaps()
-        end,
-        desc = 'Find Keymaps',
-        mode = { 'n', 'x' },
-      },
-      {
-        '<leader>fu',
-        function()
-          Snacks.picker.undo()
-        end,
-        desc = 'Open Undo History',
-      },
+    keys = function()
+      return {
+        {
+          '<leader>g',
+          function()
+            Snacks.lazygit()
+          end,
+          desc = 'Lazygit',
+        },
+        {
+          '<leader><leader>',
+          function()
+            Snacks.picker.files()
+          end,
+          desc = 'Find Files',
+        },
+        {
+          '<leader>fd',
+          function()
+            Snacks.picker.diagnostics_buffer()
+          end,
+          desc = 'Find Diagnostics Buffer',
+        },
+        {
+          '<leader>fD',
+          function()
+            Snacks.picker.diagnostics()
+          end,
+          desc = 'Find Diagnostics',
+        },
+        {
+          '<leader>f/',
+          function()
+            Snacks.picker.grep({
+              title = 'Grep',
+              regex = false,
+            })
+          end,
+          desc = 'Find Text',
+        },
+        {
+          '<leader>fb',
+          function()
+            Snacks.picker.buffers({
+              title = 'Buffers',
+            })
+          end,
+          desc = 'Find Buffers',
+        },
+        {
+          '<leader>fy',
+          function()
+            -- yanky will inject itself into the Snacks namespace
+            ---@diagnostic disable-next-line: undefined-field
+            Snacks.picker.yanky()
+          end,
+          desc = 'Open Yanky History',
+        },
+        {
+          '<leader>fR',
+          function()
+            Snacks.picker.registers()
+          end,
+          desc = "Find Registers' Contents",
+        },
+        {
+          '<leader>fk',
+          function()
+            Snacks.picker.keymaps()
+          end,
+          desc = 'Find Keymaps',
+          mode = { 'n', 'x' },
+        },
+        {
+          '<leader>fu',
+          function()
+            Snacks.picker.undo()
+          end,
+          desc = 'Open Undo History',
+        },
 
-      {
-        '<leader>fh',
-        function()
-          Snacks.picker.highlights()
-        end,
-        desc = 'Find Highlight Groups',
-      },
-      {
-        '<leader>fH',
-        function()
-          Snacks.picker.help()
-        end,
-        desc = 'Find Helps',
-      },
-      {
-        '<leader>fgb',
-        function()
-          Snacks.picker.git_branches()
-        end,
-        desc = 'Find Git Branches',
-      },
-      {
-        '<leader>ft',
-        function()
-          require('plugins.ui.snacks.pickers.tabs')()
-        end,
-        desc = 'Find Tabs',
-      },
-      {
-        '<leader>.',
-        function()
-          Snacks.scratch()
-        end,
-        desc = 'Toggle Scratch Buffer',
-      },
-      {
-        '<leader>f.',
-        function()
-          Snacks.scratch.select()
-        end,
-        desc = 'Select Scratch Buffer',
-      },
-      {
-        '<A-t>',
-        mode = { 'n', 't', 'i' },
-        function()
-          Snacks.terminal.toggle(nil, { win = { position = 'float' } })
-        end,
-        desc = 'Toggle Floating Terminal',
-      },
-    },
+        {
+          '<leader>fh',
+          function()
+            Snacks.picker.highlights()
+          end,
+          desc = 'Find Highlight Groups',
+        },
+        {
+          '<leader>fH',
+          function()
+            Snacks.picker.help()
+          end,
+          desc = 'Find Helps',
+        },
+        {
+          '<leader>fgb',
+          function()
+            Snacks.picker.git_branches()
+          end,
+          desc = 'Find Git Branches',
+        },
+        {
+          '<leader>ft',
+          function()
+            require('plugins.ui.snacks.pickers.tabs')()
+          end,
+          desc = 'Find Tabs',
+        },
+        {
+          '<leader>.',
+          function()
+            Snacks.scratch()
+          end,
+          desc = 'Toggle Scratch Buffer',
+        },
+        {
+          '<leader>f.',
+          function()
+            Snacks.scratch.select()
+          end,
+          desc = 'Select Scratch Buffer',
+        },
+        {
+          '<A-t>',
+          mode = { 'n', 't', 'i' },
+          function()
+            Snacks.terminal.toggle(nil, { win = { position = 'float' } })
+          end,
+          desc = 'Toggle Floating Terminal',
+        },
+      }
+    end,
     opts = function()
       local popup_config = require('utils.ui').popup_config
       local picker_config = require('configs.picker')

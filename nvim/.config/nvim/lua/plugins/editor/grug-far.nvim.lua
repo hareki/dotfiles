@@ -11,27 +11,29 @@ return {
   {
     'hareki/grug-far.nvim',
     cmd = 'GrugFar',
-    keys = {
-      {
-        '<leader>sr',
-        function()
-          local grug = require('grug-far')
-          local ext = nil
-          if vim.bo.buftype == '' then
-            local name = vim.api.nvim_buf_get_name(0)
-            ext = name:match('%.([^%.]+)$')
-          end
-          grug.open({
-            transient = true,
-            prefills = {
-              filesFilter = ext and ext ~= '' and '*.' .. ext or nil,
-            },
-          })
-        end,
-        mode = { 'n', 'v' },
-        desc = 'Search and Replace',
-      },
-    },
+    keys = function()
+      return {
+        {
+          '<leader>sr',
+          function()
+            local grug = require('grug-far')
+            local ext = nil
+            if vim.bo.buftype == '' then
+              local name = vim.api.nvim_buf_get_name(0)
+              ext = name:match('%.([^%.]+)$')
+            end
+            grug.open({
+              transient = true,
+              prefills = {
+                filesFilter = ext and ext ~= '' and '*.' .. ext or nil,
+              },
+            })
+          end,
+          mode = { 'n', 'v' },
+          desc = 'Search and Replace',
+        },
+      }
+    end,
 
     opts = function()
       local ui_utils = require('utils.ui')

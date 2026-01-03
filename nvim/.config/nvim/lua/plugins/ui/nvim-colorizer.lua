@@ -4,11 +4,13 @@ local filetypes =
 return {
   'catgoose/nvim-colorizer.lua',
   ft = filetypes,
-  opts = {
-    filetypes = filetypes,
-    user_default_options = {
-      names = false,
-      css = true,
-    },
-  },
+  opts = function()
+    return {
+      filetypes = filetypes,
+      user_default_options = {
+        names = false,
+        css = true,
+      },
+    }
+  end,
 }

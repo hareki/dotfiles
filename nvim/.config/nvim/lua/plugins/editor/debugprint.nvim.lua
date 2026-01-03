@@ -1,53 +1,55 @@
 return {
   'andrewferrier/debugprint.nvim',
-  keys = {
-    {
-      '<leader>f?',
-      '<CMD>Debugprint search<CR>',
-      desc = 'Debug Prints: Find',
-    },
-    {
-      '<leader>?r',
-      '<CMD>Debugprint resetcounter<CR>',
-      desc = 'Debug Prints: Reset Counter',
-    },
-    {
-      '<leader>?d',
-      '<CMD>Debugprint delete<CR>',
-      desc = 'Debug Prints: Delete All',
-    },
-    {
-      '<leader>?t',
-      '<CMD>Debugprint commenttoggle<CR>',
-      desc = 'Debug Prints: Toggle Comments',
-    },
-    {
-      '<leader>?v',
-      function()
-        require('debugprint').debugprint({
-          variable = true,
-        })
-      end,
-      desc = 'Debug Prints: Put Variable Below',
-    },
-    {
-      '<leader>?V',
-      function()
-        require('debugprint').debugprint({
-          variable = true,
-          surround = true,
-        })
-      end,
-      desc = 'Debug Prints: Put Variable Surround',
-    },
-    {
-      '<leader>?p',
-      function()
-        require('debugprint').debugprint({})
-      end,
-      desc = 'Debug Prints: Put Plain Text Below',
-    },
-  },
+  keys = function()
+    return {
+      {
+        '<leader>f?',
+        '<CMD>Debugprint search<CR>',
+        desc = 'Debug Prints: Find',
+      },
+      {
+        '<leader>?r',
+        '<CMD>Debugprint resetcounter<CR>',
+        desc = 'Debug Prints: Reset Counter',
+      },
+      {
+        '<leader>?d',
+        '<CMD>Debugprint delete<CR>',
+        desc = 'Debug Prints: Delete All',
+      },
+      {
+        '<leader>?t',
+        '<CMD>Debugprint commenttoggle<CR>',
+        desc = 'Debug Prints: Toggle Comments',
+      },
+      {
+        '<leader>?v',
+        function()
+          require('debugprint').debugprint({
+            variable = true,
+          })
+        end,
+        desc = 'Debug Prints: Put Variable Below',
+      },
+      {
+        '<leader>?V',
+        function()
+          require('debugprint').debugprint({
+            variable = true,
+            surround = true,
+          })
+        end,
+        desc = 'Debug Prints: Put Variable Surround',
+      },
+      {
+        '<leader>?p',
+        function()
+          require('debugprint').debugprint({})
+        end,
+        desc = 'Debug Prints: Put Plain Text Below',
+      },
+    }
+  end,
   opts = function()
     local js_like = {
       left = 'console.log("',

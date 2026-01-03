@@ -1,7 +1,5 @@
-local ui_utils = require('utils.ui')
-
 return {
-  ui_utils.catppuccin(function(palette)
+  require('utils.ui').catppuccin(function(palette)
     local color = require('configs.color')
 
     return {
@@ -22,17 +20,19 @@ return {
     'hareki/multicursors.nvim',
     dependencies = { 'nvimtools/hydra.nvim' },
     cmd = { 'MCstart' },
-    keys = {
-      {
-        mode = { 'x', 'n' },
-        '<Leader>m',
-        function()
-          Snacks.words.disable()
-          vim.cmd.MCstart()
-        end,
-        desc = 'Multicursors: Start',
-      },
-    },
+    keys = function()
+      return {
+        {
+          mode = { 'x', 'n' },
+          '<Leader>m',
+          function()
+            Snacks.words.disable()
+            vim.cmd.MCstart()
+          end,
+          desc = 'Multicursors: Start',
+        },
+      }
+    end,
 
     opts = function()
       local hint_separator = '➜'

@@ -1,53 +1,55 @@
 return {
   -- noice.nvim will automatically load this plugin when needed
   'rcarriga/nvim-notify',
-  keys = {
-    {
-      '<leader>ud',
-      function()
-        require('notify').dismiss({ silent = true, pending = true })
-      end,
-      desc = 'Dismiss All Notifications',
-    },
-    {
-      '<leader>un',
-      function()
-        local notify = require('telescope').extensions.notify.notify
-        local preview_title = require('configs.picker').telescope_preview_title
-        local new_buffer_previewer = require('telescope.previewers').new_buffer_previewer
+  keys = function()
+    return {
+      {
+        '<leader>ud',
+        function()
+          require('notify').dismiss({ silent = true, pending = true })
+        end,
+        desc = 'Dismiss All Notifications',
+      },
+      {
+        '<leader>un',
+        function()
+          local notify = require('telescope').extensions.notify.notify
+          local preview_title = require('configs.picker').telescope_preview_title
+          local new_buffer_previewer = require('telescope.previewers').new_buffer_previewer
 
-        -- May use `:Telescope noice` as well
-        notify({
-          results_title = '',
-          preview_title = preview_title,
-          previewer = new_buffer_previewer({
-            define_preview = function(self, entry, status)
-              local notification = entry.value
-              local max_width = vim.api.nvim_win_get_config(status.preview_win).width or 1
-              local buf = self.state.bufnr
+          -- May use `:Telescope noice` as well
+          notify({
+            results_title = '',
+            preview_title = preview_title,
+            previewer = new_buffer_previewer({
+              define_preview = function(self, entry, status)
+                local notification = entry.value
+                local max_width = vim.api.nvim_win_get_config(status.preview_win).width or 1
+                local buf = self.state.bufnr
 
-              require('notify').open(notification, {
-                buffer = buf,
-                max_width = max_width,
-              })
-
-              vim.schedule(function()
-                vim.wo[status.preview_win].wrap = true
-                vim.bo[buf].filetype = 'markdown'
-                require('render-markdown').render({
-                  buf = buf,
-                  config = {
-                    render_modes = true,
-                  },
+                require('notify').open(notification, {
+                  buffer = buf,
+                  max_width = max_width,
                 })
-              end)
-            end,
-          }),
-        })
-      end,
-      desc = 'Show Notification History',
-    },
-  },
+
+                vim.schedule(function()
+                  vim.wo[status.preview_win].wrap = true
+                  vim.bo[buf].filetype = 'markdown'
+                  require('render-markdown').render({
+                    buf = buf,
+                    config = {
+                      render_modes = true,
+                    },
+                  })
+                end)
+              end,
+            }),
+          })
+        end,
+        desc = 'Show Notification History',
+      },
+    }
+  end,
   opts = function()
     local title_key = 'notify_title_with_hl'
     local max_size = require('configs.size').inline_popup.max_height
