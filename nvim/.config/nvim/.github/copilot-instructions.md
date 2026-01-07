@@ -1,86 +1,130 @@
 # Copilot Instructions for Neovim Config
 
-## Architecture Overview
+## Architecture
 
-This is a **lazy.nvim**-based Neovim config with strict one-plugin-per-file organization. Plugins are categorized under `lua/plugins/{ai,coding,editor,formatting,lsp,treesitter,ui}/`.
+**lazy.nvim** config with strict one-plugin-per-file under `lua/plugins/{ai,coding,editor,formatting,lsp,treesitter,ui}/`.
 
-**Central Config Modules** (`lua/configs/`):
+### Central Modules (`lua/configs/`)
 
-- `size.lua` - Shared popup/window dimensions (sm, md, lg, full, vertical_lg)
-- `color.lua` - Custom color constants
-- `icons.lua` - Unified icon definitions
-- `picker.lua` - Shared picker UI constants
-- `globals.lua` - Global `_G.Defer` and `_G.Notifier` lazy-loading proxies
+| Module        | Purpose                                                   |
+| ------------- | --------------------------------------------------------- |
+| `size.lua`    | Popup dimensions: `sm`, `md`, `lg`, `vertical_lg`, `full` |
+| `icons.lua`   | All icons (diagnostics, git, file status, LSP kinds)      |
+| `globals.lua` | `_G.Notifier` and `_G.Defer` lazy proxies                 |
+| `picker.lua`  | Shared picker UI constants                                |
 
-**Shared Utilities** (`lua/utils/`):
+### Utils (`lua/utils/`)
 
-- `ui.lua` - `popup_config()`, `catppuccin()` for consistent layouts/theming
-- `common.lua` - `noautocmd()`, `focus_win()` helpers
-- `lazy-require.lua` - Deferred module loading (`on_index`, `on_exported_call`)
-- `notifier.lua` - Custom notification system with highlight support
+| Module             | Key Exports                                             |
+| ------------------ | ------------------------------------------------------- |
+| `ui.lua`           | `popup_config(size)`, `catppuccin(fn)`, `get_palette()` |
+| `common.lua`       | `noautocmd(fn)`, `focus_win(win)`, `is_float_win()`     |
+| `notifier.lua`     | Rich notifications with highlight support               |
+| `lazy-require.lua` | `Defer.on_index()`, `Defer.on_exported_call()`          |
 
-## Key Conventions
+## Plugin Patterns
 
-### Plugin File Structure
-
-Complex plugins use `{plugin}/init.lua` + `{plugin}/utils.lua` pattern:
+### Complex Plugin Structure
 
 ```
 nvim-tree/
-  init.lua   -- Plugin spec + config
-  utils.lua  -- State management + helpers
-  types.lua  -- Type definitions (optional)
+  init.lua   -- Spec + config (returns table with catppuccin + plugin spec)
+  utils.lua  -- State via M.state table + helper functions
+  types.lua  -- LuaLS annotations (optional)
 ```
 
-### Catppuccin Integration Pattern
+### Catppuccin Highlight Registration
 
-Use `require('utils.ui').catppuccin()` to register custom highlights:
+Always first in returned table when plugin needs custom highlights:
 
 ```lua
 return {
   require('utils.ui').catppuccin(function(palette, sub_palette)
-    return { MyHighlight = { fg = palette.blue } }
+    return { MyHighlight = { fg = palette.blue, bg = palette.base } }
   end),
   { 'plugin/name', opts = {...} },
 }
 ```
 
-### Keymap Conventions
+### Popup Sizing
 
-- All keymaps require `desc` in **CMOS 18 title case** (e.g., "Find Files", "Go to Definition")
-- Use `<A-key>` for Alt bindings, `<leader>` prefix for command groups
-- Format/save: `<A-s>` runs async formatter pipeline
+Use `require('utils.ui').popup_config(size)` — never hardcode dimensions:
 
-### Formatting Pipeline
+```lua
+local size = require('utils.ui').popup_config('lg')
+-- Returns: { width, height, col, row }
+```
 
-Single async pipeline via `utils/formatters/async_style_enforcer.lua`:
+## Conventions
 
-- Runs conform.nvim formatters → linters sequentially
-- Prevents concurrent operations with buffer locks
-- Use `require('utils.formatters.async_style_enforcer').run()` for format+save
+### Keymaps
 
-### Popup Size System
+- **Always** include `desc` in CMOS 18 title case: "Find Files", "Go to Definition"
+- `<A-key>` for Alt bindings; `<leader>` for command groups
+- `<A-s>` = format + save; `<leader>F` = format only
 
-Always use `configs/size.lua` dimensions via `require('utils.ui').popup_config(size)`:
+### Notifications
 
-- `'sm'`, `'md'`, `'lg'`, `'vertical_lg'`, `'full'` presets
-- Automatically handles borders, min dimensions, centering
+Use global `Notifier` (auto lazy-loaded):
 
-### LSP Configuration
+```lua
+Notifier.info('Message')
+Notifier.warn('Warning', { title = 'Title' })
+```
 
-Individual LSP configs live in `lua/plugins/lsp/nvim-lspconfig/lsp/{server}.lua`. Mason auto-installs specified tools.
+### Module Returns
 
-## Forks & Custom Behavior
+- Always return tables (no global mutation)
+- State lives in `M.state = {}` pattern for complex plugins
 
-15+ forked plugins (author = `hareki`) enable unified UX via minimal patches:
+## LSP Setup
 
-- Tab = toggle focus between list/preview or float/main window
-- `<C-t>` = toggle side-panel mode where supported
-- Forks expose hooks upstream doesn't provide yet
+Per-server configs in `lua/plugins/lsp/nvim-lspconfig/lsp/{server}.lua`. Mason handles tool installation via `lua/plugins/lsp/mason.nvim.lua`.
+
+## Formatting
+
+Single async pipeline in `utils/formatters/async_style_enforcer.lua`:
+
+- Runs conform.nvim → linters sequentially
+- Buffer locks prevent concurrent operations
+- Call: `require('utils.formatters.async_style_enforcer').run()`
+
+## Snacks Picker
+
+Custom pickers live in `lua/plugins/ui/snacks/pickers/`. Each exports a function:
+
+```lua
+-- pickers/harpoon.lua
+return function(user_opts)
+  local items = build_items()
+  local opts = vim.tbl_deep_extend('force', { title = 'Harpoon', items = items }, user_opts or {})
+  return Snacks.picker(opts)
+end
+```
+
+**Existing pickers**: `harpoon`, `scope` (tab-scoped buffers), `tabs`
+
+**Shared utilities** (`snacks/utils.lua`):
+
+- `buffer_format` — consistent buffer item formatting
+- `keymap_transform` — enriches keymap items with which-key descriptions
+
+**Invocation pattern** (from keymaps in `snacks/init.lua`):
+
+```lua
+require('plugins.ui.snacks.pickers.harpoon')({ preview = 'main' })
+```
+
+## Forks (author = `hareki`)
+
+15+ minimal-diff forks enable unified UX:
+
+- **Tab** = toggle focus (list↔preview, float↔main)
+- **`<C-t>`** = toggle side-panel mode
+- Updated via [wei/pull](https://github.com/wei/pull); features toggleable
 
 ## Code Style
 
-- **Lua**: stylua formatter, 100-char lines, 2-space indent
-- Return tables from modules (no global mutation)
-- Lazy-load aggressively: `event = 'VeryLazy'` or keymap triggers
-- Use `Notifier.info/warn/error()` for user notifications
+- stylua: 100-char lines, 2-space indent
+- Lazy-load via `event = 'VeryLazy'` or keymap triggers
+- LuaLS annotations for public APIs
