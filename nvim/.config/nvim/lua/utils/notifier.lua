@@ -1,6 +1,9 @@
 -- trouble.nvim notifier with supported custom highlight groups
 -- https://github.com/folke/trouble.nvim/blob/main/lua/trouble/util.lua
+
+---@class utils.notifier
 local M = {}
+
 ---@alias NotifierOpts { level?: number, title?: string, once?: boolean, id?:string, on_open?: fun(), default_hl?: string }
 
 ---@alias MessageTuple { [1]: string, [2]?: string }

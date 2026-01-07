@@ -19,13 +19,13 @@ function M.get_relative_path(file, root)
   return rel or normalized_file
 end
 
---- @class util.common.HasDirOptions
---- @field dir_name string     The directory name to search for (required).
---- @field path? string        The file system path to search (optional).
----
+---@class utils.path.HasDirOptions
+---@field dir_name string     The directory name to search for (required).
+---@field path? string        The file system path to search (optional).
+
 --- Checks whether a directory with the specified name exists in the given path components.
---- @param opts util.common.HasDirOptions  A table containing the options.
---- @return boolean            `true` if the directory is found in the path components, otherwise `false`.
+---@param opts utils.path.HasDirOptions  A table containing the options.
+---@return boolean            `true` if the directory is found in the path components, otherwise `false`.
 function M.has_dir(opts)
   local dir_name = opts.dir_name
   local path = opts.path

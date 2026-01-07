@@ -111,9 +111,9 @@ function M.format_branch_name(branch_name)
 end
 
 --- Executes a git command synchronously and returns its output.
---- @param cmd string The git command to execute (without the 'git' prefix).
---- @param cwd string|nil The directory in which to execute the command. Defaults to current directory if nil.
---- @return string|nil The trimmed output of the command, or nil if an error occurs.
+---@param cmd string The git command to execute (without the 'git' prefix).
+---@param cwd string|nil The directory in which to execute the command. Defaults to current directory if nil.
+---@return string|nil The trimmed output of the command, or nil if an error occurs.
 function M.exec_cmd(cmd, cwd)
   local args = vim.split(cmd, '%s+')
   local git_cmd = { 'git' }
@@ -136,7 +136,7 @@ function M.exec_cmd(cmd, cwd)
 end
 
 --- Retrieves the repository name from the remote origin URL.
---- @return string|nil The repository name extracted from the remote URL, or nil if not found.
+---@return string|nil The repository name extracted from the remote URL, or nil if not found.
 function M.get_repo_name_from_remote()
   local url = M.exec_cmd('config --get remote.origin.url')
   if not url or url == '' then
@@ -153,8 +153,8 @@ function M.get_repo_name_from_remote()
 end
 
 --- Determines whether a specified directory is a bare Git repository.
---- @param path string The directory path to check.
---- @return boolean True if the directory is a bare repository, false otherwise.
+---@param path string The directory path to check.
+---@return boolean True if the directory is a bare repository, false otherwise.
 function M.is_bare_repo(path)
   if not path then
     return false
@@ -164,14 +164,14 @@ function M.is_bare_repo(path)
 end
 
 --- Extracts the repository name from a given file system path.
---- @param path string The file system path from which to extract the repository name.
---- @return string|nil The repository name (last component of the path), or nil if invalid.
+---@param path string The file system path from which to extract the repository name.
+---@return string|nil The repository name (last component of the path), or nil if invalid.
 function M.get_repo_name_from_path(path)
   return path:match('([^/\\]+)$')
 end
 
 --- Retrieves the repository name using multiple strategies and caches the result.
---- @return string|nil The repository name determined by the implemented logic.
+---@return string|nil The repository name determined by the implemented logic.
 function M.get_repo_name()
   local current_cwd = vim.uv.cwd()
 

@@ -1,3 +1,4 @@
+---@class plugins.ui.snacks.utils
 local M = {}
 
 ---Query spec descriptions from which-key mappings

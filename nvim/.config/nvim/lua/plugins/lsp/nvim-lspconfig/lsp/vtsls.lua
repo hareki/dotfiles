@@ -50,7 +50,7 @@ return {
         Snacks.util.lsp.on({ name = 'vtsls' }, function(buffer, client)
           client.commands['_typescript.moveToFileRefactoring'] = function(command, ctx)
             ---@type string, string, lsp.Range
-            local action, uri, range = unpack(command.arguments)
+            local action, uri, range = table.unpack(command.arguments)
 
             local function move(newf)
               client:request('workspace/executeCommand', {

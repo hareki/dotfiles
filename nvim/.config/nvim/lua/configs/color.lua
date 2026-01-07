@@ -1,3 +1,4 @@
+---@class configs.color
 local M = {}
 
 M.light_blue = '#414e70'

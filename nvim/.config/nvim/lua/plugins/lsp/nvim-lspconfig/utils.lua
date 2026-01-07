@@ -1,3 +1,4 @@
+---@class plugins.lsp.nvim-lspconfig.utils
 local M = {}
 
 ---Fix zero-width or out-of-bounds diagnostics to underline at least one character

@@ -32,7 +32,7 @@ return {
           HINT = { icon = icons.diagnostics.Hint, hl = 'RenderMarkdownHint' },
         },
       },
-      --- @param diagnostic vim.Diagnostic
+      ---@param diagnostic vim.Diagnostic
       diagnostic_filter = function(diagnostic)
         return diagnostic.source ~= 'underline-hack'
       end,

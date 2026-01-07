@@ -1,7 +1,7 @@
---- @class nvim-tree.Utils
+---@class nvim-tree.Utils
 local M = {}
 
---- @type nvim-tree.State
+---@type nvim-tree.State
 M.state = {
   position = 'float',
   opts = nil,
@@ -166,10 +166,10 @@ function M.toggle_focus()
   manager.instance:toggle_focus()
 end
 
---- @class nvim-tree.OpenParams
---- @field switching boolean|nil
+---@class nvim-tree.OpenParams
+---@field switching boolean|nil
 
---- @param opts nvim-tree.OpenParams|nil
+---@param opts nvim-tree.OpenParams|nil
 function M.open(opts)
   local api = require('nvim-tree.api')
   local switching = opts and opts.switching or false
@@ -183,13 +183,13 @@ function M.open(opts)
   api.tree.open()
 end
 
---- @return number|nil
+---@return number|nil
 function M.preview_buf()
   local manager = require('nvim-tree-preview.manager')
   return manager.instance and manager.instance.preview_buf
 end
 
---- @return number|nil
+---@return number|nil
 function M.preview_win()
   local manager = require('nvim-tree-preview.manager')
   return manager.instance and manager.instance.preview_win
@@ -211,8 +211,8 @@ end
 
 --- Format the root folder label by replacing home directory with  icon
 --- and separating path components with
---- @param path string The absolute path to format
---- @return string The formatted path
+---@param path string The absolute path to format
+---@return string The formatted path
 function M.format_root_label(path)
   local home = vim.env.HOME
   local formatted = path

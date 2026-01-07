@@ -3,6 +3,7 @@
 ---@field on_start fun(name: string, idx: integer, total: integer) | nil
 ---@field on_done  fun(name: string, ok: boolean, err?: string) | nil
 
+---@class utils.linters
 local M = {}
 
 ---@class utils.linters.Entry

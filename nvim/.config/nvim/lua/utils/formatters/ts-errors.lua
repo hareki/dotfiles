@@ -1,6 +1,7 @@
+---@class utils.formatters.ts-errors
 local M = {}
 
-local state = {
+M.state = {
   executable_path = 'pretty-ts-errors-markdown',
   max_cache_entries = 512,
   cache = {}, -- key -> { value, hits }
@@ -22,7 +23,7 @@ local function is_typescript_diagnostic(diagnostic)
   if not source and diagnostic.user_data and diagnostic.user_data.lsp then
     source = diagnostic.user_data.lsp.source
   end
-  return state.supported_sources[source] or type(diagnostic.code) == 'number'
+  return M.state.supported_sources[source] or type(diagnostic.code) == 'number'
 end
 
 local function normalize_range(diagnostic)
@@ -92,25 +93,25 @@ end
 
 local function maybe_evict_cache()
   local size = 0
-  for _ in pairs(state.cache) do
+  for _ in pairs(M.state.cache) do
     size = size + 1
   end
-  if size <= state.max_cache_entries then
+  if size <= M.state.max_cache_entries then
     return
   end
   local lowest_key, lowest_hits
-  for k, v in pairs(state.cache) do
+  for k, v in pairs(M.state.cache) do
     if not lowest_hits or v.hits < lowest_hits then
       lowest_hits, lowest_key = v.hits, k
     end
   end
   if lowest_key then
-    state.cache[lowest_key] = nil
+    M.state.cache[lowest_key] = nil
   end
 end
 
 local function cache_get(key)
-  local e = state.cache[key]
+  local e = M.state.cache[key]
   if e then
     e.hits = e.hits + 1
     return e.value
@@ -118,13 +119,13 @@ local function cache_get(key)
 end
 
 local function cache_set(key, value)
-  state.cache[key] = { value = value, hits = 1 }
+  M.state.cache[key] = { value = value, hits = 1 }
   maybe_evict_cache()
 end
 
 local function run_cli(input_object)
   local json_text = vim.json.encode(input_object)
-  local exe = state.executable_path
+  local exe = M.state.executable_path
   local res = vim.system({ exe, '-i', json_text }, { text = true }):wait()
   if res and res.code == 0 and res.stdout and #res.stdout > 0 then
     return trim_trailing_whitespace(res.stdout)

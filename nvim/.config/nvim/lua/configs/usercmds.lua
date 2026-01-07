@@ -1,5 +1,5 @@
 vim.api.nvim_create_user_command('HlAtCursor', function()
-  require('utils.hl-at-cursor')()
+  require('utils.hl-at-cursor').show()
 end, { desc = 'Show Highlight Groups Under Cursor' })
 
 if require('plugins.ui.lualine.utils').have_status_line() then

@@ -1,3 +1,4 @@
+---@class utils.formatters.async_style_enforcer
 local M = {}
 
 local running_bufs = {}

@@ -1,3 +1,4 @@
+---@class plugins.ui.dropbar.utils
 local M = {}
 
 ---@type boolean|fun(buf: integer, win: integer, info: table?): boolean

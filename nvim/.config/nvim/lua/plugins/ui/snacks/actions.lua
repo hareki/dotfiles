@@ -1,4 +1,6 @@
+---@class plugins.ui.snacks.actions
 local M = {}
+
 ---@param direction 'up' | 'down'
 function M.scroll_half_page(direction)
   return function(picker)

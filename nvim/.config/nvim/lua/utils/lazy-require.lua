@@ -18,6 +18,8 @@
 --- - https://github.com/sponsors/tjdevries
 ---
 ---@brief ]]
+
+---@class utils.lazy-require
 local M = {}
 
 --- Require on index.
