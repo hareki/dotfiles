@@ -222,7 +222,7 @@ function M.get_repo_name()
   end
 
   -- Step 3: Fallback to using the current working directory's name
-  local cwd_name = M.get_repo_name_from_path(current_cwd)
+  local cwd_name = M.get_repo_name_from_path(current_cwd or '')
   repo_cache.name = cwd_name or 'Unknown'
   return repo_cache.name
 end
