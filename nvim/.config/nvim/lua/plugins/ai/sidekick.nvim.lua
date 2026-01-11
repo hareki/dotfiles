@@ -7,6 +7,8 @@ return {
   {
     'folke/sidekick.nvim',
     opts = {},
+    dependencies = { 'zbirenbaum/copilot.lua' },
+    event = { 'BufReadPost', 'BufNewFile', 'BufWritePre' },
     keys = function()
       return {
         {

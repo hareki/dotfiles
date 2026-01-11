@@ -37,8 +37,11 @@ return {
     version = '*', -- Use a release tag to download pre-built binaries
     dependencies = {
       'windwp/nvim-autopairs',
+
       'dmitmel/cmp-cmdline-history',
       'f3fora/cmp-spell',
+
+      'zbirenbaum/copilot.lua',
       'fang2hou/blink-copilot',
     },
     event = { 'InsertEnter', 'CmdLineEnter' },
