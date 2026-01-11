@@ -1,7 +1,6 @@
 return {
   'tiagovla/scope.nvim',
   event = 'VeryLazy',
-  config = true,
   keys = function()
     return {
       {
@@ -13,4 +12,5 @@ return {
       },
     }
   end,
+  config = true,
 }

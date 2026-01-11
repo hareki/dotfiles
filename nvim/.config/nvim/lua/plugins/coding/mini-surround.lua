@@ -8,9 +8,9 @@ return {
   'echasnovski/mini.surround',
   keys = function()
     return {
-      { mappings.add, desc = 'Mini Surround: Add', mode = { 'x' } },
-      { mappings.delete, desc = 'Mini Surround: Delete', mode = { 'n', 'x' } },
-      { mappings.replace, desc = 'Mini Surround: Replace', mode = { 'n' } },
+      { mappings.add, mode = { 'x' }, desc = 'Mini Surround: Add' },
+      { mappings.delete, mode = { 'n', 'x' }, desc = 'Mini Surround: Delete' },
+      { mappings.replace, mode = { 'n' }, desc = 'Mini Surround: Replace' },
     }
   end,
   opts = function()

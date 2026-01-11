@@ -8,14 +8,14 @@ return {
   },
   keys = function()
     return {
-      { '<A-m>', '<CMD>TmuxNavigateLeft<CR>', desc = 'Navigate Window Left', mode = { 'n', 't' } },
-      { '<A-n>', '<CMD>TmuxNavigateDown<CR>', desc = 'Navigate Window Down', mode = { 'n', 't' } },
-      { '<A-e>', '<CMD>TmuxNavigateUp<CR>', desc = 'Navigate Window Up', mode = { 'n', 't' } },
+      { '<A-m>', '<CMD>TmuxNavigateLeft<CR>', mode = { 'n', 't' }, desc = 'Navigate Window Left' },
+      { '<A-n>', '<CMD>TmuxNavigateDown<CR>', mode = { 'n', 't' }, desc = 'Navigate Window Down' },
+      { '<A-e>', '<CMD>TmuxNavigateUp<CR>', mode = { 'n', 't' }, desc = 'Navigate Window Up' },
       {
         '<A-i>',
         '<CMD>TmuxNavigateRight<CR>',
-        desc = 'Navigate Window Right',
         mode = { 'n', 't' },
+        desc = 'Navigate Window Right',
       },
     }
   end,

@@ -18,17 +18,17 @@ return {
   end),
   {
     'hareki/multicursors.nvim',
-    dependencies = { 'nvimtools/hydra.nvim' },
     cmd = { 'MCstart' },
+    dependencies = { 'nvimtools/hydra.nvim' },
     keys = function()
       return {
         {
-          mode = { 'x', 'n' },
           '<Leader>m',
           function()
             Snacks.words.disable()
             vim.cmd.MCstart()
           end,
+          mode = { 'x', 'n' },
           desc = 'Multicursors: Start',
         },
       }

@@ -1,17 +1,6 @@
 return {
   'ThePrimeagen/harpoon',
   branch = 'harpoon2',
-  opts = function()
-    local menu_popup = require('utils.ui').popup_config('sm', true)
-    return {
-      menu = {
-        width = menu_popup.width,
-      },
-      settings = {
-        save_on_toggle = true,
-      },
-    }
-  end,
   keys = function()
     local keys = {
       {
@@ -68,5 +57,16 @@ return {
       })
     end
     return keys
+  end,
+  opts = function()
+    local menu_popup = require('utils.ui').popup_config('sm', true)
+    return {
+      menu = {
+        width = menu_popup.width,
+      },
+      settings = {
+        save_on_toggle = true,
+      },
+    }
   end,
 }

@@ -35,6 +35,7 @@ return {
   {
     'saghen/blink.cmp',
     version = '*', -- Use a release tag to download pre-built binaries
+    event = { 'InsertEnter', 'CmdLineEnter' },
     dependencies = {
       'windwp/nvim-autopairs',
 
@@ -44,7 +45,6 @@ return {
       'zbirenbaum/copilot.lua',
       'fang2hou/blink-copilot',
     },
-    event = { 'InsertEnter', 'CmdLineEnter' },
     opts = function()
       local function register_kind(name)
         local cmp_types = require('blink.cmp.types')

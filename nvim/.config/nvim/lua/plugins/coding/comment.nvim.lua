@@ -4,8 +4,8 @@ return {
   dependencies = { 'JoosepAlviste/nvim-ts-context-commentstring' },
   keys = function()
     return {
-      { 'gc', desc = 'Toggle Comment Linewise', mode = { 'n', 'x' } },
-      { 'gb', desc = 'Toggle Comment Blockwise', mode = { 'n', 'x' } },
+      { 'gc', mode = { 'n', 'x' }, desc = 'Toggle Comment Linewise' },
+      { 'gb', mode = { 'n', 'x' }, desc = 'Toggle Comment Blockwise' },
       { 'gcc', desc = 'Toggle Comment Line' },
       { 'gbc', desc = 'Toggle Comment Block' },
     }

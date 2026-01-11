@@ -5,16 +5,16 @@ local mappings = {
 
 return {
   'nvim-treesitter/nvim-treesitter',
-  build = ':TSUpdate',
-  main = 'nvim-treesitter.configs',
-  event = { 'BufReadPost', 'BufNewFile', 'BufWritePre' },
-  cmd = { 'TSUpdateSync', 'TSUpdate', 'TSInstall' },
   branch = 'master', -- The new "main" branch is immature, tree-sitter-styled breaks, colors look weird
   version = false, -- Last release is way too old and doesn't work on Windows
+  build = ':TSUpdate',
+  main = 'nvim-treesitter.configs',
+  cmd = { 'TSUpdateSync', 'TSUpdate', 'TSInstall' },
+  event = { 'BufReadPost', 'BufNewFile', 'BufWritePre' },
   keys = function()
     return {
       { mappings.incremental, desc = 'Incremental Selection' },
-      { mappings.decremental, desc = 'Decremental Selection', mode = 'x' },
+      { mappings.decremental, mode = 'x', desc = 'Decremental Selection' },
     }
   end,
   opts_extend = { 'ensure_installed' },

@@ -1,10 +1,10 @@
 return {
   'mason-org/mason.nvim',
+  build = ':MasonUpdate',
   cmd = 'Mason',
   keys = function()
     return { { '<leader>cm', '<cmd>Mason<cr>', desc = 'Mason' } }
   end,
-  build = ':MasonUpdate',
   opts_extend = { 'ensure_installed' },
   opts = function()
     local config = require('utils.ui').popup_config('lg')

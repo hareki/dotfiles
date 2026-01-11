@@ -22,26 +22,11 @@ return {
 
   {
     'hareki/yanky.nvim',
-    desc = 'Better Yank/Paste',
     event = 'VeryLazy',
     dependencies = {
       'kkharji/sqlite.lua',
       'hareki/snacks.nvim', -- Let yanky self register with snacks
     },
-    opts = function()
-      return {
-        ring = { storage = 'sqlite' },
-        highlight = {
-          on_yank = true,
-          on_put = true,
-          timer = 300,
-        },
-        system_clipboard = {
-          sync_with_ring = false,
-          clipboard_register = nil,
-        },
-      }
-    end,
     keys = function()
       return {
         { 'y', '<Plug>(YankyYank)', mode = { 'n', 'x' }, desc = 'Yank Text' },
@@ -98,6 +83,20 @@ return {
             vim.cmd.normal({ args = { [["_dd]] }, bang = true }) -- Remove remaining indent + newline (blackhole)
           end,
           desc = 'Delete Line Trimmed',
+        },
+      }
+    end,
+    opts = function()
+      return {
+        ring = { storage = 'sqlite' },
+        highlight = {
+          on_yank = true,
+          on_put = true,
+          timer = 300,
+        },
+        system_clipboard = {
+          sync_with_ring = false,
+          clipboard_register = nil,
         },
       }
     end,

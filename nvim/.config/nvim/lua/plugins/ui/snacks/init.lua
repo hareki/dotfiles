@@ -85,8 +85,8 @@ return {
           function()
             Snacks.picker.keymaps()
           end,
-          desc = 'Find Keymaps',
           mode = { 'n', 'x' },
+          desc = 'Find Keymaps',
         },
         {
           '<leader>fu',
@@ -140,10 +140,10 @@ return {
         },
         {
           '<A-t>',
-          mode = { 'n', 't', 'i' },
           function()
             Snacks.terminal.toggle(nil, { win = { position = 'float' } })
           end,
+          mode = { 'n', 't', 'i' },
           desc = 'Toggle Floating Terminal',
         },
       }
