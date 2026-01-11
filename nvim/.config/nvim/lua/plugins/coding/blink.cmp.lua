@@ -123,6 +123,7 @@ return {
             show_on_backspace = true,
             show_on_backspace_after_insert_enter = true,
             show_on_insert = true,
+            show_on_keyword = true,
             show_in_snippet = true,
           },
           list = {
@@ -191,6 +192,15 @@ return {
               end
               return true
             end,
+          },
+          ['<Space>'] = {
+            function(cmp)
+              -- Force reset the completion context when typing too fast
+              vim.defer_fn(function()
+                cmp.hide()
+              end, 20)
+            end,
+            'fallback',
           },
 
           ['<A-Space>'] = {
