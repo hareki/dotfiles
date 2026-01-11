@@ -295,15 +295,6 @@ return {
               name = 'copilot',
               module = 'blink-copilot',
               async = true,
-              score_offset = 100,
-              should_show_items = function(ctx)
-                if not ctx or not ctx.providers then
-                  return false
-                end
-
-                -- Only show items if 'copilot' is the sole provider to avoid distraction
-                return ctx.providers[1] == 'copilot' and #ctx.providers == 1
-              end,
             },
 
             markdown = {
