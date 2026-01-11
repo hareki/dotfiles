@@ -12,7 +12,7 @@ return {
       picker = {
         'snacks',
         opts = {
-          source = 'select',
+          source = 'buffer',
           win = {
             preview = {
               title = picker_config.preview_title,
