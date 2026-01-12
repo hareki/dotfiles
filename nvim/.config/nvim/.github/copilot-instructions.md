@@ -57,6 +57,25 @@ local size = require('utils.ui').popup_config('lg')
 
 ## Conventions
 
+### Plugin Spec Key Order
+
+**lazy.nvim** plugin specs must follow this exact key order:
+
+1. `plugin name` (string, e.g., `'author/repo'`)
+2. `enabled` → `cond` → `name` → `branch` → `version` → `build` → `main`
+3. `lazy` → `priority`
+4. `cmd` → `event` → `ft`
+5. `dependencies`
+6. `keys` → `init` → `opts` → `opts_extend` → `config`
+
+**Keymap definitions** within `keys` follow this order:
+
+```lua
+{ lhs, rhs, mode = '...', desc = '...', expr = true, silent = true }
+```
+
+Order: **lhs** → **rhs** → **mode** → **desc** → **expr** → **silent**
+
 ### Keymaps
 
 - **Always** include `desc` in CMOS 18 title case: "Find Files", "Go to Definition"
