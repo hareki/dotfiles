@@ -1,4 +1,4 @@
-local copilot_max_items = 3
+local copilot_max_items = 2
 
 return {
   require('utils.ui').catppuccin(function(palette)
@@ -298,6 +298,7 @@ return {
               name = 'copilot',
               module = 'blink-copilot',
               async = true,
+              score_offset = -7,
             },
 
             markdown = {
