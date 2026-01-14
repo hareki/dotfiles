@@ -118,13 +118,6 @@ return {
           desc = 'Find Git Branches',
         },
         {
-          '<leader>ft',
-          function()
-            require('plugins.ui.snacks.pickers.tabs')()
-          end,
-          desc = 'Find Tabs',
-        },
-        {
           '<leader>.',
           function()
             Snacks.scratch()

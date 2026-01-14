@@ -111,15 +111,6 @@ return {
           empty_comp,
 
           {
-            require('utils.tab').lualine,
-            icon = {
-              icons.misc.tab,
-              color = { fg = palette.base, bg = palette.flamingo },
-            },
-            separator = { left = separator.left, right = separator.right },
-            color = { fg = palette.flamingo, bg = palette.surface0 },
-          },
-          {
             'diff',
             padding = { left = 2, right = 0 },
             symbols = {

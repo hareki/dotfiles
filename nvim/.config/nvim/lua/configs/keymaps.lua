@@ -120,20 +120,3 @@ map({ 'i', 'x', 'n', 's' }, '<A-r>', '<CMD>e!<CR>', { desc = 'Reload File', sile
 map({ 'i', 'x', 'n', 's' }, '<A-w>', function()
   Snacks.bufdelete()
 end, { desc = 'Close Buffer' })
-
--- Tab
-map('n', ']t', '<CMD>tabnext<CR>', { desc = 'Next Tab' })
-map('n', ']T', '<CMD>tablast<CR>', { desc = 'Last Tab' })
-map('n', '[t', '<CMD>tabprevious<CR>', { desc = 'Previous Tab' })
-map('n', '[T', '<CMD>tabrewind<CR>', { desc = 'First Tab' }) -- or tabfirst
-map('n', '<leader>tn', '<CMD>tabnew<CR>', { desc = 'New Tab' })
-map('n', '<leader>t]', '<CMD>tabnext<CR>', { desc = 'Next Tab' })
-map('n', '<leader>t[', '<CMD>tabprevious<CR>', { desc = 'Previous Tab' })
-map('n', '<leader>tx', '<CMD>tabclose<CR>', { desc = 'Close Tab' })
-map('n', '<leader>tr', function()
-  vim.ui.input({ prompt = 'Rename the Tab' }, function(input)
-    if input and input ~= '' then
-      vim.cmd({ cmd = 'TabRename', args = { input } })
-    end
-  end)
-end, { desc = 'Rename Tab' })
