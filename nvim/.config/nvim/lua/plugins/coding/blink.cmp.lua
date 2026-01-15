@@ -226,7 +226,6 @@ return {
           },
           providers = {
             lsp = {
-              max_items = 6,
               opts = { tailwind_color_icon = '' },
             },
 
