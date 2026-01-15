@@ -2,8 +2,8 @@ return {
   'hareki/tiny-code-action.nvim',
   event = 'LspAttach',
   dependencies = {
-    { 'nvim-lua/plenary.nvim' },
-    { 'folke/snacks.nvim' },
+    'nvim-lua/plenary.nvim',
+    'hareki/snacks.nvim',
   },
   opts = function()
     local picker_config = require('configs.picker')

@@ -65,15 +65,6 @@ return {
           desc = 'Find Buffers',
         },
         {
-          '<leader>fy',
-          function()
-            -- yanky will inject itself into the Snacks namespace
-            ---@diagnostic disable-next-line: undefined-field
-            Snacks.picker.yanky()
-          end,
-          desc = 'Open Yanky History',
-        },
-        {
           '<leader>fR',
           function()
             Snacks.picker.registers()

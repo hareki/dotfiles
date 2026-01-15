@@ -1,3 +1,6 @@
+---@class snacks.picker
+---@field yanky fun(opts?: snacks.picker.Config|{}): snacks.Picker
+
 return {
   require('utils.ui').catppuccin(function(palette)
     return {
@@ -29,6 +32,13 @@ return {
     },
     keys = function()
       return {
+        {
+          '<leader>fy',
+          function()
+            Snacks.picker.yanky()
+          end,
+          desc = 'Open Yanky History',
+        },
         { 'y', '<Plug>(YankyYank)', mode = { 'n', 'x' }, desc = 'Yank Text' },
         {
           'Y',
