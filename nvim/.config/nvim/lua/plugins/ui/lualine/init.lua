@@ -108,8 +108,6 @@ return {
             end,
           },
 
-          empty_comp,
-
           {
             'diff',
             padding = { left = 2, right = 0 },
