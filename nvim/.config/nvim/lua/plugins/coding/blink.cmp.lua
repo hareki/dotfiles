@@ -226,11 +226,14 @@ return {
           },
           providers = {
             lsp = {
+              max_items = 6,
               opts = { tailwind_color_icon = '' },
             },
+
             lazydev = {
               name = 'LazyDev',
               module = 'lazydev.integrations.blink',
+              max_items = 6,
               score_offset = 10,
             },
 
@@ -271,6 +274,7 @@ return {
               max_items = 3,
               min_keyword_length = 4,
               score_offset = -20,
+
               transform_items = function(_, items)
                 for _, item in ipairs(items) do
                   item.kind = spell_kind_index
@@ -297,13 +301,15 @@ return {
             copilot = {
               name = 'copilot',
               module = 'blink-copilot',
-              async = true,
+              max_items = copilot_max_items,
               score_offset = -7,
+              async = true,
             },
 
             markdown = {
               name = 'markdown',
               module = 'render-markdown.integ.blink',
+              max_items = 3,
               transform_items = function(_, items)
                 for _, item in ipairs(items) do
                   item.kind = render_markdown_index
