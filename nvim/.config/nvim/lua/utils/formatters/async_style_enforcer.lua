@@ -192,23 +192,17 @@ function M.run(opts)
   end)
 end
 
----Run format+lint on all buffers from scope.nvim
+---Run format+lint on all buffers
 ---@param debug boolean|nil
 function M.run_all(debug)
-  local scope_core = require('scope.core')
-
-  scope_core.revalidate()
-
-  local all_scope_buffers = {}
-  for _, bufs in pairs(scope_core.cache) do
-    for _, buf in pairs(bufs) do
-      if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].buflisted and vim.bo[buf].modified then
-        table.insert(all_scope_buffers, buf)
-      end
+  local all_buffers = {}
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].buflisted and vim.bo[buf].modified then
+      table.insert(all_buffers, buf)
     end
   end
 
-  if #all_scope_buffers == 0 then
+  if #all_buffers == 0 then
     Notifier.warn('No buffers to format', { title = 'Style Enforcer' })
     return
   end
@@ -301,7 +295,7 @@ function M.run_all(debug)
     end
   end
 
-  for _, buf in ipairs(all_scope_buffers) do
+  for _, buf in ipairs(all_buffers) do
     -- Skip if already running on this buffer
     if running_bufs[buf] then
       skipped_count = skipped_count + 1
