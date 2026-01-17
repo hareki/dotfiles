@@ -271,6 +271,7 @@ return {
               max_items = 3,
               min_keyword_length = 4,
               score_offset = -20,
+              opts = { keep_all_entries = false },
 
               transform_items = function(_, items)
                 for _, item in ipairs(items) do
@@ -290,7 +291,6 @@ return {
                 end
                 return items
               end,
-              opts = { keep_all_entries = false },
             },
 
             copilot = {
