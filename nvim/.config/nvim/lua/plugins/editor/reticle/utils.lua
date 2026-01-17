@@ -1,5 +1,5 @@
--- We need special treatment for telescope.nvim and reticle.nvim interaction
--- Since most of telescope/snacks pickers will do noautocmd when switching window
+-- Special treatment for telescope.nvim and reticle.nvim interaction.
+-- Most telescope/snacks pickers do noautocmd when switching windows.
 
 ---@class plugins.editor.reticle.utils
 local M = {}

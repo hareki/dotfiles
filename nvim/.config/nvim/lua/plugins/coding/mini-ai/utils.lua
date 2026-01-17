@@ -1,7 +1,7 @@
 ---@class plugins.coding.mini-ai.utils
 local M = {}
 
--- Taken from MiniExtra.gen_ai_spec.buffer
+-- From MiniExtra.gen_ai_spec.buffer
 function M.buffer(ai_type)
   local bufnr = vim.api.nvim_get_current_buf()
   local start_line, end_line = 1, vim.api.nvim_buf_line_count(bufnr)

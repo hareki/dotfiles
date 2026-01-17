@@ -132,7 +132,7 @@ return {
           list = {
             selection = {
               preselect = true,
-              -- https://github.com/Saghen/blink.cmp/blob/242fd1f31dd619ccb7fa7b5895e046ad675b411b/doc/configuration/keymap.md#super-tab
+              -- Super-tab config: https://github.com/Saghen/blink.cmp/blob/242fd1f31dd619ccb7fa7b5895e046ad675b411b/doc/configuration/keymap.md#super-tab
               -- preselect = function()
               --   return not require('blink.cmp').snippet_active({ direction = 1 })
               -- end,
@@ -261,7 +261,7 @@ return {
                 for _, item in ipairs(items) do
                   item.kind = history_kind_index
                   item.kind_hl = 'BlinkCmpKindKeyword'
-                  -- item.kind_icon = '' -- overwrite if needed
+                  -- item.kind_icon = '' -- Overwrite if needed
                 end
                 return items
               end,

@@ -52,9 +52,9 @@ function ProgressHandle:_send(kind, title, percentage)
   })
 end
 
--- When progress is still *pending*, we either cache the last state or abort
--- if `finish` is triggered before the delay elapses. Once the delay has passed
--- (`self._pending == false`) all events go straight to Noice.
+-- When progress is still *pending*, we cache the last state or abort if `finish` is
+-- triggered before the delay elapses. Once delay passes (`self._pending == false`),
+-- all events go straight to Noice.
 ---@private
 ---@param kind       'begin'|'report'|'end'
 ---@param title      string|nil
@@ -92,8 +92,7 @@ function ProgressHandle:finish(title)
     pcall(self._timer.close, self._timer)
     self._timer = nil
   end
-  -- percentage is not sent for the `end` kind
-  self:_queue_or_send('end', title, nil)
+  self:_queue_or_send('end', title, nil) -- Percentage is not sent for the `end` kind
 end
 
 -- Factory --------------------------------------------------------------------

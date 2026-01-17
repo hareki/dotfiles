@@ -1,6 +1,6 @@
 local mappings = {
-  add = 'sa', -- Add surrounding
-  delete = 'sd', -- Delete surrounding
+  add = 'sa',
+  delete = 'sd',
   replace = 'sr',
 }
 
@@ -17,7 +17,7 @@ return {
     return {
       mappings = mappings,
       custom_surroundings = {
-        -- Revert default behavior, I want left brackets to leave no whitespace while right brackets do
+        -- Revert default: left brackets leave no whitespace, right brackets add whitespace
         [')'] = { input = { '%b()', '^.%s*().-()%s*.$' }, output = { left = '( ', right = ' )' } },
         ['('] = { input = { '%b()', '^.().*().$' }, output = { left = '(', right = ')' } },
         [']'] = { input = { '%b[]', '^.%s*().-()%s*.$' }, output = { left = '[ ', right = ' ]' } },

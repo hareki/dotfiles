@@ -21,7 +21,7 @@ return {
       local state = tree.state
 
       return {
-        -- title_format = ' %s ', -- File name
+        -- title_format = ' %s ', -- Use file name as title
         title_format = require('configs.picker').preview_title,
         zindex = 50, -- The default value makes vim.ui.input behind the preview window
         image_preview = { enable = true },
@@ -74,8 +74,8 @@ return {
           local size_utils = require('utils.ui')
           local size = size_utils.popup_config(tree.state.size)
 
-          -- We need to fill the missing row if the total height is an odd number,
-          -- meaning when we can't have equal height for both windows
+          -- We need to fill the missing row if the total height is an odd number
+          -- (we can't have equal height for both windows)
           local height_offset = size.height % 2 == 0 and 0 or 1
 
           if state.position == 'float' then
@@ -133,10 +133,9 @@ return {
       local state = tree.state
 
       state.opts = {
-        --Keeps the cursor on the first letter of the filename when moving in the tree.
-        hijack_cursor = true,
+        hijack_cursor = true, -- Keep cursor on the first letter of filename
 
-        -- We will hijack the directories ourselves for the floating view to work correctly
+        -- Hijack directories ourselves for the floating view to work correctly
         hijack_directories = {
           enable = false,
           auto_open = false,

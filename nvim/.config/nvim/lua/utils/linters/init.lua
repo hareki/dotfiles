@@ -11,9 +11,8 @@ local M = {}
 ---@field filetypes string[]
 ---@field runner fun(opts: { bufnr: integer, on_done: fun(ok: boolean, err?: string) })
 
--- preserve order of registration
 ---@type utils.linters.Entry[]
-local entries = {}
+local entries = {} -- Preserve order of registration
 
 ---Register a linter.
 ---@param name string
@@ -47,7 +46,7 @@ local function run_next(names, opts, idx)
     return
   end
 
-  -- find entry
+  -- Find entry
   local runner
   for _, e in ipairs(entries) do
     if e.name == name then

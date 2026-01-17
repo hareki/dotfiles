@@ -84,7 +84,7 @@ local function normalize_message(chunks, opts)
     vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
     vim.schedule(function()
       for _, r in ipairs(regions) do
-        -- r = {line, start_col, end_col, hl_group}
+        -- Format: r = { line, start_col, end_col, hl_group }
         if r[2] ~= r[3] then -- Only apply if there's actual content (not empty line)
           vim.api.nvim_buf_set_extmark(buf, ns, r[1], r[2], {
             end_col = r[3],
@@ -107,7 +107,7 @@ function M.notify(msg, opts)
   -- Prepare the message/handler depending on the input shape
   local apply_highlight
   if is_markdown then
-    -- strings / list-of-strings: fall back to Treesitter markdown
+    -- Strings/list-of-strings: fall back to Treesitter markdown
     msg = type(msg) == 'table' and table.concat(msg, '\n') or msg
     apply_highlight = function(win)
       apply_win_opts(win)

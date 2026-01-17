@@ -38,30 +38,27 @@ return {
         d = { '%f[%d]%d+' }, -- digits
         w = {
           {
-            -- Acronyms / ALL-CAPS segments (incl. digits)
-            -- e.g. "CONSTANT", "HTTP2"
+            -- Acronyms / ALL-CAPS segments (incl. digits), e.g. "CONSTANT", "HTTP2"
             '%f[%a%d]%u+%f[^%a%d]',
-            -- Acronym directly before CamelCase chunk
-            -- e.g. "XML" in "XMLHttpRequest"
+            -- Acronym directly before CamelCase chunk, e.g. "XML" in "XMLHttpRequest"
             '%f[%a%d]%u+%f[%u]',
 
-            -- Pascal/Camel subwords
-            -- e.g. "Http" in "XMLHttp"
+            -- Pascal/Camel subwords, e.g. "Http" in "XMLHttp"
             '%u[%l%d]+%f[^%l%d]',
 
-            -- lower/digit segments (snake parts like "constant" or "case2")
+            -- Lower/digit segments (snake parts like "constant" or "case2")
             '%f[%a%d][%l%d]+%f[^%l%d]',
 
-            -- pure digit runs
+            -- Pure digit runs
             '%f[%d]%d+%f[^%d]',
           },
           '^().*()$',
         },
         W = {
           {
-            -- whole snake/scream chunk (letters/digits connected by underscores)
-            '%f[^_][%w]+_%w+[%w_]*%f[^%w_]', -- at least one underscore
-            '%f[%w][%w]+%f[^%w]', -- single chunk fallback
+            -- Whole snake/scream chunk (letters/digits connected by underscores)
+            '%f[^_][%w]+_%w+[%w_]*%f[^%w_]', -- At least one underscore
+            '%f[%w][%w]+%f[^%w]', -- Single chunk fallback
           },
           '^().*()$',
         },

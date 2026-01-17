@@ -15,7 +15,7 @@ return {
     opts = function()
       return {
         diff_opts = {
-          -- Use native git diff instead of Neovim's built in xdiff to better match VS Code's diff behavior
+          -- Use native git diff instead of Neovim's xdiff to match VS Code's diff
           internal = false,
 
           ignore_whitespace = false,

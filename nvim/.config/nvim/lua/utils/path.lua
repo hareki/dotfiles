@@ -3,8 +3,8 @@ local M = {}
 
 ---@return string
 function M.get_initial_path()
-  -- We always set the cwd to match what's passed in neovim args if it's a directory in
-  -- plugins/editor/auto-session.lua
+  -- We always set the cwd to match what's passed in neovim args if it's a directory.
+  -- See plugins/editor/auto-session.lua
   return vim.uv.cwd() or vim.fn.getcwd()
 end
 

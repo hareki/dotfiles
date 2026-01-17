@@ -146,7 +146,7 @@ function M.show()
         end
       end
     end
-    -- table.insert(lines, '') -- blank line between sections
+    -- table.insert(lines, '') -- Blank line between sections
   end
 
   emit_section('1. Syntax', syntax_groups)

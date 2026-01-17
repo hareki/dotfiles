@@ -90,7 +90,7 @@ function M.switch_position(position)
   end
 
   M.close_all()
-  -- nvim-tree explicitly supports subsequent setup calls
+  -- nvim-tree explicitly supports subsequent setup calls:
   -- https://github.com/nvim-tree/nvim-tree.lua/blob/b0b49552c9462900a882fe772993b01d780445fe/lua/nvim-tree.lua#L738
   nvimtree.setup(M.state.opts)
 end

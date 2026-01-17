@@ -34,8 +34,7 @@ return {
           return
         end
 
-        -- Ask server to emit trace
-        client:notify('$/setTrace', { value = 'verbose' })
+        client:notify('$/setTrace', { value = 'verbose' }) -- Ask server to emit trace
 
         -- Use circular buffer to avoid O(n) table.remove operation
         local store, max = {}, 200

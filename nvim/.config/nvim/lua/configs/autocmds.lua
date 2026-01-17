@@ -188,8 +188,8 @@ local SNIPPET_STOP_DELAY_MS = 20
 
 aucmd('ModeChanged', {
   group = augroup('stop_snippet_on_normal_mode'),
-  -- pattern = '[is]*:n*', -- Only fire when leaving Insert/Select-like modes for Normal(-like) modes
-  pattern = '[is]:n', -- Stricter version
+  -- pattern = '[is]*:n*', -- Fire when leaving Insert/Select-like modes for Normal(-like) modes
+  pattern = '[is]:n', -- Stricter: only exact 'i' or 's' to 'n'
   desc = 'Stop Snippet Session in Normal Mode',
   callback = function()
     -- Defer the stop to avoid interfering with blink.cmp juggling between modes internally

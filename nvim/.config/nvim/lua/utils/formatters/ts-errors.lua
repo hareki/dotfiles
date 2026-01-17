@@ -147,8 +147,7 @@ local function strip_cli_header(md)
     return md
   end
   local rest = md:sub(first_nl + 1)
-  -- remove one extra blank line if present
-  rest = rest:gsub('^\r?\n', '', 1)
+  rest = rest:gsub('^\r?\n', '', 1) -- Remove one extra blank line if present
   return rest
 end
 

@@ -82,7 +82,7 @@ return {
         local top_line = layout.prompt.line
 
         -- Minus 1 for the top border and the other one
-        -- Minus 1 for the difference of how nvim_open_win and telescope handle the position
+        -- Minus 1 for the difference of how nvim_open_win and telescope handle the position:
         -- nvim_open_win puts the window BELOW the specified row, while telescope doesn't
         top_line = top_line - 2
 
@@ -240,7 +240,7 @@ return {
           -- https://github.com/nvim-telescope/telescope.nvim/blob/5972437de807c3bc101565175da66a1aa4f8707a/lua/telescope/themes.lua#L50
           borderchars = {
             prompt = { '─', '│', ' ', '│', '╭', '╮', '│', '│' },
-            -- Connected edges
+            -- Connected edges:
             -- results = { '─', '│', '─', '│', '├', '┤', '╯', '╰' },
             -- Disconnected edges, similar to snacks picker
             results = { '─', '│', '─', '│', '│', '│', '╯', '╰' },
@@ -320,7 +320,7 @@ return {
           find_files = {
             find_command = find_command,
             hidden = true,
-            -- layout_config = { scroll_speed = 3 }  -- Config scroll speed per picker here
+            -- layout_config = { scroll_speed = 3 }  -- Configure scroll speed per picker
           },
 
           diagnostics = {
