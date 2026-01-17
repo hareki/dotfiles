@@ -26,16 +26,18 @@
 
 ### Complex Plugin Structure
 
+For plugins requiring state management or extensive customization:
+
 ```
 nvim-tree/
-  init.lua   -- Spec + config (returns table with catppuccin + plugin spec)
-  utils.lua  -- State via M.state table + helper functions
-  types.lua  -- LuaLS annotations (optional)
+  init.lua   -- Returns table: [1] catppuccin highlights, [2] plugin spec
+  utils.lua  -- M.state = {} table + helper functions
+  types.lua  -- LuaLS @class annotations (optional)
 ```
 
 ### Catppuccin Highlight Registration
 
-Always first in returned table when plugin needs custom highlights:
+When plugin needs custom highlights, place `catppuccin()` first in returned table:
 
 ```lua
 return {
@@ -53,6 +55,20 @@ Use `require('utils.ui').popup_config(size)` — never hardcode dimensions:
 ```lua
 local size = require('utils.ui').popup_config('lg')
 -- Returns: { width, height, col, row }
+```
+
+### State Management Pattern
+
+Complex plugins use `M.state = {}` in their `utils.lua`:
+
+```lua
+---@class MyPlugin.Utils
+local M = {}
+
+M.state = {
+  position = 'float',
+  preview_on_focus = false,
+}
 ```
 
 ## Conventions
@@ -84,7 +100,7 @@ Order: **lhs** → **rhs** → **mode** → **desc** → **expr** → **silent**
 
 ### Notifications
 
-Use global `Notifier` (auto lazy-loaded):
+Use global `Notifier` (auto lazy-loaded via `globals.lua`):
 
 ```lua
 Notifier.info('Message')
@@ -94,7 +110,7 @@ Notifier.warn('Warning', { title = 'Title' })
 ### Module Returns
 
 - Always return tables (no global mutation)
-- State lives in `M.state = {}` pattern for complex plugins
+- Use LuaLS `---@class` annotations for public module APIs
 
 ## LSP Setup
 
@@ -121,7 +137,7 @@ return function(user_opts)
 end
 ```
 
-**Existing pickers**: `harpoon`, `scope` (tab-scoped buffers), `tabs`
+**Existing pickers**: `harpoon` (see `pickers/harpoon.lua` for pattern)
 
 **Shared utilities** (`snacks/utils.lua`):
 
@@ -146,4 +162,5 @@ require('plugins.ui.snacks.pickers.harpoon')({ preview = 'main' })
 
 - stylua: 100-char lines, 2-space indent
 - Lazy-load via `event = 'VeryLazy'` or keymap triggers
-- LuaLS annotations for public APIs
+- LuaLS `---@class` / `---@param` / `---@return` annotations for public APIs
+- Import icons from `configs/icons.lua` — never hardcode icon strings
