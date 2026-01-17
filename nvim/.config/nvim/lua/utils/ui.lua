@@ -97,6 +97,7 @@ end
 ---@field height   integer
 ---@field col      integer
 ---@field row      integer
+
 ---Generate popup window configuration for a given size preset
 ---Calculates centered position and dimensions based on screen size.
 ---@param size 'lg' | 'md' | 'sm' | 'input' | 'full' | 'vertical_lg' Size preset name
