@@ -140,12 +140,10 @@ return {
           enable = false,
           auto_open = false,
         },
-
         live_filter = {
           prefix = require('configs.picker').prompt_prefix,
           always_show_folders = false,
         },
-
         update_focused_file = {
           enable = true,
           -- Prevent changing cwd when navigating to files outside of the tree root

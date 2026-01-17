@@ -60,12 +60,19 @@ local function is_ds_store(path)
   return type(path) == 'string' and path:match('%.DS_Store$') ~= nil
 end
 
+---Transform function for file picker to filter out .DS_Store files
+---@param item snacks.picker.Item The picker item to transform
+---@return snacks.picker.Item|false item The item or false to filter out
 function M.files_transform(item)
   if is_ds_store(item.file) then
     return false
   end
 end
 
+---Transform function for keymap picker to enrich with which-key descriptions
+---Looks up descriptions from which-key config and filters unwanted mappings.
+---@param item snacks.picker.Item The picker item to transform
+---@return snacks.picker.Item|false item The enriched item or false to filter out
 function M.keymap_transform(item)
   local desc_overrides = require('plugins.editor.which-key.preset').desc_overrides
   local keymap = item.item
@@ -93,8 +100,12 @@ function M.keymap_transform(item)
   return item
 end
 
--- Remove the rhs and file columns from
--- https://github.com/folke/snacks.nvim/blob/bc0630e43be5699bb94dadc302c0d21615421d93/lua/snacks/picker/format.lua#L449
+---Format function for keymap picker (icon, description, buffer, lhs, mode)
+---Removes rhs and file columns from default format.
+---@param item snacks.picker.Item The picker item
+---@param _picker snacks.Picker The picker instance
+---@param width integer Available width for formatting
+---@return snacks.picker.Highlight[] highlights Array of highlight segments
 function M.keymap_format(item, _picker, width)
   local ret = {} ---@type snacks.picker.Highlight[]
   ---@type wk.Keymap
@@ -143,9 +154,11 @@ function M.keymap_format(item, _picker, width)
   return ret
 end
 
--- Remove buf number, buf type and flags from
--- https://github.com/folke/snacks.nvim/blob/52f30a198a19bf5da6aa95cc642bfbb99b9bbfbf/lua/snacks/picker/format.lua#L638
----@param item snacks.picker.Item
+---Format function for buffer picker with modified indicator
+---Removes buf number, buf type, and flags from default format.
+---@param item snacks.picker.Item The picker item
+---@param picker snacks.Picker The picker instance
+---@return snacks.picker.Highlight[] highlights Array of highlight segments
 function M.buffer_format(item, picker)
   local ret = {} ---@type snacks.picker.Highlight[]
   vim.list_extend(ret, Snacks.picker.format.filename(item, picker))
@@ -167,7 +180,10 @@ function M.buffer_format(item, picker)
   return ret
 end
 
--- Sort buffers by modified state, score, text length, and index, which is mostly the default, except for the modified state
+---Sort function for buffer picker (modified first, then by score/length/index)
+---@param a snacks.picker.Item First item to compare
+---@param b snacks.picker.Item Second item to compare
+---@return boolean less True if a should come before b
 function M.buffer_sort(a, b)
   -- Safely get modified state with pcall to handle fast event context
   local function get_modified(bufnr)

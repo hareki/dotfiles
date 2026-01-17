@@ -1,14 +1,17 @@
 ---@class utils.ui
 local M = {}
 
----@param group string
----@param style vim.api.keyset.highlight
+---Set a single highlight group
+---@param group string The highlight group name
+---@param style vim.api.keyset.highlight The highlight definition
+---@return nil
 function M.highlight(group, style)
   vim.api.nvim_set_hl(0, group, style)
 end
 
---- A table of custom highlight groups and their corresponding styles.
----@param custom_highlights table<string, vim.api.keyset.highlight>
+---Set multiple highlight groups at once
+---@param custom_highlights table<string, vim.api.keyset.highlight> Map of group names to styles
+---@return nil
 function M.highlights(custom_highlights)
   for group, style in pairs(custom_highlights) do
     M.highlight(group, style)
@@ -16,13 +19,17 @@ function M.highlights(custom_highlights)
 end
 ---@alias palette { rosewater: string, flamingo: string, pink: string, mauve: string, red: string, maroon: string, peach: string, yellow: string, green: string, teal: string, sky: string, sapphire: string, blue: string, lavender: string, text: string, subtext1: string, subtext0: string, overlay2: string, overlay1: string, overlay0: string, surface2: string, surface1: string, surface0: string, base: string, mantle: string, crust: string }
 
----@param name? "frappe" | "latte" | "macchiato" | "mocha"
----@return palette
+---Get the catppuccin color palette for a given flavor
+---@param name? "frappe" | "latte" | "macchiato" | "mocha" Flavor name (default: "mocha")
+---@return palette colors The color palette table
 function M.get_palette(name)
   return require('catppuccin.palettes').get_palette(name or 'mocha')
 end
 
----@param register fun(palette: palette, sub_palette: palette): table<string, vim.api.keyset.highlight>
+---Create a catppuccin plugin spec with custom highlights
+---Returns a lazy.nvim spec that registers highlights via catppuccin's custom_highlights option.
+---@param register fun(palette: palette, sub_palette: palette): table<string, vim.api.keyset.highlight> Callback to generate highlights
+---@return table spec A lazy.nvim plugin spec for catppuccin
 function M.catppuccin(register)
   return {
     'catppuccin/nvim',
@@ -35,7 +42,9 @@ function M.catppuccin(register)
   }
 end
 
----@param size 'sm' | 'md' | 'lg' | 'vertical_lg' | 'full'
+---Generate telescope layout configuration for a given size preset
+---@param size 'sm' | 'md' | 'lg' | 'vertical_lg' | 'full' Size preset name
+---@return table layout Layout config with size hint, height, and width functions
 function M.telescope_layout(size)
   return {
     size = size, -- Hint to calculate the position
@@ -48,8 +57,9 @@ function M.telescope_layout(size)
   }
 end
 
----@return integer screen_w
----@return integer screen_h
+---Get the current screen dimensions in columns and rows
+---@return integer screen_w Screen width in columns
+---@return integer screen_h Screen height in rows
 function M.screen_size()
   local screen_w = vim.o.columns
   local screen_h = vim.o.lines
@@ -61,8 +71,11 @@ local computed_input_size = {
   width = 60,
 }
 
----@param size configs.size.dimensions | 'input'
----@param with_border? boolean
+---Compute actual dimensions from a size configuration
+---@param size configs.size.dimensions | 'input' Size config or 'input' preset
+---@param with_border? boolean Whether to add 2 for border (default false)
+---@return integer width Width in columns
+---@return integer height Height in rows
 function M.computed_size(size, with_border)
   local width_in_cols, height_in_rows
 
@@ -84,9 +97,11 @@ end
 ---@field height   integer
 ---@field col      integer
 ---@field row      integer
----@param size 'lg' | 'md' | 'sm' | 'input' | 'full' | 'vertical_lg'
----@param with_border boolean | nil
----@return utils.ui.WinConfig
+---Generate popup window configuration for a given size preset
+---Calculates centered position and dimensions based on screen size.
+---@param size 'lg' | 'md' | 'sm' | 'input' | 'full' | 'vertical_lg' Size preset name
+---@param with_border boolean | nil Whether to add 2 for border (default false)
+---@return utils.ui.WinConfig config Window config with width, height, col, row
 function M.popup_config(size, with_border)
   local size_configs = require('configs.size')
   local screen_w, screen_h = M.screen_size()
@@ -140,7 +155,9 @@ function M.popup_config(size, with_border)
   }
 end
 
----@param groups string[] | string
+---Clear (reset to empty) one or more highlight groups
+---@param groups string[] | string Highlight group name(s) to clear
+---@return nil
 function M.clear_hls(groups)
   if type(groups) == 'string' then
     groups = { groups }

@@ -2,8 +2,10 @@
 local M = {}
 
 ---Fix zero-width or out-of-bounds diagnostics to underline at least one character
+---Corrects diagnostics that would otherwise be invisible due to invalid ranges.
 ---@param bufnr integer Buffer number
----@param diagnostic vim.Diagnostic
+---@param diagnostic vim.Diagnostic The diagnostic to fix in-place
+---@return nil
 function M.fix_diagnostic_range(bufnr, diagnostic)
   -- Get the line to check if col is out of bounds
   local line = vim.api.nvim_buf_get_lines(bufnr, diagnostic.lnum, diagnostic.lnum + 1, false)[1]
@@ -76,8 +78,10 @@ function M.fix_diagnostic_range(bufnr, diagnostic)
   end
 end
 
+---Fix all diagnostic ranges in a list
 ---@param bufnr integer Buffer number
----@param diagnostics vim.Diagnostic[]
+---@param diagnostics vim.Diagnostic[] List of diagnostics to fix in-place
+---@return nil
 function M.fix_all_diagnostic_ranges(bufnr, diagnostics)
   for _, diagnostic in ipairs(diagnostics) do
     M.fix_diagnostic_range(bufnr, diagnostic)
@@ -117,8 +121,11 @@ local function create_underline_diagnostic(diagnostic)
   return dup
 end
 
--- HACK: Intercept vim.diagnostic.set to apply both unnecessary and severity-based styling (if severity < HINT)
----@param diagnostics vim.Diagnostic[]
+---Apply underline styling hack for unnecessary diagnostics
+---Creates duplicate diagnostics to show both unnecessary (faded) and severity underline.
+---HACK: Intercepts vim.diagnostic.set to apply both unnecessary and severity-based styling.
+---@param diagnostics vim.Diagnostic[] List of diagnostics to process (modified in-place)
+---@return nil
 function M.apply_underline_hack(diagnostics)
   -- Group diagnostics by position to check if underline would already be present
   local positions = {}
@@ -161,6 +168,9 @@ function M.apply_underline_hack(diagnostics)
   vim.list_extend(diagnostics, underline_hacks)
 end
 
+---Load all LSP server configurations from the lsp/ directory
+---Iterates through lua files and configures each server via vim.lsp.config.
+---@return nil
 function M.load_lsp_configs()
   local lsp_config_path = vim.fn.stdpath('config') .. '/lua/plugins/lsp/nvim-lspconfig/lsp'
   for name, file_type in vim.fs.dir(lsp_config_path) do

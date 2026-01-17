@@ -1,7 +1,9 @@
 ---@class utils.hl-at-cursor
 local M = {}
 
---- Show all highlight groups affecting the cursor (Markdown popup)
+---Show all highlight groups affecting the cursor position in a Markdown popup
+---Displays syntax groups, Tree-sitter captures, extmarks, and window matches.
+---@return nil
 function M.show()
   local bufnr = 0
   local pos = vim.api.nvim_win_get_cursor(0)

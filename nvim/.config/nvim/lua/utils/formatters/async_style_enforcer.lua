@@ -21,7 +21,10 @@ local function get_formatter_names(buf)
   return #names > 0 and table.concat(names, ', ') or 'No formatter found'
 end
 
+---Run format and lint sequentially on a buffer with progress tracking
+---Prevents concurrent operations on the same buffer with locks and timeout.
 ---@param opts? { debug?: boolean, buf?: integer, save?: boolean, on_done?: fun(ok: boolean, err?: string) }
+---@return nil
 function M.run(opts)
   opts = opts or {}
   local debug = opts.debug
@@ -196,8 +199,10 @@ function M.run(opts)
   end)
 end
 
----Run format+lint on all buffers
----@param debug boolean|nil
+---Run format+lint on all modified listed buffers
+---Shows a summary notification with success/error counts and file paths.
+---@param debug boolean|nil Enable verbose error messages
+---@return nil
 function M.run_all(debug)
   local all_buffers = {}
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do

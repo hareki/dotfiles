@@ -77,14 +77,26 @@ function ProgressHandle:_queue_or_send(kind, title, percentage)
 end
 
 -- Public helpers -------------------------------------------------------------
+---Start the progress notification (sends 'begin' kind)
+---@param title? string The progress title to display
+---@param percentage? number Initial percentage (0-100)
+---@return nil
 function ProgressHandle:start(title, percentage)
   self:_queue_or_send('begin', title, percentage)
 end
 
+---Update the progress notification (sends 'report' kind)
+---@param title? string Updated progress title
+---@param percentage? number Current percentage (0-100)
+---@return nil
 function ProgressHandle:report(title, percentage)
   self:_queue_or_send('report', title, percentage)
 end
 
+---Complete the progress notification (sends 'end' kind)
+---Cancels any pending timer and closes the progress display.
+---@param title? string Final title to display
+---@return nil
 function ProgressHandle:finish(title)
   -- Cancel pending timer to prevent memory leak
   if self._timer then
@@ -96,9 +108,10 @@ function ProgressHandle:finish(title)
 end
 
 -- Factory --------------------------------------------------------------------
----Create a new progress handle for showing progress notifications
----@param opts utils.progress.CreateOpts|nil
----@return utils.progress.Handle
+---Create a new progress handle for showing LSP-style progress notifications
+---Supports delayed display via pending_ms to avoid flicker for fast operations.
+---@param opts utils.progress.CreateOpts|nil Options (token, client_name, client_id, pending_ms)
+---@return utils.progress.Handle handle Progress handle with start/report/finish methods
 function M.create(opts)
   opts = opts or {}
 

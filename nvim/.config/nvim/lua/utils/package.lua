@@ -1,14 +1,18 @@
 ---@class utils.package
 local M = {}
 
+---Check if a lazy.nvim plugin is currently loaded
+---@param name string The plugin name as registered in lazy.nvim
+---@return boolean loaded True if the plugin has been loaded
 function M.is_loaded(name)
   local lazy_config = require('lazy.core.config')
   return lazy_config.plugins[name] and lazy_config.plugins[name]._.loaded
 end
 
--- LazyVim
----@param name string
----@param fn fun(name:string)
+---Execute a callback when a plugin is loaded (or immediately if already loaded)
+---@param name string The plugin name to wait for
+---@param fn fun(name: string) Callback to execute when the plugin loads
+---@return nil
 function M.on_load(name, fn)
   if M.is_loaded(name) then
     fn(name)
@@ -25,12 +29,16 @@ function M.on_load(name, fn)
   end
 end
 
----@param name string
+---Get a plugin spec from lazy.nvim by name
+---@param name string The plugin name
+---@return table|nil plugin The plugin spec or nil if not found
 function M.get_plugin(name)
   return require('lazy.core.config').spec.plugins[name]
 end
 
----@param name string
+---Get the resolved opts for a lazy.nvim plugin
+---@param name string The plugin name
+---@return table opts The merged options table (empty table if plugin not found)
 function M.opts(name)
   local plugin = M.get_plugin(name)
   if not plugin then

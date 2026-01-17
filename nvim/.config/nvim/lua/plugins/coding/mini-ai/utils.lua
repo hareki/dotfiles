@@ -1,7 +1,10 @@
 ---@class plugins.coding.mini-ai.utils
 local M = {}
 
--- From MiniExtra.gen_ai_spec.buffer
+---Generate textobject spec for the entire buffer
+---From MiniExtra.gen_ai_spec.buffer - handles 'i' (inner) and 'a' (around) types.
+---@param ai_type 'a' | 'i' The textobject type ('a' includes blanks, 'i' excludes them)
+---@return table spec The region spec with from/to positions
 function M.buffer(ai_type)
   local bufnr = vim.api.nvim_get_current_buf()
   local start_line, end_line = 1, vim.api.nvim_buf_line_count(bufnr)
@@ -21,8 +24,9 @@ function M.buffer(ai_type)
   return { from = { line = start_line, col = 1 }, to = { line = end_line, col = to_col } }
 end
 
--- Register all text objects with which-key
----@param opts table
+---Register all mini.ai textobjects with which-key for discoverability
+---@param opts table Options with mappings (around, inside, around_next, etc.)
+---@return nil
 function M.whichkey(opts)
   local objects = {
     { ' ', desc = 'Whitespace' },

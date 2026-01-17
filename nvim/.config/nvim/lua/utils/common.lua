@@ -13,9 +13,9 @@ function M.noautocmd(fn)
   end
 end
 
----Extend multiple arrays into a single array
----@param ... table[]
----@return table
+---Extend multiple arrays into a single flattened array
+---@param ... table[] Variable number of arrays to concatenate
+---@return table result A new array containing all elements from the input arrays
 function M.list_extend(...)
   local result = {}
   for _, keymap_array in ipairs({ ... }) do
@@ -52,10 +52,10 @@ local function is_markdown_buf(win_id)
   return vim.bo[buf].filetype == 'markdown'
 end
 
----Focus a window without triggering autocommands.
----If current window is a floating markdown preview, repaint it after moving.
----@param win integer|nil
----@return boolean success
+---Focus a window without triggering autocommands
+---If current window is a floating markdown preview, repaint it after focus change.
+---@param win integer|nil Window handle to focus (0/nil returns false)
+---@return boolean success True if window was successfully focused
 function M.focus_win(win)
   if not win or win == 0 or not vim.api.nvim_win_is_valid(win) then
     return false
@@ -75,9 +75,9 @@ function M.focus_win(win)
   return true
 end
 
----Count the number of string keys in a table
----@param t table
----@return integer
+---Count the number of string keys in a table (ignores numeric keys)
+---@param t table The table to count string keys in
+---@return integer count The number of keys with type 'string'
 function M.count_string_keys(t)
   local n = 0
   for k in pairs(t) do

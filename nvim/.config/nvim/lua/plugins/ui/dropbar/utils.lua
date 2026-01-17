@@ -1,7 +1,12 @@
 ---@class plugins.ui.dropbar.utils
 local M = {}
 
----@type boolean|fun(buf: integer, win: integer, info: table?): boolean
+---Determine if dropbar should be enabled for a buffer/window
+---Filters out help files, terminals, and large files (>1MB).
+---@param buf integer Buffer number
+---@param win integer Window handle
+---@param _ table|nil Additional info (unused)
+---@return boolean enabled True if dropbar should be enabled
 function M.enable(buf, win, _)
   buf = vim._resolve_bufnr(buf)
   local ignored_filetypes = { 'help', 'trouble' }

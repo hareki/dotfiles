@@ -4,6 +4,8 @@ local M = {}
 -- Maximum number of lines to search backward/forward for conflict markers
 local CONFLICT_SEARCH_RANGE = 500
 
+---Check if the current tab is a Diffview tab
+---@return boolean is_diffview True if tab name starts with 'diffview-tab'
 function M.in_diffview_tab()
   local tab_name = vim.t.tab_name
   if type(tab_name) ~= 'string' then
@@ -13,8 +15,9 @@ function M.in_diffview_tab()
   return tab_name:find('^diffview%-tab') ~= nil
 end
 
---- Detect if cursor is currently inside a conflict block
----@return boolean in_conflict true if cursor is in a conflict block
+---Detect if cursor is currently inside a git conflict block
+---Searches for conflict markers and determines which region the cursor is in.
+---@return boolean in_conflict True if cursor is in a conflict block
 ---@return string|nil region 'current', 'incoming', 'ancestor', 'current_separator', 'ancestor_separator', 'separator', or 'incoming_separator'
 function M.cursor_in_conflict()
   local bufnr = vim.api.nvim_get_current_buf()

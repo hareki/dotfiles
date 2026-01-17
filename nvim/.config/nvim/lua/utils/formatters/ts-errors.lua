@@ -151,6 +151,11 @@ local function strip_cli_header(md)
   return rest
 end
 
+---Format a TypeScript diagnostic into pretty markdown using pretty-ts-errors-markdown CLI
+---Uses LRU cache to avoid redundant CLI calls for repeated diagnostics.
+---@param diagnostic table The vim.Diagnostic object to format
+---@param opts? { href?: boolean } Options (href: keep CLI header with links)
+---@return string markdown The formatted markdown message
 function M.format(diagnostic, opts)
   if type(diagnostic) ~= 'table' or not diagnostic.message then
     return ''

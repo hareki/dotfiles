@@ -11,6 +11,8 @@ M.state = {
   size = 'vertical_lg',
 }
 
+---Clean up the preview watcher autocmd group
+---@return nil
 function M.clean_up()
   if M.state.preview_watcher == nil then
     return
@@ -21,6 +23,8 @@ function M.clean_up()
   M.state.preview_watcher = nil
 end
 
+---Close the nvim-tree and preview windows, cleaning up watchers
+---@return nil
 function M.close_all()
   local api = require('nvim-tree.api')
   local preview = require('nvim-tree-preview')
@@ -31,6 +35,8 @@ function M.close_all()
   api.tree.close()
 end
 
+---Start watching for cursor movement to update preview
+---@return nil
 function M.watch()
   local preview = require('nvim-tree-preview')
 
@@ -40,13 +46,19 @@ function M.watch()
   end
 end
 
+---Stop watching cursor movement for preview updates
+---@return nil
 function M.unwatch()
   local preview = require('nvim-tree-preview')
   preview.unwatch()
   M.state.preview_on_focus = false
 end
 
----@param folder_action 'expand' | 'collapse' | 'toggle'
+---Create a node action function for file/folder interaction
+---For files: opens the file and closes tree if floating.
+---For folders: expands, collapses, or toggles based on action type.
+---@param folder_action 'expand' | 'collapse' | 'toggle' The action to perform on folders
+---@return function action The node action function
 function M.create_node_action(folder_action)
   return function()
     local api = require('nvim-tree.api')
@@ -76,7 +88,9 @@ function M.create_node_action(folder_action)
   end
 end
 
----@param position nvim-tree.Position
+---Switch nvim-tree between float and side panel positions
+---@param position nvim-tree.Position The target position ('float' or other)
+---@return nil
 function M.switch_position(position)
   if position == M.state.position then
     return
@@ -95,7 +109,9 @@ function M.switch_position(position)
   nvimtree.setup(M.state.opts)
 end
 
----@param action 'expand' | 'collapse'
+---Toggle the tree window height between half and full in float mode
+---@param action 'expand' | 'collapse' The height action to perform
+---@return nil
 function M.toggle_tree_height(action)
   if M.state.position ~= 'float' then
     return
@@ -128,7 +144,10 @@ function M.toggle_tree_height(action)
   vim.api.nvim_win_set_config(tree_win, cfg)
 end
 
----@param force_state boolean|nil
+---Toggle the preview window open/closed state
+---Adjusts tree height in float mode and manages watch state.
+---@param force_state boolean|nil Force specific state (true=open, false=close, nil=toggle)
+---@return nil
 function M.toggle_preview(force_state)
   local api = require('nvim-tree.api')
   local preview = require('nvim-tree-preview')
@@ -161,6 +180,8 @@ function M.toggle_preview(force_state)
   end
 end
 
+---Toggle focus between nvim-tree and preview window
+---@return nil
 function M.toggle_focus()
   local manager = require('nvim-tree-preview.manager')
   manager.instance:toggle_focus()
@@ -169,7 +190,10 @@ end
 ---@class nvim-tree.OpenParams
 ---@field switching boolean|nil
 
----@param opts nvim-tree.OpenParams|nil
+---Open nvim-tree with optional switching behavior
+---Resets to float position if not switching and tree is not visible.
+---@param opts nvim-tree.OpenParams|nil Options with switching flag
+---@return nil
 function M.open(opts)
   local api = require('nvim-tree.api')
   local switching = opts and opts.switching or false
@@ -183,18 +207,22 @@ function M.open(opts)
   api.tree.open()
 end
 
----@return number|nil
+---Get the buffer number of the preview window
+---@return number|nil bufnr The preview buffer number, or nil if not open
 function M.preview_buf()
   local manager = require('nvim-tree-preview.manager')
   return manager.instance and manager.instance.preview_buf
 end
 
----@return number|nil
+---Get the window handle of the preview window
+---@return number|nil winid The preview window ID, or nil if not open
 function M.preview_win()
   local manager = require('nvim-tree-preview.manager')
   return manager.instance and manager.instance.preview_win
 end
 
+---Toggle mark on current node and move to next line
+---@return nil
 function M.mark_and_next()
   local api = require('nvim-tree.api')
 
@@ -202,6 +230,8 @@ function M.mark_and_next()
   vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Down>', true, false, true), 'n', false)
 end
 
+---Toggle mark on current node and move to previous line
+---@return nil
 function M.mark_and_prev()
   local api = require('nvim-tree.api')
 
@@ -209,10 +239,10 @@ function M.mark_and_prev()
   vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Up>', true, false, true), 'n', false)
 end
 
---- Format the root folder label by replacing home directory with  icon
---- and separating path components with
+---Format the root folder label with icons and path separators
+---Replaces home directory with  icon and path separators with .
 ---@param path string The absolute path to format
----@return string The formatted path
+---@return string formatted The formatted path with icons
 function M.format_root_label(path)
   local home = vim.env.HOME
   local formatted = path

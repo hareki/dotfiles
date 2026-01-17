@@ -98,8 +98,11 @@ local function normalize_message(chunks, opts)
   return plain, on_open
 end
 
----@param msg  string|table
----@param opts table?
+---Core notification function with rich highlighting and markdown support
+---Supports both plain strings and tuple lists for custom highlight groups.
+---@param msg string|table Plain message or tuple list like {{text, hl}, ...}
+---@param opts table? Notification options (level, title, once, id, on_open, default_hl)
+---@return any handle The notification handle for replacement/tracking
 function M.notify(msg, opts)
   opts = opts or {}
   local is_markdown = not is_tuple_list(msg)
@@ -210,8 +213,10 @@ function M.notify(msg, opts)
   return ret
 end
 
----@param msg Message
----@param opts? NotifierOpts
+---Display an info-level notification with optional custom highlights
+---@param msg Message String, string array, or tuple list for rich formatting
+---@param opts? NotifierOpts Notification options (title, id, on_open, etc.)
+---@return any handle The notification handle for replacement/tracking
 function M.info(msg, opts)
   M.notify(
     msg,
@@ -223,8 +228,10 @@ function M.info(msg, opts)
   )
 end
 
----@param msg Message
----@param opts? NotifierOpts
+---Display a warning-level notification with optional custom highlights
+---@param msg Message String, string array, or tuple list for rich formatting
+---@param opts? NotifierOpts Notification options (title, id, on_open, etc.)
+---@return any handle The notification handle for replacement/tracking
 function M.warn(msg, opts)
   M.notify(
     msg,
@@ -236,8 +243,10 @@ function M.warn(msg, opts)
   )
 end
 
----@param msg Message
----@param opts? NotifierOpts
+---Display an error-level notification with optional custom highlights
+---@param msg Message String, string array, or tuple list for rich formatting
+---@param opts? NotifierOpts Notification options (title, id, on_open, etc.)
+---@return any handle The notification handle for replacement/tracking
 function M.error(msg, opts)
   M.notify(
     msg,
@@ -249,6 +258,9 @@ function M.error(msg, opts)
   )
 end
 
+---Display a debug notification with vim.inspect output in a code block
+---@param ... any Values to inspect and display
+---@return nil
 function M.debug(...)
   local parts = {}
   if select('#', ...) > 0 then

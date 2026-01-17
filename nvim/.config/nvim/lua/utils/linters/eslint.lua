@@ -1,7 +1,10 @@
 ---@class utils.linters.eslint
 local M = {}
 
+---Run eslint auto-fix on a buffer via LSP
+---Executes eslint.applyAllFixes command through the eslint language server.
 ---@param opts { bufnr: integer, on_done: fun(ok: boolean, err?: string) }
+---@return nil
 function M.run(opts)
   local bufnr = opts.bufnr
   local eslint = vim.lsp.get_clients({ name = 'eslint', bufnr = bufnr })[1]
