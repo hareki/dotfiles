@@ -11,9 +11,7 @@ return {
   end),
   {
     'saghen/blink.compat',
-    opts = function()
-      return {}
-    end,
+    opts = {},
   },
   {
     'fang2hou/blink-copilot',
