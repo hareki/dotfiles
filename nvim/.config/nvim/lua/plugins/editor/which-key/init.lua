@@ -43,8 +43,8 @@ return {
           },
         },
         keys = {
-          scroll_down = '<S-PageDown>', -- binding to scroll down inside the popup
-          scroll_up = '<S-PageUp>', -- binding to scroll up inside the popup
+          scroll_down = '<S-PageDown>', -- Binding to scroll down inside the popup
+          scroll_up = '<S-PageUp>', -- Binding to scroll up inside the popup
         },
         spec = vim.list_extend({
           { '<leader>c', group = 'Code', mode = { 'n', 'v' } },

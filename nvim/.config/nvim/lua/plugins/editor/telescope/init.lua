@@ -5,9 +5,10 @@ return {
         fg = palette.blue,
       },
       TelescopeSelection = {
-        -- turn off fg override
+        -- Turn off fg override
         fg = 'NONE',
-        style = {}, -- turn off the default bold
+        -- Turn off the default bold
+        style = {},
       },
       TelescopeMultiIcon = {
         fg = palette.blue,

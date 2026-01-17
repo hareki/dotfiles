@@ -12,7 +12,8 @@ return {
           local list_item, index = list:get_by_value(item.value)
 
           local filepath = vim.api.nvim_buf_get_name(0)
-          local relpath = require('utils.path').get_relative_path(filepath, vim.uv.cwd())
+          local relpath =
+            require('utils.path').get_relative_path(filepath, vim.uv.cwd() or vim.fn.getcwd())
 
           if list_item then
             Notifier.warn({
