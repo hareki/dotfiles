@@ -120,14 +120,11 @@ return {
           truncate = false,
           hover = true,
           sources = function(buf, _)
-            -- Hide the dropbar when in diff view
+            local path_utils = require('utils.path')
             -- The second check is for when one buffer is closed
-            if
-              vim.wo.diff
-              or require('utils.path').has_dir({
-                dir_name = '.git',
-              })
-            then
+            local in_diff_view = vim.wo.diff or path_utils.has_dir({ dir_name = '.git' })
+
+            if in_diff_view then
               vim.wo.winbar = ''
               return {}
             end
@@ -139,10 +136,6 @@ return {
                 sources.path,
                 sources.markdown,
               }
-            end
-
-            if vim.bo[buf].buftype == 'terminal' then
-              return {}
             end
 
             local path_item_limit = 5

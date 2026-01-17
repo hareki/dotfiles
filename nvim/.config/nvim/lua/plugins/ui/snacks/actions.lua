@@ -37,13 +37,15 @@ end
 
 function M.snacks_to_trouble(picker)
   if picker.opts.source == 'todo_comments' then
-    picker:close()
-    local args = { 'todo', 'toggle' }
+    local todo_args = { 'todo', 'toggle' }
+
     if picker.opts.keywords and #picker.opts.keywords > 0 then
       local tags = table.concat(picker.opts.keywords, ',')
-      vim.list_extend(args, { 'filter', '=', '{tag = {' .. tags .. '}}' })
+      vim.list_extend(todo_args, { 'filter', '=', '{tag = {' .. tags .. '}}' })
     end
-    vim.cmd({ cmd = 'Trouble', args = args })
+
+    picker:close()
+    vim.cmd({ cmd = 'Trouble', args = todo_args })
   else
     require('trouble.sources.snacks').open(picker)
   end
