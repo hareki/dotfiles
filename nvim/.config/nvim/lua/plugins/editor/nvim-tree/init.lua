@@ -249,7 +249,7 @@ return {
                 row = row,
                 col = col,
                 width = window_w,
-                height = window_h - 1, -- Minus 1 for the space between the two window
+                height = window_h - 1, -- Minus 1 for the space between the two windows
               }
             end,
           },

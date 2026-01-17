@@ -82,7 +82,7 @@ return {
         ---@type SessionLensMappings
         mappings = {
           delete_session = { 'n', 'x' },
-          alternate_session = { 'n', 's' }, -- swapping between the current session and the last one
+          alternate_session = { 'n', 's' }, -- Swapping between the current session and the last one
           copy_session = { 'n', 'y' },
         },
       },

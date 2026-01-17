@@ -66,6 +66,7 @@ function M.whichkey(opts)
     around_last = 'al',
     inside_last = 'il',
   }, opts.mappings or {})
+
   mappings.goto_left = nil
   mappings.goto_right = nil
 
@@ -74,9 +75,11 @@ function M.whichkey(opts)
     ret[#ret + 1] = { prefix, group = name }
     for _, obj in ipairs(objects) do
       local desc = obj.desc
+
       if prefix:sub(1, 1) == 'i' then
         desc = desc:gsub(' with ws', '')
       end
+
       ret[#ret + 1] = { prefix .. obj[1], desc = obj.desc }
     end
   end

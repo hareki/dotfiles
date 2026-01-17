@@ -5,10 +5,8 @@ return {
         fg = palette.blue,
       },
       TelescopeSelection = {
-        -- Turn off fg override
-        fg = 'NONE',
-        -- Turn off the default bold
-        style = {},
+        fg = 'NONE', -- Turn off fg override
+        style = {}, -- Turn off the default bold
       },
       TelescopeMultiIcon = {
         fg = palette.blue,
@@ -157,6 +155,7 @@ return {
       vim.api.nvim_create_autocmd('User', {
         pattern = 'TelescopePreviewerLoaded',
         group = vim.api.nvim_create_augroup('telescope_previewer_loaded', { clear = true }),
+
         -- Make it look more like the actual window we use to edit files
         callback = function(ev)
           local buftype = vim.bo[ev.buf].buftype

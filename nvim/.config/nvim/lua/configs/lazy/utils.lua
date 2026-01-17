@@ -12,6 +12,7 @@ function M.ensure_lazy()
         text = true,
       })
       :wait()
+
     if not out or out.code ~= 0 then
       error('Error cloning lazy.nvim:\n' .. (out and out.stderr or ''))
     end

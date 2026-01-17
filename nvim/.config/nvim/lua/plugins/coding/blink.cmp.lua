@@ -290,9 +290,7 @@ return {
                 end
                 return items
               end,
-              opts = {
-                keep_all_entries = false,
-              },
+              opts = { keep_all_entries = false },
             },
 
             copilot = {

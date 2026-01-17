@@ -3,6 +3,7 @@ return {
     return {
       GrugFarResultsMatch = { link = 'Search' },
       GrugFarPreview = { link = 'Search' },
+
       GrugFarResultsAddIndicator = { fg = palette.green },
       GrugFarResultsChangeIndicator = { fg = palette.yellow },
       GrugFarResultsRemoveIndicator = { fg = palette.red },
@@ -18,10 +19,12 @@ return {
           function()
             local grug = require('grug-far')
             local ext = nil
+
             if vim.bo.buftype == '' then
               local name = vim.api.nvim_buf_get_name(0)
               ext = name:match('%.([^%.]+)$')
             end
+
             grug.open({
               transient = true,
               prefills = {

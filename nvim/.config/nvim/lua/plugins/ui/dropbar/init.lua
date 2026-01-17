@@ -140,6 +140,7 @@ return {
                 sources.markdown,
               }
             end
+
             if vim.bo[buf].buftype == 'terminal' then
               return {}
             end

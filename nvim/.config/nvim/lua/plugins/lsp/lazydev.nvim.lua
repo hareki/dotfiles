@@ -1,6 +1,6 @@
 return {
   'folke/lazydev.nvim',
-  ft = 'lua', -- Only load on Lua files
+  ft = 'lua',
   opts = function()
     return {
       library = {

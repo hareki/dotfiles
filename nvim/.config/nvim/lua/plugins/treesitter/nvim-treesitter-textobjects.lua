@@ -7,6 +7,7 @@ return {
     -- If treesitter is already loaded, we need to run config again for textobjects
     if package.is_loaded('nvim-treesitter') then
       local opts = package.opts('nvim-treesitter')
+      ---@diagnostic disable-next-line: missing-fields
       require('nvim-treesitter.configs').setup({ textobjects = opts.textobjects })
     end
 
