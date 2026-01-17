@@ -20,9 +20,9 @@ return {
     vim.api.nvim_create_autocmd('LspAttach', {
       group = vim.api.nvim_create_augroup('vtsls_lsp_attach', { clear = true }),
       callback = function(args)
-        local client = vim.lsp.get_client_by_id(args.data.client_id)
+        local lsp_client = vim.lsp.get_client_by_id(args.data.client_id)
 
-        if not (client and client.name == 'vtsls') then
+        if not (lsp_client and lsp_client.name == 'vtsls') then
           return
         end
 
@@ -47,10 +47,10 @@ return {
         map('<leader>cu', 'source.removeUnused.ts', 'Remove Unused Imports')
         map('<leader>ci', 'source.addMissingImports.ts', 'Add Missing Imports')
 
-        Snacks.util.lsp.on({ name = 'vtsls' }, function(buffer, client)
-          client.commands['_typescript.moveToFileRefactoring'] = function(command, ctx)
+        Snacks.util.lsp.on({ name = 'vtsls' }, function(_, client)
+          client.commands['_typescript.moveToFileRefactoring'] = function(command, _)
             ---@type string, string, lsp.Range
-            local action, uri, range = table.unpack(command.arguments)
+            local action, uri, range = table.unpack(command.arguments --[[@as any[] ]])
 
             local function move(newf)
               client:request('workspace/executeCommand', {
@@ -105,7 +105,9 @@ return {
                     default = parent_dir(fname),
                     completion = 'file',
                   }, function(newf)
-                    return newf and move(newf)
+                    if newf then
+                      move(newf)
+                    end
                   end)
                 elseif f then
                   move(f)

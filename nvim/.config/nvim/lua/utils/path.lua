@@ -5,7 +5,7 @@ local M = {}
 function M.get_initial_path()
   -- We always set the cwd to match what's passed in neovim args if it's a directory in
   -- plugins/editor/auto-session.lua
-  return vim.uv.cwd()
+  return vim.uv.cwd() or vim.fn.getcwd()
 end
 
 --- Get the file path relative to the given root.

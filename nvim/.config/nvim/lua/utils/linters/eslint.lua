@@ -21,7 +21,7 @@ function M.run(opts)
 
   eslint:request('workspace/executeCommand', params, function(err)
     if err then
-      return opts.on_done(false, err)
+      return opts.on_done(false, err.message)
     end
 
     opts.on_done(true)

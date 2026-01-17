@@ -34,7 +34,7 @@ return {
   opts = function()
     return {
       handlers = {
-        ['workspace/executeCommand'] = function(err, result, ctx, config)
+        ['workspace/executeCommand'] = function(_err, _result, ctx, _config)
           local client = vim.lsp.get_client_by_id(ctx.client_id)
           if not client then
             return

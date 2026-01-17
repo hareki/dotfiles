@@ -3,13 +3,50 @@ return {
     return {
       TroubleNormal = { link = 'NormalFloat' },
       TroublePreview = { link = 'Search' },
+      TroubleIconDirectory = { link = 'Directory' },
     }
   end),
   {
     'hareki/trouble.nvim',
     cmd = { 'Trouble' },
+    keys = function()
+      return {
+        {
+          '[q',
+          function()
+            if require('trouble').is_open() then
+              ---@diagnostic disable-next-line: missing-parameter, missing-fields
+              require('trouble').prev({ skip_groups = true, jump = true })
+            else
+              local ok, err = pcall(vim.cmd.cprev)
+              if not ok then
+                Notifier.error(err)
+              end
+            end
+          end,
+          desc = 'Previous Trouble/Quickfix Item',
+        },
+        {
+          ']q',
+          function()
+            if require('trouble').is_open() then
+              ---@diagnostic disable-next-line: missing-parameter, missing-fields
+              require('trouble').next({ skip_groups = true, jump = true })
+            else
+              local ok, err = pcall(vim.cmd.cnext)
+              if not ok then
+                Notifier.error(err)
+              end
+            end
+          end,
+          desc = 'Next Trouble/Quickfix Item',
+        },
+      }
+    end,
+
     opts = function()
       local ui_utils = require('utils.ui')
+      local icons = require('configs.icons')
       local size_configs = require('configs.size')
       local preview_cols, preview_rows = ui_utils.computed_size(size_configs.side_preview.md)
       local panel_cols, _ = ui_utils.computed_size(size_configs.side_panel.md)
@@ -60,6 +97,11 @@ return {
         auto_refresh = false,
         win = { position = 'right', size = panel_cols },
 
+        icons = {
+          folder_closed = icons.explorer.folder,
+          folder_open = icons.explorer.folder_empty_open,
+        },
+
         preview = {
           type = 'float',
           relative = 'win',
@@ -84,40 +126,6 @@ return {
             desc = 'Toggle Focus Between List and Preview',
           },
           B = 'toggle_preview',
-        },
-      }
-    end,
-    keys = function()
-      return {
-        {
-          '[q',
-          function()
-            if require('trouble').is_open() then
-              ---@diagnostic disable-next-line: missing-parameter, missing-fields
-              require('trouble').prev({ skip_groups = true, jump = true })
-            else
-              local ok, err = pcall(vim.cmd.cprev)
-              if not ok then
-                Notifier.error(err)
-              end
-            end
-          end,
-          desc = 'Previous Trouble/Quickfix Item',
-        },
-        {
-          ']q',
-          function()
-            if require('trouble').is_open() then
-              ---@diagnostic disable-next-line: missing-parameter, missing-fields
-              require('trouble').next({ skip_groups = true, jump = true })
-            else
-              local ok, err = pcall(vim.cmd.cnext)
-              if not ok then
-                Notifier.error(err)
-              end
-            end
-          end,
-          desc = 'Next Trouble/Quickfix Item',
         },
       }
     end,

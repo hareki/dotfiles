@@ -97,7 +97,7 @@ end
 -- https://github.com/folke/snacks.nvim/blob/bc0630e43be5699bb94dadc302c0d21615421d93/lua/snacks/picker/format.lua#L449
 function M.keymap_format(item, _picker, width)
   local ret = {} ---@type snacks.picker.Highlight[]
-  ---@type vim.api.keyset.get_keymap
+  ---@type wk.Keymap
   local k = item.item
   local align = Snacks.picker.util.align
   local col_width = {

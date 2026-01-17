@@ -46,6 +46,7 @@ return {
         pattern = 'MultiCursorExit',
         callback = function()
           Snacks.words.enable()
+          ---@diagnostic disable-next-line: invisible
           Snacks.words.update()
         end,
       })

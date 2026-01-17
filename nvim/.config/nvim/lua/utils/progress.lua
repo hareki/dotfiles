@@ -14,7 +14,7 @@
 ---@field _cached_kind   'begin'|'report'|nil
 ---@field _cached_title  string|nil
 ---@field _cached_perc   number|nil
----@field _timer         userdata|nil
+---@field _timer         uv.uv_timer_t|nil
 ---@field start          fun(self: utils.progress.Handle, title?: string, percentage?: number)
 ---@field report         fun(self: utils.progress.Handle, title?: string, percentage?: number)
 ---@field finish         fun(self: utils.progress.Handle, title?: string)

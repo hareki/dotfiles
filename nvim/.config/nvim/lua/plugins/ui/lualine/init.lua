@@ -203,7 +203,7 @@ return {
             separator = separator,
             icon = {
               -- "󱉭 ",
-              '󰉋 ',
+              icons.explorer.folder .. ' ',
               color = { fg = palette.base, bg = palette.blue },
             },
             padding = { left = 0, right = 0 },

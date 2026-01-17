@@ -51,15 +51,19 @@ function M.run(opts)
 
   -- Set timeout to auto-cleanup if something goes wrong
   local timeout_timer = vim.uv.new_timer()
-  timeout_timer:start(TIMEOUT_MS, 0, function()
-    vim.schedule(function()
-      if running_bufs[buf] then
-        running_bufs[buf] = nil
-        Notifier.warn('Formatting/linting timed out', { title = 'Style Enforcer' })
-        finish(false, 'Timed out')
-      end
+  if timeout_timer then
+    timeout_timer:start(TIMEOUT_MS, 0, function()
+      vim.schedule(function()
+        if running_bufs[buf] then
+          running_bufs[buf] = nil
+          Notifier.warn('Formatting/linting timed out', { title = 'Style Enforcer' })
+          finish(false, 'Timed out')
+        end
+      end)
     end)
-  end)
+  else
+    Notifier.warn('Failed to create timeout timer', { title = 'Style Enforcer' })
+  end
 
   local function cleanup(ok, err)
     -- Cancel timeout timer and clean up lock
