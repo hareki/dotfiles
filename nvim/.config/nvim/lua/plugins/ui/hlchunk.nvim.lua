@@ -1,7 +1,7 @@
 return {
   {
     'shellRaining/hlchunk.nvim',
-    event = { 'BufReadPre', 'BufNewFile' },
+    event = 'VeryLazy',
     opts = function()
       local palette = require('catppuccin.palettes').get_palette()
       return {

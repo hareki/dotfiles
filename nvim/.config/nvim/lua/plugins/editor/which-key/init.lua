@@ -7,7 +7,7 @@ return {
   end),
   {
     'folke/which-key.nvim',
-    event = { 'BufReadPost', 'BufNewFile' },
+    event = 'VeryLazy',
     opts_extend = { 'spec' },
     opts = function()
       local desc_override_specs = {}

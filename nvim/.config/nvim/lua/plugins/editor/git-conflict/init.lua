@@ -13,7 +13,7 @@ return {
   end),
   {
     'hareki/git-conflict.nvim',
-    event = { 'BufReadPost', 'BufNewFile' },
+    event = 'VeryLazy',
     opts = function()
       local keymaps = {
         { lhs = '<leader>co', rhs = '<Plug>(git-conflict-ours)', desc = 'Choose Ours' },

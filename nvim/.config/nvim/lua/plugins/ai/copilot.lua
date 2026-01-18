@@ -1,7 +1,7 @@
 return {
   'zbirenbaum/copilot.lua',
   cmd = 'Copilot',
-  event = { 'BufReadPost', 'BufNewFile', 'BufWritePre' },
+  event = 'VeryLazy',
   dependencies = { 'folke/sidekick.nvim' },
   opts = function()
     return {
