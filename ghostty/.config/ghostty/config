@@ -71,8 +71,10 @@ keybind = cmd+[=text:\x1b[
 
 # Close buffer keymap in Neovim
 keybind = cmd+w=text:\x1bw
-# sidekick.nvim toggle
+# opencode.nvim toggle
 keybind = cmd+a=text:\x1ba
+# opencode command palette
+keybind = cmd+p=text:\x1bp
 
 # Toggle floating terminal (Nvim + FloaX)
 keybind = cmd+t=text:\x1bt

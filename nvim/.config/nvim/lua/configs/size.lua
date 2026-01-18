@@ -59,6 +59,13 @@ M.side_panel = {
     min_width = 40,
     min_height = 20,
   },
+
+  lg = {
+    width = 0.5,
+    height = 1,
+    min_width = 40,
+    min_height = 20,
+  },
 }
 
 M.inline_popup = {

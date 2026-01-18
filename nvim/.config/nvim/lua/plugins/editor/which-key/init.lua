@@ -58,6 +58,7 @@ return {
           { '<leader>z', group = 'Terminal' },
           { '<leader>u', group = 'Notification' },
           { '<leader>?', group = 'Debug' },
+          { '<leader>a', group = 'Opencode', mode = { 'n', 'v' } },
         }, desc_override_specs),
 
         icons = {
@@ -73,6 +74,7 @@ return {
             { plugin = 'nvim-tree.lua', icon = ' ', color = 'blue' },
             { plugin = 'eagle.nvim', icon = '󱗆', color = 'yellow' },
             { plugin = 'debugprint.nvim', icon = '󰃤', color = 'red' },
+            { pattern = 'opencode', icon = ' ', color = 'azure' },
             { pattern = 'mini.surround', icon = '󰗅 ', color = 'green' },
             { pattern = 'terminal', icon = ' ', color = 'green' },
             { pattern = 'gitsigns', icon = '', color = 'yellow' },
