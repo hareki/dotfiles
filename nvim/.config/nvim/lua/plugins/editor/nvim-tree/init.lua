@@ -28,6 +28,7 @@ return {
         on_close = function()
           tree.toggle_tree_height('expand')
         end,
+
         keymaps = {
           ['q'] = tree.close_all,
           ['<Tab>'] = tree.toggle_focus,
@@ -47,6 +48,7 @@ return {
             end
           end,
         },
+
         win_position = {
           col = function(_, size)
             if state.position == 'float' then

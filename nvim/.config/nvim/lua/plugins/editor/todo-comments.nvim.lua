@@ -27,14 +27,14 @@ return {
       function()
         Snacks.picker.todo_comments({ keywords = { 'TODO', 'FIXME', 'HACK' }, show_pattern = false })
       end,
-      desc = 'Show Todo/Fix/Hack Comments',
+      desc = 'Find Todo/Fix/Hack Comments',
     },
     {
       '<leader>fT',
       function()
         Snacks.picker.todo_comments({ show_pattern = false })
       end,
-      desc = 'Show All Todo Comments',
+      desc = 'Find All Todo Comments',
     },
   },
 }

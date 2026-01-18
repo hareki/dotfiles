@@ -57,6 +57,7 @@ return {
       mid_var = '", ',
       right_var = ')',
     }
+
     return {
       picker = 'snacks.picker',
       picker_title = 'Debug Prints',
@@ -70,6 +71,15 @@ return {
       -- Turn off all keymaps by default for performance reasons (mapping overhead + can't lazy load)
       -- Also, I want to customize the descriptions
       keymaps = {
+        insert = {
+          plain = false,
+          variable = false,
+        },
+        visual = {
+          variable_below = false,
+          variable_above = false,
+        },
+
         normal = {
           plain_below = false,
           plain_above = false,
@@ -85,14 +95,6 @@ return {
           textobj_surround = false,
           toggle_comment_debug_prints = false,
           delete_debug_prints = false,
-        },
-        insert = {
-          plain = false,
-          variable = false,
-        },
-        visual = {
-          variable_below = false,
-          variable_above = false,
         },
       },
     }

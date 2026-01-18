@@ -15,6 +15,7 @@ return {
     -- the treesitter ones.
     local move = require('nvim-treesitter.textobjects.move') ---@type table<string,fun(...)>
     local configs = require('nvim-treesitter.configs')
+
     for name, fn in pairs(move) do
       if name:find('goto') == 1 then
         move[name] = function(q, ...)

@@ -10,6 +10,7 @@ return {
       end,
     })
   end,
+
   opts = function()
     return {
       chars_lower_limit = 2,

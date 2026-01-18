@@ -17,6 +17,7 @@ return {
       { mappings.decremental, mode = 'x', desc = 'Decremental Selection' },
     }
   end,
+
   opts_extend = { 'ensure_installed' },
   opts = function()
     ---@diagnostic disable-next-line: missing-fields

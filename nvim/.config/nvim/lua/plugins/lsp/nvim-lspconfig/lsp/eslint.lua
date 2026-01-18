@@ -14,10 +14,13 @@ return {
           return
         end
 
-        require('utils.linters').register(
+        local linters = require('utils.linters')
+        local eslint = require('utils.linters.eslint')
+
+        linters.register(
           'eslint',
           { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' },
-          require('utils.linters.eslint').run
+          eslint.run
         )
 
         eslint_registered = true

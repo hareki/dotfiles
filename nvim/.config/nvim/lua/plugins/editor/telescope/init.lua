@@ -1,21 +1,14 @@
 return {
   require('utils.ui').catppuccin(function(palette)
     return {
-      TelescopePromptPrefix = {
-        fg = palette.blue,
-      },
-      TelescopeSelection = {
-        fg = 'NONE', -- Turn off fg override
-        style = {}, -- Turn off the default bold
-      },
-      TelescopeMultiIcon = {
-        fg = palette.blue,
-      },
-      TelescopeSelectionCaret = {
-        fg = palette.blue,
-      },
-
       TelescopeBufferMarker = { fg = palette.peach },
+      TelescopePromptPrefix = { fg = palette.blue },
+      TelescopeMultiIcon = { fg = palette.blue },
+      TelescopeSelectionCaret = { fg = palette.blue },
+      TelescopeSelection = {
+        fg = 'NONE', -- Disable fg override
+        style = {}, -- Disable default bold
+      },
     }
   end),
   {
@@ -294,6 +287,7 @@ return {
             },
           },
         },
+
         pickers = vim.tbl_deep_extend('force', default_picker_configs, {
           lsp_definitions = {
             mappings = {
@@ -348,10 +342,11 @@ return {
       }
     end,
     config = function(_, opts)
-      require('telescope').setup(opts)
+      local telescope = require('telescope')
 
+      telescope.setup(opts)
       for _, ext in ipairs({ 'fzf' }) do
-        require('telescope').load_extension(ext)
+        telescope.load_extension(ext)
       end
 
       vim.api.nvim_set_hl(0, 'TelescopeMultiSelection', {})

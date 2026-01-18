@@ -3,7 +3,9 @@ return {
   build = ':MasonUpdate',
   cmd = 'Mason',
   keys = function()
-    return { { '<leader>cm', '<cmd>Mason<cr>', desc = 'Mason' } }
+    return {
+      { '<leader>cm', '<cmd>Mason<cr>', desc = 'Mason' },
+    }
   end,
   opts_extend = { 'ensure_installed' },
   opts = function()
@@ -35,6 +37,7 @@ return {
       },
     }
   end,
+
   ---@param opts MasonSettings | {ensure_installed: string[]}
   config = function(_, opts)
     require('mason').setup(opts)

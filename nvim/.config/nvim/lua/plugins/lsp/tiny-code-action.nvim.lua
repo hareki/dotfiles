@@ -5,8 +5,10 @@ return {
     'nvim-lua/plenary.nvim',
     'hareki/snacks.nvim',
   },
+
   opts = function()
     local picker_config = require('configs.picker')
+
     return {
       backend = 'delta',
       picker = {

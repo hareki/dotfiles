@@ -3,8 +3,10 @@ return {
     return {
       GitSignsStagedAdd = { fg = sub_palette.green },
       GitSignsStagedUntracked = { link = 'GitSignsStagedAdd' },
+
       GitSignsStagedChange = { fg = sub_palette.yellow },
       GitSignsStagedChangedelete = { link = 'GitSignsStagedChange' },
+
       GitSignsStagedDelete = { fg = sub_palette.red },
       GitSignsStagedTopDelete = { link = 'GitSignsStagedDelete' },
     }
@@ -14,6 +16,24 @@ return {
     event = 'VeryLazy',
     opts = function()
       return {
+        numhl = false,
+        signcolumn = true,
+
+        current_line_blame = true,
+        current_line_blame_formatter = '<author>, <author_time:%R> - <summary>',
+        current_line_blame_opts = {
+          delay = 300,
+          virt_text = true,
+          virt_text_priority = 999,
+        },
+
+        get_popup_max_height = function()
+          return math.floor(vim.o.lines * require('configs.size').inline_popup.max_height)
+        end,
+        preview_config = {
+          border = 'rounded',
+        },
+
         diff_opts = {
           -- Use native git diff instead of Neovim's xdiff to match VS Code's diff
           internal = false,
@@ -23,8 +43,7 @@ return {
           ignore_whitespace_change_at_eol = false,
           ignore_blank_lines = false,
         },
-        numhl = false,
-        signcolumn = true,
+
         signs = {
           add = { text = '┃' },
           change = { text = '┃' },
@@ -33,6 +52,7 @@ return {
           changedelete = { text = '┃' },
           untracked = { text = '┃' },
         },
+
         signs_staged = {
           add = { text = '┃' },
           change = { text = '┃' },
@@ -40,19 +60,7 @@ return {
           topdelete = { text = '' },
           changedelete = { text = '┃' },
         },
-        preview_config = {
-          border = 'rounded',
-        },
-        get_popup_max_height = function()
-          return math.floor(vim.o.lines * require('configs.size').inline_popup.max_height)
-        end,
-        current_line_blame = true,
-        current_line_blame_formatter = '<author>, <author_time:%R> - <summary>',
-        current_line_blame_opts = {
-          delay = 300,
-          virt_text = true,
-          virt_text_priority = 999,
-        },
+
         on_attach = function(buffer)
           local gs = package.loaded.gitsigns
 

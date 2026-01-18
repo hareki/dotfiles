@@ -52,7 +52,6 @@ return {
   opts = function()
     local popup_config = require('utils.ui').popup_config('sm')
 
-    ---Enables autocomplete for opts
     ---@module "auto-session"
     ---@type AutoSession.Config
     return {

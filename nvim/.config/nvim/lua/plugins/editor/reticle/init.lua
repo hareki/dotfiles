@@ -2,10 +2,12 @@ return {
   'tummetott/reticle.nvim',
   event = 'VeryLazy',
   opts = function()
+    local utils = require('plugins.editor.reticle.utils')
+
     return {
       disable_in_insert = false,
       disable_in_diff = true,
-      always_highlight_number = require('plugins.editor.reticle.utils').always_highlight_number,
+      always_highlight_number = utils.always_highlight_number,
       ignore = {
         cursorline = {
           'toggleterm',

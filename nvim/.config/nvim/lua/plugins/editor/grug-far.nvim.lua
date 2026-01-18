@@ -41,6 +41,7 @@ return {
     opts = function()
       local ui_utils = require('utils.ui')
       local size_configs = require('configs.size')
+      local picker_configs = require('configs.picker')
       local preview_cols, preview_rows = ui_utils.computed_size(size_configs.side_preview.md)
       local panel_cols, _ = ui_utils.computed_size(size_configs.side_panel.md)
       local preview_height_offset = math.floor((vim.o.lines - preview_rows) / 2) - 1
@@ -65,7 +66,7 @@ return {
         previewWindow = {
           row = preview_height_offset,
           col = -preview_cols - 3,
-          title = require('configs.picker').preview_title,
+          title = picker_configs.preview_title,
           title_pos = 'center',
           width = preview_cols,
           height = preview_rows,

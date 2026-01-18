@@ -4,18 +4,26 @@ return {
   opts = function()
     local icons = require('configs.icons')
     local max_size = require('configs.size').inline_popup.max_height
+
     return {
       order = 3, -- LSP info comes first
+      border = 'rounded',
+      keyboard_mode = true,
+      mouse_mode = false,
+      show_headers = false,
+
       get_max_height = function()
         return math.floor(vim.o.lines * max_size)
       end,
       get_max_width = function()
         return math.floor(vim.o.columns * max_size)
       end,
-      keyboard_mode = true,
-      mouse_mode = false,
-      border = 'rounded',
-      show_headers = false,
+
+      ---@param diagnostic vim.Diagnostic
+      diagnostic_filter = function(diagnostic)
+        return diagnostic.source ~= 'underline-hack'
+      end,
+
       source_formatters = {
         ts = function(diagnostic)
           return require('utils.formatters.ts-errors').format(diagnostic, {
@@ -23,6 +31,7 @@ return {
           })
         end,
       },
+
       improved_markdown = {
         replace_dashes = false,
         severity_renderer = {
@@ -32,10 +41,6 @@ return {
           HINT = { icon = icons.diagnostics.Hint, hl = 'RenderMarkdownHint' },
         },
       },
-      ---@param diagnostic vim.Diagnostic
-      diagnostic_filter = function(diagnostic)
-        return diagnostic.source ~= 'underline-hack'
-      end,
 
       on_open = function(eagle_win, eagle_buf)
         local current_buf = vim.api.nvim_get_current_buf()

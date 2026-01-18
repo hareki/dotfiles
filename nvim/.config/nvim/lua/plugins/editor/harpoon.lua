@@ -7,13 +7,13 @@ return {
         '<leader>H',
         function()
           local harpoon = require('harpoon')
+          local path = require('utils.path')
           local list = harpoon:list()
           local item = list.config.create_list_item(list.config)
           local list_item, index = list:get_by_value(item.value)
 
           local filepath = vim.api.nvim_buf_get_name(0)
-          local relpath =
-            require('utils.path').get_relative_path(filepath, vim.uv.cwd() or vim.fn.getcwd())
+          local relpath = path.get_relative_path(filepath, vim.uv.cwd() or vim.fn.getcwd())
 
           if list_item then
             Notifier.warn({
@@ -57,10 +57,12 @@ return {
         desc = 'Harpoon: File ' .. i,
       })
     end
+
     return keys
   end,
   opts = function()
     local menu_popup = require('utils.ui').popup_config('sm', true)
+
     return {
       menu = {
         width = menu_popup.width,

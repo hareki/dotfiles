@@ -14,9 +14,11 @@ return {
         {
           '[q',
           function()
-            if require('trouble').is_open() then
+            local trouble = require('trouble')
+
+            if trouble.is_open() then
               ---@diagnostic disable-next-line: missing-parameter, missing-fields
-              require('trouble').prev({ skip_groups = true, jump = true })
+              trouble.prev({ skip_groups = true, jump = true })
             else
               local ok, err = pcall(vim.cmd.cprev)
               if not ok then
@@ -26,12 +28,15 @@ return {
           end,
           desc = 'Previous Trouble/Quickfix Item',
         },
+
         {
           ']q',
           function()
-            if require('trouble').is_open() then
+            local trouble = require('trouble')
+
+            if trouble.is_open() then
               ---@diagnostic disable-next-line: missing-parameter, missing-fields
-              require('trouble').next({ skip_groups = true, jump = true })
+              trouble.next({ skip_groups = true, jump = true })
             else
               local ok, err = pcall(vim.cmd.cnext)
               if not ok then
@@ -76,8 +81,8 @@ return {
         end, 'Focus Trouble Window')
 
         map('<CR>', function()
-          local View = require('trouble.view')
-          local first_view = View.get({ open = true })[1]
+          local trouble_view = require('trouble.view')
+          local first_view = trouble_view.get({ open = true })[1]
           if first_view and preview.item then
             first_view.view:jump(preview.item)
           end
