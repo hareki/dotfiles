@@ -1,3 +1,4 @@
+-- Only for Next Edit Suggestion
 return {
   require('utils.ui').catppuccin(function()
     return {
@@ -6,8 +7,6 @@ return {
   end),
   {
     'folke/sidekick.nvim',
-    event = { 'BufReadPost', 'BufNewFile', 'BufWritePre' },
-    dependencies = { 'zbirenbaum/copilot.lua' },
     keys = function()
       return {
         {

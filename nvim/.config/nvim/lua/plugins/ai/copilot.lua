@@ -2,6 +2,7 @@ return {
   'zbirenbaum/copilot.lua',
   cmd = 'Copilot',
   event = { 'BufReadPost', 'BufNewFile', 'BufWritePre' },
+  dependencies = { 'folke/sidekick.nvim' },
   opts = function()
     return {
       nes = { enabled = false },
