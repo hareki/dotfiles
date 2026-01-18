@@ -2,7 +2,7 @@
 ---@field yanky fun(opts?: snacks.picker.Config|{}): snacks.Picker
 
 return {
-  require('utils.ui').catppuccin(function(palette)
+  Catppuccin(function(palette)
     return {
       YankySystemYanked = {
         fg = palette.base,

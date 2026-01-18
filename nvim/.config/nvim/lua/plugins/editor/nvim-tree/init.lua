@@ -1,5 +1,5 @@
 return {
-  require('utils.ui').catppuccin(function(palette, sub_palette)
+  Catppuccin(function(palette, sub_palette)
     return {
       NvimTreeSignColumn = { link = 'NormalFloat' },
       NvimTreeNormal = { link = 'Normal' },

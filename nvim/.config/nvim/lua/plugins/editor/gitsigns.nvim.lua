@@ -1,5 +1,5 @@
 return {
-  require('utils.ui').catppuccin(function(_, sub_palette)
+  Catppuccin(function(_, sub_palette)
     return {
       GitSignsStagedAdd = { fg = sub_palette.green },
       GitSignsStagedUntracked = { link = 'GitSignsStagedAdd' },

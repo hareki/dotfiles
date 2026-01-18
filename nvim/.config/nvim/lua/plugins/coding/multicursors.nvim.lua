@@ -1,5 +1,5 @@
 return {
-  require('utils.ui').catppuccin(function(palette)
+  Catppuccin(function(palette)
     local color = require('configs.color')
 
     return {

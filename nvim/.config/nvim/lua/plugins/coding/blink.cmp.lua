@@ -1,7 +1,7 @@
 local copilot_max_items = 2
 
 return {
-  require('utils.ui').catppuccin(function(palette)
+  Catppuccin(function(palette)
     return {
       BlinkCmpKindRenderMD = { fg = palette.text },
       BlinkCmpLabelMatch = { fg = palette.blue },

@@ -1,5 +1,5 @@
 return {
-  require('utils.ui').catppuccin(function(palette)
+  Catppuccin(function(palette)
     return {
       GitConflictCurrentLabel = { bg = '#57735b', fg = palette.text },
       GitConflictCurrent = { bg = '#394841' },

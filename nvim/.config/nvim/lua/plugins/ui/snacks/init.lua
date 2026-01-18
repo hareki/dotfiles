@@ -1,5 +1,5 @@
 return {
-  require('utils.ui').catppuccin(function(palette)
+  Catppuccin(function(palette)
     return {
       SnacksPickerPrompt = { fg = palette.blue },
       SnacksPickerCursorLine = { bg = palette.base },

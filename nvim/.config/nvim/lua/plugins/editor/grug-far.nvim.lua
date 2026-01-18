@@ -1,5 +1,5 @@
 return {
-  require('utils.ui').catppuccin(function(palette)
+  Catppuccin(function(palette)
     return {
       GrugFarResultsMatch = { link = 'Search' },
       GrugFarPreview = { link = 'Search' },

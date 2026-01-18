@@ -1,5 +1,5 @@
 return {
-  require('utils.ui').catppuccin(function(palette)
+  Catppuccin(function(palette)
     return {
       NoiceCmdlinePopupBorder = { fg = palette.blue },
       NoiceCmdlinePopupTitle = { fg = palette.blue },

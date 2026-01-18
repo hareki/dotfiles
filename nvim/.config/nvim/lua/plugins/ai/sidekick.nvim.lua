@@ -1,6 +1,6 @@
 -- Only for Next Edit Suggestion
 return {
-  require('utils.ui').catppuccin(function()
+  Catppuccin(function()
     return {
       SidekickDiffAdd = { link = 'DiffAdd' },
     }

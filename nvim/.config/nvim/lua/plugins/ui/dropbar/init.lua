@@ -1,5 +1,5 @@
 return {
-  require('utils.ui').catppuccin(function(palette)
+  Catppuccin(function(palette)
     local highlights = {
       DropBarKindDir = { fg = palette.overlay1 },
       DropBarKindFileBar = { fg = palette.blue, bold = true },

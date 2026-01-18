@@ -1,5 +1,5 @@
 return {
-  require('utils.ui').catppuccin(function(palette)
+  Catppuccin(function(palette)
     return {
       TelescopeBufferMarker = { fg = palette.peach },
       TelescopePromptPrefix = { fg = palette.blue },

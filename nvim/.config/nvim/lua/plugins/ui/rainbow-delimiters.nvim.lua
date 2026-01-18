@@ -1,5 +1,5 @@
 return {
-  require('utils.ui').catppuccin(function(palette)
+  Catppuccin(function(palette)
     return {
       RainbowDelimiterGreen = {
         fg = palette.pink, -- Avoid string color

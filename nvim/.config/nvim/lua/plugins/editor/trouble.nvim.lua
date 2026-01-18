@@ -1,5 +1,5 @@
 return {
-  require('utils.ui').catppuccin(function()
+  Catppuccin(function()
     return {
       TroubleNormal = { link = 'NormalFloat' },
       TroublePreview = { link = 'Search' },
