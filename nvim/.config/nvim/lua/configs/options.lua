@@ -57,6 +57,7 @@ opt.shiftwidth = 2 -- Number of spaces to use for each step of (auto)indent
 opt.tabstop = 2 -- Number of spaces tabs count for
 opt.softtabstop = 2 -- Number of spaces tabs count for while performing editing operations
 opt.expandtab = true -- Use spaces instead of tabs
+opt.autoread = true -- Automatically read file changes from disk, also required for opencode.nvim `events.reload`
 
 -- Prevent changing cwd when navigating to files outside of cwd (e.g going to definition)
 opt.viewoptions:remove('curdir')
@@ -72,7 +73,8 @@ opt.foldenable = true
 
 opt.showtabline = 0 -- Always hide the tabline
 -- https://github.com/rmagatti/auto-session?tab=readme-ov-file#recommended-sessionoptions-config
-opt.sessionoptions = 'blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,globals' -- "globals" option is needed for scope.nvim
+-- "globals" option is needed for scope.nvim
+opt.sessionoptions = 'blank,buffers,curdir,folds,help,tabpages,winsize,winpos,globals'
 
 -- Save undo history
 opt.undofile = true
