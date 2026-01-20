@@ -10,6 +10,7 @@ return {
   opts_extend = { 'ensure_installed' },
   opts = function()
     local config = require('utils.ui').popup_config('lg')
+
     return {
       ui = {
         border = 'rounded',
