@@ -147,7 +147,7 @@ end
 **Invocation pattern** (from keymaps in `snacks/init.lua`):
 
 ```lua
-require('plugins.ui.snacks.pickers.harpoon')({ preview = 'main' })
+require('plugins.ui.snacks.pickers.harpoon').show({ preview = 'main' })
 ```
 
 ## Forks (author = `hareki`)

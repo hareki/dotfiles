@@ -1,4 +1,6 @@
-return function(user_opts)
+local M = {}
+
+M.show = function(user_opts)
   local harpoon = require('harpoon')
   local buffer_format = require('plugins.ui.snacks.utils').buffer_format
 
@@ -50,20 +52,32 @@ return function(user_opts)
         end
       end
 
-      table.sort(indices, function(a, b)
-        return a > b
-      end)
-
+      local list = harpoon:list()
+      local to_remove = {}
       for _, idx in ipairs(indices) do
-        table.remove(harpoon:list().items, idx)
+        to_remove[idx] = true
+      end
+
+      local items_to_keep = {}
+      for i = 1, list:length() do
+        if not to_remove[i] then
+          local item = list:get(i)
+          if item then
+            table.insert(items_to_keep, item)
+          end
+        end
+      end
+
+      -- Rebuild harpoon list
+      -- Can't use list:remove_at, it leaves a hole in the array
+      -- Can't use table.remoe, harpoon doesn't update its internal state correctly
+      list:clear()
+      for _, item in ipairs(items_to_keep) do
+        list:add(item)
       end
     end)
 
     local refreshed = build_harpoon_items()
-    if vim.tbl_isempty(refreshed) then
-      picker:close()
-      return
-    end
 
     picker.opts.items = refreshed
     picker:refresh()
@@ -79,3 +93,5 @@ return function(user_opts)
 
   return Snacks.picker(opts)
 end
+
+return M
