@@ -6,7 +6,7 @@ local M = {}
 ---@return boolean loaded True if the plugin has been loaded
 function M.is_loaded(name)
   local lazy_config = require('lazy.core.config')
-  return lazy_config.plugins[name] and lazy_config.plugins[name]._.loaded
+  return lazy_config.plugins[name] and lazy_config.plugins[name]._.loaded ~= nil
 end
 
 ---Execute a callback when a plugin is loaded (or immediately if already loaded)
