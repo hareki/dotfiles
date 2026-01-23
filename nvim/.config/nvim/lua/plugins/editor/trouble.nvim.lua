@@ -72,11 +72,13 @@ return {
 
         local trouble_win = vim.api.nvim_get_current_win()
 
-        require('utils.common').focus_win(preview.win)
+        local common = require('utils.common')
+        common.focus_win(preview.win)
 
         map('<Tab>', function()
           if vim.api.nvim_win_is_valid(trouble_win) then
-            require('utils.common').focus_win(trouble_win)
+            local common = require('utils.common')
+            common.focus_win(trouble_win)
           end
         end, 'Focus Trouble Window')
 
@@ -90,7 +92,8 @@ return {
 
         map('q', function()
           if vim.api.nvim_win_is_valid(trouble_win) then
-            require('utils.common').focus_win(trouble_win)
+            local common = require('utils.common')
+            common.focus_win(trouble_win)
           end
           if vim.api.nvim_win_is_valid(preview.win) then
             vim.api.nvim_win_close(preview.win, true)
@@ -111,7 +114,10 @@ return {
           type = 'float',
           relative = 'win',
           border = 'rounded',
-          title = require('configs.picker').preview_title,
+          title = (function()
+            local picker_config = require('configs.picker')
+            return picker_config.preview_title
+          end)(),
           title_pos = 'center',
           position = { preview_height_offset, -preview_width_offset },
           size = {

@@ -4,7 +4,8 @@ return {
   lazy = false,
   priority = 1000, -- Should be loaded first to register the colorscheme correctly
   opts = function()
-    local get_palette = require('catppuccin.palettes').get_palette
+    local palettes = require('catppuccin.palettes')
+    local get_palette = palettes.get_palette
     local palette = get_palette()
     local color = require('configs.color')
 
@@ -111,7 +112,8 @@ return {
     }
   end,
   config = function(_, opts)
-    require('catppuccin').setup(opts)
+    local catppuccin = require('catppuccin')
+    catppuccin.setup(opts)
     vim.cmd.colorscheme('catppuccin-mocha')
   end,
 }

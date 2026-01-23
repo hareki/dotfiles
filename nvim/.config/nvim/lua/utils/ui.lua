@@ -23,7 +23,8 @@ end
 ---@param name? "frappe" | "latte" | "macchiato" | "mocha" Flavor name (default: "mocha")
 ---@return palette colors The color palette table
 function M.get_palette(name)
-  return require('catppuccin.palettes').get_palette(name or 'mocha')
+  local palettes = require('catppuccin.palettes')
+  return palettes.get_palette(name or 'mocha')
 end
 
 ---Create a catppuccin plugin spec with custom highlights

@@ -11,7 +11,8 @@ return {
     opts_extend = { 'spec' },
     opts = function()
       local desc_override_specs = {}
-      for lhs, spec in pairs(require('plugins.editor.which-key.preset').desc_overrides) do
+      local which_key_preset = require('plugins.editor.which-key.preset')
+      for lhs, spec in pairs(which_key_preset.desc_overrides) do
         table.insert(desc_override_specs, { lhs, desc = spec.desc, mode = spec.mode })
       end
 
@@ -130,8 +131,10 @@ return {
       }
     end,
     config = function(_, opts)
-      require('which-key').setup(opts)
-      require('plugins.editor.which-key.preset').setup()
+      local which_key = require('which-key')
+      which_key.setup(opts)
+      local which_key_preset = require('plugins.editor.which-key.preset')
+      which_key_preset.setup()
     end,
   },
 }

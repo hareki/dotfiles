@@ -4,19 +4,28 @@ return {
     return {
       {
         'w',
-        "<CMD>lua require('spider').motion('w')<CR>",
+        function()
+          local spider = require('spider')
+          spider.motion('w')
+        end,
         mode = { 'n', 'o', 'x' },
         desc = 'Spider: Word Forward',
       },
       {
         'e',
-        "<CMD>lua require('spider').motion('e')<CR>",
+        function()
+          local spider = require('spider')
+          spider.motion('e')
+        end,
         mode = { 'n', 'o', 'x' },
         desc = 'Spider: Word End',
       },
       {
         'b',
-        "<CMD>lua require('spider').motion('b')<CR>",
+        function()
+          local spider = require('spider')
+          spider.motion('b')
+        end,
         mode = { 'n', 'o', 'x' },
         desc = 'Spider: Word Backward',
       },

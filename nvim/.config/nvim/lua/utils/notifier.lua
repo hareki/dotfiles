@@ -112,17 +112,18 @@ function M.notify(msg, opts)
   if is_markdown then
     -- Strings/list-of-strings: fall back to Treesitter markdown
     msg = type(msg) == 'table' and table.concat(msg, '\n') or msg
-    apply_highlight = function(win)
-      apply_win_opts(win)
-      local bufnr = vim.api.nvim_win_get_buf(win)
-      vim.bo[bufnr].filetype = 'markdown'
-      require('render-markdown').render({
-        buf = bufnr,
-        config = {
-          render_modes = true,
-        },
-      })
-    end
+      apply_highlight = function(win)
+        apply_win_opts(win)
+        local bufnr = vim.api.nvim_win_get_buf(win)
+        vim.bo[bufnr].filetype = 'markdown'
+        local render_markdown = require('render-markdown')
+        render_markdown.render({
+          buf = bufnr,
+          config = {
+            render_modes = true,
+          },
+        })
+      end
   else
     ---@cast msg table
     msg, apply_highlight = normalize_message(msg, opts)

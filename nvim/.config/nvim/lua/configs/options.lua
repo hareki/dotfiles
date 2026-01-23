@@ -3,6 +3,7 @@
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
 local g = vim.g
+local lualine_utils = require('plugins.ui.lualine.utils')
 
 g.mapleader = ' '
 g.maplocalleader = ' '
@@ -52,7 +53,7 @@ opt.statuscolumn = '%l%s'
 opt.signcolumn = 'yes:1' -- Always show the signcolumn, otherwise it would shift the text each time
 opt.wildmode = 'longest:full,full' -- Command-line completion mode
 opt.winminwidth = 5 -- Minimum window width
-opt.laststatus = require('plugins.ui.lualine.utils').have_status_line() and 3 or 0 -- 3 = Global status line
+opt.laststatus = lualine_utils.have_status_line() and 3 or 0 -- 3 = Global status line
 opt.shiftwidth = 2 -- Number of spaces to use for each step of (auto)indent
 opt.tabstop = 2 -- Number of spaces tabs count for
 opt.softtabstop = 2 -- Number of spaces tabs count for while performing editing operations

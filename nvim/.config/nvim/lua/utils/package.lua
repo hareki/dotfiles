@@ -33,7 +33,8 @@ end
 ---@param name string The plugin name
 ---@return table|nil plugin The plugin spec or nil if not found
 function M.get_plugin(name)
-  return require('lazy.core.config').spec.plugins[name]
+  local lazy_config = require('lazy.core.config')
+  return lazy_config.spec.plugins[name]
 end
 
 ---Get the resolved opts for a lazy.nvim plugin
@@ -44,7 +45,8 @@ function M.opts(name)
   if not plugin then
     return {}
   end
-  return require('lazy.core.plugin').values(plugin, 'opts', false)
+  local lazy_plugin = require('lazy.core.plugin')
+  return lazy_plugin.values(plugin, 'opts', false)
 end
 
 return M

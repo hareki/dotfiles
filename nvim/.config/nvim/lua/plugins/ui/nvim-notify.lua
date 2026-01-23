@@ -6,16 +6,20 @@ return {
       {
         '<leader>ud',
         function()
-          require('notify').dismiss({ silent = true, pending = true })
+          local notify = require('notify')
+          notify.dismiss({ silent = true, pending = true })
         end,
         desc = 'Dismiss All Notifications',
       },
       {
         '<leader>un',
         function()
-          local notify = require('telescope').extensions.notify.notify
-          local preview_title = require('configs.picker').telescope_preview_title
-          local new_buffer_previewer = require('telescope.previewers').new_buffer_previewer
+          local telescope = require('telescope')
+          local notify = telescope.extensions.notify.notify
+          local picker_config = require('configs.picker')
+          local preview_title = picker_config.telescope_preview_title
+          local telescope_previewers = require('telescope.previewers')
+          local new_buffer_previewer = telescope_previewers.new_buffer_previewer
 
           -- May use `:Telescope noice` as well
           notify({
@@ -27,7 +31,8 @@ return {
                 local max_width = vim.api.nvim_win_get_config(status.preview_win).width or 1
                 local buf = self.state.bufnr
 
-                require('notify').open(notification, {
+                local notify = require('notify')
+                notify.open(notification, {
                   buffer = buf,
                   max_width = max_width,
                 })
@@ -35,7 +40,8 @@ return {
                 vim.schedule(function()
                   vim.wo[status.preview_win].wrap = true
                   vim.bo[buf].filetype = 'markdown'
-                  require('render-markdown').render({
+                  local render_markdown = require('render-markdown')
+                  render_markdown.render({
                     buf = buf,
                     config = {
                       render_modes = true,
@@ -52,7 +58,8 @@ return {
   end,
   opts = function()
     local title_key = 'notify_title_with_hl'
-    local max_size = require('configs.size').inline_popup.max_height
+    local size_configs = require('configs.size')
+    local max_size = size_configs.inline_popup.max_height
 
     return {
       stages = 'static',

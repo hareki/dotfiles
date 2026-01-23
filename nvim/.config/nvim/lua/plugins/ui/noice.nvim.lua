@@ -110,7 +110,8 @@ return {
             cond = function(message)
               local progress = message.opts.progress or {}
               if progress.kind == 'end' then
-                require('dropbar.utils.bar').exec('update')
+                local dropbar_utils = require('dropbar.utils.bar')
+                dropbar_utils.exec('update')
               end
 
               return false -- Don't match the condition for "opts"
@@ -134,7 +135,8 @@ return {
       if vim.o.filetype == 'lazy' then
         vim.cmd.messages({ args = { 'clear' } })
       end
-      require('noice').setup(opts)
+      local noice = require('noice')
+      noice.setup(opts)
     end,
   },
 }

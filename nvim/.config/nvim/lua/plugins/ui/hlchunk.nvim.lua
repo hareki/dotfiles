@@ -3,7 +3,8 @@ return {
     'shellRaining/hlchunk.nvim',
     event = 'VeryLazy',
     opts = function()
-      local palette = require('catppuccin.palettes').get_palette()
+      local palettes = require('catppuccin.palettes')
+      local palette = palettes.get_palette()
       return {
         chunk = {
           enable = true,

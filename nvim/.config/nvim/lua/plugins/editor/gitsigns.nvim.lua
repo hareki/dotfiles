@@ -28,7 +28,8 @@ return {
         },
 
         get_popup_max_height = function()
-          return math.floor(vim.o.lines * require('configs.size').inline_popup.max_height)
+          local size_configs = require('configs.size')
+          return math.floor(vim.o.lines * size_configs.inline_popup.max_height)
         end,
         preview_config = {
           border = 'rounded',
@@ -124,7 +125,8 @@ return {
 
                 popup_map('n', '<Tab>', function()
                   popup.ignore_cursor_moved = true
-                  require('utils.common').focus_win(current_win_id)
+                  local common = require('utils.common')
+                  common.focus_win(current_win_id)
                 end, 'Focus Original Window')
 
                 if current_win_id ~= popup_win_id then
@@ -175,11 +177,13 @@ return {
           current_map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>', 'GitSigns Select Hunk')
 
           current_map('n', '<leader>hb', function()
-            require('gitsigns').blame_line({ full = true }, setup_popup_navigation('blame'))
+            local gitsigns = require('gitsigns')
+            gitsigns.blame_line({ full = true }, setup_popup_navigation('blame'))
           end, 'Blame Line')
 
           current_map('n', '<leader>hp', function()
-            require('gitsigns').preview_hunk()
+            local gitsigns = require('gitsigns')
+            gitsigns.preview_hunk()
             vim.schedule(setup_popup_navigation('hunk'))
           end, 'Preview Hunk')
         end,

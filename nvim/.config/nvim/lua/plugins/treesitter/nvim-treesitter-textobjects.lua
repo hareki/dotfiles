@@ -8,7 +8,8 @@ return {
     if package.is_loaded('nvim-treesitter') then
       local opts = package.opts('nvim-treesitter')
       ---@diagnostic disable-next-line: missing-fields
-      require('nvim-treesitter.configs').setup({ textobjects = opts.textobjects })
+      local treesitter_configs = require('nvim-treesitter.configs')
+      treesitter_configs.setup({ textobjects = opts.textobjects })
     end
 
     -- When in diff mode, we want to use the default vim text objects c & C instead of

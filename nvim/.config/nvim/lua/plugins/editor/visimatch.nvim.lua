@@ -6,7 +6,8 @@ return {
       pattern = { '*:v', '*:V' }, -- v, V, <C-v>
       once = true,
       callback = function()
-        require('lazy').load({ plugins = { 'visimatch.nvim' } })
+        local lazy = require('lazy')
+        lazy.load({ plugins = { 'visimatch.nvim' } })
       end,
     })
   end,

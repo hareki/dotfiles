@@ -69,7 +69,8 @@ return {
             }, { title = 'harpoon' })
           end
 
-          require('plugins.ui.lualine.utils').refresh_statusline()
+          local lualine_utils = require('plugins.ui.lualine.utils')
+          lualine_utils.refresh_statusline()
         end,
         desc = 'Harpoon Current File to Slot ' .. i,
       })
@@ -86,7 +87,8 @@ return {
     return keys
   end,
   opts = function()
-    local menu_popup = require('utils.ui').popup_config('sm', true)
+    local ui = require('utils.ui')
+    local menu_popup = ui.popup_config('sm', true)
 
     return {
       menu = {

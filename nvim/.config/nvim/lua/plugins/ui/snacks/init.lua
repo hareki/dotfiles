@@ -133,7 +133,8 @@ return {
       }
     end,
     opts = function()
-      local popup_config = require('utils.ui').popup_config
+      local ui = require('utils.ui')
+      local popup_config = ui.popup_config
       local picker_config = require('configs.picker')
       local icons = require('configs.icons')
       local config = {

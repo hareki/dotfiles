@@ -6,7 +6,8 @@ local running_bufs = {}
 local TIMEOUT_MS = 10000
 
 local function get_formatter_names(buf)
-  local list, uses_lsp = require('conform').list_formatters_to_run(buf)
+  local conform = require('conform')
+  local list, uses_lsp = conform.list_formatters_to_run(buf)
 
   local names = {}
   for _, f in ipairs(list or {}) do
@@ -80,8 +81,9 @@ function M.run(opts)
 
   local conform = require('conform')
   local linters = require('utils.linters')
+  local progress_utils = require('utils.progress')
 
-  local progress = require('utils.progress').create({
+  local progress = progress_utils.create({
     pending_ms = 0,
     client_name = 'stenfo',
   })
@@ -166,7 +168,7 @@ function M.run(opts)
     return
   end
 
-  local formatters, uses_lsp = require('conform').list_formatters_to_run(buf)
+  local formatters, uses_lsp = conform.list_formatters_to_run(buf)
   local should_format = (formatters and #formatters > 0) or uses_lsp
 
   if not should_format then

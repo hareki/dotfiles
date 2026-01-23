@@ -5,8 +5,10 @@ lazy_utils.ensure_lazy()
 -- { 'BufReadPost', 'BufNewFile', 'BufWritePre' }
 
 -- [[ Configure and install plugins ]]
-local lg = require('configs.size').popup.lg
-require('lazy').setup({
+local size_configs = require('configs.size')
+local lg = size_configs.popup.lg
+local lazy = require('lazy')
+lazy.setup({
   version = '*',
   ui = {
     size = { width = lg.width, height = lg.height },

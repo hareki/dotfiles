@@ -34,7 +34,8 @@ return {
       {
         '<leader>dt',
         function()
-          require('utils.git').diff_parent()
+          local git = require('utils.git')
+          git.diff_parent()
         end,
         desc = 'Diff Parent',
       },
@@ -90,7 +91,8 @@ return {
       { 'n', 'L', actions.open_commit_log, { desc = 'Show Commit Details' } },
     }
 
-    local list_extend = require('utils.common').list_extend
+    local common = require('utils.common')
+    local list_extend = common.list_extend
     local function help_panel(id)
       return { 'n', 'g?', actions.help(id), { desc = 'Open the Help Panel' } }
     end
@@ -131,7 +133,8 @@ return {
       hooks = {
         view_opened = function(view)
           if view.class:name() == 'DiffView' then
-            require('diffview.actions').toggle_files()
+            local diffview_actions = require('diffview.actions')
+            diffview_actions.toggle_files()
           end
         end,
       },

@@ -6,7 +6,8 @@ return {
       {
         '<A-a>',
         function()
-          require('opencode').toggle()
+          local opencode = require('opencode')
+          opencode.toggle()
         end,
         mode = { 'n', 't' },
         desc = 'Toggle Opencode',
@@ -14,7 +15,8 @@ return {
       {
         '<leader>aa',
         function()
-          require('opencode').ask('@this: ', { submit = true })
+          local opencode = require('opencode')
+          opencode.ask('@this: ', { submit = true })
         end,
         mode = { 'n', 'x' },
         desc = 'Ask Opencode',
@@ -22,7 +24,8 @@ return {
       {
         '<leader>ap',
         function()
-          require('opencode').select()
+          local opencode = require('opencode')
+          opencode.select()
         end,
         mode = { 'n', 'x' },
         desc = 'Select Opencode Prompt',
@@ -30,7 +33,8 @@ return {
       {
         '<leader>ar',
         function()
-          return require('opencode').operator('@this ')
+          local opencode = require('opencode')
+          return opencode.operator('@this ')
         end,
         mode = { 'n', 'x' },
         desc = 'Add Range to Opencode',
@@ -39,7 +43,8 @@ return {
     }
   end,
   opts = function()
-    local size = require('configs.size').side_panel.lg
+    local size_configs = require('configs.size')
+    local size = size_configs.side_panel.lg
     ---@type opencode.Opts
     return {
       provider = {

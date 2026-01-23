@@ -33,8 +33,10 @@ function M.set_branch_name_format(format)
 
   Notifier.info('Branch name format set to ' .. format)
 
-  if require('plugins.ui.lualine.utils').have_status_line() then
-    require('lualine').refresh({ place = { 'statusline' } })
+  local lualine_utils = require('plugins.ui.lualine.utils')
+  if lualine_utils.have_status_line() then
+    local lualine = require('lualine')
+    lualine.refresh({ place = { 'statusline' } })
   end
 end
 
@@ -251,7 +253,8 @@ function M.get_current_line_commit()
     return nil
   end
 
-  local relative_file = require('utils.path').get_relative_path(file, root)
+  local path = require('utils.path')
+  local relative_file = path.get_relative_path(file, root)
 
   ---@type string[]
   local cmd = {

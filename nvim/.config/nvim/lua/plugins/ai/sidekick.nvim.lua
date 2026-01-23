@@ -12,7 +12,8 @@ return {
         {
           '<Tab>',
           function()
-            if not require('sidekick').nes_jump_or_apply() then
+            local sidekick = require('sidekick')
+            if not sidekick.nes_jump_or_apply() then
               return '<Tab>' -- Fallback to normal tab
             end
           end,

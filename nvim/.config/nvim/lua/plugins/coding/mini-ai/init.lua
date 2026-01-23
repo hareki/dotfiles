@@ -69,7 +69,8 @@ return {
     }
   end,
   config = function(_, opts)
-    require('mini.ai').setup(opts)
+    local mini_ai = require('mini.ai')
+    mini_ai.setup(opts)
 
     local package_utils = require('utils.package')
     local utils = require('plugins.coding.mini-ai.utils')

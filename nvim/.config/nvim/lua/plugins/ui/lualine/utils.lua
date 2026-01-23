@@ -14,7 +14,8 @@ end
 ---@return nil
 function M.refresh_statusline()
   if package.loaded['lualine'] then
-    require('lualine').refresh({ place = { 'statusline' } })
+    local lualine = require('lualine')
+    lualine.refresh({ place = { 'statusline' } })
   end
 end
 
@@ -22,7 +23,8 @@ end
 ---@param opts { type: 'primary'|'secondary', comp: string|function, color: string, icon: string, [string]: any }
 ---@return table component Lualine component table
 function M.create_styling_wrapper(opts)
-  local palette = require('utils.ui').get_palette()
+  local ui = require('utils.ui')
+  local palette = ui.get_palette()
   local style = opts.type
   local comp = opts.comp
   local color_key = opts.color

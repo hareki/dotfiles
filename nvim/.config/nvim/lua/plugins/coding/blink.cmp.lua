@@ -72,12 +72,13 @@ return {
       local history_kind_index = register_kind('History')
       local spell_kind_index = register_kind('Spell')
       local render_markdown_index = register_kind('RenderMD')
+      local icons = require('configs.icons')
 
       return {
         fuzzy = { implementation = 'prefer_rust_with_warning' },
         signature = { enabled = true, window = { border = 'rounded' } },
         appearance = {
-          kind_icons = require('configs.icons').kinds,
+          kind_icons = icons.kinds,
         },
 
         cmdline = {

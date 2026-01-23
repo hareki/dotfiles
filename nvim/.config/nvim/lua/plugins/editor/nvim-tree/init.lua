@@ -20,9 +20,10 @@ return {
       local tree = require('plugins.editor.nvim-tree.utils')
       local state = tree.state
 
+      local picker_config = require('configs.picker')
       return {
         -- title_format = ' %s ', -- Use file name as title
-        title_format = require('configs.picker').preview_title,
+        title_format = picker_config.preview_title,
         zindex = 50, -- The default value makes vim.ui.input behind the preview window
         image_preview = { enable = true },
         on_close = function()
@@ -42,7 +43,8 @@ return {
             tree.toggle_preview()
           end,
           ['<CR>'] = function()
-            require('nvim-tree.api').node.open.edit()
+            local nvim_tree_api = require('nvim-tree.api')
+            nvim_tree_api.node.open.edit()
             if state.position == 'float' then
               tree.close_all()
             end
@@ -133,6 +135,7 @@ return {
       local icons = require('configs.icons')
       local tree = require('plugins.editor.nvim-tree.utils')
       local state = tree.state
+      local picker_config = require('configs.picker')
 
       state.opts = {
         hijack_cursor = true, -- Keep cursor on the first letter of filename
@@ -143,7 +146,7 @@ return {
           auto_open = false,
         },
         live_filter = {
-          prefix = require('configs.picker').prompt_prefix,
+          prefix = picker_config.prompt_prefix,
           always_show_folders = false,
         },
         update_focused_file = {
@@ -232,7 +235,10 @@ return {
           end,
 
           float = {
-            enable = require('plugins.editor.nvim-tree.utils').state.position == 'float',
+            enable = (function()
+              local nvim_tree_utils = require('plugins.editor.nvim-tree.utils')
+              return nvim_tree_utils.state.position == 'float'
+            end)(),
             quit_on_focus_loss = false,
             open_win_config = function()
               local size = ui_utils.popup_config(tree.state.size)
@@ -305,7 +311,8 @@ return {
           map('n', '<CR>', tree.create_node_action('toggle'), 'Open File/Toggle Folder')
           map('n', 'g?', function()
             api.tree.toggle_help()
-            vim.api.nvim_win_set_config(require('nvim-tree.help').winnr, { border = 'rounded' })
+            local nvim_tree_help = require('nvim-tree.help')
+            vim.api.nvim_win_set_config(nvim_tree_help.winnr, { border = 'rounded' })
           end, 'Help')
 
           map('n', '<C-n>', tree.mark_and_next, 'Bookmark and Next')
@@ -341,7 +348,8 @@ return {
       vim.api.nvim_create_autocmd('User', {
         pattern = 'NvimTreeSetup',
         callback = function()
-          local events = require('nvim-tree.api').events
+          local nvim_tree_api = require('nvim-tree.api')
+          local events = nvim_tree_api.events
           events.subscribe(events.Event.NodeRenamed, function(data)
             if prev.new_name ~= data.new_name or prev.old_name ~= data.old_name then
               prev = data
@@ -351,7 +359,8 @@ return {
         end,
       })
 
-      require('nvim-tree').setup(opts)
+      local nvim_tree = require('nvim-tree')
+      nvim_tree.setup(opts)
     end,
   },
 }

@@ -38,7 +38,8 @@ ProgressHandle.__index = ProgressHandle --[[@as utils.progress.Handle]]
 ---@param title      string|nil
 ---@param percentage number|nil
 function ProgressHandle:_send(kind, title, percentage)
-  require('noice.lsp.progress').progress({
+  local noice_progress = require('noice.lsp.progress')
+  noice_progress.progress({
     client_id = self.client_id,
     params = {
       token = self.token,

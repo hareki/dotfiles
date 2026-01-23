@@ -87,7 +87,8 @@ function M.whichkey(opts)
       ret[#ret + 1] = { prefix .. obj[1], desc = obj.desc }
     end
   end
-  require('which-key').add(ret, { notify = false })
+  local which_key = require('which-key')
+  which_key.add(ret, { notify = false })
 end
 
 return M

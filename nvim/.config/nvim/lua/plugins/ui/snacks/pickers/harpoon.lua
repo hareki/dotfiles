@@ -102,7 +102,8 @@ M.show = function(user_opts)
     picker.opts.items = refreshed
     picker:refresh()
 
-    require('plugins.ui.lualine.utils').refresh_statusline()
+    local lualine_utils = require('plugins.ui.lualine.utils')
+    lualine_utils.refresh_statusline()
   end
 
   opts.actions = opts.actions or {}

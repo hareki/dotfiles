@@ -7,7 +7,8 @@ return {
   dependencies = { 'hareki/copilot-lualine' },
 
   enabled = function()
-    return require('plugins.ui.lualine.utils').have_status_line()
+    local lualine_utils = require('plugins.ui.lualine.utils')
+    return lualine_utils.have_status_line()
   end,
 
   init = function()
@@ -35,7 +36,8 @@ return {
     local lualine_require = require('lualine_require')
     lualine_require.require = require
 
-    local palette = require('utils.ui').get_palette()
+    local ui = require('utils.ui')
+    local palette = ui.get_palette()
     local icons = require('configs.icons')
 
     local mode_hl = {}
@@ -105,12 +107,14 @@ return {
             icon = {
               icons.misc.neovim .. ' ',
               color = function()
-                local mode = require('lualine.utils.mode').get_mode()
+                local mode_utils = require('lualine.utils.mode')
+                local mode = mode_utils.get_mode()
                 return mode_hl[mode]
               end,
             },
             color = function()
-              local mode = require('lualine.utils.mode').get_mode()
+              local mode_utils = require('lualine.utils.mode')
+              local mode = mode_utils.get_mode()
               return inverse_mode_hl(mode)
             end,
           },

@@ -45,11 +45,13 @@ map({ 'n' }, '<Esc>', function()
 end, { desc = 'Clear Highlight' })
 
 map({ 'n', 'i' }, '<A-s>', function()
-  require('utils.formatters.async_style_enforcer').run()
+  local enforcer = require('utils.formatters.async_style_enforcer')
+  enforcer.run()
 end, { desc = 'Format and Save' })
 
 map({ 'n', 'i' }, '<leader>F', function()
-  require('utils.formatters.async_style_enforcer').run({
+  local enforcer = require('utils.formatters.async_style_enforcer')
+  enforcer.run({
     save = false,
   })
 end, { desc = 'Format' })
@@ -58,7 +60,8 @@ end, { desc = 'Format' })
 -- Test the keymap Neovim will receive with
 -- :echo keytrans(getcharstr())
 map({ 'n', 'i' }, '<F40>', function()
-  require('utils.formatters.async_style_enforcer').run_all()
+  local enforcer = require('utils.formatters.async_style_enforcer')
+  enforcer.run_all()
 end, { desc = 'Format and Save All' })
 
 -- Mapped to Ctrl+Shift+W in ghostty config

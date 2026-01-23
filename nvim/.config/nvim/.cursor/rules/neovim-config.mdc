@@ -1,4 +1,10 @@
-# Copilot Instructions for Neovim Config
+---
+description: Neovim config architecture and conventions for lazy.nvim setup
+globs: **/*.lua
+alwaysApply: false
+---
+
+# Neovim Config Architecture
 
 ## Architecture
 

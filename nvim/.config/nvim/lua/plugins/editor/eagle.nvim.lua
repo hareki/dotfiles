@@ -3,7 +3,8 @@ return {
   cmd = { 'EagleWin', 'EagleWinLineDiagnostic' },
   opts = function()
     local icons = require('configs.icons')
-    local max_size = require('configs.size').inline_popup.max_height
+    local size_configs = require('configs.size')
+    local max_size = size_configs.inline_popup.max_height
 
     return {
       order = 3, -- LSP info comes first
@@ -26,7 +27,8 @@ return {
 
       source_formatters = {
         ts = function(diagnostic)
-          return require('utils.formatters.ts-errors').format(diagnostic, {
+          local ts_errors = require('utils.formatters.ts-errors')
+          return ts_errors.format(diagnostic, {
             href = false,
           })
         end,
@@ -84,14 +86,18 @@ return {
         eagle_map({ 'n', 'x' }, '<PageUp>', '<C-u>', 'Scroll Up')
         eagle_map({ 'n', 'x' }, '<PageDown>', '<C-d>', 'Scroll Down')
         eagle_map({ 'n', 'x' }, '<Tab>', function()
-          require('eagle').ignore_cursor_moved = true
-          require('utils.common').focus_win(current_win)
+          local eagle = require('eagle')
+          eagle.ignore_cursor_moved = true
+          local common = require('utils.common')
+          common.focus_win(current_win)
         end, 'Focus Parent Window')
 
         current_map({ 'n', 'x' }, '<Esc>', close_eagle, 'Close Eagle')
         current_map({ 'n', 'x' }, '<Tab>', function()
-          require('eagle').ignore_cursor_moved = true
-          require('utils.common').focus_win(eagle_win)
+          local eagle = require('eagle')
+          eagle.ignore_cursor_moved = true
+          local common = require('utils.common')
+          common.focus_win(eagle_win)
         end, 'Focus Eagle Window')
       end,
     }

@@ -25,7 +25,8 @@ return {
       {
         '<leader>?v',
         function()
-          require('debugprint').debugprint({
+          local debugprint = require('debugprint')
+          debugprint.debugprint({
             variable = true,
           })
         end,
@@ -34,7 +35,8 @@ return {
       {
         '<leader>?V',
         function()
-          require('debugprint').debugprint({
+          local debugprint = require('debugprint')
+          debugprint.debugprint({
             variable = true,
             surround = true,
           })
@@ -44,7 +46,8 @@ return {
       {
         '<leader>?p',
         function()
-          require('debugprint').debugprint({})
+          local debugprint = require('debugprint')
+          debugprint.debugprint({})
         end,
         desc = 'Debug Prints: Put Plain Text Below',
       },

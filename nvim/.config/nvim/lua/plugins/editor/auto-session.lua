@@ -41,7 +41,8 @@ return {
           vim.opt_local.relativenumber = false
 
           vim.schedule(function()
-            require('lazy').load({ plugins = { 'snacks.nvim' } })
+            local lazy = require('lazy')
+            lazy.load({ plugins = { 'snacks.nvim' } })
             Snacks.picker.files()
           end)
         end)
@@ -50,7 +51,8 @@ return {
   end,
 
   opts = function()
-    local popup_config = require('utils.ui').popup_config('sm')
+    local ui = require('utils.ui')
+    local popup_config = ui.popup_config('sm')
 
     ---@module "auto-session"
     ---@type AutoSession.Config

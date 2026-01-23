@@ -7,7 +7,8 @@ return {
       {
         'zh',
         function()
-          local preview_win_id = require('ufo').peekFoldedLinesUnderCursor()
+          local ufo = require('ufo')
+          local preview_win_id = ufo.peekFoldedLinesUnderCursor()
           if preview_win_id == nil then
             return
           end
@@ -27,7 +28,8 @@ return {
 
             vim.keymap.set('n', '<Esc>', function()
               clear_mapping()
-              require('ufo.preview').close()
+              local ufo_preview = require('ufo.preview')
+              ufo_preview.close()
             end, { buffer = preview_buf, desc = 'Close Fold Preview' })
 
             vim.api.nvim_create_autocmd('BufWipeout', {

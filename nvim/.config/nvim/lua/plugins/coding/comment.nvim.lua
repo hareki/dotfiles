@@ -11,8 +11,9 @@ return {
     }
   end,
   opts = function()
+    local ts_context = require('ts_context_commentstring.integrations.comment_nvim')
     return {
-      pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook(),
+      pre_hook = ts_context.create_pre_hook(),
     }
   end,
 }

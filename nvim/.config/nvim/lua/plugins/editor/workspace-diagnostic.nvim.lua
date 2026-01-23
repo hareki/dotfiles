@@ -13,8 +13,9 @@ return {
         local body = #lines > 0 and table.concat(lines, '\n') or 'No clients'
 
         Notifier.info('Fetching workspace diagnostics from:\n' .. body)
+        local workspace_diagnostics = require('workspace-diagnostics')
         for _, client in ipairs(clients) do
-          require('workspace-diagnostics').populate_workspace_diagnostics(client, 0)
+          workspace_diagnostics.populate_workspace_diagnostics(client, 0)
         end
       end,
 

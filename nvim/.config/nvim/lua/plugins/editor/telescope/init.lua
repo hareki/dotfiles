@@ -45,9 +45,10 @@ return {
 
       -- Unify the preview title for all pickers
       local default_picker_configs = {}
+      local picker_config = require('configs.picker')
       for picker_name, _ in pairs(builtin) do
         default_picker_configs[picker_name] = {
-          preview_title = require('configs.picker').telescope_preview_title,
+          preview_title = picker_config.telescope_preview_title,
         }
       end
 
@@ -102,7 +103,8 @@ return {
         local previewer_bufnr = previewer_winid and vim.api.nvim_win_get_buf(previewer_winid) or nil
 
         if not (previewer_winid and vim.api.nvim_win_is_valid(previewer_winid)) then
-          require('utils.common').focus_win(prompt_win)
+          local common = require('utils.common')
+          common.focus_win(prompt_win)
           return
         end
 
@@ -125,7 +127,8 @@ return {
         map('n', '<Tab>', function()
           restore_buf_state()
           set_cursorline(false, previewer_winid)
-          require('utils.common').focus_win(prompt_win)
+          local common = require('utils.common')
+          common.focus_win(prompt_win)
         end, 'Focus Prompt Window')
 
         map('n', 'q', function()
@@ -138,7 +141,8 @@ return {
           actions.select_default(prompt_bufnr)
         end)
 
-        if require('utils.common').focus_win(previewer_winid) then
+        local common = require('utils.common')
+        if common.focus_win(previewer_winid) then
           vim.schedule(function()
             set_cursorline(true, previewer_winid)
           end)
@@ -187,18 +191,22 @@ return {
       local scroll_results_up = scroll_results('up')
       local scroll_results_down = scroll_results('down')
       local function telescope_to_trouble()
-        require('trouble.sources.telescope').open()
+        local trouble_sources = require('trouble.sources.telescope')
+        trouble_sources.open()
       end
 
       local function trouble_open(source)
         return function(bufnr)
           actions.close(bufnr)
-          require('trouble').open(source)
+          local trouble = require('trouble')
+          trouble.open(source)
         end
       end
 
-      local layout_config = require('utils.ui').telescope_layout
-      local default_get_status_text = require('telescope.config').values.get_status_text
+      local ui = require('utils.ui')
+      local layout_config = ui.telescope_layout
+      local telescope_config = require('telescope.config')
+      local default_get_status_text = telescope_config.values.get_status_text
 
       return {
         extensions = {
@@ -209,11 +217,14 @@ return {
           },
         },
         defaults = {
-          prompt_prefix = require('configs.picker').prompt_prefix,
+          prompt_prefix = picker_config.prompt_prefix,
           -- selection_caret = ' ',
           selection_caret = ' ',
           entry_prefix = ' ', -- keep list text aligned
-          multi_icon = vim.trim(require('configs.icons').explorer.selected) .. ' ',
+          multi_icon = (function()
+            local icons = require('configs.icons')
+            return vim.trim(icons.explorer.selected) .. ' '
+          end)(),
           get_status_text = function(self, opts)
             -- Prevent flashing the loading asterisk indicator
             opts = opts or {}

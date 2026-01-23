@@ -9,7 +9,8 @@ return {
   end,
   opts_extend = { 'ensure_installed' },
   opts = function()
-    local config = require('utils.ui').popup_config('lg')
+    local ui = require('utils.ui')
+    local config = ui.popup_config('lg')
 
     return {
       ui = {
@@ -41,12 +42,14 @@ return {
 
   ---@param opts MasonSettings | {ensure_installed: string[]}
   config = function(_, opts)
-    require('mason').setup(opts)
+    local mason = require('mason')
+    mason.setup(opts)
     local mr = require('mason-registry')
     mr:on('package:install:success', function()
       vim.defer_fn(function()
         -- Trigger FileType event to possibly load this newly installed LSP server
-        require('lazy.core.handler.event').trigger({
+        local lazy_event = require('lazy.core.handler.event')
+        lazy_event.trigger({
           event = 'FileType',
           buf = vim.api.nvim_get_current_buf(),
         })

@@ -85,7 +85,8 @@ return {
       {
         '<leader>b',
         function()
-          require('dropbar.api').pick()
+          local dropbar_api = require('dropbar.api')
+          dropbar_api.pick()
         end,
         desc = 'Dropbar: Pick',
       },
@@ -116,7 +117,10 @@ return {
         -- https://github.com/Bekaboo/dropbar.nvim?tab=readme-ov-file#bar
         -- Intercept and limit the lsp items to avoid too deeply nested items
         bar = {
-          enable = require('plugins.ui.dropbar.utils').enable,
+          enable = (function()
+            local dropbar_utils = require('plugins.ui.dropbar.utils')
+            return dropbar_utils.enable
+          end)(),
           truncate = false,
           hover = true,
           sources = function(buf, _)
@@ -188,7 +192,8 @@ return {
         sources = {
           path = {
             relative_to = function()
-              return require('utils.path').get_initial_path()
+              local path_utils = require('utils.path')
+              return path_utils.get_initial_path()
             end,
           },
         },
