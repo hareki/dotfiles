@@ -145,7 +145,9 @@ return {
       }
       local select_width = config.sm.width
 
-      local utils = require('plugins.ui.snacks.utils')
+      local formatters = require('plugins.ui.snacks.utils.formatters')
+      local sorters = require('plugins.ui.snacks.utils.sorters')
+      local transformers = require('plugins.ui.snacks.utils.transformers')
       local actions = require('plugins.ui.snacks.actions')
 
       return {
@@ -241,9 +243,9 @@ return {
             },
 
             buffers = {
-              format = utils.buffer_format,
+              format = formatters.buffer_format,
               matcher = { sort_empty = true }, -- Required for sort to work with empty search
-              sort = utils.buffer_sort,
+              sort = sorters.buffer_sort,
               win = {
                 input = {
                   keys = {
@@ -255,7 +257,7 @@ return {
 
             files = {
               hidden = true,
-              transform = utils.files_transform,
+              transform = transformers.files_transform,
             },
 
             scratch = {
@@ -282,9 +284,9 @@ return {
                   row = config.sm.row,
                 },
               },
-              transform = utils.keymap_transform,
+              transform = transformers.keymap_transform,
               format = function(item, picker)
-                return utils.keymap_format(item, picker, config.sm.width)
+                return formatters.keymap_format(item, picker, config.sm.width)
               end,
             },
           },

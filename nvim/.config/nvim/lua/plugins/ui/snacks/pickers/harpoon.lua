@@ -2,27 +2,60 @@ local M = {}
 
 M.show = function(user_opts)
   local harpoon = require('harpoon')
-  local buffer_format = require('plugins.ui.snacks.utils').buffer_format
+  local formatters = require('plugins.ui.snacks.utils.formatters')
 
   local function build_harpoon_items()
     local items = {}
-    for idx, item in ipairs(harpoon:list().items) do
-      local filepath = item.value
-      local bufnr = vim.fn.bufnr(filepath)
-      local valid_buf = bufnr ~= -1 and vim.api.nvim_buf_is_valid(bufnr)
+    local list = harpoon:list()
+    local max_idx = list:length()
 
-      items[#items + 1] = {
-        idx = idx,
-        file = filepath,
-        buf = valid_buf and bufnr or nil,
-        bufnr = valid_buf and bufnr or nil,
-        name = vim.fs.basename(filepath),
-        buftype = valid_buf and vim.bo[bufnr].buftype or '',
-        filetype = valid_buf and vim.bo[bufnr].filetype or '',
-        text = filepath,
-      }
+    for harpoon_idx = 1, max_idx do
+      local item = list:get(harpoon_idx)
+      if item then
+        local filepath = item.value
+        local bufnr = vim.fn.bufnr(filepath)
+        local valid_buf = bufnr ~= -1 and vim.api.nvim_buf_is_valid(bufnr)
+
+        items[#items + 1] = {
+          harpoon_idx = harpoon_idx,
+          idx = harpoon_idx,
+          file = filepath,
+          buf = valid_buf and bufnr or nil,
+          bufnr = valid_buf and bufnr or nil,
+          name = vim.fs.basename(filepath),
+          buftype = valid_buf and vim.bo[bufnr].buftype or '',
+          filetype = valid_buf and vim.bo[bufnr].filetype or '',
+          text = filepath,
+        }
+      end
     end
     return items
+  end
+
+  ---Format function for harpoon picker (harpoon index + buffer format)
+  ---Adds harpoon index number prefix to buffer_format output.
+  ---@param item snacks.picker.Item The picker item
+  ---@param picker snacks.Picker The picker instance
+  ---@return snacks.picker.Highlight[] highlights Array of highlight segments
+  local function harpoon_format(item, picker)
+    local ret = {} ---@type snacks.picker.Highlight[]
+    local max_harpoon_idx = harpoon:list():length()
+    local harpoon_idx = item.harpoon_idx or item.idx
+    local idx_str = tostring(harpoon_idx)
+    idx_str = (' '):rep(#tostring(max_harpoon_idx) - #idx_str) .. idx_str
+    ret[#ret + 1] = { idx_str .. '.', 'SnacksPickerIdx' }
+    ret[#ret + 1] = { ' ' }
+    vim.list_extend(ret, formatters.buffer_format(item, picker))
+    return ret
+  end
+
+  local function harpoon_transform(item)
+    if item.harpoon_idx and item.text then
+      item.text = item.harpoon_idx .. ' ' .. item.text
+    elseif item.idx and item.text then
+      item.text = item.idx .. ' ' .. item.text
+    end
+    return item
   end
 
   local items = build_harpoon_items()
@@ -35,7 +68,8 @@ M.show = function(user_opts)
     title = 'Harpoon',
     items = items,
     source = 'harpoon',
-    format = buffer_format,
+    format = harpoon_format,
+    transform = harpoon_transform,
   }, user_opts or {})
 
   local function remove_harpoon_item(picker)
@@ -45,35 +79,21 @@ M.show = function(user_opts)
     end
 
     picker:norm(function()
-      local indices = {}
-      for _, item in ipairs(selection) do
-        if item.idx then
-          table.insert(indices, item.idx)
-        end
-      end
-
       local list = harpoon:list()
-      local to_remove = {}
-      for _, idx in ipairs(indices) do
-        to_remove[idx] = true
-      end
-
-      local items_to_keep = {}
-      for i = 1, list:length() do
-        if not to_remove[i] then
-          local item = list:get(i)
-          if item then
-            table.insert(items_to_keep, item)
-          end
+      local indices_to_remove = {}
+      for _, item in ipairs(selection) do
+        local harpoon_idx = item.harpoon_idx or item.idx
+        if harpoon_idx then
+          table.insert(indices_to_remove, harpoon_idx)
         end
       end
 
-      -- Rebuild harpoon list
-      -- Can't use list:remove_at, it leaves a hole in the array
-      -- Can't use table.remoe, harpoon doesn't update its internal state correctly
-      list:clear()
-      for _, item in ipairs(items_to_keep) do
-        list:add(item)
+      table.sort(indices_to_remove, function(a, b)
+        return a > b
+      end)
+
+      for _, idx in ipairs(indices_to_remove) do
+        list:remove_at(idx)
       end
     end)
 
@@ -81,6 +101,8 @@ M.show = function(user_opts)
 
     picker.opts.items = refreshed
     picker:refresh()
+
+    require('plugins.ui.lualine.utils').refresh_statusline()
   end
 
   opts.actions = opts.actions or {}

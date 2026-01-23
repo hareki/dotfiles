@@ -3,6 +3,9 @@ local M = {
   misc = {
     dots = '󰇘',
     tab = ' ',
+    pin = '󰐃',
+    location = '',
+    neovim = '',
   },
   ft = {
     octo = '',
@@ -30,6 +33,7 @@ local M = {
     unnamed = '',
   },
   git = {
+    branch = '',
     added = ' ',
     modified = ' ',
     removed = ' ',
@@ -64,6 +68,7 @@ local M = {
     Constant = '',
     Constructor = '',
     Copilot = ' ',
+    CopilotInactive = ' ',
     Enum = '',
     EnumMember = '',
     Event = '',
