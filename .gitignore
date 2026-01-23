@@ -1,1 +1,3 @@
 .DS_STORE
+bin/.local/bin/agent
+bin/.local/bin/cursor-agent
