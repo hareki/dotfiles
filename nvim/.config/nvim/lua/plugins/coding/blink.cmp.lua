@@ -151,6 +151,7 @@ return {
           menu = {
             border = 'rounded',
             scrollbar = false,
+            max_height = 15,
             draw = {
               padding = { 1, 0 }, -- For some reason it already has 1 padding on the right
               columns = {
@@ -309,12 +310,12 @@ return {
               module = 'blink-copilot',
               max_items = copilot_max_items,
               async = true,
-              -- score_offset = -7,
-              should_show_items = function(ctx)
-                -- Only show items if 'copilot' is the sole provider to avoid distraction
-
-                return ctx.providers[1] == 'copilot' and #ctx.providers == 1
-              end,
+              -- Wrap around the menu items to quickly access the suggestion items while prevent items shifting
+              score_offset = -100,
+              -- should_show_items = function(ctx)
+              --   -- Only show items if 'copilot' is the sole provider to avoid distraction
+              --   return ctx.providers[1] == 'copilot' and #ctx.providers == 1
+              -- end,
             },
 
             markdown = {
