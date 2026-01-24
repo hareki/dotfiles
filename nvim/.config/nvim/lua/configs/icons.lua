@@ -6,6 +6,7 @@ local M = {
     pin = '󰐃',
     location = '',
     neovim = '',
+    macro = ' ',
   },
   ft = {
     octo = '',

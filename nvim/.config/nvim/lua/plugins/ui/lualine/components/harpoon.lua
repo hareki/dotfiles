@@ -3,7 +3,7 @@ local M = {}
 
 --- Get all harpoon indices that have files, with current buffer's index wrapped in brackets
 ---@return string|nil formatted as "1 [3] 4" or nil if harpoon list is empty
-function M.harpoon_status()
+function M.status()
   local harpoon = require('harpoon')
   local list = harpoon:list()
   local length = list:length()
@@ -36,7 +36,7 @@ end
 
 ---Check if there are any harpooned files
 ---@return boolean has_harpooned_files True if there are any files in the harpoon list
-function M.has_harpooned_files()
+function M.has_items()
   local harpoon = require('harpoon')
   local list = harpoon:list()
   local length = list:length()
