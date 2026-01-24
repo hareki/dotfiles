@@ -164,6 +164,7 @@ return {
             color = 'maroon',
             icon = icons.misc.location,
             fmt = progress_comp.format,
+            margin = { left = 0, right = 0 },
           })
         ),
       },
