@@ -34,4 +34,25 @@ function M.harpoon_status()
   return table.concat(indices, ' ')
 end
 
+---Check if there are any harpooned files
+---@return boolean has_harpooned_files True if there are any files in the harpoon list
+function M.has_harpooned_files()
+  local harpoon = require('harpoon')
+  local list = harpoon:list()
+  local length = list:length()
+
+  if length == 0 then
+    return false
+  end
+
+  for i = 1, length do
+    local item = list:get(i)
+    if item then
+      return true
+    end
+  end
+
+  return false
+end
+
 return M
