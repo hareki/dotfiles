@@ -16,11 +16,13 @@ return {
   {
     'fang2hou/blink-copilot',
     opts = function()
+      local icons = require('configs.icons')
+
       return {
         max_completions = copilot_max_items,
         max_attempts = copilot_max_items + 1,
         kind_name = 'Copilot',
-        kind_icon = ' ',
+        kind_icon = icons.kinds.Copilot,
         kind_hl = 'BlinkCmpKindCopilot',
         debounce = 200,
         auto_refresh = {
@@ -298,8 +300,12 @@ return {
               name = 'copilot',
               module = 'blink-copilot',
               max_items = copilot_max_items,
-              score_offset = -7,
               async = true,
+              -- score_offset = -7,
+              should_show_items = function(ctx)
+                -- Only show items if 'copilot' is the sole provider to avoid distraction
+                return ctx.providers[1] == 'copilot' and #ctx.providers == 1
+              end,
             },
 
             markdown = {

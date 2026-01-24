@@ -3,6 +3,7 @@ return {
   opts = function()
     local formatter_groups = {
       prettier = {
+        config = { 'prettier', stop_after_first = true },
         filetypes = {
           'javascript',
           'javascriptreact',
@@ -17,7 +18,6 @@ return {
           'jsonc',
           'yaml',
         },
-        config = { 'prettier', stop_after_first = true },
       },
       stylua = {
         filetypes = { 'lua' },
