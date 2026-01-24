@@ -1,52 +1,69 @@
-## 💤 My Personal Neovim Config
+## My Personal Neovim Config
 
 ![image](./assets/docs/demo.png)
 
-Configured from scratch (no distro), inspired by Kickstart & LazyVim, then optimized hard for: fast cold start, per‑plugin isolation, consistent floating UX, minimal diff forks.
+**lazy.nvim** config built from scratch. Optimized for fast cold start, per-plugin isolation, consistent floating UX, and minimal-diff forks.
 
-> [!NOTE] Status
+> [!NOTE]
 > WIP. Structure & forks may change.
 
 ### Core Ideas
 
-- One plugin per file (clarity, easy diffs, quick swap to forks).
-- On‑demand loading (keymaps / `VeryLazy`).
-- Startup: ~38ms (dashboard) / ~50ms (open file) via `:Lazy profile`.
-- Unified floating layout & behavior across Snacks picker, Telescope, floating nvim‑tree.
-- Tab = toggle focus (list<->preview or float<->main). `<C-t>` = toggle side‑panel mode (results dock + floating preview) where supported.
-- Other floats (gitsigns preview hunk, eagle markdown) reuse the Tab focus pattern.
-- Opinionated consistent UI/UX (shared layout primitives + focus & side‑panel mechanics) is largely enabled by minimal fork patches that expose extra hooks or replace narrow internal rendering pieces.
+- One plugin per file under `lua/plugins/{ai,coding,editor,formatting,lsp,treesitter,ui}/`
+- On-demand loading via keymaps or `VeryLazy` event
+- Startup: ~38ms (dashboard) / ~50ms (open file) via `:Lazy profile`
+- Unified floating layout across Snacks picker, Telescope, floating nvim-tree
+- **Tab** = toggle focus (list↔preview, float↔main); **`<C-t>`** = toggle side-panel mode
+
+### Architecture
+
+#### Central Modules (`lua/configs/`)
+
+| Module        | Purpose                                                   |
+| ------------- | --------------------------------------------------------- |
+| `size.lua`    | Popup dimensions: `sm`, `md`, `lg`, `vertical_lg`, `full` |
+| `icons.lua`   | All icons (diagnostics, git, file status, LSP kinds)      |
+| `globals.lua` | `_G.Notifier` and `_G.Defer` lazy proxies                 |
+| `picker.lua`  | Shared picker UI constants                                |
+
+#### Utils (`lua/utils/`)
+
+| Module             | Key Exports                                             |
+| ------------------ | ------------------------------------------------------- |
+| `ui.lua`           | `popup_config(size)`, `catppuccin(fn)`, `get_palette()` |
+| `common.lua`       | `noautocmd(fn)`, `focus_win(win)`, `is_float_win()`     |
+| `notifier.lua`     | Rich notifications with highlight support               |
+| `lazy-require.lua` | `Defer.on_index()`, `Defer.on_exported_call()`          |
+
+#### Complex Plugin Structure
+
+Plugins requiring state management use this pattern:
+
+```
+nvim-tree/
+  init.lua   -- Returns table: [1] catppuccin highlights, [2] plugin spec
+  utils.lua  -- M.state = {} table + helper functions
+```
+
+#### LSP & Formatting
+
+- Per-server configs in `lua/plugins/lsp/nvim-lspconfig/lsp/{server}.lua`
+- Mason handles tool installation via `lua/plugins/lsp/mason.nvim.lua`
+- Single async formatting pipeline in `utils/formatters/async_style_enforcer.lua`
 
 ### Forks (author = hareki)
 
-- 15+ minimal‑diff forks; updated automatically via [wei/pull](https://github.com/wei/pull).
-- Features are toggleable so disabling custom bits reverts close to upstream behavior.
-- Primary vehicle for unified UX: forks expose the tiny APIs (layout hooks, focus toggles, preview coordination) that upstream doesn't yet surface, letting unrelated plugins feel native to one design language.
-- Example: `eagle.nvim` UI for markdown float largely reworked for theme + focus parity.
+- 15+ minimal-diff forks; updated via [wei/pull](https://github.com/wei/pull)
+- Features toggleable — disabling custom bits reverts to upstream behavior
+- Enable unified UX by exposing layout hooks, focus toggles, and preview coordination
 
-### Performance Tactics
+### Code Style
 
-- Defer heavy UI until first use (use lazy loading on keymaps or `VeryLazy` event whenever possible).
-- Central palette + sizing modules (zero duplication).
-- Shared layout primitives for pickers / tree instead of bespoke window math.
-
-### AI Usage
-
-Used for scaffolding & idea prompts only; final code is hand‑edited (naming, palette, sizing, error paths).
-
-### Design Principles
-
-- Single source of truth for sizing & theme adjustments.
-- No global mutation; specs return tables; shared logic lives in `utils/`.
-- Almost every keymap has a `desc` following CMOS 18 title case.
-- One async formatting pipeline instead of many commands.
-
-### Roadmap
-
-- Upstream / retire forks when APIs land.
-- Further unify preview abstractions.
-- Optional minimal profile mode.
+- stylua: 100-char lines, 2-space indent
+- LuaLS `---@class` / `---@param` / `---@return` annotations for public APIs
+- All keymaps include `desc` in CMOS 18 title case
+- Icons imported from `configs/icons.lua` — never hardcoded
 
 ### Attribution
 
-Ideas borrowed from Kickstart & LazyVim; all tailoring is personal workflow oriented. Respect upstream licenses.
+Ideas borrowed from Kickstart & LazyVim; all tailoring is personal workflow oriented.

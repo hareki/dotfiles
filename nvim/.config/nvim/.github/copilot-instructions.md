@@ -6,21 +6,21 @@
 
 ### Central Modules (`lua/configs/`)
 
-| Module        | Purpose                                                   |
-| ------------- | --------------------------------------------------------- |
-| `size.lua`    | Popup dimensions: `sm`, `md`, `lg`, `vertical_lg`, `full` |
-| `icons.lua`   | All icons (diagnostics, git, file status, LSP kinds)      |
-| `globals.lua` | `_G.Notifier` and `_G.Defer` lazy proxies                 |
-| `picker.lua`  | Shared picker UI constants                                |
+| Module        | Purpose                                                                          |
+| ------------- | -------------------------------------------------------------------------------- |
+| `size.lua`    | Size presets: `popup` (`sm`/`md`/`lg`/`vertical_lg`/`full`), `side_preview`, `side_panel`, `inline_popup` |
+| `icons.lua`   | All icons (diagnostics, git, file status, LSP kinds, explorer)                   |
+| `globals.lua` | `_G.Notifier`, `_G.Defer`, `_G.Catppuccin` lazy proxies                          |
+| `picker.lua`  | Shared picker UI constants (`prompt_prefix`, `preview_title`)                    |
 
 ### Utils (`lua/utils/`)
 
-| Module             | Key Exports                                             |
-| ------------------ | ------------------------------------------------------- |
-| `ui.lua`           | `popup_config(size)`, `catppuccin(fn)`, `get_palette()` |
-| `common.lua`       | `noautocmd(fn)`, `focus_win(win)`, `is_float_win()`     |
-| `notifier.lua`     | Rich notifications with highlight support               |
-| `lazy-require.lua` | `Defer.on_index()`, `Defer.on_exported_call()`          |
+| Module             | Key Exports                                                              |
+| ------------------ | ------------------------------------------------------------------------ |
+| `ui.lua`           | `popup_config(size)`, `catppuccin(fn)`, `get_palette()`, `telescope_layout(size)`, `computed_size(size)` |
+| `common.lua`       | `noautocmd(fn)`, `focus_win(win)`, `is_float_win()`, `list_extend(...)`  |
+| `notifier.lua`     | Rich notifications with highlight support                                |
+| `lazy-require.lua` | `Defer.on_index()`, `Defer.on_exported_call()`                           |
 
 ## Plugin Patterns
 
@@ -30,19 +30,33 @@ For plugins requiring state management or extensive customization:
 
 ```
 nvim-tree/
-  init.lua   -- Returns table: [1] catppuccin highlights, [2] plugin spec
+  init.lua   -- Returns table: [1] catppuccin highlights, [2+] plugin specs
   utils.lua  -- M.state = {} table + helper functions
-  types.lua  -- LuaLS @class annotations (optional)
 ```
 
-### Catppuccin Highlight Registration
-
-When plugin needs custom highlights, place `catppuccin()` first in returned table:
+Example `init.lua` structure:
 
 ```lua
 return {
   Catppuccin(function(palette, sub_palette)
     return { MyHighlight = { fg = palette.blue, bg = palette.base } }
+  end),
+  { 'author/plugin-dependency', opts = {...} },
+  { 'author/main-plugin', opts = function() ... end },
+}
+```
+
+### Catppuccin Highlight Registration
+
+Use global `Catppuccin` (from `globals.lua`) when plugin needs custom highlights. Place it first in returned table:
+
+```lua
+return {
+  Catppuccin(function(palette, sub_palette)
+    return {
+      MyHighlight = { fg = palette.blue, bg = palette.base },
+      MyOtherHighlight = { fg = sub_palette.yellow }, -- sub_palette = latte flavor
+    }
   end),
   { 'plugin/name', opts = {...} },
 }
@@ -58,6 +72,14 @@ local size = ui.popup_config('lg')
 -- Returns: { width, height, col, row }
 ```
 
+For side panels or previews, access size configs directly:
+
+```lua
+local size_configs = require('configs.size')
+local ui = require('utils.ui')
+local panel_width = ui.computed_size(size_configs.side_panel.md)
+```
+
 ### State Management Pattern
 
 Complex plugins use `M.state = {}` in their `utils.lua`:
@@ -66,6 +88,11 @@ Complex plugins use `M.state = {}` in their `utils.lua`:
 ---@class MyPlugin.Utils
 local M = {}
 
+---@class MyPlugin.State
+---@field position 'float' | 'side'
+---@field preview_on_focus boolean
+
+---@type MyPlugin.State
 M.state = {
   position = 'float',
   preview_on_focus = false,
@@ -127,23 +154,47 @@ Single async pipeline in `utils/formatters/async_style_enforcer.lua`:
 
 ## Snacks Picker
 
-Custom pickers live in `lua/plugins/ui/snacks/pickers/`. Each exports a function:
+Custom pickers live in `lua/plugins/ui/snacks/pickers/`. Each exports `M.show(user_opts)`:
 
 ```lua
 -- pickers/harpoon.lua
-return function(user_opts)
+local M = {}
+
+M.show = function(user_opts)
   local items = build_items()
-  local opts = vim.tbl_deep_extend('force', { title = 'Harpoon', items = items }, user_opts or {})
+  if vim.tbl_isempty(items) then
+    Notifier.info('Harpoon list is empty')
+    return
+  end
+
+  local opts = vim.tbl_deep_extend('force', {
+    title = 'Harpoon',
+    items = items,
+    source = 'harpoon',
+    format = custom_format,
+    transform = custom_transform,
+  }, user_opts or {})
+
+  -- Define custom actions
+  opts.actions = opts.actions or {}
+  opts.actions.remove_item = function(picker) ... end
+
   return Snacks.picker(opts)
 end
+
+return M
 ```
 
-**Existing pickers**: `harpoon` (see `pickers/harpoon.lua` for pattern)
+**Existing pickers**: `harpoon`
 
-**Shared utilities** (`snacks/utils.lua`):
+### Shared Utilities (`snacks/utils/`)
 
-- `buffer_format` — consistent buffer item formatting
-- `keymap_transform` — enriches keymap items with which-key descriptions
+| Module            | Key Exports                                                    |
+| ----------------- | -------------------------------------------------------------- |
+| `formatters.lua`  | `keymap_format`, `buffer_format`, `buffer_select_format`       |
+| `transformers.lua`| `files_transform`, `keymap_transform`, `buffer_select_transform` |
+| `sorters.lua`     | Custom sorting functions                                       |
+| `cache.lua`       | Query result caching for transformers                          |
 
 **Invocation pattern** (from keymaps in `snacks/init.lua`):
 
@@ -166,13 +217,25 @@ harpoon_picker.show({ preview = 'main' })
 - Lazy-load via `event = 'VeryLazy'` or keymap triggers
 - LuaLS `---@class` / `---@param` / `---@return` annotations for public APIs
 - Import icons from `configs/icons.lua` — never hardcode icon strings
-- **Module Imports**: `require()` should only be used for importing modules, never for accessing properties or methods on the same line. Always assign to a local variable first:
+- Use `Notifier` global for notifications (lazy-loaded via `globals.lua`)
+- Use `Catppuccin` global for highlight registration in plugin specs
 
-  ```lua
-  -- Bad
-  require('plugins.ui.lualine.utils').refresh_statusline()
+**Module Imports**: `require()` should only be used for importing modules, never for accessing properties or methods on the same line. Always assign to a local variable first:
 
-  -- Good
-  local lualine_utils = require('plugins.ui.lualine.utils')
-  lualine_utils.refresh_statusline()
-  ```
+```lua
+-- Bad
+require('plugins.ui.lualine.utils').refresh_statusline()
+
+-- Good
+local lualine_utils = require('plugins.ui.lualine.utils')
+lualine_utils.refresh_statusline()
+```
+
+**Type Aliases**: Define type aliases for state fields:
+
+```lua
+---@alias MyPlugin.Position 'side' | 'float'
+
+---@class MyPlugin.State
+---@field position MyPlugin.Position
+```
