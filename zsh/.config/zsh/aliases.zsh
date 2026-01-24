@@ -13,7 +13,4 @@ alias compz="zcompile ~/.zshrc"
 alias cl="clear"
 alias ez="nvim ~/.zshrc"
 alias eze="nvim ~/.zshenv"
-
-# [RE-Z]shrc
-# env -i ... is to hard reset the environment variables to empty, must retain the essential ones like TERM
-# this is to make sure the new zsh instance that doesn't inherit any of the previously exported variables.
+alias tree="eza --tree"
