@@ -324,6 +324,10 @@ return {
             width = config.full.width,
             col = config.full.col,
             row = config.full.row,
+            keys = {
+              -- Capture q in terminal mode to hide instead of passing it to lazygit and making it terminate itself
+              q = { 'q', 'hide', mode = 't' },
+            },
           },
         },
       }
