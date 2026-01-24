@@ -77,7 +77,6 @@ return {
 
         map('<Tab>', function()
           if vim.api.nvim_win_is_valid(trouble_win) then
-            local common = require('utils.common')
             common.focus_win(trouble_win)
           end
         end, 'Focus Trouble Window')
@@ -92,7 +91,6 @@ return {
 
         map('q', function()
           if vim.api.nvim_win_is_valid(trouble_win) then
-            local common = require('utils.common')
             common.focus_win(trouble_win)
           end
           if vim.api.nvim_win_is_valid(preview.win) then

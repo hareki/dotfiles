@@ -66,7 +66,7 @@ function M.create_styling_wrapper(opts)
   local ui = require('utils.ui')
   local palette = ui.get_palette()
 
-  local style, side = opts.type:match('^(%w+)-(%w+)$')
+  local style, _side = opts.type:match('^(%w+)-(%w+)$')
   local is_primary = style == 'primary'
   local defaults = DEFAULTS[opts.type]
   local known_keys =

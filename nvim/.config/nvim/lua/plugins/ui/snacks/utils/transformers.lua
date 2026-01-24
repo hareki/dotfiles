@@ -54,6 +54,7 @@ function M.files_transform(item)
   if is_ds_store(item.file) then
     return false
   end
+  return item
 end
 
 ---Transform function for keymap picker to enrich with which-key descriptions

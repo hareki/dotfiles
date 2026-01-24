@@ -15,14 +15,14 @@ return {
         '<leader>un',
         function()
           local telescope = require('telescope')
-          local notify = telescope.extensions.notify.notify
+          local telescope_notify = telescope.extensions.notify.notify
           local picker_config = require('configs.picker')
           local preview_title = picker_config.telescope_preview_title
           local telescope_previewers = require('telescope.previewers')
           local new_buffer_previewer = telescope_previewers.new_buffer_previewer
 
           -- May use `:Telescope noice` as well
-          notify({
+          telescope_notify({
             results_title = '',
             preview_title = preview_title,
             previewer = new_buffer_previewer({
