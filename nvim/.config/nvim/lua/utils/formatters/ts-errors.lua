@@ -23,6 +23,7 @@ local function is_typescript_diagnostic(diagnostic)
   if not source and diagnostic.user_data and diagnostic.user_data.lsp then
     source = diagnostic.user_data.lsp.source
   end
+
   return M.state.supported_sources[source] or type(diagnostic.code) == 'number'
 end
 
@@ -41,6 +42,7 @@ local function normalize_range(diagnostic)
   local sc = diagnostic.col or 0
   local el = diagnostic.end_lnum or sl
   local ec = diagnostic.end_col or (sc + 1)
+
   return {
     start = { line = sl, character = sc },
     ['end'] = { line = el, character = ec },
@@ -54,6 +56,7 @@ local function get_code(diagnostic)
   if diagnostic.user_data and diagnostic.user_data.lsp and diagnostic.user_data.lsp.code ~= nil then
     return diagnostic.user_data.lsp.code
   end
+
   return nil
 end
 
@@ -88,6 +91,7 @@ local function compute_cache_key(diagnostic)
     tostring(r['end'].character),
     diagnostic.message or '',
   }
+
   return table.concat(parts, '\31')
 end
 
@@ -134,6 +138,7 @@ local function run_cli(input_object)
   if res2 and res2.code == 0 and res2.stdout and #res2.stdout > 0 then
     return trim_trailing_whitespace(res2.stdout)
   end
+
   return nil
 end
 
@@ -148,6 +153,7 @@ local function strip_cli_header(md)
   end
   local rest = md:sub(first_nl + 1)
   rest = rest:gsub('^\r?\n', '', 1) -- Remove one extra blank line if present
+
   return rest
 end
 

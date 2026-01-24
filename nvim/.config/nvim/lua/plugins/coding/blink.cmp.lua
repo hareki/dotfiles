@@ -67,6 +67,7 @@ return {
           if ctx.mode == 'cmdline' and string.find(ctx.line, ' ') == nil then
             return length or 3
           end
+
           return 0
         end
       end
@@ -91,6 +92,7 @@ return {
               function(cmp)
                 if cmp.is_menu_visible() then
                   cmp.hide()
+
                   return true
                 end
               end,
@@ -100,6 +102,7 @@ return {
                 -- Feed <C-c> to cancel the command line instead
                 local keys = vim.api.nvim_replace_termcodes('<C-c>', true, false, true)
                 vim.api.nvim_feedkeys(keys, 'n', false)
+
                 return true
               end,
             },
@@ -186,6 +189,7 @@ return {
               if cmp.is_documentation_visible() then
                 cmp.scroll_documentation_up(4)
               end
+
               return true
             end,
           },
@@ -194,6 +198,7 @@ return {
               if cmp.is_documentation_visible() then
                 cmp.scroll_documentation_down(4)
               end
+
               return true
             end,
           },
@@ -243,6 +248,7 @@ return {
               should_show_items = function()
                 local filetype = vim.api.nvim_get_option_value('filetype', { buf = 0 })
                 local is_ignored_filetype = vim.list_contains({ '', 'NvimTree' }, filetype) -- NvimTree live_filter has a blank filetype
+
                 return not is_ignored_filetype
               end,
             },
@@ -264,6 +270,7 @@ return {
                   item.kind_hl = 'BlinkCmpKindKeyword'
                   -- item.kind_icon = '' -- Overwrite if needed
                 end
+
                 return items
               end,
             },
@@ -292,6 +299,7 @@ return {
                     item.textEdit.newText = item.textEdit.newText:gsub(' ', '')
                   end
                 end
+
                 return items
               end,
             },
@@ -304,6 +312,7 @@ return {
               -- score_offset = -7,
               should_show_items = function(ctx)
                 -- Only show items if 'copilot' is the sole provider to avoid distraction
+
                 return ctx.providers[1] == 'copilot' and #ctx.providers == 1
               end,
             },
@@ -317,6 +326,7 @@ return {
                   item.kind = render_markdown_index
                   item.kind_hl = 'BlinkCmpKindRenderMD'
                 end
+
                 return items
               end,
             },

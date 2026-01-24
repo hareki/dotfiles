@@ -42,9 +42,11 @@ return {
       },
     }
   end,
+
   opts = function()
     local size_configs = require('configs.size')
     local size = size_configs.side_panel.lg
+
     ---@type opencode.Opts
     return {
       provider = {

@@ -44,6 +44,7 @@ local function query_spec_desc_cached(lhs, mode, buffer)
 
   local result = query_spec_desc(lhs, mode, buffer)
   cache.cache[cache_key] = result
+
   return result
 end
 
@@ -54,6 +55,7 @@ function M.files_transform(item)
   if is_ds_store(item.file) then
     return false
   end
+
   return item
 end
 
@@ -97,6 +99,7 @@ function M.buffer_select_transform(item)
   if item.idx and item.text then
     item.text = item.idx .. ' ' .. item.text
   end
+
   return item
 end
 

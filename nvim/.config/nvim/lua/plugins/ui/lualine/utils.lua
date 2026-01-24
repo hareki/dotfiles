@@ -48,6 +48,7 @@ local function create_margins(count, palette, cond)
   for _ = 1, count do
     table.insert(margins, create_empty_comp(palette, cond))
   end
+
   return margins
 end
 
@@ -97,6 +98,7 @@ function M.create_styling_wrapper(opts)
       color = { fg = text_color, bg = palette.base },
       padding = padding,
     }, extra)
+
     return { main_comp }
   end
 
@@ -109,6 +111,7 @@ function M.create_styling_wrapper(opts)
   vim.list_extend(result, left_margins)
   table.insert(result, main_comp)
   vim.list_extend(result, right_margins)
+
   return result
 end
 
@@ -124,6 +127,7 @@ function M.flatten_section(...)
       table.insert(result, item)
     end
   end
+
   return result
 end
 

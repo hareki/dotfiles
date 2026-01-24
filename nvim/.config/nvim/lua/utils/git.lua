@@ -57,6 +57,7 @@ function M.format_branch_name(branch_name)
       end
     end
     table.insert(branch_format_cache_order, cache_key)
+
     return branch_format_cache[cache_key]
   end
 
@@ -113,6 +114,7 @@ function M.format_branch_name(branch_name)
 
   branch_format_cache[cache_key] = result
   table.insert(branch_format_cache_order, cache_key)
+
   return result
 end
 
@@ -135,6 +137,7 @@ function M.exec_cmd(cmd, cwd)
   if result.code == 0 and result.stdout and result.stdout ~= '' then
     -- Trim whitespace and newlines
     local trimmed = result.stdout:gsub('%s+$', ''):gsub('^%s+', '')
+
     return trimmed
   end
 
@@ -167,6 +170,7 @@ function M.is_bare_repo(path)
     return false
   end
   local result = M.exec_cmd('rev-parse --is-bare-repository', path)
+
   return result == 'true'
 end
 
@@ -204,6 +208,7 @@ function M.get_repo_name()
   local repo_name = M.get_repo_name_from_remote()
   if repo_name then
     repo_cache.name = repo_name
+
     return repo_name
   end
 
@@ -217,6 +222,7 @@ function M.get_repo_name()
         local parent_repo_name = M.get_repo_name_from_path(parent_dir)
         if parent_repo_name then
           repo_cache.name = parent_repo_name
+
           return parent_repo_name
         end
       end
@@ -226,6 +232,7 @@ function M.get_repo_name()
     local toplevel_repo_name = M.get_repo_name_from_path(toplevel)
     if toplevel_repo_name then
       repo_cache.name = toplevel_repo_name
+
       return toplevel_repo_name
     end
   end
@@ -233,6 +240,7 @@ function M.get_repo_name()
   -- Step 3: Fallback to using the current working directory's name
   local cwd_name = M.get_repo_name_from_path(current_cwd or '')
   repo_cache.name = cwd_name or 'Unknown'
+
   return repo_cache.name
 end
 

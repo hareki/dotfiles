@@ -38,6 +38,7 @@ return {
               { '\nis already in slot ', 'Normal' },
               { tostring(current_index), 'NotifyWARNTitle' },
             }, { title = 'harpoon' })
+
             return
           end
 

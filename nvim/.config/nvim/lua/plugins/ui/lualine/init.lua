@@ -39,7 +39,7 @@ return {
     local flatten = lualine_utils.flatten_section
     local separator = lualine_utils.separator
 
-    -- PERF: we don't need this lualine require madness 🤷
+    -- PERF: we don't need this lualine require madness
     local lualine_require = require('lualine_require')
     lualine_require.require = require
 
@@ -73,48 +73,48 @@ return {
           },
 
           create_wrapper({
+            comp = harpoon_comp.status,
             type = 'primary-left',
             color = 'yellow',
             icon = icons.misc.pin,
-            comp = harpoon_comp.status,
             cond = harpoon_comp.has_items,
           }),
 
           create_wrapper({
-            type = 'secondary-left',
             comp = 'diff',
-            source = diff_comp.source,
+            type = 'secondary-left',
             symbols = {
               added = icons.git.added,
               modified = icons.git.modified,
               removed = icons.git.removed,
             },
+            source = diff_comp.source,
           }),
 
           create_wrapper({
+            comp = 'branch',
             type = 'secondary-left',
             icon = icons.git.branch,
-            comp = 'branch',
             fmt = git_utils.format_branch_name,
           }),
 
           create_wrapper({
+            comp = macro_comp.recording,
             type = 'secondary-left',
             color = 'red',
             icon = icons.misc.macro,
-            comp = macro_comp.recording,
             cond = macro_comp.is_recording,
           }),
 
           create_wrapper({
-            type = 'secondary-left',
             comp = buffer_comp.current_buffer_flags,
+            type = 'secondary-left',
             color = 'yellow',
           }),
 
           create_wrapper({
-            type = 'secondary-left',
             comp = buffer_comp.global_modified_flag,
+            type = 'secondary-left',
             color = 'red',
             padding = { left = 0, right = 0 },
           })
@@ -127,8 +127,8 @@ return {
 
         lualine_z = flatten(
           create_wrapper({
-            type = 'secondary-right',
             comp = 'copilot',
+            type = 'secondary-right',
             symbols = {
               status = {
                 icons = {
@@ -140,29 +140,29 @@ return {
           }),
 
           create_wrapper({
-            type = 'secondary-right',
             comp = 'diagnostics',
-            sections = { 'error', 'warn', 'info' },
+            type = 'secondary-right',
             symbols = {
               error = icons.diagnostics.Error,
               warn = icons.diagnostics.Warn,
               info = icons.diagnostics.Info,
               hint = icons.diagnostics.Hint,
             },
+            sections = { 'error', 'warn', 'info' },
           }),
 
           create_wrapper({
+            comp = git_utils.get_repo_name,
             type = 'primary-right',
             color = 'blue',
             icon = icons.explorer.folder,
-            comp = git_utils.get_repo_name,
           }),
 
           create_wrapper({
+            comp = 'progress',
             type = 'primary-right',
             color = 'maroon',
             icon = icons.misc.location,
-            comp = 'progress',
             fmt = progress_comp.format,
           })
         ),

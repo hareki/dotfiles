@@ -42,6 +42,7 @@ return {
 
           local params = ctx.params
           local command_handler = capabilities[params.command]
+
           if command_handler then
             command_handler()
             return

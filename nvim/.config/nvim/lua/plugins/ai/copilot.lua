@@ -9,10 +9,7 @@ return {
 
     return {
       workspace_folders = { initial_path },
-      filetypes = {
-        markdown = true,
-        help = true,
-      },
+      filetypes = { markdown = true, help = true },
 
       nes = { enabled = false },
       panel = { enabled = false },

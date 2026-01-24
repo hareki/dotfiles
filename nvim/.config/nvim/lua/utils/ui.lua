@@ -24,6 +24,7 @@ end
 ---@return palette colors The color palette table
 function M.get_palette(name)
   local palettes = require('catppuccin.palettes')
+
   return palettes.get_palette(name or 'mocha')
 end
 
@@ -64,6 +65,7 @@ end
 function M.screen_size()
   local screen_w = vim.o.columns
   local screen_h = vim.o.lines
+
   return screen_w, screen_h
 end
 

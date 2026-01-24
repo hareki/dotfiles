@@ -54,6 +54,7 @@ function M.current_buffer_flags()
   if vim.list_contains(IGNORE_FILETYPES, vim.bo.filetype) then
     cache.current_buffer_flags = ''
     cache.last_bufnr = bufnr
+
     return ''
   end
 
@@ -90,6 +91,7 @@ function M.current_buffer_flags()
   local result = table.concat(out)
   cache.current_buffer_flags = result
   cache.last_bufnr = bufnr
+
   return result
 end
 
@@ -124,6 +126,7 @@ function M.global_modified_flag()
   local status = icons.file_status
   local result = count > 0 and status.modified .. count or ''
   cache.global_modified_flag = result
+
   return result
 end
 

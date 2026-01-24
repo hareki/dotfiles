@@ -36,6 +36,7 @@ function M.show()
         break
       end
     end
+
     return last
   end
 
@@ -61,6 +62,7 @@ function M.show()
         return true
       end
     end
+
     return false
   end
 
@@ -101,6 +103,7 @@ function M.show()
         table.insert(out, v)
       end
     end
+
     return out
   end
 
@@ -113,6 +116,7 @@ function M.show()
         table.insert(out, e)
       end
     end
+
     return out
   end
 
@@ -214,6 +218,7 @@ function M.show()
       ok = pcall(vim.api.nvim_win_close, win, true)
     end
     closing = false
+
     return ok
   end
 

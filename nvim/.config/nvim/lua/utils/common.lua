@@ -23,6 +23,7 @@ function M.list_extend(...)
       vim.list_extend(result, keymap_array)
     end
   end
+
   return result
 end
 
@@ -85,6 +86,7 @@ function M.count_string_keys(t)
       n = n + 1
     end
   end
+
   return n
 end
 
