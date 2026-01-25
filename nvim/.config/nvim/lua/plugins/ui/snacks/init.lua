@@ -325,8 +325,7 @@ return {
             col = config.full.col,
             row = config.full.row,
             keys = {
-              -- Capture q in terminal mode to hide instead of passing it to lazygit and making it terminate itself
-              q = { 'q', 'hide', mode = 't' },
+              ['<leader>g'] = { 'hide', mode = 't' },
             },
           },
         },
