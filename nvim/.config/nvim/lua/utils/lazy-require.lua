@@ -19,7 +19,7 @@
 ---
 ---@brief ]]
 
----@class utils.lazy-require
+---@class utils.lazy_require
 local M = {}
 
 ---Require on index - lazy load a module when first accessed

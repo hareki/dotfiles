@@ -1,4 +1,4 @@
----@class Lualine.Components.Mode
+---@class Lualine.components.mode
 local M = {}
 
 local ui = require('utils.ui')

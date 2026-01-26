@@ -1,17 +1,17 @@
----@class nvim-tree.Utils
+---@class nvim-tree.utils
 local M = {}
 
----@alias nvim-tree.Position  'side' | 'float'
+---@alias nvim-tree.utils.Position  'side' | 'float'
 
----@class nvim-tree.State
----@field position nvim-tree.Position
+---@class nvim-tree.utils.State
+---@field position nvim-tree.utils.Position
 ---@field opts table | nil
 ---@field preview_on_focus boolean
 ---@field preview_watcher integer | nil
 ---@field live_filter_triggered boolean
 ---@field size 'vertical_lg'
 
----@type nvim-tree.State
+---@type nvim-tree.utils.State
 M.state = {
   position = 'float',
   opts = nil,
@@ -99,7 +99,7 @@ function M.create_node_action(folder_action)
 end
 
 ---Switch nvim-tree between float and side panel positions
----@param position nvim-tree.Position The target position ('float' or other)
+---@param position nvim-tree.utils.Position The target position ('float' or other)
 ---@return nil
 function M.switch_position(position)
   if position == M.state.position then
