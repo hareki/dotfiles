@@ -78,6 +78,9 @@ keybind = cmd+p=text:\x1bp
 
 # Toggle floating terminal (Nvim + FloaX)
 keybind = cmd+t=text:\x1bt
+
+# Snacks lazygit toggle
+keybind = cmd+g=text:\x1bg
 # Toggle terminal tab (Nvim)
 keybind = cmd+shift+t=text:\x1bT
 

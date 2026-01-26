@@ -18,13 +18,6 @@ return {
     keys = function()
       return {
         {
-          '<leader>g',
-          function()
-            Snacks.lazygit()
-          end,
-          desc = 'Lazygit',
-        },
-        {
           '<leader><leader>',
           function()
             Snacks.picker.files()
@@ -129,6 +122,15 @@ return {
           end,
           mode = { 'n', 't', 'i' },
           desc = 'Toggle Floating Terminal',
+        },
+
+        {
+          '<A-g>',
+          function()
+            Snacks.lazygit()
+          end,
+          mode = { 'n', 't', 'i' },
+          desc = 'Toggle Lazygit',
         },
       }
     end,
@@ -324,9 +326,6 @@ return {
             width = config.full.width,
             col = config.full.col,
             row = config.full.row,
-            keys = {
-              ['<leader>g'] = { 'hide', mode = 't' },
-            },
           },
         },
       }
