@@ -22,7 +22,7 @@ return {
   end,
 
   opts = function()
-    local buffer_comp = require('plugins.ui.lualine.components.buffer')
+    local buffer_status_comp = require('plugins.ui.lualine.components.buffer_status')
     local harpoon_comp = require('plugins.ui.lualine.components.harpoon')
     local macro_comp = require('plugins.ui.lualine.components.macro')
     local mode_comp = require('plugins.ui.lualine.components.mode')
@@ -107,16 +107,8 @@ return {
           }),
 
           create_wrapper({
-            comp = buffer_comp.current_buffer_flags,
+            comp = buffer_status_comp.component,
             type = 'secondary-left',
-            color = 'yellow',
-          }),
-
-          create_wrapper({
-            comp = buffer_comp.global_modified_flag,
-            type = 'secondary-left',
-            color = 'red',
-            padding = { left = 0, right = 0 },
           })
         ),
 
