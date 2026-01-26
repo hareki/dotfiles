@@ -1,4 +1,4 @@
----@class utils.hl-at-cursor
+---@class utils.hl_at_cursor
 local M = {}
 
 ---Show all highlight groups affecting the cursor position in a Markdown popup

@@ -1,4 +1,4 @@
----@class Lualine.Components.Harpoon
+---@class Lualine.Components.harpoon
 local M = {}
 
 --- Get all harpoon indices that have files, with current buffer's index wrapped in brackets

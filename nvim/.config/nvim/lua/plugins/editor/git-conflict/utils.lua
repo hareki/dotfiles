@@ -1,4 +1,4 @@
----@class plugins.editor.git-conflict.utils
+---@class plugins.editor.git_conflict.utils
 local M = {}
 
 -- Maximum number of lines to search backward/forward for conflict markers
