@@ -60,6 +60,7 @@ return {
           { '<leader>u', group = 'Notification' },
           { '<leader>?', group = 'Debug' },
           { '<leader>a', group = 'Opencode', mode = { 'n', 'v' } },
+          { '<leader>H', group = 'Harpoon File', mode = { 'n', 'v' } },
         }, desc_override_specs),
 
         icons = {
@@ -68,7 +69,6 @@ return {
             -- Plugin > filetype > pattern
             -- Elements come first have higher priority when multiple patterns match
             { plugin = 'yanky.nvim', pattern = 'yank', icon = '', color = 'yellow' },
-            { plugin = 'harpoon', icon = '󰛢', color = 'azure' },
             { plugin = 'dropbar.nvim', icon = '', color = 'purple' },
             { plugin = 'auto-session', icon = '󰆓', color = 'green' },
             { plugin = 'multicursors.nvim', icon = '' },
@@ -80,6 +80,7 @@ return {
             { pattern = 'terminal', icon = ' ', color = 'green' },
             { pattern = 'gitsigns', icon = '', color = 'yellow' },
 
+            { pattern = 'harpoon', icon = '󰛢', color = 'azure' },
             { pattern = 'diff', icon = '', color = 'yellow' },
             { pattern = 'help', icon = '󰋗', color = 'blue' },
             { pattern = 'buffer', icon = ' ', color = 'cyan' },
