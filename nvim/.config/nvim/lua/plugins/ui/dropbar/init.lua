@@ -93,6 +93,8 @@ return {
     },
 
     opts = function()
+      local dropbar_utils = require('plugins.ui.dropbar.utils')
+
       return {
         menu = {
           indicator_side = 'right',
@@ -117,10 +119,7 @@ return {
         -- https://github.com/Bekaboo/dropbar.nvim?tab=readme-ov-file#bar
         -- Intercept and limit the lsp items to avoid too deeply nested items
         bar = {
-          enable = (function()
-            local dropbar_utils = require('plugins.ui.dropbar.utils')
-            return dropbar_utils.enable
-          end)(),
+          enable = dropbar_utils.enable,
           truncate = false,
           hover = true,
           sources = function(buf, _)

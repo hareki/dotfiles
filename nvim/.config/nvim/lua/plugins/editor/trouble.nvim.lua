@@ -53,6 +53,7 @@ return {
       local ui_utils = require('utils.ui')
       local icons = require('configs.icons')
       local size_configs = require('configs.size')
+      local picker_config = require('configs.picker')
       local preview_cols, preview_rows = ui_utils.computed_size(size_configs.side_preview.md)
       local panel_cols, _ = ui_utils.computed_size(size_configs.side_panel.md)
       local preview_width_offset = panel_cols + preview_cols + 3
@@ -112,10 +113,7 @@ return {
           type = 'float',
           relative = 'win',
           border = 'rounded',
-          title = (function()
-            local picker_config = require('configs.picker')
-            return picker_config.preview_title
-          end)(),
+          title = picker_config.preview_title,
           title_pos = 'center',
           position = { preview_height_offset, -preview_width_offset },
           size = {
