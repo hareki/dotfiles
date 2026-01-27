@@ -94,7 +94,7 @@ return {
           local lualine_utils = require('plugins.ui.lualine.utils')
           lualine_utils.refresh_statusline()
         end,
-        desc = 'Harpoon Current File to Slot ' .. current_index,
+        desc = 'Harpoon File to Slot ' .. current_index,
       })
 
       table.insert(keys, {
@@ -102,7 +102,7 @@ return {
         function()
           require('harpoon'):list():select(current_index)
         end,
-        desc = 'Harpoon: File ' .. current_index,
+        desc = 'Harpoon Slot ' .. current_index,
       })
     end
 
