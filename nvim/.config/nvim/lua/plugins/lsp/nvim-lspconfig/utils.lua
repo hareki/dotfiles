@@ -194,4 +194,12 @@ function M.load_lsp_configs()
   end
 end
 
+---Populate workspace diagnostics for the given LSP client and buffer
+---@param client vim.lsp.Client The LSP client
+---@param bufnr integer The buffer number
+function M.populate_workspace_diagnostics(client, bufnr)
+  local workspace_diagnostics = require('workspace-diagnostics')
+  workspace_diagnostics.populate_workspace_diagnostics(client, bufnr)
+end
+
 return M
