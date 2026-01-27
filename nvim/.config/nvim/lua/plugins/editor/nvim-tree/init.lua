@@ -136,6 +136,7 @@ return {
       local tree = require('plugins.editor.nvim-tree.utils')
       local state = tree.state
       local picker_config = require('configs.picker')
+      local nvim_tree_utils = require('plugins.editor.nvim-tree.utils')
 
       state.opts = {
         hijack_cursor = true, -- Keep cursor on the first letter of filename
@@ -235,10 +236,7 @@ return {
           end,
 
           float = {
-            enable = (function()
-              local nvim_tree_utils = require('plugins.editor.nvim-tree.utils')
-              return nvim_tree_utils.state.position == 'float'
-            end)(),
+            enable = nvim_tree_utils.state.position == 'float',
             quit_on_focus_loss = false,
             open_win_config = function()
               local size = ui_utils.popup_config(tree.state.size)
