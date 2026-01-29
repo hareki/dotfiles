@@ -127,11 +127,6 @@ return {
     local npm_global_root = npm_root and vim.trim(npm_root.stdout or '') or ''
 
     return {
-      on_attach = function(client, bufnr)
-        local lsp_utils = require('plugins.lsp.nvim-lspconfig.utils')
-        lsp_utils.populate_workspace_diagnostics(client, bufnr)
-      end,
-
       settings = {
         complete_function_calls = false,
         typescript = ts_config,
