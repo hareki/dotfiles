@@ -6,21 +6,21 @@
 
 ### Central Modules (`lua/configs/`)
 
-| Module        | Purpose                                                                          |
-| ------------- | -------------------------------------------------------------------------------- |
+| Module        | Purpose                                                                                                   |
+| ------------- | --------------------------------------------------------------------------------------------------------- |
 | `size.lua`    | Size presets: `popup` (`sm`/`md`/`lg`/`vertical_lg`/`full`), `side_preview`, `side_panel`, `inline_popup` |
-| `icons.lua`   | All icons (diagnostics, git, file status, LSP kinds, explorer)                   |
-| `globals.lua` | `_G.Notifier`, `_G.Defer`, `_G.Catppuccin` lazy proxies                          |
-| `picker.lua`  | Shared picker UI constants (`prompt_prefix`, `preview_title`)                    |
+| `icons.lua`   | All icons (diagnostics, git, file status, LSP kinds, explorer)                                            |
+| `globals.lua` | `_G.Notifier`, `_G.Defer`, `_G.Catppuccin` lazy proxies                                                   |
+| `picker.lua`  | Shared picker UI constants (`prompt_prefix`, `preview_title`)                                             |
 
 ### Utils (`lua/utils/`)
 
-| Module             | Key Exports                                                              |
-| ------------------ | ------------------------------------------------------------------------ |
+| Module             | Key Exports                                                                                              |
+| ------------------ | -------------------------------------------------------------------------------------------------------- |
 | `ui.lua`           | `popup_config(size)`, `catppuccin(fn)`, `get_palette()`, `telescope_layout(size)`, `computed_size(size)` |
-| `common.lua`       | `noautocmd(fn)`, `focus_win(win)`, `is_float_win()`, `list_extend(...)`  |
-| `notifier.lua`     | Rich notifications with highlight support                                |
-| `lazy-require.lua` | `Defer.on_index()`, `Defer.on_exported_call()`                           |
+| `common.lua`       | `noautocmd(fn)`, `focus_win(win)`, `is_float_win()`, `list_extend(...)`                                  |
+| `notifier.lua`     | Rich notifications with highlight support                                                                |
+| `lazy-require.lua` | `Defer.on_index()`, `Defer.on_exported_call()`                                                           |
 
 ## Plugin Patterns
 
@@ -189,12 +189,12 @@ return M
 
 ### Shared Utilities (`snacks/utils/`)
 
-| Module            | Key Exports                                                    |
-| ----------------- | -------------------------------------------------------------- |
-| `formatters.lua`  | `keymap_format`, `buffer_format`, `buffer_select_format`       |
-| `transformers.lua`| `files_transform`, `keymap_transform`, `buffer_select_transform` |
-| `sorters.lua`     | Custom sorting functions                                       |
-| `cache.lua`       | Query result caching for transformers                          |
+| Module             | Key Exports                                                      |
+| ------------------ | ---------------------------------------------------------------- |
+| `formatters.lua`   | `keymap_format`, `buffer_format`, `buffer_select_format`         |
+| `transformers.lua` | `files_transform`, `keymap_transform`, `buffer_select_transform` |
+| `sorters.lua`      | Custom sorting functions                                         |
+| `cache.lua`        | Query result caching for transformers                            |
 
 **Invocation pattern** (from keymaps in `snacks/init.lua`):
 
@@ -229,6 +229,19 @@ require('plugins.ui.lualine.utils').refresh_statusline()
 -- Good
 local lualine_utils = require('plugins.ui.lualine.utils')
 lualine_utils.refresh_statusline()
+```
+
+**Command Syntax**: Avoid `<CMD>...<CR>` syntax in keymaps. Use `vim.cmd` functions instead:
+
+```lua
+-- Bad
+map('n', '<leader>q', '<CMD>q<CR>', { desc = 'Quit' })
+map('n', '<leader>w', '<CMD>w<CR>', { desc = 'Save' })
+
+-- Good
+map('n', '<leader>q', vim.cmd.q, { desc = 'Quit' })
+map('n', '<leader>w', vim.cmd.w, { desc = 'Save' })
+map('n', '<leader>s', function() vim.cmd.split({ mods = { split = 'botright' } }) end, { desc = 'Split' })
 ```
 
 **Type Aliases**: Define type aliases for state fields:

@@ -6,13 +6,15 @@ return {
 
       {
         '<leader>do',
-        '<CMD>DiffviewOpen<CR>',
+        vim.cmd.DiffviewOpen,
         desc = 'Open Diffview',
         silent = true,
       },
       {
         '<leader>df',
-        '<CMD>DiffviewFileHistory %<CR>',
+        function()
+          vim.cmd.DiffviewFileHistory({ args = { '%' } })
+        end,
         desc = 'File History',
         silent = true,
       },

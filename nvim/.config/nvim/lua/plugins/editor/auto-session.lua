@@ -4,7 +4,9 @@ return {
   keys = {
     {
       '<leader>fs',
-      '<CMD>AutoSession search<CR>',
+      function()
+        vim.cmd.AutoSession({ args = { 'search' } })
+      end,
       desc = 'Find Session',
     },
   },

@@ -83,8 +83,8 @@ return {
           Snacks.picker.lsp_references({ filter = { buf = 0 } })
         end, 'Find References in Current Buffer')
 
-        map({ 'n', 'x' }, 'gh', '<CMD>EagleWin<CR>', 'Open Eagle LSP and Diagnostics')
-        map({ 'n', 'x' }, 'gH', '<CMD>EagleWinLineDiagnostic<CR>', 'Open Eagle Line Diagnostics')
+        map({ 'n', 'x' }, 'gh', vim.cmd.EagleWin, 'Open Eagle LSP and Diagnostics')
+        map({ 'n', 'x' }, 'gH', vim.cmd.EagleWinLineDiagnostic, 'Open Eagle Line Diagnostics')
         map({ 'n', 'x' }, '<leader>ca', function()
           local tiny_code_action = require('tiny-code-action')
           tiny_code_action.code_action({})

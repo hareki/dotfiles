@@ -35,7 +35,7 @@ for _, key in ipairs({
   pcall(del, 'n', key)
 end
 
-map({ 'n' }, 'Q', '<CMD>q<CR>', { desc = 'Close Buffer' })
+map({ 'n' }, 'Q', vim.cmd.q, { desc = 'Close Buffer' })
 map('n', '<CR>', 'a<CR><Esc>', { desc = 'Break Line After Cursor' })
 map('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Leave Terminal Mode' })
 
@@ -72,7 +72,7 @@ map({ 'i', 'x', 'n', 's' }, '<C-S-End>', function()
   Notifier.info('Closed Other Buffers')
 end, { desc = 'Close Other Buffers' })
 
-map({ 'n', 'x' }, '<leader>qa', '<CMD>qa<CR>', { desc = 'Quit All' })
+map({ 'n', 'x' }, '<leader>qa', vim.cmd.qa, { desc = 'Quit All' })
 map({ 'n', 'x' }, '<PageUp>', '<C-u>zz', { desc = 'Scroll Up and Center' })
 map({ 'n', 'x' }, '<PageDown>', '<C-d>zz', { desc = 'Scroll Down and Center' })
 
@@ -81,7 +81,7 @@ map('v', '<leader>t', "ygvgc']p", {
   desc = 'Yank, Comment, Move Below, and Paste',
 })
 
-map('n', '<leader>?h', '<CMD>HlAtCursor<CR>', {
+map('n', '<leader>?h', vim.cmd.HlAtCursor, {
   desc = 'Highlight Groups at Cursor',
 })
 
@@ -98,7 +98,7 @@ map(
 )
 map({ 'n', 'x' }, '<Up>', "v:count == 0 ? 'gk' : 'k'", { desc = 'Up', expr = true, silent = true })
 
-map('n', '<leader>l', '<CMD>Lazy<CR>', { desc = 'Lazy.nvim' })
+map('n', '<leader>l', vim.cmd.Lazy, { desc = 'Lazy.nvim' })
 map('n', '<leader>-', '<C-W>s', { desc = 'Split Window Below', remap = true })
 map('n', '<leader>\\', '<C-W>v', { desc = 'Split Window Right', remap = true })
 
@@ -114,12 +114,17 @@ map('n', ']i', diagnostic_goto(true, 'INFO'), { desc = 'Next Info' })
 map('n', '[i', diagnostic_goto(false, 'INFO'), { desc = 'Previous Info' })
 
 -- Buffer
-map('n', ']b', '<CMD>bnext<CR>', { desc = 'Next Buffer' })
-map('n', ']B', '<CMD>blast<CR>', { desc = 'Last Buffer' })
-map('n', '[b', '<CMD>bprevious<CR>', { desc = 'Previous Buffer' })
-map('n', '[B', '<CMD>brewind<CR>', { desc = 'First Buffer' })
+map('n', ']b', vim.cmd.bnext, { desc = 'Next Buffer' })
+map('n', ']B', vim.cmd.blast, { desc = 'Last Buffer' })
+map('n', '[b', vim.cmd.bprevious, { desc = 'Previous Buffer' })
+map('n', '[B', vim.cmd.brewind, { desc = 'First Buffer' })
 
-map({ 'i', 'x', 'n', 's' }, '<A-r>', '<CMD>e!<CR>', { desc = 'Reload File', silent = true })
+map({ 'i', 'x', 'n', 's' }, '<A-r>', function()
+  vim.cmd.edit({ bang = true })
+end, { desc = 'Reload Current Buffer', silent = true })
+map({ 'i', 'x', 'n', 's' }, '<A-R>', function()
+  vim.cmd.bufdo({ args = { 'e!' } })
+end, { desc = 'Reload All Buffers', silent = true })
 map({ 'i', 'x', 'n', 's' }, '<A-w>', function()
   Snacks.bufdelete()
 end, { desc = 'Close Buffer' })

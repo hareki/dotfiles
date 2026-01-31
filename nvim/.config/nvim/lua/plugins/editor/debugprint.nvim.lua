@@ -4,22 +4,30 @@ return {
     return {
       {
         '<leader>f?',
-        '<CMD>Debugprint search<CR>',
+        function()
+          vim.cmd.Debugprint({ args = { 'search' } })
+        end,
         desc = 'Debug Prints: Find',
       },
       {
         '<leader>?r',
-        '<CMD>Debugprint resetcounter<CR>',
+        function()
+          vim.cmd.Debugprint({ args = { 'resetcounter' } })
+        end,
         desc = 'Debug Prints: Reset Counter',
       },
       {
         '<leader>?d',
-        '<CMD>Debugprint delete<CR>',
+        function()
+          vim.cmd.Debugprint({ args = { 'delete' } })
+        end,
         desc = 'Debug Prints: Delete All',
       },
       {
         '<leader>?t',
-        '<CMD>Debugprint commenttoggle<CR>',
+        function()
+          vim.cmd.Debugprint({ args = { 'commenttoggle' } })
+        end,
         desc = 'Debug Prints: Toggle Comments',
       },
       {
