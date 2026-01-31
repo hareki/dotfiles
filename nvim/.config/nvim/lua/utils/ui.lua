@@ -79,7 +79,7 @@ local computed_input_size = {
 ---@param with_border? boolean Whether to add 2 for border (default false)
 ---@return integer width Width in columns
 ---@return integer height Height in rows
-function M.computed_size(size, with_border)
+function M.compute_size(size, with_border)
   local width_in_cols, height_in_rows
 
   if size == 'input' then
