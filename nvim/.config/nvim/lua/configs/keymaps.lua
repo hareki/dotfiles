@@ -122,9 +122,14 @@ map('n', '[B', vim.cmd.brewind, { desc = 'First Buffer' })
 map({ 'i', 'x', 'n', 's' }, '<A-r>', function()
   vim.cmd.edit({ bang = true })
 end, { desc = 'Reload Current Buffer', silent = true })
-map({ 'i', 'x', 'n', 's' }, '<A-R>', function()
+
+-- Mapped to Ctrl+Shift+R in ghostty config
+-- Test the keymap Neovim will receive with
+-- :echo keytrans(getcharstr())
+map({ 'i', 'x', 'n', 's' }, '<F39>', function()
   vim.cmd.bufdo({ args = { 'e!' } })
 end, { desc = 'Reload All Buffers', silent = true })
+
 map({ 'i', 'x', 'n', 's' }, '<A-w>', function()
   Snacks.bufdelete()
 end, { desc = 'Close Buffer' })
