@@ -11,8 +11,8 @@ return {
       HydraBlue = { fg = palette.yellow },
       HydraPink = { fg = palette.blue },
 
-      MultiCursor = { bg = color.light_blue },
-      MultiCursorMain = { bg = color.light_blue },
+      MultiCursor = { bg = color.sub_cursor_bg },
+      MultiCursorMain = { bg = color.sub_cursor_bg },
       MultiCursorSeparator = { link = 'WhichKeySeparator' },
     }
   end),

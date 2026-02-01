@@ -19,7 +19,6 @@ return {
             end
 
             local preview_buf = vim.api.nvim_win_get_buf(preview_win_id)
-
             local function clear_mapping()
               pcall(vim.keymap.del, 'n', '<Esc>', { buffer = preview_buf })
             end

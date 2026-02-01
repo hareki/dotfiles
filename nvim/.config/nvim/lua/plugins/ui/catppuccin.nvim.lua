@@ -12,9 +12,10 @@ return {
     return {
       transparent_background = true,
       default_integrations = false,
+
       custom_highlights = {
         WinSeparator = { fg = palette.overlay0 },
-        Visual = { bg = color.darkened_surface2, style = {} },
+        Visual = { bg = color.visual_bg, style = {} },
         DocumentHighlight = { bg = palette.surface0 },
 
         DiagnosticUnderlineInfo = { link = 'LspDiagnosticsUnderlineInformation' },
@@ -58,7 +59,7 @@ return {
         ['@markup.strong'] = { fg = palette.flamingo, bold = true },
 
         ModifiedIndicator = { fg = palette.yellow },
-        SnippetTabStop = { bg = color.light_blue },
+        SnippetTabStop = { bg = color.sub_cursor_bg },
       },
       lsp_styles = {
         virtual_text = {

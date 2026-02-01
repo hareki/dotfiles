@@ -10,66 +10,7 @@ return {
       DropBarMenuHoverSymbol = { bold = true },
     }
 
-    -- From https://github.com/catppuccin/nvim/blob/main/lua/catppuccin/groups/integrations/dropbar.lua
-    -- I just don't like the default colors for kinds, so declare them all myself
-    local dropbar_kind_suffixes = {
-      'Array',
-      'Boolean',
-      'BreakStatement',
-      'Call',
-      'CaseStatement',
-      'Class',
-      'Constant',
-      'Constructor',
-      'ContinueStatement',
-      'Declaration',
-      'Delete',
-      'DoStatement',
-      'ElseStatement',
-      'Enum',
-      'EnumMember',
-      'Event',
-      'Field',
-      'File',
-      'Folder',
-      'ForStatement',
-      'Function',
-      'Identifier',
-      'IfStatement',
-      'Interface',
-      'Keyword',
-      'List',
-      'Macro',
-      'MarkdownH1',
-      'MarkdownH2',
-      'MarkdownH3',
-      'MarkdownH4',
-      'MarkdownH5',
-      'MarkdownH6',
-      'Method',
-      'Module',
-      'Namespace',
-      'Null',
-      'Number',
-      'Object',
-      'Operator',
-      'Package',
-      'Property',
-      'Reference',
-      'Repeat',
-      'Scope',
-      'Specifier',
-      'Statement',
-      'String',
-      'Struct',
-      'SwitchStatement',
-      'Type',
-      'TypeParameter',
-      'Unit',
-      'Value',
-      'Variable',
-      'WhileStatement',
-    }
+    local dropbar_kind_suffixes = require('plugins.ui.dropbar.utils').dropbar_kind_suffixes
     for _, kind in ipairs(dropbar_kind_suffixes) do
       local group = 'DropBarKind' .. kind
       highlights[group] = highlights[group] or { fg = palette.text }
@@ -81,6 +22,7 @@ return {
     -- Prevent layout shifting
     lazy = false,
     priority = 500,
+
     keys = {
       {
         '<leader>b',

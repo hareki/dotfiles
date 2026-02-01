@@ -56,6 +56,7 @@ return {
       },
     }
   end,
+
   opts = function()
     local title_key = 'notify_title_with_hl'
     local size_configs = require('configs.size')
@@ -65,11 +66,23 @@ return {
       stages = 'static',
       timeout = 2000,
       merge_duplicates = true,
+
       max_height = function()
         return math.floor(vim.o.lines * max_size)
       end,
       max_width = function()
         return math.floor(vim.o.columns * max_size)
+      end,
+
+      on_open = function(win)
+        local buf = vim.api.nvim_win_get_buf(win)
+        local title = vim.b[buf][title_key]
+
+        vim.api.nvim_win_set_config(win, {
+          zindex = 100,
+          title = title,
+          title_pos = 'center',
+        })
       end,
 
       render = function(bufnr, notif, hl, _)
@@ -103,17 +116,6 @@ return {
           end_line = #notif.message - 1,
           end_col = #notif.message[#notif.message],
           priority = 50,
-        })
-      end,
-
-      on_open = function(win)
-        local buf = vim.api.nvim_win_get_buf(win)
-        local title = vim.b[buf][title_key]
-
-        vim.api.nvim_win_set_config(win, {
-          zindex = 100,
-          title = title,
-          title_pos = 'center',
         })
       end,
     }

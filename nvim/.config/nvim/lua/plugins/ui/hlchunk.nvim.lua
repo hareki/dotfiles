@@ -5,6 +5,7 @@ return {
     opts = function()
       local palettes = require('catppuccin.palettes')
       local palette = palettes.get_palette()
+
       return {
         chunk = {
           enable = true,
