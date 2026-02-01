@@ -3,6 +3,7 @@ return {
   opts = function()
     return {
       disable_filetype = { 'TelescopePrompt', 'vim', 'snacks_picker_input' },
+
       -- https://github.com/windwp/nvim-autopairs?tab=readme-ov-file#treesitter
       check_ts = true,
       ts_config = {

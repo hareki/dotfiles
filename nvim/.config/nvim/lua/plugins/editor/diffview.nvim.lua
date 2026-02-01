@@ -3,13 +3,13 @@ return {
   cmd = { 'DiffviewOpen', 'DiffviewFileHistory' },
   keys = function()
     return {
-
       {
         '<leader>do',
         vim.cmd.DiffviewOpen,
         desc = 'Open Diffview',
         silent = true,
       },
+
       {
         '<leader>df',
         function()
@@ -18,6 +18,7 @@ return {
         desc = 'File History',
         silent = true,
       },
+
       {
         '<leader>dl',
         function()
@@ -33,6 +34,7 @@ return {
         end,
         desc = 'Diff Current Line',
       },
+
       {
         '<leader>dt',
         function()
