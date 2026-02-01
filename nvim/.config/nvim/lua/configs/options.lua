@@ -34,8 +34,6 @@ opt.guicursor = table.concat({
   'o:hor50',
 }, ',')
 opt.list = false -- Hide whitespace characters
-opt.spell = true -- Keep it true to use cmp-spell, but hide the undercurl
-opt.spelllang = { 'en_us' } -- Set the spell checking language to English (US)
 opt.termguicolors = true -- True color support
 opt.timeoutlen = 270 -- Lower than default (1000) to quickly trigger which-key
 opt.updatetime = 300 -- Decrease update time
@@ -59,6 +57,10 @@ opt.tabstop = 2 -- Number of spaces tabs count for
 opt.softtabstop = 2 -- Number of spaces tabs count for while performing editing operations
 opt.expandtab = true -- Use spaces instead of tabs
 opt.autoread = true -- Automatically read file changes from disk, also required for opencode.nvim `events.reload`
+
+-- Use typos-lsp for spell checking, datword for suggestions
+opt.spell = false
+opt.spelllang = {}
 
 -- Prevent changing cwd when navigating to files outside of cwd (e.g going to definition)
 opt.viewoptions:remove('curdir')

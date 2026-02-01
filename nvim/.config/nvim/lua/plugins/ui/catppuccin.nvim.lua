@@ -28,12 +28,6 @@ return {
         LspDiagnosticsUnderlineWarning = { sp = palette.yellow },
         LspDiagnosticsUnderlineError = { sp = palette.red },
 
-        -- Remove the undercurl but keep spell checker on to use cmp-spell
-        SpellBad = { style = {}, sp = 'none' },
-        SpellCap = { style = {}, sp = 'none' },
-        SpellRare = { style = {}, sp = 'none' },
-        SpellLocal = { style = {}, sp = 'none' },
-
         LspReferenceText = { link = 'DocumentHighlight' },
         LspReferenceRead = { link = 'DocumentHighlight' },
         LspReferenceWrite = { link = 'DocumentHighlight' },

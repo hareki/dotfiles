@@ -40,7 +40,7 @@ return {
       'windwp/nvim-autopairs',
 
       'dmitmel/cmp-cmdline-history',
-      'f3fora/cmp-spell',
+      'xieyonn/blink-cmp-dat-word',
 
       'zbirenbaum/copilot.lua',
       'fang2hou/blink-copilot',
@@ -76,6 +76,10 @@ return {
       local spell_kind_index = register_kind('Spell')
       local render_markdown_index = register_kind('RenderMD')
       local icons = require('configs.icons')
+
+      local config_dir = vim.fn.stdpath('config')
+      local google_10k_words = config_dir .. '/words/google-10000-english-usa-no-swears-long.txt'
+      local built_in_words = '/usr/share/dict/words'
 
       return {
         fuzzy = { implementation = 'prefer_rust_with_warning' },
@@ -226,7 +230,7 @@ return {
         },
 
         sources = {
-          default = { 'copilot', 'lsp', 'path', 'snippets', 'buffer', 'spell' },
+          default = { 'copilot', 'lsp', 'path', 'snippets', 'buffer', 'datword' },
           per_filetype = {
             markdown = { inherit_defaults = true, 'markdown' },
             lua = { inherit_defaults = true, 'lazydev' },
@@ -276,13 +280,16 @@ return {
               end,
             },
 
-            spell = {
-              name = 'spell',
-              module = 'blink.compat.source',
+            datword = {
+              name = 'datword',
+              module = 'blink-cmp-dat-word',
               max_items = 3,
               min_keyword_length = 4,
               score_offset = -20,
-              opts = { keep_all_entries = false },
+              opts = {
+                paths = { google_10k_words, built_in_words },
+                spellsuggest = true,
+              },
 
               transform_items = function(_, items)
                 for _, item in ipairs(items) do
