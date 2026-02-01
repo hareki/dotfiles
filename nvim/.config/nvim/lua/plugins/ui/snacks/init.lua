@@ -185,6 +185,9 @@ return {
                 ['<Tab>'] = { 'toggle_preview_focus', mode = { 'i', 'n' } },
                 ['<CR>'] = { 'confirm' },
                 ['<C-t>'] = { 'snacks_to_trouble', mode = { 'i', 'n' } },
+
+                ['B'] = { 'toggle_preview' },
+                ['<C-b>'] = { 'toggle_preview', mode = { 'i', 'n' } },
               },
               wo = {
                 number = true,
@@ -204,6 +207,9 @@ return {
                 ['<C-c>'] = { 'cancel', mode = { 'i', 'n' } },
                 ['<C-p>'] = { 'select_and_prev', mode = { 'i', 'n' } },
                 ['<C-n>'] = { 'select_and_next', mode = { 'i', 'n' } },
+
+                ['B'] = { 'toggle_preview' },
+                ['<C-b>'] = { 'toggle_preview', mode = { 'i', 'n' } },
               },
             },
           },
@@ -259,8 +265,11 @@ return {
             },
 
             files = {
-              hidden = true,
               transform = transformers.files_transform,
+              hidden = true,
+              layout = {
+                preview = false, -- Preview is hidden by default, can be toggled with "toggle_preview" action
+              },
             },
 
             scratch = {
@@ -274,6 +283,11 @@ return {
             },
 
             keymaps = {
+              transform = transformers.keymap_transform,
+              format = function(item, picker)
+                return formatters.keymap_format(item, picker, config.sm.width)
+              end,
+
               layout = {
                 preview = false,
                 preset = 'default',
@@ -287,10 +301,6 @@ return {
                   row = config.sm.row,
                 },
               },
-              transform = transformers.keymap_transform,
-              format = function(item, picker)
-                return formatters.keymap_format(item, picker, config.sm.width)
-              end,
             },
           },
         },
