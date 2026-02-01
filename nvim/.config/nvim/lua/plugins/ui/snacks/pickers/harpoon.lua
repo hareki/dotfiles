@@ -1,5 +1,9 @@
+---@class plugins.ui.snacks.pickers.harpoon
 local M = {}
 
+---Show the harpoon picker with items from the harpoon list
+---@param user_opts table|nil Optional picker configuration overrides
+---@return snacks.Picker|nil picker The picker instance, or nil if list is empty
 M.show = function(user_opts)
   local harpoon = require('harpoon')
   local formatters = require('plugins.ui.snacks.utils.formatters')

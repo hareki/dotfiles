@@ -7,7 +7,6 @@ local lualine_utils = require('plugins.ui.lualine.utils')
 if lualine_utils.have_status_line() then
   vim.api.nvim_create_user_command('TabRename', function(opts)
     vim.t.tab_name = opts.args
-    local lualine = require('lualine')
-    lualine.refresh({ place = { 'statusline' } })
+    lualine_utils.refresh_statusline()
   end, { nargs = 1 })
 end

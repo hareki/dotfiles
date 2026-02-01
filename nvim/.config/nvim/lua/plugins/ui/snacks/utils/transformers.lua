@@ -94,7 +94,7 @@ end
 ---Transform function for buffer select picker (index + buffer format)
 ---Adds index number to the search text so it can be matched
 ---@param item snacks.picker.Item The picker item to transform
----@return snacks.picker.Item item The transformed item
+---@return snacks.picker.Item item The transformed item with index prepended to text
 function M.buffer_select_transform(item)
   if item.idx and item.text then
     item.text = item.idx .. ' ' .. item.text

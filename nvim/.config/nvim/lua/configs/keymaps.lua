@@ -99,8 +99,8 @@ map(
 map({ 'n', 'x' }, '<Up>', "v:count == 0 ? 'gk' : 'k'", { desc = 'Up', expr = true, silent = true })
 
 map('n', '<leader>l', vim.cmd.Lazy, { desc = 'Lazy.nvim' })
-map('n', '<leader>-', '<C-W>s', { desc = 'Split Window Below', remap = true })
-map('n', '<leader>\\', '<C-W>v', { desc = 'Split Window Right', remap = true })
+map('n', '<leader>-', vim.cmd.split, { desc = 'Split Window Below' })
+map('n', '<leader>\\', vim.cmd.vsplit, { desc = 'Split Window Right' })
 
 -- Diagnostics
 map('n', '<leader>cd', vim.diagnostic.open_float, { desc = 'Line Diagnostics' })

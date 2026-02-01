@@ -1,4 +1,5 @@
 ---@class plugins.ui.snacks.utils.cache
+---@field cache table<string, any> Cached query results keyed by lhs:mode:buffer
 local M = {}
 
 M.cache = {}
