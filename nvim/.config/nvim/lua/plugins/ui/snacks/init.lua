@@ -20,7 +20,14 @@ return {
         {
           '<leader><leader>',
           function()
-            Snacks.picker.files()
+            local state = require('plugins.ui.snacks.utils.state')
+
+            Snacks.picker.files({
+              layout = {
+                ---@diagnostic disable-next-line: assign-type-mismatch Wrong type from snacks
+                preview = state.get('files', 'preview'),
+              },
+            })
           end,
           desc = 'Find Files',
         },
@@ -175,6 +182,7 @@ return {
             list_half_page_down = actions.scroll_half_page('down'),
             list_half_page_up = actions.scroll_half_page('up'),
             toggle_preview_focus = actions.toggle_preview_focus,
+            toggle_preview = actions.toggle_preview,
             select = actions.select,
             snacks_to_trouble = actions.snacks_to_trouble,
           },
@@ -267,9 +275,6 @@ return {
             files = {
               transform = transformers.files_transform,
               hidden = true,
-              layout = {
-                preview = false, -- Preview is hidden by default, can be toggled with "toggle_preview" action
-              },
             },
 
             scratch = {
