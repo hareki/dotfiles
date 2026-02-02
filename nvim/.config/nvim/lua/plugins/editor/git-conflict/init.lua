@@ -16,6 +16,12 @@ return {
     'hareki/git-conflict.nvim',
     event = 'VeryLazy',
     opts = function()
+      local ui = require('utils.ui')
+      local utils = require('plugins.editor.git-conflict.utils')
+      local palette = ui.get_palette()
+      local highlight = ui.highlight
+      local group = vim.api.nvim_create_augroup('GitConflictKeymaps', { clear = true })
+
       local keymaps = {
         { lhs = '<leader>co', rhs = '<Plug>(git-conflict-ours)', desc = 'Choose Ours' },
         { lhs = '<leader>ct', rhs = '<Plug>(git-conflict-theirs)', desc = 'Choose Theirs' },
@@ -24,13 +30,6 @@ return {
         { lhs = '[x', rhs = '<Plug>(git-conflict-prev-conflict)', desc = 'Previous Conflict' },
         { lhs = ']x', rhs = '<Plug>(git-conflict-next-conflict)', desc = 'Next Conflict' },
       }
-
-      local ui = require('utils.ui')
-      local utils = require('plugins.editor.git-conflict.utils')
-      local palette = ui.get_palette()
-      local highlight = ui.highlight
-
-      local group = vim.api.nvim_create_augroup('GitConflictKeymaps', { clear = true })
 
       -- Track cursor movement in conflict buffers
       local cursor_autocmd_ids = {}
