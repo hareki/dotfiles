@@ -343,9 +343,12 @@ return {
                 prefix_min_len = ripgrep_min_keyword_length,
                 backend = {
                   use = 'gitgrep',
-                },
-                gitgrep = {
-                  additional_gitgrep_options = {},
+                  gitgrep = {
+                    additional_gitgrep_options = {
+                      -- https://github.com/mikavilpas/blink-ripgrep.nvim/blob/main/documentation/ignore-files-from-git-grep.md
+                      ':(exclude,attr:blink-ripgrep-ignore)',
+                    },
+                  },
                 },
               },
             },
