@@ -12,7 +12,7 @@ local PICKERS_WITH_STATE = {
 ---Default values per picker, per state key.
 ---Each picker can define its own defaults for any state.
 local DEFAULTS = {
-  files = { preview = false },
+  files = { preview = true },
 }
 
 local state = {}
