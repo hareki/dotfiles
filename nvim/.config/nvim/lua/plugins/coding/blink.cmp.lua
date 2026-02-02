@@ -82,9 +82,12 @@ return {
       local render_markdown_index = register_kind('RenderMD')
       local icons = require('configs.icons')
 
-      local config_dir = vim.fn.stdpath('config')
-      local google_10k_words = config_dir .. '/words/google-10000-english-usa-no-swears-long.txt'
-      local built_in_words = '/usr/share/dict/words'
+      local extra_words_path = vim.fn.stdpath('config') .. '/words'
+      local word_paths = {
+        builtin = '/usr/share/dict/words',
+        google = extra_words_path .. '/google-10000-english-usa-no-swears-long.txt',
+        my_words = extra_words_path .. '/my-words.txt',
+      }
 
       return {
         fuzzy = { implementation = 'prefer_rust_with_warning' },
@@ -290,7 +293,7 @@ return {
               min_keyword_length = 4,
               score_offset = -20,
               opts = {
-                paths = { google_10k_words, built_in_words },
+                paths = { word_paths.my_words, word_paths.google, word_paths.builtin },
                 spellsuggest = true,
               },
 
