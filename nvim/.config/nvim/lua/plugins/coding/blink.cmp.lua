@@ -96,44 +96,6 @@ return {
           kind_icons = icons.kinds,
         },
 
-        cmdline = {
-          enabled = true,
-          keymap = {
-            preset = 'inherit',
-            ['<Esc>'] = {
-              function(cmp)
-                if cmp.is_menu_visible() then
-                  cmp.hide()
-
-                  return true
-                end
-              end,
-              -- 'fallback' won't cut it because of this bug in neovim
-              -- https://github.com/neovim/neovim/issues/21585
-              function()
-                -- Feed <C-c> to cancel the command line instead
-                local keys = vim.api.nvim_replace_termcodes('<C-c>', true, false, true)
-                vim.api.nvim_feedkeys(keys, 'n', false)
-
-                return true
-              end,
-            },
-          },
-          sources = { 'buffer', 'cmdline', 'cmdline_history' },
-          completion = {
-            menu = { auto_show = false },
-            ghost_text = {
-              enabled = false,
-            },
-            list = {
-              selection = {
-                preselect = true,
-                auto_insert = false,
-              },
-            },
-          },
-        },
-
         completion = {
           accept = { auto_brackets = { enabled = false } },
           ghost_text = { enabled = true },
@@ -238,53 +200,13 @@ return {
         },
 
         sources = {
-          default = { 'copilot', 'lsp', 'path', 'snippets', 'buffer', 'datword', 'ripgrep' },
+          default = { 'lsp', 'snippets', 'datword', 'ripgrep', 'path', 'buffer', 'copilot' },
           per_filetype = {
-            markdown = { inherit_defaults = true, 'markdown' },
             lua = { inherit_defaults = true, 'lazydev' },
+            markdown = { inherit_defaults = true, 'markdown' },
           },
           providers = {
-            lsp = {
-              opts = { tailwind_color_icon = '' },
-            },
-
-            lazydev = {
-              name = 'LazyDev',
-              module = 'lazydev.integrations.blink',
-              max_items = 6,
-              score_offset = 10,
-            },
-
-            buffer = {
-              max_items = 3,
-              score_offset = -10,
-              should_show_items = function()
-                local filetype = vim.api.nvim_get_option_value('filetype', { buf = 0 })
-                local is_ignored_filetype = vim.list_contains({ '', 'NvimTree' }, filetype) -- NvimTree live_filter has a blank filetype
-
-                return not is_ignored_filetype
-              end,
-            },
-
-            cmdline = {
-              min_keyword_length = cmdline_min_keyword_length(0),
-              max_items = 6,
-            },
-
-            cmdline_history = {
-              name = 'CmdlineHistory',
-              module = 'blink.compat.source',
-              max_items = 6,
-              min_keyword_length = cmdline_min_keyword_length(0),
-
-              transform_items = function(_, items)
-                for _, item in ipairs(items) do
-                  item.kind = history_kind_index
-                end
-
-                return items
-              end,
-            },
+            lsp = { opts = { tailwind_color_icon = '' } },
 
             datword = {
               name = 'Datword',
@@ -318,19 +240,6 @@ return {
               end,
             },
 
-            copilot = {
-              name = 'Copilot',
-              module = 'blink-copilot',
-              max_items = copilot_max_items,
-              async = true,
-              -- Wrap around the menu items to quickly access the suggestion items while prevent items shifting
-              score_offset = -100,
-              -- should_show_items = function(ctx)
-              --   -- Only show items if 'copilot' is the sole provider to avoid distraction
-              --   return ctx.providers[1] == 'copilot' and #ctx.providers == 1
-              -- end,
-            },
-
             ripgrep = {
               name = 'Ripgrep',
               module = 'blink-ripgrep',
@@ -354,6 +263,57 @@ return {
               },
             },
 
+            buffer = {
+              max_items = 3,
+              score_offset = -10,
+              should_show_items = function()
+                local filetype = vim.api.nvim_get_option_value('filetype', { buf = 0 })
+                local is_ignored_filetype = vim.list_contains({ '', 'NvimTree' }, filetype) -- NvimTree live_filter has a blank filetype
+
+                return not is_ignored_filetype
+              end,
+            },
+
+            copilot = {
+              name = 'Copilot',
+              module = 'blink-copilot',
+              max_items = copilot_max_items,
+              async = true,
+              -- Wrap around the menu items to quickly access the suggestion items while prevent items shifting
+              score_offset = -100,
+              -- should_show_items = function(ctx)
+              --   -- Only show items if 'copilot' is the sole provider to avoid distraction
+              --   return ctx.providers[1] == 'copilot' and #ctx.providers == 1
+              -- end,
+            },
+
+            cmdline = {
+              min_keyword_length = cmdline_min_keyword_length(0),
+              max_items = 6,
+            },
+
+            cmdline_history = {
+              name = 'CmdlineHistory',
+              module = 'blink.compat.source',
+              max_items = 6,
+              min_keyword_length = cmdline_min_keyword_length(0),
+
+              transform_items = function(_, items)
+                for _, item in ipairs(items) do
+                  item.kind = history_kind_index
+                end
+
+                return items
+              end,
+            },
+
+            lazydev = {
+              name = 'LazyDev',
+              module = 'lazydev.integrations.blink',
+              max_items = 6,
+              score_offset = 10,
+            },
+
             markdown = {
               name = 'RenderMarkdown',
               module = 'render-markdown.integ.blink',
@@ -364,6 +324,44 @@ return {
                 end
 
                 return items
+              end,
+            },
+          },
+        },
+
+        cmdline = {
+          enabled = true,
+          sources = { 'cmdline', 'cmdline_history', 'buffer' },
+
+          completion = {
+            menu = { auto_show = false },
+            ghost_text = { enabled = false },
+            list = {
+              selection = {
+                preselect = true,
+                auto_insert = false,
+              },
+            },
+          },
+
+          keymap = {
+            preset = 'inherit',
+            ['<Esc>'] = {
+              function(cmp)
+                if cmp.is_menu_visible() then
+                  cmp.hide()
+
+                  return true
+                end
+              end,
+              -- 'fallback' won't cut it because of this bug in neovim
+              -- https://github.com/neovim/neovim/issues/21585
+              function()
+                -- Feed <C-c> to cancel the command line instead
+                local keys = vim.api.nvim_replace_termcodes('<C-c>', true, false, true)
+                vim.api.nvim_feedkeys(keys, 'n', false)
+
+                return true
               end,
             },
           },
