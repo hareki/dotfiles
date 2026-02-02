@@ -1,10 +1,13 @@
 local copilot_max_items = 2
+local ripgrep_min_keyword_length = 4
 
 return {
   Catppuccin(function(palette)
     return {
       BlinkCmpKindRenderMD = { fg = palette.text },
+      BlinkCmpKindHistory = { fg = palette.mauve },
       BlinkCmpLabelMatch = { fg = palette.blue },
+      BlinkCmpKindRipgrepGit = { fg = palette.red },
       BlinkCmpLabel = { fg = palette.text },
       BlinkCmpKindVariable = { link = '@variable' },
     }
@@ -40,10 +43,12 @@ return {
       'windwp/nvim-autopairs',
 
       'dmitmel/cmp-cmdline-history',
-      'xieyonn/blink-cmp-dat-word',
 
       'zbirenbaum/copilot.lua',
       'fang2hou/blink-copilot',
+
+      'xieyonn/blink-cmp-dat-word',
+      'mikavilpas/blink-ripgrep.nvim',
     },
     opts = function()
       local function register_kind(name)
@@ -230,7 +235,7 @@ return {
         },
 
         sources = {
-          default = { 'copilot', 'lsp', 'path', 'snippets', 'buffer', 'datword' },
+          default = { 'copilot', 'lsp', 'path', 'snippets', 'buffer', 'datword', 'ripgrep' },
           per_filetype = {
             markdown = { inherit_defaults = true, 'markdown' },
             lua = { inherit_defaults = true, 'lazydev' },
@@ -264,7 +269,7 @@ return {
             },
 
             cmdline_history = {
-              name = 'cmdline_history',
+              name = 'CmdlineHistory',
               module = 'blink.compat.source',
               max_items = 6,
               min_keyword_length = cmdline_min_keyword_length(0),
@@ -272,8 +277,6 @@ return {
               transform_items = function(_, items)
                 for _, item in ipairs(items) do
                   item.kind = history_kind_index
-                  item.kind_hl = 'BlinkCmpKindKeyword'
-                  -- item.kind_icon = '' -- Overwrite if needed
                 end
 
                 return items
@@ -281,7 +284,7 @@ return {
             },
 
             datword = {
-              name = 'datword',
+              name = 'Datword',
               module = 'blink-cmp-dat-word',
               max_items = 3,
               min_keyword_length = 4,
@@ -313,7 +316,7 @@ return {
             },
 
             copilot = {
-              name = 'copilot',
+              name = 'Copilot',
               module = 'blink-copilot',
               max_items = copilot_max_items,
               async = true,
@@ -325,14 +328,32 @@ return {
               -- end,
             },
 
+            ripgrep = {
+              name = 'Ripgrep',
+              module = 'blink-ripgrep',
+              max_items = 3,
+              min_keyword_length = ripgrep_min_keyword_length,
+              score_offset = -10,
+              ---@module "blink-ripgrep"
+              ---@type blink-ripgrep.Options
+              opts = {
+                prefix_min_len = ripgrep_min_keyword_length,
+                backend = {
+                  use = 'gitgrep',
+                },
+                gitgrep = {
+                  additional_gitgrep_options = {},
+                },
+              },
+            },
+
             markdown = {
-              name = 'markdown',
+              name = 'RenderMarkdown',
               module = 'render-markdown.integ.blink',
               max_items = 3,
               transform_items = function(_, items)
                 for _, item in ipairs(items) do
                   item.kind = render_markdown_index
-                  item.kind_hl = 'BlinkCmpKindRenderMD'
                 end
 
                 return items
