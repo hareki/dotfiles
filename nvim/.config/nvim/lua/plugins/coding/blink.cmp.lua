@@ -293,7 +293,8 @@ return {
             },
 
             cmdline_history = {
-              name = 'CmdlineHistory',
+              -- IMPORTANT: use the same name as you would for nvim-cmp
+              name = 'cmdline_history',
               module = 'blink.compat.source',
               max_items = 6,
               min_keyword_length = cmdline_min_keyword_length(0),
