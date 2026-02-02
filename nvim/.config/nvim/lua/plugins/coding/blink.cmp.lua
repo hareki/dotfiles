@@ -222,18 +222,6 @@ return {
               transform_items = function(_, items)
                 for _, item in ipairs(items) do
                   item.kind = spell_kind_index
-
-                  -- Remove spaces from all text fields
-                  local fields = { 'label', 'filterText', 'sortText', 'insertText' }
-                  for _, field in ipairs(fields) do
-                    if item[field] then
-                      item[field] = item[field]:gsub(' ', '')
-                    end
-                  end
-
-                  if item.textEdit and item.textEdit.newText then
-                    item.textEdit.newText = item.textEdit.newText:gsub(' ', '')
-                  end
                 end
 
                 return items
