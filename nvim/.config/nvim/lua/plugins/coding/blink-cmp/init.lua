@@ -46,7 +46,7 @@ return {
       'fang2hou/blink-copilot',
 
       'xieyonn/blink-cmp-dat-word',
-      'mikavilpas/blink-ripgrep.nvim',
+      'hareki/blink-ripgrep.nvim',
     },
     opts = function()
       local completion = require('plugins.coding.blink-cmp.config.completion')

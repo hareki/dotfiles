@@ -58,6 +58,7 @@ end
 
 ---Format function for buffer picker with modified indicator
 ---Removes buf number, buf type, and flags from default format.
+---Adds modified indicator
 ---@param item snacks.picker.Item The picker item
 ---@param picker snacks.Picker The picker instance
 ---@return snacks.picker.Highlight[] highlights Array of highlight segments
