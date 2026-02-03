@@ -20,6 +20,7 @@ M.default = {
   per_filetype = {
     lua = { inherit_defaults = true, 'lazydev' },
     markdown = { inherit_defaults = true, 'markdown' },
+    gitcommit = { inherit_defaults = true, 'conventional_commits' },
   },
 
   providers = {
@@ -29,7 +30,7 @@ M.default = {
       name = 'Datword',
       module = 'blink-cmp-dat-word',
       max_items = 3,
-      min_keyword_length = 4,
+      min_keyword_length = 3,
       score_offset = -20,
       opts = {
         paths = { word_paths.my_words, word_paths.google, word_paths.builtin },
@@ -112,6 +113,14 @@ M.default = {
       module = 'render-markdown.integ.blink',
       max_items = 3,
       transform_items = render_markdown.transform_items,
+    },
+
+    conventional_commits = {
+      name = 'Conventional Commits',
+      module = 'blink-cmp-conventional-commits',
+      ---@module 'blink-cmp-conventional-commits'
+      ---@type blink-cmp-conventional-commits.Options
+      opts = {},
     },
   },
 }
