@@ -4,15 +4,14 @@
 [core]
   pager = delta
   editor = NVIM_NO_STATUS_LINE=1 nvim
-
 [interactive]
   diffFilter = delta --color-only
-
 [merge]
   conflictstyle = zdiff3
-
 [push]
   autoSetupRemote = true
+[commit]
+  verbose = true
 
 [delta]
   navigate = true  # use n and N to move between diff sections
