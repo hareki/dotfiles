@@ -52,6 +52,7 @@ return {
         'css',
         'styled',
         'scss',
+        'gitcommit',
       },
       incremental_selection = {
         enable = true,
