@@ -80,6 +80,7 @@ return {
 
             { pattern = 'harpoon', icon = '󰛢', color = 'azure' },
             { pattern = 'diff', icon = '', color = 'yellow' },
+            { pattern = 'fold', icon = '', color = 'blue' },
             { pattern = 'help', icon = '󰋗', color = 'blue' },
             { pattern = 'buffer', icon = ' ', color = 'cyan' },
             { pattern = 'undo', icon = '', color = 'purple' },
