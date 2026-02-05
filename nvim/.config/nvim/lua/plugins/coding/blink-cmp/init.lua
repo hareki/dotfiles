@@ -47,7 +47,7 @@ return {
 
       'xieyonn/blink-cmp-dat-word',
       'hareki/blink-ripgrep.nvim',
-      'hareki/blink-cmp-conventional-commits',
+      'disrupted/blink-cmp-conventional-commits',
     },
     opts = function()
       local completion = require('plugins.coding.blink-cmp.config.completion')
