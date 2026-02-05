@@ -1,6 +1,31 @@
 ---@class plugins.ui.dropbar.utils
 local M = {}
 
+local IGNORED_FILETYPES = { 'help', 'trouble', 'grug-far' }
+local IGNORED_BUFTYPES = { 'terminal' }
+
+---Check if current window is in diff view
+---@return boolean
+function M.is_in_diff_view()
+  local path_utils = require('utils.path')
+  -- The second check is for when one buffer is closed
+  return vim.wo.diff or path_utils.has_dir({ dir_name = '.git' })
+end
+
+---Check if buffer has an ignored filetype
+---@param buf integer Buffer number
+---@return boolean
+function M.is_ignored_filetype(buf)
+  return vim.list_contains(IGNORED_FILETYPES, vim.bo[buf].filetype)
+end
+
+---Check if buffer has an ignored buftype
+---@param buf integer Buffer number
+---@return boolean
+function M.is_ignored_buftype(buf)
+  return vim.list_contains(IGNORED_BUFTYPES, vim.bo[buf].buftype)
+end
+
 ---Determine if dropbar should be enabled for a buffer/window
 ---Filters out help files, terminals, and large files (>1MB).
 ---@param buf integer Buffer number
@@ -9,16 +34,13 @@ local M = {}
 ---@return boolean enabled True if dropbar should be enabled
 function M.enable(buf, win, _)
   buf = vim._resolve_bufnr(buf)
-  local ignored_filetypes = { 'help', 'trouble' }
-  local ignored_buftypes = { 'terminal' }
-
   if
     not vim.api.nvim_buf_is_valid(buf)
     or not vim.api.nvim_win_is_valid(win)
     or vim.fn.win_gettype(win) ~= ''
     or vim.wo[win].winbar ~= ''
-    or vim.list_contains(ignored_filetypes, vim.bo[buf].filetype)
-    or vim.list_contains(ignored_buftypes, vim.bo[buf].buftype)
+    or M.is_ignored_filetype(buf)
+    or M.is_ignored_buftype(buf)
   then
     return false
   end
@@ -33,7 +55,7 @@ end
 
 -- From https://github.com/catppuccin/nvim/blob/main/lua/catppuccin/groups/integrations/dropbar.lua
 -- I just don't like the default colors for kinds, so declare them all myself
-M.dropbar_kind_suffixes = {
+M.KIND_SUFFIXES = {
   'Array',
   'Boolean',
   'BreakStatement',

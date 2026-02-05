@@ -10,8 +10,8 @@ return {
       DropBarMenuHoverSymbol = { bold = true },
     }
 
-    local dropbar_kind_suffixes = require('plugins.ui.dropbar.utils').dropbar_kind_suffixes
-    for _, kind in ipairs(dropbar_kind_suffixes) do
+    local dropbar_utils = require('plugins.ui.dropbar.utils')
+    for _, kind in ipairs(dropbar_utils.KIND_SUFFIXES) do
       local group = 'DropBarKind' .. kind
       highlights[group] = highlights[group] or { fg = palette.text }
     end
@@ -65,11 +65,12 @@ return {
           truncate = false,
           hover = true,
           sources = function(buf, _)
-            local path_utils = require('utils.path')
-            -- The second check is for when one buffer is closed
-            local in_diff_view = vim.wo.diff or path_utils.has_dir({ dir_name = '.git' })
-
-            if in_diff_view then
+            if
+              dropbar_utils.is_in_diff_view()
+              -- Some ft/bt can slip through the enable check because their ft/bt are set later (E.g. grug-far)
+              or dropbar_utils.is_ignored_filetype(buf)
+              or dropbar_utils.is_ignored_buftype(buf)
+            then
               vim.wo.winbar = ''
               return {}
             end
