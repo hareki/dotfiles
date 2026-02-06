@@ -1,6 +1,6 @@
 return {
   'kevinhwang91/nvim-ufo',
-  event = 'VeryLazy',
+  event = 'BufReadPost', -- Prevent built-in folding flashing
   dependencies = { 'kevinhwang91/promise-async' },
   keys = function()
     return {
@@ -47,6 +47,15 @@ return {
         desc = 'Peek Folded Lines',
       },
     }
+  end,
+
+  init = function()
+    local opt = vim.opt
+
+    opt.foldcolumn = '0'
+    opt.foldlevel = 99
+    opt.foldlevelstart = 99
+    opt.foldenable = true
   end,
 
   opts = function()

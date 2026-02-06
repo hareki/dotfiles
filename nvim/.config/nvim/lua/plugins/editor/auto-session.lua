@@ -12,6 +12,9 @@ return {
   },
 
   init = function()
+    -- https://github.com/rmagatti/auto-session?tab=readme-ov-file#recommended-sessionoptions-config
+    vim.opt.sessionoptions = 'blank,buffers,curdir,folds,help,tabpages,winsize,winpos'
+
     -- Open snacks files picker when Neovim starts on a directory
     vim.api.nvim_create_autocmd('VimEnter', {
       once = true,

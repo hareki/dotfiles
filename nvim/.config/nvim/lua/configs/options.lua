@@ -57,6 +57,7 @@ opt.tabstop = 2 -- Number of spaces tabs count for
 opt.softtabstop = 2 -- Number of spaces tabs count for while performing editing operations
 opt.expandtab = true -- Use spaces instead of tabs
 opt.autoread = true -- Automatically read file changes from disk, also required for opencode.nvim `events.reload`
+opt.showtabline = 0 -- Always hide the tabline
 
 -- Use typos-lsp for spell checking, datword for suggestions
 opt.spell = false
@@ -68,16 +69,6 @@ opt.autochdir = false
 
 -- https://github.com/sindrets/diffview.nvim?tab=readme-ov-file#tips-and-faq
 opt.fillchars:append({ diff = '╱', eob = ' ', lastline = '.' })
-
--- For kevinhwang91/nvim-ufo
-opt.foldlevel = 99
-opt.foldlevelstart = 99
-opt.foldenable = true
-
-opt.showtabline = 0 -- Always hide the tabline
--- https://github.com/rmagatti/auto-session?tab=readme-ov-file#recommended-sessionoptions-config
--- "globals" option is needed for scope.nvim
-opt.sessionoptions = 'blank,buffers,curdir,folds,help,tabpages,winsize,winpos,globals'
 
 -- Save undo history
 opt.undofile = true
