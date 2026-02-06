@@ -1,37 +1,115 @@
 return {
   'nvim-treesitter/nvim-treesitter-textobjects',
-  branch = 'master', -- The new "main" branch is immature, tree-sitter-styled breaks, colors look weird
+  branch = 'main',
   event = 'VeryLazy',
-  config = function()
-    local package = require('utils.package')
-    -- If treesitter is already loaded, we need to run config again for textobjects
-    if package.is_loaded('nvim-treesitter') then
-      local opts = package.opts('nvim-treesitter')
-      local treesitter_configs = require('nvim-treesitter.configs')
-      ---@diagnostic disable-next-line: missing-fields
-      treesitter_configs.setup({ textobjects = opts.textobjects })
-    end
+  opts = {
+    move = {
+      enable = true,
+      set_jumps = true,
+      keys = {
+        goto_next_start = {
+          [']f'] = {
+            query = '@function.outer',
+            desc = 'Goto Next Function Start',
+          },
+          [']c'] = {
+            query = '@class.outer',
+            desc = 'Goto Next Class Start',
+          },
+          [']a'] = {
+            query = '@parameter.inner',
+            desc = 'Goto Next Parameter Start',
+          },
+        },
+        goto_next_end = {
+          [']F'] = {
+            query = '@function.outer',
+            desc = 'Goto Next Function End',
+          },
+          [']C'] = {
+            query = '@class.outer',
+            desc = 'Goto Next Class End',
+          },
+          [']A'] = {
+            query = '@parameter.inner',
+            desc = 'Goto Next Parameter End',
+          },
+        },
+        goto_previous_start = {
+          ['[f'] = {
+            query = '@function.outer',
+            desc = 'Goto Previous Function Start',
+          },
+          ['[c'] = {
+            query = '@class.outer',
+            desc = 'Goto Previous Class Start',
+          },
+          ['[a'] = {
+            query = '@parameter.inner',
+            desc = 'Goto Previous Parameter Start',
+          },
+        },
+        goto_previous_end = {
+          ['[F'] = {
+            query = '@function.outer',
+            desc = 'Goto Previous Function End',
+          },
+          ['[C'] = {
+            query = '@class.outer',
+            desc = 'Goto Previous Class End',
+          },
+          ['[A'] = {
+            query = '@parameter.inner',
+            desc = 'Goto Previous Parameter End',
+          },
+        },
+      },
+    },
+  },
+  config = function(_, opts)
+    local TS = require('nvim-treesitter-textobjects')
+    TS.setup(opts)
 
-    -- When in diff mode, we want to use the default vim text objects c & C instead of
-    -- the treesitter ones.
-    local move = require('nvim-treesitter.textobjects.move') ---@type table<string,fun(...)>
-    local configs = require('nvim-treesitter.configs')
+    local function attach(buf)
+      if not (vim.tbl_get(opts, 'move', 'enable')) then
+        return
+      end
 
-    for name, fn in pairs(move) do
-      if name:find('goto') == 1 then
-        move[name] = function(q, ...)
-          if vim.wo.diff then
-            local config = configs.get_module('textobjects.move')[name] ---@type table<string,string>
-            for key, query in pairs(config or {}) do
-              if q == query and key:find('[%]%[][cC]') then
-                vim.cmd.normal({ args = { key }, bang = true })
-                return
-              end
-            end
+      ---@type table<string, table<string, string>>
+      local moves = vim.tbl_get(opts, 'move', 'keys') or {}
+
+      for method, keymaps in pairs(moves) do
+        for key, query in pairs(keymaps) do
+          local queries = type(query) == 'table' and query or { query }
+          local parts = {}
+          for _, q in ipairs(queries) do
+            local part = q:gsub('@', ''):gsub('%..*', '')
+            part = part:sub(1, 1):upper() .. part:sub(2)
+            table.insert(parts, part)
           end
-          return fn(q, ...)
+          local desc = table.concat(parts, ' or ')
+          desc = (key:sub(1, 1) == '[' and 'Prev ' or 'Next ') .. desc
+          desc = desc .. (key:sub(2, 2) == key:sub(2, 2):upper() and ' End' or ' Start')
+          if not (vim.wo.diff and key:find('[cC]')) then
+            vim.keymap.set({ 'n', 'x', 'o' }, key, function()
+              require('nvim-treesitter-textobjects.move')[method](query, 'textobjects')
+            end, {
+              buffer = buf,
+              desc = desc,
+              silent = true,
+            })
+          end
         end
       end
     end
+
+    vim.api.nvim_create_autocmd('FileType', {
+      group = vim.api.nvim_create_augroup('lazyvim_treesitter_textobjects', { clear = true }),
+      callback = function(ev)
+        attach(ev.buf)
+      end,
+    })
+
+    vim.tbl_map(attach, vim.api.nvim_list_bufs())
   end,
 }

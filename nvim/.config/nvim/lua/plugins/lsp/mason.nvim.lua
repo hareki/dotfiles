@@ -36,6 +36,7 @@ return {
         'yaml-language-server',
         'tailwindcss-language-server',
         'css-variables-language-server',
+        'tree-sitter-cli',
       },
     }
   end,

@@ -1,129 +1,59 @@
-local mappings = {
-  incremental = '<C-Space>',
-  decremental = '<BS>',
-}
-
 return {
   'nvim-treesitter/nvim-treesitter',
-  branch = 'master', -- The new "main" branch is immature, tree-sitter-styled breaks, colors look weird
-  version = false, -- Last release is way too old and doesn't work on Windows
-  build = ':TSUpdate',
-  main = 'nvim-treesitter.configs',
-  cmd = { 'TSUpdateSync', 'TSUpdate', 'TSInstall' },
-  event = { 'BufReadPost', 'BufNewFile', 'BufWritePre' },
-  keys = function()
-    return {
-      { mappings.incremental, desc = 'Incremental Selection' },
-      { mappings.decremental, mode = 'x', desc = 'Decremental Selection' },
-    }
+  branch = 'main',
+  version = false,
+  build = ':TSUpdate | TSInstallAll',
+  cmd = { 'TSUpdate', 'TSInstall', 'TSLog', 'TSUninstall', 'TSInstallAll' },
+  event = { 'BufReadPost', 'BufNewFile' },
+
+  init = function()
+    vim.api.nvim_create_autocmd('FileType', {
+      pattern = '*',
+      callback = function()
+        pcall(vim.treesitter.start)
+      end,
+    })
+
+    vim.api.nvim_create_user_command('TSInstallAll', function()
+      local spec = require('lazy.core.config').plugins['nvim-treesitter']
+      local opts = type(spec.opts) == 'table' and spec.opts or {}
+      local treesitter = require('nvim-treesitter')
+
+      treesitter.install(opts.ensure_installed)
+    end, {})
   end,
 
-  opts_extend = { 'ensure_installed' },
-  opts = function()
-    ---@diagnostic disable-next-line: missing-fields
-    return {
-      highlight = { enable = true },
-      indent = { enable = true },
-      ensure_installed = {
-        'bash',
-        'c',
-        'diff',
-        'html',
-        'javascript',
-        'jsdoc',
-        'json',
-        'jsonc',
-        'lua',
-        'luadoc',
-        'luap',
-        'markdown',
-        'markdown_inline',
-        'printf',
-        'python',
-        'query',
-        'regex',
-        'toml',
-        'tsx',
-        'typescript',
-        'vim',
-        'vimdoc',
-        'xml',
-        'yaml',
-        'css',
-        'styled',
-        'scss',
-        'gitcommit',
-      },
-      incremental_selection = {
-        enable = true,
-        keymaps = {
-          init_selection = mappings.incremental,
-          node_incremental = mappings.incremental,
-          scope_incremental = false,
-          node_decremental = mappings.decremental,
-        },
-      },
-      textobjects = {
-        move = {
-          enable = true,
-          goto_next_start = {
-            [']f'] = {
-              query = '@function.outer',
-              desc = 'Go to Next Function Start',
-            },
-            [']c'] = {
-              query = '@class.outer',
-              desc = 'Go to Next Class Start',
-            },
-            [']a'] = {
-              query = '@parameter.inner',
-              desc = 'Go to Next Parameter Start',
-            },
-          },
-          goto_next_end = {
-            [']F'] = {
-              query = '@function.outer',
-              desc = 'Go to Next Function End',
-            },
-            [']C'] = {
-              query = '@class.outer',
-              desc = 'Go to Next Class End',
-            },
-            [']A'] = {
-              query = '@parameter.inner',
-              desc = 'Go to Next Parameter End',
-            },
-          },
-          goto_previous_start = {
-            ['[f'] = {
-              query = '@function.outer',
-              desc = 'Go to Previous Function Start',
-            },
-            ['[c'] = {
-              query = '@class.outer',
-              desc = 'Go to Previous Class Start',
-            },
-            ['[a'] = {
-              query = '@parameter.inner',
-              desc = 'Go to Previous Parameter Start',
-            },
-          },
-          goto_previous_end = {
-            ['[F'] = {
-              query = '@function.outer',
-              desc = 'Go to Previous Function End',
-            },
-            ['[C'] = {
-              query = '@class.outer',
-              desc = 'Go to Previous Class End',
-            },
-            ['[A'] = {
-              query = '@parameter.inner',
-              desc = 'Go to Previous Parameter End',
-            },
-          },
-        },
-      },
-    }
-  end,
+  opts = {
+    ensure_installed = {
+      'bash',
+      'c',
+      'diff',
+      'html',
+      'javascript',
+      'jsdoc',
+      'json',
+      'jsonc',
+      'lua',
+      'luadoc',
+      'luap',
+      'markdown',
+      'markdown_inline',
+      'printf',
+      'python',
+      'query',
+      'regex',
+      'toml',
+      'tsx',
+      'typescript',
+      'vim',
+      'vimdoc',
+      'xml',
+      'yaml',
+      'css',
+      'scss',
+      'styled',
+      'zsh',
+      'gitcommit',
+    },
+  },
 }

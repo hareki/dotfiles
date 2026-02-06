@@ -3,6 +3,7 @@ vim.api.nvim_create_user_command('HlAtCursor', function()
   hl_at_cursor.show()
 end, { desc = 'Show Highlight Groups Under Cursor' })
 
+-- TODO: Remove this deprecated command after dealing with treesitter migration
 local lualine_utils = require('plugins.ui.lualine.utils')
 if lualine_utils.have_status_line() then
   vim.api.nvim_create_user_command('TabRename', function(opts)
