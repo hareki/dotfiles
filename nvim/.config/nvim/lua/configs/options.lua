@@ -7,7 +7,6 @@ local lualine_utils = require('plugins.ui.lualine.utils')
 
 g.mapleader = ' '
 g.maplocalleader = ' '
-g.have_nerd_font = true
 
 -- Disable netrw
 g.loaded_netrw = 1
