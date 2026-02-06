@@ -10,3 +10,8 @@ inline_height = 11 # Match fzf-tab height
 update_check = false
 show_numeric_shortcuts = false
 theme.name = "catppuccin-mocha-blue"
+
+keymap_mode = "emacs"
+[keymap.emacs]
+"ctrl-r" = "cursor-word-right"
+"alt-f" = "cycle-filter-mode"
