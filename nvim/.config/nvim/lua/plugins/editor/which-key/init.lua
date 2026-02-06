@@ -20,6 +20,10 @@ return {
 
       return {
         preset = 'modern',
+        win = {
+          -- It's okay for the panel to overlap the cursor, don't push it down to the statusline
+          no_overlap = false,
+        },
         replace = {
           desc = {
             -- Add one extra space before the descriptions
