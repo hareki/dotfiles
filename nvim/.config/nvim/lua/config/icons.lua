@@ -171,6 +171,7 @@ local M = {
     send_file = '󰈪',
     around = '󰭶',
     inside = '󰹗',
+    newline = '',
   },
 }
 
