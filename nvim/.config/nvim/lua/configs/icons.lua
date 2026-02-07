@@ -7,6 +7,7 @@ local M = {
     location = '',
     neovim = '',
     macro = ' ',
+    fold = '',
   },
   ft = {
     octo = '',

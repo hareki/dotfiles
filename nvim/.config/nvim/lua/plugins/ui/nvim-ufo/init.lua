@@ -59,7 +59,10 @@ return {
   end,
 
   opts = function()
+    local utils = require('plugins.ui.nvim-ufo.utils')
+
     return {
+      fold_virt_text_handler = utils.fold_virt_text_handler,
       -- https://github.com/kevinhwang91/nvim-ufo/blob/1ebb9ea3507f3a40ce8b0489fb259ab32b1b5877/README.md?plain=1#L97
       provider_selector = function()
         return { 'treesitter', 'indent' }
