@@ -1,4 +1,4 @@
----@class configs.lazy.utils
+---@class config.lazy.utils
 local M = {}
 
 ---Ensure lazy.nvim is installed, cloning from git if necessary
