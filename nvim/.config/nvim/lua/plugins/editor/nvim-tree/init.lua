@@ -20,7 +20,7 @@ return {
       local tree = require('plugins.editor.nvim-tree.utils')
       local state = tree.state
 
-      local picker_config = require('configs.picker')
+      local picker_config = require('config.picker')
       return {
         -- title_format = ' %s ', -- Use file name as title
         title_format = picker_config.preview_title,
@@ -72,7 +72,7 @@ return {
 
         calculate_win_size = function(tree_win)
           local tree_cfg = vim.api.nvim_win_get_config(tree_win)
-          local size_configs = require('configs.size')
+          local size_configs = require('config.size')
 
           local side_preview = size_configs.side_preview
           local size_utils = require('utils.ui')
@@ -131,10 +131,10 @@ return {
 
     opts = function()
       local ui_utils = require('utils.ui')
-      local size_configs = require('configs.size')
+      local size_configs = require('config.size')
       local tree = require('plugins.editor.nvim-tree.utils')
       local state = tree.state
-      local picker_config = require('configs.picker')
+      local picker_config = require('config.picker')
       local nvim_tree_utils = require('plugins.editor.nvim-tree.utils')
 
       state.opts = {

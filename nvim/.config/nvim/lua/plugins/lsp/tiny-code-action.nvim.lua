@@ -7,7 +7,7 @@ return {
   },
 
   opts = function()
-    local picker_config = require('configs.picker')
+    local picker_config = require('config.picker')
 
     return {
       backend = 'delta',

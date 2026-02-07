@@ -1,4 +1,4 @@
----@class configs.icons
+---@class config.icons
 local M = {
   misc = {
     dots = '󰇘',

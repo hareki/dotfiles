@@ -1,6 +1,6 @@
 return {
   Catppuccin(function(palette)
-    local color = require('configs.color')
+    local color = require('config.color')
 
     return {
       HydraRed = { fg = palette.red },

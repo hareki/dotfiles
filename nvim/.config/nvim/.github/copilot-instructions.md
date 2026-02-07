@@ -75,7 +75,7 @@ local size = ui.popup_config('lg')
 For side panels or previews, access size configs directly:
 
 ```lua
-local size_configs = require('configs.size')
+local size_configs = require('config.size')
 local ui = require('utils.ui')
 local panel_width = ui.computed_size(size_configs.side_panel.md)
 ```

@@ -28,7 +28,7 @@ return {
         },
 
         get_popup_max_height = function()
-          local size_configs = require('configs.size')
+          local size_configs = require('config.size')
           return math.floor(vim.o.lines * size_configs.inline_popup.max_height)
         end,
         preview_config = {

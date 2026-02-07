@@ -51,8 +51,8 @@ return {
 
     opts = function()
       local ui_utils = require('utils.ui')
-      local size_configs = require('configs.size')
-      local picker_config = require('configs.picker')
+      local size_configs = require('config.size')
+      local picker_config = require('config.picker')
       local preview_cols, preview_rows = ui_utils.compute_size(size_configs.side_preview.md)
       local panel_cols, _ = ui_utils.compute_size(size_configs.side_panel.md)
       local preview_width_offset = panel_cols + preview_cols + 3

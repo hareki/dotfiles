@@ -7,7 +7,7 @@ return {
     local palettes = require('catppuccin.palettes')
     local get_palette = palettes.get_palette
     local palette = get_palette()
-    local color = require('configs.color')
+    local color = require('config.color')
 
     return {
       transparent_background = true,

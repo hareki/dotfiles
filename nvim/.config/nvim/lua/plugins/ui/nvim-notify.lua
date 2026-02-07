@@ -16,7 +16,7 @@ return {
         function()
           local telescope = require('telescope')
           local telescope_notify = telescope.extensions.notify.notify
-          local picker_config = require('configs.picker')
+          local picker_config = require('config.picker')
           local preview_title = picker_config.telescope_preview_title
           local telescope_previewers = require('telescope.previewers')
           local new_buffer_previewer = telescope_previewers.new_buffer_previewer
@@ -59,7 +59,7 @@ return {
 
   opts = function()
     local title_key = 'notify_title_with_hl'
-    local size_configs = require('configs.size')
+    local size_configs = require('config.size')
     local max_size = size_configs.inline_popup.max_height
 
     return {

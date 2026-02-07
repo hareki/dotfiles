@@ -2,7 +2,7 @@ return {
   'hareki/eagle.nvim',
   cmd = { 'EagleWin', 'EagleWinLineDiagnostic' },
   opts = function()
-    local size_configs = require('configs.size')
+    local size_configs = require('config.size')
     local max_size = size_configs.inline_popup.max_height
 
     return {

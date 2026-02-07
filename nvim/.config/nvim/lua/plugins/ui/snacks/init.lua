@@ -158,7 +158,7 @@ return {
     opts = function()
       local ui = require('utils.ui')
       local popup_config = ui.popup_config
-      local picker_config = require('configs.picker')
+      local picker_config = require('config.picker')
       local config = {
         input = popup_config('input'),
         full = popup_config('full'),

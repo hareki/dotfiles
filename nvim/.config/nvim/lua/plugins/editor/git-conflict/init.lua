@@ -1,6 +1,6 @@
 return {
   Catppuccin(function(palette)
-    local color = require('configs.color')
+    local color = require('config.color')
     return {
       GitConflictCurrentLabel = { bg = color.git_conflict_current_label_bg, fg = palette.text },
       GitConflictCurrent = { bg = color.git_conflict_current_bg },

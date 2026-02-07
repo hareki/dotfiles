@@ -45,7 +45,7 @@ return {
 
       -- Unify the preview title for all pickers
       local default_picker_configs = {}
-      local picker_config = require('configs.picker')
+      local picker_config = require('config.picker')
       for picker_name, _ in pairs(builtin) do
         default_picker_configs[picker_name] = {
           preview_title = picker_config.telescope_preview_title,

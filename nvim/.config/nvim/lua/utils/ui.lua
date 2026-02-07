@@ -107,7 +107,7 @@ end
 ---@param with_border boolean | nil Whether to add 2 for border (default false)
 ---@return utils.ui.WinConfig config Window config with width, height, col, row
 function M.popup_config(size, with_border)
-  local size_configs = require('configs.size')
+  local size_configs = require('config.size')
   local screen_w, screen_h = M.screen_size()
   local window_w, window_h
 
