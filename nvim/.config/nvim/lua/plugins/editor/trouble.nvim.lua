@@ -51,7 +51,6 @@ return {
 
     opts = function()
       local ui_utils = require('utils.ui')
-      local icons = require('configs.icons')
       local size_configs = require('configs.size')
       local picker_config = require('configs.picker')
       local preview_cols, preview_rows = ui_utils.compute_size(size_configs.side_preview.md)
@@ -105,8 +104,8 @@ return {
         win = { position = 'right', size = panel_cols },
 
         icons = {
-          folder_closed = icons.explorer.folder,
-          folder_open = icons.explorer.folder_empty_open,
+          folder_closed = Icons.explorer.folder,
+          folder_open = Icons.explorer.folder_empty_open,
         },
 
         preview = {

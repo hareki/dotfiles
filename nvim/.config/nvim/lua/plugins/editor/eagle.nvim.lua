@@ -2,7 +2,6 @@ return {
   'hareki/eagle.nvim',
   cmd = { 'EagleWin', 'EagleWinLineDiagnostic' },
   opts = function()
-    local icons = require('configs.icons')
     local size_configs = require('configs.size')
     local max_size = size_configs.inline_popup.max_height
 
@@ -37,10 +36,10 @@ return {
       improved_markdown = {
         replace_dashes = false,
         severity_renderer = {
-          ERROR = { icon = icons.diagnostics.Error, hl = 'RenderMarkdownError' },
-          WARNING = { icon = icons.diagnostics.Warn, hl = 'RenderMarkdownWarn' },
-          INFO = { icon = icons.diagnostics.Info, hl = 'RenderMarkdownInfo' },
-          HINT = { icon = icons.diagnostics.Hint, hl = 'RenderMarkdownHint' },
+          ERROR = { icon = Icons.diagnostics.Error, hl = 'RenderMarkdownError' },
+          WARNING = { icon = Icons.diagnostics.Warn, hl = 'RenderMarkdownWarn' },
+          INFO = { icon = Icons.diagnostics.Info, hl = 'RenderMarkdownInfo' },
+          HINT = { icon = Icons.diagnostics.Hint, hl = 'RenderMarkdownHint' },
         },
       },
 

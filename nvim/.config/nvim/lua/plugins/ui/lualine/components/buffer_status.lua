@@ -66,8 +66,7 @@ local function get_current_flags()
     return ''
   end
 
-  local icons = require('configs.icons')
-  local status = icons.file_status
+  local status = Icons.file_status
   local bo = vim.bo[bufnr]
   local name = vim.api.nvim_buf_get_name(bufnr) or ''
 
@@ -129,8 +128,7 @@ local function get_global_modified()
     end
   end
 
-  local icons = require('configs.icons')
-  local status = icons.file_status
+  local status = Icons.file_status
   local result = count > 0 and status.modified .. count or ''
   cache.global_modified = result
 

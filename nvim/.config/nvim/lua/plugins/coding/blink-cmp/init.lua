@@ -18,13 +18,11 @@ return {
   {
     'fang2hou/blink-copilot',
     opts = function()
-      local icons = require('configs.icons')
-
       return {
         max_completions = limit.copilot_max_items,
         max_attempts = limit.copilot_max_items + 1,
         kind_name = 'Copilot',
-        kind_icon = icons.kinds.Copilot,
+        kind_icon = Icons.kinds.Copilot,
         kind_hl = 'BlinkCmpKindCopilot',
         debounce = 200,
         auto_refresh = {

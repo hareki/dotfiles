@@ -159,7 +159,6 @@ return {
       local ui = require('utils.ui')
       local popup_config = ui.popup_config
       local picker_config = require('configs.picker')
-      local icons = require('configs.icons')
       local config = {
         input = popup_config('input'),
         full = popup_config('full'),
@@ -185,8 +184,8 @@ return {
         picker = {
           icons = {
             ui = {
-              selected = icons.explorer.selected,
-              unselected = icons.explorer.unselected,
+              selected = Icons.explorer.selected,
+              unselected = Icons.explorer.unselected,
             },
           },
           ui_select = true,

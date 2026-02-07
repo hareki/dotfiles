@@ -50,7 +50,6 @@ return {
     local ui = require('utils.ui')
     local log_popup_config = ui.popup_config('md')
     local actions = require('diffview.actions')
-    local icons = require('configs.icons')
     local panel_win_config = {
       position = 'bottom',
       height = 12,
@@ -104,12 +103,12 @@ return {
     return {
       enhanced_diff_hl = true,
       icons = {
-        folder_closed = icons.explorer.folder,
-        folder_open = icons.explorer.folder_open,
+        folder_closed = Icons.explorer.folder,
+        folder_open = Icons.explorer.folder_open,
       },
       signs = {
-        fold_closed = icons.explorer.collapsed,
-        fold_open = icons.explorer.expanded,
+        fold_closed = Icons.explorer.collapsed,
+        fold_open = Icons.explorer.expanded,
       },
       file_panel = {
         win_config = panel_win_config,

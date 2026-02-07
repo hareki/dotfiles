@@ -29,7 +29,6 @@ return {
     local progress_comp = require('plugins.ui.lualine.components.progress')
     local diff_comp = require('plugins.ui.lualine.components.diff')
 
-    local icons = require('configs.icons')
     local git_utils = require('utils.git')
     local ui = require('utils.ui')
     local palette = ui.get_palette()
@@ -66,7 +65,7 @@ return {
             separator = separator,
             fmt = string.lower,
             icon = {
-              icons.misc.neovim .. ' ',
+              Icons.misc.neovim .. ' ',
               color = mode_comp.icon_color,
             },
             color = mode_comp.color,
@@ -76,7 +75,7 @@ return {
             comp = harpoon_comp.status,
             type = 'primary-left',
             color = 'yellow',
-            icon = icons.misc.pin,
+            icon = Icons.misc.pin,
             cond = harpoon_comp.has_items,
           }),
 
@@ -84,9 +83,9 @@ return {
             comp = 'diff',
             type = 'secondary-left',
             symbols = {
-              added = icons.git.added,
-              modified = icons.git.modified,
-              removed = icons.git.removed,
+              added = Icons.git.added,
+              modified = Icons.git.modified,
+              removed = Icons.git.removed,
             },
             source = diff_comp.source,
           }),
@@ -94,7 +93,7 @@ return {
           create_wrapper({
             comp = 'branch',
             type = 'secondary-left',
-            icon = icons.git.branch,
+            icon = Icons.git.branch,
             fmt = git_utils.format_branch_name,
           }),
 
@@ -102,7 +101,7 @@ return {
             comp = macro_comp.recording,
             type = 'secondary-left',
             color = 'red',
-            icon = icons.misc.macro,
+            icon = Icons.misc.macro,
             cond = macro_comp.is_recording,
           }),
 
@@ -124,7 +123,7 @@ return {
             symbols = {
               status = {
                 icons = {
-                  unknown = icons.kinds.CopilotInactive,
+                  unknown = Icons.kinds.CopilotInactive,
                 },
               },
               spinners = 'circle_full',
@@ -135,10 +134,10 @@ return {
             comp = 'diagnostics',
             type = 'secondary-right',
             symbols = {
-              error = icons.diagnostics.Error,
-              warn = icons.diagnostics.Warn,
-              info = icons.diagnostics.Info,
-              hint = icons.diagnostics.Hint,
+              error = Icons.diagnostics.Error,
+              warn = Icons.diagnostics.Warn,
+              info = Icons.diagnostics.Info,
+              hint = Icons.diagnostics.Hint,
             },
             sections = { 'error', 'warn', 'info' },
           }),
@@ -147,14 +146,14 @@ return {
             comp = git_utils.get_repo_name,
             type = 'primary-right',
             color = 'blue',
-            icon = icons.explorer.folder,
+            icon = Icons.explorer.folder,
           }),
 
           create_wrapper({
             comp = 'progress',
             type = 'primary-right',
             color = 'maroon',
-            icon = icons.misc.location,
+            icon = Icons.misc.location,
             fmt = progress_comp.format,
             margin = { left = 0, right = 0 },
           })

@@ -11,11 +11,9 @@ local M = {}
 ---@param truncate function Function to truncate text to a given width
 ---@return table[] new_virt_text Modified virtual text chunks
 function M.fold_virt_text_handler(virt_text, lnum, end_lnum, width, truncate)
-  local icons = require('configs.icons')
-
   local virt_text_result = {}
   local cur_width = 0
-  local suffix = (' %s %d '):format(icons.misc.fold, end_lnum - lnum)
+  local suffix = (' %s %d '):format(Icons.actions.fold, end_lnum - lnum)
   local suf_width = vim.fn.strdisplaywidth(suffix)
   local target_width = width - suf_width
 

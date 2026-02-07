@@ -204,7 +204,6 @@ return {
       end
 
       local ui = require('utils.ui')
-      local icons = require('configs.icons')
       local layout_config = ui.telescope_layout
       local telescope_config = require('telescope.config')
       local default_get_status_text = telescope_config.values.get_status_text
@@ -222,7 +221,7 @@ return {
           -- selection_caret = ' ',
           selection_caret = ' ',
           entry_prefix = ' ', -- keep list text aligned
-          multi_icon = vim.trim(icons.explorer.selected) .. ' ',
+          multi_icon = vim.trim(Icons.explorer.selected) .. ' ',
           get_status_text = function(self, opts)
             -- Prevent flashing the loading asterisk indicator
             opts = opts or {}

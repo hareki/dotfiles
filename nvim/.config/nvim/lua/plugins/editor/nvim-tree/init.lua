@@ -132,7 +132,6 @@ return {
     opts = function()
       local ui_utils = require('utils.ui')
       local size_configs = require('configs.size')
-      local icons = require('configs.icons')
       local tree = require('plugins.editor.nvim-tree.utils')
       local state = tree.state
       local picker_config = require('configs.picker')
@@ -179,10 +178,10 @@ return {
             max = vim.diagnostic.severity.ERROR,
           },
           icons = {
-            error = icons.diagnostics.Error,
-            warning = icons.diagnostics.Warn,
-            info = icons.diagnostics.Info,
-            hint = icons.diagnostics.Hint,
+            error = Icons.diagnostics.Error,
+            warning = Icons.diagnostics.Warn,
+            info = Icons.diagnostics.Info,
+            hint = Icons.diagnostics.Hint,
           },
         },
         system_open = {
@@ -201,25 +200,25 @@ return {
             git_placement = 'after',
             diagnostics_placement = 'after',
             glyphs = {
-              bookmark = vim.trim(icons.explorer.selected),
+              bookmark = vim.trim(Icons.explorer.selected),
               folder = {
-                arrow_closed = icons.explorer.collapsed,
-                arrow_open = icons.explorer.expanded,
-                default = icons.explorer.folder,
-                open = icons.explorer.folder_open,
-                empty = icons.explorer.folder_empty,
-                empty_open = icons.explorer.folder_empty_open,
-                symlink = icons.explorer.folder_symlink,
-                symlink_open = icons.explorer.folder_symlink,
+                arrow_closed = Icons.explorer.collapsed,
+                arrow_open = Icons.explorer.expanded,
+                default = Icons.explorer.folder,
+                open = Icons.explorer.folder_open,
+                empty = Icons.explorer.folder_empty,
+                empty_open = Icons.explorer.folder_empty_open,
+                symlink = Icons.explorer.folder_symlink,
+                symlink_open = Icons.explorer.folder_symlink,
               },
               git = {
-                unstaged = icons.git.unstaged,
-                staged = icons.git.staged,
-                unmerged = icons.git.unmerged,
-                renamed = icons.git.renamed,
-                untracked = icons.git.untracked,
-                deleted = icons.git.deleted,
-                ignored = icons.git.ignored,
+                unstaged = Icons.git.unstaged,
+                staged = Icons.git.staged,
+                unmerged = Icons.git.unmerged,
+                renamed = Icons.git.renamed,
+                untracked = Icons.git.untracked,
+                deleted = Icons.git.deleted,
+                ignored = Icons.git.ignored,
               },
             },
           },

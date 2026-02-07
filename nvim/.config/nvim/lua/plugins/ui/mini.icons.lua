@@ -13,23 +13,25 @@ return {
     end,
 
     opts = function()
+      local icons = Icons.file_icons
+
       return {
         file = {
-          ['.keep'] = { glyph = '󰊢', hl = 'MiniIconsGrey' },
-          ['devcontainer.json'] = { glyph = '', hl = 'MiniIconsAzure' },
+          ['.keep'] = { glyph = icons.keep, hl = 'MiniIconsGrey' },
+          ['devcontainer.json'] = { glyph = icons.devcontainer, hl = 'MiniIconsAzure' },
 
-          ['.eslintrc.js'] = { glyph = '󰱺', hl = 'MiniIconsYellow' },
-          ['.node-version'] = { glyph = '', hl = 'MiniIconsGreen' },
-          ['.prettierrc'] = { glyph = '', hl = 'MiniIconsPurple' },
-          ['.yarnrc.yml'] = { glyph = '', hl = 'MiniIconsBlue' },
-          ['eslint.config.js'] = { glyph = '󰱺', hl = 'MiniIconsYellow' },
-          ['package.json'] = { glyph = '', hl = 'MiniIconsGreen' },
-          ['tsconfig.json'] = { glyph = '', hl = 'MiniIconsAzure' },
-          ['tsconfig.build.json'] = { glyph = '', hl = 'MiniIconsAzure' },
-          ['yarn.lock'] = { glyph = '', hl = 'MiniIconsBlue' },
+          ['.eslintrc.js'] = { glyph = icons.eslint, hl = 'MiniIconsYellow' },
+          ['.node-version'] = { glyph = icons.node_version, hl = 'MiniIconsGreen' },
+          ['.prettierrc'] = { glyph = icons.prettierrc, hl = 'MiniIconsPurple' },
+          ['.yarnrc.yml'] = { glyph = icons.yarnrc, hl = 'MiniIconsBlue' },
+          ['eslint.config.js'] = { glyph = icons.eslint_config, hl = 'MiniIconsYellow' },
+          ['package.json'] = { glyph = icons.package_json, hl = 'MiniIconsGreen' },
+          ['tsconfig.json'] = { glyph = icons.tsconfig, hl = 'MiniIconsAzure' },
+          ['tsconfig.build.json'] = { glyph = icons.tsconfig_build, hl = 'MiniIconsAzure' },
+          ['yarn.lock'] = { glyph = icons.yarn_lock, hl = 'MiniIconsBlue' },
         },
         filetype = {
-          dotenv = { glyph = '', hl = 'MiniIconsYellow' },
+          dotenv = { glyph = icons.dotenv, hl = 'MiniIconsYellow' },
         },
       }
     end,

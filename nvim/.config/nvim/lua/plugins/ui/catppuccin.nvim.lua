@@ -106,6 +106,7 @@ return {
       },
     }
   end,
+
   config = function(_, opts)
     local catppuccin = require('catppuccin')
     catppuccin.setup(opts)
