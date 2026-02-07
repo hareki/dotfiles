@@ -1,4 +1,4 @@
----@class configs.color
+---@class config.color
 local M = {}
 
 M.sub_cursor_bg = '#414e70' -- Lightened blue

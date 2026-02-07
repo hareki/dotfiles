@@ -1,4 +1,4 @@
----@class configs.picker
+---@class config.picker
 local M = {}
 
 M.prompt_prefix = '   '
