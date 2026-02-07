@@ -21,6 +21,13 @@ return {
           name = 'circleFull',
         },
       },
+      presets = {
+        bottom_search = false,
+        command_palette = false,
+        inc_rename = false,
+        lsp_doc_border = true,
+        long_message_to_split = true,
+      },
       views = {
         cmdline_popup = {
           zindex = 999, -- Ensure cmdline popup is always on top
@@ -46,10 +53,9 @@ return {
       },
       lsp = {
         hover = {
-          opts = {
-            border = 'rounded',
-          },
+          opts = { border = 'rounded' },
         },
+
         signature = {
           enabled = false,
           ---@type NoiceViewOptions
@@ -120,14 +126,8 @@ return {
           opts = {}, -- Don't do anything, just use this as a hook to refresh dropbar
         },
       },
-      presets = {
-        bottom_search = false,
-        command_palette = false,
-        inc_rename = false,
-        lsp_doc_border = true,
-        long_message_to_split = true,
-      },
     },
+
     config = function(_, opts)
       -- HACK: noice shows messages from before it was enabled.
       -- This is not ideal when Lazy is installing plugins,
@@ -135,6 +135,7 @@ return {
       if vim.o.filetype == 'lazy' then
         vim.cmd.messages({ args = { 'clear' } })
       end
+
       local noice = require('noice')
       noice.setup(opts)
     end,
