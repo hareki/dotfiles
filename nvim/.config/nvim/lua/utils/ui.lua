@@ -1,6 +1,8 @@
 ---@class utils.ui
 local M = {}
 
+---@alias utils.ui.Palette { rosewater: string, flamingo: string, pink: string, mauve: string, red: string, maroon: string, peach: string, yellow: string, green: string, teal: string, sky: string, sapphire: string, blue: string, lavender: string, text: string, subtext1: string, subtext0: string, overlay2: string, overlay1: string, overlay0: string, surface2: string, surface1: string, surface0: string, base: string, mantle: string, crust: string }
+
 ---Set a single highlight group
 ---@param group string The highlight group name
 ---@param style vim.api.keyset.highlight The highlight definition
@@ -17,11 +19,10 @@ function M.highlights(custom_highlights)
     M.highlight(group, style)
   end
 end
----@alias palette { rosewater: string, flamingo: string, pink: string, mauve: string, red: string, maroon: string, peach: string, yellow: string, green: string, teal: string, sky: string, sapphire: string, blue: string, lavender: string, text: string, subtext1: string, subtext0: string, overlay2: string, overlay1: string, overlay0: string, surface2: string, surface1: string, surface0: string, base: string, mantle: string, crust: string }
 
 ---Get the catppuccin color palette for a given flavor
 ---@param name? "frappe" | "latte" | "macchiato" | "mocha" Flavor name (default: "mocha")
----@return palette colors The color palette table
+---@return utils.ui.Palette colors The color palette table
 function M.get_palette(name)
   local palettes = require('catppuccin.palettes')
 
@@ -30,7 +31,7 @@ end
 
 ---Create a catppuccin plugin spec with custom highlights
 ---Returns a lazy.nvim spec that registers highlights via catppuccin's custom_highlights option.
----@param register fun(palette: palette, sub_palette: palette): table<string, vim.api.keyset.highlight> Callback to generate highlights
+---@param register fun(palette: utils.ui.Palette, sub_palette: utils.ui.Palette): table<string, vim.api.keyset.highlight> Callback to generate highlights
 ---@return table spec A lazy.nvim plugin spec for catppuccin
 function M.catppuccin(register)
   return {
@@ -42,6 +43,57 @@ function M.catppuccin(register)
         vim.tbl_extend('error', opts.custom_highlights or {}, register(palette, sub_palette))
     end,
   }
+end
+
+---Convert hex color to RGB components
+---@param hex string Hex color
+---@return integer r Red component (0-255)
+---@return integer g Green component (0-255)
+---@return integer b Blue component (0-255)
+function M.hex_to_rgb(hex)
+  hex = hex:gsub('#', '')
+  return tonumber(hex:sub(1, 2), 16), tonumber(hex:sub(3, 4), 16), tonumber(hex:sub(5, 6), 16)
+end
+
+---Blend two hex colors together
+---@param fg string Foreground hex color
+---@param bg string Background hex color
+---@param alpha? number Blend factor (0.0 = fully bg, 1.0 = fully fg, default: 0.18)
+---@return string hex Blended hex color
+function M.blend_hex(fg, bg, alpha)
+  alpha = alpha or 0.18
+  local fg_r, fg_g, fg_b = M.hex_to_rgb(fg)
+  local bg_r, bg_g, bg_b = M.hex_to_rgb(bg)
+
+  local r = math.floor(fg_r * alpha + bg_r * (1 - alpha))
+  local g = math.floor(fg_g * alpha + bg_g * (1 - alpha))
+  local b = math.floor(fg_b * alpha + bg_b * (1 - alpha))
+
+  return string.format('#%02x%02x%02x', r, g, b)
+end
+
+---Build pill-shaped virtual text chunks
+---@param content string The text content inside the pill
+---@param inner_hl string Highlight group for the pill content
+---@param outer_hl string Highlight group for the pill caps
+---@return table[] chunks Virtual text chunks: space, left cap, content, right cap
+function M.pill_virt_text(content, inner_hl, outer_hl)
+  return {
+    { ' ' },
+    { Icons.misc.pill_left, outer_hl },
+    { content, inner_hl },
+    { Icons.misc.pill_right, outer_hl },
+  }
+end
+
+---Calculate the total display width of a pill (space + caps + content)
+---@param content string The text content inside the pill
+---@return integer width Total display width in columns
+function M.pill_display_width(content)
+  return 1
+    + vim.fn.strdisplaywidth(Icons.misc.pill_left)
+    + vim.fn.strdisplaywidth(content)
+    + vim.fn.strdisplaywidth(Icons.misc.pill_right)
 end
 
 ---Generate telescope layout configuration for a given size preset
@@ -75,7 +127,7 @@ local computed_input_size = {
 }
 
 ---Compute actual dimensions from a size configuration
----@param size configs.size.dimensions | 'input' Size config or 'input' preset
+---@param size config.size.Dimensions | 'input' Size config or 'input' preset
 ---@param with_border? boolean Whether to add 2 for border (default false)
 ---@return integer width Width in columns
 ---@return integer height Height in rows
@@ -157,19 +209,6 @@ function M.popup_config(size, with_border)
     col = col,
     row = row - (size == 'full' and 1 or 0), -- Off center by one row for full screen to cover the winbar
   }
-end
-
----Clear (reset to empty) one or more highlight groups
----@param groups string[] | string Highlight group name(s) to clear
----@return nil
-function M.clear_hls(groups)
-  if type(groups) == 'string' then
-    groups = { groups }
-  end
-
-  for _, group in ipairs(groups) do
-    vim.api.nvim_set_hl(0, group, {})
-  end
 end
 
 return M

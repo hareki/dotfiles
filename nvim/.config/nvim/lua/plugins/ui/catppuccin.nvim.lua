@@ -54,6 +54,7 @@ return {
 
         ModifiedIndicator = { fg = palette.yellow },
         SnippetTabStop = { bg = color.sub_cursor_bg },
+        CurSearch = { bg = palette.blue, fg = palette.mantle },
       },
       lsp_styles = {
         virtual_text = {

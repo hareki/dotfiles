@@ -8,6 +8,8 @@ local M = {
     neovim = '',
     macro = ' ',
     tailwind_color = '',
+    pill_left = '',
+    pill_right = '',
   },
   ft = {
     octo = '',

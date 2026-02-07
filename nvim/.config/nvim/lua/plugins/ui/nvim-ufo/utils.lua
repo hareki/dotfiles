@@ -1,8 +1,10 @@
 ---@class plugins.ui.nvim-ufo.utils
 local M = {}
 
+local ui = require('utils.ui')
+
 ---Custom fold virtual text handler for nvim-ufo
----Displays a folded region with dynamic truncation and line count indicator.
+---Displays a folded region with dynamic truncation and a pill-shaped line count indicator.
 ---Source: `https://github.com/kevinhwang91/nvim-ufo?tab=readme-ov-file#customize-fold-text`
 ---@param virt_text table Array of virtual text chunks (text, hl_group pairs)
 ---@param lnum integer Starting line number of the fold
@@ -10,12 +12,11 @@ local M = {}
 ---@param width integer Available width for virtual text
 ---@param truncate function Function to truncate text to a given width
 ---@return table[] new_virt_text Modified virtual text chunks
-function M.fold_virt_text_handler(virt_text, lnum, end_lnum, width, truncate)
+function M.fold_text_handler(virt_text, lnum, end_lnum, width, truncate)
   local virt_text_result = {}
   local cur_width = 0
-  local suffix = (' %s %d '):format(Icons.actions.fold, end_lnum - lnum)
-  local suf_width = vim.fn.strdisplaywidth(suffix)
-  local target_width = width - suf_width
+  local suffix_content = ('%s %d'):format(Icons.actions.fold, end_lnum - lnum)
+  local target_width = width - ui.pill_display_width(suffix_content)
 
   for _, chunk in ipairs(virt_text) do
     local chunk_text = chunk[1]
@@ -32,7 +33,8 @@ function M.fold_virt_text_handler(virt_text, lnum, end_lnum, width, truncate)
 
       -- str width returned from truncate() may less than 2nd argument, need padding
       if cur_width + chunk_width < target_width then
-        suffix = suffix .. (' '):rep(target_width - cur_width - chunk_width)
+        local padding = (' '):rep(target_width - cur_width - chunk_width)
+        table.insert(virt_text_result, { padding })
       end
 
       break
@@ -40,7 +42,8 @@ function M.fold_virt_text_handler(virt_text, lnum, end_lnum, width, truncate)
 
     cur_width = cur_width + chunk_width
   end
-  table.insert(virt_text_result, { suffix, 'WarningMsg' })
+
+  vim.list_extend(virt_text_result, ui.pill_virt_text(suffix_content, 'UfoFoldPillInner', 'UfoFoldPillOuter'))
 
   return virt_text_result
 end
