@@ -16,6 +16,9 @@ return {
       ---@type render.md.UserConfig
       return {
         file_types = md_filetypes,
+        sign = {
+          enabled = false,
+        },
         callout = {
           error = {
             rendered = ' Error',
