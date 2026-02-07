@@ -3,7 +3,7 @@ return {
 
   -- Prevent layout shifting
   lazy = false,
-  priority = 500,
+  priority = Priority.layout,
   dependencies = { 'hareki/copilot-lualine' },
 
   enabled = function()

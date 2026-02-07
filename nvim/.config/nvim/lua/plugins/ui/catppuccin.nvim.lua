@@ -2,7 +2,7 @@ return {
   'catppuccin/nvim',
   name = 'catppuccin',
   lazy = false,
-  priority = 1000, -- Should be loaded first to register the colorscheme correctly
+  priority = Priority.core, -- Should be loaded first to register the colorscheme correctly
   opts = function()
     local palettes = require('catppuccin.palettes')
     local get_palette = palettes.get_palette

@@ -14,7 +14,9 @@ return {
   end),
   {
     'hareki/snacks.nvim',
-    event = 'VeryLazy',
+    lazy = false,
+    -- This plugin has many responsibilities, should load it early to setup stuff correctly
+    Priority = Priority.core,
     keys = function()
       return {
         {

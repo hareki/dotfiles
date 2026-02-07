@@ -13,7 +13,7 @@ return {
 
     -- Prevent layout shifting (it hides the cmdline row)
     lazy = false,
-    priority = 500,
+    priority = Priority.layout,
 
     opts = {
       format = {

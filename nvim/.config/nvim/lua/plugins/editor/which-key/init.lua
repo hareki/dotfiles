@@ -127,6 +127,7 @@ return {
             { pattern = 'comment', icon = Icons.actions.comment },
             { pattern = 'prompt', icon = Icons.editor.prompt, color = 'blue' },
             { pattern = 'send file', icon = Icons.actions.send_file, color = 'cyan' },
+            { pattern = 'newline', icon = Icons.actions.newline },
           },
         },
       }
