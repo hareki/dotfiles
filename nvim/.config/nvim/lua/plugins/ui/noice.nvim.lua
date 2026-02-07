@@ -21,6 +21,10 @@ return {
           name = 'circleFull',
         },
       },
+      messages = {
+        -- Disable search count virtual text, use kevinhwang91/nvim-hlslens for more customization
+        view_search = false,
+      },
       presets = {
         bottom_search = false,
         command_palette = false,

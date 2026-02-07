@@ -231,7 +231,7 @@ local lualine_utils = require('plugins.ui.lualine.utils')
 lualine_utils.refresh_statusline()
 ```
 
-**Command Syntax**: Avoid `<CMD>...<CR>` syntax in keymaps. Use `vim.cmd` functions instead:
+**Command Syntax**: Avoid `<CMD>...<CR>` syntax in keymaps. Use `vim.cmd` functions (structured command API) instead to avoid string parsing overhead
 
 ```lua
 -- Bad
