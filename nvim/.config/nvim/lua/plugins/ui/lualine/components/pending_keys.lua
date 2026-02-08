@@ -1,13 +1,15 @@
 ---@class plugins.ui.lualine.components.pending_keys
 local M = {}
 
-function M.keys()
+function M.get()
   return '%S'
 end
 
-function M.show()
+function M.cond()
   local result = vim.api.nvim_eval_statusline('%S', {})
   return result.str ~= ''
 end
+
+M.icon = Icons.misc.pending_keys
 
 return M

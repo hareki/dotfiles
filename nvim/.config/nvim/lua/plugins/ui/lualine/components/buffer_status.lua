@@ -1,8 +1,8 @@
----@class plugins.ui.lualine.components.buffer_status
-local M = {}
-
 local lualine_require = require('lualine_require')
 local component = lualine_require.require('lualine.component')
+
+---@class plugins.ui.lualine.components.buffer_status
+local M = component:extend()
 
 local IGNORE_FILETYPES = {
   'NvimTree',
@@ -135,8 +135,6 @@ local function get_global_modified()
   return result
 end
 
-local BufferStatus = component:extend()
-
 ---Default options for buffer status component
 local default_options = {
   colored = true,
@@ -162,8 +160,8 @@ end
 
 ---Initialize the component
 ---@param options table
-function BufferStatus:init(options)
-  BufferStatus.super.init(self, options)
+function M:init(options)
+  M.super.init(self, options)
   apply_default_colors(self.options)
   self.options = vim.tbl_deep_extend('keep', self.options or {}, default_options)
 
@@ -177,7 +175,7 @@ end
 
 ---Update and return the status string
 ---@return string
-function BufferStatus:update_status()
+function M:update_status()
   local current_flags = get_current_flags()
   local global_modified = get_global_modified()
 
@@ -212,7 +210,5 @@ function BufferStatus:update_status()
 
   return table.concat(result, '')
 end
-
-M.component = BufferStatus
 
 return M

@@ -1,13 +1,15 @@
 ---@class plugins.ui.lualine.components.macro
 local M = {}
 
-function M.recording()
+function M.get()
   local reg = vim.fn.reg_recording()
   return reg
 end
 
-function M.is_recording()
+function M.cond()
   return vim.fn.reg_recording() ~= ''
 end
+
+M.icon = Icons.misc.macro
 
 return M

@@ -27,15 +27,18 @@ return {
   end,
 
   opts = function()
-    local buffer_status_comp = require('plugins.ui.lualine.components.buffer_status')
-    local harpoon_comp = require('plugins.ui.lualine.components.harpoon')
-    local macro_comp = require('plugins.ui.lualine.components.macro')
-    local mode_comp = require('plugins.ui.lualine.components.mode')
-    local progress_comp = require('plugins.ui.lualine.components.progress')
-    local diff_comp = require('plugins.ui.lualine.components.diff')
-    local pending_keys_comp = require('plugins.ui.lualine.components.pending_keys')
+    local buffer_status = require('plugins.ui.lualine.components.buffer_status')
+    local harpoon = require('plugins.ui.lualine.components.harpoon')
+    local macro = require('plugins.ui.lualine.components.macro')
+    local mode = require('plugins.ui.lualine.components.mode')
+    local progress = require('plugins.ui.lualine.components.progress')
+    local diff = require('plugins.ui.lualine.components.diff')
+    local copilot = require('plugins.ui.lualine.components.copilot')
+    local diagnostics = require('plugins.ui.lualine.components.diagnostics')
+    local repo_name = require('plugins.ui.lualine.components.repo_name')
+    local branch = require('plugins.ui.lualine.components.branch')
+    local pending_keys = require('plugins.ui.lualine.components.pending_keys')
 
-    local git_utils = require('utils.git')
     local ui = require('utils.ui')
     local palette = ui.get_palette()
 
@@ -53,9 +56,6 @@ return {
     for _, section in ipairs({ 'normal', 'insert', 'visual', 'replace', 'inactive' }) do
       theme_reset[section] = { a = color_reset, b = color_reset, c = color_reset }
     end
-
-    local noice_spinners = require('noice.util.spinners')
-    local circle_full_frames = noice_spinners.spinners.circleFull.frames
 
     return {
       options = {
@@ -75,47 +75,43 @@ return {
             fmt = string.lower,
             icon = {
               Icons.misc.neovim .. ' ',
-              color = mode_comp.icon_color,
+              color = mode.icon_color,
             },
-            color = mode_comp.color,
+            color = mode.color,
           },
 
           create_wrapper({
-            comp = harpoon_comp.status,
+            comp = harpoon.get,
             type = 'primary-left',
             color = 'yellow',
-            icon = Icons.misc.pin,
-            cond = harpoon_comp.has_items,
+            icon = harpoon.icon,
+            cond = harpoon.cond,
           }),
 
           create_wrapper({
             comp = 'diff',
             type = 'secondary-left',
-            symbols = {
-              added = Icons.git.added,
-              modified = Icons.git.modified,
-              removed = Icons.git.removed,
-            },
-            source = diff_comp.source,
+            symbols = diff.symbols,
+            source = diff.source,
           }),
 
           create_wrapper({
             comp = 'branch',
             type = 'secondary-left',
-            icon = Icons.git.branch,
-            fmt = git_utils.format_branch_name,
+            icon = branch.icon,
+            fmt = branch.format,
           }),
 
           create_wrapper({
-            comp = macro_comp.recording,
+            comp = macro.get,
             type = 'secondary-left',
             color = 'red',
-            icon = Icons.misc.macro,
-            cond = macro_comp.is_recording,
+            icon = macro.icon,
+            cond = macro.cond,
           }),
 
           create_wrapper({
-            comp = buffer_status_comp.component,
+            comp = buffer_status,
             type = 'secondary-left',
           })
         ),
@@ -127,60 +123,39 @@ return {
 
         lualine_z = flatten(
           create_wrapper({
-            comp = pending_keys_comp.keys,
+            comp = pending_keys.get,
             type = 'secondary-right',
-            icon = Icons.misc.pending_keys,
-            cond = pending_keys_comp.show,
+            icon = pending_keys.icon,
+            cond = pending_keys.cond,
           }),
 
           create_wrapper({
             comp = 'copilot',
             type = 'secondary-right',
-
-            symbols = {
-
-              status = {
-                icons = {
-                  enabled = Icons.kinds.CopilotEnabled,
-                  sleep = Icons.kinds.CopilotSleep,
-                  disabled = Icons.kinds.CopilotDisabled,
-                  warning = Icons.kinds.CopilotWarning,
-                  unknown = Icons.kinds.CopilotUnknown,
-                },
-              },
-
-              spinners = circle_full_frames,
-            },
-
-            -- Copilot icons are huge, takes almost 2 cells
-            padding = { left = 0, right = 3 },
+            symbols = copilot.symbols,
+            padding = copilot.padding,
           }),
 
           create_wrapper({
             comp = 'diagnostics',
             type = 'secondary-right',
-            symbols = {
-              error = Icons.diagnostics.Error,
-              warn = Icons.diagnostics.Warn,
-              info = Icons.diagnostics.Info,
-              hint = Icons.diagnostics.Hint,
-            },
-            sections = { 'error', 'warn', 'info' },
+            symbols = diagnostics.symbols,
+            sections = diagnostics.sections,
           }),
 
           create_wrapper({
-            comp = git_utils.get_repo_name,
+            comp = repo_name.get,
             type = 'primary-right',
             color = 'blue',
-            icon = Icons.explorer.folder,
+            icon = repo_name.icon,
           }),
 
           create_wrapper({
             comp = 'progress',
             type = 'primary-right',
             color = 'maroon',
-            icon = Icons.misc.location,
-            fmt = progress_comp.format,
+            icon = progress.icon,
+            fmt = progress.format,
             margin = { left = 0, right = 0 },
           })
         ),
