@@ -169,6 +169,7 @@ local M = {
     comment = '󰿠',
     code_action = '',
     grep = ' ',
+    search = ' ',
     find = ' ',
     send_file = '󰈪',
     around = '󰭶',

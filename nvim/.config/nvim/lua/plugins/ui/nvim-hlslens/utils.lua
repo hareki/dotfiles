@@ -3,6 +3,23 @@ local M = {}
 
 local ui = require('utils.ui')
 
+---Execute search navigation (n/N) with hlslens integration
+---@param direction 'n' | 'N'
+---@return nil
+function M.navigate(direction)
+  local ok = pcall(function()
+    vim.cmd.normal({ vim.v.count1 .. direction, bang = true })
+    require('hlslens').start()
+  end)
+
+  if not ok then
+    local search_text = vim.fn.getreg('/')
+    Notifier.warn(string.format('`%s` is not found', search_text), {
+      title = 'nvim-hlslens',
+    })
+  end
+end
+
 ---Custom lens handler for nvim-hlslens search results
 ---Displays directional indicators (↑/↓) and pill-shaped position information for search matches.
 ---Source: `https://github.com/kevinhwang91/nvim-hlslens?tab=readme-ov-file#customize-virtual-text`
@@ -32,9 +49,9 @@ function M.search_text_handler(render, position_list, nearest, index, relative_i
   if nearest then
     local count = #position_list
     if indicator ~= '' then
-      text = ('%s %d/%d'):format(indicator, index, count)
+      text = ('%s%s %d/%d'):format(Icons.actions.search, indicator, index, count)
     else
-      text = ('%d/%d'):format(index, count)
+      text = ('%s%d/%d'):format(Icons.actions.search, index, count)
     end
     chunks = ui.pill_virt_text(text, 'HlSearchLensPillNearInner', 'HlSearchLensPillNearOuter')
   else

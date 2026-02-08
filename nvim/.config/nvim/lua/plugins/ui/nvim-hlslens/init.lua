@@ -19,25 +19,26 @@ return {
   {
     'kevinhwang91/nvim-hlslens',
     event = 'VeryLazy',
-    keys = {
-      {
-        'n',
-        function()
-          vim.cmd.normal({ vim.v.count1 .. 'n', bang = true })
-          require('hlslens').start()
-        end,
-        desc = 'Next Search Result',
-      },
+    keys = function()
+      local utils = require('plugins.ui.nvim-hlslens.utils')
 
-      {
-        'N',
-        function()
-          vim.cmd.normal({ vim.v.count1 .. 'N', bang = true })
-          require('hlslens').start()
-        end,
-        desc = 'Previous Search Result',
-      },
-    },
+      return {
+        {
+          'n',
+          function()
+            utils.navigate('n')
+          end,
+          desc = 'Next Search Result',
+        },
+        {
+          'N',
+          function()
+            utils.navigate('N')
+          end,
+          desc = 'Previous Search Result',
+        },
+      }
+    end,
     opts = function()
       local utils = require('plugins.ui.nvim-hlslens.utils')
 

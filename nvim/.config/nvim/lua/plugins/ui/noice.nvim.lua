@@ -21,6 +21,12 @@ return {
           name = 'circleFull',
         },
       },
+      cmdline = {
+        format = {
+          search_down = { icon = Icons.actions.search .. Icons.navigation.down },
+          search_up = { icon = Icons.actions.search .. Icons.navigation.up },
+        },
+      },
       messages = {
         -- Disable search count virtual text, use kevinhwang91/nvim-hlslens for more customization
         view_search = false,
