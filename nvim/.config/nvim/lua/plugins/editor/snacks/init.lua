@@ -22,7 +22,7 @@ return {
         {
           '<leader><leader>',
           function()
-            local state = require('plugins.ui.snacks.utils.state')
+            local state = require('plugins.editor.snacks.utils.state')
 
             Snacks.picker.files({
               layout = {
@@ -170,10 +170,10 @@ return {
       }
       local select_width = config.sm.width
 
-      local formatters = require('plugins.ui.snacks.utils.formatters')
-      local sorters = require('plugins.ui.snacks.utils.sorters')
-      local transformers = require('plugins.ui.snacks.utils.transformers')
-      local actions = require('plugins.ui.snacks.actions')
+      local formatters = require('plugins.editor.snacks.utils.formatters')
+      local sorters = require('plugins.editor.snacks.utils.sorters')
+      local transformers = require('plugins.editor.snacks.utils.transformers')
+      local actions = require('plugins.editor.snacks.actions')
 
       return {
         words = { enabled = true },

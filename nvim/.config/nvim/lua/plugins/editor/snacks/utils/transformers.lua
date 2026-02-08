@@ -1,7 +1,7 @@
----@class plugins.ui.snacks.utils.transformers
+---@class plugins.editor.snacks.utils.transformers
 local M = {}
 
-local cache = require('plugins.ui.snacks.utils.cache')
+local cache = require('plugins.editor.snacks.utils.cache')
 
 local filtered_descriptions = {
   'blink.cmp',

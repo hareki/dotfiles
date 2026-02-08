@@ -1,4 +1,4 @@
----@class plugins.ui.snacks.utils.formatters
+---@class plugins.editor.snacks.utils.formatters
 local M = {}
 
 ---Format function for keymap picker (icon, description, buffer, lhs, mode)

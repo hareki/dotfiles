@@ -199,7 +199,7 @@ return M
 **Invocation pattern** (from keymaps in `snacks/init.lua`):
 
 ```lua
-local harpoon_picker = require('plugins.ui.snacks.pickers.harpoon')
+local harpoon_picker = require('plugins.editor.snacks.pickers.harpoon')
 harpoon_picker.show({ preview = 'main' })
 ```
 

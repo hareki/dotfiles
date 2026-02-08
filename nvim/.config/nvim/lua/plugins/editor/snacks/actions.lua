@@ -1,7 +1,7 @@
----@class plugins.ui.snacks.actions
+---@class plugins.editor.snacks.actions
 local M = {}
 
-local state = require('plugins.ui.snacks.utils.state')
+local state = require('plugins.editor.snacks.utils.state')
 
 ---Wrap default toggle_preview to persist state for managed pickers
 ---@param picker snacks.Picker

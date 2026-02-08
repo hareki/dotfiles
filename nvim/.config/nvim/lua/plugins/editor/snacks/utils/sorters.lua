@@ -1,4 +1,4 @@
----@class plugins.ui.snacks.utils.sorters
+---@class plugins.editor.snacks.utils.sorters
 local M = {}
 
 ---Sort function for buffer picker (modified first, then by score/length/index)

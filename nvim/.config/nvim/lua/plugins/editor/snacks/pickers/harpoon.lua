@@ -1,4 +1,4 @@
----@class plugins.ui.snacks.pickers.harpoon
+---@class plugins.editor.snacks.pickers.harpoon
 local M = {}
 
 ---Show the harpoon picker with items from the harpoon list
@@ -6,7 +6,7 @@ local M = {}
 ---@return snacks.Picker|nil picker The picker instance, or nil if list is empty
 M.show = function(user_opts)
   local harpoon = require('harpoon')
-  local formatters = require('plugins.ui.snacks.utils.formatters')
+  local formatters = require('plugins.editor.snacks.utils.formatters')
 
   local function build_harpoon_items()
     local items = {}

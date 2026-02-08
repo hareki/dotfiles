@@ -6,7 +6,7 @@ return {
       {
         '<leader>fp',
         function()
-          local harpoon_picker = require('plugins.ui.snacks.pickers.harpoon')
+          local harpoon_picker = require('plugins.editor.snacks.pickers.harpoon')
           harpoon_picker.show()
         end,
         desc = 'Harpoon: Quick Menu',
