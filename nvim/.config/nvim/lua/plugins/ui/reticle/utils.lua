@@ -1,7 +1,7 @@
 -- Special treatment for telescope.nvim and reticle.nvim interaction.
 -- Most telescope/snacks pickers do noautocmd when switching windows.
 
----@class plugins.editor.reticle.utils
+---@class plugins.ui.reticle.utils
 local M = {}
 
 M.always_highlight_number = true

@@ -1,6 +1,5 @@
 return {
   Catppuccin(function(palette, _, extension)
-    local color = require('config.palette_ext')
     return {
       GitConflictCurrentLabel = { bg = extension.green1, fg = palette.text },
       GitConflictCurrent = { bg = extension.green0 },
@@ -12,6 +11,7 @@ return {
       GitConflictIncoming = { bg = extension.blue0 },
     }
   end),
+
   {
     'hareki/git-conflict.nvim',
     event = 'VeryLazy',

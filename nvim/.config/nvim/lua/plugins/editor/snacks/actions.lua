@@ -41,7 +41,7 @@ function M.toggle_preview_focus(picker)
   local preview_win = picker.layout.opts.wins.preview.win
   local current_win = vim.api.nvim_get_current_win()
   local common = require('utils.common')
-  local reticle_utils = require('plugins.editor.reticle.utils')
+  local reticle_utils = require('plugins.ui.reticle.utils')
 
   if preview_win == nil then
     error("Can't toggle preview focus: no preview window found")

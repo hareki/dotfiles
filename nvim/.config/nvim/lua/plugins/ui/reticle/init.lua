@@ -2,7 +2,7 @@ return {
   'tummetott/reticle.nvim',
   event = 'VeryLazy',
   opts = function()
-    local utils = require('plugins.editor.reticle.utils')
+    local utils = require('plugins.ui.reticle.utils')
 
     return {
       disable_in_insert = false,

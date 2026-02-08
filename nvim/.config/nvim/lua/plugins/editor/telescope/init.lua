@@ -94,7 +94,7 @@ return {
       local function toggle_focus_preview(prompt_bufnr)
         local actions_state = require('telescope.actions.state')
         local telescope_state = require('telescope.state')
-        local reticle_utils = require('plugins.editor.reticle.utils')
+        local reticle_utils = require('plugins.ui.reticle.utils')
 
         local picker = actions_state.get_current_picker(prompt_bufnr)
         local prompt_win = picker.prompt_win
