@@ -39,6 +39,7 @@ return {
         },
       }
     end,
+
     opts = function()
       local utils = require('plugins.ui.nvim-hlslens.utils')
 
@@ -51,6 +52,7 @@ return {
       end
 
       return {
+        enable_incsearch = false, -- Do not interfere when doing substitution
         override_lens = utils.search_text_handler,
       }
     end,

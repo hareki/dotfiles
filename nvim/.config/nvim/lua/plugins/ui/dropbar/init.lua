@@ -21,7 +21,7 @@ return {
     'hareki/dropbar.nvim',
     -- Prevent layout shifting
     lazy = false,
-    priority = Priority.layout,
+    priority = Priority.LAYOUT,
 
     keys = {
       {

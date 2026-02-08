@@ -2,18 +2,21 @@ return {
   'catppuccin/nvim',
   name = 'catppuccin',
   lazy = false,
-  priority = Priority.core, -- Should be loaded first to register the colorscheme correctly
+  priority = Priority.CORE, -- Should be loaded first to register the colorscheme correctly
   opts = function()
-    local palettes = require('catppuccin.palettes')
-    local get_palette = palettes.get_palette
-    local palette = get_palette()
+    local utils = require('utils.ui')
+    local palette = utils.get_palette()
     local color = require('config.palette_ext')
+
+    local substitute_fg = palette.red
+    local substitute_bg = utils.blend_hex(palette.mantle, substitute_fg)
 
     return {
       transparent_background = true,
       default_integrations = false,
 
       custom_highlights = {
+        Substitute = { bg = substitute_bg, fg = substitute_fg },
         WinSeparator = { fg = palette.overlay0 },
         Visual = { bg = color.surface15, style = {} },
         DocumentHighlight = { bg = palette.surface0 },
@@ -53,7 +56,7 @@ return {
         ['@markup.strong'] = { fg = palette.flamingo, bold = true },
 
         ModifiedIndicator = { fg = palette.yellow },
-        SnippetTabStop = { bg = color.sub_cursor_bg },
+        SnippetTabStop = { bg = color.blue1 },
       },
       lsp_styles = {
         virtual_text = {

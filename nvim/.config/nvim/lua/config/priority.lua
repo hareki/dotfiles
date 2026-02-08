@@ -1,7 +1,7 @@
 ---@class config.priority
 local M = {}
 
-M.core = 1000
-M.layout = 900
+M.CORE = 1000
+M.LAYOUT = 900
 
 return M
