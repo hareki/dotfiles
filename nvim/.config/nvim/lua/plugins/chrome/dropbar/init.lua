@@ -17,6 +17,7 @@ return {
     end
     return highlights
   end),
+
   {
     'hareki/dropbar.nvim',
     -- Prevent layout shifting

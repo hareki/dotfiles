@@ -70,7 +70,7 @@ return {
             -- Elements come first have higher priority when multiple patterns match
             { plugin = 'dropbar.nvim', icon = Icons.tools.breadcrumb, color = 'purple' },
             { plugin = 'auto-session', icon = Icons.tools.session, color = 'green' },
-            { plugin = 'multicursors.nvim', icon = Icons.tools.multicursor },
+            { plugin = 'multicursors.nvim', icon = Icons.tools.multicursor, color = 'blue' },
             { plugin = 'nvim-tree.lua', icon = Icons.tools.tree, color = 'blue' },
             { plugin = 'eagle.nvim', icon = Icons.tools.eagle, color = 'yellow' },
             { plugin = 'debugprint.nvim', icon = Icons.tools.debug, color = 'red' },
