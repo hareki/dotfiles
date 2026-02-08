@@ -4,7 +4,7 @@ return {
   -- Prevent layout shifting
   lazy = false,
   priority = Priority.LAYOUT,
-  dependencies = { 'hareki/copilot-lualine' },
+  dependencies = { 'AndreM222/copilot-lualine' },
 
   enabled = function()
     local lualine_utils = require('plugins.ui.lualine.utils')
@@ -12,12 +12,17 @@ return {
   end,
 
   init = function()
+    local opt = vim.opt
+
+    opt.showcmd = true -- Show pending keys/command
+    opt.showcmdloc = 'statusline'
+
     if vim.fn.argc(-1) > 0 then
       -- Set an empty statusline till lualine loads
-      vim.o.statusline = ' '
+      opt.statusline = ' '
     else
       -- Hide the statusline on the starter page
-      vim.o.laststatus = 0
+      opt.laststatus = 0
     end
   end,
 
@@ -28,6 +33,7 @@ return {
     local mode_comp = require('plugins.ui.lualine.components.mode')
     local progress_comp = require('plugins.ui.lualine.components.progress')
     local diff_comp = require('plugins.ui.lualine.components.diff')
+    local pending_keys_comp = require('plugins.ui.lualine.components.pending_keys')
 
     local git_utils = require('utils.git')
     local ui = require('utils.ui')
@@ -47,6 +53,9 @@ return {
     for _, section in ipairs({ 'normal', 'insert', 'visual', 'replace', 'inactive' }) do
       theme_reset[section] = { a = color_reset, b = color_reset, c = color_reset }
     end
+
+    local noice_spinners = require('noice.util.spinners')
+    local circle_full_frames = noice_spinners.spinners.circleFull.frames
 
     return {
       options = {
@@ -118,16 +127,33 @@ return {
 
         lualine_z = flatten(
           create_wrapper({
+            comp = pending_keys_comp.keys,
+            type = 'secondary-right',
+            icon = Icons.misc.pending_keys,
+            cond = pending_keys_comp.show,
+          }),
+
+          create_wrapper({
             comp = 'copilot',
             type = 'secondary-right',
+
             symbols = {
+
               status = {
                 icons = {
-                  unknown = Icons.kinds.CopilotInactive,
+                  enabled = Icons.kinds.CopilotEnabled,
+                  sleep = Icons.kinds.CopilotSleep,
+                  disabled = Icons.kinds.CopilotDisabled,
+                  warning = Icons.kinds.CopilotWarning,
+                  unknown = Icons.kinds.CopilotUnknown,
                 },
               },
-              spinners = 'circle_full',
+
+              spinners = circle_full_frames,
             },
+
+            -- Copilot icons are huge, takes almost 2 cells
+            padding = { left = 0, right = 3 },
           }),
 
           create_wrapper({

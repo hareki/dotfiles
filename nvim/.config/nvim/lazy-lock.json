@@ -11,7 +11,7 @@
   "cmp-cmdline-history": { "branch": "master", "commit": "003573b72d4635ce636234a826fa8c4ba2895ffe" },
   "comment.nvim": { "branch": "master", "commit": "e30b7f2008e52442154b66f7c519bfd2f1e32acb" },
   "conform.nvim": { "branch": "master", "commit": "c2526f1cde528a66e086ab1668e996d162c75f4f" },
-  "copilot-lualine": { "branch": "main", "commit": "d6c6225593939e73a13628257d79a77144050029" },
+  "copilot-lualine": { "branch": "main", "commit": "222e90bd8dcdf16ca1efc4e784416afb5f011c31" },
   "copilot.lua": { "branch": "master", "commit": "3faffefbd6ddeb52578535ec6b730e0b72d7fd1a" },
   "debugprint.nvim": { "branch": "main", "commit": "c7b8490398e5043315e237824aae60edf57d50a7" },
   "diffview.nvim": { "branch": "main", "commit": "4e5e3a68f14d8554a3adfc242d95976029d1de12" },

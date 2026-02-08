@@ -2,7 +2,6 @@ return {
   Catppuccin(function(palette)
     return {
       WhichKeyDesc = { fg = palette.text },
-      -- WhichKey = { fg = palette.red },
     }
   end),
   {

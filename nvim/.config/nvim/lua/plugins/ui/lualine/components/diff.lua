@@ -3,6 +3,7 @@ local M = {}
 
 function M.source()
   local gitsigns = vim.b.gitsigns_status_dict
+
   if gitsigns then
     return {
       added = gitsigns.added,
