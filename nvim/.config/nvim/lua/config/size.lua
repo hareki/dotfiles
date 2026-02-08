@@ -22,9 +22,9 @@ M.popup = {
   },
 
   vertical_lg = {
-    width = 0.6,
+    width = 0.5,
     height = 0.8,
-    min_width = 10,
+    min_width = 66,
     min_height = 15,
   },
 
