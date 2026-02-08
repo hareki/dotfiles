@@ -9,7 +9,7 @@
 
 ### Core Ideas
 
-- One plugin per file under `lua/plugins/{ai,coding,editor,formatting,lsp,treesitter,ui}/`
+- One plugin per file under `lua/plugins/{core,chrome,features}/`
 - On-demand loading via keymaps or `VeryLazy` event
 - Startup: ~38ms (dashboard) / ~50ms (open file) via `:Lazy profile`
 - Unified floating layout across Snacks picker, Telescope, floating nvim-tree
@@ -17,7 +17,7 @@
 
 ### Architecture
 
-#### Central Modules (`lua/configs/`)
+#### Central Modules (`lua/config/`)
 
 | Module        | Purpose                                                   |
 | ------------- | --------------------------------------------------------- |
@@ -47,8 +47,8 @@ nvim-tree/
 
 #### LSP & Formatting
 
-- Per-server configs in `lua/plugins/lsp/nvim-lspconfig/lsp/{server}.lua`
-- Mason handles tool installation via `lua/plugins/lsp/mason.nvim.lua`
+- Per-server configs in `lua/plugins/core/lsp/nvim-lspconfig/lsp/{server}.lua`
+- Mason handles tool installation via `lua/plugins/core/lsp/mason.nvim.lua`
 - Single async formatting pipeline in `utils/formatters/async_style_enforcer.lua`
 
 ### Forks (author = hareki)
@@ -62,7 +62,7 @@ nvim-tree/
 - stylua: 100-char lines, 2-space indent
 - LuaLS `---@class` / `---@param` / `---@return` annotations for public APIs
 - All keymaps include `desc` in CMOS 18 title case
-- Icons imported from `configs/icons.lua` — never hardcoded
+- Icons imported from `config/icons.lua` — never hardcoded
 
 ### Attribution
 

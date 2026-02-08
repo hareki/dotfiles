@@ -1,0 +1,84 @@
+local last_obj
+
+return {
+  'hareki/mini.ai',
+  event = 'VeryLazy',
+  opts = function()
+    local ai = require('mini.ai')
+    local utils = require('plugins.features.editing.mini-ai.utils')
+
+    vim.api.nvim_create_autocmd('User', {
+      pattern = 'MiniAiSelectObject',
+      group = vim.api.nvim_create_augroup('mini_ai_record_last_object', { clear = true }),
+      callback = function(ev)
+        last_obj = ev.data -- "iw", "af", "g", ...
+      end,
+    })
+
+    vim.keymap.set('x', '.', function()
+      if last_obj then
+        vim.api.nvim_feedkeys(
+          vim.api.nvim_replace_termcodes(last_obj, true, false, true), -- translate <Esc>, <CR> …
+          'x',
+          false -- not literally; integrate with typeahead
+        )
+      end
+    end, { desc = 'Repeat Last Text-Object Selection' })
+
+    return {
+      n_lines = 500,
+      custom_textobjects = {
+        o = ai.gen_spec.treesitter({ -- code block
+          a = { '@block.outer', '@conditional.outer', '@loop.outer' },
+          i = { '@block.inner', '@conditional.inner', '@loop.inner' },
+        }),
+        f = ai.gen_spec.treesitter({ a = '@function.outer', i = '@function.inner' }), -- function
+        c = ai.gen_spec.treesitter({ a = '@class.outer', i = '@class.inner' }), -- class
+        t = { '<([%p%w]-)%f[^<%w][^<>]->.-</%1>', '^<.->().*()</[^/]->$' }, -- tags
+        d = { '%f[%d]%d+' }, -- digits
+        w = {
+          {
+            -- Acronyms / ALL-CAPS segments (incl. digits), e.g. "CONSTANT", "HTTP2"
+            '%f[%a%d]%u+%f[^%a%d]',
+            -- Acronym directly before CamelCase chunk, e.g. "XML" in "XMLHttpRequest"
+            '%f[%a%d]%u+%f[%u]',
+
+            -- Pascal/Camel subwords, e.g. "Http" in "XMLHttp"
+            '%u[%l%d]+%f[^%l%d]',
+
+            -- Lower/digit segments (snake parts like "constant" or "case2")
+            '%f[%a%d][%l%d]+%f[^%l%d]',
+
+            -- Pure digit runs
+            '%f[%d]%d+%f[^%d]',
+          },
+          '^().*()$',
+        },
+        W = {
+          {
+            -- Whole snake/scream chunk (letters/digits connected by underscores)
+            '%f[^_][%w]+_%w+[%w_]*%f[^%w_]', -- At least one underscore
+            '%f[%w][%w]+%f[^%w]', -- Single chunk fallback
+          },
+          '^().*()$',
+        },
+        g = utils.buffer,
+        u = ai.gen_spec.function_call(), -- u for "Usage"
+        U = ai.gen_spec.function_call({ name_pattern = '[%w_]' }), -- without dot in function name
+      },
+    }
+  end,
+  config = function(_, opts)
+    local mini_ai = require('mini.ai')
+    mini_ai.setup(opts)
+
+    local package_utils = require('utils.package')
+    local utils = require('plugins.features.editing.mini-ai.utils')
+
+    package_utils.on_load('which-key.nvim', function()
+      vim.schedule(function()
+        utils.whichkey(opts)
+      end)
+    end)
+  end,
+}

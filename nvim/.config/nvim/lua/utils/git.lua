@@ -33,10 +33,9 @@ function M.set_branch_name_format(format)
 
   Notifier.info('Branch name format set to ' .. format)
 
-  local lualine_utils = require('plugins.ui.lualine.utils')
-  if lualine_utils.have_status_line() then
-    local lualine = require('lualine')
-    lualine.refresh({ place = { 'statusline' } })
+  local statusline = require('services.statusline')
+  if statusline.have_status_line() then
+    statusline.refresh()
   end
 end
 

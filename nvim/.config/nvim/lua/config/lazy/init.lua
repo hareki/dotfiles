@@ -17,13 +17,19 @@ lazy.setup({
     title = ' Lazy ',
   },
   spec = {
-    { import = 'plugins.ui' }, -- Must be first for require('utils.ui').catppuccin to work correctly
-    { import = 'plugins.ai' },
-    { import = 'plugins.coding' },
-    { import = 'plugins.editor' },
-    { import = 'plugins.formatting' },
-    { import = 'plugins.lsp' },
-    { import = 'plugins.treesitter' },
+    { import = 'plugins.core' },
+    { import = 'plugins.core.lsp' },
+
+    { import = 'plugins.chrome' },
+
+    { import = 'plugins.features.navigation' },
+    { import = 'plugins.features.completion' },
+    { import = 'plugins.features.git' },
+    { import = 'plugins.features.editing' },
+    { import = 'plugins.features.search' },
+    { import = 'plugins.features.diagnostics' },
+    { import = 'plugins.features.formatting' },
+    { import = 'plugins.features.ai' },
   },
   checker = { enabled = false, notify = false },
   defaults = {
