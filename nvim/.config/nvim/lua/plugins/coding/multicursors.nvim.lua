@@ -1,6 +1,7 @@
 return {
-  Catppuccin(function(palette)
-    local color = require('config.color')
+  Catppuccin(function(palette, _, extension)
+    local utils = require('utils.ui')
+    local sub_cursor_bg = utils.blend_hex(palette.mantle, palette.blue)
 
     return {
       HydraRed = { fg = palette.red },
@@ -11,8 +12,8 @@ return {
       HydraBlue = { fg = palette.yellow },
       HydraPink = { fg = palette.blue },
 
-      MultiCursor = { bg = color.sub_cursor_bg },
-      MultiCursorMain = { bg = color.sub_cursor_bg },
+      MultiCursor = { bg = sub_cursor_bg, fg = palette.blue },
+      MultiCursorMain = { bg = palette.blue, fg = palette.mantle },
       MultiCursorSeparator = { link = 'WhichKeySeparator' },
     }
   end),
@@ -28,7 +29,7 @@ return {
             Snacks.words.disable()
             vim.cmd.MCstart()
           end,
-          mode = { 'x', 'n' },
+          mode = { 'n', 'x' },
           desc = 'Multicursors: Start',
         },
       }
@@ -46,7 +47,6 @@ return {
         pattern = 'MultiCursorExit',
         callback = function()
           Snacks.words.enable()
-          ---@diagnostic disable-next-line: invisible
           Snacks.words.update()
         end,
       })

@@ -82,7 +82,7 @@ return {
 
             { pattern = 'harpoon', icon = Icons.tools.harpoon, color = 'azure' },
             { pattern = 'diff', icon = Icons.git.diff, color = 'yellow' },
-            { pattern = 'fold', icon = Icons.actions.fold, color = 'yellow' },
+            { pattern = 'fold', icon = Icons.actions.fold, color = 'blue' },
             { pattern = 'help', icon = Icons.editor.help, color = 'blue' },
             { pattern = 'buffer', icon = Icons.editor.buffer, color = 'cyan' },
             { pattern = 'undo', icon = Icons.actions.undo, color = 'purple' },

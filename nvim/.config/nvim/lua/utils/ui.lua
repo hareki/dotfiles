@@ -31,7 +31,7 @@ end
 
 ---Create a catppuccin plugin spec with custom highlights
 ---Returns a lazy.nvim spec that registers highlights via catppuccin's custom_highlights option.
----@param register fun(palette: utils.ui.Palette, sub_palette: utils.ui.Palette): table<string, vim.api.keyset.highlight> Callback to generate highlights
+---@param register fun(palette: utils.ui.Palette, sub_palette: utils.ui.Palette, extension: config.palette_ext): table<string, vim.api.keyset.highlight> Callback to generate highlights
 ---@return table spec A lazy.nvim plugin spec for catppuccin
 function M.catppuccin(register)
   return {
@@ -39,8 +39,13 @@ function M.catppuccin(register)
     opts = function(_, opts)
       local palette = M.get_palette()
       local sub_palette = M.get_palette('latte')
-      opts.custom_highlights =
-        vim.tbl_extend('error', opts.custom_highlights or {}, register(palette, sub_palette))
+      local extension = require('config.palette_ext')
+
+      opts.custom_highlights = vim.tbl_extend(
+        'error',
+        opts.custom_highlights or {},
+        register(palette, sub_palette, extension)
+      )
     end,
   }
 end
@@ -56,18 +61,19 @@ function M.hex_to_rgb(hex)
 end
 
 ---Blend two hex colors together
----@param fg string Foreground hex color
----@param bg string Background hex color
----@param alpha? number Blend factor (0.0 = fully bg, 1.0 = fully fg, default: 0.18)
+---@param from string Starting hex color (alpha=0)
+---@param to string Target hex color (alpha=1)
+---@param alpha? number Blend factor (0.0 = fully from, 1.0 = fully to, default: 0.18)
 ---@return string hex Blended hex color
-function M.blend_hex(fg, bg, alpha)
-  alpha = alpha or 0.18
-  local fg_r, fg_g, fg_b = M.hex_to_rgb(fg)
-  local bg_r, bg_g, bg_b = M.hex_to_rgb(bg)
+function M.blend_hex(from, to, alpha)
+  alpha = alpha or 0.28
 
-  local r = math.floor(fg_r * alpha + bg_r * (1 - alpha))
-  local g = math.floor(fg_g * alpha + bg_g * (1 - alpha))
-  local b = math.floor(fg_b * alpha + bg_b * (1 - alpha))
+  local from_r, from_g, from_b = M.hex_to_rgb(from)
+  local to_r, to_g, to_b = M.hex_to_rgb(to)
+
+  local r = math.floor(from_r * (1 - alpha) + to_r * alpha)
+  local g = math.floor(from_g * (1 - alpha) + to_g * alpha)
+  local b = math.floor(from_b * (1 - alpha) + to_b * alpha)
 
   return string.format('#%02x%02x%02x', r, g, b)
 end

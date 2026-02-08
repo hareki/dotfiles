@@ -1,11 +1,11 @@
 return {
   Catppuccin(function(palette)
     local utils = require('utils.ui')
-    local pill_bg = utils.blend_hex(palette.yellow, palette.base)
+    local pill_bg = utils.blend_hex(palette.base, palette.blue)
 
     return {
       UfoFoldPillOuter = { fg = pill_bg },
-      UfoFoldPillInner = { fg = palette.yellow, bg = pill_bg },
+      UfoFoldPillInner = { fg = palette.blue, bg = pill_bg },
     }
   end),
   {

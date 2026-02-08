@@ -7,7 +7,7 @@ return {
     local palettes = require('catppuccin.palettes')
     local get_palette = palettes.get_palette
     local palette = get_palette()
-    local color = require('config.color')
+    local color = require('config.palette_ext')
 
     return {
       transparent_background = true,
@@ -15,7 +15,7 @@ return {
 
       custom_highlights = {
         WinSeparator = { fg = palette.overlay0 },
-        Visual = { bg = color.visual_bg, style = {} },
+        Visual = { bg = color.surface15, style = {} },
         DocumentHighlight = { bg = palette.surface0 },
 
         DiagnosticUnderlineInfo = { link = 'LspDiagnosticsUnderlineInformation' },
@@ -54,7 +54,6 @@ return {
 
         ModifiedIndicator = { fg = palette.yellow },
         SnippetTabStop = { bg = color.sub_cursor_bg },
-        CurSearch = { bg = palette.blue, fg = palette.mantle },
       },
       lsp_styles = {
         virtual_text = {

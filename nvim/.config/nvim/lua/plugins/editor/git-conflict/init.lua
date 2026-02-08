@@ -1,15 +1,15 @@
 return {
-  Catppuccin(function(palette)
-    local color = require('config.color')
+  Catppuccin(function(palette, _, extension)
+    local color = require('config.palette_ext')
     return {
-      GitConflictCurrentLabel = { bg = color.git_conflict_current_label_bg, fg = palette.text },
-      GitConflictCurrent = { bg = color.git_conflict_current_bg },
+      GitConflictCurrentLabel = { bg = extension.green1, fg = palette.text },
+      GitConflictCurrent = { bg = extension.green0 },
 
-      GitConflictAncestorLabel = { bg = color.git_conflict_ancestor_label_bg, fg = palette.text },
-      GitConflictAncestor = { bg = color.git_conflict_ancestor_bg },
+      GitConflictAncestorLabel = { bg = palette.surface2, fg = palette.text },
+      GitConflictAncestor = { bg = palette.surface1 },
 
-      GitConflictIncomingLabel = { bg = color.git_conflict_incoming_label_bg, fg = palette.text },
-      GitConflictIncoming = { bg = color.git_conflict_incoming_bg },
+      GitConflictIncomingLabel = { bg = extension.blue2, fg = palette.text },
+      GitConflictIncoming = { bg = extension.blue0 },
     }
   end),
   {
