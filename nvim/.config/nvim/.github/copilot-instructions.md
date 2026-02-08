@@ -4,62 +4,85 @@
 
 **lazy.nvim** config with strict one-plugin-per-file under `lua/plugins/{ai,coding,editor,formatting,lsp,treesitter,ui}/`.
 
-### Central Modules (`lua/configs/`)
+### Globals (`lua/config/globals.lua`)
 
-| Module        | Purpose                                                                                                   |
-| ------------- | --------------------------------------------------------------------------------------------------------- |
-| `size.lua`    | Size presets: `popup` (`sm`/`md`/`lg`/`vertical_lg`/`full`), `side_preview`, `side_panel`, `inline_popup` |
-| `icons.lua`   | All icons (diagnostics, git, file status, LSP kinds, explorer)                                            |
-| `globals.lua` | `_G.Notifier`, `_G.Defer`, `_G.Catppuccin` lazy proxies                                                   |
-| `picker.lua`  | Shared picker UI constants (`prompt_prefix`, `preview_title`)                                             |
+Five globals available everywhere — only `Notifier` is lazy-loaded:
+
+| Global       | Source                        | Usage                                                           |
+| ------------ | ----------------------------- | --------------------------------------------------------------- |
+| `Defer`      | `utils.lazy-require`          | `Defer.on_index()`, `Defer.on_exported_call()`                  |
+| `Notifier`   | Lazy proxy → `utils.notifier` | `Notifier.info('msg')`, `Notifier.warn('msg', { title = 'T' })` |
+| `Catppuccin` | `utils.ui.catppuccin`         | Highlight registration in plugin specs                          |
+| `Icons`      | `config.icons`                | All icons (diagnostics, git, LSP kinds, explorer)               |
+| `Priority`   | `config.priority`             | Loading priority constants (`CORE`, `LAYOUT`)                   |
+
+### Central Modules (`lua/config/`)
+
+| Module            | Purpose                                                                                                   |
+| ----------------- | --------------------------------------------------------------------------------------------------------- |
+| `size.lua`        | Size presets: `popup` (`sm`/`md`/`lg`/`vertical_lg`/`full`), `side_preview`, `side_panel`, `inline_popup` |
+| `icons.lua`       | All icon strings — never hardcode icons, always use `Icons.xxx`                                           |
+| `palette_ext.lua` | Extended palette colors (`blue0-2`, `green0-1`, `surface15`) beyond standard catppuccin                   |
+| `picker.lua`      | Shared picker UI constants (`prompt_prefix`, `preview_title`)                                             |
+| `priority.lua`    | Plugin loading priority constants                                                                         |
 
 ### Utils (`lua/utils/`)
 
-| Module             | Key Exports                                                                                              |
-| ------------------ | -------------------------------------------------------------------------------------------------------- |
-| `ui.lua`           | `popup_config(size)`, `catppuccin(fn)`, `get_palette()`, `telescope_layout(size)`, `computed_size(size)` |
-| `common.lua`       | `noautocmd(fn)`, `focus_win(win)`, `is_float_win()`, `list_extend(...)`                                  |
-| `notifier.lua`     | Rich notifications with highlight support                                                                |
-| `lazy-require.lua` | `Defer.on_index()`, `Defer.on_exported_call()`                                                           |
+| Module             | Key Exports                                                                                                                  |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| `ui.lua`           | `popup_config(size)`, `catppuccin(fn)`, `get_palette()`, `computed_size(size)`, `highlight()`, `highlights()`, `blend_hex()` |
+| `common.lua`       | `noautocmd(fn)`, `focus_win(win)`, `is_float_win()`, `list_extend(...)`                                                      |
+| `notifier.lua`     | Rich notifications with highlight support                                                                                    |
+| `lazy-require.lua` | `Defer.on_index()`, `Defer.on_exported_call()`                                                                               |
 
 ## Plugin Patterns
 
-### Complex Plugin Structure
+### Return Convention
 
-For plugins requiring state management or extensive customization:
-
-```
-nvim-tree/
-  init.lua   -- Returns table: [1] catppuccin highlights, [2+] plugin specs
-  utils.lua  -- M.state = {} table + helper functions
-```
-
-Example `init.lua` structure:
+All plugin files return a **list of specs** (table of tables), even single-plugin files:
 
 ```lua
+-- Single plugin (e.g., hlchunk.nvim.lua)
 return {
-  Catppuccin(function(palette, sub_palette)
-    return { MyHighlight = { fg = palette.blue, bg = palette.base } }
-  end),
-  { 'author/plugin-dependency', opts = {...} },
+  { 'shellRaining/hlchunk.nvim', event = 'LazyFile', opts = { ... } },
+}
+
+-- With Catppuccin highlights (e.g., nvim-tree/init.lua)
+return {
+  Catppuccin(function(palette, sub_palette, extension) ... end),
+  { 'author/dependency', opts = { ... } },
   { 'author/main-plugin', opts = function() ... end },
 }
 ```
 
+### Complex Plugin Structure
+
+For plugins needing state or extensive customization, use a directory:
+
+```
+nvim-tree/            -- State + multiple specs
+  init.lua            -- Returns list: [1] Catppuccin, [2+] plugin specs
+  utils.lua           -- M.state = {} table + helpers
+
+blink-cmp/            -- Large config split into sub-modules
+  init.lua            -- Main spec
+  utils.lua           -- Shared utilities
+  config/             -- Sub-configs: appearance.lua, completion.lua, keymap.lua, sources.lua
+```
+
 ### Catppuccin Highlight Registration
 
-Use global `Catppuccin` (from `globals.lua`) when plugin needs custom highlights. Place it first in returned table:
+`Catppuccin` callback receives **3 arguments**: `palette` (mocha), `sub_palette` (latte), `extension` (palette_ext.lua). Use only what you need:
 
 ```lua
-return {
-  Catppuccin(function(palette, sub_palette)
-    return {
-      MyHighlight = { fg = palette.blue, bg = palette.base },
-      MyOtherHighlight = { fg = sub_palette.yellow }, -- sub_palette = latte flavor
-    }
-  end),
-  { 'plugin/name', opts = {...} },
-}
+Catppuccin(function(palette, sub_palette, extension)
+  return { MyHl = { fg = palette.blue, bg = extension.blue0 } }
+end)
+
+-- Underscore unused args
+Catppuccin(function(palette, _, extension)
+  return { MyHl = { fg = extension.green1 } }
+end)
 ```
 
 ### Popup Sizing
@@ -68,57 +91,37 @@ Use `popup_config(size)` from `utils.ui` — never hardcode dimensions:
 
 ```lua
 local ui = require('utils.ui')
-local size = ui.popup_config('lg')
--- Returns: { width, height, col, row }
-```
-
-For side panels or previews, access size configs directly:
-
-```lua
-local size_configs = require('config.size')
-local ui = require('utils.ui')
-local panel_width = ui.computed_size(size_configs.side_panel.md)
+local size = ui.popup_config('lg') -- Returns: { width, height, col, row }
 ```
 
 ### State Management Pattern
 
-Complex plugins use `M.state = {}` in their `utils.lua`:
+Complex plugins use `M.state = {}` in their `utils.lua` with full type annotations:
 
 ```lua
----@class MyPlugin.Utils
-local M = {}
+---@alias MyPlugin.Position 'side' | 'float'
 
 ---@class MyPlugin.State
----@field position 'float' | 'side'
----@field preview_on_focus boolean
+---@field position MyPlugin.Position
 
 ---@type MyPlugin.State
-M.state = {
-  position = 'float',
-  preview_on_focus = false,
-}
+M.state = { position = 'float' }
 ```
 
 ## Conventions
 
 ### Plugin Spec Key Order
 
-**lazy.nvim** plugin specs must follow this exact key order:
+Strict ordering for lazy.nvim specs:
 
-1. `plugin name` (string, e.g., `'author/repo'`)
+1. `'author/repo'`
 2. `enabled` → `cond` → `name` → `branch` → `version` → `build` → `main`
 3. `lazy` → `priority`
 4. `cmd` → `event` → `ft`
 5. `dependencies`
 6. `keys` → `init` → `opts` → `opts_extend` → `config`
 
-**Keymap definitions** within `keys` follow this order:
-
-```lua
-{ lhs, rhs, mode = '...', desc = '...', expr = true, silent = true }
-```
-
-Order: **lhs** → **rhs** → **mode** → **desc** → **expr** → **silent**
+**Keymap definitions** within `keys`: `{ lhs, rhs, mode = '...', desc = '...', expr = true, silent = true }`
 
 ### Keymaps
 
@@ -126,82 +129,54 @@ Order: **lhs** → **rhs** → **mode** → **desc** → **expr** → **silent**
 - `<A-key>` for Alt bindings; `<leader>` for command groups
 - `<A-s>` = format + save; `<leader>F` = format only
 
-### Notifications
-
-Use global `Notifier` (auto lazy-loaded via `globals.lua`):
-
-```lua
-Notifier.info('Message')
-Notifier.warn('Warning', { title = 'Title' })
-```
-
 ### Module Returns
 
 - Always return tables (no global mutation)
-- Use LuaLS `---@class` annotations for public module APIs
+- Use LuaLS `---@class` / `---@param` / `---@return` / `---@alias` annotations for public APIs
 
 ## LSP Setup
 
-Per-server configs in `lua/plugins/lsp/nvim-lspconfig/lsp/{server}.lua`. Mason handles tool installation via `lua/plugins/lsp/mason.nvim.lua`.
+Uses Neovim 0.11+ native `vim.lsp.enable()` (not `lspconfig[server].setup()`). Per-server configs in `lua/plugins/lsp/nvim-lspconfig/lsp/{server}.lua` — each server file defines its own `LspAttach` autocmd with server-name guards for server-specific keymaps. Mason handles tool installation via `lua/plugins/lsp/mason.nvim.lua`.
+
+**Servers**: eslint, jsonls, lua_ls, tailwindcss, typos_lsp, vtsls, yamlls
 
 ## Formatting
 
 Single async pipeline in `utils/formatters/async_style_enforcer.lua`:
 
-- Runs conform.nvim → linters sequentially
-- Buffer locks prevent concurrent operations
-- Call: `local enforcer = require('utils.formatters.async_style_enforcer'); enforcer.run()`
+- `M.run()` — format + lint one buffer (conform.nvim → linters sequentially)
+- `M.run_all()` — runs on all modified listed buffers with summary notification
+- Buffer locks prevent concurrent operations; 10s timeout auto-cleans stuck locks
 
 ## Snacks Picker
 
-Custom pickers live in `lua/plugins/ui/snacks/pickers/`. Each exports `M.show(user_opts)`:
+Custom pickers live in `lua/plugins/editor/snacks/pickers/`. Each exports `M.show(user_opts)`.
+
+### Supporting Modules (`snacks/utils/`)
+
+| Module             | Key Exports                                                                |
+| ------------------ | -------------------------------------------------------------------------- |
+| `formatters.lua`   | `keymap_format`, `buffer_format`, `buffer_select_format`                   |
+| `transformers.lua` | `files_transform`, `keymap_transform`, `buffer_select_transform`           |
+| `sorters.lua`      | Custom sorting functions                                                   |
+| `cache.lua`        | Query result caching for transformers                                      |
+| `state.lua`        | Per-picker state persistence (e.g., files picker remembers preview toggle) |
+
+`picker_query_persister.lua` — persists search queries (grep, files) across picker invocations.
+
+## Plugin Import Order
+
+In `config/lazy/init.lua`, `plugins.ui` **must be imported first** for `Catppuccin` to work:
 
 ```lua
--- pickers/harpoon.lua
-local M = {}
-
-M.show = function(user_opts)
-  local items = build_items()
-  if vim.tbl_isempty(items) then
-    Notifier.info('Harpoon list is empty')
-    return
-  end
-
-  local opts = vim.tbl_deep_extend('force', {
-    title = 'Harpoon',
-    items = items,
-    source = 'harpoon',
-    format = custom_format,
-    transform = custom_transform,
-  }, user_opts or {})
-
-  -- Define custom actions
-  opts.actions = opts.actions or {}
-  opts.actions.remove_item = function(picker) ... end
-
-  return Snacks.picker(opts)
-end
-
-return M
+spec = {
+  { import = 'plugins.ui' }, -- Must be first
+  { import = 'plugins.ai' },
+  ...
+}
 ```
 
-**Existing pickers**: `harpoon`
-
-### Shared Utilities (`snacks/utils/`)
-
-| Module             | Key Exports                                                      |
-| ------------------ | ---------------------------------------------------------------- |
-| `formatters.lua`   | `keymap_format`, `buffer_format`, `buffer_select_format`         |
-| `transformers.lua` | `files_transform`, `keymap_transform`, `buffer_select_transform` |
-| `sorters.lua`      | Custom sorting functions                                         |
-| `cache.lua`        | Query result caching for transformers                            |
-
-**Invocation pattern** (from keymaps in `snacks/init.lua`):
-
-```lua
-local harpoon_picker = require('plugins.editor.snacks.pickers.harpoon')
-harpoon_picker.show({ preview = 'main' })
-```
+All plugins are lazy by default (`defaults.lazy = true`). Use `event = 'VeryLazy'` or keymap triggers.
 
 ## Forks (author = `hareki`)
 
@@ -214,13 +189,11 @@ harpoon_picker.show({ preview = 'main' })
 ## Code Style
 
 - stylua: 100-char lines, 2-space indent
-- Lazy-load via `event = 'VeryLazy'` or keymap triggers
-- LuaLS `---@class` / `---@param` / `---@return` annotations for public APIs
-- Import icons from `configs/icons.lua` — never hardcode icon strings
-- Use `Notifier` global for notifications (lazy-loaded via `globals.lua`)
-- Use `Catppuccin` global for highlight registration in plugin specs
+- LuaLS `---@class` / `---@param` / `---@return` / `---@alias` annotations for public APIs
+- Import icons from `config/icons.lua` via `Icons` global — never hardcode icon strings
+- Use `Notifier` global for notifications, `Catppuccin` global for highlights
 
-**Module Imports**: `require()` should only be used for importing modules, never for accessing properties or methods on the same line. Always assign to a local variable first:
+**Module Imports**: Always assign `require()` to a local variable first:
 
 ```lua
 -- Bad
@@ -231,24 +204,13 @@ local lualine_utils = require('plugins.ui.lualine.utils')
 lualine_utils.refresh_statusline()
 ```
 
-**Command Syntax**: Avoid `<CMD>...<CR>` syntax in keymaps. Use `vim.cmd` functions (structured command API) instead to avoid string parsing overhead
+**Command Syntax**: Use `vim.cmd` structured API, never `<CMD>...<CR>`:
 
 ```lua
 -- Bad
 map('n', '<leader>q', '<CMD>q<CR>', { desc = 'Quit' })
-map('n', '<leader>w', '<CMD>w<CR>', { desc = 'Save' })
 
 -- Good
 map('n', '<leader>q', vim.cmd.q, { desc = 'Quit' })
-map('n', '<leader>w', vim.cmd.w, { desc = 'Save' })
 map('n', '<leader>s', function() vim.cmd.split({ mods = { split = 'botright' } }) end, { desc = 'Split' })
-```
-
-**Type Aliases**: Define type aliases for state fields:
-
-```lua
----@alias MyPlugin.Position 'side' | 'float'
-
----@class MyPlugin.State
----@field position MyPlugin.Position
 ```
