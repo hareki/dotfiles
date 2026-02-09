@@ -32,8 +32,13 @@
 | ------------------ | ------------------------------------------------------- |
 | `ui.lua`           | `popup_config(size)`, `catppuccin(fn)`, `get_palette()` |
 | `common.lua`       | `noautocmd(fn)`, `focus_win(win)`, `is_float_win()`     |
-| `notifier.lua`     | Rich notifications with highlight support               |
 | `lazy-require.lua` | `Defer.on_index()`, `Defer.on_exported_call()`          |
+
+#### Services (`lua/services/`)
+
+| Module         | Purpose                                                                          |
+| -------------- | -------------------------------------------------------------------------------- |
+| `notifier.lua` | Wrapper around nvim-notify; supports markdown, tuple lists for custom highlights |
 
 #### Complex Plugin Structure
 

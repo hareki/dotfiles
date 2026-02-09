@@ -1,7 +1,7 @@
 -- trouble.nvim notifier with supported custom highlight groups
 -- https://github.com/folke/trouble.nvim/blob/main/lua/trouble/util.lua
 
----@class utils.notifier
+---@class services.notifier
 local M = {}
 
 ---@alias NotifierOpts { level?: number, title?: string, once?: boolean, id?:string, on_open?: fun(), default_hl?: string }
@@ -262,7 +262,7 @@ end
 ---Display a debug notification with vim.inspect output in a code block
 ---@param ... any Values to inspect and display
 ---@return nil
-function M.debug(...)
+function M.inspect(...)
   local parts = {}
   if select('#', ...) > 0 then
     local obj = select('#', ...) == 1 and ... or { ... }

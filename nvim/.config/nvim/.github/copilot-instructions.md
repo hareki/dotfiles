@@ -10,7 +10,7 @@
 | `features/{domain}/` | Domain features (8 sub-groups)                                   | navigation/, completion/, git/, editing/, search/, diagnostics/, formatting/, ai/ |
 | `chrome/`            | Visual-only — statusline, decorations, which-key                 | lualine/, dropbar/, nvim-ufo/, reticle/, hlchunk, which-key/                      |
 
-Cross-cutting concerns live in `lua/services/` (statusline, cursorline, keymap_registry) to avoid cross-tier coupling.
+Cross-cutting concerns live in `lua/services/` (statusline, cursorline, keymap_registry, notifier) to avoid cross-tier coupling.
 
 **Boot order** (`init.lua`): `vim.loader.enable` → globals → options → autocmds → usercmds → keymaps → lazy
 
@@ -21,7 +21,7 @@ Six globals available everywhere — `Notifier` is lazy-loaded, `Snacks` is set 
 | Global       | Source                            | Usage                                                             |
 | ------------ | --------------------------------- | ----------------------------------------------------------------- |
 | `Defer`      | `utils.lazy-require`              | `Defer.on_index()`, `Defer.on_exported_call()`                    |
-| `Notifier`   | Lazy proxy → `utils.notifier`     | `Notifier.info('msg')`, `Notifier.warn('msg', { title = 'T' })`   |
+| `Notifier`   | Lazy proxy → `services.notifier`  | `Notifier.info('msg')`, `Notifier.warn('msg', { title = 'T' })`   |
 | `Catppuccin` | `utils.ui.catppuccin`             | Highlight registration in plugin specs                            |
 | `Icons`      | `config.icons`                    | All icons — never hardcode icon strings                           |
 | `Priority`   | `config.priority`                 | `CORE = 1000`, `CHROME = 900`                                     |
@@ -35,7 +35,7 @@ Six globals available everywhere — `Notifier` is lazy-loaded, `Snacks` is set 
 - `services/` — decoupled cross-cutting: `statusline` (have_status_line, refresh), `cursorline` (set_cursorline), `keymap_registry` (desc_overrides)
 - `utils/ui.lua` — `popup_config(size, with_border)`, `catppuccin(fn)`, `get_palette()`, `highlight()`, `blend_hex()`
 - `utils/common.lua` — `noautocmd(fn)`, `focus_win(win)`, `is_float_win()`, `list_extend(...)`
-- `utils/notifier.lua` — rich notifications; accepts strings or `{text, highlight}` tuples
+- `services/notifier.lua` — wrapper around nvim-notify (wraps vim.notify); supports markdown rendering, tuple lists for custom highlights `{{text, hl}, ...}`, and convenience methods (`info`, `warn`, `error`, `inspect`)
 
 ## Plugin Patterns
 
