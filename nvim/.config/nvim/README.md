@@ -71,4 +71,4 @@ nvim-tree/
 
 ### Attribution
 
-Ideas borrowed from Kickstart & LazyVim; all tailoring is personal workflow oriented.
+Ideas borrowed from [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim) & [LazyVim](https://github.com/LazyVim/LazyVim), all tailoring is personal workflow oriented.
