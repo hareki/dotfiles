@@ -1,10 +1,10 @@
 {
   "ai-commit-msg.nvim": { "branch": "main", "commit": "6479d0d8553cd5fa4a2fb1c2479f0215a788d9d0" },
-  "auto-session": { "branch": "main", "commit": "292492ab7af4bd8b9e37e28508bc8ce995722fd5" },
+  "auto-session": { "branch": "main", "commit": "dcbc339a1a0e6505f755d980ad11f892b6a8d492" },
   "blink-cmp-conventional-commits": { "branch": "main", "commit": "faa45344aab97aa33ece53938c4c3379760e61bd" },
   "blink-cmp-dat-word": { "branch": "main", "commit": "f5623cb7a353d849dbb8904facea5cf7f04a64bd" },
   "blink-copilot": { "branch": "main", "commit": "7ad8209b2f880a2840c94cdcd80ab4dc511d4f39" },
-  "blink-ripgrep.nvim": { "branch": "main", "commit": "c6720838e772ac330dcaaf0f19bfd1c59ed84797" },
+  "blink-ripgrep.nvim": { "branch": "main", "commit": "273309438100e27ea3ae99454ca053a056bd8cf0" },
   "blink.cmp": { "branch": "main", "commit": "4b18c32adef2898f95cdef6192cbd5796c1a332d" },
   "blink.compat": { "branch": "main", "commit": "1454f14a8d855a578ceeba77c62538fa1459a67c" },
   "catppuccin": { "branch": "main", "commit": "beaf41a30c26fd7d6c386d383155cbd65dd554cd" },
@@ -55,7 +55,6 @@
   "reticle.nvim": { "branch": "main", "commit": "66bfa2b1c28fd71bb8ae4e871e0cd9e9c509ea86" },
   "sidekick.nvim": { "branch": "main", "commit": "c2bdf8cfcd87a6be5f8b84322c1b5052e78e302e" },
   "snacks.nvim": { "branch": "main", "commit": "3fdce157eedd1f2d41f29d60046590552cd734be" },
-  "sqlite.lua": { "branch": "master", "commit": "50092d60feb242602d7578398c6eb53b4a8ffe7b" },
   "telescope-fzf-native.nvim": { "branch": "main", "commit": "6fea601bd2b694c6f2ae08a6c6fab14930c60e2c" },
   "telescope.nvim": { "branch": "master", "commit": "ad7d9580338354ccc136e5b8f0aa4f880434dcdc" },
   "tiny-code-action.nvim": { "branch": "main", "commit": "3526b8ee88c06cd2691bf213703715b91770c8ce" },
@@ -66,5 +65,5 @@
   "vim-tmux-navigator": { "branch": "master", "commit": "e41c431a0c7b7388ae7ba341f01a0d217eb3a432" },
   "visimatch.nvim": { "branch": "main", "commit": "4334be61a9d3a6b268179144c6354349e445eb89" },
   "which-key.nvim": { "branch": "main", "commit": "3aab2147e74890957785941f0c1ad87d0a44c15a" },
-  "yanky.nvim": { "branch": "main", "commit": "b8d255c3bba0ae2ae6e4807fc589a69873e12289" }
+  "yanky.nvim": { "branch": "main", "commit": "9b218e4e9d87550b7e3e2ded607ae731943fcd45" }
 }
