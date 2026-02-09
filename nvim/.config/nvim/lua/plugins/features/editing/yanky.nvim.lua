@@ -27,7 +27,6 @@ return {
     'hareki/yanky.nvim',
     event = 'VeryLazy',
     dependencies = {
-      'kkharji/sqlite.lua',
       'hareki/snacks.nvim', -- Let yanky self register with snacks
     },
     keys = function()
@@ -98,7 +97,7 @@ return {
     end,
     opts = function()
       return {
-        ring = { storage = 'sqlite' },
+        ring = { storage = 'shada' },
         highlight = {
           on_yank = true,
           on_put = true,
