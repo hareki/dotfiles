@@ -1,6 +1,7 @@
 return {
   'rmagatti/auto-session',
   lazy = false,
+  priority = Priority.CORE,
   keys = {
     {
       '<leader>fs',
@@ -12,8 +13,7 @@ return {
   },
 
   init = function()
-    -- https://github.com/rmagatti/auto-session?tab=readme-ov-file#recommended-sessionoptions-config
-    vim.opt.sessionoptions = 'blank,buffers,curdir,folds,help,tabpages,winsize,winpos'
+    vim.opt.sessionoptions = 'buffers,curdir,folds'
 
     -- Open snacks files picker when Neovim starts on a directory
     vim.api.nvim_create_autocmd('VimEnter', {
@@ -63,6 +63,11 @@ return {
     ---@type AutoSession.Config
     return {
       suppressed_dirs = { '~/', '~/Downloads', '/' },
+      pre_save_cmds = {
+        function()
+          Snacks.bufdelete.other()
+        end,
+      },
       post_restore_cmds = {
         function()
           vim.schedule(function()
