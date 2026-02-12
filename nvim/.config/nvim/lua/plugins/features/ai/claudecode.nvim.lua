@@ -70,5 +70,24 @@ return {
       desc = 'Deny Diff',
     },
   },
-  opts = {},
+
+  opts = function()
+    local size_utils = require('utils.ui')
+    local size = size_utils.popup_config('lg')
+
+    return {
+      terminal = {
+        ---@module "snacks"
+        ---@type snacks.win.Config|{}
+        snacks_win_opts = {
+          title = ' Claude Code ',
+          position = 'float',
+          width = size.width,
+          height = size.height,
+          col = size.col,
+          row = size.row,
+        },
+      },
+    }
+  end,
 }
