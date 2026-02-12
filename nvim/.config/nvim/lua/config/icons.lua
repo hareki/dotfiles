@@ -71,6 +71,7 @@ local M = {
     Collapsed = ' ',
     Constant = '',
     Constructor = '',
+    Claude = '',
     Copilot = '',
     CopilotEnabled = '',
     CopilotSleep = '',
@@ -148,6 +149,7 @@ local M = {
     surround = '󰗅 ',
     breadcrumb = '', -- Dropbar
     tree = ' ', -- nvim-tree
+    code = '',
   },
   navigation = {
     prev = '󰒮',

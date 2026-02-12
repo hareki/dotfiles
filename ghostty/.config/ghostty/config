@@ -71,7 +71,7 @@ keybind = cmd+[=text:\x1b[
 
 # Close buffer keymap in Neovim
 keybind = cmd+w=text:\x1bw
-# opencode.nvim toggle
+# claudecode.nvim toggle
 keybind = cmd+a=text:\x1ba
 # opencode command palette
 keybind = cmd+p=text:\x1bp

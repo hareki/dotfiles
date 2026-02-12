@@ -49,6 +49,7 @@ return {
           scroll_up = '<S-PageUp>', -- Binding to scroll up inside the popup
         },
         spec = vim.list_extend({
+          { '<leader>a', group = 'Claude', mode = { 'n', 'v' } },
           { '<leader>c', group = 'Code', mode = { 'n', 'v' } },
           { '<leader>f', group = 'Find', mode = { 'n', 'v' } },
           { '<leader>fg', group = 'Git: Find' },
@@ -78,6 +79,7 @@ return {
             { pattern = 'mini.surround', icon = Icons.tools.surround, color = 'green' },
             { pattern = 'terminal', icon = Icons.editor.terminal, color = 'green' },
             { pattern = 'gitsigns', icon = Icons.git.sign, color = 'yellow' },
+            { pattern = 'claude', icon = Icons.kinds.Claude, color = 'orange' },
 
             { pattern = 'harpoon', icon = Icons.tools.harpoon, color = 'azure' },
             { pattern = 'diff', icon = Icons.git.diff, color = 'yellow' },
@@ -92,6 +94,7 @@ return {
             { pattern = 'keymaps', icon = Icons.editor.keymaps, color = 'orange' },
             { pattern = 'scroll up', icon = Icons.navigation.scroll_up },
             { pattern = 'scroll down', icon = Icons.navigation.scroll_down },
+            { pattern = 'code', icon = Icons.tools.code, color = 'red' },
 
             -- Generic ones, should have lower priority
             { pattern = 'typescript', icon = Icons.ft.typescript, color = 'blue' },
