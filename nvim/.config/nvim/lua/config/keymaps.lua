@@ -35,7 +35,7 @@ for _, key in ipairs({
   pcall(del, 'n', key)
 end
 
-map({ 'n' }, 'Q', vim.cmd.q, { desc = 'Close Buffer' })
+map({ 'n' }, 'Q', '<cmd>q<cr>', { desc = 'Close Buffer' })
 map('n', '<CR>', 'a<CR><Esc>', { desc = 'Insert Newline After Cursor' })
 map('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Leave Terminal Mode' })
 
@@ -72,7 +72,7 @@ map({ 'i', 'x', 'n', 's' }, '<C-S-End>', function()
   Notifier.info('Closed Other Buffers')
 end, { desc = 'Close Other Buffers' })
 
-map({ 'n', 'x' }, '<leader>qa', vim.cmd.qa, { desc = 'Quit All' })
+map({ 'n', 'x' }, '<leader>qa', '<cmd>qa<cr>', { desc = 'Quit All' })
 map({ 'n', 'x' }, '<PageUp>', '<C-u>zz', { desc = 'Scroll Up and Center' })
 map({ 'n', 'x' }, '<PageDown>', '<C-d>zz', { desc = 'Scroll Down and Center' })
 
@@ -81,7 +81,7 @@ map('v', '<leader>t', "ygvgc']p", {
   desc = 'Yank, Comment, Move Below, and Paste',
 })
 
-map('n', '<leader>?h', vim.cmd.HlAtCursor, {
+map('n', '<leader>?h', '<cmd>HlAtCursor<cr>', {
   desc = 'Highlight Groups at Cursor',
 })
 
@@ -98,9 +98,9 @@ map(
 )
 map({ 'n', 'x' }, '<Up>', "v:count == 0 ? 'gk' : 'k'", { desc = 'Up', expr = true, silent = true })
 
-map('n', '<leader>l', vim.cmd.Lazy, { desc = 'Lazy.nvim' })
-map('n', '<leader>-', vim.cmd.split, { desc = 'Split Window Below' })
-map('n', '<leader>\\', vim.cmd.vsplit, { desc = 'Split Window Right' })
+map('n', '<leader>l', '<cmd>Lazy<cr>', { desc = 'Lazy.nvim' })
+map('n', '<leader>-', '<cmd>split<cr>', { desc = 'Split Window Below' })
+map('n', '<leader>\\', '<cmd>vsplit<cr>', { desc = 'Split Window Right' })
 
 -- Diagnostics
 map('n', '<leader>cd', vim.diagnostic.open_float, { desc = 'Line Diagnostics' })
@@ -114,14 +114,17 @@ map('n', ']i', diagnostic_goto(true, 'INFO'), { desc = 'Next Info' })
 map('n', '[i', diagnostic_goto(false, 'INFO'), { desc = 'Previous Info' })
 
 -- Buffer
-map('n', ']b', vim.cmd.bnext, { desc = 'Next Buffer' })
-map('n', ']B', vim.cmd.blast, { desc = 'Last Buffer' })
-map('n', '[b', vim.cmd.bprevious, { desc = 'Previous Buffer' })
-map('n', '[B', vim.cmd.brewind, { desc = 'First Buffer' })
+map('n', ']b', '<cmd>bnext<cr>', { desc = 'Next Buffer' })
+map('n', ']B', '<cmd>blast<cr>', { desc = 'Last Buffer' })
+map('n', '[b', '<cmd>bprevious<cr>', { desc = 'Previous Buffer' })
+map('n', '[B', '<cmd>brewind<cr>', { desc = 'First Buffer' })
 
-map({ 'i', 'x', 'n', 's' }, '<A-r>', function()
-  vim.cmd.edit({ bang = true })
-end, { desc = 'Reload Current Buffer', silent = true })
+map(
+  { 'i', 'x', 'n', 's' },
+  '<A-r>',
+  '<cmd>edit!<cr>',
+  { desc = 'Reload Current Buffer', silent = true }
+)
 
 map({ 'i', 'x', 'n', 's' }, '<A-w>', function()
   Snacks.bufdelete()

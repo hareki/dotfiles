@@ -11,7 +11,7 @@ Personal Neovim configuration using **lazy.nvim** plugin manager. Targets Neovim
 - **Formatter**: stylua — 100-char lines, 2-space indent, single quotes (see `.stylua.toml`)
 - **LuaLS annotations**: `---@class`, `---@param`, `---@return`, `---@alias` for public APIs
 - **Requires**: always assign to a local before use — `local x = require('y')` then `x.method()`, never `require('y').method()`
-- **Keymaps**: always use `vim.keymap.set()` with structured `vim.cmd` API — never `<CMD>...<CR>`. Always include `desc` in CMOS 18 title case ("Find Files", "Go to Definition")
+- **Keymaps**: always use `vim.keymap.set()` with `<cmd>...<cr>` strings — never structured `vim.cmd` API. Fall back to function callbacks only when runtime values or multi-statement logic are needed. Always include `desc` in CMOS 18 title case ("Find Files", "Go to Definition")
 - **Icons**: always import from `config/icons.lua` via the `Icons` global — never hardcode icon strings
 
 ## Architecture
@@ -22,10 +22,10 @@ Personal Neovim configuration using **lazy.nvim** plugin manager. Targets Neovim
 
 ### Plugin Tiers (`lua/plugins/`)
 
-| Directory | Purpose | Load behavior |
-|---|---|---|
-| `core/` | Infrastructure — theme, icons, snacks, treesitter, LSP | `lazy=false`, `priority=CORE(1000)` |
-| `chrome/` | Visual-only — statusline, decorations, which-key | `priority=CHROME(900)` |
+| Directory            | Purpose                                                                                               | Load behavior                          |
+| -------------------- | ----------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| `core/`              | Infrastructure — theme, icons, snacks, treesitter, LSP                                                | `lazy=false`, `priority=CORE(1000)`    |
+| `chrome/`            | Visual-only — statusline, decorations, which-key                                                      | `priority=CHROME(900)`                 |
 | `features/{domain}/` | Domain features (8 groups: navigation, completion, git, editing, search, diagnostics, formatting, ai) | `event='VeryLazy'` or keymap-triggered |
 
 Import order in `config/lazy/init.lua`: `plugins.core` **must be first**. All plugins lazy by default (`defaults.lazy=true`).
@@ -34,14 +34,14 @@ Import order in `config/lazy/init.lua`: `plugins.core` **must be first**. All pl
 
 Six globals available everywhere:
 
-| Global | Source | Usage |
-|---|---|---|
-| `Defer` | `utils.lazy-require` | `Defer.on_index()`, `Defer.on_exported_call()` |
-| `Notifier` | Lazy proxy → `services.notifier` | `Notifier.info('msg')`, `Notifier.warn('msg', { title = 'T' })` |
-| `Catppuccin` | `utils.ui.catppuccin` | Highlight registration in plugin specs |
-| `Icons` | `config.icons` | All icons — never hardcode icon strings |
-| `Priority` | `config.priority` | `CORE = 1000`, `CHROME = 900` |
-| `Snacks` | Set by snacks.nvim | `Snacks.picker.*`, `Snacks.terminal.*`, etc. |
+| Global       | Source                           | Usage                                                           |
+| ------------ | -------------------------------- | --------------------------------------------------------------- |
+| `Defer`      | `utils.lazy-require`             | `Defer.on_index()`, `Defer.on_exported_call()`                  |
+| `Notifier`   | Lazy proxy → `services.notifier` | `Notifier.info('msg')`, `Notifier.warn('msg', { title = 'T' })` |
+| `Catppuccin` | `utils.ui.catppuccin`            | Highlight registration in plugin specs                          |
+| `Icons`      | `config.icons`                   | All icons — never hardcode icon strings                         |
+| `Priority`   | `config.priority`                | `CORE = 1000`, `CHROME = 900`                                   |
+| `Snacks`     | Set by snacks.nvim               | `Snacks.picker.*`, `Snacks.terminal.*`, etc.                    |
 
 ### Key Modules
 

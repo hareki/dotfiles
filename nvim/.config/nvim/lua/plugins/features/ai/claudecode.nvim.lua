@@ -5,68 +5,50 @@ return {
   keys = {
     {
       '<M-a>',
-      function()
-        vim.cmd.ClaudeCode()
-      end,
+      '<cmd>ClaudeCode<cr>',
       desc = 'Toggle Claude',
       mode = { 'n', 'x', 't' },
     },
     {
       '<leader>ar',
-      function()
-        vim.cmd({ cmd = 'ClaudeCode', args = { '--resume' } })
-      end,
+      '<cmd>ClaudeCode --resume<cr>',
       desc = 'Resume Claude',
     },
     {
       '<leader>aC',
-      function()
-        vim.cmd({ cmd = 'ClaudeCode', args = { '--continue' } })
-      end,
+      '<cmd>ClaudeCode --continue<cr>',
       desc = 'Continue Claude',
     },
     {
       '<leader>am',
-      function()
-        vim.cmd.ClaudeCodeSelectModel()
-      end,
+      '<cmd>ClaudeCodeSelectModel<cr>',
       desc = 'Select Claude model',
     },
     {
       '<leader>ab',
-      function()
-        vim.cmd({ cmd = 'ClaudeCodeAdd', args = { vim.fn.expand('%') } })
-      end,
+      '<cmd>ClaudeCodeAdd %<cr>',
       desc = 'Add Current Buffer',
     },
     {
       '<leader>as',
-      function()
-        vim.cmd.ClaudeCodeSend()
-      end,
+      '<cmd>ClaudeCodeSend<cr>',
       mode = 'v',
       desc = 'Send to Claude',
     },
     {
       '<leader>as',
-      function()
-        vim.cmd.ClaudeCodeTreeAdd()
-      end,
+      '<cmd>ClaudeCodeTreeAdd<cr>',
       desc = 'Add File',
       ft = { 'NvimTree' },
     },
     {
       '<leader>aa',
-      function()
-        vim.cmd.ClaudeCodeDiffAccept()
-      end,
+      '<cmd>ClaudeCodeDiffAccept<cr>',
       desc = 'Accept Diff',
     },
     {
       '<leader>ad',
-      function()
-        vim.cmd.ClaudeCodeDiffDeny()
-      end,
+      '<cmd>ClaudeCodeDiffDeny<cr>',
       desc = 'Deny Diff',
     },
   },

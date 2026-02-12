@@ -4,7 +4,7 @@ return {
   cmd = 'Mason',
   keys = function()
     return {
-      { '<leader>cm', vim.cmd.Mason, desc = 'Mason' },
+      { '<leader>cm', '<cmd>Mason<cr>', desc = 'Mason' },
     }
   end,
   opts_extend = { 'ensure_installed' },

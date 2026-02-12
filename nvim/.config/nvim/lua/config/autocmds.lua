@@ -140,9 +140,7 @@ aucmd('CmdwinEnter', {
       desc = 'Exit Command-Line Window Mode',
     })
 
-    vim.keymap.set({ 'n' }, 'q', function()
-      vim.cmd.q({ bang = true })
-    end, {
+    vim.keymap.set({ 'n' }, 'q', '<cmd>q!<cr>', {
       buffer = buf,
       desc = 'Quit Command-Line Window',
     })
