@@ -18,12 +18,12 @@ cwd="${cwd/#$HOME/\~}"
 
 # Git info (skip lock to avoid blocking)
 git_info=""
-if git -C "${cwd/#\~/$HOME}" rev-parse --git-dir --no-optional-locks >/dev/null 2>&1; then
+if git --no-optional-locks -C "${cwd/#\~/$HOME}" rev-parse --git-dir >/dev/null 2>&1; then
   branch=$(git -C "${cwd/#\~/$HOME}" symbolic-ref --short HEAD 2>/dev/null \
            || git -C "${cwd/#\~/$HOME}" rev-parse --short HEAD 2>/dev/null | sed 's/^/@/')
   dirty=""
-  if ! git -C "${cwd/#\~/$HOME}" diff --quiet --no-optional-locks 2>/dev/null \
-     || ! git -C "${cwd/#\~/$HOME}" diff --cached --quiet --no-optional-locks 2>/dev/null \
+  if ! git --no-optional-locks -C "${cwd/#\~/$HOME}" diff --quiet 2>/dev/null \
+     || ! git --no-optional-locks -C "${cwd/#\~/$HOME}" diff --cached --quiet 2>/dev/null \
      || [ -n "$(git -C "${cwd/#\~/$HOME}" ls-files --others --exclude-standard 2>/dev/null)" ]; then
     dirty="*"
   fi
