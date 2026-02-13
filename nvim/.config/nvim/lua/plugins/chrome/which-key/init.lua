@@ -58,7 +58,6 @@ return {
           { '<leader>q', group = 'Quit', mode = { 'n', 'v' } },
           { '<leader>s', group = 'Search', mode = { 'n', 'v' } },
           { '<leader>t', group = 'Tab' },
-          { '<leader>z', group = 'Terminal' },
           { '<leader>u', group = 'Notification' },
           { '<leader>?', group = 'Debug' },
           { '<leader>H', group = 'Harpoon File', mode = { 'n', 'v' } },
