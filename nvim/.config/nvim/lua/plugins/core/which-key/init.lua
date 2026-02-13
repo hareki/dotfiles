@@ -79,6 +79,7 @@ return {
             { pattern = 'terminal', icon = Icons.editor.terminal, color = 'green' },
             { pattern = 'gitsigns', icon = Icons.git.sign, color = 'yellow' },
             { pattern = 'claude', icon = Icons.kinds.Claude, color = 'orange' },
+            { pattern = 'notification', icon = Icons.editor.notification, color = 'blue' },
 
             { pattern = 'harpoon', icon = Icons.tools.harpoon, color = 'azure' },
             { pattern = 'diff', icon = Icons.git.diff, color = 'yellow' },
@@ -136,7 +137,7 @@ return {
     config = function(_, opts)
       local which_key = require('which-key')
       which_key.setup(opts)
-      local which_key_preset = require('plugins.chrome.which-key.preset')
+      local which_key_preset = require('plugins.core.which-key.preset')
       which_key_preset.setup()
     end,
   },

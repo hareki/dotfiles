@@ -137,6 +137,7 @@ local M = {
     prompt = '󰍩',
     url = ' ',
     diagnostic = '󱖫 ',
+    notification = '',
   },
   tools = {
     session = '󰆓',
