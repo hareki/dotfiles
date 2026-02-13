@@ -67,7 +67,9 @@ return {
           hover = true,
           sources = function(buf, _)
             if
-              dropbar_utils.is_in_diff_view()
+              -- Claude diffview dropbar is actually useful
+              -- Left one is same as original buffer, right one is the description
+              dropbar_utils.is_in_diff_view() and not dropbar_utils.is_in_claude_diff_view()
               -- Some ft/bt can slip through the enable check because their ft/bt are set later (E.g. grug-far)
               or dropbar_utils.is_ignored_filetype(buf)
               or dropbar_utils.is_ignored_buftype(buf)

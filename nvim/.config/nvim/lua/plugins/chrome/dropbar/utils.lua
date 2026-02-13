@@ -12,6 +12,12 @@ function M.is_in_diff_view()
   return vim.wo.diff or path_utils.has_dir({ dir_name = '.git' })
 end
 
+---Check if current window is in claude diff view
+---@return boolean
+function M.is_in_claude_diff_view()
+  return vim.b.claudecode_diff_new_win ~= nil
+end
+
 ---Check if buffer has an ignored filetype
 ---@param buf integer Buffer number
 ---@return boolean
