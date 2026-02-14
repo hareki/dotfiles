@@ -11,7 +11,7 @@
 
 - One plugin per file under `lua/plugins/{core,chrome,features}/`
 - On-demand loading via keymaps or `VeryLazy` event
-- Startup: ~38ms (dashboard) / ~50ms (open file) via `:Lazy profile`
+- Startup: ~38ms (no session or blank file) / ~60ms (opening file or directory with session) via `:Lazy profile`
 - Unified floating layout across Snacks picker, Telescope, floating nvim-tree
 - **Tab** = toggle focus (list↔preview, float↔main); **`<C-t>`** = toggle side-panel mode
 
