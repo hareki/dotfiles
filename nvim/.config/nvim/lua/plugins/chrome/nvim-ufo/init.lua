@@ -1,4 +1,7 @@
 return {
+  WhichKey({
+    rules = { pattern = 'fold', icon = Icons.actions.fold, color = 'blue' },
+  }),
   Catppuccin(function(palette)
     local utils = require('utils.ui')
     local pill_bg = utils.blend_hex(palette.base, palette.blue)

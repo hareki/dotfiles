@@ -7,7 +7,6 @@ return {
   {
     'folke/which-key.nvim',
     event = 'VeryLazy',
-    opts_extend = { 'spec' },
     opts = function()
       local desc_override_specs = {}
       local keymap_registry = require('services.keymap_registry')
@@ -49,18 +48,12 @@ return {
           scroll_up = '<S-PageUp>', -- Binding to scroll up inside the popup
         },
         spec = vim.list_extend({
-          { '<leader>a', group = 'Claude', mode = { 'n', 'v' } },
           { '<leader>c', group = 'Code', mode = { 'n', 'v' } },
           { '<leader>f', group = 'Find', mode = { 'n', 'v' } },
           { '<leader>fg', group = 'Git: Find' },
-          { '<leader>d', group = 'Diffview' },
-          { '<leader>h', group = 'Gitsigns', mode = { 'n', 'v' } },
           { '<leader>q', group = 'Quit', mode = { 'n', 'v' } },
           { '<leader>s', group = 'Search', mode = { 'n', 'v' } },
           { '<leader>t', group = 'Tab' },
-          { '<leader>u', group = 'Notification' },
-          { '<leader>?', group = 'Debug' },
-          { '<leader>H', group = 'Harpoon File', mode = { 'n', 'v' } },
         }, desc_override_specs),
 
         icons = {
@@ -68,22 +61,8 @@ return {
           rules = {
             -- Plugin > filetype > pattern
             -- Elements come first have higher priority when multiple patterns match
-            { plugin = 'dropbar.nvim', icon = Icons.tools.breadcrumb, color = 'purple' },
-            { plugin = 'auto-session', icon = Icons.tools.session, color = 'green' },
-            { plugin = 'multicursors.nvim', icon = Icons.tools.multicursor, color = 'blue' },
-            { plugin = 'nvim-tree.lua', icon = Icons.tools.tree, color = 'blue' },
-            { plugin = 'eagle.nvim', icon = Icons.tools.eagle, color = 'yellow' },
-            { plugin = 'debugprint.nvim', icon = Icons.tools.debug, color = 'red' },
-            { pattern = 'yank', icon = Icons.actions.yank, color = 'yellow' },
-            { pattern = 'mini.surround', icon = Icons.tools.surround, color = 'green' },
+            -- Plugin-specific rules are defined in their respective plugin files via WhichKey()
             { pattern = 'terminal', icon = Icons.editor.terminal, color = 'green' },
-            { pattern = 'gitsigns', icon = Icons.git.sign, color = 'yellow' },
-            { pattern = 'claude', icon = Icons.kinds.Claude, color = 'orange' },
-            { pattern = 'notification', icon = Icons.editor.notification, color = 'blue' },
-
-            { pattern = 'harpoon', icon = Icons.tools.harpoon, color = 'azure' },
-            { pattern = 'diff', icon = Icons.git.diff, color = 'yellow' },
-            { pattern = 'fold', icon = Icons.actions.fold, color = 'blue' },
             { pattern = 'help', icon = Icons.editor.help, color = 'blue' },
             { pattern = 'buffer', icon = Icons.editor.buffer, color = 'cyan' },
             { pattern = 'undo', icon = Icons.actions.undo, color = 'purple' },

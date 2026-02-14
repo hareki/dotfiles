@@ -138,6 +138,8 @@ local M = {
     url = ' ',
     diagnostic = '󱖫 ',
     notification = '',
+    dismiss_notification = '󱏧',
+    show_notification = '󱅫',
   },
   tools = {
     session = '󰆓',

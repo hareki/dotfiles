@@ -1,4 +1,8 @@
 return {
+  WhichKey({
+    specs = { '<leader>h', group = 'Gitsigns', mode = { 'n', 'v' } },
+    rules = { pattern = 'gitsigns', icon = Icons.git.sign, color = 'yellow' },
+  }),
   Catppuccin(function(_, sub_palette)
     return {
       GitSignsStagedAdd = { fg = sub_palette.green },

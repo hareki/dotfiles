@@ -1,4 +1,7 @@
 return {
+  WhichKey({
+    rules = { plugin = 'multicursors.nvim', icon = Icons.tools.multicursor, color = 'blue' },
+  }),
   Catppuccin(function(palette, _, extension)
     local utils = require('utils.ui')
     local sub_cursor_bg = utils.blend_hex(palette.mantle, palette.blue)

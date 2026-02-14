@@ -1,4 +1,7 @@
 return {
+  WhichKey({
+    rules = { plugin = 'dropbar.nvim', icon = Icons.tools.breadcrumb, color = 'purple' },
+  }),
   Catppuccin(function(palette)
     local highlights = {
       DropBarKindDir = { fg = palette.overlay1 },

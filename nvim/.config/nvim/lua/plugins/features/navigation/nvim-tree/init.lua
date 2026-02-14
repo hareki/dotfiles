@@ -1,4 +1,7 @@
 return {
+  WhichKey({
+    rules = { plugin = 'nvim-tree.lua', icon = Icons.tools.tree, color = 'blue' },
+  }),
   Catppuccin(function(palette, sub_palette)
     return {
       NvimTreeSignColumn = { link = 'NormalFloat' },
