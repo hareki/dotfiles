@@ -76,6 +76,12 @@ visual_x_copy() {
 zle -N visual-x-copy visual_x_copy
 bindkey -M visual 'x' visual-x-copy
 
+# Swap h ↔ y and k ↔ p in visual mode (hjkl unused — arrow keys via keyboard layers)
+bindkey -M visual 'h' vi-yank           # h = yank (uses osc52 override from above)
+bindkey -M visual 'k' vi-put-after      # k = put  (uses smart-paste override from above)
+# bindkey -M visual 'y' vi-backward-char  # y = move left (original h)
+# bindkey -M visual 'p' vi-up-line-or-history  # p = move up (original k)
+
 # Set highlight color for region in vi mode: Surface1(bg) and Yellow(fg) from Catppuccin Mocha
 # Couldn't get it to just change the bg color and leave the fg color as is, so I chose a foreground color myself
 zle_highlight=(region:bg=#4f5164,fg=#f9e2af)
