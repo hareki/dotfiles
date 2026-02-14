@@ -35,7 +35,7 @@ return {
         }),
         f = ai.gen_spec.treesitter({ a = '@function.outer', i = '@function.inner' }), -- function
         c = ai.gen_spec.treesitter({ a = '@class.outer', i = '@class.inner' }), -- class
-        t = { '<([%p%w]-)%f[^<%w][^<>]->.-</%1>', '^<.->().*()</[^/]->$' }, -- tags
+        t = ai.gen_spec.treesitter({ a = '@tag.outer', i = '@tag.inner' }), -- tags
         d = { '%f[%d]%d+' }, -- digits
         w = {
           {
