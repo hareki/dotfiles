@@ -1,9 +1,7 @@
 return {
   'nvim-lualine/lualine.nvim',
 
-  -- Prevent layout shifting
-  lazy = false,
-  priority = Priority.CHROME,
+  event = 'VeryLazy',
   dependencies = { 'AndreM222/copilot-lualine' },
 
   enabled = function()
@@ -18,7 +16,7 @@ return {
     opt.showcmdloc = 'statusline'
 
     if vim.fn.argc(-1) > 0 then
-      -- Set an empty statusline till lualine loads
+      -- Set an empty statusline till lualine loads to prevent layout shifting
       opt.statusline = ' '
     else
       -- Hide the statusline on the starter page
