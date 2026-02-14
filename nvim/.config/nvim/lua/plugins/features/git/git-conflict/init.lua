@@ -14,7 +14,7 @@ return {
 
   {
     'hareki/git-conflict.nvim',
-    event = 'VeryLazy',
+    event = { 'BufReadPost', 'BufNewFile' },
     opts = function()
       local ui = require('utils.ui')
       local utils = require('plugins.features.git.git-conflict.utils')
