@@ -1,7 +1,8 @@
 return {
   'nvim-lualine/lualine.nvim',
 
-  event = 'VeryLazy',
+  lazy = false,
+  priority = Priority.CHROME,
   dependencies = { 'AndreM222/copilot-lualine' },
 
   enabled = function()
@@ -15,7 +16,8 @@ return {
     opt.showcmd = true -- Show pending keys/command
     opt.showcmdloc = 'statusline'
 
-    if vim.fn.argc(-1) > 0 then
+    local has_cli_args = vim.fn.argc(-1) > 0
+    if has_cli_args then
       -- Set an empty statusline till lualine loads to prevent layout shifting
       opt.statusline = ' '
     else
