@@ -8,7 +8,7 @@ return {
     }
   end),
   {
-    'hareki/cursortab.nvim',
+    'leonardcser/cursortab.nvim',
     build = 'cd server && go build',
 
     -- This plugin is more responsive when loaded early for some reason
