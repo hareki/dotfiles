@@ -6,7 +6,8 @@ fi
 export XDG_CONFIG_HOME="$HOME/.config"
 export EDITOR='nvim'
 export VISUAL='nvim'
-export TERM='xterm-ghostty' # default value, it's just there purely for the "rez" alias
+# Use MacOS keychain to store secrets
+export SWEEPAPI_TOKEN=$(security find-generic-password -a "$USER" -s "SWEEPAPI_TOKEN" -w)
 
 # Aliases needed in non-interactive shells, others should go in to aliases.zsh for performance
 alias eza='eza --icons=always --color=always --no-user'

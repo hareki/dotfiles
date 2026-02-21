@@ -3,7 +3,7 @@ local M = {}
 
 M.default = {
   accept = { auto_brackets = { enabled = false } },
-  ghost_text = { enabled = true },
+  ghost_text = { enabled = false },
   trigger = {
     prefetch_on_insert = false,
     show_on_backspace = true,

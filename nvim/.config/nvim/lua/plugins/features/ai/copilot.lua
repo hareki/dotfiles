@@ -2,7 +2,6 @@ return {
   'zbirenbaum/copilot.lua',
   cmd = 'Copilot',
   event = 'VeryLazy',
-  dependencies = { 'folke/sidekick.nvim' },
   opts = function()
     local path = require('utils.path')
     local initial_path = path.get_initial_path()
