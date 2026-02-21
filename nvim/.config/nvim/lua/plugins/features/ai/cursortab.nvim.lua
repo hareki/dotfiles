@@ -3,13 +3,18 @@ return {
     return {
       CursorTabAddition = { link = 'DiffAdd' },
       CursorTabDeletion = { link = 'DiffDelete' },
-      CursorTabModification = { link = 'DiffChange' },
+      CursorTabModification = { link = 'DiffText' },
       CursorTabCompletion = { link = 'Comment' },
     }
   end),
   {
     'hareki/cursortab.nvim',
     build = 'cd server && go build',
+
+    -- This plugin is more responsive when loaded early for some reason
+    lazy = false,
+    priority = Priority.FEATURE,
+
     event = 'BufReadPost',
     opts = function()
       return {
