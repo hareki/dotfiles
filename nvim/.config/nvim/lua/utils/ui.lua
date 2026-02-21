@@ -78,6 +78,17 @@ function M.blend_hex(from, to, alpha)
   return string.format('#%02x%02x%02x', r, g, b)
 end
 
+---Get fg and bg hex colors from a highlight group
+---@param name string Highlight group name
+---@return { fg: string?, bg: string? } colors Table with fg/bg hex strings
+function M.hl_colors(name)
+  local hl = vim.api.nvim_get_hl(0, { name = name, link = false })
+  return {
+    fg = hl.fg and string.format('#%06x', hl.fg) or nil,
+    bg = hl.bg and string.format('#%06x', hl.bg) or nil,
+  }
+end
+
 ---Build pill-shaped virtual text chunks
 ---@param content string The text content inside the pill
 ---@param inner_hl string Highlight group for the pill content
