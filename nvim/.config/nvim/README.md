@@ -4,9 +4,6 @@
 
 **lazy.nvim** config built from scratch. Optimized for fast cold start, per-plugin isolation, consistent floating UX, and minimal-diff forks.
 
-> [!NOTE]
-> WIP. Structure & forks may change.
-
 ### Core Ideas
 
 - One plugin per file under `lua/plugins/{core,chrome,features}/`
