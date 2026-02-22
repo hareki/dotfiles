@@ -4,6 +4,7 @@ local M = {}
 local state = require('plugins.core.snacks.utils.state')
 
 ---Wrap default toggle_preview to persist state for managed pickers
+---@module 'snacks'
 ---@param picker snacks.Picker
 function M.toggle_preview(picker)
   picker:toggle('preview')
