@@ -125,8 +125,6 @@ return {
           create_wrapper({
             comp = pending_keys.get,
             type = 'secondary-right',
-            icon = pending_keys.icon,
-            cond = pending_keys.cond,
           }),
 
           create_wrapper({
