@@ -1,7 +1,7 @@
 local lualine_require = require('lualine_require')
 local component = lualine_require.require('lualine.component')
 
----@class plugins.chrome.lualine.components.buffer_status
+---@class plugins.chrome.lualine.components.buffer_status : lualine.component
 local M = component:extend()
 
 local IGNORE_FILETYPES = {
