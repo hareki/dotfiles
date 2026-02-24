@@ -5,7 +5,7 @@ return {
   }),
   {
     'coder/claudecode.nvim',
-    dependencies = { 'folke/snacks.nvim' },
+    dependencies = { 'hareki/snacks.nvim' },
     cmd = 'ClaudeCode',
     keys = {
       {
