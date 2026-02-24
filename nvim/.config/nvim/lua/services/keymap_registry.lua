@@ -27,6 +27,8 @@ M.desc_overrides = {
   ['<C-L>'] = { desc = 'Redraw (Clear Search Highlight, Update Diffs)', mode = { 'n' } },
   ['@'] = { desc = 'Execute Register on Each Selected Line', mode = { 'x' } },
   ['Q'] = { desc = 'Replay Last Macro on Each Selected Line', mode = { 'x' } },
+  [']D'] = { desc = 'Last Diagnostic', mode = { 'n' } },
+  ['[D'] = { desc = 'First Diagnostic', mode = { 'n' } },
 }
 
 return M
