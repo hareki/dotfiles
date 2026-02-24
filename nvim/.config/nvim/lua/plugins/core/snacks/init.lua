@@ -53,6 +53,7 @@ return {
             Snacks.picker.grep({
               title = 'Grep',
               regex = false,
+              hidden = true,
             })
           end,
           desc = 'Find Text',
