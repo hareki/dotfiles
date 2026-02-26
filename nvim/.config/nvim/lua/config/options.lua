@@ -24,7 +24,7 @@ opt.numberwidth = 1
 
 opt.list = false -- Hide whitespace characters
 opt.termguicolors = true -- True color support
-opt.timeoutlen = 270 -- Lower than default (1000) to quickly trigger which-key
+opt.timeoutlen = 150 -- Lower than default (1000) to quickly trigger which-key
 opt.updatetime = 300 -- Decrease update time
 opt.pumblend = 0 -- Fully opaque popupmenu
 opt.pumheight = 15 -- Maximum number of entries in a popup

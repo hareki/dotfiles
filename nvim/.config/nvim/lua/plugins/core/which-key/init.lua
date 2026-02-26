@@ -5,7 +5,7 @@ return {
     }
   end),
   {
-    'folke/which-key.nvim',
+    'hareki/which-key.nvim',
     event = 'VeryLazy',
     opts = function()
       local desc_override_specs = {}
@@ -14,8 +14,14 @@ return {
         table.insert(desc_override_specs, { lhs, desc = spec.desc, mode = spec.mode })
       end
 
+      ---@class wk.Opts
       return {
         preset = 'modern',
+        delay = 100,
+        win = {
+          no_overlap = true,
+          padding = { 0, 4 },
+        },
         replace = {
           desc = {
             -- Add one extra space before the descriptions

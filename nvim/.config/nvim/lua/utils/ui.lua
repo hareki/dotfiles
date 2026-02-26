@@ -249,7 +249,7 @@ function M.which_key(config)
   end
 
   return {
-    'folke/which-key.nvim',
+    'hareki/which-key.nvim',
     opts = function(_, opts)
       if specs then
         opts.spec = opts.spec or {}
