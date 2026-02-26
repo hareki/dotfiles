@@ -63,12 +63,14 @@ function M.whichkey(opts)
   local ret = { mode = { 'o', 'x' } }
   ---@type table<string, string>
   local mappings = vim.tbl_extend('force', {}, {
-    around = 'a',
-    inside = 'i',
-    around_next = 'an',
-    inside_next = 'in',
-    around_last = 'al',
-    inside_last = 'il',
+    Next = ']',
+    Previous = '[',
+    Around = 'a',
+    Inside = 'i',
+    ['Around Next'] = 'an',
+    ['Inside Next'] = 'in',
+    ['Around Last'] = 'al',
+    ['Inside Last'] = 'il',
   }, opts.mappings or {})
 
   mappings.goto_left = nil
