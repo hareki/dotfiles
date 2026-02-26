@@ -13,9 +13,6 @@ return {
   init = function()
     local opt = vim.opt
 
-    opt.showcmd = true -- Show pending keys/command
-    opt.showcmdloc = 'statusline'
-
     local has_cli_args = vim.fn.argc(-1) > 0
     if has_cli_args then
       -- Set an empty statusline till lualine loads to prevent layout shifting
@@ -37,7 +34,6 @@ return {
     local diagnostics = require('plugins.chrome.lualine.components.diagnostics')
     local repo_name = require('plugins.chrome.lualine.components.repo_name')
     local branch = require('plugins.chrome.lualine.components.branch')
-    local pending_keys = require('plugins.chrome.lualine.components.pending_keys')
 
     local ui = require('utils.ui')
     local palette = ui.get_palette()
@@ -122,11 +118,6 @@ return {
         lualine_y = {},
 
         lualine_z = flatten(
-          create_wrapper({
-            comp = pending_keys.get,
-            type = 'secondary-right',
-          }),
-
           create_wrapper({
             comp = 'copilot',
             type = 'secondary-right',
