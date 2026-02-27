@@ -1,3 +1,7 @@
+local DELAY = 250
+local TIMEOUT_LEN = 150
+local DELAY_O = DELAY - TIMEOUT_LEN
+
 return {
   Catppuccin(function(palette)
     return {
@@ -7,6 +11,11 @@ return {
   {
     'hareki/which-key.nvim',
     event = 'VeryLazy',
+    init = function()
+      -- Lower than default (1000) to quickly trigger which-key
+      vim.opt.timeoutlen = TIMEOUT_LEN
+    end,
+
     opts = function()
       local desc_override_specs = {}
       local keymap_registry = require('services.keymap_registry')
@@ -17,7 +26,9 @@ return {
       ---@class wk.Opts
       return {
         preset = 'modern',
-        delay = 100,
+        delay = function(ctx)
+          return ctx.mode == 'o' and DELAY_O or DELAY
+        end,
         win = {
           no_overlap = true,
           padding = { 0, 4 },
