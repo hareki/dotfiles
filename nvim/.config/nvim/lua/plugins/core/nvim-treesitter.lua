@@ -3,7 +3,7 @@ return {
   branch = 'main',
   version = false,
   build = ':TSUpdate | TSInstallAll',
-  cmd = { 'TSUpdate', 'TSInstall', 'TSLog', 'TSUninstall', 'TSInstallAll' },
+  cmd = { 'TSUpdate', 'TSInstall', 'TSLog', 'TSUninstall' },
   event = { 'BufReadPost', 'BufNewFile' },
 
   init = function()
@@ -33,7 +33,6 @@ return {
       'javascript',
       'jsdoc',
       'json',
-      'jsonc',
       'lua',
       'luadoc',
       'luap',
