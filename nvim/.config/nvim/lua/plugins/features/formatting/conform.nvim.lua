@@ -17,6 +17,7 @@ return {
           'json',
           'jsonc',
           'yaml',
+          'astro',
         },
       },
       stylua = {
