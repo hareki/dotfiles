@@ -32,25 +32,26 @@ Import order in `config/lazy/init.lua`: `plugins.core` **must be first**. All pl
 
 ### Globals (`lua/config/globals.lua`)
 
-Six globals available everywhere:
+Seven globals available everywhere (six set in `globals.lua`, one by its plugin):
 
 | Global       | Source                           | Usage                                                           |
 | ------------ | -------------------------------- | --------------------------------------------------------------- |
 | `Defer`      | `utils.lazy-require`             | `Defer.on_index()`, `Defer.on_exported_call()`                  |
 | `Notifier`   | Lazy proxy → `services.notifier` | `Notifier.info('msg')`, `Notifier.warn('msg', { title = 'T' })` |
 | `Catppuccin` | `utils.ui.catppuccin`            | Highlight registration in plugin specs                          |
+| `WhichKey`   | `utils.ui.which_key`             | Which-key group/rule registration in plugin specs               |
 | `Icons`      | `config.icons`                   | All icons — never hardcode icon strings                         |
-| `Priority`   | `config.priority`                | `CORE = 1000`, `CHROME = 900`                                   |
-| `Snacks`     | Set by snacks.nvim               | `Snacks.picker.*`, `Snacks.terminal.*`, etc.                    |
+| `Priority`   | `config.priority`                | `CORE = 1000`, `CHROME = 900`, `FEATURE = 800`                  |
+| `Snacks`     | Set by snacks.nvim at runtime    | `Snacks.picker.*`, `Snacks.terminal.*`, etc.                    |
 
 ### Key Modules
 
-- `config/size.lua` — popup presets (`sm`/`md`/`lg`/`vertical_lg`/`full`/`side_preview`/`side_panel`/`inline_popup`)
-- `config/palette_ext.lua` — extended Catppuccin colors (`blue0-2`, `green0-1`, `surface15`)
+- `config/size.lua` — popup size presets
+- `config/palette_ext.lua` — extended Catppuccin colors
 - `config/picker.lua` — shared picker UI constants
-- `services/` — cross-cutting concerns: `statusline`, `cursorline`, `keymap_registry`, `notifier`
-- `utils/ui.lua` — `popup_config(size, with_border)`, `catppuccin(fn)`, `get_palette()`, `blend_hex()`
-- `utils/common.lua` — `noautocmd(fn)`, `focus_win(win)`, `is_float_win()`, `list_extend()`
+- `services/` — cross-cutting concerns (statusline, cursorline, keymap registry, notifier)
+- `utils/ui.lua` — popup config helpers, highlight utilities
+- `utils/common.lua` — general-purpose helpers
 
 ## Plugin Spec Conventions
 
@@ -64,11 +65,9 @@ Six globals available everywhere:
 -- Single spec (majority):
 return { 'author/plugin', keys = { ... }, opts = { ... } }
 
--- List with Catppuccin highlights:
-return { Catppuccin(function(palette, sub_palette, extension) ... end), { 'author/plugin', opts = ... } }
+-- List with Catppuccin/WhichKey highlights:
+return { WhichKey({ ... }), Catppuccin(function(...) ... end), { 'author/plugin', opts = ... } }
 ```
-
-`Catppuccin(fn)` receives 3 args: `palette` (mocha), `sub_palette` (latte), `extension` (palette_ext). Underscore unused args.
 
 ### Directory Plugins
 
@@ -80,34 +79,12 @@ Use `popup_config(size, with_border)`, never hardcode dimensions. **Gotcha**: Te
 
 ## LSP Setup
 
-Uses Neovim 0.11+ native `vim.lsp.enable()` (not `lspconfig[server].setup()`). Per-server configs in `plugins/core/lsp/nvim-lspconfig/lsp/{server}.lua` — **these are NOT lazy.nvim specs**:
+Uses Neovim 0.11+ native `vim.lsp.enable()` (not `lspconfig[server].setup()`). Per-server configs in `plugins/core/lsp/nvim-lspconfig/lsp/{server}.lua` — **these are NOT lazy.nvim specs**. General LSP keymaps live in `nvim-lspconfig/init.lua`, not server files.
 
-```lua
-return {
-  opts = { ... },            -- passed to vim.lsp.config(name, opts)
-  setup = function() ... end -- optional: LspAttach autocmds, user commands
-}
-```
-
-~13 servers enabled; 7 have config files. General LSP keymaps live in `nvim-lspconfig/init.lua`, not server files.
-
-### LspAttach Guard Pattern
-
-Server-specific autocmds early-return on client name mismatch:
-
-```lua
-vim.api.nvim_create_autocmd('LspAttach', {
-  group = vim.api.nvim_create_augroup('{server}_lsp_attach', { clear = true }),
-  callback = function(args)
-    local client = vim.lsp.get_client_by_id(args.data.client_id)
-    if not (client and client.name == '{server}') then return end
-    -- server-specific setup
-  end,
-})
-```
+Server-specific `LspAttach` autocmds use an early-return guard on client name — see existing server configs for the pattern.
 
 **Gotcha**: nvim-lspconfig uses `event='VeryLazy'` instead of `LazyFile` to avoid directory file-type detection issues.
 
 ## Forks
 
-15+ minimal-diff forks by `hareki`. Updated via [wei/pull](https://github.com/wei/pull). Features toggleable — disabling custom bits reverts to upstream. Enable unified floating UX: **Tab** = toggle focus (list↔preview, float↔main); **`<C-t>`** = toggle side-panel mode.
+16 minimal-diff forks by `hareki`. Updated via [wei/pull](https://github.com/wei/pull). Features toggleable — disabling custom bits reverts to upstream. Enable unified floating UX: **Tab** = toggle focus (list↔preview, float↔main); **`<C-t>`** = toggle side-panel mode.
