@@ -70,7 +70,7 @@ return {
           local gs = package.loaded.gitsigns
 
           local function current_map(mode, l, r, desc)
-            vim.keymap.set(mode, l, r, { buffer = buffer, desc = desc })
+            vim.keymap.set(mode, l, r, { buffer = buffer, desc = desc, silent = true })
           end
           local function current_unmap(mode, l)
             pcall(function()
