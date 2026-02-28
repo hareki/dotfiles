@@ -1,12 +1,9 @@
 return {
   'neovim/nvim-lspconfig',
-  -- Don't use 'LazyFile' event, it will mess up the file type detection when opening a directory with nvim
-  -- We can either:
-  -- 1. Use 'VeryLazy' event
-  -- 2. Use 'BufReadPre' event
-  -- 3 Putting vim.lsp.enable() in the init function
   -- https://www.reddit.com/r/neovim/comments/1l7pz1l/starting_from_0112_i_have_a_weird_issue
-  event = 'VeryLazy',
+  -- NOTE: This is not lazy loadable anymore (lua_ls doesn't attach to the first opened file)
+  lazy = false,
+  priority = Priority.CORE,
   dependencies = { 'folke/lazydev.nvim', 'mason-org/mason.nvim' },
   config = function()
     local utils = require('plugins.core.lsp.nvim-lspconfig.utils')
