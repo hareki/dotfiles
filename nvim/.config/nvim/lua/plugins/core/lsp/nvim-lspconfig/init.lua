@@ -115,6 +115,7 @@ return {
       'stylua', -- Lua formatter
       'vtsls', -- TypeScript
       'tailwindcss', -- Tailwind
+      'astro', -- Astro
     })
   end,
 }
