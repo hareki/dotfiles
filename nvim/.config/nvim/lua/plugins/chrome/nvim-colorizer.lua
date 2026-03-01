@@ -25,6 +25,9 @@ return {
           hex = {
             enable = true,
           },
+          names = {
+            enable = false,
+          },
         },
       },
     }
