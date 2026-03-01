@@ -10,7 +10,6 @@ return {
       always_highlight_number = utils.always_highlight_number,
       ignore = {
         cursorline = {
-          'toggleterm',
           'TelescopePrompt',
         },
       },

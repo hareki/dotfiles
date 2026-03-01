@@ -10,7 +10,6 @@ local IGNORE_FILETYPES = {
   'mason',
   'TelescopePrompt',
   'TelescopeResults',
-  'toggleterm',
   'Trouble',
   'help',
   'lspinfo',

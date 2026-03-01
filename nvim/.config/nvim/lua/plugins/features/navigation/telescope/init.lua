@@ -210,7 +210,6 @@ return {
 
       return {
         extensions = {
-          toggleterm_manager = {},
           undo = {
             use_delta = true,
             saved_only = true,
