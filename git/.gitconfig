@@ -48,3 +48,5 @@
     bold yellow => syntax "#6b635b"
   # Should match the name of the bat theme
   syntax-theme = Catppuccin Mocha
+[rerere]
+	enabled = true
