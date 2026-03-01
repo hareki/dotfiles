@@ -18,9 +18,14 @@ return {
   opts = function()
     return {
       filetypes = filetypes,
-      user_default_options = {
-        names = false,
-        css = true,
+      options = {
+        parsers = {
+          css = true,
+          css_fn = true,
+          hex = {
+            enable = true,
+          },
+        },
       },
     }
   end,
