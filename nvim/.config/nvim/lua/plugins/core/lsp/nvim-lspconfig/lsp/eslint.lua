@@ -17,11 +17,7 @@ return {
         local linters = require('utils.linters')
         local eslint = require('utils.linters.eslint')
 
-        linters.register(
-          'eslint',
-          { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' },
-          eslint.run
-        )
+        linters.register('eslint', Filetypes.js_all, eslint.run)
 
         eslint_registered = true
       end,
