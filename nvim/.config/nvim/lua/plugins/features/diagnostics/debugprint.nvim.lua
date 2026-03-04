@@ -71,12 +71,13 @@ return {
         picker = 'snacks.picker',
         picker_title = 'Debug Prints',
         highlight_lines = false,
-        filetypes = {
-          ['javascript'] = js_like,
-          ['javascriptreact'] = js_like,
-          ['typescript'] = js_like,
-          ['typescriptreact'] = js_like,
-        },
+        filetypes = (function()
+          local fts = {}
+          for _, ft in ipairs(Filetypes.js_all) do
+            fts[ft] = js_like
+          end
+          return fts
+        end)(),
         -- Turn off all keymaps by default for performance reasons (mapping overhead + can't lazy load)
         -- Also, I want to customize the descriptions
         keymaps = {

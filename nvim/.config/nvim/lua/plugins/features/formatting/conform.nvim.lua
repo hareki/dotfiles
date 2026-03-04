@@ -4,21 +4,14 @@ return {
     local formatter_groups = {
       prettier = {
         config = { 'prettier', stop_after_first = true },
-        filetypes = {
-          'javascript',
-          'javascriptreact',
-          'typescript',
-          'typescriptreact',
-          'css',
-          'scss',
-          'html',
-          'markdown',
-          'mdx',
-          'json',
-          'jsonc',
-          'yaml',
-          'astro',
-        },
+        filetypes = Filetypes.merge(
+          Filetypes.js_all,
+          Filetypes.css,
+          { 'html' },
+          Filetypes.markdown,
+          Filetypes.json,
+          { 'yaml' }
+        ),
       },
       stylua = {
         filetypes = { 'lua' },

@@ -1,4 +1,4 @@
-local filetypes = { 'html', 'xml', 'javascriptreact', 'typescriptreact', 'astro' }
+local filetypes = Filetypes.with_tags
 
 return {
   'tronikelis/ts-autotag.nvim',
