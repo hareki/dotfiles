@@ -16,7 +16,7 @@ local word_paths = {
 }
 
 M.default = {
-  default = { 'lsp', 'snippets', 'datword', 'ripgrep', 'path', 'buffer', 'copilot' },
+  default = { 'lsp', 'snippets', 'datword', 'ripgrep', 'buffer', 'copilot' },
   per_filetype = {
     lua = { inherit_defaults = true, 'lazydev' },
     markdown = { inherit_defaults = true, 'markdown' },
