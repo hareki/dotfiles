@@ -72,19 +72,5 @@ return {
         },
       }
     end,
-
-    config = function(_, opts)
-      local cmp = require('blink-cmp')
-      cmp.setup(opts)
-
-      -- Make sure completion menu is closed when transitioning to normal mode
-      vim.api.nvim_create_autocmd('ModeChanged', {
-        group = vim.api.nvim_create_augroup('blink_cmp_close_on_normal', { clear = true }),
-        pattern = '*:n',
-        callback = function()
-          cmp.hide()
-        end,
-      })
-    end,
   },
 }
