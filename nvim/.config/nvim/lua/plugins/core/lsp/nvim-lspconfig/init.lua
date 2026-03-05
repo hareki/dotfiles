@@ -67,11 +67,16 @@ return {
         end
 
         map('n', 'gd', function()
-          Snacks.picker.lsp_definitions()
+          Snacks.picker.lsp_definitions({
+            include_current = true,
+          })
         end, 'Go to Definition')
 
         map('n', 'gr', function()
-          Snacks.picker.lsp_references()
+          Snacks.picker.lsp_references({
+            include_current = true,
+            include_declaration = true,
+          })
         end, 'Find References')
 
         map('n', 'gR', function()
