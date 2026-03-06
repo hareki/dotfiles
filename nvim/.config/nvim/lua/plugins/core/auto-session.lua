@@ -67,11 +67,6 @@ return {
       ---@type AutoSession.Config
       return {
         suppressed_dirs = { '~/', '~/Downloads', '/' },
-        pre_save_cmds = {
-          function()
-            Snacks.bufdelete.other()
-          end,
-        },
         post_restore_cmds = {
           function()
             vim.schedule(function()
