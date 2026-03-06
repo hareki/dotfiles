@@ -3,8 +3,6 @@
   "permissions": {
     "defaultMode": "plan"
   },
-  "model": "opus",
-  "effortLevel": "high",
   "statusLine": {
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh"
@@ -21,5 +19,7 @@
     "commit-commands@claude-plugins-official": true,
     "runtime-debugging@hareki-runtime-debugging": true,
     "superpowers@claude-plugins-official": true
-  }
+  },
+  "model": "opus",
+  "effortLevel": "high"
 }
