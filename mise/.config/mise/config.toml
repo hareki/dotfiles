@@ -1,6 +1,7 @@
 [tools]
 go = "latest"
 node = "lts"
+python = "latest"
 rust = "latest"
 
 [settings]
