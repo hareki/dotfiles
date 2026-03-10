@@ -51,7 +51,10 @@ macos-option-as-alt = true
 # Special sequences for zsh keybinding to consume in keymaps.zsh or in neovim, since we can't normally bind shift key
 keybind = cmd+shift+o=text:\x1b[1;6O
 keybind = ctrl+shift+y=text:\x1b[1;6Y
+# Ctrl+Shift+F4 escape sequences
 keybind = cmd+shift+s=text:\x1b[1;6S
+# jake-stewart/multicursor.nvim toggle, Ctrl+Shift+F1 escape sequences
+keybind = ctrl+m=text:\x1b[1;6P
 
 # Neovim doesn't recognize text:\x1b[1;6W
 keybind = cmd+shift+w=text:\x1b[1;6F

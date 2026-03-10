@@ -56,7 +56,7 @@ map({ 'n', 'i' }, '<leader>F', function()
   })
 end, { desc = 'Format' })
 
--- Mapped to Ctrl+Shift+S in ghostty config
+-- Mapped from Ctrl+Shift+S in ghostty config
 -- Test the keymap Neovim will receive with
 -- :echo keytrans(getcharstr())
 map({ 'n', 'i' }, '<F40>', function()
