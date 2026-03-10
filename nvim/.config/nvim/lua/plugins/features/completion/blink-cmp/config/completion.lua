@@ -4,13 +4,18 @@ local M = {}
 M.default = {
   accept = { auto_brackets = { enabled = false } },
   ghost_text = { enabled = false },
+  -- https://github.com/saghen/blink.cmp/blob/main/doc/configuration/reference.md#completion-trigger
   trigger = {
     prefetch_on_insert = false,
-    show_on_backspace = true,
-    show_on_backspace_after_insert_enter = true,
-    show_on_insert = true,
-    show_on_keyword = true,
     show_in_snippet = true,
+    show_on_keyword = true,
+    show_on_trigger_character = false,
+    show_on_accept_on_trigger_character = false,
+    show_on_insert_on_trigger_character = false,
+    show_on_backspace = false,
+    show_on_backspace_in_keyword = false,
+    show_on_backspace_after_insert_enter = false,
+    show_on_insert = false,
   },
   list = {
     selection = {
