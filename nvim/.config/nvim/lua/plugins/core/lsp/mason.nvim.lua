@@ -26,11 +26,7 @@ return {
         'marksman',
         'prettier',
 
-        'json-lsp',
-        'css-lsp',
-        'html-lsp',
         'typos-lsp',
-        'eslint-lsp',
 
         'lua-language-server',
         'yaml-language-server',
