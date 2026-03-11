@@ -19,6 +19,12 @@ return {
         height = config.height,
         backdrop = 100,
       },
+
+      registries = {
+        'github:hareki/mason-registry',
+        'github:mason-org/mason-registry',
+      },
+
       ensure_installed = {
         'taplo',
         'vtsls',
@@ -26,7 +32,11 @@ return {
         'marksman',
         'prettier',
 
+        'json-lsp',
+        'css-lsp',
+        'html-lsp',
         'typos-lsp',
+        'eslint-lsp',
 
         'lua-language-server',
         'yaml-language-server',
