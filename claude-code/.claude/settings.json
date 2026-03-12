@@ -20,6 +20,6 @@
     "runtime-debugging@hareki-runtime-debugging": true,
     "superpowers@claude-plugins-official": true
   },
-  "model": "opus",
-  "effortLevel": "high"
+  "effortLevel": "high",
+  "model": "opus"
 }
