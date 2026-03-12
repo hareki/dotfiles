@@ -93,6 +93,18 @@ return {
         end, {
           force = true, -- Override any previous definition
         })
+
+        vim.api.nvim_create_user_command('EslintRestart', function()
+          local clients = vim.lsp.get_clients({ name = 'eslint' })
+          for _, c in ipairs(clients) do
+            c:stop()
+          end
+          vim.defer_fn(function()
+            vim.cmd.edit()
+          end, 100)
+        end, {
+          force = true,
+        })
       end,
     })
   end,
