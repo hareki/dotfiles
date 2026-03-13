@@ -18,7 +18,8 @@
     "code-review@claude-plugins-official": true,
     "commit-commands@claude-plugins-official": true,
     "runtime-debugging@hareki-runtime-debugging": true,
-    "superpowers@claude-plugins-official": true
+    "superpowers@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true
   },
   "effortLevel": "high",
   "model": "opus"
