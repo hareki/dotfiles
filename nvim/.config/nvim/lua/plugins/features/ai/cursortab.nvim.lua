@@ -10,6 +10,7 @@ return {
   {
     'leonardcser/cursortab.nvim',
     build = 'cd server && go build',
+    enabled = false,
 
     -- This plugin is more responsive when loaded early for some reason
     lazy = false,
