@@ -41,7 +41,7 @@ return {
         local store_count = 0 -- Number of entries written
         local function push(line)
           store_index = (store_index % max) + 1
-          store[store_index] = line
+          store[store_index] = line:gsub('\n', ' ')
           store_count = store_count + 1
         end
 
