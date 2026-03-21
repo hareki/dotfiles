@@ -2,7 +2,7 @@ return {
   opts = {
     settings = {
       tailwindCSS = {
-        classFunctions = { 'cva', 'tw', 'cn', 'tv' },
+        classFunctions = { 'cva', 'tw', 'cn', 'tv', 'cx' },
         includeLanguages = {
           elixir = 'html-eex',
           eelixir = 'html-eex',
