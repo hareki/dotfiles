@@ -1,0 +1,5 @@
+#!/bin/zsh
+
+build-atuin() {
+  cargo install --locked --path crates/atuin
+}
