@@ -1,5 +1,5 @@
 return {
-  'hareki/lazydev.nvim',
+  'folke/lazydev.nvim',
   ft = 'lua',
   opts = function()
     return {
