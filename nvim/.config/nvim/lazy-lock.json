@@ -18,7 +18,7 @@
   "debugprint.nvim": { "branch": "main", "commit": "a95f658add600de701763e2956a86278d9d7e2a8" },
   "diffview.nvim": { "branch": "main", "commit": "a23855c4ca80e0e898e13b8922b3728ca6332bda" },
   "dropbar.nvim": { "branch": "master", "commit": "d89dca17745e099a3fd251945ba2e3040a761dad" },
-  "eagle.nvim": { "branch": "main", "commit": "e6061a5bb43d439ab34ac602785ae2ae62d7ae47" },
+  "eagle.nvim": { "branch": "main", "commit": "d340a27e00e3c138208fe172c16f17f3c45cce9a" },
   "git-conflict.nvim": { "branch": "main", "commit": "e7c72e4c10ba3c824c8929212827458e8b7a24b4" },
   "gitsigns.nvim": { "branch": "main", "commit": "561b2671c86408d30273d4ffe5bf0180560bf777" },
   "grug-far.nvim": { "branch": "main", "commit": "3df99396f4464a0a2c1fb279d7b201cfd833040b" },
