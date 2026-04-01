@@ -1,6 +1,5 @@
 alias lg="lazygit"
 alias ff="fastfetch"
-alias yay='brew update && brew upgrade && brew autoremove && npm update -g'
 
 alias ..="z .."
 alias ...="z ..."

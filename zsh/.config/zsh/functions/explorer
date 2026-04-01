@@ -1,9 +1,0 @@
-#!/bin/zsh
-
-explorer () {
-    if [ -z "$1" ]; then
-      explorer.exe
-    else
-      explorer.exe "$(wslpath -w "$1")"
-    fi
-}

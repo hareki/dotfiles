@@ -1,0 +1,10 @@
+#!/bin/zsh
+
+# alias yay='brew update && brew upgrade && brew autoremove && antidote update && npm update -g && gem update'
+yay() {
+  brew update && brew upgrade && brew autoremove \
+    && antidote update \
+    ~/.tmux/plugins/tpm/bin/update_plugins all \
+    && npm update -g \
+    && gem update
+}
