@@ -5,12 +5,10 @@
     "allow": [
       "Agent",
       "WebFetch",
-
       "Bash(grep:*)",
       "Bash(grep -R:*)",
       "Bash(rg:*)",
       "Bash(ripgrep:*)",
-
       "Bash(cat:*)",
       "Bash(head:*)",
       "Bash(tail:*)",
@@ -24,17 +22,14 @@
       "Bash(which *)",
       "Bash(type *)",
       "Bash(echo *)",
-
       "Bash(find:*)",
       "Bash(ls:*)",
       "Bash(tree:*)",
-
       "Bash(git diff:*)",
       "Bash(git show:*)",
       "Bash(git log:*)",
       "Bash(git status *)",
       "Bash(git rev-parse *)",
-
       "Bash(gh issue view:*)",
       "Bash(* --version)",
       "Bash(* --help)"
