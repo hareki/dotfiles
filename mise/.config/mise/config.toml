@@ -4,6 +4,8 @@ node = "lts"
 python = "latest"
 ruby = "latest"
 rust = "latest"
+"npm:@styled/typescript-styled-plugin" = "latest"
+"npm:pretty-ts-errors-markdown" = "latest"
 
 [settings]
 idiomatic_version_file_enable_tools = ["node"]

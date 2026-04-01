@@ -123,8 +123,12 @@ return {
   end,
 
   opts = function()
-    local npm_root = vim.system({ 'npm', 'root', '-g' }, { text = true }):wait()
-    local npm_global_root = npm_root and vim.trim(npm_root.stdout or '') or ''
+    local mise_where = vim
+      .system({ 'mise', 'where', 'npm:@styled/typescript-styled-plugin' }, { text = true })
+      :wait()
+    local plugin_root = mise_where and vim.trim(mise_where.stdout or '') or ''
+    -- mise where returns the tool root, packages are under lib/node_modules
+    local npm_global_root = plugin_root ~= '' and (plugin_root .. '/lib/node_modules') or ''
 
     return {
       settings = {

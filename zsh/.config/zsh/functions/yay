@@ -4,6 +4,7 @@
 yay() {
   brew update && brew upgrade && brew autoremove \
     && antidote update \
+    && mise upgrade \
     ~/.tmux/plugins/tpm/bin/update_plugins all \
     && npm update -g \
     && gem update
