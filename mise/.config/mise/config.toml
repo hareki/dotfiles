@@ -1,11 +1,14 @@
 [tools]
-go = "latest"
 node = "lts"
-python = "latest"
-ruby = "latest"
-rust = "latest"
 "npm:@styled/typescript-styled-plugin" = "latest"
 "npm:pretty-ts-errors-markdown" = "latest"
+
+ruby = "latest"
+"gem:tmuxinator" = "latest"
+
+rust = "latest"
+go = "latest"
+python = "latest"
 
 [settings]
 idiomatic_version_file_enable_tools = ["node"]
