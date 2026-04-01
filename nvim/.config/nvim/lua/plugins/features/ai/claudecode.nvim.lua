@@ -35,6 +35,12 @@ return {
         desc = 'Add Current Buffer',
       },
       {
+        '<leader>ab',
+        '<cmd>ClaudeCodeTreeAdd<cr>',
+        desc = 'Add File',
+        ft = { 'NvimTree' },
+      },
+      {
         '<leader>as',
         '<cmd>ClaudeCodeSend<cr>',
         mode = 'v',
