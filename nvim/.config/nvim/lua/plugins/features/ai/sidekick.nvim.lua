@@ -6,7 +6,7 @@ return {
   end),
   {
     'folke/sidekick.nvim',
-    enabled = true,
+    enabled = false,
     keys = function()
       return {
         {
@@ -22,6 +22,8 @@ return {
         },
       }
     end,
-    opts = {},
+    opts = {
+      nes = { enabled = true },
+    },
   },
 }

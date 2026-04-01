@@ -10,7 +10,7 @@ return {
   {
     'cursortab/cursortab.nvim',
     build = 'cd server && go build',
-    enabled = false,
+    enabled = true,
 
     -- This plugin is more responsive when loaded early for some reason
     lazy = false,
@@ -19,10 +19,13 @@ return {
     event = 'BufReadPost',
     opts = function()
       return {
+        -- provider = {
+        --   type = 'sweepapi',
+        --   api_key_env = 'SWEEPAPI_TOKEN',
+        --   model = 'sweep-next-edit-7b',
+        -- },
         provider = {
-          type = 'sweepapi',
-          api_key_env = 'SWEEPAPI_TOKEN',
-          model = 'sweep-next-edit-7b',
+          type = 'copilot',
         },
       }
     end,
