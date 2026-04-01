@@ -1,3 +1,5 @@
+local mc = Defer.on_exported_call('multicursor-nvim')
+
 return {
   WhichKey({
     specs = {
@@ -20,52 +22,92 @@ return {
   end),
   {
     'jake-stewart/multicursor.nvim',
-    lazy = false,
-    config = function()
-      local mc = require('multicursor-nvim')
-      mc.setup({
-        ---@diagnostic disable-next-line: assign-type-mismatch wrong type, `false` to disable signs
-        signs = false,
-      })
-
-      --- @param lhr string
-      --- @param callback fun(): nil
-      --- @param desc string
-      local function set(lhr, callback, desc)
-        vim.keymap.set({ 'n', 'x' }, lhr, callback, { desc = desc })
-      end
-
-      -- Add or skip adding a new cursor by matching word/selection
-      set('<leader>mn', function()
-        mc.matchAddCursor(1)
-      end, 'Multicursor: Add Next Match Cursor')
-
-      set('<leader>ms', function()
-        mc.matchSkipCursor(1)
-      end, 'Multicursor: Skip Next Match Cursor')
-
-      set('<leader>mN', function()
-        mc.matchAddCursor(-1)
-      end, 'Multicursor: Add Previous Match Cursor')
-
-      set('<leader>mS', function()
-        mc.matchSkipCursor(-1)
-      end, 'Multicursor: Skip Previous Match Cursor')
-
+    keys = {
+      {
+        '<C-n>',
+        function()
+          mc.matchAddCursor(1)
+        end,
+        desc = 'Multicursor: Add Next Match Cursor',
+        mode = { 'n', 'x' },
+      },
+      {
+        '<C-S-n>',
+        function()
+          mc.matchSkipCursor(1)
+        end,
+        desc = 'Multicursor: Skip Next Match Cursor',
+        mode = { 'n', 'x' },
+      },
+      {
+        '<C-p>',
+        function()
+          mc.matchAddCursor(-1)
+        end,
+        desc = 'Multicursor: Add Previous Match Cursor',
+        mode = { 'n', 'x' },
+      },
+      {
+        '<C-S-p>',
+        function()
+          mc.matchSkipCursor(-1)
+        end,
+        desc = 'Multicursor: Skip Previous Match Cursor',
+        mode = { 'n', 'x' },
+      },
+      {
+        '<C-Up>',
+        function()
+          mc.lineAddCursor(-1)
+        end,
+        desc = 'Multicursor: Add Previous Line Cursor',
+        mode = { 'n', 'x' },
+      },
+      {
+        '<C-Down>',
+        function()
+          mc.lineAddCursor(1)
+        end,
+        desc = 'Multicursor: Add Next Line Cursor',
+        mode = { 'n', 'x' },
+      },
+      {
+        '<C-Left>',
+        function()
+          mc.lineSkipCursor(-1)
+        end,
+        desc = 'Multicursor: Skip Previous Line Cursor',
+        mode = { 'n', 'x' },
+      },
+      {
+        '<C-Right>',
+        function()
+          mc.lineSkipCursor(1)
+        end,
+        desc = 'Multicursor: Skip Next Line Cursor',
+        mode = { 'n', 'x' },
+      },
       -- Remapped from <C-m> in ghostty configs, for whatever reason
       -- <C-m> is recognized as <CR> by Neovim by default
-      set('<F37>', mc.toggleCursor, 'Multicursor: Toggle Cursor')
+      { '<F37>', mc.toggleCursor, desc = 'Multicursor: Toggle Cursor', mode = { 'n', 'x' } },
+    },
+    opts = {
+      { signs = false },
+    },
+    config = function(_, opts)
+      local multicursor = require('multicursor-nvim')
+      multicursor.setup(opts)
 
-      mc.addKeymapLayer(function(layerSet)
+      multicursor.addKeymapLayer(function(layerSet)
         -- Delete the main cursor.
-        layerSet({ 'n', 'x' }, '<leader>mx', mc.deleteCursor)
+        layerSet({ 'n', 'x' }, '<leader>mx', multicursor.deleteCursor)
 
         -- Enable and clear cursors using escape.
         layerSet('n', '<esc>', function()
-          if not mc.cursorsEnabled() then
-            mc.enableCursors()
+          if not multicursor.cursorsEnabled() then
+            multicursor.enableCursors()
           else
-            mc.clearCursors()
+            multicursor.clearCursors()
           end
         end)
       end)
