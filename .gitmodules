@@ -1,0 +1,3 @@
+[submodule "tmuxinator/.config/tmuxinator"]
+	path = tmuxinator/.config/tmuxinator
+	url = git@github.com:hareki/tmuxinator-projects.git
