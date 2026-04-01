@@ -292,17 +292,17 @@ return {
 
           map('n', '/', function()
             tree.toggle_preview(false)
-            api.live_filter.start()
+            api.filter.live.start()
             state.live_filter_triggered = true
           end, 'Live Filter: Start')
-          map('n', '<Esc>', api.live_filter.clear, 'Clear Live Filter')
+          map('n', '<Esc>', api.filter.live.clear, 'Clear Live Filter')
 
           map('n', 'd', api.fs.trash, 'Trash')
           map('n', 'D', api.fs.remove, 'Remove')
           map('n', 'y', api.fs.copy.filename, 'Copy Name')
           map('n', 'r', api.fs.rename, 'Rename')
           map('n', 'R', api.node.run.system, 'Reveal in Finder')
-          map('n', 'Y', api.fs.copy.relative_path, 'Copy Relative Path')
+          map('n', 'Y', api.fs.copy.absolute_path, 'Copy Absolute Path')
 
           map('n', '<Right>', tree.create_node_action('expand'), 'Expand Node')
           map('n', '<S-Right>', api.tree.expand_all, 'Expand All Nodes')
@@ -317,7 +317,7 @@ return {
 
           map('n', '<C-n>', tree.mark_and_next, 'Bookmark and Next')
           map('n', '<C-p>', tree.mark_and_prev, 'Bookmark and Previous')
-          map('n', 'M', api.tree.toggle_no_bookmark_filter, 'Toggle Bookmark Filter')
+          map('n', 'M', api.filter.no_bookmark.toggle, 'Toggle Bookmark Filter')
           map('n', 'bd', api.marks.bulk.trash, 'Trash Bookmarked')
           map('n', 'bt', api.marks.bulk.delete, 'Delete Bookmarked')
           map('n', 'bm', api.marks.bulk.move, 'Move Bookmarked')
