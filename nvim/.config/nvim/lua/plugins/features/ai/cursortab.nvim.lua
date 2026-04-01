@@ -8,7 +8,7 @@ return {
     }
   end),
   {
-    'leonardcser/cursortab.nvim',
+    'cursortab/cursortab.nvim',
     build = 'cd server && go build',
     enabled = false,
 
