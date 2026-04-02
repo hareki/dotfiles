@@ -123,10 +123,15 @@ return {
   end,
 
   opts = function()
-    local mise_where = vim
-      .system({ 'mise', 'where', 'npm:@styled/typescript-styled-plugin' }, { text = true })
-      :wait()
-    local plugin_root = mise_where and vim.trim(mise_where.stdout or '') or ''
+    -- local mise_where = vim
+    --   .system({ 'mise', 'where', 'npm:@styled/typescript-styled-plugin' }, { text = true })
+    --   :wait()
+    -- local plugin_root = mise_where and vim.trim(mise_where.stdout or '') or ''
+
+    -- PERF: Hardcode it for faster resolve time, since the version rarely changes anyway
+    local mise_where =
+      '/Users/hareki/.local/share/mise/installs/npm-styled-typescript-styled-plugin/1'
+    local plugin_root = mise_where
     -- mise where returns the tool root, packages are under lib/node_modules
     local npm_global_root = plugin_root ~= '' and (plugin_root .. '/lib/node_modules') or ''
 
