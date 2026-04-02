@@ -12,6 +12,12 @@ g.maplocalleader = ' '
 g.loaded_netrw = 1
 g.loaded_netrwPlugin = 1
 
+-- Disable built-in language providers
+g.loaded_node_provider = 0
+g.loaded_ruby_provider = 0
+g.loaded_perl_provider = 0
+g.loaded_python3_provider = 0
+
 -- [[ Setting options ]]
 -- See `:help opt`
 -- For more options, you can see `:help option-list`

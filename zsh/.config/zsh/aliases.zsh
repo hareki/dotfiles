@@ -12,4 +12,3 @@ alias ez="nvim ~/.zshrc"
 alias eze="nvim ~/.zshenv"
 alias tree="eza --tree"
 alias submodule-update="git submodule update --init --recursive --remote"
-alias copilot='copilot --allow-tool="read, memory, url"'

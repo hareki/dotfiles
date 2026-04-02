@@ -10,6 +10,9 @@ local lg = size_configs.popup.lg
 local lazy = require('lazy')
 lazy.setup({
   version = '*',
+  rocks = {
+    enabled = false,
+  },
   ui = {
     size = { width = lg.width, height = lg.height },
     border = 'rounded',
