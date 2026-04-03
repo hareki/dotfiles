@@ -23,6 +23,10 @@ return {
 
       return {
         {
+          '<CR>',
+          mode = 'c',
+        },
+        {
           'n',
           function()
             utils.navigate('n')

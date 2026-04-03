@@ -15,14 +15,14 @@ return {
     event = 'BufReadPost',
     opts = function()
       return {
-        -- provider = {
-        --   type = 'sweepapi',
-        --   api_key_env = 'SWEEPAPI_TOKEN',
-        --   model = 'sweep-next-edit-7b',
-        -- },
         provider = {
-          type = 'copilot',
+          type = 'sweepapi',
+          api_key_env = 'SWEEPAPI_TOKEN',
+          model = 'sweep-next-edit-7b',
         },
+        -- provider = {
+        --   type = 'copilot',
+        -- },
       }
     end,
   },
