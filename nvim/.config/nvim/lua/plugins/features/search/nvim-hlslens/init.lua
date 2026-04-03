@@ -18,7 +18,6 @@ return {
 
   {
     'kevinhwang91/nvim-hlslens',
-    event = 'VeryLazy',
     keys = function()
       local utils = require('plugins.features.search.nvim-hlslens.utils')
 
@@ -40,17 +39,19 @@ return {
       }
     end,
 
-    opts = function()
-      local utils = require('plugins.features.search.nvim-hlslens.utils')
-
-      -- HACK: Intercept nohlsearch call to re-enable Snacks.words
+    -- HACK: Intercept nohlsearch call to re-enable Snacks.words
+    -- Must be in init (not opts) so the patch is active before the plugin loads
+    init = function()
       local original_nohlsearch = vim.cmd.nohlsearch
       vim.cmd.nohlsearch = function()
         original_nohlsearch()
         Snacks.words.enable()
         Snacks.words.update()
       end
+    end,
 
+    opts = function()
+      local utils = require('plugins.features.search.nvim-hlslens.utils')
       return {
         enable_incsearch = false, -- Do not interfere when doing substitution
         override_lens = utils.search_text_handler,

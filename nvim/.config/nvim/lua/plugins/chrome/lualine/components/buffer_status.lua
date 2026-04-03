@@ -37,8 +37,6 @@ end
 -- Set up autocmds to invalidate cache on relevant events
 local group = vim.api.nvim_create_augroup('LualineBufferStatusCache', { clear = true })
 vim.api.nvim_create_autocmd({
-  'TextChanged',
-  'TextChangedI',
   'BufReadPost',
   'BufWritePost',
   'BufModifiedSet',

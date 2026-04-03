@@ -12,10 +12,6 @@ return {
     build = 'cd server && go build',
     enabled = true,
 
-    -- This plugin is more responsive when loaded early for some reason
-    lazy = false,
-    priority = Priority.FEATURE,
-
     event = 'BufReadPost',
     opts = function()
       return {

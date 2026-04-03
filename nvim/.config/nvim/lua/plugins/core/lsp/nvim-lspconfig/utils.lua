@@ -111,14 +111,17 @@ local function create_underline_diagnostic(diagnostic)
     return nil
   end
 
-  local dup = vim.deepcopy(diagnostic)
-  dup._tags = nil
-  dup.source = 'underline-hack'
-  dup.code = nil
-  dup.message = ''
-  dup.user_data = nil
-
-  return dup
+  -- Shallow copy only the fields needed for underline display (avoids expensive vim.deepcopy
+  -- which would recursively copy user_data containing the full LSP response)
+  return {
+    lnum = diagnostic.lnum,
+    end_lnum = diagnostic.end_lnum,
+    col = diagnostic.col,
+    end_col = diagnostic.end_col,
+    severity = diagnostic.severity,
+    source = 'underline-hack',
+    message = '',
+  }
 end
 
 ---Apply underline styling hack for unnecessary diagnostics

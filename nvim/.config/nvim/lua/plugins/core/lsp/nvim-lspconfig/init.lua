@@ -2,7 +2,6 @@ return {
   'neovim/nvim-lspconfig',
   -- https://www.reddit.com/r/neovim/comments/1l7pz1l/starting_from_0112_i_have_a_weird_issue
   event = 'VeryLazy',
-  dependencies = { 'mason-org/mason.nvim' },
   config = function()
     local utils = require('plugins.core.lsp.nvim-lspconfig.utils')
 
@@ -34,7 +33,7 @@ return {
       --   prefix = '●',
       -- },
       underline = true,
-      update_in_insert = true,
+      update_in_insert = false,
       severity_sort = true,
       float = {
         border = 'rounded',

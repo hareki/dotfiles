@@ -28,7 +28,6 @@ return {
 
   {
     'hareki/yanky.nvim',
-    event = 'VeryLazy',
     dependencies = {
       'hareki/snacks.nvim', -- Let yanky self register with snacks
     },

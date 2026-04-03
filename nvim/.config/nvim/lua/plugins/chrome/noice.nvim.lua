@@ -1,3 +1,5 @@
+local dropbar_timer
+
 return {
   Catppuccin(function(palette)
     return {
@@ -126,8 +128,17 @@ return {
             cond = function(message)
               local progress = message.opts.progress or {}
               if progress.kind == 'end' then
-                local dropbar_utils = require('dropbar.utils.bar')
-                dropbar_utils.exec('update')
+                if not dropbar_timer then
+                  dropbar_timer = vim.uv.new_timer()
+                end
+                dropbar_timer:stop()
+                dropbar_timer:start(
+                  100,
+                  0,
+                  vim.schedule_wrap(function()
+                    require('dropbar.utils.bar').exec('update')
+                  end)
+                )
               end
 
               return false -- Don't match the condition for "opts"
