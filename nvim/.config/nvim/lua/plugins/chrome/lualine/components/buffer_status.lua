@@ -5,16 +5,16 @@ local component = lualine_require.require('lualine.component')
 local M = component:extend()
 
 local IGNORE_FILETYPES = {
-  'NvimTree',
-  'lazy',
-  'mason',
-  'TelescopePrompt',
-  'TelescopeResults',
-  'Trouble',
-  'help',
-  'lspinfo',
-  'checkhealth',
-  '',
+  NvimTree = true,
+  lazy = true,
+  mason = true,
+  TelescopePrompt = true,
+  TelescopeResults = true,
+  Trouble = true,
+  help = true,
+  lspinfo = true,
+  checkhealth = true,
+  [''] = true,
 }
 ---@class plugins.chrome.lualine.components.buffer_status.Cache
 ---@field current_flags string
@@ -57,7 +57,7 @@ local function get_current_flags()
     return cache.current_flags
   end
 
-  if vim.list_contains(IGNORE_FILETYPES, vim.bo.filetype) then
+  if IGNORE_FILETYPES[vim.bo.filetype] then
     cache.current_flags = ''
     cache.last_bufnr = bufnr
     return ''
@@ -118,7 +118,7 @@ local function get_global_modified()
         and bo.buftype == ''
         and bo.modified
         and bo.modifiable
-        and not vim.list_contains(IGNORE_FILETYPES, bo.filetype)
+        and not IGNORE_FILETYPES[bo.filetype]
       then
         count = count + 1
       end

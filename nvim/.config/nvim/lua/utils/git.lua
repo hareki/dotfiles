@@ -17,8 +17,8 @@ local repo_cache = {
   toplevel = nil,
 }
 
-local branch_format_cache = {} -- LRU cache for formatted branch names (max 100 entries to prevent unbounded growth)
-local branch_format_cache_order = {} -- Track access order for LRU
+local branch_format_cache = {} -- Simple bounded cache for formatted branch names
+local branch_format_cache_size = 0
 local BRANCH_CACHE_MAX_SIZE = 100
 
 ---Set the branch display format and refresh the status line
@@ -27,9 +27,8 @@ local BRANCH_CACHE_MAX_SIZE = 100
 ---@return nil
 function M.set_branch_name_format(format)
   branch_display_mode = format
-  -- Clear both cache and order when format changes
   branch_format_cache = {}
-  branch_format_cache_order = {}
+  branch_format_cache_size = 0
 
   Notifier.info('Branch name format set to ' .. format)
 
@@ -45,18 +44,8 @@ end
 ---@param branch_name string The original branch name to format
 ---@return string formatted The formatted branch name
 function M.format_branch_name(branch_name)
-  -- Check cache first
   local cache_key = branch_display_mode .. ':' .. branch_name
   if branch_format_cache[cache_key] then
-    -- Move to end of LRU order (most recently used)
-    for i, key in ipairs(branch_format_cache_order) do
-      if key == cache_key then
-        table.remove(branch_format_cache_order, i)
-        break
-      end
-    end
-    table.insert(branch_format_cache_order, cache_key)
-
     return branch_format_cache[cache_key]
   end
 
@@ -105,14 +94,14 @@ function M.format_branch_name(branch_name)
     result = ''
   end
 
-  -- Evict least recently used if cache is full
-  if #branch_format_cache_order >= BRANCH_CACHE_MAX_SIZE then
-    local oldest_key = table.remove(branch_format_cache_order, 1)
-    branch_format_cache[oldest_key] = nil
+  -- Reset cache if full (simple bounded cache — branch names rarely exceed 100 unique entries)
+  if branch_format_cache_size >= BRANCH_CACHE_MAX_SIZE then
+    branch_format_cache = {}
+    branch_format_cache_size = 0
   end
 
   branch_format_cache[cache_key] = result
-  table.insert(branch_format_cache_order, cache_key)
+  branch_format_cache_size = branch_format_cache_size + 1
 
   return result
 end

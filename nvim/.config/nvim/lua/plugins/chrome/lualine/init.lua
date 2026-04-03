@@ -39,7 +39,10 @@ return {
     local palette = ui.get_palette()
 
     local lualine_utils = require('plugins.chrome.lualine.utils')
-    local create_wrapper = lualine_utils.create_styling_wrapper
+    local create_wrapper = function(opts)
+      opts.palette = palette
+      return lualine_utils.create_styling_wrapper(opts)
+    end
     local flatten = lualine_utils.flatten_section
     local separator = lualine_utils.separator
 

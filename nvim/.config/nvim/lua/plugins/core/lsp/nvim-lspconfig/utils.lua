@@ -3,12 +3,10 @@ local M = {}
 
 ---Fix zero-width or out-of-bounds diagnostics to underline at least one character
 ---Corrects diagnostics that would otherwise be invisible due to invalid ranges.
----@param bufnr integer Buffer number
+---@param line string|nil The line text for bounds checking
 ---@param diagnostic vim.Diagnostic The diagnostic to fix in-place
 ---@return nil
-function M.fix_diagnostic_range(bufnr, diagnostic)
-  -- Get the line to check if col is out of bounds
-  local line = vim.api.nvim_buf_get_lines(bufnr, diagnostic.lnum, diagnostic.lnum + 1, false)[1]
+local function fix_diagnostic_range(line, diagnostic)
   if not line then
     return
   end
@@ -79,24 +77,37 @@ function M.fix_diagnostic_range(bufnr, diagnostic)
 end
 
 ---Fix all diagnostic ranges in a list
+---Batch-fetches lines per unique lnum to avoid repeated nvim_buf_get_lines calls.
 ---@param bufnr integer Buffer number
 ---@param diagnostics vim.Diagnostic[] List of diagnostics to fix in-place
 ---@return nil
 function M.fix_all_diagnostic_ranges(bufnr, diagnostics)
+  -- Batch-fetch lines: collect unique lnums first
+  local line_cache = {}
   for _, diagnostic in ipairs(diagnostics) do
-    M.fix_diagnostic_range(bufnr, diagnostic)
+    local lnum = diagnostic.lnum
+    if line_cache[lnum] == nil then
+      local lines = vim.api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, false)
+      line_cache[lnum] = lines[1] or false -- false = no line found
+    end
+  end
+
+  for _, diagnostic in ipairs(diagnostics) do
+    local line = line_cache[diagnostic.lnum]
+    fix_diagnostic_range(line or nil, diagnostic)
   end
 end
 
 ---@param diagnostic vim.Diagnostic
 local function get_pos_key(diagnostic)
-  return string.format(
-    '%d:%d-%d:%d',
-    diagnostic.lnum or -1,
-    diagnostic.col or -1,
-    diagnostic.end_lnum or -1,
-    diagnostic.end_col or -1
-  )
+  -- Use concat instead of string.format for LuaJIT performance
+  return (diagnostic.lnum or -1)
+    .. ':'
+    .. (diagnostic.col or -1)
+    .. '-'
+    .. (diagnostic.end_lnum or -1)
+    .. ':'
+    .. (diagnostic.end_col or -1)
 end
 
 ---@param diagnostic vim.Diagnostic
@@ -134,8 +145,10 @@ function M.apply_underline_hack(diagnostics)
   local positions = {}
   for _, diagnostic in ipairs(diagnostics) do
     local key = get_pos_key(diagnostic)
-    positions[key] = positions[key] or {}
-    table.insert(positions[key], diagnostic)
+    if not positions[key] then
+      positions[key] = {}
+    end
+    positions[key][#positions[key] + 1] = diagnostic
   end
 
   -- Create duplicates for unnecessary diagnostics to get both styling effects
@@ -161,14 +174,16 @@ function M.apply_underline_hack(diagnostics)
       if not has_underline then
         local dup = create_underline_diagnostic(diagnostic)
         if dup then
-          table.insert(underline_hacks, dup)
+          underline_hacks[#underline_hacks + 1] = dup
         end
       end
     end
   end
 
   -- Append to get both styling effects
-  vim.list_extend(diagnostics, underline_hacks)
+  if #underline_hacks > 0 then
+    vim.list_extend(diagnostics, underline_hacks)
+  end
 end
 
 ---Load all LSP server configurations from the lsp/ directory

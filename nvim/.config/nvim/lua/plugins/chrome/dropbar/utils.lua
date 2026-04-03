@@ -1,8 +1,8 @@
 ---@class plugins.chrome.dropbar.utils
 local M = {}
 
-local IGNORED_FILETYPES = { 'help', 'trouble', 'grug-far' }
-local IGNORED_BUFTYPES = { 'terminal' }
+local IGNORED_FILETYPES = { help = true, trouble = true, ['grug-far'] = true }
+local IGNORED_BUFTYPES = { terminal = true }
 
 ---Check if current window is in diff view
 ---@return boolean
@@ -22,14 +22,14 @@ end
 ---@param buf integer Buffer number
 ---@return boolean
 function M.is_ignored_filetype(buf)
-  return vim.list_contains(IGNORED_FILETYPES, vim.bo[buf].filetype)
+  return IGNORED_FILETYPES[vim.bo[buf].filetype] == true
 end
 
 ---Check if buffer has an ignored buftype
 ---@param buf integer Buffer number
 ---@return boolean
 function M.is_ignored_buftype(buf)
-  return vim.list_contains(IGNORED_BUFTYPES, vim.bo[buf].buftype)
+  return IGNORED_BUFTYPES[vim.bo[buf].buftype] == true
 end
 
 ---Determine if dropbar should be enabled for a buffer/window

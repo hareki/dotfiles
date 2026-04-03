@@ -12,7 +12,7 @@ return {
     ---@param opts? vim.diagnostic.Opts Display options to pass to |vim.diagnostic.show()|
     ---@diagnostic disable-next-line: duplicate-set-field
     vim.diagnostic.set = function(namespace, bufnr, diagnostics, opts)
-      if diagnostics then
+      if diagnostics and #diagnostics > 0 then
         utils.fix_all_diagnostic_ranges(bufnr, diagnostics)
         utils.apply_underline_hack(diagnostics)
       end
@@ -98,9 +98,9 @@ return {
       end,
     })
 
-    utils.load_lsp_configs()
-
-    vim.lsp.enable({
+    -- Schedule vim.lsp.enable to yield to the UI, letting the buffer render before
+    -- LSP servers start matching and attaching.
+    local servers = {
       'marksman', -- Markdown
       'lua_ls', -- Lua
       'taplo', -- Toml
@@ -115,6 +115,11 @@ return {
       'vtsls', -- TypeScript
       'tailwindcss', -- Tailwind
       'astro', -- Astro
-    })
+    }
+
+    vim.schedule(function()
+      utils.load_lsp_configs()
+      vim.lsp.enable(servers)
+    end)
   end,
 }

@@ -12,7 +12,7 @@ return {
     build = 'cd server && go build',
     enabled = true,
 
-    event = 'BufReadPost',
+    event = 'InsertEnter',
     opts = function()
       return {
         provider = {

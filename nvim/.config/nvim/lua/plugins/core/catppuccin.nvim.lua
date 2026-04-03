@@ -84,7 +84,6 @@ return {
         diffview = true,
         rainbow_delimiters = true,
         lsp_trouble = true,
-        markdown = true,
         render_markdown = true,
         mini = true,
         noice = true,
@@ -93,9 +92,6 @@ return {
         telescope = true,
         which_key = true,
         mason = true,
-        indent_blankline = {
-          enabled = true,
-        },
         blink_cmp = {
           enabled = true,
           style = 'bordered',

@@ -5,6 +5,7 @@ M.state = {
   executable_path = 'pretty-ts-errors-markdown',
   max_cache_entries = 512,
   cache = {}, -- key -> { value, hits }
+  cache_size = 0,
   supported_sources = {
     tsserver = true,
     typescript = true,
@@ -96,11 +97,7 @@ local function compute_cache_key(diagnostic)
 end
 
 local function maybe_evict_cache()
-  local size = 0
-  for _ in pairs(M.state.cache) do
-    size = size + 1
-  end
-  if size <= M.state.max_cache_entries then
+  if M.state.cache_size <= M.state.max_cache_entries then
     return
   end
   local lowest_key, lowest_hits
@@ -111,6 +108,7 @@ local function maybe_evict_cache()
   end
   if lowest_key then
     M.state.cache[lowest_key] = nil
+    M.state.cache_size = M.state.cache_size - 1
   end
 end
 
@@ -123,6 +121,9 @@ local function cache_get(key)
 end
 
 local function cache_set(key, value)
+  if not M.state.cache[key] then
+    M.state.cache_size = M.state.cache_size + 1
+  end
   M.state.cache[key] = { value = value, hits = 1 }
   maybe_evict_cache()
 end

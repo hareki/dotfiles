@@ -36,7 +36,7 @@ end
 
 local function query_spec_desc_cached(lhs, mode, buffer)
   buffer = buffer or vim.api.nvim_get_current_buf()
-  local cache_key = string.format('%s:%s:%d', lhs, mode, buffer)
+  local cache_key = lhs .. ':' .. mode .. ':' .. buffer
 
   if cache.cache[cache_key] then
     return cache.cache[cache_key]
@@ -82,9 +82,11 @@ function M.keymap_transform(item)
     item.text = item.text .. new_desc
   end
 
-  for _, v in ipairs(filtered_descriptions) do
-    if new_desc and new_desc:find(v) then
-      return false
+  if new_desc then
+    for _, v in ipairs(filtered_descriptions) do
+      if new_desc:find(v, 1, true) then
+        return false
+      end
     end
   end
 
