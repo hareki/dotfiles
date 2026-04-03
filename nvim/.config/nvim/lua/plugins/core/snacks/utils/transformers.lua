@@ -1,3 +1,4 @@
+--- @module 'snacks'
 ---@class plugins.core.snacks.utils.transformers
 local M = {}
 
