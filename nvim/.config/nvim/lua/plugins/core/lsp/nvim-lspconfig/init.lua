@@ -117,9 +117,9 @@ return {
       'astro', -- Astro
     }
 
-    vim.schedule(function()
+    vim.defer_fn(function()
       utils.load_lsp_configs()
       vim.lsp.enable(servers)
-    end)
+    end, 75)
   end,
 }
