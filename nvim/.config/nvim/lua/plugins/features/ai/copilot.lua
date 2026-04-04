@@ -1,7 +1,7 @@
 return {
   'zbirenbaum/copilot.lua',
   cmd = 'Copilot',
-  event = 'VeryLazy',
+  event = { 'InsertEnter', 'BufModifiedSet' },
   dependencies = { 'folke/sidekick.nvim' },
   opts = function()
     local path = require('utils.path')

@@ -7,9 +7,12 @@ local IGNORED_BUFTYPES = { terminal = true }
 ---Check if current window is in diff view
 ---@return boolean
 function M.is_in_diff_view()
-  local path_utils = require('utils.path')
-  -- The second check is for when one buffer is closed
-  return vim.wo.diff or path_utils.has_dir({ dir_name = '.git' })
+  if vim.wo.diff then
+    return true
+  end
+  -- Check if buffer path is inside .git/ (e.g. diffview temporary files)
+  local name = vim.api.nvim_buf_get_name(0)
+  return name:find('/.git/', 1, true) ~= nil
 end
 
 ---Check if current window is in claude diff view

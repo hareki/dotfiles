@@ -17,19 +17,32 @@ end
 
 ---Detect if cursor is currently inside a git conflict block
 ---Searches for conflict markers and determines which region the cursor is in.
+---Uses a single bulk line fetch instead of per-line API calls for performance.
 ---@return boolean in_conflict True if cursor is in a conflict block
 ---@return string|nil region 'current', 'incoming', 'ancestor', 'current_separator', 'ancestor_separator', 'separator', or 'incoming_separator'
 function M.cursor_in_conflict()
   local bufnr = vim.api.nvim_get_current_buf()
   local cursor = vim.api.nvim_win_get_cursor(0)
   local line = cursor[1] - 1 -- Convert to 0-based
+  local line_count = vim.api.nvim_buf_line_count(bufnr)
+
+  -- Bulk-fetch the entire search window in a single API call (vs per-line fetches)
+  local fetch_start = math.max(0, line - CONFLICT_SEARCH_RANGE)
+  local fetch_end = math.min(line_count, line + CONFLICT_SEARCH_RANGE + 1)
+  local all_lines = vim.api.nvim_buf_get_lines(bufnr, fetch_start, fetch_end, false)
+
+  --- Get line text by absolute 0-based line number from the bulk-fetched range
+  ---@param abs_idx integer 0-based absolute line number
+  ---@return string line_text The line content, or empty string if out of range
+  local function get_line(abs_idx)
+    return all_lines[abs_idx - fetch_start + 1] or ''
+  end
 
   -- Search backwards from cursor for conflict start (limit search range)
   local start_line = nil
-  local search_start = math.max(0, line - CONFLICT_SEARCH_RANGE)
 
-  for i = line, search_start, -1 do
-    local line_text = vim.api.nvim_buf_get_lines(bufnr, i, i + 1, false)[1] or ''
+  for i = line, fetch_start, -1 do
+    local line_text = get_line(i)
     if line_text:match('^<<<<<<<') then
       start_line = i
       break
@@ -49,11 +62,10 @@ function M.cursor_in_conflict()
   local middle_line = nil
   local ancestor_line = nil
   local end_line = nil
-  local line_count = vim.api.nvim_buf_line_count(bufnr)
   local max_search = math.min(line_count - 1, start_line + CONFLICT_SEARCH_RANGE)
 
   for i = start_line + 1, max_search do
-    local line_text = vim.api.nvim_buf_get_lines(bufnr, i, i + 1, false)[1] or ''
+    local line_text = get_line(i)
 
     if not ancestor_line and line_text:match('^|||||||') then
       ancestor_line = i

@@ -8,9 +8,9 @@ return {
   init = function()
     vim.api.nvim_create_autocmd('FileType', {
       pattern = '*',
-      callback = function()
-        -- Enable treesitter syntax highlighting
-        pcall(vim.treesitter.start)
+      callback = function(args)
+        local buf = args.buf
+        pcall(vim.treesitter.start, buf)
       end,
     })
 

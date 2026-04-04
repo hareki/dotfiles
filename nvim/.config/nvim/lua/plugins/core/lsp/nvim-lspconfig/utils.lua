@@ -141,6 +141,18 @@ end
 ---@param diagnostics vim.Diagnostic[] List of diagnostics to process (modified in-place)
 ---@return nil
 function M.apply_underline_hack(diagnostics)
+  -- Fast path: skip entirely if no diagnostics have the unnecessary tag
+  local has_any_unnecessary = false
+  for _, d in ipairs(diagnostics) do
+    if d._tags and d._tags.unnecessary then
+      has_any_unnecessary = true
+      break
+    end
+  end
+  if not has_any_unnecessary then
+    return
+  end
+
   -- Group diagnostics by position to check if underline would already be present
   local positions = {}
   for _, diagnostic in ipairs(diagnostics) do
