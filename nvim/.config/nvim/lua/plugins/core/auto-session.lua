@@ -67,6 +67,21 @@ return {
       ---@type AutoSession.Config
       return {
         suppressed_dirs = { '~/', '~/Downloads', '/' },
+        pre_save_cmds = {
+          function()
+            -- Only preserve visible buffers (buffers that are attached to windows)
+            local visible = {}
+            for _, win in ipairs(vim.api.nvim_list_wins()) do
+              visible[vim.api.nvim_win_get_buf(win)] = true
+            end
+
+            for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+              if vim.bo[buf].buflisted and not visible[buf] then
+                Snacks.bufdelete(buf)
+              end
+            end
+          end,
+        },
         post_restore_cmds = {
           function()
             vim.schedule(function()
