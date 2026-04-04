@@ -3,6 +3,9 @@ return {
     rules = { plugin = 'nvim-tree.lua', icon = Icons.tools.tree, color = 'blue' },
   }),
   Catppuccin(function(palette, sub_palette)
+    local ui = require('utils.ui')
+    local picker_bg = ui.blend_hex(palette.base, palette.blue)
+
     return {
       NvimTreeSignColumn = { link = 'NormalFloat' },
       NvimTreeNormal = { link = 'Normal' },
@@ -11,6 +14,11 @@ return {
       NvimTreeLiveFilterPrefix = { fg = palette.yellow },
       NvimTreeGitStagedIcon = { fg = sub_palette.yellow },
       NvimTreeRootFolder = { fg = palette.text, style = {} },
+      NvimTreeWindowPicker = {
+        bg = picker_bg,
+        bold = true,
+        fg = palette.blue,
+      },
     }
   end),
   {
