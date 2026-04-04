@@ -1,0 +1,1 @@
+When presenting options that include code changes, DO NOT use interactive selection. The terminal UI truncates code previews, making it impossible to evaluate the differences. Instead, show each option as a full code block in the chat output and ask me to choose by number. Interactive selection is fine for options that don't involve code changes.
