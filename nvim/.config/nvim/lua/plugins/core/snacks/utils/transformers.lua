@@ -44,7 +44,7 @@ local function query_spec_desc_cached(lhs, mode, buffer)
   end
 
   local result = query_spec_desc(lhs, mode, buffer)
-  cache.cache[cache_key] = result
+  cache.set(cache_key, buffer, result)
 
   return result
 end
