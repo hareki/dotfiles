@@ -42,7 +42,7 @@ end
 ---@param _ table|nil Additional info (unused)
 ---@return boolean enabled True if dropbar should be enabled
 function M.enable(buf, win, _)
-  buf = vim._resolve_bufnr(buf)
+  buf = (buf == 0 or buf == nil) and vim.api.nvim_get_current_buf() or buf
   if
     not vim.api.nvim_buf_is_valid(buf)
     or not vim.api.nvim_win_is_valid(win)

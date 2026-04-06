@@ -92,7 +92,7 @@ return {
       { '<F37>', mc.toggleCursor, desc = 'Multicursor: Toggle Cursor', mode = { 'n', 'x' } },
     },
     opts = {
-      { signs = false },
+      signs = false,
     },
     config = function(_, opts)
       local multicursor = require('multicursor-nvim')
