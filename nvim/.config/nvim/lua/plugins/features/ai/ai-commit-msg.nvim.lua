@@ -11,9 +11,9 @@ return {
       cost_display = 'verbose',
       providers = {
         copilot = {
-          model = 'gpt-4.1',
+          model = 'gpt-5-mini',
           max_tokens = 10000,
-          reasoning_effort = 'low',
+          reasoning_effort = 'medium',
         },
       },
     }

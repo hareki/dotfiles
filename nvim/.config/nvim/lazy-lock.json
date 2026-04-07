@@ -1,5 +1,5 @@
 {
-  "ai-commit-msg.nvim": { "branch": "main", "commit": "db4f784cb25e797f388f4f2bd7cef2d27f8bf5d3" },
+  "ai-commit-msg.nvim": { "branch": "main", "commit": "110a500d990f3cfe7bff04f318d1c0a4f816bf9b" },
   "auto-session": { "branch": "main", "commit": "62437532b38495551410b3f377bcf4aaac574ebe" },
   "blink-cmp-conventional-commits": { "branch": "main", "commit": "faa45344aab97aa33ece53938c4c3379760e61bd" },
   "blink-cmp-dat-word": { "branch": "main", "commit": "0c58fe92bd94710c52a5cb3a89c63a47bc851733" },
@@ -57,7 +57,7 @@
   "snacks.nvim": { "branch": "main", "commit": "12e53a09e6f327474e4b350c082d7226ad050a1c" },
   "telescope-fzf-native.nvim": { "branch": "main", "commit": "6fea601bd2b694c6f2ae08a6c6fab14930c60e2c" },
   "telescope.nvim": { "branch": "master", "commit": "cfb85dcf7f822b79224e9e6aef9e8c794211b20b" },
-  "tiny-code-action.nvim": { "branch": "main", "commit": "a34b9c49cb341d1fb07e1e993428deb3f6a466b8" },
+  "tiny-code-action.nvim": { "branch": "main", "commit": "d84a4c704ffed1135c224ccd374919909b0e5eb9" },
   "todo-comments.nvim": { "branch": "main", "commit": "31e3c38ce9b29781e4422fc0322eb0a21f4e8668" },
   "trouble.nvim": { "branch": "main", "commit": "41a394a6bd8feb98022bd4e13ebed6a9bb6ab81f" },
   "ts-autotag.nvim": { "branch": "master", "commit": "35f79f6253dff5cc43cf943d74c4b2734370a81d" },
