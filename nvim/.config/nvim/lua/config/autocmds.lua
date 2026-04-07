@@ -1,5 +1,4 @@
 -- [[ Autocommands ]]
---  See `:help lua-guide-autocommands`
 local function augroup(name)
   return vim.api.nvim_create_augroup(name, {
     clear = true,

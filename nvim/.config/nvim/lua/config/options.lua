@@ -1,11 +1,13 @@
---  [[ Global options ]]
--- Set <space> as the leader key
--- See `:help mapleader`
---  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
-local g = vim.g
+-- [[ Env Options ]]
+local env = vim.env
 
 -- Pre-add mason's bin directory to PATH so LSP servers are found without loading mason
-vim.env.PATH = vim.fn.stdpath('data') .. '/mason/bin:' .. vim.env.PATH
+env.PATH = vim.fn.stdpath('data') .. '/mason/bin:' .. vim.env.PATH
+
+-- [[ Global Options ]]
+
+-- Must happen before plugins are loaded (otherwise wrong leader will be used)
+local g = vim.g
 
 g.mapleader = ' '
 g.maplocalleader = ' '
@@ -20,10 +22,7 @@ g.loaded_ruby_provider = 0
 g.loaded_perl_provider = 0
 g.loaded_python3_provider = 0
 
--- [[ Setting options ]]
--- See `:help opt`
--- For more options, you can see `:help option-list`
-
+-- [[ Settings Options ]]
 local opt = vim.opt
 
 opt.number = true

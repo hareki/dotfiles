@@ -194,10 +194,6 @@ return {
             hint = Icons.diagnostics.Hint,
           },
         },
-        system_open = {
-          cmd = 'open',
-          args = { '-R' },
-        },
         renderer = {
           root_folder_label = tree.format_root_label,
           indent_width = 2,
@@ -308,7 +304,16 @@ return {
           map('n', 'D', api.fs.remove, 'Remove')
           map('n', 'y', api.fs.copy.filename, 'Copy Name')
           map('n', 'r', api.fs.rename, 'Rename')
-          map('n', 'R', api.node.run.system, 'Reveal in Finder')
+
+          map('n', 'R', function()
+            local ok, node = pcall(api.tree.get_node_under_cursor)
+            if not ok or not node then
+              return
+            end
+
+            vim.system({ 'open', '-R', node.absolute_path })
+          end, 'Reveal in Finder')
+
           map('n', 'Y', api.fs.copy.absolute_path, 'Copy Absolute Path')
 
           map('n', '<Right>', tree.create_node_action('expand'), 'Expand Node')
