@@ -1,6 +1,6 @@
-# AGENTS.md
+# CLAUDE.md
 
-This file provides guidance to LLMs when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Overview
 
@@ -13,6 +13,11 @@ Personal Neovim configuration using **lazy.nvim** plugin manager. Targets Neovim
 - **Requires**: always assign to a local before use — `local x = require('y')` then `x.method()`, never `require('y').method()`
 - **Keymaps**: always use `vim.keymap.set()` with `<cmd>...<cr>` strings — never structured `vim.cmd` API. Fall back to function callbacks only when runtime values or multi-statement logic are needed. Always include `desc` in CMOS 18 title case ("Find Files", "Go to Definition")
 - **Icons**: always import from `config/icons.lua` via the `Icons` global — never hardcode icon strings
+
+## Commands
+
+- **Format**: `stylua .` (check only: `stylua --check .`)
+- No test suite or build system — this is a personal Neovim config, not a library
 
 ## Architecture
 
@@ -32,7 +37,7 @@ Import order in `config/lazy/init.lua`: `plugins.core` **must be first**. All pl
 
 ### Globals (`lua/config/globals.lua`)
 
-Seven globals available everywhere (six set in `globals.lua`, one by its plugin):
+Eight globals available everywhere (seven set in `globals.lua`, one by its plugin):
 
 | Global       | Source                           | Usage                                                           |
 | ------------ | -------------------------------- | --------------------------------------------------------------- |
@@ -40,18 +45,21 @@ Seven globals available everywhere (six set in `globals.lua`, one by its plugin)
 | `Notifier`   | Lazy proxy → `services.notifier` | `Notifier.info('msg')`, `Notifier.warn('msg', { title = 'T' })` |
 | `Catppuccin` | `utils.ui.catppuccin`            | Highlight registration in plugin specs                          |
 | `WhichKey`   | `utils.ui.which_key`             | Which-key group/rule registration in plugin specs               |
+| `Filetypes`  | `config.filetypes`               | Filetype group constants (`M.js`, `M.jsx`, `M.css`, `M.json`, `M.js_all`, etc.) |
 | `Icons`      | `config.icons`                   | All icons — never hardcode icon strings                         |
 | `Priority`   | `config.priority`                | `CORE = 1000`, `CHROME = 900`, `FEATURE = 800`                  |
 | `Snacks`     | Set by snacks.nvim at runtime    | `Snacks.picker.*`, `Snacks.terminal.*`, etc.                    |
 
 ### Key Modules
 
-- `config/size.lua` — popup size presets
+- `config/size.lua` — size presets (`popup`, `side_preview`, `side_panel`, `inline_popup`)
 - `config/palette_ext.lua` — extended Catppuccin colors
 - `config/picker.lua` — shared picker UI constants
 - `services/` — cross-cutting concerns (statusline, cursorline, keymap registry, notifier)
 - `utils/ui.lua` — popup config helpers, highlight utilities
 - `utils/common.lua` — general-purpose helpers
+- `utils/formatters/` — async format-then-lint pipeline (`async_style_enforcer.lua`), TS error prettifier
+- `utils/linters/` — linter registry with per-filetype dispatch; eslint auto-fix via LSP
 
 ## Plugin Spec Conventions
 
