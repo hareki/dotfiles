@@ -338,7 +338,7 @@ return {
           -- },
           buffers = {
             select_current = true,
-            --https://github.com/nvim-telescope/telescope.nvim/issues/1145#issuecomment-903161099
+            -- https://github.com/nvim-telescope/telescope.nvim/issues/1145#issuecomment-903161099
             mappings = {
               n = {
                 ['x'] = actions.delete_buffer,
