@@ -9,6 +9,7 @@ return {
       GrugFarResultsRemoveIndicator = { fg = palette.red },
     }
   end),
+
   {
     'hareki/grug-far.nvim',
     cmd = 'GrugFar',

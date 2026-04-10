@@ -12,6 +12,7 @@ return {
       SnacksPickerTime = { fg = palette.text },
     }
   end),
+
   {
     'hareki/snacks.nvim',
     lazy = false,

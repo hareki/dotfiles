@@ -3,6 +3,7 @@ return {
     specs = { '<leader>d', group = 'Diffview' },
     rules = { pattern = 'diff', icon = Icons.git.diff, color = 'yellow' },
   }),
+
   {
     'hareki/diffview.nvim',
     cmd = { 'DiffviewOpen', 'DiffviewFileHistory' },

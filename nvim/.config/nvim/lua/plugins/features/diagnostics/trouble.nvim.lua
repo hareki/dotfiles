@@ -6,6 +6,7 @@ return {
       TroubleIconDirectory = { link = 'Directory' },
     }
   end),
+
   {
     'hareki/trouble.nvim',
     cmd = { 'Trouble' },

@@ -11,6 +11,7 @@ return {
       { pattern = 'notification', icon = Icons.editor.notification, color = 'yellow' },
     },
   }),
+
   {
     -- noice.nvim will automatically load this plugin when needed
     'rcarriga/nvim-notify',

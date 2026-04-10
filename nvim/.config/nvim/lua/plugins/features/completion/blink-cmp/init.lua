@@ -11,6 +11,7 @@ return {
       BlinkCmpKindVariable = { link = '@variable' },
     }
   end),
+
   {
     'saghen/blink.compat',
     opts = {},

@@ -6,6 +6,7 @@ return {
       RenderMarkdownCode = { bg = palette.base },
     }
   end),
+
   {
     'MeanderingProgrammer/render-markdown.nvim',
     ft = md_filetypes,

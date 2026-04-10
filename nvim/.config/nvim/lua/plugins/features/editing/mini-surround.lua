@@ -8,6 +8,7 @@ return {
   WhichKey({
     rules = { pattern = 'mini.surround', icon = Icons.tools.surround, color = 'green' },
   }),
+
   {
     'echasnovski/mini.surround',
     keys = function()

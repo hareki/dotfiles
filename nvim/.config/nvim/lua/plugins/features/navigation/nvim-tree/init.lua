@@ -1,7 +1,4 @@
 return {
-  WhichKey({
-    rules = { plugin = 'nvim-tree.lua', icon = Icons.tools.tree, color = 'blue' },
-  }),
   Catppuccin(function(palette, sub_palette)
     local ui = require('utils.ui')
     local picker_bg = ui.blend_hex(palette.base, palette.blue)
@@ -21,6 +18,11 @@ return {
       },
     }
   end),
+
+  WhichKey({
+    rules = { plugin = 'nvim-tree.lua', icon = Icons.tools.tree, color = 'blue' },
+  }),
+
   {
     'hareki/nvim-tree-preview.lua',
     dependencies = {

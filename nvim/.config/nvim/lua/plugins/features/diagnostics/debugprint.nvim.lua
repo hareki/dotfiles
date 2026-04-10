@@ -3,6 +3,7 @@ return {
     specs = { '<leader>?', group = 'Debug' },
     rules = { plugin = 'debugprint.nvim', icon = Icons.tools.debug, color = 'red' },
   }),
+
   {
     'andrewferrier/debugprint.nvim',
     keys = function()

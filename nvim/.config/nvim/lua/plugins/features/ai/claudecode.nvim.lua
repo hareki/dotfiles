@@ -3,6 +3,7 @@ return {
     specs = { '<leader>a', group = 'Claude', mode = { 'n', 'v' } },
     rules = { pattern = 'claude', icon = Icons.kinds.Claude, color = 'orange' },
   }),
+
   {
     'coder/claudecode.nvim',
     dependencies = { 'hareki/snacks.nvim' },

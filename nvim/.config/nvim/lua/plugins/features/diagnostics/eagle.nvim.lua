@@ -2,6 +2,7 @@ return {
   WhichKey({
     rules = { plugin = 'eagle.nvim', icon = Icons.tools.eagle, color = 'yellow' },
   }),
+
   {
     'hareki/eagle.nvim',
     cmd = { 'EagleWin', 'EagleWinLineDiagnostic' },

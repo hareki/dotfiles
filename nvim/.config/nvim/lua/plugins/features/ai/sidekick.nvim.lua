@@ -4,6 +4,7 @@ return {
       SidekickDiffAdd = { link = 'DiffAdd' },
     }
   end),
+
   {
     'folke/sidekick.nvim',
     enabled = false,

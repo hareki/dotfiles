@@ -1,7 +1,4 @@
 return {
-  WhichKey({
-    rules = { pattern = 'fold', icon = Icons.actions.fold, color = 'blue' },
-  }),
   Catppuccin(function(palette)
     local utils = require('utils.ui')
     local pill_bg = utils.blend_hex(palette.base, palette.blue)
@@ -11,6 +8,11 @@ return {
       UfoFoldPillInner = { fg = palette.blue, bg = pill_bg },
     }
   end),
+
+  WhichKey({
+    rules = { pattern = 'fold', icon = Icons.actions.fold, color = 'blue' },
+  }),
+
   {
     'kevinhwang91/nvim-ufo',
     event = 'BufReadPost', -- Prevent built-in folding flashing

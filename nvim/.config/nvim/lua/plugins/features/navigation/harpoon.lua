@@ -3,6 +3,7 @@ return {
     specs = { '<leader>H', group = 'Harpoon File', mode = { 'n', 'v' } },
     rules = { pattern = 'harpoon', icon = Icons.tools.harpoon, color = 'azure' },
   }),
+
   {
     'ThePrimeagen/harpoon',
     branch = 'harpoon2',

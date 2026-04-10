@@ -2,9 +2,6 @@
 ---@field yanky fun(opts?: snacks.picker.Config|{}): snacks.Picker
 
 return {
-  WhichKey({
-    rules = { pattern = 'yank', icon = Icons.actions.yank, color = 'yellow' },
-  }),
   Catppuccin(function(palette)
     return {
       YankySystemYanked = {
@@ -25,6 +22,10 @@ return {
       },
     }
   end),
+
+  WhichKey({
+    rules = { pattern = 'yank', icon = Icons.actions.yank, color = 'yellow' },
+  }),
 
   {
     'hareki/yanky.nvim',

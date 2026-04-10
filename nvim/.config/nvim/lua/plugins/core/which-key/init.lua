@@ -8,6 +8,7 @@ return {
       WhichKeyDesc = { fg = palette.text },
     }
   end),
+
   {
     'hareki/which-key.nvim',
     event = 'VeryLazy',

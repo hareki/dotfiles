@@ -1,13 +1,6 @@
 local mc = Defer.on_exported_call('multicursor-nvim')
 
 return {
-  WhichKey({
-    specs = {
-      { '<leader>m', group = 'Multicursor', mode = { 'n', 'x' } },
-    },
-
-    rules = { pattern = 'multicursor', icon = Icons.tools.multicursor, color = 'blue' },
-  }),
   Catppuccin(function(palette)
     local utils = require('utils.ui')
     local enabled_fg = palette.green
@@ -20,6 +13,15 @@ return {
       MultiCursorDisabledCursor = { bg = disabled_bg, fg = disabled_fg },
     }
   end),
+
+  WhichKey({
+    specs = {
+      { '<leader>m', group = 'Multicursor', mode = { 'n', 'x' } },
+    },
+
+    rules = { pattern = 'multicursor', icon = Icons.tools.multicursor, color = 'blue' },
+  }),
+
   {
     'jake-stewart/multicursor.nvim',
     keys = {

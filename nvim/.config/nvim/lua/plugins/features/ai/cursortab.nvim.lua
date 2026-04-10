@@ -7,6 +7,7 @@ return {
       CursorTabCompletion = { link = 'Comment' },
     }
   end),
+
   {
     'cursortab/cursortab.nvim',
     build = 'cd server && go build',

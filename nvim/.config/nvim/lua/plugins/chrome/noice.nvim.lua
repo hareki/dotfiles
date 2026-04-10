@@ -10,6 +10,7 @@ return {
       NoiceFormatConfirmDefault = { link = 'NoiceFormatConfirm' }, -- Make "Default" option have the same color as the others
     }
   end),
+
   {
     'folke/noice.nvim',
 

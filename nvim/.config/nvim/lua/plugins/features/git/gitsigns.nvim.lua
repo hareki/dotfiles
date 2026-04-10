@@ -1,8 +1,4 @@
 return {
-  WhichKey({
-    specs = { '<leader>h', group = 'Gitsigns', mode = { 'n', 'v' } },
-    rules = { pattern = 'gitsigns', icon = Icons.git.sign, color = 'yellow' },
-  }),
   Catppuccin(function(_, sub_palette)
     return {
       GitSignsStagedAdd = { fg = sub_palette.green },
@@ -15,6 +11,12 @@ return {
       GitSignsStagedTopDelete = { link = 'GitSignsStagedDelete' },
     }
   end),
+
+  WhichKey({
+    specs = { '<leader>h', group = 'Gitsigns', mode = { 'n', 'v' } },
+    rules = { pattern = 'gitsigns', icon = Icons.git.sign, color = 'yellow' },
+  }),
+
   {
     'hareki/gitsigns.nvim',
     event = 'VeryLazy',
