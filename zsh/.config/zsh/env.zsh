@@ -9,7 +9,7 @@ export EZA_CONFIG_DIR="$XDG_CONFIG_HOME/eza"
 unset EZA_COLORS LS_COLORS # Centralize eza theme config
 
 # Make sure ImageMagick work properly in image.nvim
-export DYLD_FALLBACK_LIBRARY_PATH="opt/homebrew/lib:$DYLD_FALLBACK_LIBRARY_PATH"
+export DYLD_FALLBACK_LIBRARY_PATH="/opt/homebrew/lib:$DYLD_FALLBACK_LIBRARY_PATH"
 
 # Prevent the dollar sign at the start when restoring sessions with tmux-resurrect
 # https://unix.stackexchange.com/questions/167582/why-zsh-ends-a-line-with-a-highlighted-percent-symbol

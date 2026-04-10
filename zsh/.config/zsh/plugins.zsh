@@ -2,11 +2,7 @@
 # zstyle ':completion:*' format '%d'
 # zstyle ':completion:*' group-name ''
 
-# Path to your oh-my-zsh installation.
-export ZSH="$HOME/.oh-my-zsh"
-export ZSH_THEME="powerlevel10k/powerlevel10k"
 export ZSH_EVALCACHE_DIR="$HOME/.cache/.zsh-evalcache"
-
 export ANTIDOTE_HOME="$HOME/.cache/antidote"
 
 # Update oh-my-zsh automatically without asking

@@ -26,7 +26,8 @@ zle-line-init() {
 zle -N zle-line-init
 
 cursor_beam
-precmd() { cursor_beam; }
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd cursor_beam
 
 typeset -f osc52_copy >/dev/null || osc52_copy() {
   local data; data=$(printf %s "$1" | base64)

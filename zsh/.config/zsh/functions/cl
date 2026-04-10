@@ -1,4 +1,0 @@
-#!/bin/zsh
-
-# [C]hange [D]irectory and [L]i[S]t
-cl () { z "$@" && cls; }

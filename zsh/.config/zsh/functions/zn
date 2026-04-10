@@ -1,6 +1,0 @@
-#!/bin/zsh
-
-zn () {
-  z "$1" > /dev/null 2>&1 
-  nvcd .
-}
