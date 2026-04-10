@@ -11,7 +11,7 @@ return {
   {
     'cursortab/cursortab.nvim',
     build = 'cd server && go build',
-    enabled = true,
+    enabled = false,
 
     event = 'InsertEnter',
     opts = function()

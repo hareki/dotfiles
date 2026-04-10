@@ -7,7 +7,7 @@ return {
 
   {
     'folke/sidekick.nvim',
-    enabled = false,
+    enabled = true,
     keys = function()
       return {
         {
