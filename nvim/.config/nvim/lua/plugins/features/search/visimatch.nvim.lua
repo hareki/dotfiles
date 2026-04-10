@@ -2,6 +2,7 @@ return {
   'wurli/visimatch.nvim',
   init = function()
     vim.api.nvim_create_autocmd('ModeChanged', {
+      group = vim.api.nvim_create_augroup('visimatch_lazy_load', { clear = true }),
       desc = 'Load Visimatch in Visual Mode',
       pattern = { '*:v', '*:V' }, -- v, V, <C-v>
       once = true,

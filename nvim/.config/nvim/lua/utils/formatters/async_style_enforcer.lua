@@ -60,6 +60,9 @@ function M.run(opts)
       vim.schedule(function()
         if running_bufs[buf] then
           running_bufs[buf] = nil
+          pcall(timeout_timer.stop, timeout_timer)
+          pcall(timeout_timer.close, timeout_timer)
+          timeout_timer = nil
           Notifier.warn('Formatting/linting timed out', { title = 'Style Enforcer' })
           finish(false, 'Timed out')
         end
@@ -74,6 +77,7 @@ function M.run(opts)
     if timeout_timer then
       pcall(timeout_timer.stop, timeout_timer)
       pcall(timeout_timer.close, timeout_timer)
+      timeout_timer = nil
     end
     running_bufs[buf] = nil
     finish(ok, err)

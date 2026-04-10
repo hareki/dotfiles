@@ -144,6 +144,10 @@ function M.create(opts)
         vim.schedule(function()
           -- If aborted we simply exit ‑ nothing should be displayed
           if handle._aborted then
+            if handle._timer then
+              pcall(handle._timer.stop, handle._timer)
+              pcall(handle._timer.close, handle._timer)
+            end
             handle._timer = nil
             return
           end
