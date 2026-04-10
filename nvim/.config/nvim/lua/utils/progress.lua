@@ -137,33 +137,37 @@ function M.create(opts)
   -- If a delay is requested, defer the first real send
   if pending_ms > 0 then
     handle._timer = vim.uv.new_timer()
-    handle._timer:start(pending_ms, 0, function()
-      vim.schedule(function()
-        -- If aborted we simply exit ‑ nothing should be displayed
-        if handle._aborted then
-          handle._timer = nil
-          return
-        end
+    if not handle._timer then
+      handle._pending = false
+    else
+      handle._timer:start(pending_ms, 0, function()
+        vim.schedule(function()
+          -- If aborted we simply exit ‑ nothing should be displayed
+          if handle._aborted then
+            handle._timer = nil
+            return
+          end
 
-        -- Mark the handle as ready; future events go through immediately
-        handle._pending = false
-        if handle._timer then
-          pcall(handle._timer.stop, handle._timer)
-          pcall(handle._timer.close, handle._timer)
-          handle._timer = nil
-        end
+          -- Mark the handle as ready; future events go through immediately
+          handle._pending = false
+          if handle._timer then
+            pcall(handle._timer.stop, handle._timer)
+            pcall(handle._timer.close, handle._timer)
+            handle._timer = nil
+          end
 
-        -- Flush the *latest* cached state (if any)
-        if handle._cached_kind then
-          ProgressHandle._send(
-            handle,
-            handle._cached_kind,
-            handle._cached_title,
-            handle._cached_perc
-          )
-        end
+          -- Flush the *latest* cached state (if any)
+          if handle._cached_kind then
+            ProgressHandle._send(
+              handle,
+              handle._cached_kind,
+              handle._cached_title,
+              handle._cached_perc
+            )
+          end
+        end)
       end)
-    end)
+    end
   end
 
   return handle

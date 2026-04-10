@@ -34,7 +34,7 @@ return {
       -- Track cursor movement in conflict buffers
       local cursor_autocmd_ids = {}
       local last_conflict_state = {}
-      local is_diffview_tab = nil
+      local is_diffview_tab_per_buf = {}
 
       vim.api.nvim_create_autocmd('User', {
         group = group,
@@ -48,6 +48,8 @@ return {
           end
 
           if not cursor_autocmd_ids[event.buf] then
+            -- Capture diffview state at detection time, per-buffer
+            is_diffview_tab_per_buf[event.buf] = utils.in_diffview_tab()
             last_conflict_state[event.buf] = nil -- Reset state for this buffer
 
             cursor_autocmd_ids[event.buf] = vim.api.nvim_create_autocmd(
@@ -57,10 +59,11 @@ return {
                 buffer = event.buf,
                 callback = function()
                   local in_conflict, region = utils.cursor_in_conflict()
+                  local in_diffview = is_diffview_tab_per_buf[event.buf]
                   local should_increase_contrast = in_conflict
                     and (
-                      is_diffview_tab and region ~= 'current' and region ~= 'incoming'
-                      or not is_diffview_tab and region ~= 'separator'
+                      in_diffview and region ~= 'current' and region ~= 'incoming'
+                      or not in_diffview and region ~= 'separator'
                     )
 
                   -- Only update highlight if state changed
@@ -88,6 +91,7 @@ return {
             pcall(vim.api.nvim_del_autocmd, cursor_autocmd_ids[event.buf])
             cursor_autocmd_ids[event.buf] = nil
             last_conflict_state[event.buf] = nil
+            is_diffview_tab_per_buf[event.buf] = nil
           end
         end,
       })
@@ -113,6 +117,7 @@ return {
             pcall(vim.api.nvim_del_autocmd, cursor_autocmd_ids[event.buf])
             cursor_autocmd_ids[event.buf] = nil
             last_conflict_state[event.buf] = nil
+            is_diffview_tab_per_buf[event.buf] = nil
           end
 
           -- Reset GitSigns highlight to default
@@ -124,8 +129,7 @@ return {
         default_mappings = false,
         default_commands = false,
         cond = function()
-          is_diffview_tab = utils.in_diffview_tab()
-          return not is_diffview_tab
+          return not utils.in_diffview_tab()
         end,
       }
     end,

@@ -219,7 +219,7 @@ end
 ---@param opts? NotifierOpts Notification options (title, id, on_open, etc.)
 ---@return any handle The notification handle for replacement/tracking
 function M.info(msg, opts)
-  M.notify(
+  return M.notify(
     msg,
     vim.tbl_extend(
       'force',
@@ -234,7 +234,7 @@ end
 ---@param opts? NotifierOpts Notification options (title, id, on_open, etc.)
 ---@return any handle The notification handle for replacement/tracking
 function M.warn(msg, opts)
-  M.notify(
+  return M.notify(
     msg,
     vim.tbl_extend(
       'force',
@@ -249,7 +249,7 @@ end
 ---@param opts? NotifierOpts Notification options (title, id, on_open, etc.)
 ---@return any handle The notification handle for replacement/tracking
 function M.error(msg, opts)
-  M.notify(
+  return M.notify(
     msg,
     vim.tbl_extend(
       'force',
