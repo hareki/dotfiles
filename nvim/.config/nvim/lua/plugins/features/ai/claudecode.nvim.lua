@@ -67,7 +67,7 @@ return {
 
     opts = function()
       local size_utils = require('utils.ui')
-      local size = size_utils.popup_config('lg')
+      local size = size_utils.popup_config('full')
 
       return {
         terminal = {
