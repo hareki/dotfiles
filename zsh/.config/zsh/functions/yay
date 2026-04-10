@@ -6,6 +6,8 @@ yay() {
     && antidote update \
     && mise install \
     && mise upgrade \
+    && ~/.tmux/plugins/tpm/bin/clean_plugins \
+    && ~/.tmux/plugins/tpm/bin/install_plugins \
     && ~/.tmux/plugins/tpm/bin/update_plugins all \
     && npm update -g \
     && gem update
