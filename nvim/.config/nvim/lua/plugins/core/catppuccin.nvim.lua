@@ -37,7 +37,7 @@ return {
 
         NormalFloat = { bg = 'none' },
         FloatBorder = { bg = palette.base, fg = palette.blue },
-        FloatTitle = { bg = palette.base, fg = palette.blue },
+        FloatTitle = { bg = palette.base, fg = palette.blue, bold = true },
 
         LineNr = { fg = palette.overlay0 },
         CursorLineNr = { fg = palette.blue },
