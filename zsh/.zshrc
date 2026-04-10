@@ -37,10 +37,10 @@ for func in $functions_dir/*(.N); do
   autoload -Uz "${func:t}"
 done
 
+export TEALDEER_CONFIG_DIR="$XDG_CONFIG_HOME/tealdeer"
 export EZA_CONFIG_DIR="$XDG_CONFIG_HOME/eza"
 # Centralize eza theme config
 unset EZA_COLORS LS_COLORS
-
 
 # evalcache doesn't play nice with `mise activate zsh` due to its dynamic nature, especially in tmux
 # Performance penalty is negligible, fallback to use shims in non-interactive shells (check .zshenv)
