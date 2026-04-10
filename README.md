@@ -21,11 +21,11 @@ cd "$STOW_REPO" && stow nvim
 
 ## Highlights
 
-| Module      | What's Inside                                                                                                                                                           |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Neovim**  | From‑scratch Lua config. One plugin per file (`lua/plugins/**`), shared UI primitives (`lua/utils/ui.lua`) for consistent popup geometry. Aggressive lazy‑loading.      |
-| **ZSH**     | ~110ms cold start via Antidote static bundling, `evalcache`, `zcompile`, autoloaded functions. Clean layering: plugins → topic configs (aliases, keymaps, fzf, zoxide). |
-| **tmux**    | Layered setup: `.tmux.conf` wires plugins, then splits into `tmux.options.conf` and `tmux.keymaps.conf`. Prefix is `M-d` (Alt+d).                                       |
-| **Ghostty** | Keybindings emit escape sequences consumed by tmux/ZSH/Neovim for seamless cross‑tool cohesion.                                                                         |
+| Module                                    | What's Inside                                                                                                                                                           |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **[Neovim](./nvim/.config/nvim/)**        | From‑scratch Lua config. One plugin per file (`lua/plugins/**`), shared UI primitives (`lua/utils/ui.lua`) for consistent popup geometry. Aggressive lazy‑loading.      |
+| **[zsh](./zsh/)**                         | ~110ms cold start via Antidote static bundling, `evalcache`, `zcompile`, autoloaded functions. Clean layering: plugins → topic configs (aliases, keymaps, fzf, zoxide). |
+| **[tmux](./tmux/)**                       | Layered setup: `.tmux.conf` wires plugins, then splits into `tmux.options.conf` and `tmux.keymaps.conf`. Prefix is `M-d` (Alt+d).                                       |
+| **[Ghostty](./ghostty/.config/ghostty/)** | Keybindings emit escape sequences consumed by tmux/ZSH/Neovim for seamless cross‑tool cohesion.                                                                         |
 
 **Theme**: Catppuccin Mocha across Neovim, tmux, Ghostty, lazygit, atuin, and more.
