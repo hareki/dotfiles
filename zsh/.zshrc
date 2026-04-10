@@ -5,14 +5,6 @@ fi
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-export STOW_REPO="$HOME/Repositories/personal/dotfiles"
-# From image.nvim, to make sure ImageMagick work properly
-export DYLD_FALLBACK_LIBRARY_PATH="opt/homebrew/lib:$DYLD_FALLBACK_LIBRARY_PATH"
-
-# Prevent the dollar sign at the start when restoring sessions with tmux-resurrect
-# https://unix.stackexchange.com/questions/167582/why-zsh-ends-a-line-with-a-highlighted-percent-symbol
-export PROMPT_EOL_MARK=''
-
 export HISTFILE=~/.zsh_history
 export HISTSIZE=10000
 export SAVEHIST=10000
@@ -21,9 +13,6 @@ setopt appendhistory sharehistory
 __zsh_config_dir=~/.config/zsh
 source $__zsh_config_dir/plugins.zsh
 _evalcache /opt/homebrew/bin/brew shellenv
-
-# The mise shims path we set in .zshenv is overwritten by homebrew
-PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin/shims:$HOME/.local/bin:$PATH"
 
 # Load configuration files (the order matters)
 for cfg in aliases vi-mode compdef keymaps fzf zoxide; do
@@ -37,11 +26,6 @@ for func in $functions_dir/*(.N); do
   autoload -Uz "${func:t}"
 done
 
-export TEALDEER_CONFIG_DIR="$XDG_CONFIG_HOME/tealdeer"
-export EZA_CONFIG_DIR="$XDG_CONFIG_HOME/eza"
-# Centralize eza theme config
-unset EZA_COLORS LS_COLORS
-
 # evalcache doesn't play nice with `mise activate zsh` due to its dynamic nature, especially in tmux
 # Performance penalty is negligible, fallback to use shims in non-interactive shells (check .zshenv)
 # https://mise.jdx.dev/dev-tools/shims.html#shims-vs-path
@@ -50,6 +34,24 @@ eval "$(mise activate zsh)"
 
 _evalcache zoxide init zsh
 _evalcache atuin init zsh --disable-up-arrow
+
+# [[ Settings ENV variables that are not needed outside interactive shells ]]
+
+# The mise shims path we set in .zshenv is overwritten by homebrew
+PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin/shims:$HOME/.local/bin:$PATH"
+
+export STOW_REPO="$HOME/Repositories/personal/dotfiles"
+export TEALDEER_CONFIG_DIR="$XDG_CONFIG_HOME/tealdeer"
+export EZA_CONFIG_DIR="$XDG_CONFIG_HOME/eza"
+unset EZA_COLORS LS_COLORS # Centralize eza theme config
+
+# Make sure ImageMagick work properly in image.nvim
+export DYLD_FALLBACK_LIBRARY_PATH="opt/homebrew/lib:$DYLD_FALLBACK_LIBRARY_PATH" 
+
+# Prevent the dollar sign at the start when restoring sessions with tmux-resurrect
+# https://unix.stackexchange.com/questions/167582/why-zsh-ends-a-line-with-a-highlighted-percent-symbol
+export PROMPT_EOL_MARK=''
+# [[ ===================================================================== ]]
 
 if [[ -n "$ZSH_DEBUGRC" ]]; then
   zprof
