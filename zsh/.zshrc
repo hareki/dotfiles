@@ -15,7 +15,7 @@ source $__zsh_config_dir/plugins.zsh
 _evalcache /opt/homebrew/bin/brew shellenv
 
 # Load configuration files (the order matters)
-for cfg in aliases vi-mode compdef keymaps fzf zoxide env; do
+for cfg in aliases vi-mode compdef keymaps env; do
   source $__zsh_config_dir/$cfg.zsh
 done
 
