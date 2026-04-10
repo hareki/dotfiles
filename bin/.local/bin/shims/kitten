@@ -5,7 +5,7 @@
 # issue with ghostty 1.2 bell-features that causes the dock icon to bounce when
 # using `kitten icat`.
 
-KITTY_REAL="$(dirname "$0")/../kitten"
+KITTY_REAL="$(dirname "$0")/../kitten-darwin-arm64"
 
 if [[ "${1:-}" == "icat" ]]; then
   shift
