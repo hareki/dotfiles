@@ -1,10 +1,9 @@
 #!/bin/zsh
 
-# [S]ync-[D]otfiles
-sync-d () {
+sync-dots () {
   # Fail fast if no argument
   if [[ $# -eq 0 ]]; then
-    echo "Usage: sync-d <dir>..." >&2
+    echo "Usage: sync-dots <dir>..." >&2
     return 1
   fi
 

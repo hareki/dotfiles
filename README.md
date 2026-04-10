@@ -6,14 +6,14 @@ Each top‑level directory mirrors its destination under `$HOME` (e.g. `nvim/` �
 
 ## Usage
 
-I wrote a tiny wrapper called `sync-d` (autoloaded from `zsh/.config/zsh/functions/sync-d`) that enforces repo root + target path, with tab‑completion:
+I wrote a tiny wrapper called `sync-dots` (autoloaded from `zsh/.config/zsh/functions/sync-dots`) that enforces repo root + target path, with tab‑completion:
 
 ```bash
 # Single module
-sync-d nvim
+sync-dots nvim
 
 # Multiple modules
-sync-d zsh tmux ghostty lazygit mise atuin
+sync-dots zsh tmux ghostty lazygit mise atuin
 
 # Fallback (plain stow)
 cd "$STOW_REPO" && stow nvim

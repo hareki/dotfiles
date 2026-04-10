@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture
 
-This is a zsh dotfiles configuration targeting macOS with Homebrew. Files are deployed to `$HOME` via GNU stow using the `sync-d` function (e.g., `sync-d zsh`).
+This is a zsh dotfiles configuration targeting macOS with Homebrew. Files are deployed to `$HOME` via GNU stow using the `sync-dots` function (e.g., `sync-d zsh`).
 
 ### Sourcing Order
 
@@ -43,7 +43,7 @@ Plugins are declared in `.zplugins` and managed by **Antidote**. Antidote static
 ```bash
 profile               # Profile zsh startup time
 compz                 # Recompile .zshrc to bytecode
-sync-d zsh            # Deploy zsh config via stow
+sync-dots zsh         # Deploy zsh config via stow
 yay                   # Update all package managers (brew, antidote, mise, tpm, npm, gem)
 ```
 

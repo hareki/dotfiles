@@ -35,6 +35,6 @@ Feature-packed zsh setup with ~110ms startup. Optimized via static plugin bundli
 ├── vi-mode.zsh                     # Vi mode + OSC52 yank/paste
 ├── fzf.zsh                         # Fzf theme and layout
 ├── zoxide.zsh                      # Zoxide init + aliases (.., ...)
-├── compdef.zsh                     # Custom completions (sync-d, tv, tmuxinator)
+├── compdef.zsh                     # Custom completions (sync-dots, tv, tmuxinator)
 └── functions/                      # Autoloaded utility functions (one per file)
 ```

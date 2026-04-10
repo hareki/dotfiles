@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-_sync_d_autocomplete() {
+_sync_dots_autocomplete() {
   local -a dirs
   local repo_dir="$STOW_REPO"
 
@@ -9,7 +9,7 @@ _sync_d_autocomplete() {
   _describe 'stow directories' dirs
 }
 
-compdef _sync_d_autocomplete sync-d
+compdef _sync_dots_autocomplete sync-dots
 
 _tv_autocomplete() {
   local -a files
