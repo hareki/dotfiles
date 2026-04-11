@@ -1,0 +1,31 @@
+#!/bin/zsh
+
+build() {
+  local -a targets=(atuin lazygit television tmux)
+
+  case "$1" in
+    --list) print -l $targets; return 0 ;;
+    --help|"")
+      print "Usage: build <target>"
+      print "Available targets: ${(j:, :)targets}"
+      return 0
+      ;;
+    atuin)      cargo install --locked --path crates/atuin ;;
+    lazygit)    go install ;;
+    television) cargo install --locked --path . ;;
+    tmux)
+      cd ~/Repositories/personal/tmux \
+        && sh autogen.sh \
+        && ./configure --enable-utf8proc \
+        && make clean \
+        && make \
+        && sudo make install \
+        && cd -
+      ;;
+    *)
+      print "Unknown target: $1" >&2
+      build --help
+      return 1
+      ;;
+  esac
+}

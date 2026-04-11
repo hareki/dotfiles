@@ -1,6 +1,0 @@
-#!/bin/zsh
-
-build-television() {
-  cargo install --locked --path .
-}
-

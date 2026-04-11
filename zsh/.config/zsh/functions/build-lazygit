@@ -1,6 +1,0 @@
-#!/bin/zsh
-
-build-lazygit() {
-  go install
-}
-

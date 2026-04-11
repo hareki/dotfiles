@@ -24,6 +24,14 @@ _tv_autocomplete() {
 
 compdef _tv_autocomplete tv
 
+_build_autocomplete() {
+  local -a targets
+  targets=(${(f)"$(build --list)"})
+  _describe 'build targets' targets
+}
+
+compdef _build_autocomplete build
+
 # https://raw.githubusercontent.com/tmuxinator/tmuxinator/master/completion/tmuxinator.zsh
 _tmuxinator() {
   local commands projects
