@@ -12,7 +12,7 @@ result_line_number_fg = '#89b4fa'
 result_value_fg = '#89b4fa'
 selection_fg = '#cdd6f4'
 selection_bg = '#313244'
-match_fg = '#f9e2af'
+match_fg = '#89b4fa'
 # preview
 preview_title_fg = '#89b4fa'
 # modes
