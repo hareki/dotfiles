@@ -25,7 +25,7 @@ export FZF_DEFAULT_OPTS=" \
 --preview-window noinfo --scrollbar '▌▐' --prompt='  ' \
 --color=bg+:#313244,gutter:#1e1e2e,bg:#1e1e2e,spinner:#f5e0dc,hl:#89b4fa,border:#89b4fa \
 --color=fg:#cdd6f4,header:#f38ba8,info:#6c7086,pointer:#f5e0dc,label:#89b4fa::bold \
---color=marker:#89b4fa,fg+:#cdd6f4,prompt:#89b4fa,hl+:#89b4fa \
+--color=marker:#89b4fa,fg+:#cdd6f4:regular,prompt:#89b4fa,hl+:#89b4fa:regular \
 --color=selected-bg:#1e1e2e \
 --bind page-up:preview-half-page-up \
 --bind page-down:preview-half-page-down \
