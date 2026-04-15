@@ -70,16 +70,31 @@ return {
           truncate = false,
           hover = true,
           sources = function(buf, _)
-            if
-              -- Claude diffview dropbar is actually useful
-              -- Left one is same as original buffer, right one is the description
-              dropbar_utils.is_in_diff_view() and not dropbar_utils.is_in_claude_diff_view()
-              -- Some ft/bt can slip through the enable check because their ft/bt are set later (E.g. grug-far)
-              or dropbar_utils.is_ignored_filetype(buf)
-              or dropbar_utils.is_ignored_buftype(buf)
-            then
+            -- Some ft/bt can slip through the enable check because their ft/bt are set later (E.g. grug-far)
+            if dropbar_utils.is_ignored_filetype(buf) or dropbar_utils.is_ignored_buftype(buf) then
               vim.wo.winbar = ''
               return {}
+            end
+
+            -- For diff views (except Claude), show a "Diffview" label without clearing winbar.
+            -- Clearing winbar here would destroy the format string inherited from the split
+            -- parent during lazy __index evaluation, preventing the bar from rendering.
+            if dropbar_utils.is_in_diff_view() and not dropbar_utils.is_in_claude_diff_view() then
+              return {
+                {
+                  get_symbols = function()
+                    local dropbar_bar = require('dropbar.bar')
+                    return {
+                      dropbar_bar.dropbar_symbol_t:new({
+                        icon = Icons.git.diff .. ' ',
+                        icon_hl = 'DropBarIconKindType',
+                        name = 'Diffview',
+                        name_hl = 'DropBarIconKindType',
+                      }),
+                    }
+                  end,
+                },
+              }
             end
 
             local sources = require('dropbar.sources')

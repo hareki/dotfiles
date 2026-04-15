@@ -10,9 +10,15 @@ function M.is_in_diff_view()
   if vim.wo.diff then
     return true
   end
-  -- Check if buffer path is inside .git/ (e.g. diffview temporary files)
+  -- Check if buffer path is inside a subdirectory of .git/ (e.g. diffview temporary files).
+  -- Direct children like COMMIT_EDITMSG must not match.
   local name = vim.api.nvim_buf_get_name(0)
-  return name:find('/.git/', 1, true) ~= nil
+  local git_pos = name:find('/.git/', 1, true)
+  if git_pos then
+    local after = name:sub(git_pos + 6) -- skip past '/.git/'
+    return after:find('/', 1, true) ~= nil
+  end
+  return false
 end
 
 ---Check if current window is in claude diff view
