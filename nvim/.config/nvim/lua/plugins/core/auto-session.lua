@@ -2,6 +2,7 @@ return {
   WhichKey({
     rules = { plugin = 'auto-session', icon = Icons.tools.session, color = 'green' },
   }),
+
   {
     'rmagatti/auto-session',
     lazy = false,

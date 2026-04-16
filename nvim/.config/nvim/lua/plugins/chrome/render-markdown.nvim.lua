@@ -10,7 +10,7 @@ return {
   {
     'MeanderingProgrammer/render-markdown.nvim',
     ft = md_filetypes,
-    dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons', '3rd/image.nvim' },
+    dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' },
 
     opts = function()
       ---@module 'render-markdown'

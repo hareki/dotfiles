@@ -184,6 +184,7 @@ return {
         lazygit = { enabled = true, configure = false },
         scratch = { enabled = true },
         rename = { enabled = true },
+        image = { enabled = true },
 
         picker = {
           icons = {
