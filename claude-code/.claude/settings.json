@@ -33,11 +33,7 @@
       "Bash(* --version)",
       "Bash(* --help)"
     ],
-    "deny": [
-      "Bash(rm -rf *)",
-      "Bash(sudo *)",
-      "Bash(su *)"
-    ],
+    "deny": ["Bash(rm -rf *)", "Bash(sudo *)", "Bash(su *)"],
     "defaultMode": "plan"
   },
   "statusLine": {
@@ -58,5 +54,6 @@
     "superpowers@claude-plugins-official": true,
     "rust-analyzer-lsp@claude-plugins-official": true
   },
+  "tui": "fullscreen",
   "effortLevel": "high"
 }
