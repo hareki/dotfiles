@@ -1,76 +1,85 @@
 return {
-  'mason-org/mason.nvim',
-  build = ':MasonUpdate',
-  cmd = 'Mason',
-  keys = function()
+  Catppuccin(function(palette)
     return {
-      { '<leader>cm', '<cmd>Mason<cr>', desc = 'Mason' },
+      MasonHeader = { fg = palette.blue },
+      MasonHeading = { fg = palette.blue },
     }
-  end,
-  opts_extend = { 'ensure_installed' },
-  opts = function()
-    local ui = require('utils.ui')
-    local config = ui.popup_config('lg')
+  end),
 
-    return {
-      ui = {
-        border = 'rounded',
-        width = config.width,
-        height = config.height,
-        backdrop = 100,
-      },
+  {
+    'hareki/mason.nvim',
+    build = ':MasonUpdate',
+    cmd = 'Mason',
+    keys = function()
+      return {
+        { '<leader>cm', '<cmd>Mason<cr>', desc = 'Mason' },
+      }
+    end,
+    opts_extend = { 'ensure_installed' },
+    opts = function()
+      local ui = require('utils.ui')
+      local config = ui.popup_config('lg')
 
-      registries = {
-        'github:hareki/mason-registry',
-        'github:mason-org/mason-registry',
-      },
+      return {
+        ui = {
+          border = 'rounded',
+          width = config.width,
+          height = config.height,
+          backdrop = 100,
+        },
 
-      ensure_installed = {
-        'taplo',
-        'vtsls',
-        'stylua',
-        'marksman',
-        'prettier',
+        registries = {
+          'github:hareki/mason-registry',
+          'github:mason-org/mason-registry',
+        },
 
-        'json-lsp',
-        'css-lsp',
-        'html-lsp',
-        'typos-lsp',
-        'eslint-lsp',
+        ensure_installed = {
+          'taplo',
+          'vtsls',
+          'stylua',
+          'marksman',
+          'prettier',
 
-        'lua-language-server',
-        'yaml-language-server',
-        'tailwindcss-language-server',
-        'css-variables-language-server',
-        'astro-language-server',
-        'tree-sitter-cli',
-      },
-    }
-  end,
+          'json-lsp',
+          'css-lsp',
+          'html-lsp',
+          'typos-lsp',
+          'eslint-lsp',
 
-  ---@param opts MasonSettings | {ensure_installed: string[]}
-  config = function(_, opts)
-    local mason = require('mason')
-    mason.setup(opts)
-    local mr = require('mason-registry')
-    mr:on('package:install:success', function()
-      vim.defer_fn(function()
-        -- Trigger FileType event to possibly load this newly installed LSP server
-        local lazy_event = require('lazy.core.handler.event')
-        lazy_event.trigger({
-          event = 'FileType',
-          buf = vim.api.nvim_get_current_buf(),
-        })
-      end, 100)
-    end)
+          'lua-language-server',
+          'yaml-language-server',
+          'tailwindcss-language-server',
+          'css-variables-language-server',
+          'astro-language-server',
+          'tree-sitter-cli',
+        },
+      }
+    end,
 
-    mr.refresh(function()
-      for _, tool in ipairs(opts.ensure_installed) do
-        local p = mr.get_package(tool)
-        if not p:is_installed() then
-          p:install()
+    ---@param opts MasonSettings | {ensure_installed: string[]}
+    config = function(_, opts)
+      local mason = require('mason')
+      mason.setup(opts)
+      local mr = require('mason-registry')
+      mr:on('package:install:success', function()
+        vim.defer_fn(function()
+          -- Trigger FileType event to possibly load this newly installed LSP server
+          local lazy_event = require('lazy.core.handler.event')
+          lazy_event.trigger({
+            event = 'FileType',
+            buf = vim.api.nvim_get_current_buf(),
+          })
+        end, 100)
+      end)
+
+      mr.refresh(function()
+        for _, tool in ipairs(opts.ensure_installed) do
+          local p = mr.get_package(tool)
+          if not p:is_installed() then
+            p:install()
+          end
         end
-      end
-    end)
-  end,
+      end)
+    end,
+  },
 }
