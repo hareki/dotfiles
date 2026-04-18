@@ -17,7 +17,7 @@ lazy.setup({
     size = { width = lg.width, height = lg.height },
     border = 'rounded',
     backdrop = 100,
-    title = ' Lazy ',
+    title = ' lazy.nvim ',
   },
   spec = {
     { import = 'plugins.core' },
