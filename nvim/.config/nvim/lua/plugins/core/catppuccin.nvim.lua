@@ -57,6 +57,11 @@ return {
 
         ModifiedIndicator = { fg = palette.yellow },
         SnippetTabStop = { bg = color.blue1 },
+
+        LazyH1 = { bg = palette.blue, fg = palette.base },
+        LazyDir = { fg = palette.blue },
+        LazyUrl = { fg = palette.blue },
+        LazyReasonStart = { fg = palette.blue },
       },
       lsp_styles = {
         virtual_text = {
