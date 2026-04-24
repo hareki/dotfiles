@@ -3,6 +3,7 @@ return {
     return {
       MasonHeader = { fg = palette.blue },
       MasonHeading = { fg = palette.blue },
+      MasonHighlight = { fg = palette.blue },
     }
   end),
 
@@ -19,6 +20,8 @@ return {
     opts = function()
       local ui = require('utils.ui')
       local config = ui.popup_config('lg')
+      local active_icon = Icons.misc.package_active
+      local inactive_icon = Icons.misc.package_inactive
 
       return {
         ui = {
@@ -26,6 +29,12 @@ return {
           width = config.width,
           height = config.height,
           backdrop = 100,
+
+          icons = {
+            package_installed = active_icon,
+            package_pending = active_icon,
+            package_uninstalled = inactive_icon,
+          },
         },
 
         registries = {

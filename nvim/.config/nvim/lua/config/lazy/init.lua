@@ -18,6 +18,10 @@ lazy.setup({
     border = 'rounded',
     backdrop = 100,
     title = ' lazy.nvim ',
+    icons = {
+      loaded = Icons.misc.package_active,
+      not_loaded = Icons.misc.package_inactive,
+    },
   },
   spec = {
     { import = 'plugins.core' },

@@ -62,6 +62,8 @@ return {
         LazyDir = { fg = palette.blue },
         LazyUrl = { fg = palette.blue },
         LazyReasonStart = { fg = palette.blue },
+        LazySpecial = { fg = palette.blue },
+        LazyProgressDone = { fg = palette.blue },
       },
       lsp_styles = {
         virtual_text = {

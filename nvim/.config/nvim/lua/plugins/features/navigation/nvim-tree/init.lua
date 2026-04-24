@@ -253,7 +253,7 @@ return {
               local row = size.row
 
               return {
-                title = ' Explorer ',
+                title = ' nvim-tree.lua ',
                 title_pos = 'center',
                 border = 'rounded',
                 relative = 'editor',
