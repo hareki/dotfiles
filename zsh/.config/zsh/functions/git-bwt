@@ -5,14 +5,18 @@
 # https://stackoverflow.com/questions/74862356/git-pull-doesnt-pull-latest-changes-when-using-git-worktree/74866544#comment132115905_74862356
 # Git [Bare] [W]ork[T]ree
 git-bwt () {
-  if [ -z "$1" ]; then
-    echo "Usage: git-bwt <remote-url>"
-    return 1
-  fi
+  case "$1" in
+    --help|"")
+      print "Usage: git-bwt <remote-url>"
+      return 0
+      ;;
+  esac
 
   local repo_url="$1"
   local repo_name=$(basename -s .git "$repo_url")
   local bare_repo_dir="${repo_name}.bwt"
+
+  print -P "\n%B%F{blue}======== Setting up $repo_name ========%f%b"
 
   echo "Cloning repository as bare: $repo_name..."
   git clone --bare "$repo_url" "$bare_repo_dir" || return 1
