@@ -55,5 +55,7 @@
     "rust-analyzer-lsp@claude-plugins-official": true
   },
   "tui": "fullscreen",
+  "syntaxHighlightingDisabled": false,
+  "theme": "custom:catppuccin-mocha",
   "effortLevel": "high"
 }
