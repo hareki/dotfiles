@@ -5,6 +5,14 @@ return {
 
   keys = {
     {
+      'f',
+      mode = { 'n', 'x' },
+    },
+    {
+      't',
+      mode = { 'n', 'x' },
+    },
+    {
       's',
       mode = { 'n', 'x', 'o' },
       function()
