@@ -71,14 +71,14 @@ return {
             return dir and (dir:sub(-1) == '/' and dir or (dir .. '/')) or ''
           end
           vim.ui.select(files, {
-            prompt = 'Select move destination:',
+            prompt = 'Select Move Destination:',
             format_item = function(f)
               return shorten_path(f)
             end,
           }, function(f)
             if f and f:find('^Enter new path') then
               vim.ui.input({
-                prompt = 'Enter move destination:',
+                prompt = 'Enter Move Destination:',
                 default = parent_dir(fname),
                 completion = 'file',
               }, function(newf)
