@@ -1,0 +1,3 @@
+#!/bin/sh
+# mermaid-cli doesn't support default config file, so we have to wrap the original command to specify the config file path.
+exec "$HOME/.local/share/mise/shims/mmdc" -c "$HOME/.config/mermaid-cli/config.json" "$@"

@@ -1,0 +1,22 @@
+{
+  "theme": "base",
+  "themeVariables": {
+    "background": "#1e1e2e",
+    "primaryColor": "#45475a",
+    "primaryTextColor": "#cdd6f4",
+    "primaryBorderColor": "#89b4fa",
+    "secondaryColor": "#181825",
+    "secondaryTextColor": "#cdd6f4",
+    "secondaryBorderColor": "#f9e2af",
+    "tertiaryColor": "#11111b",
+    "tertiaryTextColor": "#cdd6f4",
+    "tertiaryBorderColor": "#585b70",
+    "lineColor": "#89b4fa",
+    "edgeLabelBackground": "#45475a",
+    "clusterBkg": "#181825",
+    "clusterBorder": "#45475a",
+    "titleColor": "#cdd6f4",
+    "nodeTextColor": "#cdd6f4",
+    "fontFamily": "Maple Mono NF"
+  }
+}
