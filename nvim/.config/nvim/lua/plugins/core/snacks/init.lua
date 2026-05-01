@@ -184,7 +184,11 @@ return {
         lazygit = { enabled = true, configure = false },
         scratch = { enabled = true },
         rename = { enabled = true },
-        image = { enabled = true },
+        image = {
+          enabled = true,
+          -- inline images are inserted as virtual lines, and virtual lines are tricky to scroll, so better keep it short
+          doc = { inline = true, max_width = config.full.width, max_height = 15 },
+        },
 
         picker = {
           icons = {
