@@ -1,8 +1,5 @@
 # [[ Settings ENV variables that are not needed outside interactive shells ]]
 
-# The mise shims path we set in .zshenv is overwritten by homebrew
-PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin/shims:$HOME/.local/bin:$PATH"
-
 export STOW_REPO="$HOME/Repositories/personal/dotfiles"
 export TEALDEER_CONFIG_DIR="$XDG_CONFIG_HOME/tealdeer"
 export EZA_CONFIG_DIR="$XDG_CONFIG_HOME/eza"

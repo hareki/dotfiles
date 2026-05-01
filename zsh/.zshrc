@@ -35,6 +35,10 @@ eval "$(mise activate zsh)"
 _evalcache zoxide init zsh
 _evalcache atuin init zsh --disable-up-arrow
 
+# Note: The path we set in .zshenv will be overwritten by Homebrew at this point
+# Put it here as the last line to ensure it takes precedence
+PATH="$HOME/.local/bin/shims:$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+
 if [[ -n "$ZSH_DEBUGRC" ]]; then
   zprof
 fi

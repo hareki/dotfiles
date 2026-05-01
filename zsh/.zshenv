@@ -15,7 +15,5 @@ alias fdt='fd --type dir --hidden'
 # Prevent fd from taking 100% CPU for long-running searches
 alias fd='gtimeout 5s fd'
 
-# An alternative to `mise activate --shims`
-# Helpful if mise is not yet available at that point in time.
-# Using this to have `node` on non-interactive shells as well
-export PATH="$HOME/.local/share/mise/shims:$PATH"
+# Append commands to use in non-interactive shells
+export PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin/shims:$HOME/.local/bin:$PATH"
