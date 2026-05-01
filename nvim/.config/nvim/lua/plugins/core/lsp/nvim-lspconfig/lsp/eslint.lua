@@ -2,7 +2,8 @@ local eslint_registered = false
 
 return {
   opts = function()
-    local base_on_eslint_attach = vim.lsp.config.eslint.on_attach
+    local eslint_cfg = vim.lsp.config.eslint or {}
+    local base_on_eslint_attach = eslint_cfg.on_attach
 
     return {
       on_attach = function(client, bufnr)

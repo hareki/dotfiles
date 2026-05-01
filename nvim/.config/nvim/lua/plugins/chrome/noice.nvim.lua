@@ -132,14 +132,17 @@ return {
                 if not dropbar_timer then
                   dropbar_timer = vim.uv.new_timer()
                 end
-                dropbar_timer:stop()
-                dropbar_timer:start(
-                  100,
-                  0,
-                  vim.schedule_wrap(function()
-                    require('dropbar.utils.bar').exec('update')
-                  end)
-                )
+
+                if dropbar_timer then
+                  dropbar_timer:stop()
+                  dropbar_timer:start(
+                    100,
+                    0,
+                    vim.schedule_wrap(function()
+                      require('dropbar.utils.bar').exec('update')
+                    end)
+                  )
+                end
               end
 
               return false -- Don't match the condition for "opts"

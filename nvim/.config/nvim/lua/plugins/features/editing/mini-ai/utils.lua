@@ -83,10 +83,10 @@ function M.whichkey(opts)
       local desc = obj.desc
 
       if prefix:sub(1, 1) == 'i' then
-        desc = desc:gsub(' with ws', '')
+        desc = desc:gsub(' with Ws', '')
       end
 
-      ret[#ret + 1] = { prefix .. obj[1], desc = obj.desc }
+      ret[#ret + 1] = { prefix .. obj[1], desc = desc }
     end
   end
   local which_key = require('which-key')
