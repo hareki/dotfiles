@@ -27,7 +27,28 @@ return {
     'hareki/nvim-tree-preview.lua',
     dependencies = {
       'nvim-lua/plenary.nvim',
-      '3rd/image.nvim',
+      {
+        '3rd/image.nvim',
+        build = false, -- Skip rock build: https://github.com/3rd/image.nvim/issues/91#issuecomment-2453430239
+        opts = function()
+          return {
+            backend = 'kitty',
+            processor = 'magick_cli',
+
+            -- Let snacks.nvim handle these integrations
+            -- Only need image.nvim for rendering preview in nvim-tree-preview.lua
+            integrations = {
+              markdown = { enabled = false },
+              asciidoc = { enabled = false },
+              neorg = { enabled = false },
+              rst = { enabled = false },
+              typst = { enabled = false },
+              html = { enabled = false },
+              css = { enabled = false },
+            },
+          }
+        end,
+      },
     },
     opts = function()
       local tree = require('plugins.features.navigation.nvim-tree.utils')
