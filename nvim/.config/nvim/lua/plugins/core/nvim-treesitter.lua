@@ -54,6 +54,7 @@ return {
       'zsh',
       'gitcommit',
       'astro',
+      'mermaid',
     },
   },
 
