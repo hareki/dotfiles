@@ -11,7 +11,7 @@ export VISUAL='nvim'
 
 # Aliases needed in non-interactive shells, others should go in to aliases.zsh for performance
 alias eza='eza --icons=always --color=always --no-user'
-alias fdt='fd --type dir --hidden'
+alias fdt='fd --type dir --hidden --exclude .git'
 # Prevent fd from taking 100% CPU for long-running searches
 alias fd='gtimeout 5s fd'
 
