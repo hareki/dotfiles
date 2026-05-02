@@ -16,6 +16,19 @@ return {
     'hareki/git-conflict.nvim',
     event = { 'BufReadPost', 'BufNewFile' },
     opts = function()
+      local utils = require('plugins.features.git.git-conflict.utils')
+      return {
+        default_mappings = false,
+        default_commands = false,
+        cond = function()
+          return not utils.in_diffview_tab()
+        end,
+      }
+    end,
+    config = function(_, opts)
+      local plugin = require('git-conflict')
+      plugin.setup(opts)
+
       local ui = require('utils.ui')
       local utils = require('plugins.features.git.git-conflict.utils')
       local palette = ui.get_palette()
@@ -31,10 +44,17 @@ return {
         { lhs = ']x', rhs = '<Plug>(git-conflict-next-conflict)', desc = 'Next Conflict' },
       }
 
-      -- Track cursor movement in conflict buffers
-      local cursor_autocmd_ids = {}
-      local last_conflict_state = {}
-      local is_diffview_tab_per_buf = {}
+      ---@type table<integer, { autocmd_id: integer, last_state: boolean?, in_diffview: boolean }>
+      local buf_state = {}
+
+      local function cleanup_buf(bufnr)
+        local state = buf_state[bufnr]
+        if not state then
+          return
+        end
+        pcall(vim.api.nvim_del_autocmd, state.autocmd_id)
+        buf_state[bufnr] = nil
+      end
 
       vim.api.nvim_create_autocmd('User', {
         group = group,
@@ -47,52 +67,53 @@ return {
             })
           end
 
-          if not cursor_autocmd_ids[event.buf] then
-            -- Capture diffview state at detection time, per-buffer
-            is_diffview_tab_per_buf[event.buf] = utils.in_diffview_tab()
-            last_conflict_state[event.buf] = nil -- Reset state for this buffer
-
-            cursor_autocmd_ids[event.buf] = vim.api.nvim_create_autocmd(
-              { 'CursorMoved', 'CursorMovedI' },
-              {
-                group = group,
-                buffer = event.buf,
-                callback = function()
-                  local in_conflict, region = utils.cursor_in_conflict()
-                  local in_diffview = is_diffview_tab_per_buf[event.buf]
-                  local should_increase_contrast = in_conflict
-                    and (
-                      in_diffview and region ~= 'current' and region ~= 'incoming'
-                      or not in_diffview and region ~= 'separator'
-                    )
-
-                  -- Only update highlight if state changed
-                  if last_conflict_state[event.buf] ~= should_increase_contrast then
-                    last_conflict_state[event.buf] = should_increase_contrast
-
-                    if should_increase_contrast then
-                      highlight('GitSignsCurrentLineBlame', { fg = palette.subtext0 })
-                    else
-                      highlight('GitSignsCurrentLineBlame', { fg = palette.surface1 })
-                    end
-                  end
-                end,
-              }
-            )
+          if buf_state[event.buf] then
+            return
           end
+
+          local in_diffview = utils.in_diffview_tab()
+          local autocmd_id = vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
+            group = group,
+            buffer = event.buf,
+            callback = function()
+              local state = buf_state[event.buf]
+              if not state then
+                return
+              end
+
+              local in_conflict, region = utils.cursor_in_conflict()
+              local should_increase_contrast = in_conflict
+                and (
+                  state.in_diffview and region ~= 'current' and region ~= 'incoming'
+                  or not state.in_diffview and region ~= 'separator'
+                )
+
+              -- Only update highlight if state changed
+              if state.last_state ~= should_increase_contrast then
+                state.last_state = should_increase_contrast
+
+                if should_increase_contrast then
+                  highlight('GitSignsCurrentLineBlame', { fg = palette.subtext0 })
+                else
+                  highlight('GitSignsCurrentLineBlame', { fg = palette.surface1 })
+                end
+              end
+            end,
+          })
+
+          buf_state[event.buf] = {
+            autocmd_id = autocmd_id,
+            last_state = nil,
+            in_diffview = in_diffview,
+          }
         end,
       })
 
-      -- Clean up state tables when buffers are deleted to prevent memory leak
+      -- Clean up state when buffers are deleted to prevent memory leak
       vim.api.nvim_create_autocmd('BufDelete', {
         group = group,
         callback = function(event)
-          if cursor_autocmd_ids[event.buf] then
-            pcall(vim.api.nvim_del_autocmd, cursor_autocmd_ids[event.buf])
-            cursor_autocmd_ids[event.buf] = nil
-            last_conflict_state[event.buf] = nil
-            is_diffview_tab_per_buf[event.buf] = nil
-          end
+          cleanup_buf(event.buf)
         end,
       })
 
@@ -100,7 +121,6 @@ return {
         group = group,
         pattern = 'GitConflictResolved',
         callback = function(event)
-          -- Clean up keymaps
           for _, map in ipairs(keymaps) do
             if event.buf and vim.api.nvim_buf_is_valid(event.buf) then
               local ok = pcall(vim.keymap.del, 'n', map.lhs, { buffer = event.buf })
@@ -112,26 +132,14 @@ return {
             end
           end
 
-          -- Clean up cursor tracking
-          if event.buf and cursor_autocmd_ids[event.buf] then
-            pcall(vim.api.nvim_del_autocmd, cursor_autocmd_ids[event.buf])
-            cursor_autocmd_ids[event.buf] = nil
-            last_conflict_state[event.buf] = nil
-            is_diffview_tab_per_buf[event.buf] = nil
+          if event.buf then
+            cleanup_buf(event.buf)
           end
 
           -- Reset GitSigns highlight to default
           highlight('GitSignsCurrentLineBlame', { fg = palette.surface1 })
         end,
       })
-
-      return {
-        default_mappings = false,
-        default_commands = false,
-        cond = function()
-          return not utils.in_diffview_tab()
-        end,
-      }
     end,
   },
 }
