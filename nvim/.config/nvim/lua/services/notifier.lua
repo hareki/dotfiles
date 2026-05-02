@@ -4,16 +4,18 @@
 ---@class services.notifier
 local M = {}
 
----@alias NotifierOpts { level?: number, title?: string, once?: boolean, id?:string, on_open?: fun(), default_hl?: string }
+---@alias NotifierOpts { level?: number, title?: string, once?: boolean, id?:string, on_open?: fun(), default_hl?: string, height_offset?: integer }
 
 ---@alias MessageTuple { [1]: string, [2]?: string }
----@alias Message string|string[]|MessageTuple[]
+---@alias MessageChunk string|MessageTuple
+---@alias Message string|string[]|MessageChunk[]
 
 -- Per-id notification state. Only populated when opts.id is set, since only
 -- id'd notifications are ever replaced (and thus need their old autocmds cleaned
 -- up). Notifications without an id rely on the on_close closure for cleanup.
 ---@type table<string, { handle: any, autocmd_id: integer? }>
 local notif_state = {}
+local highlight_ns = vim.api.nvim_create_namespace('trouble_notify_hl')
 
 local function apply_win_opts(win)
   local w = vim.wo[win]
@@ -22,13 +24,21 @@ local function apply_win_opts(win)
   w.spell = false
 end
 
----Return true if tbl looks like { {txt, hl}, {txt, hl}, … }.
-local function is_tuple_list(tbl)
+---@param handle any
+---@return boolean
+local function is_notify_record(handle)
+  return type(handle) == 'table' and type(handle.id) == 'number'
+end
+
+---Return true if tbl looks like a chunk list: { 'txt', { 'txt', 'hl' }, … }.
+local function is_chunk_list(tbl)
   if type(tbl) ~= 'table' then
     return false
   end
   for _, v in ipairs(tbl) do
-    if type(v) ~= 'table' or #v < 2 or type(v[1]) ~= 'string' or type(v[2]) ~= 'string' then
+    if type(v) ~= 'string'
+      and (type(v) ~= 'table' or type(v[1]) ~= 'string' or (v[2] ~= nil and type(v[2]) ~= 'string'))
+    then
       return false
     end
   end
@@ -37,13 +47,12 @@ end
 
 ---Flatten a tuple-list and build an on_open that restores highlights.
 ---@param chunks table  list of strings *or* {text, hl} tuples
----@param opts   table? { default_hl?: string, ns?: string }
+---@param opts   table? { default_hl?: string }
 ---@return string plain     flattened text for vim.notify
 ---@return function on_open callback that reapplies extmarks
 local function normalize_message(chunks, opts)
   opts = opts or {}
   local default_hl = opts.default_hl or 'Normal'
-  local ns = vim.api.nvim_create_namespace(opts.ns or 'trouble_notify_hl')
 
   local parts, regions = {}, {}
   local line, col = 0, 0
@@ -80,12 +89,16 @@ local function normalize_message(chunks, opts)
   local function on_open(win)
     local buf = vim.api.nvim_win_get_buf(win)
     apply_win_opts(win)
-    vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
+    vim.api.nvim_buf_clear_namespace(buf, highlight_ns, 0, -1)
     vim.schedule(function()
+      if not vim.api.nvim_buf_is_valid(buf) then
+        return
+      end
+
       for _, r in ipairs(regions) do
         -- Format: r = { line, start_col, end_col, hl_group }
         if r[2] ~= r[3] then -- Only apply if there's actual content (not empty line)
-          vim.api.nvim_buf_set_extmark(buf, ns, r[1], r[2], {
+          vim.api.nvim_buf_set_extmark(buf, highlight_ns, r[1], r[2], {
             end_col = r[3],
             hl_group = r[4],
           })
@@ -104,7 +117,8 @@ end
 ---@return any handle The notification handle for replacement/tracking
 function M.notify(msg, opts)
   opts = opts or {}
-  local is_markdown = not is_tuple_list(msg)
+  local is_markdown = not is_chunk_list(msg)
+  local supports_state_tracking = not opts.once
 
   -- Prepare the message/handler depending on the input shape
   local apply_highlight
@@ -187,9 +201,11 @@ function M.notify(msg, opts)
 
   -- Clean up old autocmd if we're replacing a notification
   local replace_handle
-  if opts.id and notif_state[opts.id] then
+  if supports_state_tracking and opts.id and notif_state[opts.id] then
     local prev = notif_state[opts.id]
-    replace_handle = prev.handle
+    if is_notify_record(prev.handle) then
+      replace_handle = prev.handle
+    end
     if prev.autocmd_id then
       pcall(vim.api.nvim_del_autocmd, prev.autocmd_id)
     end
@@ -202,8 +218,10 @@ function M.notify(msg, opts)
     on_close = on_close,
   })
 
-  if opts.id then
+  if supports_state_tracking and opts.id and is_notify_record(ret) then
     notif_state[opts.id] = { handle = ret, autocmd_id = autocmd_id }
+  elseif opts.id then
+    notif_state[opts.id] = nil
   end
 
   return ret
