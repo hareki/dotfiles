@@ -54,7 +54,15 @@ local function build_hover_src(original_src, ext, content)
     if not stat then
       return nil
     end
-    hash = vim.fn.sha256(original_src .. ':' .. tostring(stat.mtime.sec)):sub(1, 12)
+    -- Include nsec + size so a second edit within the same second doesn't
+    -- collide with a stale cache entry.
+    local key = table.concat({
+      original_src,
+      tostring(stat.mtime.sec),
+      tostring(stat.mtime.nsec),
+      tostring(stat.size),
+    }, ':')
+    hash = vim.fn.sha256(key):sub(1, 12)
   end
 
   local out = cache .. '/' .. hash .. '-hover.' .. ext
@@ -64,7 +72,7 @@ local function build_hover_src(original_src, ext, content)
   end
 
   if content then
-    local fd = io.open(out, 'w')
+    local fd = io.open(out, 'wb')
     if not fd then
       return nil
     end
