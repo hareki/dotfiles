@@ -1,59 +1,91 @@
 ---@class utils.hl_at_cursor
 local M = {}
 
----Show all highlight groups affecting the cursor position in a Markdown popup
----Displays syntax groups, Tree-sitter captures, extmarks, and window matches.
----@return nil
-function M.show()
-  local bufnr = 0
-  local pos = vim.api.nvim_win_get_cursor(0)
-  local row0, col0 = pos[1] - 1, pos[2]
-  local origin_win = vim.api.nvim_get_current_win()
-  local origin_buf = vim.api.nvim_win_get_buf(origin_win)
+local function uniq(list)
+  local seen, out = {}, {}
+  for _, v in ipairs(list) do
+    if not seen[v] then
+      seen[v] = true
+      table.insert(out, v)
+    end
+  end
 
-  -- 1) Vimscript syntax stack
-  local syntax_groups = {}
+  return out
+end
+
+local function uniq_ts(entries)
+  local seen, out = {}, {}
+  for _, e in ipairs(entries) do
+    local key = (e[1] or '') .. '→' .. (e[2] or '')
+    if not seen[key] then
+      seen[key] = true
+      table.insert(out, e)
+    end
+  end
+
+  return out
+end
+
+---Walk highlight links to find the terminal group name.
+local function resolve_link(name)
+  local seen, last = {}, name
+  while name and not seen[name] do
+    seen[name] = true
+    local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = name, link = true })
+    if not ok or not hl then
+      break
+    end
+    if hl.link and hl.link ~= '' then
+      last, name = hl.link, hl.link
+    else
+      break
+    end
+  end
+
+  return last
+end
+
+---@param row0 integer
+---@param col0 integer
+local function collect_syntax(row0, col0)
+  local groups = {}
   for _, id in ipairs(vim.fn.synstack(row0 + 1, col0 + 1)) do
     local trans = vim.fn.synIDtrans(id)
     local name = vim.fn.synIDattr(trans, 'name')
     if name and name ~= '' then
-      table.insert(syntax_groups, name)
+      table.insert(groups, name)
     end
   end
+  return groups
+end
 
-  -- 2) Tree-sitter captures -> resolved highlight group
-  local function resolve_link(name)
-    local seen, last = {}, name
-    while name and not seen[name] do
-      seen[name] = true
-      local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = name, link = true })
-      if not ok or not hl then
-        break
-      end
-      if hl.link and hl.link ~= '' then
-        last, name = hl.link, hl.link
-      else
-        break
-      end
-    end
-
-    return last
+---@param bufnr integer
+---@param row0 integer
+---@param col0 integer
+local function collect_treesitter(bufnr, row0, col0)
+  local pairs_out = {}
+  if not (vim.treesitter and vim.treesitter.get_captures_at_pos) then
+    return pairs_out
   end
 
-  local ts_pairs = {}
-  if vim.treesitter and vim.treesitter.get_captures_at_pos then
-    local ok, caps = pcall(vim.treesitter.get_captures_at_pos, bufnr, row0, col0)
-    if ok and type(caps) == 'table' then
-      for _, c in ipairs(caps) do
-        local cap = c.capture or c
-        if type(cap) == 'string' then
-          table.insert(ts_pairs, { cap, resolve_link(cap) or cap })
-        end
-      end
-    end
+  local ok, caps = pcall(vim.treesitter.get_captures_at_pos, bufnr, row0, col0)
+  if not ok or type(caps) ~= 'table' then
+    return pairs_out
   end
 
-  -- 3) Extmarks with hl_group covering the cursor
+  for _, c in ipairs(caps) do
+    local cap = c.capture or c
+    if type(cap) == 'string' then
+      table.insert(pairs_out, { cap, resolve_link(cap) or cap })
+    end
+  end
+  return pairs_out
+end
+
+---@param bufnr integer
+---@param row0 integer
+---@param col0 integer
+local function collect_extmarks(bufnr, row0, col0)
   local function cursor_in_range(srow, scol, d)
     local erow = d.end_row or srow
     local ecol = d.end_col or (d.hl_eol and math.huge or scol)
@@ -62,11 +94,10 @@ function M.show()
         return true
       end
     end
-
     return false
   end
 
-  local extmark_entries = {}
+  local entries = {}
   for ns_name, ns_id in pairs(vim.api.nvim_get_namespaces()) do
     local marks = vim.api.nvim_buf_get_extmarks(
       bufnr,
@@ -79,51 +110,30 @@ function M.show()
       local _, srow, scol, d = m[1], m[2], m[3], m[4]
       if d and d.hl_group and cursor_in_range(srow, scol, d) then
         table.insert(
-          extmark_entries,
+          entries,
           string.format('%s (ns:%s prio:%s)', d.hl_group, ns_name, d.priority or 0)
         )
       end
     end
   end
+  return entries
+end
 
-  -- 4) Window matches
-  local match_groups = {}
+local function collect_matches()
+  local groups = {}
   for _, mm in ipairs(vim.fn.getmatches()) do
     if mm.group and mm.group ~= '' then
-      table.insert(match_groups, mm.group)
+      table.insert(groups, mm.group)
     end
   end
+  return groups
+end
 
-  -- Dedupe
-  local function uniq(list)
-    local seen, out = {}, {}
-    for _, v in ipairs(list) do
-      if not seen[v] then
-        seen[v] = true
-        table.insert(out, v)
-      end
-    end
-
-    return out
-  end
-
-  local function uniq_ts(entries)
-    local seen, out = {}, {}
-    for _, e in ipairs(entries) do
-      local key = (e[1] or '') .. '→' .. (e[2] or '')
-      if not seen[key] then
-        seen[key] = true
-        table.insert(out, e)
-      end
-    end
-
-    return out
-  end
-
-  -- Build Markdown lines
+---Render markdown lines for the popup.
+local function build_lines(syntax_groups, ts_pairs, extmark_entries, match_groups)
   local lines = {}
 
-  local function emit_section(title, items, kind)
+  local function emit(title, items, kind)
     table.insert(lines, '**' .. title .. '**')
     if kind == 'ts' then
       local list = uniq_ts(items)
@@ -152,15 +162,18 @@ function M.show()
         end
       end
     end
-    -- table.insert(lines, '') -- Blank line between sections
   end
 
-  emit_section('1. Syntax', syntax_groups)
-  emit_section('2. Tree-sitter', ts_pairs, 'ts')
-  emit_section('3. Extmarks', extmark_entries)
-  emit_section('4. Matches', match_groups)
+  emit('1. Syntax', syntax_groups)
+  emit('2. Tree-sitter', ts_pairs, 'ts')
+  emit('3. Extmarks', extmark_entries)
+  emit('4. Matches', match_groups)
+  return lines
+end
 
-  -- Popup (create buffer first)
+---Create the floating buffer/window pair for the popup.
+---@return integer buf, integer win
+local function open_popup(lines, row0, col0)
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
   vim.bo[buf].bufhidden = 'wipe'
@@ -189,7 +202,15 @@ function M.show()
   })
 
   vim.bo[buf].filetype = 'markdown'
+  vim.wo[win].conceallevel = 2
+  vim.wo[win].wrap = false
+  vim.wo[win].signcolumn = 'no'
 
+  return buf, win
+end
+
+---Wire popup lifecycle: keymaps, autocmds, focus toggling, cleanup.
+local function attach_lifecycle(buf, win, origin_buf, origin_win)
   local closing = false
   local ignore_cursor_close = false
   local augroup
@@ -218,7 +239,6 @@ function M.show()
       ok = pcall(vim.api.nvim_win_close, win, true)
     end
     closing = false
-
     return ok
   end
 
@@ -316,10 +336,6 @@ function M.show()
     desc = 'Return Focus to Source Window',
   })
 
-  vim.wo[win].conceallevel = 2
-  vim.wo[win].wrap = false
-  vim.wo[win].signcolumn = 'no'
-
   vim.keymap.set('n', 'q', close_popup, {
     buffer = buf,
     nowait = true,
@@ -330,6 +346,27 @@ function M.show()
     nowait = true,
     desc = 'Close Highlight Popup',
   })
+end
+
+---Show all highlight groups affecting the cursor position in a Markdown popup.
+---Displays syntax groups, Tree-sitter captures, extmarks, and window matches.
+---@return nil
+function M.show()
+  local bufnr = 0
+  local pos = vim.api.nvim_win_get_cursor(0)
+  local row0, col0 = pos[1] - 1, pos[2]
+  local origin_win = vim.api.nvim_get_current_win()
+  local origin_buf = vim.api.nvim_win_get_buf(origin_win)
+
+  local lines = build_lines(
+    collect_syntax(row0, col0),
+    collect_treesitter(bufnr, row0, col0),
+    collect_extmarks(bufnr, row0, col0),
+    collect_matches()
+  )
+
+  local buf, win = open_popup(lines, row0, col0)
+  attach_lifecycle(buf, win, origin_buf, origin_win)
 end
 
 return M

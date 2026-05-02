@@ -3,7 +3,9 @@ return {
   -- https://www.reddit.com/r/neovim/comments/1l7pz1l/starting_from_0112_i_have_a_weird_issue
   event = 'VeryLazy',
   config = function()
-    local utils = require('plugins.core.lsp.nvim-lspconfig.utils')
+    local range_fix = require('plugins.core.lsp.nvim-lspconfig.utils.diagnostic_range_fix')
+    local underline_hack = require('plugins.core.lsp.nvim-lspconfig.utils.diagnostic_underline_hack')
+    local server_loader = require('plugins.core.lsp.nvim-lspconfig.utils.server_loader')
 
     local original_set = vim.diagnostic.set
     ---@param namespace integer The diagnostic namespace
@@ -13,8 +15,8 @@ return {
     ---@diagnostic disable-next-line: duplicate-set-field
     vim.diagnostic.set = function(namespace, bufnr, diagnostics, opts)
       if diagnostics and #diagnostics > 0 then
-        utils.fix_all_diagnostic_ranges(bufnr, diagnostics)
-        utils.apply_underline_hack(diagnostics)
+        range_fix.apply(bufnr, diagnostics)
+        underline_hack.apply(diagnostics)
       end
 
       return original_set(namespace, bufnr, diagnostics, opts)
@@ -118,7 +120,7 @@ return {
     }
 
     vim.defer_fn(function()
-      utils.load_lsp_configs()
+      server_loader.load_all()
       vim.lsp.enable(servers)
     end, 75)
   end,

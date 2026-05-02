@@ -9,12 +9,11 @@ local M = {}
 ---@alias MessageTuple { [1]: string, [2]?: string }
 ---@alias Message string|string[]|MessageTuple[]
 
----@type table<string, any>
-local notif_ids = {}
-
--- Track autocmd IDs to prevent memory leak when notifications are replaced
----@type table<any, integer|nil>
-local notif_autocmds = {}
+-- Per-id notification state. Only populated when opts.id is set, since only
+-- id'd notifications are ever replaced (and thus need their old autocmds cleaned
+-- up). Notifications without an id rely on the on_close closure for cleanup.
+---@type table<string, { handle: any, autocmd_id: integer? }>
+local notif_state = {}
 
 local function apply_win_opts(win)
   local w = vim.wo[win]
@@ -131,8 +130,8 @@ function M.notify(msg, opts)
 
   -- Allow callers to chain their own callback
   local user_on_open = opts.on_open
-  -- Track autocmd_id in a table so it can be shared between on_open and on_close
-  local state = { autocmd_id = nil, notif_handle = nil }
+  -- Local autocmd_id closes over both on_open and on_close
+  local autocmd_id
 
   local function merged_on_open(win)
     local buf = vim.api.nvim_win_get_buf(win)
@@ -145,7 +144,7 @@ function M.notify(msg, opts)
     if apply_highlight then
       apply_highlight(win)
 
-      state.autocmd_id = vim.api.nvim_create_autocmd({
+      autocmd_id = vim.api.nvim_create_autocmd({
         'FileType',
       }, {
         buffer = buf,
@@ -159,9 +158,9 @@ function M.notify(msg, opts)
         desc = 'Reapply Notifier Highlighting for Duplicate Messages',
       })
 
-      -- Track autocmd ID for cleanup if we have a notification handle
-      if state.notif_handle then
-        notif_autocmds[state.notif_handle] = state.autocmd_id
+      -- Track autocmd in shared state for replace-path cleanup (id'd notifications only)
+      if opts.id and notif_state[opts.id] then
+        notif_state[opts.id].autocmd_id = autocmd_id
       end
     end
 
@@ -176,39 +175,35 @@ function M.notify(msg, opts)
   end
 
   local function on_close()
-    if state.autocmd_id then
-      pcall(vim.api.nvim_del_autocmd, state.autocmd_id)
-      state.autocmd_id = nil
+    if autocmd_id then
+      pcall(vim.api.nvim_del_autocmd, autocmd_id)
+      autocmd_id = nil
     end
 
-    if state.notif_handle and notif_autocmds[state.notif_handle] then
-      notif_autocmds[state.notif_handle] = nil
-    end
-
-    -- Clean up notification ID from cache to prevent memory leak
     if opts.id then
-      notif_ids[opts.id] = nil
+      notif_state[opts.id] = nil
     end
   end
 
   -- Clean up old autocmd if we're replacing a notification
-  if opts.id and notif_ids[opts.id] and notif_autocmds[notif_ids[opts.id]] then
-    pcall(vim.api.nvim_del_autocmd, notif_autocmds[notif_ids[opts.id]])
-    notif_autocmds[notif_ids[opts.id]] = nil
+  local replace_handle
+  if opts.id and notif_state[opts.id] then
+    local prev = notif_state[opts.id]
+    replace_handle = prev.handle
+    if prev.autocmd_id then
+      pcall(vim.api.nvim_del_autocmd, prev.autocmd_id)
+    end
   end
 
   local ret = vim[opts.once and 'notify_once' or 'notify'](msg, opts.level, {
-    replace = opts.id and notif_ids[opts.id] or nil,
+    replace = replace_handle,
     title = opts.title or 'Notifier',
     on_open = merged_on_open,
     on_close = on_close,
   })
 
-  -- Store handle for tracking
-  state.notif_handle = ret
-
   if opts.id then
-    notif_ids[opts.id] = ret
+    notif_state[opts.id] = { handle = ret, autocmd_id = autocmd_id }
   end
 
   return ret
