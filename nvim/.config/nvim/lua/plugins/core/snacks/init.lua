@@ -21,6 +21,14 @@ return {
     keys = function()
       return {
         {
+          'gi',
+          function()
+            local image_utils = require('plugins.core.snacks.utils.image')
+            image_utils.hover_image()
+          end,
+          desc = 'Hover Image',
+        },
+        {
           '<leader><leader>',
           function()
             local state = require('plugins.core.snacks.utils.state')
