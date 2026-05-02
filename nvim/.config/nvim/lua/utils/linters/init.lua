@@ -90,6 +90,13 @@ end
 ---@return nil
 function M.run_by_ft(opts)
   local bufnr = opts.bufnr
+  if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
+    if opts.on_done then
+      opts.on_done('none', false, 'invalid buffer')
+    end
+    return
+  end
+
   local ft = vim.bo[bufnr].filetype
   local names = M.names_for_filetype(ft)
 

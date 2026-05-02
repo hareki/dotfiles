@@ -271,7 +271,7 @@ function M.inspect(...)
     parts[3] = '\n```'
   end
   local msg = table.concat(parts)
-  M.warn(msg, { title = 'Debug 󰃤', height_offset = -1 })
+  M.warn(msg, { title = 'Debug ' .. Icons.tools.debug, height_offset = -1 })
 end
 
 return M

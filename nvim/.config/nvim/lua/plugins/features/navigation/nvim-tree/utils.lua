@@ -256,13 +256,15 @@ end
 function M.format_root_label(path)
   local home = vim.env.HOME
   local formatted = path
+  local home_icon = vim.trim(Icons.explorer.home)
+  local separator = Icons.explorer.collapsed .. ' '
 
   if home and vim.startswith(path, home) then
     if path == home then
       -- If we're exactly at home, just show the icon
-      return ' '
+      return home_icon .. ' '
     end
-    formatted = '  ' .. path:sub(#home + 2) -- +2 to skip the trailing slash
+    formatted = home_icon .. ' ' .. separator .. path:sub(#home + 2) -- +2 to skip trailing slash
   else
     -- If outside home, remove leading slash to avoid empty first component
     if vim.startswith(path, '/') then
@@ -270,7 +272,7 @@ function M.format_root_label(path)
     end
   end
 
-  formatted = formatted:gsub('/', ' ')
+  formatted = formatted:gsub('/', separator)
 
   return formatted
 end

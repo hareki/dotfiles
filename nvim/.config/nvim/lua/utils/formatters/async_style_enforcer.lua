@@ -55,14 +55,23 @@ function M.run(opts)
 
   -- Set timeout to auto-cleanup if something goes wrong
   local timeout_timer = vim.uv.new_timer()
+  local function close_timeout_timer()
+    local timer = timeout_timer
+    if not timer then
+      return
+    end
+
+    timeout_timer = nil
+    pcall(timer.stop, timer)
+    pcall(timer.close, timer)
+  end
+
   if timeout_timer then
     timeout_timer:start(TIMEOUT_MS, 0, function()
       vim.schedule(function()
         if running_bufs[buf] then
           running_bufs[buf] = nil
-          pcall(timeout_timer.stop, timeout_timer)
-          pcall(timeout_timer.close, timeout_timer)
-          timeout_timer = nil
+          close_timeout_timer()
           Notifier.warn('Formatting/linting timed out', { title = 'Style Enforcer' })
           finish(false, 'Timed out')
         end
@@ -74,11 +83,7 @@ function M.run(opts)
 
   local function cleanup(ok, err)
     -- Cancel timeout timer and clean up lock
-    if timeout_timer then
-      pcall(timeout_timer.stop, timeout_timer)
-      pcall(timeout_timer.close, timeout_timer)
-      timeout_timer = nil
-    end
+    close_timeout_timer()
     running_bufs[buf] = nil
     finish(ok, err)
   end

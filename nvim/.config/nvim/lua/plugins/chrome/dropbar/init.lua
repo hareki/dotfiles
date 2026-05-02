@@ -53,7 +53,7 @@ return {
         icons = {
           ui = {
             menu = {
-              indicator = '',
+              indicator = Icons.explorer.collapsed,
             },
           },
           kinds = {

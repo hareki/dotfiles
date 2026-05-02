@@ -8,8 +8,10 @@ local ui = require('utils.ui')
 ---@return nil
 function M.navigate(direction)
   local ok = pcall(function()
+    local hlslens = require('hlslens')
+
     vim.cmd.normal({ vim.v.count1 .. direction, bang = true })
-    require('hlslens').start()
+    hlslens.start()
   end)
 
   if not ok then

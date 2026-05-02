@@ -108,7 +108,8 @@ return {
         table.insert(keys, {
           '<leader>' .. current_index,
           function()
-            require('harpoon'):list():select(current_index)
+            local harpoon = require('harpoon')
+            harpoon:list():select(current_index)
           end,
           desc = 'Harpoon Slot ' .. current_index,
         })

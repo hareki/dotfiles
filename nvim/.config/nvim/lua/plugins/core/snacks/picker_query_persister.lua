@@ -8,7 +8,8 @@ local last_queries = {
 local function wrap_picker(source_name, base_fn)
   return function(opts)
     opts = opts or {}
-    local defaults = require('snacks.picker.config.sources')[source_name]
+    local picker_sources = require('snacks.picker.config.sources')
+    local defaults = picker_sources[source_name]
     local is_live = (opts.live ~= nil) and opts.live or (defaults and defaults.live) or false
 
     if is_live and opts.search == nil then

@@ -24,7 +24,7 @@ M.default = {
   },
 
   providers = {
-    lsp = { opts = { tailwind_color_icon = '' } },
+    lsp = { opts = { tailwind_color_icon = Icons.misc.tailwind_color } },
 
     datword = {
       name = 'Datword',

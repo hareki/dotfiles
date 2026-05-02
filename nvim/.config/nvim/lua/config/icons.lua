@@ -13,6 +13,7 @@ local M = {
     pending_keys = '󰌌',
     pill_left = '',
     pill_right = '',
+    quote_bar = '▌',
   },
   ft = {
     octo = '',
@@ -37,6 +38,8 @@ local M = {
   git = {
     git = '󰊢',
     sign = '',
+    hunk = '┃',
+    hunk_delete = '',
     branch = '',
     added = ' ',
     modified = ' ',
@@ -52,6 +55,7 @@ local M = {
     diff = '',
   },
   explorer = {
+    home = ' ',
     selected = ' 󰪥 ',
     unselected = ' 󰄰',
     collapsed = '',

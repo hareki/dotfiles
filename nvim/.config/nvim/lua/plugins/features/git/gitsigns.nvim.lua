@@ -21,6 +21,9 @@ return {
     'hareki/gitsigns.nvim',
     event = 'VeryLazy',
     opts = function()
+      local hunk = Icons.git.hunk
+      local hunk_delete = Icons.git.hunk_delete
+
       return {
         numhl = false,
         signcolumn = true,
@@ -52,20 +55,20 @@ return {
         },
 
         signs = {
-          add = { text = '┃' },
-          change = { text = '┃' },
-          delete = { text = '' },
-          topdelete = { text = '' },
-          changedelete = { text = '┃' },
-          untracked = { text = '┃' },
+          add = { text = hunk },
+          change = { text = hunk },
+          delete = { text = hunk_delete },
+          topdelete = { text = hunk_delete },
+          changedelete = { text = hunk },
+          untracked = { text = hunk },
         },
 
         signs_staged = {
-          add = { text = '┃' },
-          change = { text = '┃' },
-          delete = { text = '' },
-          topdelete = { text = '' },
-          changedelete = { text = '┃' },
+          add = { text = hunk },
+          change = { text = hunk },
+          delete = { text = hunk_delete },
+          topdelete = { text = hunk_delete },
+          changedelete = { text = hunk },
         },
 
         on_attach = function(buffer)

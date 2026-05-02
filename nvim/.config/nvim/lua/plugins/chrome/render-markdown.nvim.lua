@@ -22,14 +22,14 @@ return {
         },
         callout = {
           error = {
-            rendered = ' Error',
+            rendered = Icons.diagnostics.Error .. 'Error',
           },
           hint = {
             highlight = 'RenderMarkdownHint',
           },
         },
         quote = {
-          icon = '▌', -- Thinner line for quotes
+          icon = Icons.misc.quote_bar, -- Thinner line for quotes
         },
       }
     end,

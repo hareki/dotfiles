@@ -16,7 +16,8 @@ return {
       's',
       mode = { 'n', 'x', 'o' },
       function()
-        require('flash').jump()
+        local flash = require('flash')
+        flash.jump()
       end,
       desc = 'Flash',
     },
@@ -24,7 +25,8 @@ return {
       'S',
       mode = { 'n', 'o', 'x' },
       function()
-        require('flash').treesitter()
+        local flash = require('flash')
+        flash.treesitter()
       end,
       desc = 'Flash Treesitter',
     },
@@ -32,7 +34,8 @@ return {
       'r',
       mode = 'o',
       function()
-        require('flash').remote()
+        local flash = require('flash')
+        flash.remote()
       end,
       desc = 'Remote Flash',
     },
@@ -40,7 +43,8 @@ return {
       'R',
       mode = { 'o', 'x' },
       function()
-        require('flash').treesitter_search()
+        local flash = require('flash')
+        flash.treesitter_search()
       end,
       desc = 'Treesitter Search',
     },
@@ -50,7 +54,8 @@ return {
       '<C-Space>',
       mode = { 'n', 'o', 'x' },
       function()
-        require('flash').treesitter({
+        local flash = require('flash')
+        flash.treesitter({
           actions = {
             ['<C-Space>'] = 'next',
             ['<BS>'] = 'prev',
