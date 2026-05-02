@@ -20,4 +20,5 @@ enter = "actions:edit"
 
 [actions.edit]
 description = "Open selected files in editor"
-command = "nvim $(fdt -1 {strip_ansi|substring:2..} $HOME/Repositories)"
+command = "script -q /dev/null nvim $(fdt -1 {strip_ansi|substring:2..} $HOME/Repositories)"
+mode = "execute"

@@ -18,5 +18,7 @@ enter = "actions:edit"
 
 [actions.edit]
 description = "Open selected files in editor"
+# Spawn a pseudo-terminal and run nvim in there so that image.nvim can query the terminal size
 command = "script -q /dev/null nvim $HOME/Repositories/personal/dotfiles/{}/.config/{}"
+# Exiting television upon opening Neovim
 mode = "execute"
