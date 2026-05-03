@@ -1,5 +1,6 @@
 local lualine_require = require('lualine_require')
 local component = lualine_require.require('lualine.component')
+local unmerged_icon = Icons.git.unmerged .. ' '
 
 ---@class plugins.chrome.lualine.components.buffer_status : lualine.component
 local M = component:extend()
@@ -17,20 +18,23 @@ local IGNORE_FILETYPES = {
   [''] = true,
 }
 ---@class plugins.chrome.lualine.components.buffer_status.Cache
----@field current_flags string
----@field global_modified string
+---@field current_unsaved string
+---@field global_unsaved string
+---@field global_conflict string
 ---@field last_bufnr number
 
 ---@type plugins.chrome.lualine.components.buffer_status.Cache
 local cache = {
-  current_flags = '',
-  global_modified = '',
+  current_unsaved = '',
+  global_unsaved = '',
+  global_conflict = '',
   last_bufnr = -1,
 }
 
 local function invalidate_cache()
-  cache.current_flags = ''
-  cache.global_modified = ''
+  cache.current_unsaved = ''
+  cache.global_unsaved = ''
+  cache.global_conflict = ''
   cache.last_bufnr = -1
 end
 
@@ -47,18 +51,23 @@ vim.api.nvim_create_autocmd({
   group = group,
   callback = invalidate_cache,
 })
+vim.api.nvim_create_autocmd('User', {
+  group = group,
+  pattern = { 'GitConflictDetected', 'GitConflictResolved' },
+  callback = invalidate_cache,
+})
 
 ---Get current buffer flags (new, readonly, modified)
 ---@return string
-local function get_current_flags()
+local function get_current_unsaved()
   local bufnr = vim.api.nvim_get_current_buf()
 
-  if cache.last_bufnr == bufnr and cache.current_flags ~= '' then
-    return cache.current_flags
+  if cache.last_bufnr == bufnr and cache.current_unsaved ~= '' then
+    return cache.current_unsaved
   end
 
   if IGNORE_FILETYPES[vim.bo.filetype] then
-    cache.current_flags = ''
+    cache.current_unsaved = ''
     cache.last_bufnr = bufnr
     return ''
   end
@@ -92,7 +101,7 @@ local function get_current_flags()
   end
 
   local result = table.concat(out)
-  cache.current_flags = result
+  cache.current_unsaved = result
   cache.last_bufnr = bufnr
 
   return result
@@ -100,9 +109,9 @@ end
 
 ---Get global modified flag (count of other modified buffers)
 ---@return string
-local function get_global_modified()
-  if cache.global_modified ~= '' then
-    return cache.global_modified
+local function get_global_unsaved()
+  if cache.global_unsaved ~= '' then
+    return cache.global_unsaved
   end
 
   local current_bufnr = vim.api.nvim_get_current_buf()
@@ -126,8 +135,42 @@ local function get_global_modified()
   end
 
   local status = Icons.file_status
-  local result = count > 0 and status.modified .. count or ''
-  cache.global_modified = result
+  local result = count > 0 and status.modified .. count .. '  ' or ''
+  cache.global_unsaved = result
+
+  return result
+end
+
+---Get conflict flag for the current buffer
+---@return string
+local function get_current_conflict()
+  local bufnr = vim.api.nvim_get_current_buf()
+  if vim.b[bufnr].git_conflict then
+    return unmerged_icon
+  end
+  return ''
+end
+
+---Get global conflict flag (count of other conflicted buffers)
+---@return string
+local function get_global_conflict()
+  if cache.global_conflict ~= '' then
+    return cache.global_conflict
+  end
+
+  local current_bufnr = vim.api.nvim_get_current_buf()
+  local count = 0
+
+  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+    if bufnr ~= current_bufnr and vim.api.nvim_buf_is_loaded(bufnr) then
+      if vim.b[bufnr].git_conflict then
+        count = count + 1
+      end
+    end
+  end
+
+  local result = count > 0 and unmerged_icon .. count .. ' ' or ''
+  cache.global_conflict = result
 
   return result
 end
@@ -136,8 +179,10 @@ end
 local default_options = {
   colored = true,
   symbols = {
-    current = '', -- Will use current_flags result directly
-    global = '', -- Will use global_modified result directly
+    current_unsaved = '', -- Will use current_unsaved result directly
+    global_unsaved = '', -- Will use global_unsaved result directly
+    current_conflict = '', -- Will use current_conflict result directly
+    global_conflict = '', -- Will use global_conflict result directly
   },
 }
 
@@ -148,8 +193,10 @@ local function apply_default_colors(opts)
   local palette = ui.get_palette()
 
   local default_status_color = {
-    current = { fg = palette.yellow },
-    global = { fg = palette.red },
+    current_unsaved = { fg = palette.yellow },
+    global_unsaved = { fg = palette.red },
+    current_conflict = { fg = palette.yellow },
+    global_conflict = { fg = palette.red },
   }
 
   opts.status_color = vim.tbl_deep_extend('keep', opts.status_color or {}, default_status_color)
@@ -164,8 +211,19 @@ function M:init(options)
 
   if self.options.colored then
     self.highlight_groups = {
-      current = self:create_hl(self.options.status_color.current, 'current'),
-      global = self:create_hl(self.options.status_color.global, 'global'),
+      current_unsaved = self:create_hl(
+        self.options.status_color.current_unsaved,
+        'current_unsaved'
+      ),
+      global_unsaved = self:create_hl(self.options.status_color.global_unsaved, 'global_unsaved'),
+      current_conflict = self:create_hl(
+        self.options.status_color.current_conflict,
+        'current_conflict'
+      ),
+      global_conflict = self:create_hl(
+        self.options.status_color.global_conflict,
+        'global_conflict'
+      ),
     }
   end
 end
@@ -173,10 +231,17 @@ end
 ---Update and return the status string
 ---@return string
 function M:update_status()
-  local current_flags = get_current_flags()
-  local global_modified = get_global_modified()
+  local current_unsaved = get_current_unsaved()
+  local global_unsaved = get_global_unsaved()
+  local current_conflict = get_current_conflict()
+  local global_conflict = get_global_conflict()
 
-  if current_flags == '' and global_modified == '' then
+  if
+    current_unsaved == ''
+    and global_unsaved == ''
+    and current_conflict == ''
+    and global_conflict == ''
+  then
     return ''
   end
 
@@ -188,20 +253,36 @@ function M:update_status()
       colors[name] = self:format_hl(hl)
     end
 
-    if current_flags ~= '' then
-      table.insert(result, colors.current .. current_flags)
+    if current_unsaved ~= '' then
+      table.insert(result, colors.current_unsaved .. current_unsaved)
     end
 
-    if global_modified ~= '' then
-      table.insert(result, colors.global .. global_modified)
+    if global_unsaved ~= '' then
+      table.insert(result, colors.global_unsaved .. global_unsaved)
+    end
+
+    if current_conflict ~= '' then
+      table.insert(result, colors.current_conflict .. current_conflict)
+    end
+
+    if global_conflict ~= '' then
+      table.insert(result, colors.global_conflict .. global_conflict)
     end
   else
-    if current_flags ~= '' then
-      table.insert(result, current_flags)
+    if current_unsaved ~= '' then
+      table.insert(result, current_unsaved)
     end
 
-    if global_modified ~= '' then
-      table.insert(result, global_modified)
+    if global_unsaved ~= '' then
+      table.insert(result, global_unsaved)
+    end
+
+    if current_conflict ~= '' then
+      table.insert(result, current_conflict)
+    end
+
+    if global_conflict ~= '' then
+      table.insert(result, global_conflict)
     end
   end
 
