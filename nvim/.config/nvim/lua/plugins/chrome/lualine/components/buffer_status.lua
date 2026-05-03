@@ -18,23 +18,23 @@ local IGNORE_FILETYPES = {
   [''] = true,
 }
 ---@class plugins.chrome.lualine.components.buffer_status.Cache
----@field current_unsaved string
----@field global_unsaved string
----@field global_conflict string
+---@field current_unsaved string|nil
+---@field global_unsaved string|nil
+---@field global_conflict string|nil
 ---@field last_bufnr number
 
 ---@type plugins.chrome.lualine.components.buffer_status.Cache
 local cache = {
-  current_unsaved = '',
-  global_unsaved = '',
-  global_conflict = '',
+  current_unsaved = nil,
+  global_unsaved = nil,
+  global_conflict = nil,
   last_bufnr = -1,
 }
 
 local function invalidate_cache()
-  cache.current_unsaved = ''
-  cache.global_unsaved = ''
-  cache.global_conflict = ''
+  cache.current_unsaved = nil
+  cache.global_unsaved = nil
+  cache.global_conflict = nil
   cache.last_bufnr = -1
 end
 
@@ -62,7 +62,7 @@ vim.api.nvim_create_autocmd('User', {
 local function get_current_unsaved()
   local bufnr = vim.api.nvim_get_current_buf()
 
-  if cache.last_bufnr == bufnr and cache.current_unsaved ~= '' then
+  if cache.last_bufnr == bufnr and cache.current_unsaved ~= nil then
     return cache.current_unsaved
   end
 
@@ -110,7 +110,7 @@ end
 ---Get global modified flag (count of other modified buffers)
 ---@return string
 local function get_global_unsaved()
-  if cache.global_unsaved ~= '' then
+  if cache.global_unsaved ~= nil then
     return cache.global_unsaved
   end
 
@@ -154,7 +154,7 @@ end
 ---Get global conflict flag (count of other conflicted buffers)
 ---@return string
 local function get_global_conflict()
-  if cache.global_conflict ~= '' then
+  if cache.global_conflict ~= nil then
     return cache.global_conflict
   end
 
