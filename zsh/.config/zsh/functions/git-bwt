@@ -29,6 +29,6 @@ git-bwt () {
   echo "Fetching remote branches..."
   git fetch &> /dev/null  || return 1
 
-  cd ..
+  cd .. || return 1
   echo -e "\033[0;32mBare worktree setup complete\033[0m"
 }

@@ -56,7 +56,7 @@ return {
 
           local function shorten_path(path)
             local normalized = vim.fs.normalize(path)
-            local rel = cwd and vim.fs.relpath(cwd, normalized) or nil
+            local rel = cwd and vim.fs.relpath(normalized, cwd) or nil
             local display = rel or normalized
 
             if home and display:sub(1, #home) == home then
