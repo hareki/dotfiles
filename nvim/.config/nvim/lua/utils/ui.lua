@@ -20,6 +20,17 @@ function M.highlights(custom_highlights)
   end
 end
 
+---Save the current highlight state for a list of groups
+---@param groups string[] List of highlight group names
+---@return table<string, vim.api.keyset.highlight> snapshot Map of group names to their current styles
+function M.save_hls(groups)
+  local snapshot = {}
+  for _, group in ipairs(groups) do
+    snapshot[group] = vim.api.nvim_get_hl(0, { name = group, link = false })
+  end
+  return snapshot
+end
+
 ---Get the catppuccin color palette for a given flavor
 ---@param name? "frappe" | "latte" | "macchiato" | "mocha" Flavor name (default: "mocha")
 ---@return utils.ui.Palette colors The color palette table

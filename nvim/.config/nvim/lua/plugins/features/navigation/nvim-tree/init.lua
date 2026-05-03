@@ -11,6 +11,7 @@ return {
       NvimTreeLiveFilterPrefix = { fg = palette.yellow },
       NvimTreeGitStagedIcon = { fg = sub_palette.yellow },
       NvimTreeRootFolder = { fg = palette.text, style = {} },
+      NvimTreeGitMergeIcon = { fg = palette.yellow },
       NvimTreeWindowPicker = {
         bg = picker_bg,
         bold = true,
