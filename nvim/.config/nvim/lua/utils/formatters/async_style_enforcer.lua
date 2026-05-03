@@ -240,7 +240,7 @@ function M.run_all(debug)
       return '[No Name]'
     end
     local cwd = vim.uv.cwd()
-    local rel = cwd and vim.fs.relpath(cwd, name) or nil
+    local rel = cwd and vim.fs.relpath(name, { from = cwd }) or nil
     return rel or name
   end
 

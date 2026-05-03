@@ -18,7 +18,7 @@ end
 function M.get_relative_path(file, root)
   local normalized_file = vim.fs.normalize(file)
   local normalized_root = vim.fs.normalize(root)
-  local rel = vim.fs.relpath(normalized_root, normalized_file)
+  local rel = vim.fs.relpath(normalized_file, { from = normalized_root })
   return rel or normalized_file
 end
 
