@@ -140,7 +140,7 @@ return {
         map('n', '<CR>', function()
           restore_buf_state()
           actions.select_default(prompt_bufnr)
-        end)
+        end, 'Select Default')
 
         local common = require('utils.common')
         if common.focus_win(previewer_winid) then
