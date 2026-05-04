@@ -66,28 +66,28 @@ return {
           for _, map in ipairs(keymaps) do
             vim.keymap.set('n', map.lhs, map.rhs, {
               desc = 'Git Conflict: ' .. map.desc,
-              buffer = event.buf,
+              buffer = event.data.buf,
             })
           end
 
-          vim.b[event.buf].git_conflict = true
+          vim.b[event.data.buf].git_conflict = true
 
-          if buf_state[event.buf] then
+          if buf_state[event.data.buf] then
             return
           end
 
           if package.is_loaded('nvim-colorizer.lua') then
             local colorizer = require('colorizer')
-            colorizer.detach_from_buffer(event.buf)
+            colorizer.detach_from_buffer(event.data.buf)
           end
-          vim.diagnostic.enable(false, { bufnr = event.buf })
+          vim.diagnostic.enable(false, { bufnr = event.data.buf })
 
           local in_diffview = utils.in_diffview_tab()
           local autocmd_id = vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
             group = group,
-            buffer = event.buf,
+            buffer = event.data.buf,
             callback = function()
-              local state = buf_state[event.buf]
+              local state = buf_state[event.data.buf]
               if not state then
                 return
               end
@@ -123,7 +123,7 @@ return {
             end,
           })
 
-          buf_state[event.buf] = {
+          buf_state[event.data.buf] = {
             autocmd_id = autocmd_id,
             last_state = { in_conflict = false, should_increase_contrast = false },
             in_diffview = in_diffview,
@@ -144,8 +144,8 @@ return {
         pattern = 'GitConflictResolved',
         callback = function(event)
           for _, map in ipairs(keymaps) do
-            if event.buf and vim.api.nvim_buf_is_valid(event.buf) then
-              local ok = pcall(vim.keymap.del, 'n', map.lhs, { buffer = event.buf })
+            if event.data.buf and vim.api.nvim_buf_is_valid(event.data.buf) then
+              local ok = pcall(vim.keymap.del, 'n', map.lhs, { buffer = event.data.buf })
               if not ok then
                 pcall(vim.keymap.del, 'n', map.lhs)
               end
@@ -154,17 +154,17 @@ return {
             end
           end
 
-          if event.buf then
-            cleanup_buf(event.buf)
+          if event.data.buf then
+            cleanup_buf(event.data.buf)
           end
 
-          if event.buf and vim.api.nvim_buf_is_valid(event.buf) then
-            vim.b[event.buf].git_conflict = nil
+          if event.data.buf and vim.api.nvim_buf_is_valid(event.data.buf) then
+            vim.b[event.data.buf].git_conflict = nil
             if package.is_loaded('nvim-colorizer.lua') then
               local colorizer = require('colorizer')
-              colorizer.attach_to_buffer(event.buf)
+              colorizer.attach_to_buffer(event.data.buf)
             end
-            vim.diagnostic.enable(true, { bufnr = event.buf })
+            vim.diagnostic.enable(true, { bufnr = event.data.buf })
           end
 
           ui.highlights(saved_hls)
