@@ -1,11 +1,13 @@
+local prefix = 'gs'
 local mappings = {
-  add = 'sa',
-  delete = 'sd',
-  replace = 'sr',
+  add = prefix .. 'a',
+  delete = prefix .. 'd',
+  replace = prefix .. 'r',
 }
 
 return {
   WhichKey({
+    specs = { prefix, group = 'Mini Surround' },
     rules = { pattern = 'mini.surround', icon = Icons.tools.surround, color = 'green' },
   }),
 
@@ -13,8 +15,8 @@ return {
     'echasnovski/mini.surround',
     keys = function()
       return {
-        { mappings.add, mode = { 'x' }, desc = 'Mini Surround: Add' },
-        { mappings.delete, mode = { 'n', 'x' }, desc = 'Mini Surround: Delete' },
+        { mappings.add, mode = { 'n', 'x' }, desc = 'Mini Surround: Add' },
+        { mappings.delete, mode = { 'n' }, desc = 'Mini Surround: Delete' },
         { mappings.replace, mode = { 'n' }, desc = 'Mini Surround: Replace' },
       }
     end,

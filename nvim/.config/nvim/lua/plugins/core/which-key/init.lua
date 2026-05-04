@@ -116,6 +116,7 @@ return {
             { pattern = 'end', icon = Icons.navigation.next },
             { pattern = 'cut', icon = Icons.actions.cut, color = 'yellow' },
             { pattern = 'up', icon = Icons.navigation.up },
+            { pattern = 'low', icon = Icons.navigation.down },
             { pattern = 'down', icon = Icons.navigation.down },
             { pattern = 'right', icon = Icons.navigation.right },
             { pattern = 'left', icon = Icons.navigation.left },
@@ -127,6 +128,7 @@ return {
             { pattern = 'prompt', icon = Icons.editor.prompt, color = 'blue' },
             { pattern = 'send file', icon = Icons.actions.send_file, color = 'cyan' },
             { pattern = 'newline', icon = Icons.actions.newline },
+            { pattern = 'image', icon = Icons.editor.image, color = 'green' },
           },
         },
       }
