@@ -12,10 +12,6 @@ export DYLD_FALLBACK_LIBRARY_PATH="/opt/homebrew/lib:$DYLD_FALLBACK_LIBRARY_PATH
 # https://unix.stackexchange.com/questions/167582/why-zsh-ends-a-line-with-a-highlighted-percent-symbol
 export PROMPT_EOL_MARK=''
 
-# Zoxide specific options 
-export _ZO_FZF_OPTS="--height=45%"
-export _ZO_FZF_OPTS="$_ZO_FZF_OPTS $FZF_DEFAULT_OPTS"
-
 # FZF Catppuccin Mocha color
 export FZF_DEFAULT_OPTS=" \
 --border=rounded --layout=reverse --cycle --info=inline-right --info-command='echo \"\${FZF_MATCH_COUNT}/\${FZF_TOTAL_COUNT}\"' --pointer='' --highlight-line \
@@ -29,3 +25,6 @@ export FZF_DEFAULT_OPTS=" \
 --bind esc:abort \
 --border-label ' Fzf Suggestions ' \
 --multi"
+
+# Zoxide specific options
+export _ZO_FZF_OPTS="--height=45% $FZF_DEFAULT_OPTS"
