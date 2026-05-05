@@ -81,6 +81,8 @@ function M.run(opts)
     Notifier.warn('Failed to create timeout timer', { title = 'Style Enforcer' })
   end
 
+  ---@param ok boolean
+  ---@param err? string
   local function cleanup(ok, err)
     -- Cancel timeout timer and clean up lock
     close_timeout_timer()
