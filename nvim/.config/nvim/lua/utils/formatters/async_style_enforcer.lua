@@ -122,7 +122,7 @@ function M.run(opts)
     local total = #linters.names_for_filetype(vim.bo[buf].filetype) + (formatted and 1 or 0)
     if total == 0 then
       write()
-      cleanup()
+      cleanup(true)
       return
     end
 

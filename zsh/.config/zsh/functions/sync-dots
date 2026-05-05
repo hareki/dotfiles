@@ -2,8 +2,10 @@
 
 sync-dots () {
   local target_dir="$HOME"
+  local original_dir="$PWD"
   local failed=0
   local -a dirs
+  local package_dir
 
   case "$1" in
     --help|"")
@@ -12,7 +14,9 @@ sync-dots () {
       return 0
       ;;
     all)
-      dirs=(${(f)"$(fd --type d --max-depth 1 --exclude .git --base-directory $STOW_REPO --exec basename {})"})
+      for package_dir in "$STOW_REPO"/*(/N); do
+        dirs+=("${package_dir:t}")
+      done
       ;;
     *)
       dirs=("$@")
@@ -23,7 +27,7 @@ sync-dots () {
   mkdir -p "$target_dir" || return 1
 
   # Change to repo once
-  z "$STOW_REPO" || return 1
+  cd "$STOW_REPO" || return 1
 
   for dir in $dirs; do
     if [[ -d "$dir" ]]; then
@@ -35,6 +39,6 @@ sync-dots () {
     fi
   done
 
-  z - > /dev/null
+  cd "$original_dir" || return 1
   return $failed
 }

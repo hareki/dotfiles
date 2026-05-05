@@ -10,9 +10,9 @@ _sync_dots_autocomplete() {
     'all:Sync every package directory in $STOW_REPO'
   )
 
-  # Get a list of directories under $STOW_REPO excluding .git and feed them into completion
-  for d in ${(f)"$(fd --type d --max-depth 1 --exclude .git --base-directory $repo_dir --exec basename {})"}; do
-    items+=("${d}:Sync ${d} configs")
+  # Get package directories under $STOW_REPO and feed them into completion
+  for d in "$repo_dir"/*(/N); do
+    items+=("${d:t}:Sync ${d:t} configs")
   done
 
   _describe 'stow directories' items
@@ -23,10 +23,13 @@ compdef _sync_dots_autocomplete sync-dots
 _tv_autocomplete() {
   local -a files
   local cable_dir="$HOME/.config/television/cable"
+  local file_path
 
-  # Get list of files in cable directory, strip extensions
+  # Get list of files in cable directory and strip extensions
   if [[ -d "$cable_dir" ]]; then
-    files=(${(f)"$(fd --type f --max-depth 1 --base-directory $cable_dir --exec basename {} | sed 's/\.[^.]*$//')"})
+    for file_path in "$cable_dir"/*(.N); do
+      files+=("${${file_path:t}%.*}")
+    done
     _describe 'television cables' files
   fi
 }
