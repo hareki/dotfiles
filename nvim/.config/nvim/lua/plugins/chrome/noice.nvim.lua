@@ -163,7 +163,7 @@ return {
       -- HACK: noice shows messages from before it was enabled.
       -- This is not ideal when Lazy is installing plugins,
       -- so clear the messages in this case.
-      if vim.o.filetype == 'lazy' then
+      if vim.bo.filetype == 'lazy' then
         vim.cmd.messages({ args = { 'clear' } })
       end
 
