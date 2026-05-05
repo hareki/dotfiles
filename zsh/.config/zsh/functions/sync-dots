@@ -7,6 +7,11 @@ sync-dots () {
   local -a dirs
   local package_dir
 
+  if [[ -z "$STOW_REPO" || ! -d "$STOW_REPO" ]]; then
+    echo "STOW_REPO must be set to an existing directory." >&2
+    return 1
+  fi
+
   case "$1" in
     --help|"")
       print "Usage: sync-dots <dir>..."
