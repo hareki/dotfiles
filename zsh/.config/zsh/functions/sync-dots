@@ -39,6 +39,6 @@ sync-dots () {
     fi
   done
 
-  cd "$original_dir" || return 1
+  cd "$original_dir" || failed=1
   return $failed
 }
