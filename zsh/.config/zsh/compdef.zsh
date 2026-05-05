@@ -11,9 +11,11 @@ _sync_dots_autocomplete() {
   )
 
   # Get package directories under $STOW_REPO and feed them into completion
-  for d in "$repo_dir"/*(/N); do
-    items+=("${d:t}:Sync ${d:t} configs")
-  done
+  if [[ -n "$repo_dir" && -d "$repo_dir" ]]; then
+    for d in "$repo_dir"/*(/N); do
+      items+=("${d:t}:Sync ${d:t} configs")
+    done
+  fi
 
   _describe 'stow directories' items
 }
