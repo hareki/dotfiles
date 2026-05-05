@@ -10,10 +10,12 @@ _sync_dots_autocomplete() {
     'all:Sync every package directory in $STOW_REPO'
   )
 
-  # Get a list of directories under $STOW_REPO excluding .git and feed them into completion
-  for d in ${(f)"$(fd --type d --max-depth 1 --exclude .git --base-directory $repo_dir --exec basename {})"}; do
-    items+=("${d}:Sync ${d} configs")
-  done
+  # Get package directories under $STOW_REPO and feed them into completion
+  if [[ -n "$repo_dir" && -d "$repo_dir" ]]; then
+    for d in "$repo_dir"/*(/N); do
+      items+=("${d:t}:Sync ${d:t} configs")
+    done
+  fi
 
   _describe 'stow directories' items
 }
@@ -23,10 +25,13 @@ compdef _sync_dots_autocomplete sync-dots
 _tv_autocomplete() {
   local -a files
   local cable_dir="$HOME/.config/television/cable"
+  local file_path
 
-  # Get list of files in cable directory, strip extensions
+  # Get list of files in cable directory and strip extensions
   if [[ -d "$cable_dir" ]]; then
-    files=(${(f)"$(fd --type f --max-depth 1 --base-directory $cable_dir --exec basename {} | sed 's/\.[^.]*$//')"})
+    for file_path in "$cable_dir"/*(.N); do
+      files+=("${${file_path:t}%.*}")
+    done
     _describe 'television cables' files
   fi
 }
@@ -64,16 +69,17 @@ compdef _git_bwt_autocomplete git-bwt
 # https://raw.githubusercontent.com/tmuxinator/tmuxinator/master/completion/tmuxinator.zsh
 _tmuxinator() {
   local commands projects
-  commands=(${(f)"$(tmuxinator commands zsh)"})
-  projects=(${(f)"$(tmuxinator completions start)"})
 
   if (( CURRENT == 2 )); then
+    commands=(${(f)"$(tmuxinator commands zsh)"})
+    projects=(${(f)"$(tmuxinator completions start)"})
     _alternative \
       'commands:: _describe -t commands "tmuxinator subcommands" commands' \
       'projects:: _describe -t projects "tmuxinator projects" projects'
   elif (( CURRENT == 3)); then
     case $words[2] in
       copy|cp|c|debug|delete|rm|open|o|start|s|stop|edit|e)
+        projects=(${(f)"$(tmuxinator completions start)"})
         _arguments '*:projects:($projects)'
       ;;
     esac

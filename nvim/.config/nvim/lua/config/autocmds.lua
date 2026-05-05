@@ -11,7 +11,7 @@ local aucmd = vim.api.nvim_create_autocmd
 aucmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
   group = augroup('checktime'),
   callback = function()
-    if vim.o.buftype ~= 'nofile' then
+    if vim.bo.buftype ~= 'nofile' then
       vim.cmd.checktime()
     end
   end,

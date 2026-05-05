@@ -81,6 +81,8 @@ function M.run(opts)
     Notifier.warn('Failed to create timeout timer', { title = 'Style Enforcer' })
   end
 
+  ---@param ok boolean
+  ---@param err? string
   local function cleanup(ok, err)
     -- Cancel timeout timer and clean up lock
     close_timeout_timer()
@@ -122,7 +124,7 @@ function M.run(opts)
     local total = #linters.names_for_filetype(vim.bo[buf].filetype) + (formatted and 1 or 0)
     if total == 0 then
       write()
-      cleanup()
+      cleanup(true)
       return
     end
 
