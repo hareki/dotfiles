@@ -22,7 +22,7 @@ return {
         openai_fim_compatible = {
           -- Need to be `Minuet` so that blink.cmp can look up the correct icon with kind = `Minuet`
           name = 'Minuet',
-          model = 'mercury-coder',
+          model = 'mercury-edit-2',
           end_point = 'https://api.inceptionlabs.ai/v1/fim/completions',
           api_key = 'MERCURY_API_KEY',
           stream = true,
