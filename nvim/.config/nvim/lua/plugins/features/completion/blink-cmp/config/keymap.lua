@@ -47,7 +47,7 @@ M.default = {
   ['<A-Space>'] = {
     function(cmp)
       if cmp.is_menu_visible() then
-        return cmp.show({ providers = { 'minuet' } })
+        return cmp.show({ providers = { vim.g.ai_provider == 'mercury' and 'minuet' or 'copilot' } })
       else
         return cmp.show()
       end
