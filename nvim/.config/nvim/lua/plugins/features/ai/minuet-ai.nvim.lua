@@ -14,6 +14,7 @@ return {
     opts = {
       context_window = 20000,
       request_timeout = limit.ai_cmp_timeout_ms / 1000,
+      n_completions = limit.ai_cmp_max_items,
       throttle = 2500,
       debounce = 500,
       provider = 'openai_fim_compatible',
