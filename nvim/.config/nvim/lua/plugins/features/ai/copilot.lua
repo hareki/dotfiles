@@ -1,5 +1,6 @@
 return {
   'zbirenbaum/copilot.lua',
+  enabled = vim.g.ai_provider == 'copilot',
   cmd = 'Copilot',
   event = { 'InsertEnter', 'BufModifiedSet', 'VeryLazy' },
   dependencies = { 'folke/sidekick.nvim' },

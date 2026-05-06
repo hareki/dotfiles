@@ -32,7 +32,7 @@ local M = {
   file_status = {
     modified = '󰪥 ',
     readonly = '󰌾 ',
-    new = ' ',
+    new = '󰎔',
     unnamed = '',
   },
   git = {
@@ -119,6 +119,7 @@ local M = {
     History = '',
     Yanky = '󰨸',
     RenderMD = '',
+    Minuet = ' ',
   },
   file_icons = {
     keep = '󰊢',

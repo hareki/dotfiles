@@ -7,7 +7,7 @@ return {
 
   {
     'folke/sidekick.nvim',
-    enabled = true,
+    enabled = vim.g.ai_provider == 'copilot',
     keys = function()
       return {
         {
