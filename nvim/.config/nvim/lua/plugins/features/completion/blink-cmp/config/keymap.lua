@@ -47,7 +47,7 @@ M.default = {
   ['<A-Space>'] = {
     function(cmp)
       if cmp.is_menu_visible() then
-        return cmp.show({ providers = { 'copilot' } })
+        return cmp.show({ providers = { 'minuet' } })
       else
         return cmp.show()
       end

@@ -18,10 +18,11 @@ return {
   },
   {
     'fang2hou/blink-copilot',
+    enabled = vim.g.ai_provider == 'copilot',
     opts = function()
       return {
-        max_completions = limit.copilot_max_items,
-        max_attempts = limit.copilot_max_items + 1,
+        max_completions = limit.ai_cmp_max_items,
+        max_attempts = limit.ai_cmp_max_items + 1,
         kind_name = 'Copilot',
         kind_icon = Icons.kinds.Copilot,
         kind_hl = 'BlinkCmpKindCopilot',
