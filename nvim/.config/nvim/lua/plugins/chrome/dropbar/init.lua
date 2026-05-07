@@ -2,12 +2,13 @@ return {
   Catppuccin(function(palette)
     local highlights = {
       DropBarKindDir = { fg = palette.overlay1 },
+      DropBarKindDirMenu = { fg = palette.blue },
+      DropBarMenuCurrentContext = { link = 'Visual' },
       DropBarKindFileBar = { fg = palette.blue, bold = true },
       DropBarIconUIIndicator = { fg = palette.blue, bg = nil },
       DropBarMenuHoverIcon = { link = 'DropBarMenuIcon' }, -- Disable reversing color when hovering
       DropBarIconUISeparator = { fg = palette.overlay1 },
       DropBarMenuHoverEntry = { link = 'Visual' },
-      DropBarMenuHoverSymbol = { bold = true },
     }
 
     local dropbar_utils = require('plugins.chrome.dropbar.utils')
@@ -44,7 +45,6 @@ return {
 
       return {
         menu = {
-          indicator_side = 'right',
           preview = false,
           win_configs = {
             border = 'rounded',
@@ -53,12 +53,15 @@ return {
         icons = {
           ui = {
             menu = {
-              indicator = Icons.explorer.collapsed,
+              indicator = ' ' .. Icons.explorer.collapsed .. ' ',
             },
           },
           kinds = {
             symbols = {
               Folder = '',
+              FolderMenu = Icons.explorer.folder .. ' ',
+              FolderEmptyMenu = Icons.explorer.folder_empty .. ' ',
+              FolderOpenMenu = Icons.explorer.folder_open .. ' ',
             },
           },
         },
@@ -158,6 +161,10 @@ return {
             relative_to = function()
               local path_utils = require('utils.path')
               return path_utils.get_initial_path()
+            end,
+
+            filter = function(name)
+              return name ~= '.DS_Store'
             end,
           },
         },

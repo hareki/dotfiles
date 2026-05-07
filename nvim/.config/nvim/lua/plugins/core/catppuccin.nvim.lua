@@ -16,6 +16,7 @@ return {
       default_integrations = false,
 
       custom_highlights = {
+        PmenuSel = { style = {} },
         Substitute = { bg = substitute_bg, fg = substitute_fg },
         WinSeparator = { fg = palette.overlay0 },
         Visual = { bg = color.surface15, style = {} },

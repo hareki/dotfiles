@@ -78,9 +78,16 @@ function M.create_node_action(folder_action)
       return
     end
 
+    --- api.tree.get_node_under_cursor can return nvim_tree.api.DirectoryNode. Which contains `nodes`
+    ---@diagnostic disable-next-line: undefined-field
     local is_file_node = node.nodes == nil
 
     if is_file_node then
+      if folder_action == 'collapse' then
+        api.node.navigate.parent()
+        api.node.open.edit()
+        return
+      end
       api.node.open.edit()
       if M.state.position == 'float' then
         M.close_all()
@@ -88,10 +95,14 @@ function M.create_node_action(folder_action)
       return
     end
 
+    --- api.tree.get_node_under_cursor can return nvim_tree.api.DirectoryNode. Which contains `open` field
+    ---@diagnostic disable-next-line: undefined-field
+    local nodeOpen = node.open
+
     if
       folder_action == 'toggle'
-      or folder_action == 'expand' and not node.open
-      or folder_action == 'collapse' and node.open
+      or folder_action == 'expand' and not nodeOpen
+      or folder_action == 'collapse' and nodeOpen
     then
       api.node.open.edit()
     end
