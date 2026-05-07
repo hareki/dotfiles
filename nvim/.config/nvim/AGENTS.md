@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Personal Neovim configuration using **lazy.nvim** plugin manager. Targets Neovim 0.11+ with native LSP support.
 
+## LuaLS Diagnostics Caveat
+
+The LuaLS diagnostics surfaced to you will often report `undefined-global` for the project globals documented in the [Globals](#globals-luaconfigglobalslua) table, as well as for plugin-provided globals (e.g. `Snacks`). **[VERY IMPORTANT] These are false positives, ignore these warnings entirely.**
+
 ## Code Style
 
 - **Formatter**: stylua — 100-char lines, 2-space indent, single quotes (see `.stylua.toml`)
@@ -39,16 +43,16 @@ Import order in `config/lazy/init.lua`: `plugins.core` **must be first**. All pl
 
 Eight globals available everywhere (seven set in `globals.lua`, one by its plugin):
 
-| Global       | Source                           | Usage                                                           |
-| ------------ | -------------------------------- | --------------------------------------------------------------- |
-| `Defer`      | `utils.lazy-require`             | `Defer.on_index()`, `Defer.on_exported_call()`                  |
-| `Notifier`   | Lazy proxy → `services.notifier` | `Notifier.info('msg')`, `Notifier.warn('msg', { title = 'T' })` |
-| `Catppuccin` | `utils.ui.catppuccin`            | Highlight registration in plugin specs                          |
-| `WhichKey`   | `utils.ui.which_key`             | Which-key group/rule registration in plugin specs               |
+| Global       | Source                           | Usage                                                                           |
+| ------------ | -------------------------------- | ------------------------------------------------------------------------------- |
+| `Defer`      | `utils.lazy-require`             | `Defer.on_index()`, `Defer.on_exported_call()`                                  |
+| `Notifier`   | Lazy proxy → `services.notifier` | `Notifier.info('msg')`, `Notifier.warn('msg', { title = 'T' })`                 |
+| `Catppuccin` | `utils.ui.catppuccin`            | Highlight registration in plugin specs                                          |
+| `WhichKey`   | `utils.ui.which_key`             | Which-key group/rule registration in plugin specs                               |
 | `Filetypes`  | `config.filetypes`               | Filetype group constants (`M.js`, `M.jsx`, `M.css`, `M.json`, `M.js_all`, etc.) |
-| `Icons`      | `config.icons`                   | All icons — never hardcode icon strings                         |
-| `Priority`   | `config.priority`                | `CORE = 1000`, `CHROME = 900`, `FEATURE = 800`                  |
-| `Snacks`     | Set by snacks.nvim at runtime    | `Snacks.picker.*`, `Snacks.terminal.*`, etc.                    |
+| `Icons`      | `config.icons`                   | All icons — never hardcode icon strings                                         |
+| `Priority`   | `config.priority`                | `CORE = 1000`, `CHROME = 900`, `FEATURE = 800`                                  |
+| `Snacks`     | Set by snacks.nvim at runtime    | `Snacks.picker.*`, `Snacks.terminal.*`, etc.                                    |
 
 ### Key Modules
 
