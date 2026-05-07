@@ -173,6 +173,13 @@ return {
 
       state.opts = {
         hijack_cursor = true, -- Keep cursor on the first letter of filename
+        actions = {
+          open_file = {
+            window_picker = {
+              enable = false, -- Skips the prompt of where to put the file where there're multiple windows
+            },
+          },
+        },
 
         -- Hijack directories ourselves for the floating view to work correctly
         hijack_directories = {

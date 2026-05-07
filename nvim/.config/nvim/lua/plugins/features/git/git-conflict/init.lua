@@ -34,8 +34,21 @@ return {
       local utils = require('plugins.features.git.git-conflict.utils')
       local package = require('utils.package')
       local palette = ui.get_palette()
-      local saved_hls = ui.save_hls({ 'DocumentHighlight', 'GitSignsCurrentLineBlame' })
       local group = vim.api.nvim_create_augroup('GitConflictKeymaps', { clear = true })
+
+      -- Window-local 'winhighlight' redirect: only the listed groups are
+      -- remapped in the conflict window, leaving every other highlight
+      -- (NvimTreeWindowPicker, statusline, etc.) to resolve normally.
+      -- We intentionally do NOT use nvim_win_set_hl_ns: with a window
+      -- namespace set, winhighlight redirects in OTHER plugins (e.g.
+      -- nvim-tree's picker remapping StatusLine -> NvimTreeWindowPicker)
+      -- fail to fall back to global definitions and render with defaults.
+      vim.api.nvim_set_hl(0, 'GitConflictDocumentHighlight', { bg = color.surface15 })
+      vim.api.nvim_set_hl(0, 'GitConflictBlame', { fg = palette.subtext0 })
+      local conflict_winhl = table.concat({
+        'DocumentHighlight:GitConflictDocumentHighlight',
+        'GitSignsCurrentLineBlame:GitConflictBlame',
+      }, ',')
 
       local keymaps = {
         { lhs = '<leader>co', rhs = '<Plug>(git-conflict-ours)', desc = 'Choose Ours' },
@@ -58,15 +71,9 @@ return {
         buf_state[bufnr] = nil
       end
 
-      local function set_conflict_highlights(in_conflict)
-        if in_conflict then
-          ui.highlight('DocumentHighlight', { bg = color.surface15 })
-          ui.highlight('GitSignsCurrentLineBlame', { fg = palette.subtext0 })
-          return
-        end
-
-        ui.highlight('DocumentHighlight', saved_hls.DocumentHighlight)
-        ui.highlight('GitSignsCurrentLineBlame', saved_hls.GitSignsCurrentLineBlame)
+      local function apply_window_winhl(in_conflict)
+        local win = vim.api.nvim_get_current_win()
+        vim.wo[win].winhighlight = in_conflict and conflict_winhl or ''
       end
 
       vim.api.nvim_create_autocmd('User', {
@@ -96,26 +103,39 @@ return {
 
           -- Wait a bit for the position to be stable and then initialize the highlights
           vim.defer_fn(function()
-            local init_in_conflict = utils.cursor_in_conflict()
-            set_conflict_highlights(init_in_conflict)
+            apply_window_winhl(utils.cursor_in_conflict())
           end, 100)
 
-          local autocmd_id = vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
-            group = group,
-            buffer = bufnr,
-            callback = function()
-              local state = buf_state[bufnr]
-              if not state then
-                return
-              end
+          local autocmd_id = vim.api.nvim_create_autocmd(
+            { 'CursorMoved', 'CursorMovedI', 'BufWinEnter', 'BufLeave' },
+            {
+              group = group,
+              buffer = bufnr,
+              callback = function(args)
+                local state = buf_state[bufnr]
+                if not state then
+                  return
+                end
 
-              local in_conflict = utils.cursor_in_conflict()
-              if state.in_conflict ~= in_conflict then
+                -- 'winhighlight' is window-local and persists across buffer
+                -- swaps in the same window (e.g. opening a file via nvim-tree
+                -- / snacks picker), so clear it when the conflict buffer
+                -- leaves the window. BufWinEnter / CursorMoved re-apply on
+                -- return.
+                if args.event == 'BufLeave' then
+                  apply_window_winhl(false)
+                  return
+                end
+
+                -- Always re-apply: BufWinEnter on a new split starts with
+                -- empty winhighlight, so the cached state.in_conflict guard
+                -- would skip the apply.
+                local in_conflict = utils.cursor_in_conflict()
                 state.in_conflict = in_conflict
-                set_conflict_highlights(in_conflict)
-              end
-            end,
-          })
+                apply_window_winhl(in_conflict)
+              end,
+            }
+          )
 
           buf_state[bufnr] = {
             autocmd_id = autocmd_id,
@@ -160,9 +180,11 @@ return {
               colorizer.attach_to_buffer(bufnr)
             end
             vim.diagnostic.enable(true, { bufnr = bufnr })
-          end
 
-          ui.highlights(saved_hls)
+            for _, win in ipairs(vim.fn.win_findbuf(bufnr)) do
+              vim.wo[win].winhighlight = ''
+            end
+          end
         end,
       })
     end,
