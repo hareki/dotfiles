@@ -3,7 +3,12 @@ return {
 
   lazy = false,
   priority = Priority.CHROME,
-  dependencies = { 'AndreM222/copilot-lualine' },
+  dependencies = {
+    {
+      'AndreM222/copilot-lualine',
+      enabled = vim.g.ai_provider == 'copilot',
+    },
+  },
 
   enabled = function()
     local lualine_utils = require('services.statusline')
