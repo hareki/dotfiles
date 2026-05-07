@@ -16,7 +16,7 @@ local word_paths = {
 }
 
 local ai_source = vim.g.ai_provider == 'copilot' and 'copilot'
-  or vim.g.ai_provider == 'mercury' and 'minuet'
+  -- or vim.g.ai_provider == 'mercury' and 'minuet'
   or nil
 
 M.default = {

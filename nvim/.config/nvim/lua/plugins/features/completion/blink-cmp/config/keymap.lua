@@ -1,6 +1,8 @@
 ---@class blink-cmp.config.keymap
 local M = {}
 
+local providers = { vim.g.ai_provider == 'mercury' and 'minuet' or 'copilot' }
+
 M.default = {
   preset = 'none',
   ['<CR>'] = { 'accept', 'fallback' },
@@ -47,10 +49,17 @@ M.default = {
   ['<A-Space>'] = {
     function(cmp)
       if cmp.is_menu_visible() then
-        return cmp.show({ providers = { vim.g.ai_provider == 'mercury' and 'minuet' or 'copilot' } })
+        return cmp.show({ providers = providers })
       else
         return cmp.show()
       end
+    end,
+    'fallback',
+  },
+
+  ['<C-Space>'] = {
+    function(cmp)
+      return cmp.show({ providers = providers })
     end,
     'fallback',
   },
