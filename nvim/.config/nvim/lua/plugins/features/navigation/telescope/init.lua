@@ -65,12 +65,12 @@ return {
         -- 1. Collapse the blank row between *prompt* and *results*
         layout.results.line = layout.results.line - 1
         layout.results.height = layout.results.height + 1
-        local ui_utils = require('utils.ui')
+        local ui = require('utils.ui')
 
         -- 2. Seems like telescope.nvim exclude the statusline when centering the layout,
         -- Which is different from our logic in `size_utils.get_float_config('lg')`
         -- So we need to adjust/shift the position if needed
-        local target_row = ui_utils.popup_config(size, true).row
+        local target_row = ui.popup_config(size, true).row
         -- The top most component is the prompt window, so we use it as the anchor to adjust the position
         local top_line = layout.prompt.line
 
@@ -96,6 +96,7 @@ return {
         local actions_state = require('telescope.actions.state')
         local telescope_state = require('telescope.state')
         local cursorline = require('services.cursorline')
+        local common = require('utils.common')
 
         local picker = actions_state.get_current_picker(prompt_bufnr)
         local prompt_win = picker.prompt_win
@@ -104,7 +105,6 @@ return {
         local previewer_bufnr = previewer_winid and vim.api.nvim_win_get_buf(previewer_winid) or nil
 
         if not (previewer_winid and vim.api.nvim_win_is_valid(previewer_winid)) then
-          local common = require('utils.common')
           common.focus_win(prompt_win)
           return
         end
@@ -128,7 +128,6 @@ return {
         map('n', '<Tab>', function()
           restore_buf_state()
           set_cursorline(false, previewer_winid)
-          local common = require('utils.common')
           common.focus_win(prompt_win)
         end, 'Focus Prompt Window')
 
@@ -142,7 +141,6 @@ return {
           actions.select_default(prompt_bufnr)
         end, 'Select Default')
 
-        local common = require('utils.common')
         if common.focus_win(previewer_winid) then
           vim.schedule(function()
             set_cursorline(true, previewer_winid)

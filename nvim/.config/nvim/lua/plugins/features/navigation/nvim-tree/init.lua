@@ -110,8 +110,8 @@ return {
           local size_configs = require('config.size')
 
           local side_preview = size_configs.side_preview
-          local size_utils = require('utils.ui')
-          local size = size_utils.popup_config(tree.state.size)
+          local ui = require('utils.ui')
+          local size = ui.popup_config(tree.state.size)
 
           -- We need to fill the missing row if the total height is an odd number
           -- (we can't have equal height for both windows)
@@ -124,7 +124,7 @@ return {
             }
           end
 
-          local preview_cols, preview_rows = size_utils.compute_size(side_preview.md)
+          local preview_cols, preview_rows = ui.compute_size(side_preview.md)
 
           return {
             width = preview_cols,
@@ -164,12 +164,11 @@ return {
     end,
 
     opts = function()
-      local ui_utils = require('utils.ui')
+      local ui = require('utils.ui')
       local size_configs = require('config.size')
       local tree = require('plugins.features.navigation.nvim-tree.utils')
       local state = tree.state
       local picker_config = require('config.picker')
-      local nvim_tree_utils = require('plugins.features.navigation.nvim-tree.utils')
 
       state.opts = {
         hijack_cursor = true, -- Keep cursor on the first letter of filename
@@ -267,15 +266,15 @@ return {
           side = 'right',
           -- Width when not in float mode
           width = function()
-            local panel_cols = ui_utils.compute_size(size_configs.side_panel.md)
+            local panel_cols = ui.compute_size(size_configs.side_panel.md)
             return panel_cols
           end,
 
           float = {
-            enable = nvim_tree_utils.state.position == 'float',
+            enable = state.position == 'float',
             quit_on_focus_loss = false,
             open_win_config = function()
-              local size = ui_utils.popup_config(tree.state.size)
+              local size = ui.popup_config(tree.state.size)
               local window_w = size.width
               local window_h = math.floor(size.height / 2)
               local col = size.col

@@ -97,12 +97,12 @@ function M.create_node_action(folder_action)
 
     --- api.tree.get_node_under_cursor can return nvim_tree.api.DirectoryNode. Which contains `open` field
     ---@diagnostic disable-next-line: undefined-field
-    local nodeOpen = node.open
+    local node_open = node.open
 
     if
       folder_action == 'toggle'
-      or folder_action == 'expand' and not nodeOpen
-      or folder_action == 'collapse' and nodeOpen
+      or folder_action == 'expand' and not node_open
+      or folder_action == 'collapse' and node_open
     then
       api.node.open.edit()
     end
@@ -145,13 +145,13 @@ function M.toggle_tree_height(action)
     return
   end
 
-  local ui_utils = require('utils.ui')
-  local size = ui_utils.popup_config(M.state.size)
+  local ui = require('utils.ui')
+  local size = ui.popup_config(M.state.size)
   local window_h = math.floor(size.height / 2)
   local half_height = window_h - 1 -- Minus 1 for the space between the two windows
 
   -- Have to add one extra row if the total height is an odd number to fill out the entire popup size
-  local offset = ui_utils.popup_config(M.state.size).height % 2 == 0 and 0 or 1
+  local offset = size.height % 2 == 0 and 0 or 1
   local full_height = window_h * 2 + offset
 
   local cfg = vim.api.nvim_win_get_config(tree_win)

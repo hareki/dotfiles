@@ -13,6 +13,10 @@ local function diagnostic_goto(next, severity)
   end
 end
 
+local function style_enforcer()
+  return require('utils.formatters.async_style_enforcer')
+end
+
 -- Clean up Snacks keymaps picker a little
 for _, key in ipairs({
   ']a',
@@ -45,13 +49,11 @@ map({ 'n' }, '<Esc>', function()
 end, { desc = 'Clear Highlight' })
 
 map({ 'n', 'i' }, '<A-s>', function()
-  local enforcer = require('utils.formatters.async_style_enforcer')
-  enforcer.run()
+  style_enforcer().run()
 end, { desc = 'Format and Save' })
 
 map({ 'n', 'i' }, '<leader>F', function()
-  local enforcer = require('utils.formatters.async_style_enforcer')
-  enforcer.run({
+  style_enforcer().run({
     save = false,
   })
 end, { desc = 'Format' })
@@ -60,8 +62,7 @@ end, { desc = 'Format' })
 -- Test the keymap Neovim will receive with
 -- :echo keytrans(getcharstr())
 map({ 'n', 'i' }, '<F40>', function()
-  local enforcer = require('utils.formatters.async_style_enforcer')
-  enforcer.run_all()
+  style_enforcer().run_all()
 end, { desc = 'Format and Save All' })
 
 -- Mapped to Ctrl+Shift+W in ghostty config

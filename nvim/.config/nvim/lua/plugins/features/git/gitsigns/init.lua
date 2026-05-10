@@ -76,8 +76,8 @@ return {
         on_attach = function(buffer)
           local gs = package.loaded.gitsigns
 
-          local function map(mode, l, r, desc)
-            vim.keymap.set(mode, l, r, { buffer = buffer, desc = desc, silent = true })
+          local function map(mode, lhs, rhs, desc)
+            vim.keymap.set(mode, lhs, rhs, { buffer = buffer, desc = desc, silent = true })
           end
 
           map('n', ']h', function()
@@ -118,7 +118,7 @@ return {
           map('n', '<leader>hD', function()
             gs.diffthis('~')
           end, 'Diff This ~')
-          map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>', 'GitSigns Select Hunk')
+          map({ 'o', 'x' }, 'ih', '<cmd>Gitsigns select_hunk<cr>', 'Gitsigns Select Hunk')
 
           map('n', '<leader>hb', function()
             local gitsigns = require('gitsigns')
