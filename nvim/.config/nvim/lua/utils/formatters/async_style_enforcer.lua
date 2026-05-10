@@ -95,7 +95,7 @@ function M.run(opts)
   local progress_utils = require('utils.progress')
 
   local progress = progress_utils.create({
-    pending_ms = 0,
+    pending_ms = 500,
     client_name = 'stenfo',
   })
 
