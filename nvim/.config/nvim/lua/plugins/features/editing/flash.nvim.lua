@@ -1,8 +1,5 @@
 return {
   'folke/flash.nvim',
-  ---@type Flash.Config
-  opts = {},
-
   keys = {
     {
       'f',
@@ -48,7 +45,6 @@ return {
       end,
       desc = 'Treesitter Search',
     },
-    -- { '<C-s>', mode = { 'c' }, function() require('flash').toggle() end, desc = 'Toggle Flash Search', },
     -- Simulate nvim-treesitter incremental selection
     {
       '<C-Space>',
@@ -65,4 +61,6 @@ return {
       desc = 'Treesitter Incremental Selection',
     },
   },
+  ---@type Flash.Config
+  opts = {},
 }

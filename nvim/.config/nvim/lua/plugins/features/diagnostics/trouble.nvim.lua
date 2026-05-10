@@ -51,24 +51,24 @@ return {
     end,
 
     opts = function()
-      local ui_utils = require('utils.ui')
+      local ui = require('utils.ui')
       local size_configs = require('config.size')
       local picker_config = require('config.picker')
-      local preview_cols, preview_rows = ui_utils.compute_size(size_configs.side_preview.md)
-      local panel_cols, _ = ui_utils.compute_size(size_configs.side_panel.md)
+      local preview_cols, preview_rows = ui.compute_size(size_configs.side_preview.md)
+      local panel_cols, _ = ui.compute_size(size_configs.side_panel.md)
       local preview_width_offset = panel_cols + preview_cols + 3
       local preview_height_offset = math.floor((vim.o.lines - preview_rows) / 2) - 1
 
       local function toggle_focus()
-        local previewManager = require('trouble.view.preview')
-        local preview = previewManager.preview
+        local preview_manager = require('trouble.view.preview')
+        local preview = preview_manager.preview
 
-        if not previewManager.is_open() or not preview then
+        if not preview_manager.is_open() or not preview then
           return
         end
 
-        local function map(key, callback, desc)
-          vim.keymap.set('n', key, callback, { buffer = preview.buf, desc = desc })
+        local function map(mode, lhs, rhs, desc)
+          vim.keymap.set(mode, lhs, rhs, { buffer = preview.buf, desc = desc })
         end
 
         local trouble_win = vim.api.nvim_get_current_win()
@@ -76,13 +76,13 @@ return {
         local common = require('utils.common')
         common.focus_win(preview.win)
 
-        map('<Tab>', function()
+        map('n', '<Tab>', function()
           if vim.api.nvim_win_is_valid(trouble_win) then
             common.focus_win(trouble_win)
           end
         end, 'Focus Trouble Window')
 
-        map('<CR>', function()
+        map('n', '<CR>', function()
           local trouble_view = require('trouble.view')
           local first_view = trouble_view.get({ open = true })[1]
           if first_view and preview.item then
@@ -90,7 +90,7 @@ return {
           end
         end, 'Jump to Item')
 
-        map('q', function()
+        map('n', 'q', function()
           if vim.api.nvim_win_is_valid(trouble_win) then
             common.focus_win(trouble_win)
           end

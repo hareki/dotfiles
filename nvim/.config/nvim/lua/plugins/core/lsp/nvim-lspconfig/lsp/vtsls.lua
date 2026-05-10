@@ -103,11 +103,10 @@ return {
           return
         end
 
-        ---@param lhs string
         ---@param action string
-        ---@param desc string
-        local function map(lhs, action, desc)
-          vim.keymap.set('n', lhs, function()
+        ---@return fun()
+        local function code_action(action)
+          return function()
             vim.lsp.buf.code_action({
               apply = true,
               context = {
@@ -115,14 +114,22 @@ return {
                 diagnostics = {},
               },
             })
-          end, {
+          end
+        end
+
+        ---@param mode string|string[]
+        ---@param lhs string
+        ---@param rhs string|function
+        ---@param desc string
+        local function map(mode, lhs, rhs, desc)
+          vim.keymap.set(mode, lhs, rhs, {
             buffer = args.buf,
             desc = 'TypeScript: ' .. desc,
           })
         end
 
-        map('<leader>cu', 'source.removeUnused.ts', 'Remove Unused Imports')
-        map('<leader>ci', 'source.addMissingImports.ts', 'Add Missing Imports')
+        map('n', '<leader>cu', code_action('source.removeUnused.ts'), 'Remove Unused Imports')
+        map('n', '<leader>ci', code_action('source.addMissingImports.ts'), 'Add Missing Imports')
       end,
     })
   end,
