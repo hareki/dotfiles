@@ -36,6 +36,10 @@ return {
       local palette = ui.get_palette()
       local group = vim.api.nvim_create_augroup('GitConflictKeymaps', { clear = true })
 
+      -- Debounce window for the cursor-in-conflict scan. The scan walks up to
+      -- 1000 lines, which can lag when cursor movement is held down.
+      local CURSOR_DEBOUNCE_MS = 100
+
       -- Window-local 'winhighlight' redirect: only the listed groups are
       -- remapped in the conflict window, leaving every other highlight
       -- (NvimTreeWindowPicker, statusline, etc.) to resolve normally.
@@ -59,7 +63,7 @@ return {
         { lhs = ']x', rhs = '<Plug>(git-conflict-next-conflict)', desc = 'Next Conflict' },
       }
 
-      ---@type table<integer, { autocmd_id: integer, in_conflict: boolean }>
+      ---@type table<integer, { autocmd_id: integer, in_conflict: boolean, timer: uv.uv_timer_t? }>
       local buf_state = {}
 
       local function cleanup_buf(bufnr)
@@ -68,12 +72,53 @@ return {
           return
         end
         pcall(vim.api.nvim_del_autocmd, state.autocmd_id)
+
+        if state.timer then
+          state.timer:stop()
+          if not state.timer:is_closing() then
+            state.timer:close()
+          end
+        end
         buf_state[bufnr] = nil
       end
 
       local function apply_window_winhl(in_conflict)
         local win = vim.api.nvim_get_current_win()
         vim.wo[win].winhighlight = in_conflict and conflict_winhl or ''
+      end
+
+      local function schedule_cursor_check(bufnr)
+        local state = buf_state[bufnr]
+        if not state then
+          return
+        end
+
+        if not state.timer then
+          state.timer = vim.uv.new_timer()
+        end
+
+        state.timer:stop()
+        state.timer:start(
+          CURSOR_DEBOUNCE_MS,
+          0,
+          vim.schedule_wrap(function()
+            if not vim.api.nvim_buf_is_valid(bufnr) then
+              return
+            end
+            -- Skip if user moved to a different buffer in the meantime; BufLeave
+            -- already cleared winhl, and BufWinEnter will re-apply on return.
+            if vim.api.nvim_get_current_buf() ~= bufnr then
+              return
+            end
+            local current = buf_state[bufnr]
+            if not current then
+              return
+            end
+            local in_conflict = utils.cursor_in_conflict()
+            current.in_conflict = in_conflict
+            apply_window_winhl(in_conflict)
+          end)
+        )
       end
 
       vim.api.nvim_create_autocmd('User', {
@@ -123,13 +168,22 @@ return {
                 -- leaves the window. BufWinEnter / CursorMoved re-apply on
                 -- return.
                 if args.event == 'BufLeave' then
+                  if state.timer then
+                    state.timer:stop()
+                  end
                   apply_window_winhl(false)
                   return
                 end
 
-                -- Always re-apply: BufWinEnter on a new split starts with
-                -- empty winhighlight, so the cached state.in_conflict guard
-                -- would skip the apply.
+                -- Cursor movement is debounced because cursor_in_conflict
+                -- scans up to 1000 lines and can stutter when held down.
+                -- BufWinEnter stays synchronous to avoid a visible gap when
+                -- entering a new split (which starts with empty winhighlight).
+                if args.event == 'CursorMoved' or args.event == 'CursorMovedI' then
+                  schedule_cursor_check(bufnr)
+                  return
+                end
+
                 local in_conflict = utils.cursor_in_conflict()
                 state.in_conflict = in_conflict
                 apply_window_winhl(in_conflict)
