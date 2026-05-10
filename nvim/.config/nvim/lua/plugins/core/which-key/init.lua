@@ -19,7 +19,7 @@ return {
 
     opts = function()
       local desc_override_specs = {}
-      local keymap_registry = require('services.keymap_registry')
+      local keymap_registry = require('services.keymap-registry')
       for lhs, spec in pairs(keymap_registry.desc_overrides) do
         table.insert(desc_override_specs, { lhs, desc = spec.desc, mode = spec.mode })
       end

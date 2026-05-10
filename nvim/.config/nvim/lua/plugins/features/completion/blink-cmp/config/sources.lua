@@ -2,7 +2,7 @@
 local M = {}
 
 local utils = require('plugins.features.completion.blink-cmp.utils')
-local limit = require('plugins.features.completion.blink-cmp.config.limit')
+local limit = require('services.blink-cmp')
 
 local history = utils.register_kind('History')
 local spell = utils.register_kind('Spell')
