@@ -36,7 +36,8 @@ local function is_chunk_list(tbl)
     return false
   end
   for _, v in ipairs(tbl) do
-    if type(v) ~= 'string'
+    if
+      type(v) ~= 'string'
       and (type(v) ~= 'table' or type(v[1]) ~= 'string' or (v[2] ~= nil and type(v[2]) ~= 'string'))
     then
       return false
@@ -150,32 +151,26 @@ function M.notify(msg, opts)
   local function merged_on_open(win)
     local buf = vim.api.nvim_win_get_buf(win)
 
-    if is_markdown then
-      vim.b[buf].notify_is_markdown = is_markdown
-      vim.bo[buf].filetype = 'markdown'
-    end
+    apply_highlight(win)
 
-    if apply_highlight then
-      apply_highlight(win)
+    -- Relies on `nvim-notify` re-detecting filetype during duplicate render
+    autocmd_id = vim.api.nvim_create_autocmd({
+      'FileType',
+    }, {
+      buffer = buf,
+      callback = function()
+        if not vim.api.nvim_win_is_valid(win) then
+          return
+        end
 
-      autocmd_id = vim.api.nvim_create_autocmd({
-        'FileType',
-      }, {
-        buffer = buf,
-        callback = function()
-          if not vim.api.nvim_win_is_valid(win) then
-            return
-          end
+        apply_highlight(win)
+      end,
+      desc = 'Reapply Notifier Highlighting for Duplicate Messages',
+    })
 
-          apply_highlight(win)
-        end,
-        desc = 'Reapply Notifier Highlighting for Duplicate Messages',
-      })
-
-      -- Track autocmd in shared state for replace-path cleanup (id'd notifications only)
-      if opts.id and notif_state[opts.id] then
-        notif_state[opts.id].autocmd_id = autocmd_id
-      end
+    -- Track autocmd in shared state for replace-path cleanup (id'd notifications only)
+    if opts.id and notif_state[opts.id] then
+      notif_state[opts.id].autocmd_id = autocmd_id
     end
 
     if user_on_open then
