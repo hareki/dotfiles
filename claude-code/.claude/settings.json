@@ -33,7 +33,11 @@
       "Bash(* --version)",
       "Bash(* --help)"
     ],
-    "deny": ["Bash(rm -rf *)", "Bash(sudo *)", "Bash(su *)"],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(sudo *)",
+      "Bash(su *)"
+    ],
     "defaultMode": "plan"
   },
   "statusLine": {
@@ -52,10 +56,11 @@
     "commit-commands@claude-plugins-official": true,
     "runtime-debugging@hareki-runtime-debugging": true,
     "superpowers@claude-plugins-official": true,
-    "rust-analyzer-lsp@claude-plugins-official": true
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "claude-code-setup@claude-plugins-official": true
   },
-  "tui": "fullscreen",
   "syntaxHighlightingDisabled": false,
-  "theme": "custom:catppuccin-mocha",
-  "effortLevel": "high"
+  "effortLevel": "high",
+  "tui": "fullscreen",
+  "theme": "custom:catppuccin-mocha"
 }
