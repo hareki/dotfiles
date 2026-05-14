@@ -235,15 +235,7 @@ return {
           end,
           -- Merge prompt and results windows
           results_title = false,
-          -- https://github.com/nvim-telescope/telescope.nvim/blob/5972437de807c3bc101565175da66a1aa4f8707a/lua/telescope/themes.lua#L50
-          borderchars = {
-            prompt = { '─', '│', ' ', '│', '╭', '╮', '│', '│' },
-            -- Connected edges:
-            -- results = { '─', '│', '─', '│', '├', '┤', '╯', '╰' },
-            -- Disconnected edges, similar to snacks picker
-            results = { '─', '│', '─', '│', '│', '│', '╯', '╰' },
-            preview = { '─', '│', '─', '│', '╭', '╮', '╯', '╰' },
-          },
+          borderchars = Icons.borders.telescope,
 
           -- Make results appear from top to bottom
           -- https://github.com/nvim-telescope/telescope.nvim/issues/1933

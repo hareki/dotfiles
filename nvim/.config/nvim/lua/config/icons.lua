@@ -175,6 +175,18 @@ local M = {
     scroll_up = '󱕑 ',
     scroll_down = '󱕐 ',
   },
+  borders = {
+    -- Telescope borderchars layout, see:
+    -- https://github.com/nvim-telescope/telescope.nvim/blob/5972437de807c3bc101565175da66a1aa4f8707a/lua/telescope/themes.lua#L50
+    telescope = {
+      prompt = { '─', '│', ' ', '│', '╭', '╮', '│', '│' },
+      -- Connected edges:
+      -- results = { '─', '│', '─', '│', '├', '┤', '╯', '╰' },
+      -- Disconnected edges, similar to snacks picker
+      results = { '─', '│', '─', '│', '│', '│', '╯', '╰' },
+      preview = { '─', '│', '─', '│', '╭', '╮', '╯', '╰' },
+    },
+  },
   actions = {
     yank = '',
     undo = '',
