@@ -93,6 +93,7 @@ return {
       -- <C-m> is recognized as <CR> by Neovim by default
       { '<F37>', mc.toggleCursor, desc = 'Multicursor: Toggle Cursor', mode = { 'n', 'x' } },
     },
+
     opts = {
       signs = false,
     },

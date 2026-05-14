@@ -25,6 +25,7 @@ return {
         end,
       }
     end,
+
     config = function(_, opts)
       local plugin = require('git-conflict')
       plugin.setup(opts)

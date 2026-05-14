@@ -117,6 +117,7 @@ return {
 
       return keys
     end,
+
     opts = function()
       local ui = require('utils.ui')
       local menu_popup = ui.popup_config('sm', true)

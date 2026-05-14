@@ -51,6 +51,7 @@ return {
         end,
       },
     },
+
     opts = function()
       local tree = require('plugins.features.navigation.nvim-tree.utils')
       local state = tree.state

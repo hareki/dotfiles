@@ -98,6 +98,7 @@ return {
         },
       }
     end,
+
     opts = function()
       return {
         ring = { storage = 'shada' },

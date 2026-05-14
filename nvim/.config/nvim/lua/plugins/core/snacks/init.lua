@@ -167,6 +167,7 @@ return {
         { 'zr', 'zr', desc = 'Fold Less' },
       }
     end,
+
     opts = function()
       local ui = require('utils.ui')
       local popup_config = ui.popup_config
