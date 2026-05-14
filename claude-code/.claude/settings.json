@@ -62,5 +62,6 @@
   "syntaxHighlightingDisabled": false,
   "effortLevel": "high",
   "tui": "fullscreen",
-  "theme": "custom:catppuccin-mocha"
+  "theme": "custom:catppuccin-mocha",
+  "model": "opus"
 }
