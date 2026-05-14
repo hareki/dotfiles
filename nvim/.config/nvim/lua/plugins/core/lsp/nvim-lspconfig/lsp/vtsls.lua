@@ -95,7 +95,7 @@ return {
     end)
 
     vim.api.nvim_create_autocmd('LspAttach', {
-      group = vim.api.nvim_create_augroup('vtsls_lsp_attach', { clear = true }),
+      group = vim.api.nvim_create_augroup('core.lsp.vtsls.attach', { clear = true }),
       callback = function(args)
         local lsp_client = vim.lsp.get_client_by_id(args.data.client_id)
 

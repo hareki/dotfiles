@@ -17,6 +17,7 @@ The LuaLS diagnostics surfaced to you will often report `undefined-global` for t
 - **Requires**: always assign to a local before use — `local x = require('y')` then `x.method()`, never `require('y').method()`
 - **Keymaps**: always use `vim.keymap.set()` with `<cmd>...<cr>` strings — never structured `vim.cmd` API. Fall back to function callbacks only when runtime values or multi-statement logic are needed. Always include `desc` in CMOS 18 title case ("Find Files", "Go to Definition")
 - **Icons**: always import from `config/icons.lua` via the `Icons` global — never hardcode icon strings
+- **Augroups**: `vim.api.nvim_create_augroup` names use a dotted module-path prefix with `snake_case` segments — `<tier-or-domain>.<plugin>.<purpose>`. Core/chrome plugins use the tier (`core.snacks.hover_image`, `chrome.lualine.buffer_status_cache`); features plugins use the domain name directly, dropping the `features.` prefix (`git.git_conflict.keymaps`, `navigation.nvim_tree.preview`); helpers under `lua/utils/` use the `utils.` prefix (`utils.hl_at_cursor.popup_<win>`); config-level autocmds use the `config.autocmds.` prefix (`config.autocmds.checktime`). For dynamic suffixes, concatenate after an underscore: `'utils.hl_at_cursor.popup_' .. win`
 
 ## Commands
 
