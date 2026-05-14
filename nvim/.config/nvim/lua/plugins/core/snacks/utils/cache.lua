@@ -20,7 +20,7 @@ function M.set(key, bufnr, value)
 end
 
 vim.api.nvim_create_autocmd('BufDelete', {
-  group = vim.api.nvim_create_augroup('snacks_utils_cache_cleanup', { clear = true }),
+  group = vim.api.nvim_create_augroup('core.snacks.cache_cleanup', { clear = true }),
   callback = function(event)
     local keys = buf_keys[event.buf]
     if keys then

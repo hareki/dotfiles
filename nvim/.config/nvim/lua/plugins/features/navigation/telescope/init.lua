@@ -150,7 +150,7 @@ return {
 
       vim.api.nvim_create_autocmd('User', {
         pattern = 'TelescopePreviewerLoaded',
-        group = vim.api.nvim_create_augroup('telescope_previewer_loaded', { clear = true }),
+        group = vim.api.nvim_create_augroup('navigation.telescope.previewer_loaded', { clear = true }),
 
         -- Make it look more like the actual window we use to edit files
         callback = function(ev)

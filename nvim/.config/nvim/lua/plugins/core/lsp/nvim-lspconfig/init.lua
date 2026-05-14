@@ -58,7 +58,7 @@ return {
     })
 
     vim.api.nvim_create_autocmd('LspAttach', {
-      group = vim.api.nvim_create_augroup('lsp_attach_keymaps', { clear = true }),
+      group = vim.api.nvim_create_augroup('core.lsp.nvim_lspconfig.attach_keymaps', { clear = true }),
       callback = function(args)
         local function map(mode, lhs, rhs, desc)
           vim.keymap.set(mode, lhs, rhs, {

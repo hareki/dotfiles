@@ -34,7 +34,7 @@ return {
       local utils = require('plugins.features.git.git-conflict.utils')
       local package = require('utils.package')
       local palette = ui.get_palette()
-      local group = vim.api.nvim_create_augroup('GitConflictKeymaps', { clear = true })
+      local group = vim.api.nvim_create_augroup('git.git_conflict.keymaps', { clear = true })
 
       -- Debounce window for the cursor-in-conflict scan. The scan walks up to
       -- 1000 lines, which can lag when cursor movement is held down.
