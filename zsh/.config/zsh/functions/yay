@@ -14,8 +14,8 @@ yay() {
     && ~/.tmux/plugins/tpm/bin/clean_plugins \
     && ~/.tmux/plugins/tpm/bin/install_plugins \
     && ~/.tmux/plugins/tpm/bin/update_plugins all \
-    && _yay_header "npm" \
-    && npm update -g \
-    && _yay_header "gem" \
-    && gem update
+    # && _yay_header "npm" \
+    # && npm update -g \
+    # && _yay_header "gem" \
+    # && gem update
 }
