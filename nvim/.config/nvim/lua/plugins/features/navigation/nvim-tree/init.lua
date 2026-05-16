@@ -5,6 +5,7 @@ return {
 
     return {
       NvimTreeSignColumn = { link = 'NormalFloat' },
+      NvimTreeCursorLineNr = { link = 'CursorLine' },
       NvimTreeNormal = { link = 'Normal' },
       NvimTreeCutHL = { bg = palette.maroon, fg = palette.base },
       NvimTreeCopiedHL = { bg = palette.surface2, fg = palette.text },
@@ -112,7 +113,7 @@ return {
 
           local side_preview = size_configs.side_preview
           local ui = require('utils.ui')
-          local size = ui.popup_config(tree.state.size)
+          local size = ui.popup_config(tree.compute_size())
 
           -- We need to fill the missing row if the total height is an odd number
           -- (we can't have equal height for both windows)
@@ -136,7 +137,7 @@ return {
     end,
   },
   {
-    'nvim-tree/nvim-tree.lua',
+    'hareki/nvim-tree.lua',
     version = '*',
     dependencies = {
       'echasnovski/mini.icons',
@@ -264,6 +265,8 @@ return {
         view = {
           number = false,
           relativenumber = false,
+          signcolumn = 'no',
+          statuscolumn = ' ',
           side = 'right',
           -- Width when not in float mode
           width = function()
@@ -275,7 +278,7 @@ return {
             enable = state.position == 'float',
             quit_on_focus_loss = false,
             open_win_config = function()
-              local size = ui.popup_config(tree.state.size)
+              local size = ui.popup_config(tree.compute_size())
               local window_w = size.width
               local window_h = math.floor(size.height / 2)
               local col = size.col
@@ -297,7 +300,6 @@ return {
 
         on_attach = function(tree_bufnr)
           local api = require('nvim-tree.api')
-
           local function map(mode, lhs, rhs, desc)
             vim.keymap.set(mode, lhs, rhs, {
               desc = 'NvimTree: ' .. desc,

@@ -9,7 +9,6 @@ local M = {}
 ---@field preview_on_focus boolean
 ---@field preview_watcher integer | nil
 ---@field live_filter_triggered boolean
----@field size 'vertical_lg'
 
 ---@type nvim-tree.utils.State
 M.state = {
@@ -18,8 +17,18 @@ M.state = {
   preview_on_focus = false, -- Preview is off on startup
   preview_watcher = nil,
   live_filter_triggered = false,
-  size = 'vertical_lg',
 }
+
+---Compute the popup size preset for the float tree based on current state.
+---Returns 'lg' when float mode has the preview visible (wider popup for readable
+---preview code), otherwise 'vertical_lg' (narrower default).
+---@return 'lg' | 'vertical_lg'
+function M.compute_size()
+  if M.state.position == 'float' and M.state.preview_on_focus then
+    return 'lg'
+  end
+  return 'vertical_lg'
+end
 
 ---Clean up the preview watcher autocmd group
 ---@return nil
@@ -130,7 +139,9 @@ function M.switch_position(position)
   nvimtree.setup(M.state.opts)
 end
 
----Toggle the tree window height between half and full in float mode
+---Toggle the tree window height between half and full in float mode, and
+---re-apply width / position to match the current size preset (so the popup
+---can grow/shrink in width when the preview is toggled on/off).
 ---@param action 'expand' | 'collapse' The height action to perform
 ---@return nil
 function M.toggle_tree_height(action)
@@ -146,7 +157,7 @@ function M.toggle_tree_height(action)
   end
 
   local ui = require('utils.ui')
-  local size = ui.popup_config(M.state.size)
+  local size = ui.popup_config(M.compute_size())
   local window_h = math.floor(size.height / 2)
   local half_height = window_h - 1 -- Minus 1 for the space between the two windows
 
@@ -155,6 +166,10 @@ function M.toggle_tree_height(action)
   local full_height = window_h * 2 + offset
 
   local cfg = vim.api.nvim_win_get_config(tree_win)
+
+  cfg.width = size.width
+  cfg.col = size.col
+  cfg.row = size.row
 
   if action == 'collapse' then
     cfg.height = half_height
@@ -188,12 +203,16 @@ function M.toggle_preview(force_state)
 
   local toggle_height = M.state.position == 'float'
 
+  -- Flip the preview flag BEFORE resizing so M.compute_size() reflects the
+  -- target state and toggle_tree_height applies the correct size preset.
   if next_open then
+    M.state.preview_on_focus = true
     if toggle_height then
       M.toggle_tree_height('collapse')
     end
     M.watch()
   else
+    M.state.preview_on_focus = false
     if toggle_height then
       M.toggle_tree_height('expand')
     end
