@@ -1,10 +1,11 @@
 return {
   Catppuccin(function(palette)
     local highlights = {
-      DropBarKindDir = { fg = palette.overlay1 },
+      DropBarKindDir = { fg = palette.overlay2 },
       DropBarKindDirMenu = { fg = palette.blue },
       DropBarMenuCurrentContext = { link = 'Visual' },
       DropBarKindFileBar = { fg = palette.blue, bold = true },
+      DropBarKindFileBarNC = { link = 'DropBarKindFileBar' },
       DropBarIconUIIndicator = { fg = palette.blue, bg = nil },
       DropBarMenuHoverIcon = { link = 'DropBarMenuIcon' }, -- Disable reversing color when hovering
       DropBarIconUISeparator = { fg = palette.overlay1 },

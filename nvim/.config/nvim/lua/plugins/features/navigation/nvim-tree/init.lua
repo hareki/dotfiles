@@ -11,7 +11,7 @@ return {
       NvimTreeCopiedHL = { bg = palette.surface2, fg = palette.text },
       NvimTreeLiveFilterPrefix = { fg = palette.yellow },
       NvimTreeGitStagedIcon = { fg = sub_palette.yellow },
-      NvimTreeRootFolder = { fg = palette.text, style = {} },
+      NvimTreeRootFolder = { fg = palette.overlay2, style = {} },
       NvimTreeGitMergeIcon = { fg = palette.yellow },
       NvimTreeWindowPicker = {
         bg = picker_bg,
