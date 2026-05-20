@@ -32,7 +32,7 @@ local M = {
   file_status = {
     modified = '󰪥 ',
     readonly = '󰌾 ',
-    new = '󰎔',
+    new = '󰎔 ',
     unnamed = '',
   },
   git = {
