@@ -1,12 +1,12 @@
-## My Personal Neovim Config
+# My Personal Neovim Config
 
 ![image](./assets/docs/demo.png)
 
 **lazy.nvim** config built from scratch. Optimized for fast cold start, per-plugin isolation, consistent floating UX, and minimal-diff forks.
 
-### Requirements
+## Requirements
 
-#### System
+### System
 
 | Dependency                                          | Required By                                             | Notes                                                           |
 | --------------------------------------------------- | ------------------------------------------------------- | --------------------------------------------------------------- |
@@ -24,7 +24,7 @@
 | [Go](https://go.dev/)                               | cursortab.nvim                                          | Build step: `cd server && go build`                             |
 | [Node.js](https://nodejs.org/) + npm                | Mason (vtsls, eslint-lsp, etc.), vtsls LSP config       | Mason installs Node-based LSP servers; vtsls runs `npm root -g` |
 
-#### Subscriptions & API Keys
+### Subscriptions & API Keys
 
 | Dependency                                                         | Required By                                    | Notes                                    |
 | ------------------------------------------------------------------ | ---------------------------------------------- | ---------------------------------------- |
@@ -32,7 +32,7 @@
 | [Claude Code](https://claude.ai/download) CLI + subscription       | claudecode.nvim                                | `<M-a>` to toggle Claude terminal        |
 | `SWEEPAPI_TOKEN` env var                                           | cursortab.nvim                                 | SweepAPI token for next-edit predictions |
 
-### Core Ideas
+## Core Ideas
 
 - One plugin per file under `lua/plugins/{core,chrome,features}/`
 - On-demand loading via keymaps or `VeryLazy` event
@@ -40,9 +40,9 @@
 - Unified floating layout across Snacks picker, Telescope, floating nvim-tree
 - **Tab** = toggle focus (list↔preview, float↔main); **`<C-t>`** = toggle side-panel mode
 
-### Architecture
+## Architecture
 
-#### Central Modules (`lua/config/`)
+### Central Modules (`lua/config/`)
 
 | Module        | Purpose                                                   |
 | ------------- | --------------------------------------------------------- |
@@ -51,7 +51,7 @@
 | `globals.lua` | `_G.Notifier` and `_G.Defer` lazy proxies                 |
 | `picker.lua`  | Shared picker UI constants                                |
 
-#### Utils (`lua/utils/`)
+### Utils (`lua/utils/`)
 
 | Module             | Key Exports                                             |
 | ------------------ | ------------------------------------------------------- |
@@ -59,13 +59,13 @@
 | `common.lua`       | `noautocmd(fn)`, `focus_win(win)`, `is_float_win()`     |
 | `lazy-require.lua` | `Defer.on_index()`, `Defer.on_exported_call()`          |
 
-#### Services (`lua/services/`)
+### Services (`lua/services/`)
 
 | Module         | Purpose                                                                          |
 | -------------- | -------------------------------------------------------------------------------- |
 | `notifier.lua` | Wrapper around nvim-notify; supports markdown, tuple lists for custom highlights |
 
-#### Complex Plugin Structure
+### Complex Plugin Structure
 
 Plugins requiring state management use this pattern:
 
@@ -75,25 +75,25 @@ nvim-tree/
   utils.lua  -- M.state = {} table + helper functions
 ```
 
-#### LSP & Formatting
+### LSP & Formatting
 
 - Per-server configs in `lua/plugins/core/lsp/nvim-lspconfig/lsp/{server}.lua`
 - Mason handles tool installation via `lua/plugins/core/lsp/mason.nvim.lua`
 - Single async formatting pipeline in `utils/formatters/async_style_enforcer.lua`
 
-### Forks (author = hareki)
+## Forks (author = hareki)
 
 - 15+ minimal-diff forks; updated via [wei/pull](https://github.com/wei/pull)
 - Features toggleable — disabling custom bits reverts to upstream behavior
 - Enable unified UX by exposing layout hooks, focus toggles, preview coordination, UI tweaks and more.
 
-### Code Style
+## Code Style
 
 - stylua: 100-char lines, 2-space indent
 - LuaLS `---@class` / `---@param` / `---@return` annotations for public APIs
 - All keymaps include `desc` in CMOS 18 title case
 - Icons imported from `config/icons.lua` — never hardcoded
 
-### Attribution
+## Attribution
 
 Inspired by [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim), [LazyVim](https://github.com/LazyVim/LazyVim) and [NvChad](https://github.com/NvChad/NvChad).
