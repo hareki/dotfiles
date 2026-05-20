@@ -35,6 +35,7 @@ opt.termguicolors = true -- True color support
 opt.updatetime = 300 -- Decrease update time
 opt.pumblend = 0 -- Fully opaque popupmenu
 opt.pumheight = 15 -- Maximum number of entries in a popup
+opt.pumborder = 'rounded' -- Rounded border around the popup menu (right-click + native completion)
 opt.wrap = false -- Disable line wrapping
 opt.mouse = 'a' -- Enable mouse mode
 opt.showmode = false -- Don't show the mode, since it's already in the status line

@@ -16,7 +16,11 @@ return {
       default_integrations = false,
 
       custom_highlights = {
-        PmenuSel = { style = {} },
+        -- Native context menu
+        Pmenu = { bg = palette.base, fg = palette.text },
+        PmenuSel = { bg = palette.surface0, style = {} },
+        PmenuBorder = { bg = palette.base, fg = palette.blue },
+
         Substitute = { bg = substitute_bg, fg = substitute_fg },
         WinSeparator = { fg = palette.overlay0 },
         Visual = { bg = color.surface15, style = {} },
