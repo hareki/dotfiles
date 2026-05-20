@@ -21,7 +21,7 @@ The LuaLS diagnostics surfaced to you will often report `undefined-global` for t
 
 ## Commands
 
-- **Format**: `stylua .` (check only: `stylua --check .`)
+- **Format**: `~/.local/share/nvim/mason/bin/stylua .` (check only: `~/.local/share/nvim/mason/bin/stylua --check .`) — installed via mason.nvim, not on `$PATH`
 - No test suite or build system — this is a personal Neovim config, not a library
 
 ## Architecture
@@ -88,11 +88,11 @@ For plugins with state or large configs: `init.lua` (specs) + `utils.lua` (`M.st
 
 ### Popup Sizing
 
-Use `popup_config(size, with_border)`, never hardcode dimensions. **Gotcha**: Telescope needs `with_border=true`; Snacks/nvim-tree need `false`.
+Use `popup_config(size, with_border)`, never hardcode dimensions. **Gotcha**: Telescope always needs `with_border=true`; nvim-tree always needs `false`; Snacks varies by popup variant — `false` for the main pickers (`lg`, `full`, `input`) and `true` for bordered variants like `sm` / `lg_border`.
 
 ## LSP Setup
 
-Uses Neovim 0.11+ native `vim.lsp.enable()` (not `lspconfig[server].setup()`). Per-server configs in `plugins/core/lsp/nvim-lspconfig/lsp/{server}.lua` — **these are NOT lazy.nvim specs**. General LSP keymaps live in `nvim-lspconfig/init.lua`, not server files.
+Uses Neovim 0.11+ native `vim.lsp.enable()` / `vim.lsp.config()` (not `lspconfig[server].setup()`). Per-server files live at `plugins/core/lsp/nvim-lspconfig/lsp/{server}.lua` — **these are NOT lazy.nvim specs and NOT raw `vim.lsp.Config` tables**. Each file returns `{ opts = table|function, setup = function? }`; `utils/server_loader.lua` walks the directory, calls `vim.lsp.config(name, opts)`, then invokes `setup()` if present. General LSP keymaps live in `nvim-lspconfig/init.lua`, not server files.
 
 Server-specific `LspAttach` autocmds use an early-return guard on client name — see existing server configs for the pattern.
 
@@ -100,4 +100,4 @@ Server-specific `LspAttach` autocmds use an early-return guard on client name �
 
 ## Forks
 
-16 minimal-diff forks by `hareki`. Updated via [wei/pull](https://github.com/wei/pull). Features toggleable — disabling custom bits reverts to upstream. Enable unified floating UX: **Tab** = toggle focus (list↔preview, float↔main); **`<C-t>`** = toggle side-panel mode.
+17 minimal-diff forks by `hareki`. Updated via [wei/pull](https://github.com/wei/pull). Features toggleable — disabling custom bits reverts to upstream. Enable unified floating UX: **Tab** = toggle focus (list↔preview, float↔main); **`<C-t>`** = toggle side-panel mode.
