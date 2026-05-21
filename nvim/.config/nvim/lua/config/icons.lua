@@ -149,7 +149,7 @@ local M = {
     notification = '',
     dismiss_notification = '󱏧',
     show_notification = '󱅫',
-    image = '',
+    image = ' ',
   },
   tools = {
     session = '󰆓',

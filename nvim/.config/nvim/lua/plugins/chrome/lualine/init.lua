@@ -39,6 +39,7 @@ return {
     local diagnostics = require('plugins.chrome.lualine.components.diagnostics')
     local repo_name = require('plugins.chrome.lualine.components.repo_name')
     local branch = require('plugins.chrome.lualine.components.branch')
+    local snacks_image = require('plugins.chrome.lualine.components.snacks_image')
 
     local ui = require('utils.ui')
     local palette = ui.get_palette()
@@ -126,6 +127,13 @@ return {
         lualine_y = {},
 
         lualine_z = flatten(
+          create_wrapper({
+            comp = snacks_image.get,
+            type = 'secondary-right',
+            color = 'green',
+            cond = snacks_image.cond,
+          }),
+
           create_wrapper({
             comp = 'copilot',
             type = 'secondary-right',
