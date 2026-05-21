@@ -134,6 +134,7 @@ local M = {
     tsconfig_build = '',
     yarn_lock = '',
     dotenv = '',
+    sql = '󰆼',
   },
   editor = {
     terminal = '', -- auto-session

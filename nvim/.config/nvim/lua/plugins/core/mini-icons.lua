@@ -17,6 +17,9 @@ return {
       local icons = Icons.file_icons
 
       return {
+        extension = {
+          dbml = { glyph = icons.sql, hl = 'MiniIconsAzure' },
+        },
         file = {
           ['.keep'] = { glyph = icons.keep, hl = 'MiniIconsGrey' },
           ['devcontainer.json'] = { glyph = icons.devcontainer, hl = 'MiniIconsAzure' },
@@ -33,6 +36,7 @@ return {
         },
         filetype = {
           dotenv = { glyph = icons.dotenv, hl = 'MiniIconsYellow' },
+          sql = { glyph = icons.sql, hl = 'MiniIconsYellow' },
         },
       }
     end,
