@@ -126,11 +126,6 @@ return {
     -- (defaults to eslint when no .neovimrc.json is present).
     table.insert(servers, Project.linter == 'oxlint' and 'oxlint' or 'eslint')
 
-    -- oxfmt only attaches when explicitly selected; prettier isn't an LSP.
-    if Project.formatter == 'oxfmt' then
-      table.insert(servers, 'oxfmt')
-    end
-
     vim.defer_fn(function()
       server_loader.load_all()
       vim.lsp.enable(servers)
