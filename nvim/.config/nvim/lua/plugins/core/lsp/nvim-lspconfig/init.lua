@@ -4,7 +4,8 @@ return {
   event = 'VeryLazy',
   config = function()
     local range_fix = require('plugins.core.lsp.nvim-lspconfig.utils.diagnostic_range_fix')
-    local underline_hack = require('plugins.core.lsp.nvim-lspconfig.utils.diagnostic_underline_hack')
+    local underline_hack =
+      require('plugins.core.lsp.nvim-lspconfig.utils.diagnostic_underline_hack')
     local server_loader = require('plugins.core.lsp.nvim-lspconfig.utils.server_loader')
 
     local original_set = vim.diagnostic.set
@@ -58,7 +59,10 @@ return {
     })
 
     vim.api.nvim_create_autocmd('LspAttach', {
-      group = vim.api.nvim_create_augroup('core.lsp.nvim_lspconfig.attach_keymaps', { clear = true }),
+      group = vim.api.nvim_create_augroup(
+        'core.lsp.nvim_lspconfig.attach_keymaps',
+        { clear = true }
+      ),
       callback = function(args)
         local function map(mode, lhs, rhs, desc)
           vim.keymap.set(mode, lhs, rhs, {
@@ -108,7 +112,6 @@ return {
       'taplo', -- Toml
       'yamlls', -- Yaml
       'typos_lsp', -- Spell checker
-      'eslint', -- JS/TS linter
       'jsonls', -- JSON
       'html', -- HTML
       'cssls', -- CSS
@@ -118,6 +121,15 @@ return {
       'tailwindcss', -- Tailwind
       'astro', -- Astro
     }
+
+    -- eslint vs oxlint are mutually exclusive; selected by Project.linter
+    -- (defaults to eslint when no .neovimrc.json is present).
+    table.insert(servers, Project.linter == 'oxlint' and 'oxlint' or 'eslint')
+
+    -- oxfmt only attaches when explicitly selected; prettier isn't an LSP.
+    if Project.formatter == 'oxfmt' then
+      table.insert(servers, 'oxfmt')
+    end
 
     vim.defer_fn(function()
       server_loader.load_all()

@@ -42,7 +42,7 @@ Import order in `config/lazy/init.lua`: `plugins.core` **must be first**. All pl
 
 ### Globals (`lua/config/globals.lua`)
 
-Eight globals available everywhere (seven set in `globals.lua`, one by its plugin):
+Nine globals available everywhere (eight set in `globals.lua`, one by its plugin):
 
 | Global       | Source                           | Usage                                                                           |
 | ------------ | -------------------------------- | ------------------------------------------------------------------------------- |
@@ -53,6 +53,7 @@ Eight globals available everywhere (seven set in `globals.lua`, one by its plugi
 | `Filetypes`  | `config.filetypes`               | Filetype group constants (`M.js`, `M.jsx`, `M.css`, `M.json`, `M.js_all`, etc.) |
 | `Icons`      | `config.icons`                   | All icons — never hardcode icon strings                                         |
 | `Priority`   | `config.priority`                | `CORE = 1000`, `CHROME = 900`, `FEATURE = 800`                                  |
+| `Project`    | `utils.project_config`           | Per-project overrides from `.neovimrc.json` — `Project.linter`, `Project.formatter` |
 | `Snacks`     | Set by snacks.nvim at runtime    | `Snacks.picker.*`, `Snacks.terminal.*`, etc.                                    |
 
 ### Key Modules

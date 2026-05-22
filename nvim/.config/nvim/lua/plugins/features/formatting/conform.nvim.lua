@@ -1,9 +1,11 @@
 return {
   'stevearc/conform.nvim',
   opts = function()
+    local js_formatter_name = Project.formatter == 'oxfmt' and 'oxfmt' or 'prettier'
+
     local formatter_groups = {
-      prettier = {
-        config = { 'prettier', stop_after_first = true },
+      [js_formatter_name] = {
+        config = { js_formatter_name, stop_after_first = true },
         filetypes = Filetypes.merge(
           Filetypes.js_all,
           Filetypes.css,

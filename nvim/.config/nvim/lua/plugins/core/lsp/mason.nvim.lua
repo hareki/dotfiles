@@ -61,6 +61,9 @@ return {
           'css-variables-language-server',
           'astro-language-server',
           'tree-sitter-cli',
+
+          'oxfmt',
+          'oxlint',
         },
       }
     end,
