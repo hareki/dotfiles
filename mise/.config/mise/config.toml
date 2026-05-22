@@ -10,6 +10,7 @@ ruby = "latest"
 rust = "latest"
 go = "latest"
 python = "latest"
+bun = "latest"
 
 [settings]
 idiomatic_version_file_enable_tools = ["node"]
