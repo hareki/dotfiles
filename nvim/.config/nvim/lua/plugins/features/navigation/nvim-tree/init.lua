@@ -326,7 +326,7 @@ return {
           map('n', 'p', api.fs.paste, 'Paste')
           map('n', 'n', api.fs.create, 'Create File or Directory')
 
-          map('n', '/', function()
+          map('n', 'f', function()
             tree.toggle_preview(false)
             api.filter.live.start()
             state.live_filter_triggered = true
