@@ -19,6 +19,7 @@ return {
       return {
         extension = {
           dbml = { glyph = icons.sql, hl = 'MiniIconsAzure' },
+          ico = { glyph = icons.ico, hl = 'MiniIconsGreen' },
         },
         file = {
           ['.keep'] = { glyph = icons.keep, hl = 'MiniIconsGrey' },
