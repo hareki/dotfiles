@@ -2,12 +2,11 @@
   "functionalComponent": {
     "prefix": "efc",
     "body": [
-      "import type { FC } from 'react';",
-      "type Props = {",
+      "type ${1:${TM_FILENAME_BASE}}Props = {",
       "  ${2:}",
       "};",
       "",
-      "export const ${1:${TM_FILENAME_BASE}}: FC<Props> = () => {",
+      "export default function ${1:${TM_FILENAME_BASE}} ({${3:}}:${1:${TM_FILENAME_BASE}}Props) {",
       "  return <h2>${1:${TM_FILENAME_BASE}}</h2>;",
       "};"
     ],
