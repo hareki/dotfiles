@@ -156,6 +156,7 @@ local M = {
   tools = {
     session = '󰆓',
     harpoon = '󰛢',
+    flash = '',
     lsp = ' ',
     mason = ' ',
     eagle = '󱗆',
