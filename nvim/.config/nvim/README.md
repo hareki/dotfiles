@@ -79,7 +79,7 @@ nvim-tree/
 
 - Per-server configs in `lua/plugins/core/lsp/nvim-lspconfig/lsp/{server}.lua`
 - Mason handles tool installation via `lua/plugins/core/lsp/mason.nvim.lua`
-- Single async formatting pipeline in `utils/formatters/async_style_enforcer.lua`
+- Single async formatting pipeline in `utils/style_enforcers/init.lua`
 
 ## Forks (author = hareki)
 

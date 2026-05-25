@@ -1,4 +1,4 @@
----@class utils.linters.eslint
+---@class utils.style_enforcers.eslint
 local M = {}
 
 ---Run eslint auto-fix on a buffer via LSP

@@ -1,12 +1,12 @@
----@class utils.linters.RunOpts
+---@class utils.style_enforcers.RunOpts
 ---@field bufnr integer
 ---@field on_start fun(name: string, idx: integer, total: integer) | nil
 ---@field on_done  fun(name: string, ok: boolean, err?: string) | nil
 
----@class utils.linters
+---@class utils.style_enforcers
 local M = {}
 
----@class utils.linters.Entry
+---@class utils.style_enforcers.Entry
 ---@field name string
 ---@field filetypes string[]
 ---@field runner fun(opts: { bufnr: integer, on_done: fun(ok: boolean, err?: string) })

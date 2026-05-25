@@ -15,10 +15,10 @@ return {
           return
         end
 
-        local linters = require('utils.linters')
+        local engine = require('utils.style_enforcers.engine')
         local oxlint = require('utils.linters.oxlint')
 
-        linters.register('oxlint', Filetypes.js_all, oxlint.run)
+        engine.register('oxlint', Filetypes.js_all, oxlint.run)
 
         oxlint_registered = true
       end,

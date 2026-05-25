@@ -13,8 +13,8 @@ local function diagnostic_goto(next, severity)
   end
 end
 
-local function style_enforcer()
-  return require('utils.formatters.async_style_enforcer')
+local function load_style_enforcers()
+  return require('utils.style_enforcers')
 end
 
 -- Clean up Snacks keymaps picker a little
@@ -49,12 +49,12 @@ map({ 'n' }, '<Esc>', function()
 end, { desc = 'Clear Highlight' })
 
 map({ 'n', 'i' }, '<A-s>', function()
-  style_enforcer().run()
+  load_style_enforcers().run()
 end, { desc = 'Format and Save' })
 
 map({ 'n', 'i' }, '<leader>F', function()
   -- Still partially save the file when linter is oxlint, see `lua/utils/linters/oxlint.lua`
-  style_enforcer().run({
+  load_style_enforcers().run({
     save = false,
   })
 end, { desc = 'Format' })
@@ -63,7 +63,7 @@ end, { desc = 'Format' })
 -- Test the keymap Neovim will receive with
 -- :echo keytrans(getcharstr())
 map({ 'n', 'i' }, '<F40>', function()
-  style_enforcer().run_all()
+  load_style_enforcers().run_all()
 end, { desc = 'Format and Save All' })
 
 -- Mapped to Ctrl+Shift+W in ghostty config

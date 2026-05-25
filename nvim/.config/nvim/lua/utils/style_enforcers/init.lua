@@ -96,7 +96,7 @@ function M.run(opts)
   end
 
   local conform = require('conform')
-  local linters = require('utils.linters')
+  local engine = require('utils.style_enforcers.engine')
   local progress_utils = require('utils.progress')
 
   progress = progress_utils.create({
@@ -126,7 +126,7 @@ function M.run(opts)
       return
     end
 
-    local total = #linters.names_for_filetype(vim.bo[buf].filetype) + (formatted and 1 or 0)
+    local total = #engine.names_for_filetype(vim.bo[buf].filetype) + (formatted and 1 or 0)
     if total == 0 then
       write()
       cleanup(true)
@@ -138,7 +138,7 @@ function M.run(opts)
     local had_lint_error = false
 
     local ok, err = pcall(function()
-      linters.run_by_ft({
+      engine.run_by_ft({
         bufnr = buf,
         on_start = function(linter_name)
           local label = 'Linting (' .. linter_name .. ')'

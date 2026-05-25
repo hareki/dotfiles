@@ -15,7 +15,7 @@ return {
           return
         end
 
-        local linters = require('utils.linters')
+        local engine = require('utils.style_enforcers.engine')
         local oxfmt = require('utils.linters.oxfmt')
 
         -- Subset of oxfmt LSP's advertised filetypes that we want it to own.
@@ -30,7 +30,7 @@ return {
         )
 
         -- Run before lint-fix steps so oxlint's on-disk fixAll sees formatted content.
-        linters.register('oxfmt', oxfmt_filetypes, oxfmt.run, { order = 10 })
+        engine.register('oxfmt', oxfmt_filetypes, oxfmt.run, { order = 10 })
 
         oxfmt_registered = true
       end,

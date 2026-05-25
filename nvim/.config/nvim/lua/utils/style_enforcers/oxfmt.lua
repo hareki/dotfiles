@@ -1,4 +1,4 @@
----@class utils.linters.oxfmt
+---@class utils.style_enforcers.oxfmt
 local M = {}
 
 ---Run oxfmt formatting on a buffer via LSP

@@ -15,10 +15,10 @@ return {
           return
         end
 
-        local linters = require('utils.linters')
+        local engine = require('utils.style_enforcers.engine')
         local eslint = require('utils.linters.eslint')
 
-        linters.register('eslint', Filetypes.js_all, eslint.run)
+        engine.register('eslint', Filetypes.js_all, eslint.run)
 
         eslint_registered = true
       end,
