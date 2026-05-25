@@ -53,6 +53,7 @@ map({ 'n', 'i' }, '<A-s>', function()
 end, { desc = 'Format and Save' })
 
 map({ 'n', 'i' }, '<leader>F', function()
+  -- Still partially save the file when linter is oxlint, see `lua/utils/linters/oxlint.lua`
   style_enforcer().run({
     save = false,
   })

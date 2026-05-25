@@ -53,6 +53,8 @@ function M.run(opts)
 
   running_bufs[buf] = true
 
+  local progress
+
   -- Set timeout to auto-cleanup if something goes wrong
   local timeout_timer = vim.uv.new_timer()
   local function close_timeout_timer()
@@ -72,6 +74,9 @@ function M.run(opts)
         if running_bufs[buf] then
           running_bufs[buf] = nil
           close_timeout_timer()
+          if progress then
+            progress:finish()
+          end
           Notifier.warn('Formatting/linting timed out', { title = 'Style Enforcer' })
           finish(false, 'Timed out')
         end
@@ -94,7 +99,7 @@ function M.run(opts)
   local linters = require('utils.linters')
   local progress_utils = require('utils.progress')
 
-  local progress = progress_utils.create({
+  progress = progress_utils.create({
     pending_ms = 500,
     client_name = 'stenfo',
   })

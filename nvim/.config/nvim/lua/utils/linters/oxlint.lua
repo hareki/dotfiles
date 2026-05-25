@@ -12,6 +12,17 @@ function M.run(opts)
     return opts.on_done(false, 'oxlint client missing')
   end
 
+  -- HACK: oxc.fixAll lints the file ON DISK (read_to_string), not the in-memory buffer,
+  -- and returns an unversioned WorkspaceEdit that Neovim cannot reject as stale.
+  -- The buffer has just been formatted in memory but not yet saved, so disk is one
+  -- step behind and the fix lands at wrong positions, corrupting the file. Flush the
+  -- formatted buffer to disk first so oxc fixes against matching content.
+  if vim.api.nvim_buf_is_valid(bufnr) and vim.bo[bufnr].modified then
+    vim.api.nvim_buf_call(bufnr, function()
+      vim.cmd.write()
+    end)
+  end
+
   local params = {
     command = 'oxc.fixAll',
     arguments = {
