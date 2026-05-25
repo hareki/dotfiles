@@ -50,6 +50,9 @@ return {
       return {
         windowCreationCommand = panel_cols .. 'vsplit',
         wrap = false,
+        prefills = {
+          flags = '--fixed-strings --smart-case',
+        },
 
         keymaps = {
           openNextLocation = false,
