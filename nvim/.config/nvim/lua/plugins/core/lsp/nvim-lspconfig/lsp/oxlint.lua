@@ -16,7 +16,7 @@ return {
         end
 
         local engine = require('utils.style_enforcers.engine')
-        local oxlint = require('utils.linters.oxlint')
+        local oxlint = require('utils.style_enforcers.oxlint')
 
         engine.register('oxlint', Filetypes.js_all, oxlint.run)
 

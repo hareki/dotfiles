@@ -104,14 +104,14 @@ end
 
 ---Run a list of linters sequentially on a buffer
 ---@param names string[] List of linter names to run
----@param opts utils.linters.RunOpts Options with bufnr, on_start, on_done callbacks
+---@param opts utils.style_enforcers.RunOpts Options with bufnr, on_start, on_done callbacks
 ---@return nil
 function M.run(names, opts)
   run_next(names, opts, 1)
 end
 
 ---Auto-run all registered linters matching the buffer's filetype
----@param opts utils.linters.RunOpts Options with bufnr, on_start, on_done callbacks
+---@param opts utils.style_enforcers.RunOpts Options with bufnr, on_start, on_done callbacks
 ---@return nil
 function M.run_by_ft(opts)
   local bufnr = opts.bufnr

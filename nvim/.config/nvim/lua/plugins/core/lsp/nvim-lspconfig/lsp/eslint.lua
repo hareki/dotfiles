@@ -16,7 +16,7 @@ return {
         end
 
         local engine = require('utils.style_enforcers.engine')
-        local eslint = require('utils.linters.eslint')
+        local eslint = require('utils.style_enforcers.eslint')
 
         engine.register('eslint', Filetypes.js_all, eslint.run)
 
