@@ -1,5 +1,5 @@
-local DELAY = 250
-local TIMEOUT_LEN = 150
+local DELAY = 350
+local TIMEOUT_LEN = 250
 local DELAY_O = DELAY - TIMEOUT_LEN
 
 return {
@@ -33,17 +33,6 @@ return {
         win = {
           no_overlap = true,
           padding = { 0, 4 },
-        },
-        replace = {
-          desc = {
-            -- Add one extra space before the descriptions
-            function(desc)
-              if not desc then
-                return ''
-              end
-              return ' ' .. desc
-            end,
-          },
         },
         plugins = {
           -- Define the presets ourselves to unify the letter case
