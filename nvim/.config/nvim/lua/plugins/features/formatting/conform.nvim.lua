@@ -1,20 +1,9 @@
 return {
   'stevearc/conform.nvim',
   opts = function()
-    local js_formatter_name = Project.formatter == 'oxfmt' and 'oxfmt' or 'prettier'
+    local use_prettier = Project.formatter == 'prettier'
 
     local formatter_groups = {
-      [js_formatter_name] = {
-        config = { js_formatter_name, stop_after_first = true },
-        filetypes = Filetypes.merge(
-          Filetypes.js_all,
-          Filetypes.css,
-          { 'html' },
-          Filetypes.markdown,
-          Filetypes.json,
-          { 'yaml' }
-        ),
-      },
       stylua = {
         filetypes = { 'lua' },
         config = { 'stylua' },
@@ -24,6 +13,21 @@ return {
         config = { 'taplo' },
       },
     }
+
+    -- oxfmt already runs as an LSP server
+    if use_prettier then
+      formatter_groups.prettier = {
+        config = { 'prettier', stop_after_first = true },
+        filetypes = Filetypes.merge(
+          Filetypes.js_all,
+          Filetypes.css,
+          { 'html' },
+          Filetypes.markdown,
+          Filetypes.json,
+          { 'yaml' }
+        ),
+      }
+    end
 
     local formatters_by_ft = {}
     for _, group in pairs(formatter_groups) do

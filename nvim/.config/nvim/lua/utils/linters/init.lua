@@ -10,31 +10,56 @@ local M = {}
 ---@field name string
 ---@field filetypes string[]
 ---@field runner fun(opts: { bufnr: integer, on_done: fun(ok: boolean, err?: string) })
+---@field order integer Smaller runs first
+---@field seq integer Registration sequence, tiebreaker for a stable sort
+
+local DEFAULT_ORDER = 100
 
 ---@type utils.linters.Entry[]
-local entries = {} -- Preserve order of registration
+local entries = {}
+local seq = 0
 
 ---Register a linter with its supported filetypes
 ---@param name string Unique linter name
 ---@param filetypes string[] List of filetypes this linter supports
 ---@param runner fun(opts: { bufnr: integer, on_done: fun(ok: boolean, err?: string) }) The linter function
+---@param opts? { order?: integer } `order` sets run position — smaller runs first (default 100). Use a lower value for a formatter step that must run ahead of lint-fix steps.
 ---@return nil
-function M.register(name, filetypes, runner)
-  entries[#entries + 1] = { name = name, filetypes = filetypes, runner = runner }
+function M.register(name, filetypes, runner, opts)
+  seq = seq + 1
+  entries[#entries + 1] = {
+    name = name,
+    filetypes = filetypes,
+    runner = runner,
+    order = (opts and opts.order) or DEFAULT_ORDER,
+    seq = seq,
+  }
 end
 
----Get registered linter names for a filetype (preserves registration order)
+---Get registered linter names for a filetype (sorted by `order`, then registration order)
 ---@param ft string The filetype to look up
 ---@return string[] names List of linter names that support this filetype
 function M.names_for_filetype(ft)
-  local out = {}
+  local matched = {}
   for _, entry in ipairs(entries) do
     for _, filetype in ipairs(entry.filetypes) do
       if filetype == ft then
-        out[#out + 1] = entry.name
+        matched[#matched + 1] = entry
         break
       end
     end
+  end
+
+  table.sort(matched, function(a, b)
+    if a.order ~= b.order then
+      return a.order < b.order
+    end
+    return a.seq < b.seq
+  end)
+
+  local out = {}
+  for _, entry in ipairs(matched) do
+    out[#out + 1] = entry.name
   end
   return out
 end

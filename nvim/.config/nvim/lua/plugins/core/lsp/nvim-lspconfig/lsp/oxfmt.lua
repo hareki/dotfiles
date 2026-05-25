@@ -1,0 +1,39 @@
+local oxfmt_registered = false
+
+return {
+  opts = function()
+    local oxfmt_cfg = vim.lsp.config.oxfmt or {}
+    local base_on_oxfmt_attach = oxfmt_cfg.on_attach
+
+    return {
+      on_attach = function(client, bufnr)
+        if base_on_oxfmt_attach then
+          base_on_oxfmt_attach(client, bufnr)
+        end
+
+        if oxfmt_registered then
+          return
+        end
+
+        local linters = require('utils.linters')
+        local oxfmt = require('utils.linters.oxfmt')
+
+        -- Subset of oxfmt LSP's advertised filetypes that we want it to own.
+        -- Excludes astro/mdx (oxfmt LSP doesn't support them) and toml (taplo owns it).
+        local oxfmt_filetypes = Filetypes.merge(
+          Filetypes.js, -- js/ts(x), no astro
+          Filetypes.css, -- css/scss/less
+          { 'html' },
+          { 'markdown' }, -- no mdx
+          Filetypes.json, -- json/jsonc/json5
+          { 'yaml' }
+        )
+
+        -- Run before lint-fix steps so oxlint's on-disk fixAll sees formatted content.
+        linters.register('oxfmt', oxfmt_filetypes, oxfmt.run, { order = 10 })
+
+        oxfmt_registered = true
+      end,
+    }
+  end,
+}

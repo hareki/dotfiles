@@ -126,6 +126,12 @@ return {
     -- (defaults to eslint when no .neovimrc.json is present).
     table.insert(servers, Project.linter == 'oxlint' and 'oxlint' or 'eslint')
 
+    -- When oxfmt is the selected formatter, run it as an LSP server (see
+    -- lsp/oxfmt.lua + utils/linters/oxfmt.lua) instead of spawning the CLI.
+    if Project.formatter == 'oxfmt' then
+      table.insert(servers, 'oxfmt')
+    end
+
     vim.defer_fn(function()
       server_loader.load_all()
       vim.lsp.enable(servers)
