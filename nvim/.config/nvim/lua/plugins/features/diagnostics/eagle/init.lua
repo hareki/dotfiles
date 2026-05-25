@@ -31,7 +31,7 @@ return {
 
         source_formatters = {
           ts = function(diagnostic)
-            local ts_errors = require('utils.formatters.ts-errors')
+            local ts_errors = require('plugins.features.diagnostics.eagle.utils.pretty-ts-errors')
             return ts_errors.format(diagnostic, {
               href = false,
             })
