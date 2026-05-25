@@ -1,4 +1,4 @@
----@class utils.formatters.ts-errors
+---@class diagnostics.eagle.utils.pretty-ts-errors
 local M = {}
 
 M.state = {
