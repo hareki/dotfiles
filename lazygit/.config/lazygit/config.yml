@@ -2,18 +2,18 @@
 os:
   editPreset: 'nvim-remote'
   edit: >
-    [ -z "$NVIM" ] && NVIM_NO_STATUS_LINE=1 nvim -- "{{filename}}" ||
-    (nvim --server "$NVIM" --remote-send "q" &&
-     nvim --server "$NVIM" --remote "{{filename}}")
+    if [ -z "$NVIM" ]; then NVIM_NO_STATUS_LINE=1 nvim -- {{filename}};
+    else nvim --server "$NVIM" --remote-send "q" &&
+    nvim --server "$NVIM" --remote {{filename}}; fi
   editAtLine: >
-    [ -z "$NVIM" ] && NVIM_NO_STATUS_LINE=1 nvim +{{line}} -- "{{filename}}" ||
-    (nvim --server "$NVIM" --remote-send "q" &&
-     nvim --server "$NVIM" --remote "{{filename}}" &&
-     nvim --server "$NVIM" --remote-send ":{{line}}<CR>")
+    if [ -z "$NVIM" ]; then NVIM_NO_STATUS_LINE=1 nvim +{{line}} -- {{filename}};
+    else nvim --server "$NVIM" --remote-send "q" &&
+    nvim --server "$NVIM" --remote {{filename}} &&
+    nvim --server "$NVIM" --remote-send ":{{line}}<CR>"; fi
   openDirInEditor: >
-    [ -z "$NVIM" ] && NVIM_NO_STATUS_LINE=1 nvim -- "{{dir}}" ||
-    (nvim --server "$NVIM" --remote-send "q" &&
-     nvim --server "$NVIM" --remote "{{dir}}")
+    if [ -z "$NVIM" ]; then NVIM_NO_STATUS_LINE=1 nvim -- {{dir}};
+    else nvim --server "$NVIM" --remote-send "q" &&
+    nvim --server "$NVIM" --remote {{dir}}; fi
 
 gui:
   showFileTree: true
