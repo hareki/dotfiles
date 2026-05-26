@@ -2,19 +2,20 @@
 local M = {}
 
 local running_bufs = {}
--- Timeout to prevent permanent locks (10 seconds)
-local TIMEOUT_MS = 10000
+-- Timeout to prevent permanent locks (5 seconds)
+local TIMEOUT_MS = 5000
 
 local function get_formatter_names(buf)
   local conform = require('conform')
   local list, uses_lsp = conform.list_formatters_to_run(buf)
-
   local names = {}
+
   for _, f in ipairs(list or {}) do
     if f and f.name then
       names[#names + 1] = f.name
     end
   end
+
   if uses_lsp then
     names[#names + 1] = 'lsp'
   end

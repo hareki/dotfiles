@@ -15,14 +15,14 @@ local M = {}
 
 local DEFAULT_ORDER = 100
 
----@type utils.linters.Entry[]
+---@type utils.style_enforcers.Entry[]
 local entries = {}
 local seq = 0
 
----Register a linter with its supported filetypes
----@param name string Unique linter name
----@param filetypes string[] List of filetypes this linter supports
----@param runner fun(opts: { bufnr: integer, on_done: fun(ok: boolean, err?: string) }) The linter function
+---Register a enforcer with its supported filetypes
+---@param name string Unique enforcer name
+---@param filetypes string[] List of filetypes this enforcer supports
+---@param runner fun(opts: { bufnr: integer, on_done: fun(ok: boolean, err?: string) }) The enforcer function
 ---@param opts? { order?: integer } `order` sets run position — smaller runs first (default 100). Use a lower value for a formatter step that must run ahead of lint-fix steps.
 ---@return nil
 function M.register(name, filetypes, runner, opts)
@@ -36,9 +36,9 @@ function M.register(name, filetypes, runner, opts)
   }
 end
 
----Get registered linter names for a filetype (sorted by `order`, then registration order)
+---Get registered enforcer names for a filetype (sorted by `order`, then registration order)
 ---@param ft string The filetype to look up
----@return string[] names List of linter names that support this filetype
+---@return string[] names List of enforcer names that support this filetype
 function M.names_for_filetype(ft)
   local matched = {}
   for _, entry in ipairs(entries) do
@@ -102,15 +102,15 @@ local function run_next(names, opts, idx)
   runner({ bufnr = opts.bufnr, on_done = done })
 end
 
----Run a list of linters sequentially on a buffer
----@param names string[] List of linter names to run
+---Run a list of enforcers sequentially on a buffer
+---@param names string[] List of enforcer names to run
 ---@param opts utils.style_enforcers.RunOpts Options with bufnr, on_start, on_done callbacks
 ---@return nil
 function M.run(names, opts)
   run_next(names, opts, 1)
 end
 
----Auto-run all registered linters matching the buffer's filetype
+---Auto-run all registered enforcers matching the buffer's filetype
 ---@param opts utils.style_enforcers.RunOpts Options with bufnr, on_start, on_done callbacks
 ---@return nil
 function M.run_by_ft(opts)
@@ -126,7 +126,7 @@ function M.run_by_ft(opts)
   local names = M.names_for_filetype(ft)
 
   if #names == 0 and opts.on_done then
-    opts.on_done('none', true) -- no linters, no error
+    opts.on_done('none', true) -- no enforcers, no error
     return
   end
 
