@@ -146,7 +146,8 @@ return {
         {
           '<A-g>',
           function()
-            Snacks.lazygit()
+            local lazygit = require('plugins.core.snacks.utils.lazygit')
+            lazygit.toggle()
           end,
           mode = { 'n', 't', 'i' },
           desc = 'Toggle Lazygit',
@@ -166,6 +167,11 @@ return {
         { 'zo', 'zo', desc = 'Open Fold Under Cursor' },
         { 'zr', 'zr', desc = 'Fold Less' },
       }
+    end,
+
+    init = function()
+      local lazygit = require('plugins.core.snacks.utils.lazygit')
+      lazygit.setup()
     end,
 
     opts = function()
