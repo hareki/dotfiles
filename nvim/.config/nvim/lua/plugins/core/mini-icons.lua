@@ -36,6 +36,7 @@ return {
           ['yarn.lock'] = { glyph = icons.yarn_lock, hl = 'MiniIconsBlue' },
         },
         filetype = {
+          env = { glyph = icons.dotenv, hl = 'MiniIconsYellow' },
           dotenv = { glyph = icons.dotenv, hl = 'MiniIconsYellow' },
           sql = { glyph = icons.sql, hl = 'MiniIconsYellow' },
         },
