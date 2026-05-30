@@ -3,16 +3,16 @@ os:
   editPreset: 'nvim-remote'
   edit: >
     if [ -z "$NVIM" ]; then NVIM_NO_STATUS_LINE=1 nvim -- {{filename}};
-    else nvim --server "$NVIM" --remote-send "q" &&
+    else nvim --server "$NVIM" --remote-send "<A-g>" &&
     nvim --server "$NVIM" --remote {{filename}}; fi
   editAtLine: >
     if [ -z "$NVIM" ]; then NVIM_NO_STATUS_LINE=1 nvim +{{line}} -- {{filename}};
-    else nvim --server "$NVIM" --remote-send "q" &&
+    else nvim --server "$NVIM" --remote-send "<A-g>" &&
     nvim --server "$NVIM" --remote {{filename}} &&
     nvim --server "$NVIM" --remote-send ":{{line}}<CR>"; fi
   openDirInEditor: >
     if [ -z "$NVIM" ]; then NVIM_NO_STATUS_LINE=1 nvim -- {{dir}};
-    else nvim --server "$NVIM" --remote-send "q" &&
+    else nvim --server "$NVIM" --remote-send "<A-g>" &&
     nvim --server "$NVIM" --remote {{dir}}; fi
 
 gui:
