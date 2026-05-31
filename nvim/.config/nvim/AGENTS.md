@@ -61,11 +61,10 @@ Nine globals available everywhere (eight set in `globals.lua`, one by its plugin
 - `config/size.lua` — size presets (`popup`, `side_preview`, `side_panel`, `inline_popup`)
 - `config/palette_ext.lua` — extended Catppuccin colors
 - `config/picker.lua` — shared picker UI constants
-- `services/` — cross-cutting concerns (statusline, cursorline, keymap registry, notifier)
+- `services/` — cross-cutting concerns (statusline, cursorline, keymap registry, notifier, blink-cmp)
 - `utils/ui.lua` — popup config helpers, highlight utilities
 - `utils/common.lua` — general-purpose helpers
-- `utils/style_enforcers/` — async format-then-lint pipeline (`init.lua`), TS error prettifier
-- `utils/linters/` — linter registry with per-filetype dispatch; eslint auto-fix via LSP
+- `utils/style_enforcers/` — async format-then-lint pipeline: `init.lua` orchestrates (conform formatters + linters with per-buffer locks/timeout); `engine.lua` is the enforcer registry with per-filetype dispatch; per-tool enforcers `eslint.lua` / `oxlint.lua` / `oxfmt.lua` (eslint auto-fix runs through the eslint LSP `applyAllFixes`)
 
 ## Plugin Spec Conventions
 
