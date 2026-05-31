@@ -12,6 +12,7 @@ local extra_words_path = vim.fn.stdpath('config') .. '/words'
 local word_paths = {
   builtin = '/usr/share/dict/words',
   google = extra_words_path .. '/google-10000-english-usa-no-swears-long.txt',
+  monkeytype = extra_words_path .. '/monkeytype_commonly_misspelled.txt',
   my_words = extra_words_path .. '/my-words.txt',
 }
 
@@ -46,7 +47,12 @@ M.default = {
       min_keyword_length = 3,
       score_offset = -20,
       opts = {
-        paths = { word_paths.my_words, word_paths.google, word_paths.builtin },
+        paths = {
+          word_paths.my_words,
+          word_paths.google,
+          word_paths.monkeytype,
+          word_paths.builtin,
+        },
         spellsuggest = true,
       },
       transform_items = spell.transform_items,
