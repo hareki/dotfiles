@@ -136,6 +136,8 @@ local M = {
     dotenv = '',
     sql = '󰆼',
     ico = '',
+    text = '󰦨',
+    scheme = '',
   },
   editor = {
     terminal = '', -- auto-session

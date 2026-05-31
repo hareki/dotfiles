@@ -20,6 +20,7 @@ return {
         extension = {
           dbml = { glyph = icons.sql, hl = 'MiniIconsAzure' },
           ico = { glyph = icons.ico, hl = 'MiniIconsGreen' },
+          scm = { glyph = icons.scheme, hl = 'MiniIconsGrey' },
         },
         file = {
           ['.keep'] = { glyph = icons.keep, hl = 'MiniIconsGrey' },
@@ -39,6 +40,7 @@ return {
           env = { glyph = icons.dotenv, hl = 'MiniIconsYellow' },
           dotenv = { glyph = icons.dotenv, hl = 'MiniIconsYellow' },
           sql = { glyph = icons.sql, hl = 'MiniIconsYellow' },
+          text = { glyph = icons.text, hl = 'MiniIconsGrey' },
         },
       }
     end,
