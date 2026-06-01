@@ -3,6 +3,7 @@ node = "lts"
 "npm:@styled/typescript-styled-plugin" = "latest"
 "npm:pretty-ts-errors-markdown" = "latest"
 "npm:@mermaid-js/mermaid-cli" = "latest"
+"npm:@colbymchenry/codegraph" = "latest"
 
 ruby = "latest"
 "gem:tmuxinator" = "latest"
