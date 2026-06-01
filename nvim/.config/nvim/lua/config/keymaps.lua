@@ -17,6 +17,23 @@ local function load_style_enforcers()
   return require('utils.style_enforcers')
 end
 
+local function scroll_center(motion)
+  local keys = vim.api.nvim_replace_termcodes(motion, true, false, true)
+  return function()
+    -- 'x' executes synchronously so the cursor position is updated before we
+    -- decide whether centering is safe; mode (incl. visual) is preserved.
+    vim.api.nvim_feedkeys(keys, 'nx', false)
+
+    local win_height = vim.api.nvim_win_get_height(0)
+    local last_line = vim.fn.line('$')
+    local cursor_line = vim.fn.line('.')
+
+    if last_line - cursor_line >= math.floor(win_height / 2) then
+      vim.cmd('normal! zz')
+    end
+  end
+end
+
 -- Clean up Snacks keymaps picker a little
 for _, key in ipairs({
   ']a',
@@ -44,6 +61,7 @@ map('n', '<CR>', 'a<CR><Esc>', { desc = 'Insert Newline After Cursor' })
 map('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Leave Terminal Mode' })
 
 map({ 'n' }, '<Esc>', function()
+  require('scrollbar.handlers.search').nohlsearch()
   vim.cmd.nohlsearch()
   vim.snippet.stop()
 end, { desc = 'Clear Highlight' })
@@ -75,8 +93,8 @@ map({ 'i', 'x', 'n', 's' }, '<C-S-End>', function()
 end, { desc = 'Close Other Buffers' })
 
 map({ 'n', 'x' }, '<leader>qa', '<cmd>qa<cr>', { desc = 'Quit All' })
-map({ 'n', 'x' }, '<PageUp>', '<C-u>zz', { desc = 'Scroll Up and Center' })
-map({ 'n', 'x' }, '<PageDown>', '<C-d>zz', { desc = 'Scroll Down and Center' })
+map({ 'n', 'x' }, '<PageUp>', scroll_center('<C-u>'), { desc = 'Scroll Up and Center' })
+map({ 'n', 'x' }, '<PageDown>', scroll_center('<C-d>'), { desc = 'Scroll Down and Center' })
 
 map('v', '<leader>t', "ygvgc']p", {
   remap = true,

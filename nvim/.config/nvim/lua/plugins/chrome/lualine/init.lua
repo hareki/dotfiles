@@ -33,7 +33,6 @@ return {
     local harpoon = require('plugins.chrome.lualine.components.harpoon')
     local macro = require('plugins.chrome.lualine.components.macro')
     local mode = require('plugins.chrome.lualine.components.mode')
-    local progress = require('plugins.chrome.lualine.components.progress')
     local diff = require('plugins.chrome.lualine.components.diff')
     local copilot = require('plugins.chrome.lualine.components.copilot')
     local diagnostics = require('plugins.chrome.lualine.components.diagnostics')
@@ -153,15 +152,6 @@ return {
             type = 'primary-right',
             color = 'blue',
             icon = repo_name.icon,
-          }),
-
-          create_wrapper({
-            comp = 'progress',
-            type = 'primary-right',
-            color = 'maroon',
-            icon = progress.icon,
-            fmt = progress.format,
-            margin = { left = 0, right = 0 },
           })
         ),
       },
