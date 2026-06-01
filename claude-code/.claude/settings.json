@@ -40,6 +40,7 @@
     ],
     "defaultMode": "plan"
   },
+  "model": "opus",
   "statusLine": {
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh"
@@ -63,6 +64,5 @@
   "effortLevel": "high",
   "tui": "fullscreen",
   "theme": "custom:catppuccin-mocha",
-  "skipAutoPermissionPrompt": true,
-  "model": "opus"
+  "skipAutoPermissionPrompt": true
 }

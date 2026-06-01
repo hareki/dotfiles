@@ -1,4 +1,4 @@
-_G.Defer = require('utils.lazy-require')
+_G.Defer = require('utils.lazy_require')
 
 ---@module 'services.notifier'
 _G.Notifier = Defer.on_exported_call('services.notifier')

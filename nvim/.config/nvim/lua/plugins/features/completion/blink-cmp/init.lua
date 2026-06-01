@@ -1,4 +1,4 @@
-local limit = require('services.blink-cmp')
+local limit = require('services.blink_cmp')
 
 return {
   Catppuccin(function(palette)

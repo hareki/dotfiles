@@ -2,7 +2,7 @@
 local M = {}
 
 local utils = require('plugins.features.completion.blink-cmp.utils')
-local limit = require('services.blink-cmp')
+local limit = require('services.blink_cmp')
 
 local history = utils.register_kind('History')
 local spell = utils.register_kind('Spell')
@@ -11,9 +11,9 @@ local render_markdown = utils.register_kind('RenderMD')
 local extra_words_path = vim.fn.stdpath('config') .. '/words'
 local word_paths = {
   builtin = '/usr/share/dict/words',
-  google = extra_words_path .. '/google-10000-english-usa-no-swears-long.txt',
+  google = extra_words_path .. '/google_10000_english_usa_no_swears_long.txt',
   monkeytype = extra_words_path .. '/monkeytype_commonly_misspelled.txt',
-  my_words = extra_words_path .. '/my-words.txt',
+  my_words = extra_words_path .. '/my_words.txt',
 }
 
 local ai_source = vim.g.ai_provider == 'copilot' and 'copilot'
