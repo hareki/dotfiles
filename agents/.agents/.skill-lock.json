@@ -9,6 +9,93 @@
       "skillFolderHash": "3013fdeb8a11b10b1eb795ec3ae8bfca38f7c26d",
       "installedAt": "2026-05-21T16:11:36.386Z",
       "updatedAt": "2026-05-21T16:11:36.386Z"
+    },
+    "setup-matt-pocock-skills": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/mattpocock/skills.git",
+      "skillPath": "skills/engineering/setup-matt-pocock-skills/SKILL.md",
+      "skillFolderHash": "77638955bebe492948244f1338e54ca1a9445c29",
+      "pluginName": "mattpocock-skills",
+      "installedAt": "2026-06-01T12:44:10.770Z",
+      "updatedAt": "2026-06-01T12:44:10.770Z"
+    },
+    "improve-codebase-architecture": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/mattpocock/skills.git",
+      "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
+      "skillFolderHash": "688c17ec27fe9309d84987716aca37b5ce7f3a88",
+      "pluginName": "mattpocock-skills",
+      "installedAt": "2026-06-01T12:44:10.771Z",
+      "updatedAt": "2026-06-01T12:44:10.771Z"
+    },
+    "grill-with-docs": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/mattpocock/skills.git",
+      "skillPath": "skills/engineering/grill-with-docs/SKILL.md",
+      "skillFolderHash": "2c3a4e48571bfe42203ed7b49cae85f31ef4b6f2",
+      "pluginName": "mattpocock-skills",
+      "installedAt": "2026-06-01T12:44:10.772Z",
+      "updatedAt": "2026-06-01T12:44:10.772Z"
+    },
+    "to-issues": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/mattpocock/skills.git",
+      "skillPath": "skills/engineering/to-issues/SKILL.md",
+      "skillFolderHash": "b38c5aa6ae5d6903e60d3f74a7aafd32d02f2c06",
+      "pluginName": "mattpocock-skills",
+      "installedAt": "2026-06-01T12:44:10.772Z",
+      "updatedAt": "2026-06-01T12:44:10.772Z"
+    },
+    "to-prd": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/mattpocock/skills.git",
+      "skillPath": "skills/engineering/to-prd/SKILL.md",
+      "skillFolderHash": "fb4503f54bc618da08df2fd74109fbe57e4d8150",
+      "pluginName": "mattpocock-skills",
+      "installedAt": "2026-06-01T12:44:10.773Z",
+      "updatedAt": "2026-06-01T12:44:10.773Z"
+    },
+    "diagnose": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/mattpocock/skills.git",
+      "skillPath": "skills/engineering/diagnose/SKILL.md",
+      "skillFolderHash": "43d464d0e9d1049b9d525975c0f7367ab7e01a5f",
+      "pluginName": "mattpocock-skills",
+      "installedAt": "2026-06-01T12:44:10.773Z",
+      "updatedAt": "2026-06-01T12:44:10.773Z"
+    },
+    "brainstorming": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/obra/superpowers.git",
+      "skillPath": "skills/brainstorming/SKILL.md",
+      "skillFolderHash": "f260c775073816860fef8a37c032ac77e2ff5821",
+      "installedAt": "2026-06-01T13:14:41.759Z",
+      "updatedAt": "2026-06-01T13:14:41.759Z"
+    },
+    "using-superpowers": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/obra/superpowers.git",
+      "skillPath": "skills/using-superpowers/SKILL.md",
+      "skillFolderHash": "225dd70596c396940ff158335a954a64d93ece40",
+      "installedAt": "2026-06-01T13:15:02.201Z",
+      "updatedAt": "2026-06-01T13:15:02.201Z"
+    },
+    "requesting-code-review": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/obra/superpowers.git",
+      "skillPath": "skills/requesting-code-review/SKILL.md",
+      "skillFolderHash": "ff419ec159bdf5ff2f2d83c7e544c586bcde69bb",
+      "installedAt": "2026-06-01T13:18:32.599Z",
+      "updatedAt": "2026-06-01T13:18:32.599Z"
     }
   },
   "dismissed": {
@@ -28,6 +115,7 @@
     "kimi-cli",
     "opencode",
     "warp",
+    "zed",
     "claude-code"
   ]
 }
