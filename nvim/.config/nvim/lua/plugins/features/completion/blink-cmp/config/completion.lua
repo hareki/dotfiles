@@ -28,13 +28,14 @@ M.default = {
     },
   },
   documentation = {
+    scrollbar = true,
     auto_show = true,
     auto_show_delay_ms = 200,
     window = { border = 'rounded' },
   },
   menu = {
     border = 'rounded',
-    scrollbar = false,
+    scrollbar = true,
     max_height = 15,
     draw = {
       padding = { 1, 0 }, -- For some reason it already has 1 padding on the right

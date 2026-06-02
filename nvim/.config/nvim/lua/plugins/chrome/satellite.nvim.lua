@@ -20,6 +20,13 @@ return {
       current_only = false,
       floating = true,
       winblend = 0,
+      excluded_filetypes = {
+        'snacks_picker_list',
+        'TelescopeResults',
+        -- blink-cmp already has built-in scrollbar
+        'blink-cmp-documentation',
+        'blink-cmp-menu',
+      },
       handlers = {
         cursor = { enable = false },
         gitsigns = { enable = false },
