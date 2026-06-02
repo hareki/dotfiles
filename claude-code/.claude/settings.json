@@ -62,5 +62,6 @@
   "tui": "fullscreen",
   "theme": "custom:catppuccin-mocha",
   "remoteControlAtStartup": true,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "model": "opus"
 }

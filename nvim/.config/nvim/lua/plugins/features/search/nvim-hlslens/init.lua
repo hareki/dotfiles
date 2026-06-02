@@ -48,10 +48,7 @@ return {
     init = function()
       local original_nohlsearch = vim.cmd.nohlsearch
       vim.cmd.nohlsearch = function()
-        local scrollbar_search = require('scrollbar.handlers.search')
-
         original_nohlsearch()
-        scrollbar_search.nohlsearch()
         Snacks.words.enable()
         Snacks.words.update()
       end

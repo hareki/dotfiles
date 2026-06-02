@@ -1,0 +1,36 @@
+-- [[ Nevim Scrollbar ]]
+return {
+  Catppuccin(function(palette)
+    return {
+      SatelliteBar = { bg = palette.surface0 },
+      SatelliteSearch = { fg = palette.subtext0 },
+      SatelliteSearchCurrent = { fg = palette.yellow },
+      SatelliteDiagnosticError = { link = 'DiagnosticSignError' },
+      SatelliteDiagnosticWarn = { link = 'DiagnosticSignWarn' },
+      SatelliteDiagnosticInfo = { link = 'DiagnosticSignInfo' },
+      SatelliteDiagnosticHint = { link = 'DiagnosticSignHint' },
+    }
+  end),
+
+  {
+    'hareki/satellite.nvim',
+    lazy = false,
+    priority = Priority.CHROME,
+    opts = {
+      current_only = false,
+      floating = true,
+      winblend = 0,
+      handlers = {
+        cursor = {
+          enable = false,
+        },
+        gitsigns = {
+          enable = false,
+        },
+        marks = {
+          enable = false,
+        },
+      },
+    },
+  },
+}
