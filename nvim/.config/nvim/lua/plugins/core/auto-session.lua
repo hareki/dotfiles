@@ -51,9 +51,8 @@ return {
             vim.opt_local.relativenumber = false
 
             vim.schedule(function()
-              local lazy = require('lazy')
-              lazy.load({ plugins = { 'snacks.nvim' } })
-              Snacks.picker.files()
+              local api = require('nvim-tree.api')
+              api.tree.open()
             end)
           end)
         end,
