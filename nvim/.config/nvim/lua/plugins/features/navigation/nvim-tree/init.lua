@@ -331,7 +331,10 @@ return {
             api.filter.live.start()
             state.live_filter_triggered = true
           end, 'Live Filter: Start')
-          map('n', '<Esc>', api.filter.live.clear, 'Clear Live Filter')
+          map('n', '<Esc>', function()
+            api.filter.live.clear()
+            vim.cmd.nohlsearch()
+          end, 'Clear Live Filter and Search Highlights')
 
           map('n', 'd', api.fs.trash, 'Trash')
           map('n', 'D', api.fs.remove, 'Remove')
