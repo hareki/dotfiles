@@ -2,7 +2,7 @@
 return {
   Catppuccin(function(palette)
     return {
-      SatelliteBar = { bg = palette.surface0 },
+      SatelliteBar = { bg = palette.surface1 },
       SatelliteSearch = { fg = palette.yellow },
       SatelliteSearchCurrent = { fg = palette.yellow },
       SatelliteDiagnosticError = { link = 'DiagnosticSignError' },
@@ -23,9 +23,6 @@ return {
       excluded_filetypes = {
         'snacks_picker_list',
         'TelescopeResults',
-        -- blink-cmp already has built-in scrollbar
-        'blink-cmp-documentation',
-        'blink-cmp-menu',
       },
       handlers = {
         cursor = { enable = false },
