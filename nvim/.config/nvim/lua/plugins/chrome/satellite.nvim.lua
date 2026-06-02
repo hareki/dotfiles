@@ -1,9 +1,9 @@
--- [[ Nevim Scrollbar ]]
+-- [[ Neovim Scrollbar ]]
 return {
   Catppuccin(function(palette)
     return {
       SatelliteBar = { bg = palette.surface0 },
-      SatelliteSearch = { fg = palette.subtext0 },
+      SatelliteSearch = { fg = palette.yellow },
       SatelliteSearchCurrent = { fg = palette.yellow },
       SatelliteDiagnosticError = { link = 'DiagnosticSignError' },
       SatelliteDiagnosticWarn = { link = 'DiagnosticSignWarn' },
@@ -21,15 +21,9 @@ return {
       floating = true,
       winblend = 0,
       handlers = {
-        cursor = {
-          enable = false,
-        },
-        gitsigns = {
-          enable = false,
-        },
-        marks = {
-          enable = false,
-        },
+        cursor = { enable = false },
+        gitsigns = { enable = false },
+        marks = { enable = false },
       },
     },
   },
