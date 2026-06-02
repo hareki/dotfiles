@@ -152,6 +152,7 @@ return {
             type = 'primary-right',
             color = 'blue',
             icon = repo_name.icon,
+            margin = { left = 0, right = 0 },
           })
         ),
       },
