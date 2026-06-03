@@ -12,7 +12,7 @@ return {
       DropBarMenuHoverEntry = { link = 'Visual' },
     }
 
-    local dropbar_utils = require('plugins.chrome.dropbar.utils')
+    local dropbar_utils = require('plugins.chrome.dropbar-nvim.utils')
     for _, kind in ipairs(dropbar_utils.KIND_SUFFIXES) do
       local group = 'DropBarKind' .. kind
       highlights[group] = highlights[group] or { fg = palette.text }
@@ -42,7 +42,7 @@ return {
     },
 
     opts = function()
-      local dropbar_utils = require('plugins.chrome.dropbar.utils')
+      local dropbar_utils = require('plugins.chrome.dropbar-nvim.utils')
 
       return {
         menu = {

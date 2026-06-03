@@ -16,7 +16,7 @@ return {
     'hareki/git-conflict.nvim',
     event = { 'BufReadPost', 'BufNewFile' },
     opts = function()
-      local utils = require('plugins.features.git.git-conflict.utils')
+      local utils = require('plugins.features.git.git-conflict-nvim.utils')
       return {
         default_mappings = false,
         default_commands = false,
@@ -32,7 +32,7 @@ return {
 
       local ui = require('utils.ui')
       local color = require('config.palette_ext')
-      local utils = require('plugins.features.git.git-conflict.utils')
+      local utils = require('plugins.features.git.git-conflict-nvim.utils')
       local package = require('utils.package')
       local palette = ui.get_palette()
       local group = vim.api.nvim_create_augroup('git.git_conflict.keymaps', { clear = true })

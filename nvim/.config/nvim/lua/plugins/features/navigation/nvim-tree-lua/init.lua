@@ -55,7 +55,7 @@ return {
     },
 
     opts = function()
-      local tree = require('plugins.features.navigation.nvim-tree.utils')
+      local tree = require('plugins.features.navigation.nvim-tree-lua.utils')
       local state = tree.state
 
       local picker_config = require('config.picker')
@@ -149,7 +149,7 @@ return {
           '<leader>e',
           function()
             local api = require('nvim-tree.api')
-            local tree = require('plugins.features.navigation.nvim-tree.utils')
+            local tree = require('plugins.features.navigation.nvim-tree-lua.utils')
             local state = tree.state
 
             if api.tree.is_tree_buf() and state.position == 'float' then
@@ -169,7 +169,7 @@ return {
     opts = function()
       local ui = require('utils.ui')
       local size_configs = require('config.size')
-      local tree = require('plugins.features.navigation.nvim-tree.utils')
+      local tree = require('plugins.features.navigation.nvim-tree-lua.utils')
       local state = tree.state
       local picker_config = require('config.picker')
 

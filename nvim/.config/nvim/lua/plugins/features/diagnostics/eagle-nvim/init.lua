@@ -31,7 +31,8 @@ return {
 
         source_formatters = {
           ts = function(diagnostic)
-            local ts_errors = require('plugins.features.diagnostics.eagle.utils.pretty-ts-errors')
+            local ts_errors =
+              require('plugins.features.diagnostics.eagle-nvim.utils.pretty-ts-errors')
             return ts_errors.format(diagnostic, {
               href = false,
             })

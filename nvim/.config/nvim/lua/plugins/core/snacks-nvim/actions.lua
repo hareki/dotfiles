@@ -1,7 +1,7 @@
----@class plugins.core.snacks.actions
+---@class plugins.core.snacks-nvim.actions
 local M = {}
 
-local state = require('plugins.core.snacks.utils.state')
+local state = require('plugins.core.snacks-nvim.utils.state')
 
 ---Wrap default toggle_preview to persist state for managed pickers
 ---@module 'snacks'

@@ -1,8 +1,8 @@
 --- @module 'snacks'
----@class plugins.core.snacks.utils.transformers
+---@class plugins.core.snacks-nvim.utils.transformers
 local M = {}
 
-local cache = require('plugins.core.snacks.utils.cache')
+local cache = require('plugins.core.snacks-nvim.utils.cache')
 
 local filtered_descriptions = {
   'blink.cmp',

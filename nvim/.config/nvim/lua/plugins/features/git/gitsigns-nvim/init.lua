@@ -23,7 +23,7 @@ return {
     opts = function()
       local hunk = Icons.git.hunk
       local hunk_delete = Icons.git.hunk_delete
-      local utils = require('plugins.features.git.gitsigns.utils')
+      local utils = require('plugins.features.git.gitsigns-nvim.utils')
       local build_popup_navigation = utils.build_popup_navigation
 
       return {

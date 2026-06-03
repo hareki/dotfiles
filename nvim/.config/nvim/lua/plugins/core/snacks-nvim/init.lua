@@ -23,7 +23,7 @@ return {
         {
           'gi',
           function()
-            local image_utils = require('plugins.core.snacks.utils.image')
+            local image_utils = require('plugins.core.snacks-nvim.utils.image')
             image_utils.hover_image()
           end,
           desc = 'Hover Image',
@@ -31,7 +31,7 @@ return {
         {
           '<leader><leader>',
           function()
-            local state = require('plugins.core.snacks.utils.state')
+            local state = require('plugins.core.snacks-nvim.utils.state')
 
             Snacks.picker.files({
               layout = {
@@ -146,7 +146,7 @@ return {
         {
           '<A-g>',
           function()
-            local lazygit = require('plugins.core.snacks.utils.lazygit')
+            local lazygit = require('plugins.core.snacks-nvim.utils.lazygit')
             lazygit.toggle()
           end,
           mode = { 'n', 't', 'i' },
@@ -170,7 +170,7 @@ return {
     end,
 
     init = function()
-      local lazygit = require('plugins.core.snacks.utils.lazygit')
+      local lazygit = require('plugins.core.snacks-nvim.utils.lazygit')
       lazygit.setup()
     end,
 
@@ -187,10 +187,10 @@ return {
       }
       local select_width = config.sm.width
 
-      local formatters = require('plugins.core.snacks.utils.formatters')
-      local sorters = require('plugins.core.snacks.utils.sorters')
-      local transformers = require('plugins.core.snacks.utils.transformers')
-      local actions = require('plugins.core.snacks.actions')
+      local formatters = require('plugins.core.snacks-nvim.utils.formatters')
+      local sorters = require('plugins.core.snacks-nvim.utils.sorters')
+      local transformers = require('plugins.core.snacks-nvim.utils.transformers')
+      local actions = require('plugins.core.snacks-nvim.actions')
 
       return {
         words = { enabled = true },

@@ -243,7 +243,8 @@ function M.open(opts)
     M.switch_position('float')
   end
 
-  M.state.preview_watcher = vim.api.nvim_create_augroup('navigation.nvim_tree.preview', { clear = true })
+  M.state.preview_watcher =
+    vim.api.nvim_create_augroup('navigation.nvim_tree.preview', { clear = true })
   api.tree.open()
 end
 

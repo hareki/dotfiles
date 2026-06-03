@@ -29,21 +29,21 @@ return {
   end,
 
   opts = function()
-    local buffer_status = require('plugins.chrome.lualine.components.buffer_status')
-    local harpoon = require('plugins.chrome.lualine.components.harpoon')
-    local macro = require('plugins.chrome.lualine.components.macro')
-    local mode = require('plugins.chrome.lualine.components.mode')
-    local diff = require('plugins.chrome.lualine.components.diff')
-    local copilot = require('plugins.chrome.lualine.components.copilot')
-    local diagnostics = require('plugins.chrome.lualine.components.diagnostics')
-    local repo_name = require('plugins.chrome.lualine.components.repo_name')
-    local branch = require('plugins.chrome.lualine.components.branch')
-    local snacks_image = require('plugins.chrome.lualine.components.snacks_image')
+    local buffer_status = require('plugins.chrome.lualine-nvim.components.buffer_status')
+    local harpoon = require('plugins.chrome.lualine-nvim.components.harpoon')
+    local macro = require('plugins.chrome.lualine-nvim.components.macro')
+    local mode = require('plugins.chrome.lualine-nvim.components.mode')
+    local diff = require('plugins.chrome.lualine-nvim.components.diff')
+    local copilot = require('plugins.chrome.lualine-nvim.components.copilot')
+    local diagnostics = require('plugins.chrome.lualine-nvim.components.diagnostics')
+    local repo_name = require('plugins.chrome.lualine-nvim.components.repo_name')
+    local branch = require('plugins.chrome.lualine-nvim.components.branch')
+    local snacks_image = require('plugins.chrome.lualine-nvim.components.snacks_image')
 
     local ui = require('utils.ui')
     local palette = ui.get_palette()
 
-    local lualine_utils = require('plugins.chrome.lualine.utils')
+    local lualine_utils = require('plugins.chrome.lualine-nvim.utils')
     local create_wrapper = function(opts)
       opts.palette = palette
       return lualine_utils.create_styling_wrapper(opts)
