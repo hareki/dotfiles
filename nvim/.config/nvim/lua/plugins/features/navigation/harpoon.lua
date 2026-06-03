@@ -1,7 +1,7 @@
 return {
   WhichKey({
-    specs = { '<leader>H', group = 'Harpoon File', mode = { 'n', 'v' } },
-    rules = { pattern = 'harpoon', icon = Icons.tools.harpoon, color = 'azure' },
+    specs = { '<leader>H', group = 'Pin File', mode = { 'n', 'v' } },
+    rules = { pattern = 'pin', icon = Icons.tools.pin, color = 'azure' },
   }),
 
   {
@@ -15,7 +15,7 @@ return {
             local harpoon_picker = require('plugins.core.snacks.pickers.harpoon')
             harpoon_picker.show()
           end,
-          desc = 'Harpoon: Quick Menu',
+          desc = 'Pinned Files: Quick Menu',
         },
       }
 
@@ -44,7 +44,7 @@ return {
                 { new_relpath, 'NotifyWARNTitle' },
                 { '\nis already in slot ', 'Normal' },
                 { tostring(current_index), 'NotifyWARNTitle' },
-              }, { title = 'harpoon' })
+              }, { title = 'pin' })
 
               return
             end
@@ -79,7 +79,7 @@ return {
                 { tostring(old_index), hl_title },
                 { ' to ', 'Normal' },
                 { tostring(current_index), hl_title },
-              }, { title = 'harpoon' })
+              }, { title = 'pin' })
             elseif slot_has_different_item then
               Notifier.warn({
                 { 'Replaced ', 'Normal' },
@@ -88,7 +88,7 @@ return {
                 { new_relpath, hl_title },
                 { '\nfor slot ', 'Normal' },
                 { tostring(current_index), hl_title },
-              }, { title = 'harpoon' })
+              }, { title = 'pin' })
             else
               -- Slot was empty, new file added
               Notifier.info({
@@ -96,13 +96,13 @@ return {
                 { new_relpath, hl_title },
                 { '\ninto slot ', 'Normal' },
                 { tostring(current_index), hl_title },
-              }, { title = 'harpoon' })
+              }, { title = 'pin' })
             end
 
             local statusline = require('services.statusline')
             statusline.refresh()
           end,
-          desc = 'Harpoon File to Slot ' .. current_index,
+          desc = 'Pin File to Slot ' .. current_index,
         })
 
         table.insert(keys, {
@@ -111,7 +111,7 @@ return {
             local harpoon = require('harpoon')
             harpoon:list():select(current_index)
           end,
-          desc = 'Harpoon Slot ' .. current_index,
+          desc = 'Go to Pin Slot ' .. current_index,
         })
       end
 

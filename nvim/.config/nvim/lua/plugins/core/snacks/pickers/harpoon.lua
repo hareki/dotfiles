@@ -64,12 +64,12 @@ M.show = function(user_opts)
 
   local items = build_harpoon_items()
   if vim.tbl_isempty(items) then
-    Notifier.info('Harpoon list is empty')
+    Notifier.info('Pin list is empty')
     return
   end
 
   local opts = vim.tbl_deep_extend('force', {
-    title = 'Harpoon',
+    title = 'Pinned Files',
     items = items,
     source = 'harpoon',
     format = harpoon_format,
@@ -116,7 +116,8 @@ M.show = function(user_opts)
   opts.win = opts.win or {}
   opts.win.input = opts.win.input or {}
   opts.win.input.keys = opts.win.input.keys or {}
-  opts.win.input.keys['x'] = { 'remove_harpoon_item', mode = { 'n' }, desc = 'Remove from Harpoon' }
+  opts.win.input.keys['x'] =
+    { 'remove_harpoon_item', mode = { 'n' }, desc = 'Remove from Pin List' }
 
   return Snacks.picker(opts)
 end

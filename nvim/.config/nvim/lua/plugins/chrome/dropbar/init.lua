@@ -37,7 +37,7 @@ return {
           local dropbar_api = require('dropbar.api')
           dropbar_api.pick()
         end,
-        desc = 'Dropbar: Pick',
+        desc = 'Pick Breadcrumb Item',
       },
     },
 
@@ -54,15 +54,15 @@ return {
         icons = {
           ui = {
             menu = {
-              indicator = ' ' .. Icons.explorer.collapsed .. ' ',
+              indicator = ' ' .. Icons.file_tree.collapsed .. ' ',
             },
           },
           kinds = {
             symbols = {
               Folder = '',
-              FolderMenu = Icons.explorer.folder .. ' ',
-              FolderEmptyMenu = Icons.explorer.folder_empty .. ' ',
-              FolderOpenMenu = Icons.explorer.folder_open .. ' ',
+              FolderMenu = Icons.file_tree.folder .. ' ',
+              FolderEmptyMenu = Icons.file_tree.folder_empty .. ' ',
+              FolderOpenMenu = Icons.file_tree.folder_open .. ' ',
             },
           },
         },

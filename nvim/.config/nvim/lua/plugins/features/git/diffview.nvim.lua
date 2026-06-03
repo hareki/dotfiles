@@ -117,12 +117,12 @@ return {
       return {
         enhanced_diff_hl = true,
         icons = {
-          folder_closed = Icons.explorer.folder,
-          folder_open = Icons.explorer.folder_open,
+          folder_closed = Icons.file_tree.folder,
+          folder_open = Icons.file_tree.folder_open,
         },
         signs = {
-          fold_closed = Icons.explorer.collapsed,
-          fold_open = Icons.explorer.expanded,
+          fold_closed = Icons.file_tree.collapsed,
+          fold_open = Icons.file_tree.expanded,
         },
         file_panel = {
           win_config = panel_win_config,

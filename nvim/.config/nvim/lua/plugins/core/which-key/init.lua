@@ -66,6 +66,7 @@ return {
             -- Elements come first have higher priority when multiple patterns match
             -- Plugin-specific rules are defined in their respective plugin files via WhichKey()
             { pattern = 'terminal', icon = Icons.editor.terminal, color = 'green' },
+            { pattern = 'plugin', icon = Icons.tools.plugin_manager, color = 'orange' },
             { pattern = 'help', icon = Icons.editor.help, color = 'blue' },
             { pattern = 'buffer', icon = Icons.editor.buffer, color = 'cyan' },
             { pattern = 'undo', icon = Icons.actions.undo, color = 'purple' },

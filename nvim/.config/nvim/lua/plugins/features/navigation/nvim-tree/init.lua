@@ -1,3 +1,4 @@
+local ui_name = 'File Tree'
 return {
   Catppuccin(function(palette, sub_palette)
     local ui = require('utils.ui')
@@ -159,7 +160,7 @@ return {
             api.tree.reload()
             tree.open()
           end,
-          desc = 'Explorer',
+          desc = ui_name,
           remap = true,
         },
       }
@@ -238,16 +239,16 @@ return {
             git_placement = 'after',
             diagnostics_placement = 'after',
             glyphs = {
-              bookmark = vim.trim(Icons.explorer.selected),
+              bookmark = vim.trim(Icons.file_tree.selected),
               folder = {
-                arrow_closed = Icons.explorer.collapsed,
-                arrow_open = Icons.explorer.expanded,
-                default = Icons.explorer.folder,
-                open = Icons.explorer.folder_open,
-                empty = Icons.explorer.folder_empty,
-                empty_open = Icons.explorer.folder_empty_open,
-                symlink = Icons.explorer.folder_symlink,
-                symlink_open = Icons.explorer.folder_symlink,
+                arrow_closed = Icons.file_tree.collapsed,
+                arrow_open = Icons.file_tree.expanded,
+                default = Icons.file_tree.folder,
+                open = Icons.file_tree.folder_open,
+                empty = Icons.file_tree.folder_empty,
+                empty_open = Icons.file_tree.folder_empty_open,
+                symlink = Icons.file_tree.folder_symlink,
+                symlink_open = Icons.file_tree.folder_symlink,
               },
               git = {
                 unstaged = Icons.git.unstaged,
@@ -276,7 +277,7 @@ return {
 
           float = {
             enable = state.position == 'float',
-            quit_on_focus_loss = false,
+            quit_on_focus_loss = true,
             open_win_config = function()
               local size = ui.popup_config(tree.compute_size())
               local window_w = size.width
@@ -285,7 +286,7 @@ return {
               local row = size.row
 
               return {
-                title = ' Explorer ',
+                title = string.format(' %s ', ui_name),
                 title_pos = 'center',
                 border = 'rounded',
                 relative = 'editor',

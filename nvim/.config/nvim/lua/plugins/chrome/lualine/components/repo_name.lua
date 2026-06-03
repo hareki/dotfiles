@@ -6,6 +6,6 @@ function M.get()
   return utils.get_repo_name()
 end
 
-M.icon = Icons.explorer.folder
+M.icon = Icons.file_tree.folder
 
 return M

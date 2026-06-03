@@ -17,7 +17,7 @@ lazy.setup({
     size = { width = lg.width, height = lg.height },
     border = 'rounded',
     backdrop = 100,
-    title = ' lazy.nvim ',
+    title = ' Plugin Manager ',
     icons = {
       loaded = Icons.misc.package_active,
       not_loaded = Icons.misc.package_inactive,

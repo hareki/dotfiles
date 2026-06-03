@@ -55,6 +55,6 @@ function M.cond()
   return false
 end
 
-M.icon = Icons.misc.pin
+M.icon = Icons.tools.pin
 
 return M

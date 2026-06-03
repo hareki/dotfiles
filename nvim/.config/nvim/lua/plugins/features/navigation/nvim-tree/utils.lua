@@ -286,8 +286,8 @@ end
 function M.format_root_label(path)
   local home = vim.env.HOME
   local formatted = path
-  local home_icon = vim.trim(Icons.explorer.home)
-  local separator = Icons.explorer.collapsed .. ' '
+  local home_icon = vim.trim(Icons.file_tree.home)
+  local separator = Icons.file_tree.collapsed .. ' '
 
   if home and vim.startswith(path, home) then
     if path == home then

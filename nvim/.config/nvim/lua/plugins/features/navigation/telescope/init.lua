@@ -223,7 +223,7 @@ return {
           -- selection_caret = ' ',
           selection_caret = ' ',
           entry_prefix = ' ', -- keep list text aligned
-          multi_icon = vim.trim(Icons.explorer.selected) .. ' ',
+          multi_icon = vim.trim(Icons.file_tree.selected) .. ' ',
           get_status_text = function(self, opts)
             -- Prevent flashing the loading asterisk indicator
             opts = opts or {}

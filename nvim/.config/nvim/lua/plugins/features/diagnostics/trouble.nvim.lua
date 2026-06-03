@@ -105,8 +105,8 @@ return {
         win = { position = 'right', size = panel_cols },
 
         icons = {
-          folder_closed = Icons.explorer.folder,
-          folder_open = Icons.explorer.folder_empty_open,
+          folder_closed = Icons.file_tree.folder,
+          folder_open = Icons.file_tree.folder_empty_open,
         },
 
         preview = {

@@ -213,8 +213,8 @@ return {
         picker = {
           icons = {
             ui = {
-              selected = Icons.explorer.selected,
-              unselected = Icons.explorer.unselected,
+              selected = Icons.file_tree.selected,
+              unselected = Icons.file_tree.unselected,
             },
           },
           ui_select = true,
@@ -353,6 +353,10 @@ return {
         },
 
         styles = {
+          float = {
+            -- Slightly higher than satellite.nvim scrollbar (51)
+            zindex = 52,
+          },
           input = {
             height = config.input.height,
             width = config.input.width,
