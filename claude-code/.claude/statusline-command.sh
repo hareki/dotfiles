@@ -4,8 +4,8 @@
 input=$(cat)
 
 blue='\033[38;2;137;180;250m'    # #89b4fa
-grey_vcs='\033[38;2;186;194;222m' # #bac2de
-grey='\033[38;2;127;132;156m'    # #7f849c
+subtext1='\033[38;2;186;194;222m' # #bac2de
+overlay1='\033[38;2;127;132;156m'    # #7f849c
 yellow='\033[38;2;249;226;175m'  # #f9e2af
 green='\033[38;2;166;227;161m'  # #a6e3a1
 red='\033[38;2;243;139;168m'  # #f38ba8
@@ -41,17 +41,41 @@ if git --no-optional-locks -C "${cwd/#\~/$HOME}" rev-parse --git-dir >/dev/null 
   git_info="${branch}${dirty}"
 fi
 
-# Context window
+# Usage group — context (always) plus 5h session & 7d week rate limits.
+# Rate limits are absent until the first API response (and for non-Pro/Max),
+# so each is included only when present. Threshold colors mirror the context.
+usage_color() {
+  if [ "$1" -gt 90 ]; then
+    printf '%s' "$red"
+  elif [ "$1" -gt 70 ]; then
+    printf '%s' "$yellow"
+  else
+    printf '%s' "$green"
+  fi
+}
+
+usage_segments=()
+
+# Each segment: label in subtext1, only the number colorized by threshold.
+
+# Context window (always shown, defaults to 0%)
 used=$(echo "$input" | jq -r '.context_window.used_percentage // "0"')
 used_int=${used%.*}
-if [ "$used_int" -gt 90 ]; then
-  ctx_color="$red"
-elif [ "$used_int" -gt 70 ]; then
-  ctx_color="$yellow"
-else
-  ctx_color="$green"
+usage_segments+=("${subtext1}context $(usage_color "$used_int")${used_int}%${reset}")
+
+# 5h session window — only when present
+session_pct=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
+if [ -n "$session_pct" ]; then
+  session_int=${session_pct%.*}
+  usage_segments+=("${subtext1}session $(usage_color "$session_int")${session_int}%${reset}")
 fi
-context_info=" ${used_int}%"
+
+# 7d week window — only when present
+week_pct=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty')
+if [ -n "$week_pct" ]; then
+  week_int=${week_pct%.*}
+  usage_segments+=("${subtext1}week $(usage_color "$week_int")${week_int}%${reset}")
+fi
 
 # Model (use model.id — display_name is bugged, see claude-code#18270)
 model_id=$(echo "$input" | jq -r '.model.id // empty')
@@ -67,15 +91,23 @@ elif [[ "$model_id" == *haiku* ]]; then
   model_color="$green"
 else
   model=""
-  model_color="$grey"
+  model_color="$overlay1"
 fi
 
 # Time
 time_str=$(date +"%I:%M:%S %p")
 
 [ -n "$model" ] && printf "${model_color}%s${reset}" "$model"
-printf " ${ctx_color}context%s${reset}" "$context_info"
+
+# Usage group: [context 4% | session 30% | week 21%] — brackets & pipes in subtext1
+printf " ${subtext1}[${reset}"
+for i in "${!usage_segments[@]}"; do
+  [ "$i" -gt 0 ] && printf "${subtext1} | ${reset}"
+  printf '%b' "${usage_segments[$i]}"
+done
+printf "${subtext1}]${reset} "
+
 # printf " ${blue}%s${reset}" "$cwd"
-[ -n "$git_info" ] && printf " ${grey_vcs}%s${reset}" "$git_info"
+[ -n "$git_info" ] && printf " ${subtext1}%s${reset}" "$git_info"
 [ -n "$sync" ] && printf "${cyan}%s${reset}" "$sync"
-printf " ${grey}%s${reset}" "$time_str"
+printf " ${overlay1}%s${reset}" "$time_str"
