@@ -34,11 +34,14 @@ return {
     local macro = require('plugins.chrome.lualine-nvim.components.macro')
     local mode = require('plugins.chrome.lualine-nvim.components.mode')
     local diff = require('plugins.chrome.lualine-nvim.components.diff')
-    local copilot = require('plugins.chrome.lualine-nvim.components.copilot')
     local diagnostics = require('plugins.chrome.lualine-nvim.components.diagnostics')
     local repo_name = require('plugins.chrome.lualine-nvim.components.repo_name')
     local branch = require('plugins.chrome.lualine-nvim.components.branch')
     local snacks_image = require('plugins.chrome.lualine-nvim.components.snacks_image')
+    local copilot
+    if vim.g.ai_provider == 'copilot' then
+      copilot = require('plugins.chrome.lualine-nvim.components.copilot')
+    end
 
     local ui = require('utils.ui')
     local palette = ui.get_palette()
@@ -59,6 +62,41 @@ return {
     local color_reset = { fg = palette.subtext1, bg = palette.base }
     for _, section in ipairs({ 'normal', 'insert', 'visual', 'replace', 'inactive' }) do
       theme_reset[section] = { a = color_reset, b = color_reset, c = color_reset }
+    end
+
+    local lualine_z_components = {
+      create_wrapper({
+        comp = snacks_image.get,
+        type = 'secondary-right',
+        color = 'green',
+        cond = snacks_image.cond,
+      }),
+      create_wrapper({
+        comp = 'diagnostics',
+        type = 'secondary-right',
+        symbols = diagnostics.symbols,
+        sections = diagnostics.sections,
+      }),
+      create_wrapper({
+        comp = repo_name.get,
+        type = 'primary-right',
+        color = 'blue',
+        icon = repo_name.icon,
+        margin = { left = 0, right = 0 },
+      }),
+    }
+
+    if copilot then
+      table.insert(
+        lualine_z_components,
+        2,
+        create_wrapper({
+          comp = 'copilot',
+          type = 'secondary-right',
+          symbols = copilot.symbols,
+          padding = copilot.padding,
+        })
+      )
     end
 
     return {
@@ -125,36 +163,7 @@ return {
         lualine_x = {},
         lualine_y = {},
 
-        lualine_z = flatten(
-          create_wrapper({
-            comp = snacks_image.get,
-            type = 'secondary-right',
-            color = 'green',
-            cond = snacks_image.cond,
-          }),
-
-          create_wrapper({
-            comp = 'copilot',
-            type = 'secondary-right',
-            symbols = copilot.symbols,
-            padding = copilot.padding,
-          }),
-
-          create_wrapper({
-            comp = 'diagnostics',
-            type = 'secondary-right',
-            symbols = diagnostics.symbols,
-            sections = diagnostics.sections,
-          }),
-
-          create_wrapper({
-            comp = repo_name.get,
-            type = 'primary-right',
-            color = 'blue',
-            icon = repo_name.icon,
-            margin = { left = 0, right = 0 },
-          })
-        ),
+        lualine_z = flatten(unpack(lualine_z_components)),
       },
     }
   end,

@@ -7,9 +7,69 @@ local M = {}
 ---@field placement snacks.image.Placement
 ---@field source_buf integer
 ---@field augroup integer
+---@field previous_esc_map table?
 
 ---@type plugins.core.snacks.utils.image.State?
 local hover = nil
+
+local HOVER_ESC_DESC = 'Close Hover Image'
+
+---@param buf integer
+---@return table?
+local function get_buffer_esc_map(buf)
+  if not vim.api.nvim_buf_is_valid(buf) then
+    return nil
+  end
+
+  return vim.api.nvim_buf_call(buf, function()
+    local map = vim.fn.maparg('<Esc>', 'n', false, true)
+    if type(map) ~= 'table' or vim.tbl_isempty(map) or map.buffer ~= 1 then
+      return nil
+    end
+    return map
+  end)
+end
+
+---@param buf integer
+---@param map table
+local function restore_buffer_esc_map(buf, map)
+  if not vim.api.nvim_buf_is_valid(buf) then
+    return
+  end
+
+  local opts = {
+    buffer = buf,
+    desc = map.desc,
+    expr = map.expr == 1,
+    nowait = map.nowait == 1,
+    replace_keycodes = map.replace_keycodes == 1,
+    script = map.script == 1,
+    silent = map.silent == 1,
+  }
+
+  if map.noremap == 0 then
+    opts.remap = true
+  end
+
+  if type(map.callback) == 'function' then
+    vim.keymap.set('n', '<Esc>', map.callback, opts)
+    return
+  end
+
+  if map.rhs then
+    vim.keymap.set('n', '<Esc>', map.rhs, opts)
+  end
+end
+
+---@param buf integer
+---@return boolean
+local function is_hover_esc_map(buf)
+  local map = get_buffer_esc_map(buf)
+  if not map then
+    return false
+  end
+  return map.desc == HOVER_ESC_DESC
+end
 
 local function close()
   if not hover then
@@ -20,7 +80,13 @@ local function close()
   hover = nil
 
   pcall(vim.api.nvim_del_augroup_by_id, current.augroup)
-  pcall(vim.keymap.del, 'n', '<Esc>', { buffer = current.source_buf })
+  if is_hover_esc_map(current.source_buf) then
+    if current.previous_esc_map then
+      pcall(restore_buffer_esc_map, current.source_buf, current.previous_esc_map)
+    else
+      pcall(vim.keymap.del, 'n', '<Esc>', { buffer = current.source_buf })
+    end
+  end
   pcall(function()
     current.placement:close()
   end)
@@ -101,6 +167,7 @@ end
 local function open(source_buf, src)
   local ui = require('utils.ui')
   local lg = ui.popup_config('lg')
+  local previous_esc_map = get_buffer_esc_map(source_buf)
 
   local scratch = vim.api.nvim_create_buf(false, true)
   vim.bo[scratch].bufhidden = 'wipe'
@@ -166,6 +233,7 @@ local function open(source_buf, src)
     placement = placement,
     source_buf = source_buf,
     augroup = augroup,
+    previous_esc_map = previous_esc_map,
   }
 
   vim.api.nvim_create_autocmd(
@@ -179,7 +247,7 @@ local function open(source_buf, src)
 
   vim.keymap.set('n', '<Esc>', close, {
     buffer = source_buf,
-    desc = 'Close Hover Image',
+    desc = HOVER_ESC_DESC,
   })
 end
 

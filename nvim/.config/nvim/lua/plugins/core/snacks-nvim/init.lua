@@ -187,10 +187,21 @@ return {
       }
       local select_width = config.sm.width
 
-      local formatters = require('plugins.core.snacks-nvim.utils.formatters')
-      local sorters = require('plugins.core.snacks-nvim.utils.sorters')
+      -- Wrapping this with Defer.on_exported_call will result in `nvim_create_augroup must not be called in a fast event context` error
       local transformers = require('plugins.core.snacks-nvim.utils.transformers')
-      local actions = require('plugins.core.snacks-nvim.actions')
+
+      local formatters = Defer.on_exported_call('plugins.core.snacks-nvim.utils.formatters')
+      local sorters = Defer.on_exported_call('plugins.core.snacks-nvim.utils.sorters')
+      local actions = Defer.on_exported_call('plugins.core.snacks-nvim.actions')
+      local defer_scroll_half_page = function(direction)
+        local scroll_half_page
+        return function(...)
+          if not scroll_half_page then
+            scroll_half_page = actions.scroll_half_page(direction)
+          end
+          return scroll_half_page(...)
+        end
+      end
 
       return {
         words = { enabled = true },
@@ -221,8 +232,8 @@ return {
           prompt = picker_config.prompt_prefix,
 
           actions = {
-            list_half_page_down = actions.scroll_half_page('down'),
-            list_half_page_up = actions.scroll_half_page('up'),
+            list_half_page_down = defer_scroll_half_page('down'),
+            list_half_page_up = defer_scroll_half_page('up'),
             toggle_preview_focus = actions.toggle_preview_focus,
             toggle_preview = actions.toggle_preview,
             select = actions.select,

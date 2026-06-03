@@ -83,8 +83,12 @@ return {
         buf_state[bufnr] = nil
       end
 
-      local function apply_window_winhl(in_conflict)
-        local win = vim.api.nvim_get_current_win()
+      ---@param win integer
+      ---@param in_conflict boolean
+      local function apply_window_winhl(win, in_conflict)
+        if not vim.api.nvim_win_is_valid(win) then
+          return
+        end
         vim.wo[win].winhighlight = in_conflict and conflict_winhl or ''
       end
 
@@ -117,7 +121,7 @@ return {
             end
             local in_conflict = utils.cursor_in_conflict()
             current.in_conflict = in_conflict
-            apply_window_winhl(in_conflict)
+            apply_window_winhl(vim.api.nvim_get_current_win(), in_conflict)
           end)
         )
       end
@@ -148,8 +152,18 @@ return {
           vim.diagnostic.enable(false, { bufnr = bufnr })
 
           -- Wait a bit for the position to be stable and then initialize the highlights
+          local target_win = vim.api.nvim_get_current_win()
           vim.defer_fn(function()
-            apply_window_winhl(utils.cursor_in_conflict())
+            if not vim.api.nvim_win_is_valid(target_win) then
+              return
+            end
+            if vim.api.nvim_win_get_buf(target_win) ~= bufnr then
+              return
+            end
+            local in_conflict = vim.api.nvim_win_call(target_win, function()
+              return utils.cursor_in_conflict()
+            end)
+            apply_window_winhl(target_win, in_conflict)
           end, 100)
 
           local autocmd_id = vim.api.nvim_create_autocmd(
@@ -172,7 +186,7 @@ return {
                   if state.timer then
                     state.timer:stop()
                   end
-                  apply_window_winhl(false)
+                  apply_window_winhl(vim.api.nvim_get_current_win(), false)
                   return
                 end
 
@@ -187,7 +201,7 @@ return {
 
                 local in_conflict = utils.cursor_in_conflict()
                 state.in_conflict = in_conflict
-                apply_window_winhl(in_conflict)
+                apply_window_winhl(vim.api.nvim_get_current_win(), in_conflict)
               end,
             }
           )
@@ -213,14 +227,9 @@ return {
         callback = function(event)
           local bufnr = event.data.buf
 
-          for _, map in ipairs(keymaps) do
-            if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
-              local ok = pcall(vim.keymap.del, 'n', map.lhs, { buffer = bufnr })
-              if not ok then
-                pcall(vim.keymap.del, 'n', map.lhs)
-              end
-            else
-              pcall(vim.keymap.del, 'n', map.lhs)
+          if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
+            for _, map in ipairs(keymaps) do
+              pcall(vim.keymap.del, 'n', map.lhs, { buffer = bufnr })
             end
           end
 
