@@ -68,7 +68,7 @@ return {
             { pattern = 'terminal', icon = Icons.editor.terminal, color = 'green' },
             { pattern = 'plugin', icon = Icons.tools.plugin_manager, color = 'orange' },
             { pattern = 'help', icon = Icons.editor.help, color = 'blue' },
-            { pattern = 'buffer', icon = Icons.editor.buffer, color = 'cyan' },
+            { pattern = 'buffer', icon = Icons.editor.buffer, color = 'grey' },
             { pattern = 'undo', icon = Icons.actions.undo, color = 'purple' },
             { pattern = 'diagnostic', icon = Icons.editor.diagnostic, color = 'blue' },
             { pattern = 'highlight', icon = Icons.editor.highlight, color = 'blue' },

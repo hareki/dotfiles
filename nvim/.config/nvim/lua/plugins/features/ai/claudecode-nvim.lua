@@ -1,6 +1,8 @@
+local prefix = 'Claude Code: '
+
 return {
   WhichKey({
-    specs = { '<leader>a', group = 'Claude', mode = { 'n', 'v' } },
+    specs = { '<leader>a', group = 'Claude Code', mode = { 'n', 'v' } },
     rules = { pattern = 'claude', icon = Icons.kinds.Claude, color = 'orange' },
   }),
 
@@ -12,56 +14,56 @@ return {
       {
         '<M-a>',
         '<cmd>ClaudeCode<cr>',
-        desc = 'Toggle Claude',
+        desc = prefix .. 'Toggle',
         mode = { 'n', 'x', 't' },
       },
       {
         '<leader>ar',
         '<cmd>ClaudeCode --resume<cr>',
-        desc = 'Resume Claude',
+        desc = prefix .. 'Resume',
       },
       {
         '<leader>aC',
         '<cmd>ClaudeCode --continue<cr>',
-        desc = 'Continue Claude',
+        desc = prefix .. 'Continue',
       },
       {
         '<leader>am',
         '<cmd>ClaudeCodeSelectModel<cr>',
-        desc = 'Select Claude model',
+        desc = prefix .. 'Select Model',
       },
       {
         '<leader>ab',
         '<cmd>ClaudeCodeAdd %<cr>',
-        desc = 'Add Current Buffer',
+        desc = prefix .. 'Add Current Buffer',
       },
       {
         '<leader>ab',
         '<cmd>ClaudeCodeTreeAdd<cr>',
-        desc = 'Add File',
+        desc = prefix .. 'Add File',
         ft = { 'NvimTree' },
       },
       {
         '<leader>as',
         '<cmd>ClaudeCodeSend<cr>',
         mode = 'v',
-        desc = 'Send to Claude',
+        desc = prefix .. 'Add Selection',
       },
       {
         '<leader>as',
         '<cmd>ClaudeCodeTreeAdd<cr>',
-        desc = 'Add File',
+        desc = prefix .. 'Add File',
         ft = { 'NvimTree' },
       },
       {
         '<leader>aa',
         '<cmd>ClaudeCodeDiffAccept<cr>',
-        desc = 'Accept Diff',
+        desc = prefix .. 'Accept Diff',
       },
       {
         '<leader>ad',
         '<cmd>ClaudeCodeDiffDeny<cr>',
-        desc = 'Deny Diff',
+        desc = prefix .. 'Deny Diff',
       },
     },
 

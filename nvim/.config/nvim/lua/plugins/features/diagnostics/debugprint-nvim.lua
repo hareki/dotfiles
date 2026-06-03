@@ -1,3 +1,5 @@
+local prefix = 'Debug Prints: '
+
 return {
   WhichKey({
     specs = { '<leader>?', group = 'Debug' },
@@ -11,22 +13,22 @@ return {
         {
           '<leader>f?',
           '<cmd>Debugprint search<cr>',
-          desc = 'Debug Prints: Find',
+          desc = prefix .. 'Find',
         },
         {
           '<leader>?r',
           '<cmd>Debugprint resetcounter<cr>',
-          desc = 'Debug Prints: Reset Counter',
+          desc = prefix .. 'Reset Counter',
         },
         {
           '<leader>?d',
           '<cmd>Debugprint delete<cr>',
-          desc = 'Debug Prints: Delete All',
+          desc = prefix .. 'Delete All',
         },
         {
           '<leader>?t',
           '<cmd>Debugprint commenttoggle<cr>',
-          desc = 'Debug Prints: Toggle Comments',
+          desc = prefix .. 'Toggle Comments',
         },
         {
           '<leader>?v',
@@ -36,7 +38,7 @@ return {
               variable = true,
             })
           end,
-          desc = 'Debug Prints: Put Variable Below',
+          desc = prefix .. 'Put Variable Below',
         },
         {
           '<leader>?V',
@@ -47,7 +49,7 @@ return {
               surround = true,
             })
           end,
-          desc = 'Debug Prints: Put Variable Surround',
+          desc = prefix .. 'Put Variable Surround',
         },
         {
           '<leader>?p',
@@ -55,7 +57,7 @@ return {
             local debugprint = require('debugprint')
             debugprint.debugprint({})
           end,
-          desc = 'Debug Prints: Put Plain Text Below',
+          desc = prefix .. 'Put Plain Text Below',
         },
       }
     end,

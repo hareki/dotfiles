@@ -1,3 +1,5 @@
+local prefix = 'Flash: '
+
 return {
   WhichKey({
     rules = { plugin = 'flash.nvim', icon = Icons.tools.flash, color = 'yellow' },
@@ -21,7 +23,7 @@ return {
           local flash = require('flash')
           flash.jump()
         end,
-        desc = 'Flash',
+        desc = prefix .. 'Jump',
       },
       {
         'S',
@@ -30,7 +32,7 @@ return {
           local flash = require('flash')
           flash.treesitter()
         end,
-        desc = 'Flash Treesitter',
+        desc = prefix .. 'Treesitter',
       },
       {
         'r',
@@ -39,7 +41,7 @@ return {
           local flash = require('flash')
           flash.remote()
         end,
-        desc = 'Remote Flash',
+        desc = prefix .. 'Remote',
       },
       {
         'R',
@@ -48,7 +50,7 @@ return {
           local flash = require('flash')
           flash.treesitter_search()
         end,
-        desc = 'Treesitter Search',
+        desc = prefix .. 'Treesitter Search',
       },
       -- Simulate nvim-treesitter incremental selection
       {
@@ -63,7 +65,7 @@ return {
             },
           })
         end,
-        desc = 'Treesitter Incremental Selection',
+        desc = prefix .. 'Treesitter Incremental Selection',
       },
     },
     ---@type Flash.Config

@@ -1,4 +1,5 @@
 local ui_name = 'File Tree'
+
 return {
   Catppuccin(function(palette, sub_palette)
     local ui = require('utils.ui')
@@ -302,12 +303,15 @@ return {
         on_attach = function(tree_bufnr)
           local api = require('nvim-tree.api')
           local function map(mode, lhs, rhs, desc)
-            vim.keymap.set(mode, lhs, rhs, {
-              desc = 'NvimTree: ' .. desc,
-              buffer = tree_bufnr,
-              noremap = true,
-              nowait = true,
-            })
+            local keys = type(lhs) == 'table' and lhs or { lhs }
+            for _, key in ipairs(keys) do
+              vim.keymap.set(mode, key, rhs, {
+                desc = 'File Tree' .. desc,
+                buffer = tree_bufnr,
+                noremap = true,
+                nowait = true,
+              })
+            end
           end
 
           map('n', '<C-t>', function()
@@ -357,7 +361,7 @@ return {
           map('n', '<S-Right>', api.tree.expand_all, 'Expand All Nodes')
           map('n', '<Left>', tree.create_node_action('collapse'), 'Collapse Node')
           map('n', '<S-Left>', api.tree.collapse_all, 'Collapse All Nodes')
-          map('n', '<CR>', tree.create_node_action('toggle'), 'Open File/Toggle Folder')
+          map('n', { '<CR>', 'e' }, tree.create_node_action('toggle'), 'Open File/Toggle Folder')
           map('n', 'g?', function()
             api.tree.toggle_help()
             local nvim_tree_help = require('nvim-tree.help')

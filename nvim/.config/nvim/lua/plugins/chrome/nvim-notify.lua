@@ -1,3 +1,4 @@
+local prefix = 'Notification: '
 return {
   WhichKey({
     specs = { '<leader>u', group = 'Notification' },
@@ -23,7 +24,7 @@ return {
             local notify = require('notify')
             notify.dismiss({ silent = true, pending = true })
           end,
-          desc = 'Dismiss All Notifications',
+          desc = prefix .. 'Dismiss All',
         },
         {
           '<leader>un',
@@ -66,7 +67,7 @@ return {
               }),
             })
           end,
-          desc = 'Show Notification History',
+          desc = prefix .. 'Show History',
         },
       }
     end,
