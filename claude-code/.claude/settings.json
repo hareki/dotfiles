@@ -61,7 +61,6 @@
   "effortLevel": "high",
   "tui": "fullscreen",
   "theme": "custom:catppuccin-mocha",
-  "remoteControlAtStartup": true,
   "skipAutoPermissionPrompt": true,
   "model": "opus"
 }
