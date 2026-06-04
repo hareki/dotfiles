@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Personal Neovim configuration using **lazy.nvim** plugin manager. Targets Neovim 0.11+ with native LSP support.
+Personal Neovim configuration using **lazy.nvim** plugin manager. Targets Neovim 0.12+ with native LSP support.
 
 ## LuaLS Diagnostics Caveat
 
@@ -13,11 +13,12 @@ The LuaLS diagnostics surfaced to you will often report `undefined-global` for t
 ## Code Style
 
 - **Formatter**: stylua — 100-char lines, 2-space indent, single quotes (see `.stylua.toml`)
-- **LuaLS annotations**: `---@class`, `---@param`, `---@return`, `---@alias` for public APIs
+- **LuaLS annotations**: `--- @class`, `--- @param`, `--- @return`, `--- @alias` for public APIs
 - **Requires**: always assign to a local before use — `local x = require('y')` then `x.method()`, never `require('y').method()`
 - **Keymaps**: always use `vim.keymap.set()` with `<cmd>...<cr>` strings — never structured `vim.cmd` API. Fall back to function callbacks only when runtime values or multi-statement logic are needed. Always include `desc` in CMOS 18 title case ("Find Files", "Go to Definition")
 - **Icons**: always import from `config/icons.lua` via the `Icons` global — never hardcode icon strings
 - **Spec file/dir names**: name a plugin's spec file/dir after its GitHub repo name (the part after `/`), with **every `.` replaced by `-`** — applied identically to single-file specs and directories (`noice.nvim` → `noice-nvim.lua`, `telescope.nvim` → `telescope-nvim/`, `mini.ai` → `mini-ai/`, `copilot.lua` → `copilot-lua.lua`, `nvim-tree.lua` → `nvim-tree-lua/`). This keeps every name dot-free (Lua `require` can't carry a literal dot in a segment) while staying consistent. User modules named after a plugin follow the same rule (`services/blink-cmp.lua`); internal modules not named after a plugin stay `snake_case`. Never rename 3rd-party-required files (`lazy-lock.json`, `snippets/package.json`)
+- **Comment spacing**: always put a space between the comment marker and content — `-- x` not `--x`, `--- @param` not `---@param`. Applies to both inline comments (`--`) and LuaLS annotations (`---`). Never touch `--` inside string literals or `--[[` block markers.
 - **Augroups**: `vim.api.nvim_create_augroup` names use a dotted module-path prefix with `snake_case` segments — `<tier-or-domain>.<plugin>.<purpose>`. Core/chrome plugins use the tier (`core.snacks.hover_image`, `chrome.lualine.buffer_status_cache`); features plugins use the domain name directly, dropping the `features.` prefix (`git.git_conflict.keymaps`, `navigation.nvim_tree.preview`); helpers under `lua/utils/` use the `utils.` prefix (`utils.hl_at_cursor.popup_<win>`); config-level autocmds use the `config.autocmds.` prefix (`config.autocmds.checktime`). For dynamic suffixes, concatenate after an underscore: `'utils.hl_at_cursor.popup_' .. win`
 
 ## Commands
@@ -57,16 +58,6 @@ Nine globals available everywhere (eight set in `globals.lua`, one by its plugin
 | `Project`    | `utils.project_config`           | Per-project overrides from `.neovimrc.json` — `Project.linter`, `Project.formatter` |
 | `Snacks`     | Set by snacks.nvim at runtime    | `Snacks.picker.*`, `Snacks.terminal.*`, etc.                                        |
 
-### Key Modules
-
-- `config/size.lua` — size presets (`popup`, `side_preview`, `side_panel`, `inline_popup`)
-- `config/palette_ext.lua` — extended Catppuccin colors
-- `config/picker.lua` — shared picker UI constants
-- `services/` — cross-cutting concerns (statusline, cursorline, keymap registry, notifier, blink-cmp)
-- `utils/ui.lua` — popup config helpers, highlight utilities
-- `utils/common.lua` — general-purpose helpers
-- `utils/style_enforcers/` — async format-then-lint pipeline: `init.lua` orchestrates (conform formatters + linters with per-buffer locks/timeout); `engine.lua` is the enforcer registry with per-filetype dispatch; per-tool enforcers `eslint.lua` / `oxlint.lua` / `oxfmt.lua` (eslint auto-fix runs through the eslint LSP `applyAllFixes`)
-
 ## Plugin Spec Conventions
 
 ### Key Order
@@ -93,7 +84,7 @@ Use `popup_config(size, with_border)`, never hardcode dimensions. **Gotcha**: Te
 
 ## LSP Setup
 
-Uses Neovim 0.11+ native `vim.lsp.enable()` / `vim.lsp.config()` (not `lspconfig[server].setup()`). Per-server files live at `plugins/core/lsp/nvim-lspconfig/lsp/{server}.lua` — **these are NOT lazy.nvim specs and NOT raw `vim.lsp.Config` tables**. Each file returns `{ opts = table|function, setup = function? }`; `utils/server_loader.lua` walks the directory, calls `vim.lsp.config(name, opts)`, then invokes `setup()` if present. General LSP keymaps live in `nvim-lspconfig/init.lua`, not server files.
+Uses Neovim 0.12+ native `vim.lsp.enable()` / `vim.lsp.config()` (not `lspconfig[server].setup()`). Per-server files live at `plugins/core/lsp/nvim-lspconfig/lsp/{server}.lua` — **these are NOT lazy.nvim specs and NOT raw `vim.lsp.Config` tables**. Each file returns `{ opts = table|function, setup = function? }`; `utils/server_loader.lua` walks the directory, calls `vim.lsp.config(name, opts)`, then invokes `setup()` if present. General LSP keymaps live in `nvim-lspconfig/init.lua`, not server files.
 
 Server-specific `LspAttach` autocmds use an early-return guard on client name — see existing server configs for the pattern.
 
@@ -101,4 +92,4 @@ Server-specific `LspAttach` autocmds use an early-return guard on client name �
 
 ## Forks
 
-17 minimal-diff forks by `hareki`. Updated via [wei/pull](https://github.com/wei/pull). Features toggleable — disabling custom bits reverts to upstream. Enable unified floating UX: **Tab** = toggle focus (list↔preview, float↔main); **`<C-t>`** = toggle side-panel mode.
+17 minimal-diff forks by `hareki`. Updated via [wei/pull](https://github.com/wei/pull).
