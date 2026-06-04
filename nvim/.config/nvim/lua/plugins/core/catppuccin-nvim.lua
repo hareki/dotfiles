@@ -103,7 +103,6 @@ return {
         snacks = true,
         telescope = true,
         which_key = true,
-        mason = true,
         blink_cmp = {
           enabled = true,
           style = 'bordered',

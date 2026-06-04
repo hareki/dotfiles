@@ -81,7 +81,6 @@ return {
 
             -- Generic ones, should have lower priority
             { pattern = 'typescript', icon = Icons.ft.typescript, color = 'blue' },
-            { pattern = 'mason', icon = Icons.tools.mason, color = 'yellow' },
             { pattern = 'code actions', icon = Icons.actions.code_action, color = 'yellow' },
             { pattern = 'lsp', icon = Icons.tools.lsp, color = 'blue' },
             { pattern = 'register', icon = Icons.editor.register, color = 'yellow' },

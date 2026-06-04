@@ -72,10 +72,6 @@ return {
     end, opts.ensure_installed or {})
 
     if #missing > 0 then
-      local lazy = require('lazy')
-      -- Need tree-sitter-cli from mason
-      lazy.load({ plugins = { 'mason.nvim' } })
-
       TS.install(missing, { summary = true }):await(function()
         TS.get_installed('parsers') -- refresh installed languages
       end)

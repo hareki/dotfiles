@@ -8,7 +8,6 @@ local M = component:extend()
 local IGNORE_FILETYPES = {
   NvimTree = true,
   lazy = true,
-  mason = true,
   TelescopePrompt = true,
   TelescopeResults = true,
   Trouble = true,

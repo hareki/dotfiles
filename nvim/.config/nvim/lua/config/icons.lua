@@ -159,7 +159,6 @@ local M = {
     session = '󰆓',
     flash = '',
     lsp = ' ',
-    mason = ' ',
     eagle = '󱗆',
     debug = '󰃤',
     multicursor = '',

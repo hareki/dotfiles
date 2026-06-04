@@ -22,7 +22,7 @@
 | [kitty](https://sw.kovidgoez.net/kitty/)            | image.nvim                                              | Terminal with image protocol support                            |
 | C compiler + make                                   | nvim-treesitter, telescope-fzf-native                   | Parser compilation                                              |
 | [Go](https://go.dev/)                               | cursortab.nvim                                          | Build step: `cd server && go build`                             |
-| [Node.js](https://nodejs.org/) + npm                | Mason (vtsls, eslint-lsp, etc.), vtsls LSP config       | Mason installs Node-based LSP servers; vtsls runs `npm root -g` |
+| [Node.js](https://nodejs.org/) + npm                | mise-managed LSP servers (vtsls, eslint-lsp, etc.), vtsls LSP config | mise installs Node-based LSP servers; vtsls runs `npm root -g` |
 
 ### Subscriptions & API Keys
 
@@ -78,7 +78,7 @@ nvim-tree/
 ### LSP & Formatting
 
 - Per-server configs in `lua/plugins/core/lsp/nvim-lspconfig/lsp/{server}.lua`
-- Mason handles tool installation via `lua/plugins/core/lsp/mason.nvim.lua`
+- Tool installation (LSP servers, formatters, linters) is handled by [mise-en-place](https://mise.jdx.dev/) via `~/.config/mise/config.toml`
 - Single async formatting pipeline in `utils/style_enforcers/init.lua`
 
 ## Forks (author = hareki)

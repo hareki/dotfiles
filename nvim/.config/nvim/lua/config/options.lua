@@ -1,9 +1,3 @@
--- [[ Env Options ]]
-local env = vim.env
-
--- Pre-add mason's bin directory to PATH so LSP servers are found without loading mason
-env.PATH = vim.fn.stdpath('data') .. '/mason/bin:' .. vim.env.PATH
-
 -- [[ Global Options ]]
 
 -- Must happen before plugins are loaded (otherwise wrong leader will be used)

@@ -23,7 +23,7 @@ The LuaLS diagnostics surfaced to you will often report `undefined-global` for t
 
 ## Commands
 
-- **Format**: `~/.local/share/nvim/mason/bin/stylua .` (check only: `~/.local/share/nvim/mason/bin/stylua --check .`) — installed via mason.nvim, not on `$PATH`
+- **Format**: `stylua .` (check only: `stylua --check .`) — installed via mise-en-place, on `$PATH`
 - No test suite or build system — this is a personal Neovim config, not a library
 
 ## Architecture
