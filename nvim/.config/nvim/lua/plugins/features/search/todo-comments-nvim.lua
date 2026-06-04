@@ -6,7 +6,7 @@ return {
   cmd = { 'TodoTrouble', 'TodoTelescope' },
   event = 'VeryLazy',
   dependencies = { 'hareki/snacks.nvim' },
-  opts = {},
+
   keys = {
     {
       ']t',
@@ -37,6 +37,18 @@ return {
         Snacks.picker.todo_comments({ show_pattern = false })
       end,
       desc = 'Find All Todo Comments',
+    },
+  },
+
+  opts = {
+    keywords = {
+      FIX = { icon = Icons.tools.debug },
+    },
+    highlight = {
+      multiline = false,
+      before = '',
+      keyword = 'wide_bg',
+      after = '',
     },
   },
 }
