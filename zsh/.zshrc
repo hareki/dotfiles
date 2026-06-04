@@ -26,18 +26,9 @@ for func in $functions_dir/*(.N); do
   autoload -Uz "${func:t}"
 done
 
-# evalcache doesn't play nice with `mise activate zsh` due to its dynamic nature, especially in tmux
-# Performance penalty is negligible, fallback to use shims in non-interactive shells (check .zshenv)
-# https://mise.jdx.dev/dev-tools/shims.html#shims-vs-path
-# _evalcache mise activate zsh
-eval "$(mise activate zsh)"
 
 _evalcache zoxide init zsh
 _evalcache atuin init zsh --disable-up-arrow
-
-# Note: The path we set in .zshenv will be overwritten by Homebrew at this point
-# Put it here as the last line to ensure it takes precedence
-PATH="$HOME/.local/bin/shims:$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
 
 if [[ -n "$ZSH_DEBUGRC" ]]; then
   zprof
