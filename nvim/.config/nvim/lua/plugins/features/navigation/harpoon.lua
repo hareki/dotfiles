@@ -1,7 +1,7 @@
 return {
   WhichKey({
     specs = { '<leader>H', group = 'Pin File', mode = { 'n', 'v' } },
-    rules = { pattern = 'pin', icon = Icons.tools.pin, color = 'azure' },
+    rules = { pattern = 'pin', icon = Icons.tools.pin, color = 'yellow' },
   }),
 
   {
