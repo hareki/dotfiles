@@ -1,15 +1,15 @@
----@class plugins.core.snacks.utils.formatters
+--- @class plugins.core.snacks.utils.formatters
 local M = {}
 
----Format function for keymap picker (icon, description, buffer, lhs, mode)
----Removes rhs and file columns from default format.
----@param item snacks.picker.Item The picker item
----@param _picker snacks.Picker The picker instance
----@param width integer Available width for formatting
----@return snacks.picker.Highlight[] highlights Array of highlight segments
+--- Format function for keymap picker (icon, description, buffer, lhs, mode)
+--- Removes rhs and file columns from default format.
+--- @param item snacks.picker.Item The picker item
+--- @param _picker snacks.Picker The picker instance
+--- @param width integer Available width for formatting
+--- @return snacks.picker.Highlight[] highlights Array of highlight segments
 function M.keymap_format(item, _picker, width)
-  local ret = {} ---@type snacks.picker.Highlight[]
-  ---@type wk.Keymap
+  local ret = {} --- @type snacks.picker.Highlight[]
+  --- @type wk.Keymap
   local k = item.item
   local align = Snacks.picker.util.align
   local col_width = {
@@ -56,14 +56,14 @@ function M.keymap_format(item, _picker, width)
   return ret
 end
 
----Format function for buffer picker with modified indicator
----Removes buf number, buf type, and flags from default format.
----Adds modified indicator
----@param item snacks.picker.Item The picker item
----@param picker snacks.Picker The picker instance
----@return snacks.picker.Highlight[] highlights Array of highlight segments
+--- Format function for buffer picker with modified indicator
+--- Removes buf number, buf type, and flags from default format.
+--- Adds modified indicator
+--- @param item snacks.picker.Item The picker item
+--- @param picker snacks.Picker The picker instance
+--- @return snacks.picker.Highlight[] highlights Array of highlight segments
 function M.buffer_format(item, picker)
-  local ret = {} ---@type snacks.picker.Highlight[]
+  local ret = {} --- @type snacks.picker.Highlight[]
   vim.list_extend(ret, Snacks.picker.format.filename(item, picker))
 
   if item.name == '' and item.filetype ~= '' then
@@ -83,14 +83,14 @@ function M.buffer_format(item, picker)
   return ret
 end
 
----Format function for buffer select picker (index + buffer format)
----Adds index number prefix to buffer_format output.
----@param item snacks.picker.Item The picker item
----@param picker snacks.Picker The picker instance
----@return snacks.picker.Highlight[] highlights Array of highlight segments
+--- Format function for buffer select picker (index + buffer format)
+--- Adds index number prefix to buffer_format output.
+--- @param item snacks.picker.Item The picker item
+--- @param picker snacks.Picker The picker instance
+--- @return snacks.picker.Highlight[] highlights Array of highlight segments
 function M.buffer_select_format(item, picker)
   local count = picker:count()
-  local ret = {} ---@type snacks.picker.Highlight[]
+  local ret = {} --- @type snacks.picker.Highlight[]
   local idx = tostring(item.idx)
   idx = (' '):rep(#tostring(count) - #idx) .. idx
   ret[#ret + 1] = { idx .. '.', 'SnacksPickerIdx' }

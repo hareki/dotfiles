@@ -24,7 +24,7 @@ return {
         table.insert(desc_override_specs, { lhs, desc = spec.desc, mode = spec.mode })
       end
 
-      ---@class wk.Opts
+      --- @class wk.Opts
       return {
         preset = 'modern',
         delay = function(ctx)

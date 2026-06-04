@@ -1,11 +1,11 @@
----@class plugins.core.snacks-nvim.actions
+--- @class plugins.core.snacks-nvim.actions
 local M = {}
 
 local state = require('plugins.core.snacks-nvim.utils.state')
 
----Wrap default toggle_preview to persist state for managed pickers
----@module 'snacks'
----@param picker snacks.Picker
+--- Wrap default toggle_preview to persist state for managed pickers
+--- @module 'snacks'
+--- @param picker snacks.Picker
 function M.toggle_preview(picker)
   picker:toggle('preview')
 
@@ -16,9 +16,9 @@ function M.toggle_preview(picker)
   end
 end
 
----Create a scroll action that moves the list by half a page
----@param direction 'up' | 'down' The scroll direction
----@return fun(picker: snacks.Picker): nil action The scroll action function
+--- Create a scroll action that moves the list by half a page
+--- @param direction 'up' | 'down' The scroll direction
+--- @return fun(picker: snacks.Picker): nil action The scroll action function
 function M.scroll_half_page(direction)
   return function(picker)
     local list_win = picker.layout.opts.wins.list.win
@@ -34,9 +34,9 @@ function M.scroll_half_page(direction)
   end
 end
 
----Toggle focus between the picker input and preview window
----@param picker snacks.Picker The picker instance
----@return nil
+--- Toggle focus between the picker input and preview window
+--- @param picker snacks.Picker The picker instance
+--- @return nil
 function M.toggle_preview_focus(picker)
   local input_win = picker.layout.opts.wins.input.win
   local preview_win = picker.layout.opts.wins.preview.win
@@ -59,22 +59,22 @@ function M.toggle_preview_focus(picker)
   end
 end
 
----Select the current item in the picker list
----@param picker snacks.Picker The picker instance
----@return nil
+--- Select the current item in the picker list
+--- @param picker snacks.Picker The picker instance
+--- @return nil
 function M.select(picker)
   picker.list:select()
 end
 
----Send picker results to Trouble for persistent viewing
----Handles todo_comments source specially by opening Trouble's todo view.
----@param picker snacks.Picker The picker instance
----@return nil
+--- Send picker results to Trouble for persistent viewing
+--- Handles todo_comments source specially by opening Trouble's todo view.
+--- @param picker snacks.Picker The picker instance
+--- @return nil
 function M.snacks_to_trouble(picker)
   if picker.opts.source == 'todo_comments' then
     local todo_args = { 'todo', 'toggle' }
     local keywords = picker
-      ---@module "todo-comments"
+      --- @module "todo-comments"
       .opts --[[@as snacks.picker.todo.Config]]
       .keywords
 

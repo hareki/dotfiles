@@ -1,30 +1,30 @@
----@class utils.style_enforcers.RunOpts
----@field bufnr integer
----@field on_start fun(name: string, idx: integer, total: integer) | nil
----@field on_done  fun(name: string, ok: boolean, err?: string) | nil
+--- @class utils.style_enforcers.RunOpts
+--- @field bufnr integer
+--- @field on_start fun(name: string, idx: integer, total: integer) | nil
+--- @field on_done  fun(name: string, ok: boolean, err?: string) | nil
 
----@class utils.style_enforcers
+--- @class utils.style_enforcers
 local M = {}
 
----@class utils.style_enforcers.Entry
----@field name string
----@field filetypes string[]
----@field runner fun(opts: { bufnr: integer, on_done: fun(ok: boolean, err?: string) })
----@field order integer Smaller runs first
----@field seq integer Registration sequence, tiebreaker for a stable sort
+--- @class utils.style_enforcers.Entry
+--- @field name string
+--- @field filetypes string[]
+--- @field runner fun(opts: { bufnr: integer, on_done: fun(ok: boolean, err?: string) })
+--- @field order integer Smaller runs first
+--- @field seq integer Registration sequence, tiebreaker for a stable sort
 
 local DEFAULT_ORDER = 100
 
----@type utils.style_enforcers.Entry[]
+--- @type utils.style_enforcers.Entry[]
 local entries = {}
 local seq = 0
 
----Register a enforcer with its supported filetypes
----@param name string Unique enforcer name
----@param filetypes string[] List of filetypes this enforcer supports
----@param runner fun(opts: { bufnr: integer, on_done: fun(ok: boolean, err?: string) }) The enforcer function
----@param opts? { order?: integer } `order` sets run position — smaller runs first (default 100). Use a lower value for a formatter step that must run ahead of lint-fix steps.
----@return nil
+--- Register a enforcer with its supported filetypes
+--- @param name string Unique enforcer name
+--- @param filetypes string[] List of filetypes this enforcer supports
+--- @param runner fun(opts: { bufnr: integer, on_done: fun(ok: boolean, err?: string) }) The enforcer function
+--- @param opts? { order?: integer } `order` sets run position — smaller runs first (default 100). Use a lower value for a formatter step that must run ahead of lint-fix steps.
+--- @return nil
 function M.register(name, filetypes, runner, opts)
   seq = seq + 1
   entries[#entries + 1] = {
@@ -36,9 +36,9 @@ function M.register(name, filetypes, runner, opts)
   }
 end
 
----Get registered enforcer names for a filetype (sorted by `order`, then registration order)
----@param ft string The filetype to look up
----@return string[] names List of enforcer names that support this filetype
+--- Get registered enforcer names for a filetype (sorted by `order`, then registration order)
+--- @param ft string The filetype to look up
+--- @return string[] names List of enforcer names that support this filetype
 function M.names_for_filetype(ft)
   local matched = {}
   for _, entry in ipairs(entries) do
@@ -64,7 +64,7 @@ function M.names_for_filetype(ft)
   return out
 end
 
----Internal: run names sequentially
+--- Internal: run names sequentially
 local function run_next(names, opts, idx)
   idx = idx or 1
   local name = names[idx]
@@ -102,17 +102,17 @@ local function run_next(names, opts, idx)
   runner({ bufnr = opts.bufnr, on_done = done })
 end
 
----Run a list of enforcers sequentially on a buffer
----@param names string[] List of enforcer names to run
----@param opts utils.style_enforcers.RunOpts Options with bufnr, on_start, on_done callbacks
----@return nil
+--- Run a list of enforcers sequentially on a buffer
+--- @param names string[] List of enforcer names to run
+--- @param opts utils.style_enforcers.RunOpts Options with bufnr, on_start, on_done callbacks
+--- @return nil
 function M.run(names, opts)
   run_next(names, opts, 1)
 end
 
----Auto-run all registered enforcers matching the buffer's filetype
----@param opts utils.style_enforcers.RunOpts Options with bufnr, on_start, on_done callbacks
----@return nil
+--- Auto-run all registered enforcers matching the buffer's filetype
+--- @param opts utils.style_enforcers.RunOpts Options with bufnr, on_start, on_done callbacks
+--- @return nil
 function M.run_by_ft(opts)
   local bufnr = opts.bufnr
   if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then

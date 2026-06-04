@@ -75,7 +75,7 @@ return {
 
           signature = {
             enabled = false,
-            ---@type NoiceViewOptions
+            --- @type NoiceViewOptions
             opts = {
               border = 'rounded',
               size = {

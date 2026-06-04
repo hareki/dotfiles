@@ -1,17 +1,17 @@
----@class plugins.chrome.nvim-ufo.utils
+--- @class plugins.chrome.nvim-ufo.utils
 local M = {}
 
 local ui = require('utils.ui')
 
----Custom fold virtual text handler for nvim-ufo
----Displays a folded region with dynamic truncation and a pill-shaped line count indicator.
----Source: `https://github.com/kevinhwang91/nvim-ufo?tab=readme-ov-file#customize-fold-text`
----@param virt_text table Array of virtual text chunks (text, hl_group pairs)
----@param lnum integer Starting line number of the fold
----@param end_lnum integer Ending line number of the fold
----@param width integer Available width for virtual text
----@param truncate function Function to truncate text to a given width
----@return table[] new_virt_text Modified virtual text chunks
+--- Custom fold virtual text handler for nvim-ufo
+--- Displays a folded region with dynamic truncation and a pill-shaped line count indicator.
+--- Source: `https://github.com/kevinhwang91/nvim-ufo?tab=readme-ov-file#customize-fold-text`
+--- @param virt_text table Array of virtual text chunks (text, hl_group pairs)
+--- @param lnum integer Starting line number of the fold
+--- @param end_lnum integer Ending line number of the fold
+--- @param width integer Available width for virtual text
+--- @param truncate function Function to truncate text to a given width
+--- @return table[] new_virt_text Modified virtual text chunks
 function M.fold_text_handler(virt_text, lnum, end_lnum, width, truncate)
   local virt_text_result = {}
   local cur_width = 0

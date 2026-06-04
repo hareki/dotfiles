@@ -1,28 +1,28 @@
----@class utils.ui
+--- @class utils.ui
 local M = {}
 
----@alias utils.ui.Palette { rosewater: string, flamingo: string, pink: string, mauve: string, red: string, maroon: string, peach: string, yellow: string, green: string, teal: string, sky: string, sapphire: string, blue: string, lavender: string, text: string, subtext1: string, subtext0: string, overlay2: string, overlay1: string, overlay0: string, surface2: string, surface1: string, surface0: string, base: string, mantle: string, crust: string }
+--- @alias utils.ui.Palette { rosewater: string, flamingo: string, pink: string, mauve: string, red: string, maroon: string, peach: string, yellow: string, green: string, teal: string, sky: string, sapphire: string, blue: string, lavender: string, text: string, subtext1: string, subtext0: string, overlay2: string, overlay1: string, overlay0: string, surface2: string, surface1: string, surface0: string, base: string, mantle: string, crust: string }
 
----Set a single highlight group
----@param group string The highlight group name
----@param style vim.api.keyset.highlight The highlight definition
----@return nil
+--- Set a single highlight group
+--- @param group string The highlight group name
+--- @param style vim.api.keyset.highlight The highlight definition
+--- @return nil
 function M.highlight(group, style)
   vim.api.nvim_set_hl(0, group, style)
 end
 
----Set multiple highlight groups at once
----@param custom_highlights table<string, vim.api.keyset.highlight> Map of group names to styles
----@return nil
+--- Set multiple highlight groups at once
+--- @param custom_highlights table<string, vim.api.keyset.highlight> Map of group names to styles
+--- @return nil
 function M.highlights(custom_highlights)
   for group, style in pairs(custom_highlights) do
     M.highlight(group, style)
   end
 end
 
----Save the current highlight state for a list of groups
----@param groups string[] List of highlight group names
----@return table<string, vim.api.keyset.highlight> snapshot Map of group names to their current styles
+--- Save the current highlight state for a list of groups
+--- @param groups string[] List of highlight group names
+--- @return table<string, vim.api.keyset.highlight> snapshot Map of group names to their current styles
 function M.save_hls(groups)
   local snapshot = {}
   for _, group in ipairs(groups) do
@@ -31,19 +31,19 @@ function M.save_hls(groups)
   return snapshot
 end
 
----Get the catppuccin color palette for a given flavor
----@param name? "frappe" | "latte" | "macchiato" | "mocha" Flavor name (default: "mocha")
----@return utils.ui.Palette colors The color palette table
+--- Get the catppuccin color palette for a given flavor
+--- @param name? "frappe" | "latte" | "macchiato" | "mocha" Flavor name (default: "mocha")
+--- @return utils.ui.Palette colors The color palette table
 function M.get_palette(name)
   local palettes = require('catppuccin.palettes')
 
   return palettes.get_palette(name or 'mocha')
 end
 
----Create a catppuccin plugin spec with custom highlights
----Returns a lazy.nvim spec that registers highlights via catppuccin's custom_highlights option.
----@param register fun(palette: utils.ui.Palette, sub_palette: utils.ui.Palette, extension: config.palette_ext): table<string, vim.api.keyset.highlight> Callback to generate highlights
----@return table spec A lazy.nvim plugin spec for catppuccin
+--- Create a catppuccin plugin spec with custom highlights
+--- Returns a lazy.nvim spec that registers highlights via catppuccin's custom_highlights option.
+--- @param register fun(palette: utils.ui.Palette, sub_palette: utils.ui.Palette, extension: config.palette_ext): table<string, vim.api.keyset.highlight> Callback to generate highlights
+--- @return table spec A lazy.nvim plugin spec for catppuccin
 function M.catppuccin(register)
   return {
     'catppuccin/nvim',
@@ -61,21 +61,21 @@ function M.catppuccin(register)
   }
 end
 
----Convert hex color to RGB components
----@param hex string Hex color
----@return integer r Red component (0-255)
----@return integer g Green component (0-255)
----@return integer b Blue component (0-255)
+--- Convert hex color to RGB components
+--- @param hex string Hex color
+--- @return integer r Red component (0-255)
+--- @return integer g Green component (0-255)
+--- @return integer b Blue component (0-255)
 function M.hex_to_rgb(hex)
   hex = hex:gsub('#', '')
   return tonumber(hex:sub(1, 2), 16), tonumber(hex:sub(3, 4), 16), tonumber(hex:sub(5, 6), 16)
 end
 
----Blend two hex colors together
----@param from string Starting hex color (alpha=0)
----@param to string Target hex color (alpha=1)
----@param alpha? number Blend factor (0.0 = fully from, 1.0 = fully to, default: 0.18)
----@return string hex Blended hex color
+--- Blend two hex colors together
+--- @param from string Starting hex color (alpha=0)
+--- @param to string Target hex color (alpha=1)
+--- @param alpha? number Blend factor (0.0 = fully from, 1.0 = fully to, default: 0.18)
+--- @return string hex Blended hex color
 function M.blend_hex(from, to, alpha)
   alpha = alpha or 0.28
 
@@ -89,9 +89,9 @@ function M.blend_hex(from, to, alpha)
   return string.format('#%02x%02x%02x', r, g, b)
 end
 
----Get fg and bg hex colors from a highlight group
----@param name string Highlight group name
----@return { fg: string?, bg: string? } colors Table with fg/bg hex strings
+--- Get fg and bg hex colors from a highlight group
+--- @param name string Highlight group name
+--- @return { fg: string?, bg: string? } colors Table with fg/bg hex strings
 function M.hl_colors(name)
   local hl = vim.api.nvim_get_hl(0, { name = name, link = false })
   return {
@@ -100,11 +100,11 @@ function M.hl_colors(name)
   }
 end
 
----Build pill-shaped virtual text chunks
----@param content string The text content inside the pill
----@param inner_hl string Highlight group for the pill content
----@param outer_hl string Highlight group for the pill caps
----@return table[] chunks Virtual text chunks: space, left cap, content, right cap
+--- Build pill-shaped virtual text chunks
+--- @param content string The text content inside the pill
+--- @param inner_hl string Highlight group for the pill content
+--- @param outer_hl string Highlight group for the pill caps
+--- @return table[] chunks Virtual text chunks: space, left cap, content, right cap
 function M.pill_virt_text(content, inner_hl, outer_hl)
   return {
     { ' ' },
@@ -114,9 +114,9 @@ function M.pill_virt_text(content, inner_hl, outer_hl)
   }
 end
 
----Calculate the total display width of a pill (space + caps + content)
----@param content string The text content inside the pill
----@return integer width Total display width in columns
+--- Calculate the total display width of a pill (space + caps + content)
+--- @param content string The text content inside the pill
+--- @return integer width Total display width in columns
 function M.pill_display_width(content)
   return 1
     + vim.fn.strdisplaywidth(Icons.misc.pill_left)
@@ -124,9 +124,9 @@ function M.pill_display_width(content)
     + vim.fn.strdisplaywidth(Icons.misc.pill_right)
 end
 
----Generate telescope layout configuration for a given size preset
----@param size 'sm' | 'md' | 'lg' | 'vertical_lg' | 'full' Size preset name
----@return table layout Layout config with size hint, height, and width functions
+--- Generate telescope layout configuration for a given size preset
+--- @param size 'sm' | 'md' | 'lg' | 'vertical_lg' | 'full' Size preset name
+--- @return table layout Layout config with size hint, height, and width functions
 function M.telescope_layout(size)
   return {
     size = size, -- Hint to calculate the position
@@ -139,9 +139,9 @@ function M.telescope_layout(size)
   }
 end
 
----Get the current screen dimensions in columns and rows
----@return integer screen_w Screen width in columns
----@return integer screen_h Screen height in rows
+--- Get the current screen dimensions in columns and rows
+--- @return integer screen_w Screen width in columns
+--- @return integer screen_h Screen height in rows
 function M.screen_size()
   local screen_w = vim.o.columns
   local screen_h = vim.o.lines
@@ -154,11 +154,11 @@ local computed_input_size = {
   width = 60,
 }
 
----Compute actual dimensions from a size configuration
----@param size config.size.Dimensions | 'input' Size config or 'input' preset
----@param with_border? boolean Whether to add 2 for border (default false)
----@return integer width Width in columns
----@return integer height Height in rows
+--- Compute actual dimensions from a size configuration
+--- @param size config.size.Dimensions | 'input' Size config or 'input' preset
+--- @param with_border? boolean Whether to add 2 for border (default false)
+--- @return integer width Width in columns
+--- @return integer height Height in rows
 function M.compute_size(size, with_border)
   local width_in_cols, height_in_rows
 
@@ -175,17 +175,17 @@ function M.compute_size(size, with_border)
   return width_in_cols + (with_border and 2 or 0), height_in_rows + (with_border and 2 or 0)
 end
 
----@class utils.ui.WinConfig
----@field width    integer
----@field height   integer
----@field col      integer
----@field row      integer
+--- @class utils.ui.WinConfig
+--- @field width    integer
+--- @field height   integer
+--- @field col      integer
+--- @field row      integer
 
----Generate popup window configuration for a given size preset
----Calculates centered position and dimensions based on screen size.
----@param size 'lg' | 'md' | 'sm' | 'input' | 'full' | 'vertical_lg' Size preset name
----@param with_border boolean | nil Whether to add 2 for border (default false)
----@return utils.ui.WinConfig config Window config with width, height, col, row
+--- Generate popup window configuration for a given size preset
+--- Calculates centered position and dimensions based on screen size.
+--- @param size 'lg' | 'md' | 'sm' | 'input' | 'full' | 'vertical_lg' Size preset name
+--- @param with_border boolean | nil Whether to add 2 for border (default false)
+--- @return utils.ui.WinConfig config Window config with width, height, col, row
 function M.popup_config(size, with_border)
   local size_configs = require('config.size')
   local screen_w, screen_h = M.screen_size()
@@ -239,12 +239,12 @@ function M.popup_config(size, with_border)
   }
 end
 
----Create a which-key.nvim plugin spec with group specs and/or icon rules
----Returns a lazy.nvim spec that contributes to which-key's configuration.
----Icon rules are prepended (higher priority than generic rules in the main spec).
+--- Create a which-key.nvim plugin spec with group specs and/or icon rules
+--- Returns a lazy.nvim spec that contributes to which-key's configuration.
+--- Icon rules are prepended (higher priority than generic rules in the main spec).
 --- @module 'which-key'
----@param config { specs?: wk.Spec, rules?: wk.IconRule|wk.IconRule[] }
----@return table spec A lazy.nvim plugin spec for which-key.nvim
+--- @param config { specs?: wk.Spec, rules?: wk.IconRule|wk.IconRule[] }
+--- @return table spec A lazy.nvim plugin spec for which-key.nvim
 function M.which_key(config)
   local specs = config.specs
   local rules = config.rules

@@ -1,19 +1,19 @@
 -- trouble.nvim notifier with supported custom highlight groups
 -- https://github.com/folke/trouble.nvim/blob/main/lua/trouble/util.lua
 
----@class services.notifier
+--- @class services.notifier
 local M = {}
 
----@alias NotifierOpts { level?: number, title?: string, once?: boolean, id?:string, on_open?: fun(), default_hl?: string, height_offset?: integer }
+--- @alias NotifierOpts { level?: number, title?: string, once?: boolean, id?:string, on_open?: fun(), default_hl?: string, height_offset?: integer }
 
----@alias MessageTuple { [1]: string, [2]?: string }
----@alias MessageChunk string|MessageTuple
----@alias Message string|string[]|MessageChunk[]
+--- @alias MessageTuple { [1]: string, [2]?: string }
+--- @alias MessageChunk string|MessageTuple
+--- @alias Message string|string[]|MessageChunk[]
 
 -- Per-id notification state. Only populated when opts.id is set, since only
 -- id'd notifications are ever replaced (and thus need their old autocmds cleaned
 -- up). Notifications without an id rely on the on_close closure for cleanup.
----@type table<string, { handle: any, autocmd_id: integer? }>
+--- @type table<string, { handle: any, autocmd_id: integer? }>
 local notif_state = {}
 local highlight_ns = vim.api.nvim_create_namespace('trouble_notify_hl')
 
@@ -24,13 +24,13 @@ local function apply_win_opts(win)
   w.spell = false
 end
 
----@param handle any
----@return boolean
+--- @param handle any
+--- @return boolean
 local function is_notify_record(handle)
   return type(handle) == 'table' and type(handle.id) == 'number'
 end
 
----Return true if tbl looks like a chunk list: { 'txt', { 'txt', 'hl' }, … }.
+--- Return true if tbl looks like a chunk list: { 'txt', { 'txt', 'hl' }, … }.
 local function is_chunk_list(tbl)
   if type(tbl) ~= 'table' then
     return false
@@ -46,11 +46,11 @@ local function is_chunk_list(tbl)
   return true
 end
 
----Flatten a tuple-list and build an on_open that restores highlights.
----@param chunks table  list of strings *or* {text, hl} tuples
----@param opts   table? { default_hl?: string }
----@return string plain     flattened text for vim.notify
----@return function on_open callback that reapplies extmarks
+--- Flatten a tuple-list and build an on_open that restores highlights.
+--- @param chunks table  list of strings *or* {text, hl} tuples
+--- @param opts   table? { default_hl?: string }
+--- @return string plain     flattened text for vim.notify
+--- @return function on_open callback that reapplies extmarks
 local function normalize_message(chunks, opts)
   opts = opts or {}
   local default_hl = opts.default_hl or 'Normal'
@@ -85,8 +85,8 @@ local function normalize_message(chunks, opts)
   end
   local plain = table.concat(parts)
 
-  ---reapply the extmarks once the floating window opens
-  ---@param win integer
+  --- reapply the extmarks once the floating window opens
+  --- @param win integer
   local function on_open(win)
     local buf = vim.api.nvim_win_get_buf(win)
     apply_win_opts(win)
@@ -111,11 +111,11 @@ local function normalize_message(chunks, opts)
   return plain, on_open
 end
 
----Core notification function with rich highlighting and markdown support
----Supports both plain strings and tuple lists for custom highlight groups.
----@param msg string|table Plain message or tuple list like {{text, hl}, ...}
----@param opts table? Notification options (level, title, once, id, on_open, default_hl)
----@return any handle The notification handle for replacement/tracking
+--- Core notification function with rich highlighting and markdown support
+--- Supports both plain strings and tuple lists for custom highlight groups.
+--- @param msg string|table Plain message or tuple list like {{text, hl}, ...}
+--- @param opts table? Notification options (level, title, once, id, on_open, default_hl)
+--- @return any handle The notification handle for replacement/tracking
 function M.notify(msg, opts)
   opts = opts or {}
   local is_markdown = not is_chunk_list(msg)
@@ -139,7 +139,7 @@ function M.notify(msg, opts)
       })
     end
   else
-    ---@cast msg table
+    --- @cast msg table
     msg, apply_highlight = normalize_message(msg, opts)
   end
 
@@ -222,10 +222,10 @@ function M.notify(msg, opts)
   return ret
 end
 
----Display an info-level notification with optional custom highlights
----@param msg Message String, string array, or tuple list for rich formatting
----@param opts? NotifierOpts Notification options (title, id, on_open, etc.)
----@return any handle The notification handle for replacement/tracking
+--- Display an info-level notification with optional custom highlights
+--- @param msg Message String, string array, or tuple list for rich formatting
+--- @param opts? NotifierOpts Notification options (title, id, on_open, etc.)
+--- @return any handle The notification handle for replacement/tracking
 function M.info(msg, opts)
   return M.notify(
     msg,
@@ -237,10 +237,10 @@ function M.info(msg, opts)
   )
 end
 
----Display a warning-level notification with optional custom highlights
----@param msg Message String, string array, or tuple list for rich formatting
----@param opts? NotifierOpts Notification options (title, id, on_open, etc.)
----@return any handle The notification handle for replacement/tracking
+--- Display a warning-level notification with optional custom highlights
+--- @param msg Message String, string array, or tuple list for rich formatting
+--- @param opts? NotifierOpts Notification options (title, id, on_open, etc.)
+--- @return any handle The notification handle for replacement/tracking
 function M.warn(msg, opts)
   return M.notify(
     msg,
@@ -252,10 +252,10 @@ function M.warn(msg, opts)
   )
 end
 
----Display an error-level notification with optional custom highlights
----@param msg Message String, string array, or tuple list for rich formatting
----@param opts? NotifierOpts Notification options (title, id, on_open, etc.)
----@return any handle The notification handle for replacement/tracking
+--- Display an error-level notification with optional custom highlights
+--- @param msg Message String, string array, or tuple list for rich formatting
+--- @param opts? NotifierOpts Notification options (title, id, on_open, etc.)
+--- @return any handle The notification handle for replacement/tracking
 function M.error(msg, opts)
   return M.notify(
     msg,
@@ -267,9 +267,9 @@ function M.error(msg, opts)
   )
 end
 
----Display a debug notification with vim.inspect output in a code block
----@param ... any Values to inspect and display
----@return nil
+--- Display a debug notification with vim.inspect output in a code block
+--- @param ... any Values to inspect and display
+--- @return nil
 function M.inspect(...)
   local parts = {}
   if select('#', ...) > 0 then

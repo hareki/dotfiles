@@ -1,21 +1,21 @@
----@class plugins.core.snacks.utils.image
+--- @class plugins.core.snacks.utils.image
 local M = {}
 
----@class plugins.core.snacks.utils.image.State
----@field win integer
----@field buf integer
----@field placement snacks.image.Placement
----@field source_buf integer
----@field augroup integer
----@field previous_esc_map table?
+--- @class plugins.core.snacks.utils.image.State
+--- @field win integer
+--- @field buf integer
+--- @field placement snacks.image.Placement
+--- @field source_buf integer
+--- @field augroup integer
+--- @field previous_esc_map table?
 
----@type plugins.core.snacks.utils.image.State?
+--- @type plugins.core.snacks.utils.image.State?
 local hover = nil
 
 local HOVER_ESC_DESC = 'Close Hover Image'
 
----@param buf integer
----@return table?
+--- @param buf integer
+--- @return table?
 local function get_buffer_esc_map(buf)
   if not vim.api.nvim_buf_is_valid(buf) then
     return nil
@@ -30,8 +30,8 @@ local function get_buffer_esc_map(buf)
   end)
 end
 
----@param buf integer
----@param map table
+--- @param buf integer
+--- @param map table
 local function restore_buffer_esc_map(buf, map)
   if not vim.api.nvim_buf_is_valid(buf) then
     return
@@ -61,8 +61,8 @@ local function restore_buffer_esc_map(buf, map)
   end
 end
 
----@param buf integer
----@return boolean
+--- @param buf integer
+--- @return boolean
 local function is_hover_esc_map(buf)
   local map = get_buffer_esc_map(buf)
   if not map then
@@ -96,15 +96,15 @@ local function close()
   end
 end
 
----Build a hover-unique src path so the floating preview gets its own kitty
----graphics ID, decoupled from any inline placement of the same source. This
----prevents size juggling when the same image is rendered both inline and in
----the float, and ensures unsaved buffer edits (e.g. `.mmd` files) are picked
----up by re-hashing the live content.
----@param original_src string|nil  Resolved on-disk file (used when `content` is nil)
----@param ext string  File extension without leading dot
----@param content string|nil  Raw bytes to persist (e.g. live buffer text)
----@return string?
+--- Build a hover-unique src path so the floating preview gets its own kitty
+--- graphics ID, decoupled from any inline placement of the same source. This
+--- prevents size juggling when the same image is rendered both inline and in
+--- the float, and ensures unsaved buffer edits (e.g. `.mmd` files) are picked
+--- up by re-hashing the live content.
+--- @param original_src string|nil  Resolved on-disk file (used when `content` is nil)
+--- @param ext string  File extension without leading dot
+--- @param content string|nil  Raw bytes to persist (e.g. live buffer text)
+--- @return string?
 local function build_hover_src(original_src, ext, content)
   local cache = Snacks.image.config.cache
   vim.fn.mkdir(cache, 'p')
@@ -162,8 +162,8 @@ local function build_hover_src(original_src, ext, content)
   return out
 end
 
----@param source_buf integer
----@param src string
+--- @param source_buf integer
+--- @param src string
 local function open(source_buf, src)
   local ui = require('utils.ui')
   local lg = ui.popup_config('lg')

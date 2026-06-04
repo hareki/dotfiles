@@ -63,8 +63,8 @@ return {
       local ui = require('utils.ui')
       local popup_config = ui.popup_config('sm')
 
-      ---@module "auto-session"
-      ---@type AutoSession.Config
+      --- @module "auto-session"
+      --- @type AutoSession.Config
       return {
         suppressed_dirs = { '~/', '~/Downloads', '/' },
         pre_save_cmds = {
@@ -90,7 +90,7 @@ return {
           end,
         },
 
-        ---@type SessionLens
+        --- @type SessionLens
         session_lens = {
           picker = 'snacks',
           load_on_setup = false,
@@ -104,7 +104,7 @@ return {
             },
           },
 
-          ---@type SessionLensMappings
+          --- @type SessionLensMappings
           mappings = {
             delete_session = { 'n', 'x' },
             alternate_session = { 'n', 's' }, -- Swapping between the current session and the last one

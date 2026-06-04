@@ -1,10 +1,10 @@
----@class plugins.core.snacks.utils.sorters
+--- @class plugins.core.snacks.utils.sorters
 local M = {}
 
----Sort function for buffer picker (modified first, then by score/length/index)
----@param a snacks.picker.Item First item to compare
----@param b snacks.picker.Item Second item to compare
----@return boolean less True if a should come before b
+--- Sort function for buffer picker (modified first, then by score/length/index)
+--- @param a snacks.picker.Item First item to compare
+--- @param b snacks.picker.Item Second item to compare
+--- @return boolean less True if a should come before b
 function M.buffer_sort(a, b)
   -- Safely get modified state with pcall to handle fast event context
   local function get_modified(bufnr)

@@ -1,9 +1,9 @@
----@class config.lazy.utils
+--- @class config.lazy.utils
 local M = {}
 
----Ensure lazy.nvim is installed, cloning from git if necessary
----Adds lazy.nvim to the runtimepath after ensuring installation.
----@return nil
+--- Ensure lazy.nvim is installed, cloning from git if necessary
+--- Adds lazy.nvim to the runtimepath after ensuring installation.
+--- @return nil
 function M.ensure_lazy()
   -- [[ Install `lazy.nvim` plugin manager ]]
   --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info

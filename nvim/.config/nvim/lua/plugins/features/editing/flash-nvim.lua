@@ -68,7 +68,7 @@ return {
         desc = prefix .. 'Treesitter Incremental Selection',
       },
     },
-    ---@type Flash.Config
+    --- @type Flash.Config
     opts = {},
   },
 }

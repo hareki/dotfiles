@@ -1,4 +1,4 @@
----@class blink-cmp.config.sources
+--- @class blink-cmp.config.sources
 local M = {}
 
 local utils = require('plugins.features.completion.blink-cmp.utils')
@@ -65,8 +65,8 @@ M.default = {
       min_keyword_length = limit.ripgrep_min_keyword_length,
       score_offset = -10,
 
-      ---@module "blink-ripgrep"
-      ---@type blink-ripgrep.Options
+      --- @module "blink-ripgrep"
+      --- @type blink-ripgrep.Options
       opts = {
         prefix_min_len = limit.ripgrep_min_keyword_length,
         backend = {
@@ -147,8 +147,8 @@ M.default = {
     conventional_commits = {
       name = 'Conventional Commits',
       module = 'blink-cmp-conventional-commits',
-      ---@module 'blink-cmp-conventional-commits'
-      ---@type blink-cmp-conventional-commits.Options
+      --- @module 'blink-cmp-conventional-commits'
+      --- @type blink-cmp-conventional-commits.Options
       opts = {},
     },
   },

@@ -1,14 +1,14 @@
----@class plugins.core.lsp.nvim-lspconfig.utils.diagnostic_range_fix
----HACK: Some servers emit zero-width or out-of-bounds diagnostics whose end_col is 0
----and end_lnum is start_lnum+1, which makes them invisible. This module rewrites
----those ranges so they underline at least one character on the original line.
+--- @class plugins.core.lsp.nvim-lspconfig.utils.diagnostic_range_fix
+--- HACK: Some servers emit zero-width or out-of-bounds diagnostics whose end_col is 0
+--- and end_lnum is start_lnum+1, which makes them invisible. This module rewrites
+--- those ranges so they underline at least one character on the original line.
 local M = {}
 
----Fix zero-width or out-of-bounds diagnostics to underline at least one character
----Corrects diagnostics that would otherwise be invisible due to invalid ranges.
----@param line string|nil The line text for bounds checking
----@param diagnostic vim.Diagnostic The diagnostic to fix in-place
----@return nil
+--- Fix zero-width or out-of-bounds diagnostics to underline at least one character
+--- Corrects diagnostics that would otherwise be invisible due to invalid ranges.
+--- @param line string|nil The line text for bounds checking
+--- @param diagnostic vim.Diagnostic The diagnostic to fix in-place
+--- @return nil
 local function fix_diagnostic_range(line, diagnostic)
   if not line then
     return
@@ -16,15 +16,15 @@ local function fix_diagnostic_range(line, diagnostic)
 
   local line_len = #line
 
-  ---@class RangeValues
-  ---@field start_col integer
-  ---@field end_col integer
-  ---@field start_line integer
-  ---@field end_line integer
+  --- @class RangeValues
+  --- @field start_col integer
+  --- @field end_col integer
+  --- @field start_line integer
+  --- @field end_line integer
 
-  ---Apply range fix using provided values
-  ---@param range RangeValues
-  ---@return RangeValues? fixed Fixed range values, or nil if no fix was needed
+  --- Apply range fix using provided values
+  --- @param range RangeValues
+  --- @return RangeValues? fixed Fixed range values, or nil if no fix was needed
   local function fix_range(range)
     -- Check if range needs fixing (end_col is 0 and points to next line)
     if not (range.end_col == 0 and range.end_line == (range.start_line + 1)) then
@@ -79,11 +79,11 @@ local function fix_diagnostic_range(line, diagnostic)
   end
 end
 
----Fix all diagnostic ranges in a list
----Batch-fetches lines per unique lnum to avoid repeated nvim_buf_get_lines calls.
----@param bufnr integer Buffer number
----@param diagnostics vim.Diagnostic[] List of diagnostics to fix in-place
----@return nil
+--- Fix all diagnostic ranges in a list
+--- Batch-fetches lines per unique lnum to avoid repeated nvim_buf_get_lines calls.
+--- @param bufnr integer Buffer number
+--- @param diagnostics vim.Diagnostic[] List of diagnostics to fix in-place
+--- @return nil
 function M.apply(bufnr, diagnostics)
   -- Batch-fetch lines: collect unique lnums first
   local line_cache = {}

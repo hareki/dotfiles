@@ -1,4 +1,4 @@
----@class blink-cmp.config.keymap
+--- @class blink-cmp.config.keymap
 local M = {}
 
 local providers = { vim.g.ai_provider == 'mercury' and 'minuet' or 'copilot' }

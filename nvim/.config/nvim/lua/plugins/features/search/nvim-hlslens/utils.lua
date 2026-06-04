@@ -1,11 +1,11 @@
----@class plugins.features.search.nvim-hlslens.utils
+--- @class plugins.features.search.nvim-hlslens.utils
 local M = {}
 
 local ui = require('utils.ui')
 
----Execute search navigation (n/N) with hlslens integration
----@param direction 'n' | 'N'
----@return nil
+--- Execute search navigation (n/N) with hlslens integration
+--- @param direction 'n' | 'N'
+--- @return nil
 function M.navigate(direction)
   local ok = pcall(function()
     local hlslens = require('hlslens')
@@ -22,14 +22,14 @@ function M.navigate(direction)
   end
 end
 
----Custom lens handler for nvim-hlslens search results
----Displays directional indicators (↑/↓) and pill-shaped position information for search matches.
----Source: `https://github.com/kevinhwang91/nvim-hlslens?tab=readme-ov-file#customize-virtual-text`
----@param render table Inner hlslens module, use `render.setVirt()` to set virtual text
----@param position_list table (1,1)-indexed position list of search matches
----@param nearest boolean Whether this is the nearest lens to cursor
----@param index number Index of current match in pos_list
----@param relative_index number Relative index from current position (negative = before, positive = after)
+--- Custom lens handler for nvim-hlslens search results
+--- Displays directional indicators (↑/↓) and pill-shaped position information for search matches.
+--- Source: `https://github.com/kevinhwang91/nvim-hlslens?tab=readme-ov-file#customize-virtual-text`
+--- @param render table Inner hlslens module, use `render.setVirt()` to set virtual text
+--- @param position_list table (1,1)-indexed position list of search matches
+--- @param nearest boolean Whether this is the nearest lens to cursor
+--- @param index number Index of current match in pos_list
+--- @param relative_index number Relative index from current position (negative = before, positive = after)
 function M.search_text_handler(render, position_list, nearest, index, relative_index)
   local search_forward = vim.v.searchforward == 1
   local indicator, text, chunks

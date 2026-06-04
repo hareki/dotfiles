@@ -1,4 +1,4 @@
----@class plugins.chrome.lualine.components.diagnostics
+--- @class plugins.chrome.lualine.components.diagnostics
 local M = {}
 
 M.symbols = {

@@ -21,7 +21,7 @@ return {
     -- so it must be registered at top level — nesting it inside LspAttach leaks watchers.
     Snacks.util.lsp.on({ name = 'vtsls' }, function(_, client)
       client.commands['_typescript.moveToFileRefactoring'] = function(command, _)
-        ---@type string, string, lsp.Range
+        --- @type string, string, lsp.Range
         local action, uri, range = unpack(command.arguments --[[@as any[] ]])
 
         local function move(newf)
@@ -48,7 +48,7 @@ return {
           if not (result and result.body and result.body.files) then
             return
           end
-          ---@type string[]
+          --- @type string[]
           local files = result.body.files
           table.insert(files, 1, 'Enter new path...')
           local cwd = vim.uv.cwd()
@@ -103,8 +103,8 @@ return {
           return
         end
 
-        ---@param action string
-        ---@return fun()
+        --- @param action string
+        --- @return fun()
         local function code_action(action)
           return function()
             vim.lsp.buf.code_action({
@@ -117,10 +117,10 @@ return {
           end
         end
 
-        ---@param mode string|string[]
-        ---@param lhs string
-        ---@param rhs string|function
-        ---@param desc string
+        --- @param mode string|string[]
+        --- @param lhs string
+        --- @param rhs string|function
+        --- @param desc string
         local function map(mode, lhs, rhs, desc)
           vim.keymap.set(mode, lhs, rhs, {
             buffer = args.buf,

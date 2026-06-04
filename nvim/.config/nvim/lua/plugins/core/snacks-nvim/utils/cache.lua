@@ -1,5 +1,5 @@
----@class plugins.core.snacks.utils.cache
----@field cache table<string, any> Cached query results keyed by lhs:mode:buffer
+--- @class plugins.core.snacks.utils.cache
+--- @field cache table<string, any> Cached query results keyed by lhs:mode:buffer
 local M = {}
 
 M.cache = {}
@@ -7,10 +7,10 @@ M.cache = {}
 -- Reverse index: bufnr -> list of cache keys for O(1) cleanup
 local buf_keys = {}
 
----Store a value in the cache with buffer-aware indexing
----@param key string Cache key in the format "lhs:mode:bufnr"
----@param bufnr integer Buffer number
----@param value any Value to cache
+--- Store a value in the cache with buffer-aware indexing
+--- @param key string Cache key in the format "lhs:mode:bufnr"
+--- @param bufnr integer Buffer number
+--- @param value any Value to cache
 function M.set(key, bufnr, value)
   M.cache[key] = value
   if not buf_keys[bufnr] then

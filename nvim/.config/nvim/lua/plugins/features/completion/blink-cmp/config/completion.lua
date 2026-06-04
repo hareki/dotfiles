@@ -1,4 +1,4 @@
----@class blink-cmp.config.completion
+--- @class blink-cmp.config.completion
 local M = {}
 
 M.default = {

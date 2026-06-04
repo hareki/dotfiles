@@ -1,11 +1,11 @@
----@class plugins.features.git.gitsigns.utils
+--- @class plugins.features.git.gitsigns.utils
 local M = {}
 
----Build a setup callback that wires <Esc>/<Tab> popup navigation for the given buffer.
----Returns a function that, when invoked after a popup opens, attaches keymaps to
----toggle focus between the source buffer and the popup window.
----@param source_buffer integer The buffer the popup was launched from
----@param popup_type string Gitsigns popup type ('blame' | 'hunk')
+--- Build a setup callback that wires <Esc>/<Tab> popup navigation for the given buffer.
+--- Returns a function that, when invoked after a popup opens, attaches keymaps to
+--- toggle focus between the source buffer and the popup window.
+--- @param source_buffer integer The buffer the popup was launched from
+--- @param popup_type string Gitsigns popup type ('blame' | 'hunk')
 function M.build_popup_navigation(source_buffer, popup_type)
   local function source_map(mode, l, r, desc)
     vim.keymap.set(mode, l, r, { buffer = source_buffer, desc = desc, silent = true })

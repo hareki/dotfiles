@@ -1,4 +1,4 @@
----@class plugins.chrome.lualine.components.branch
+--- @class plugins.chrome.lualine.components.branch
 local M = {}
 
 function M.format(branch_name)

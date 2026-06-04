@@ -1,10 +1,10 @@
----@class blink-cmp.utils
+--- @class blink-cmp.utils
 local M = {}
----@alias TransformItems fun(ctx: blink.cmp.Context, items: blink.cmp.CompletionItem[]): blink.cmp.CompletionItem[]
+--- @alias TransformItems fun(ctx: blink.cmp.Context, items: blink.cmp.CompletionItem[]): blink.cmp.CompletionItem[]
 
----Returns a function that yields min keyword length for cmdline (or 0). Used so cmdline completion waits until after the first space.
----@param length number|nil Minimum length when in cmdline before first space (default 3)
----@return fun(ctx: table): number
+--- Returns a function that yields min keyword length for cmdline (or 0). Used so cmdline completion waits until after the first space.
+--- @param length number|nil Minimum length when in cmdline before first space (default 3)
+--- @return fun(ctx: table): number
 function M.cmdline_min_keyword_length(length)
   return function(ctx)
     -- When typing a command, only show when the keyword is 3 characters or longer
@@ -16,9 +16,9 @@ function M.cmdline_min_keyword_length(length)
   end
 end
 
----Register a completion item kind and return a table with a transform_items that sets that kind on all items.
----@param name string Kind name (e.g. 'History', 'Spell')
----@return { transform_items: TransformItems }
+--- Register a completion item kind and return a table with a transform_items that sets that kind on all items.
+--- @param name string Kind name (e.g. 'History', 'Spell')
+--- @return { transform_items: TransformItems }
 function M.register_kind(name)
   local cmp_types = require('blink.cmp.types')
   local CompletionItemKind = cmp_types.CompletionItemKind
@@ -30,7 +30,7 @@ function M.register_kind(name)
     CompletionItemKind[name] = kind_index
   end
 
-  ---@type TransformItems
+  --- @type TransformItems
   local function transform_items(_, items)
     for _, item in ipairs(items) do
       item.kind = kind_index

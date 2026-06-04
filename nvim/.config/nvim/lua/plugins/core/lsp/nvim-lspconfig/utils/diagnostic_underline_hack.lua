@@ -1,11 +1,11 @@
----@class plugins.core.lsp.nvim-lspconfig.utils.diagnostic_underline_hack
----HACK: Diagnostics tagged "unnecessary" render with the faded DiagnosticUnnecessary
----highlight, which suppresses the severity-based underline. To get *both* effects,
----we duplicate the unnecessary diagnostic with the original severity but no tag —
----unless an equivalent severity-only diagnostic already covers that exact range.
+--- @class plugins.core.lsp.nvim-lspconfig.utils.diagnostic_underline_hack
+--- HACK: Diagnostics tagged "unnecessary" render with the faded DiagnosticUnnecessary
+--- highlight, which suppresses the severity-based underline. To get *both* effects,
+--- we duplicate the unnecessary diagnostic with the original severity but no tag —
+--- unless an equivalent severity-only diagnostic already covers that exact range.
 local M = {}
 
----@param diagnostic vim.Diagnostic
+--- @param diagnostic vim.Diagnostic
 local function get_pos_key(diagnostic)
   -- Use concat instead of string.format for LuaJIT performance
   return (diagnostic.lnum or -1)
@@ -17,8 +17,8 @@ local function get_pos_key(diagnostic)
     .. (diagnostic.end_col or -1)
 end
 
----@param diagnostic vim.Diagnostic
----@return vim.Diagnostic?
+--- @param diagnostic vim.Diagnostic
+--- @return vim.Diagnostic?
 local function create_underline_diagnostic(diagnostic)
   local has_unnecessary = diagnostic._tags and diagnostic._tags.unnecessary
   if not has_unnecessary then
@@ -42,11 +42,11 @@ local function create_underline_diagnostic(diagnostic)
   }
 end
 
----HACK: Must be called from inside a vim.diagnostic.set override — mutates the
----diagnostics list before it reaches the original set(), injecting tag-free copies
----so the severity underline fires alongside DiagnosticUnnecessary fading.
----@param diagnostics vim.Diagnostic[] List of diagnostics to process (modified in-place)
----@return nil
+--- HACK: Must be called from inside a vim.diagnostic.set override — mutates the
+--- diagnostics list before it reaches the original set(), injecting tag-free copies
+--- so the severity underline fires alongside DiagnosticUnnecessary fading.
+--- @param diagnostics vim.Diagnostic[] List of diagnostics to process (modified in-place)
+--- @return nil
 function M.apply(diagnostics)
   -- Fast path: skip entirely if no diagnostics have the unnecessary tag
   local has_any_unnecessary = false

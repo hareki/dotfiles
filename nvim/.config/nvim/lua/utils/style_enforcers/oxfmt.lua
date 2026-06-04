@@ -1,11 +1,11 @@
----@class utils.style_enforcers.oxfmt
+--- @class utils.style_enforcers.oxfmt
 local M = {}
 
----Run oxfmt formatting on a buffer via LSP
----Sends textDocument/formatting to the oxfmt language server and applies the
----returned edits to the in-memory buffer (no CLI spawn).
----@param opts { bufnr: integer, on_done: fun(ok: boolean, err?: string) }
----@return nil
+--- Run oxfmt formatting on a buffer via LSP
+--- Sends textDocument/formatting to the oxfmt language server and applies the
+--- returned edits to the in-memory buffer (no CLI spawn).
+--- @param opts { bufnr: integer, on_done: fun(ok: boolean, err?: string) }
+--- @return nil
 function M.run(opts)
   local bufnr = opts.bufnr
   local oxfmt = vim.lsp.get_clients({ name = 'oxfmt', bufnr = bufnr })[1]

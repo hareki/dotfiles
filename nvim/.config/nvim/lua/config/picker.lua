@@ -1,4 +1,4 @@
----@class config.picker
+--- @class config.picker
 local M = {}
 
 M.prompt_prefix = ' ' .. Icons.actions.search .. ' '

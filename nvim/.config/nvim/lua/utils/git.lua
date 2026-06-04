@@ -1,6 +1,6 @@
----@alias utils.git.branch_formats 'id' | 'id_and_name' | 'id_and_author'
+--- @alias utils.git.branch_formats 'id' | 'id_and_name' | 'id_and_author'
 
----@class utils.git
+--- @class utils.git
 local M = {}
 
 local branch_display_mode = 'id'
@@ -21,10 +21,10 @@ local branch_format_cache = {} -- Simple bounded cache for formatted branch name
 local branch_format_cache_size = 0
 local BRANCH_CACHE_MAX_SIZE = 100
 
----Set the branch display format and refresh the status line
----Clears the LRU cache and notifies the user of the format change.
----@param format utils.git.branch_formats The format to use ('id', 'id_and_name', 'id_and_author')
----@return nil
+--- Set the branch display format and refresh the status line
+--- Clears the LRU cache and notifies the user of the format change.
+--- @param format utils.git.branch_formats The format to use ('id', 'id_and_name', 'id_and_author')
+--- @return nil
 function M.set_branch_name_format(format)
   branch_display_mode = format
   branch_format_cache = {}
@@ -38,11 +38,11 @@ function M.set_branch_name_format(format)
   end
 end
 
----Format a branch name according to the current display mode
----Extracts CU-ID and formats based on the selected mode (id, id_and_name, id_and_author).
----Uses LRU cache for performance.
----@param branch_name string The original branch name to format
----@return string formatted The formatted branch name
+--- Format a branch name according to the current display mode
+--- Extracts CU-ID and formats based on the selected mode (id, id_and_name, id_and_author).
+--- Uses LRU cache for performance.
+--- @param branch_name string The original branch name to format
+--- @return string formatted The formatted branch name
 function M.format_branch_name(branch_name)
   local cache_key = branch_display_mode .. ':' .. branch_name
   if branch_format_cache[cache_key] then
@@ -106,10 +106,10 @@ function M.format_branch_name(branch_name)
   return result
 end
 
----Execute a git command synchronously and return trimmed output
----@param cmd string The git command to execute (without 'git' prefix)
----@param cwd string|nil The directory to run the command in (default: current)
----@return string|nil output Trimmed stdout, or nil on error
+--- Execute a git command synchronously and return trimmed output
+--- @param cmd string The git command to execute (without 'git' prefix)
+--- @param cwd string|nil The directory to run the command in (default: current)
+--- @return string|nil output Trimmed stdout, or nil on error
 function M.exec_cmd(cmd, cwd)
   local args = vim.split(cmd, '%s+')
   local git_cmd = { 'git' }
@@ -132,9 +132,9 @@ function M.exec_cmd(cmd, cwd)
   return nil
 end
 
----Get the repository name from the git remote origin URL
----Strips .git suffix and extracts the last path component.
----@return string|nil name The repository name, or nil if not found
+--- Get the repository name from the git remote origin URL
+--- Strips .git suffix and extracts the last path component.
+--- @return string|nil name The repository name, or nil if not found
 function M.get_repo_name_from_remote()
   local url = M.exec_cmd('config --get remote.origin.url')
   if not url or url == '' then
@@ -150,9 +150,9 @@ function M.get_repo_name_from_remote()
   return repo_name
 end
 
----Check if a directory is a bare Git repository
----@param path string The directory path to check
----@return boolean is_bare True if the directory is a bare repository
+--- Check if a directory is a bare Git repository
+--- @param path string The directory path to check
+--- @return boolean is_bare True if the directory is a bare repository
 function M.is_bare_repo(path)
   if not path then
     return false
@@ -162,17 +162,17 @@ function M.is_bare_repo(path)
   return result == 'true'
 end
 
----Extract the repository name from a filesystem path
----Returns the last component of the path (directory/file name).
----@param path string The filesystem path
----@return string|nil name The last path component, or nil if invalid
+--- Extract the repository name from a filesystem path
+--- Returns the last component of the path (directory/file name).
+--- @param path string The filesystem path
+--- @return string|nil name The last path component, or nil if invalid
 function M.get_repo_name_from_path(path)
   return path:match('([^/\\]+)$')
 end
 
----Get the repository name with caching and multiple fallback strategies
----Tries: remote URL → bare repo parent → toplevel dir → cwd name.
----@return string|nil name The repository name, or nil if not determinable
+--- Get the repository name with caching and multiple fallback strategies
+--- Tries: remote URL → bare repo parent → toplevel dir → cwd name.
+--- @return string|nil name The repository name, or nil if not determinable
 function M.get_repo_name()
   local current_cwd = vim.uv.cwd()
 
@@ -232,17 +232,17 @@ function M.get_repo_name()
   return repo_cache.name
 end
 
----Get the commit hash of the last commit affecting the current cursor line
----Uses git log -L to find the commit that last modified this line.
----@return string|nil hash The commit hash, or nil if not found or not in a git repo
+--- Get the commit hash of the last commit affecting the current cursor line
+--- Uses git log -L to find the commit that last modified this line.
+--- @return string|nil hash The commit hash, or nil if not found or not in a git repo
 function M.get_current_line_commit()
-  ---@type integer
+  --- @type integer
   local line = vim.api.nvim_win_get_cursor(0)[1]
 
-  ---@type string
+  --- @type string
   local file = vim.api.nvim_buf_get_name(0)
 
-  ---@type string|nil
+  --- @type string|nil
   local root = Snacks.git.get_root()
   if not root then
     Notifier.error('Not inside a Git repository')
@@ -252,7 +252,7 @@ function M.get_current_line_commit()
   local path = require('utils.path')
   local relative_file = path.get_relative_path(file, root)
 
-  ---@type string[]
+  --- @type string[]
   local cmd = {
     'git',
     '-C',
@@ -272,7 +272,7 @@ function M.get_current_line_commit()
 
   local output = vim.split((res.stdout or ''):gsub('\n$', ''), '\n')
 
-  ---@type string|nil
+  --- @type string|nil
   local current_commit = nil
   for _, out_line in ipairs(output) do
     current_commit = out_line:match('^commit%s+([0-9a-f]+)')
@@ -284,10 +284,10 @@ function M.get_current_line_commit()
   return current_commit
 end
 
----Open Diffview to compare a commit with its parent
----If no commit is provided, shows current staged/unstaged changes.
----@param commit? string The commit hash or reference to compare
----@return nil
+--- Open Diffview to compare a commit with its parent
+--- If no commit is provided, shows current staged/unstaged changes.
+--- @param commit? string The commit hash or reference to compare
+--- @return nil
 function M.diff_parent(commit)
   if not commit or commit == '' then
     -- No commit provided, show the current changes (both staged and unstaged) compared with the last commit

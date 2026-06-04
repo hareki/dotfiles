@@ -1,10 +1,10 @@
----@class config.size.Dimensions
----@field height_offset? number
----@field width_offset? number
----@field height number
----@field width number
+--- @class config.size.Dimensions
+--- @field height_offset? number
+--- @field width_offset? number
+--- @field height number
+--- @field width number
 
----@class config.size
+--- @class config.size
 local M = {}
 
 M.popup = {

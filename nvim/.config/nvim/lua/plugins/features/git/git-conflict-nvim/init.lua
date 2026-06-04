@@ -64,7 +64,7 @@ return {
         { lhs = ']x', rhs = '<Plug>(git-conflict-next-conflict)', desc = 'Next Conflict' },
       }
 
-      ---@type table<integer, { autocmd_id: integer, in_conflict: boolean, timer: uv.uv_timer_t? }>
+      --- @type table<integer, { autocmd_id: integer, in_conflict: boolean, timer: uv.uv_timer_t? }>
       local buf_state = {}
 
       local function cleanup_buf(bufnr)
@@ -83,8 +83,8 @@ return {
         buf_state[bufnr] = nil
       end
 
-      ---@param win integer
-      ---@param in_conflict boolean
+      --- @param win integer
+      --- @param in_conflict boolean
       local function apply_window_winhl(win, in_conflict)
         if not vim.api.nvim_win_is_valid(win) then
           return

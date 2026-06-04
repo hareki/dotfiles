@@ -1,4 +1,4 @@
----@class plugins.chrome.lualine.components.copilot
+--- @class plugins.chrome.lualine.components.copilot
 local M = {}
 
 local noice_spinners = require('noice.util.spinners')

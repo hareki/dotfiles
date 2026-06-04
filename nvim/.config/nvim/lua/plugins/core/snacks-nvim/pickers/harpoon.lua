@@ -1,9 +1,9 @@
----@class plugins.core.snacks-nvim.pickers.harpoon
+--- @class plugins.core.snacks-nvim.pickers.harpoon
 local M = {}
 
----Show the harpoon picker with items from the harpoon list
----@param user_opts table|nil Optional picker configuration overrides
----@return snacks.Picker|nil picker The picker instance, or nil if list is empty
+--- Show the harpoon picker with items from the harpoon list
+--- @param user_opts table|nil Optional picker configuration overrides
+--- @return snacks.Picker|nil picker The picker instance, or nil if list is empty
 M.show = function(user_opts)
   local harpoon = require('harpoon')
   local formatters = require('plugins.core.snacks-nvim.utils.formatters')
@@ -36,13 +36,13 @@ M.show = function(user_opts)
     return items
   end
 
-  ---Format function for harpoon picker (harpoon index + buffer format)
-  ---Adds harpoon index number prefix to buffer_format output.
-  ---@param item snacks.picker.Item The picker item
-  ---@param picker snacks.Picker The picker instance
-  ---@return snacks.picker.Highlight[] highlights Array of highlight segments
+  --- Format function for harpoon picker (harpoon index + buffer format)
+  --- Adds harpoon index number prefix to buffer_format output.
+  --- @param item snacks.picker.Item The picker item
+  --- @param picker snacks.Picker The picker instance
+  --- @return snacks.picker.Highlight[] highlights Array of highlight segments
   local function harpoon_format(item, picker)
-    local ret = {} ---@type snacks.picker.Highlight[]
+    local ret = {} --- @type snacks.picker.Highlight[]
     local max_harpoon_idx = harpoon:list():length()
     local harpoon_idx = item.harpoon_idx or item.idx
     local idx_str = tostring(harpoon_idx)

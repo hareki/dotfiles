@@ -24,7 +24,7 @@ return {
           return math.floor(vim.o.columns * max_size)
         end,
 
-        ---@param diagnostic vim.Diagnostic
+        --- @param diagnostic vim.Diagnostic
         diagnostic_filter = function(diagnostic)
           return diagnostic.source ~= 'underline-hack'
         end,

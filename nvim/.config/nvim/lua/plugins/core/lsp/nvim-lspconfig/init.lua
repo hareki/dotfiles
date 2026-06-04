@@ -9,11 +9,11 @@ return {
     local server_loader = require('plugins.core.lsp.nvim-lspconfig.utils.server_loader')
 
     local original_set = vim.diagnostic.set
-    ---@param namespace integer The diagnostic namespace
-    ---@param bufnr integer Buffer number
-    ---@param diagnostics vim.Diagnostic[]
-    ---@param opts? vim.diagnostic.Opts Display options to pass to |vim.diagnostic.show()|
-    ---@diagnostic disable-next-line: duplicate-set-field
+    --- @param namespace integer The diagnostic namespace
+    --- @param bufnr integer Buffer number
+    --- @param diagnostics vim.Diagnostic[]
+    --- @param opts? vim.diagnostic.Opts Display options to pass to |vim.diagnostic.show()|
+    --- @diagnostic disable-next-line: duplicate-set-field
     vim.diagnostic.set = function(namespace, bufnr, diagnostics, opts)
       if diagnostics and #diagnostics > 0 then
         range_fix.apply(bufnr, diagnostics)

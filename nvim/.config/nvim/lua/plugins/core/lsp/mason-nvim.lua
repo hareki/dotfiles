@@ -68,7 +68,7 @@ return {
       }
     end,
 
-    ---@param opts MasonSettings | {ensure_installed: string[]}
+    --- @param opts MasonSettings | {ensure_installed: string[]}
     config = function(_, opts)
       local mason = require('mason')
       mason.setup(opts)

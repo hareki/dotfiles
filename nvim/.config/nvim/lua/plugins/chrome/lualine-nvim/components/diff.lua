@@ -1,4 +1,4 @@
----@class plugins.chrome.lualine.components.diff
+--- @class plugins.chrome.lualine.components.diff
 local M = {}
 
 M.symbols = {

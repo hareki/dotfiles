@@ -1,11 +1,11 @@
----@class plugins.chrome.dropbar.utils
+--- @class plugins.chrome.dropbar.utils
 local M = {}
 
 local IGNORED_FILETYPES = { help = true, trouble = true, ['grug-far'] = true }
 local IGNORED_BUFTYPES = { terminal = true }
 
----Check if current window is in diff view
----@return boolean
+--- Check if current window is in diff view
+--- @return boolean
 function M.is_in_diff_view()
   if vim.wo.diff then
     return true
@@ -21,32 +21,32 @@ function M.is_in_diff_view()
   return false
 end
 
----Check if current window is in claude diff view
----@return boolean
+--- Check if current window is in claude diff view
+--- @return boolean
 function M.is_in_claude_diff_view()
   return vim.b.claudecode_diff_new_win ~= nil
 end
 
----Check if buffer has an ignored filetype
----@param buf integer Buffer number
----@return boolean
+--- Check if buffer has an ignored filetype
+--- @param buf integer Buffer number
+--- @return boolean
 function M.is_ignored_filetype(buf)
   return IGNORED_FILETYPES[vim.bo[buf].filetype] == true
 end
 
----Check if buffer has an ignored buftype
----@param buf integer Buffer number
----@return boolean
+--- Check if buffer has an ignored buftype
+--- @param buf integer Buffer number
+--- @return boolean
 function M.is_ignored_buftype(buf)
   return IGNORED_BUFTYPES[vim.bo[buf].buftype] == true
 end
 
----Determine if dropbar should be enabled for a buffer/window
----Filters out help files, terminals, and large files (>1MB).
----@param buf integer Buffer number
----@param win integer Window handle
----@param _ table|nil Additional info (unused)
----@return boolean enabled True if dropbar should be enabled
+--- Determine if dropbar should be enabled for a buffer/window
+--- Filters out help files, terminals, and large files (>1MB).
+--- @param buf integer Buffer number
+--- @param win integer Window handle
+--- @param _ table|nil Additional info (unused)
+--- @return boolean enabled True if dropbar should be enabled
 function M.enable(buf, win, _)
   buf = (buf == 0 or buf == nil) and vim.api.nvim_get_current_buf() or buf
   if

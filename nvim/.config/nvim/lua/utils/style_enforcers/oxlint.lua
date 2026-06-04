@@ -1,10 +1,10 @@
----@class utils.style_enforcers.oxlint
+--- @class utils.style_enforcers.oxlint
 local M = {}
 
----Run oxlint auto-fix on a buffer via LSP
----Executes oxc.fixAll command through the oxlint language server.
----@param opts { bufnr: integer, on_done: fun(ok: boolean, err?: string) }
----@return nil
+--- Run oxlint auto-fix on a buffer via LSP
+--- Executes oxc.fixAll command through the oxlint language server.
+--- @param opts { bufnr: integer, on_done: fun(ok: boolean, err?: string) }
+--- @return nil
 function M.run(opts)
   local bufnr = opts.bufnr
   local oxlint = vim.lsp.get_clients({ name = 'oxlint', bufnr = bufnr })[1]

@@ -1,4 +1,4 @@
----@class config.filetypes
+--- @class config.filetypes
 local M = {}
 
 function M.merge(...)

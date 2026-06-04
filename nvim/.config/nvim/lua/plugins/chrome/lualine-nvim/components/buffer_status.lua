@@ -2,7 +2,7 @@ local lualine_require = require('lualine_require')
 local component = lualine_require.require('lualine.component')
 local unmerged_icon = Icons.git.unmerged .. ' '
 
----@class plugins.chrome.lualine.components.buffer_status : lualine.component
+--- @class plugins.chrome.lualine.components.buffer_status : lualine.component
 local M = component:extend()
 
 local IGNORE_FILETYPES = {
@@ -17,13 +17,13 @@ local IGNORE_FILETYPES = {
   checkhealth = true,
   [''] = true,
 }
----@class plugins.chrome.lualine.components.buffer_status.Cache
----@field current_unsaved string|nil
----@field global_unsaved string|nil
----@field global_conflict string|nil
----@field last_bufnr number
+--- @class plugins.chrome.lualine.components.buffer_status.Cache
+--- @field current_unsaved string|nil
+--- @field global_unsaved string|nil
+--- @field global_conflict string|nil
+--- @field last_bufnr number
 
----@type plugins.chrome.lualine.components.buffer_status.Cache
+--- @type plugins.chrome.lualine.components.buffer_status.Cache
 local cache = {
   current_unsaved = nil,
   global_unsaved = nil,
@@ -57,8 +57,8 @@ vim.api.nvim_create_autocmd('User', {
   callback = invalidate_cache,
 })
 
----Get current buffer flags (new, readonly, modified)
----@return string
+--- Get current buffer flags (new, readonly, modified)
+--- @return string
 local function get_current_unsaved()
   local bufnr = vim.api.nvim_get_current_buf()
 
@@ -107,8 +107,8 @@ local function get_current_unsaved()
   return result
 end
 
----Get global modified flag (count of other modified buffers)
----@return string
+--- Get global modified flag (count of other modified buffers)
+--- @return string
 local function get_global_unsaved()
   if cache.global_unsaved ~= nil then
     return cache.global_unsaved
@@ -141,8 +141,8 @@ local function get_global_unsaved()
   return result
 end
 
----Get conflict flag for the current buffer
----@return string
+--- Get conflict flag for the current buffer
+--- @return string
 local function get_current_conflict()
   local bufnr = vim.api.nvim_get_current_buf()
   if vim.b[bufnr].git_conflict then
@@ -151,8 +151,8 @@ local function get_current_conflict()
   return ''
 end
 
----Get global conflict flag (count of other conflicted buffers)
----@return string
+--- Get global conflict flag (count of other conflicted buffers)
+--- @return string
 local function get_global_conflict()
   if cache.global_conflict ~= nil then
     return cache.global_conflict
@@ -175,7 +175,7 @@ local function get_global_conflict()
   return result
 end
 
----Default options for buffer status component
+--- Default options for buffer status component
 local default_options = {
   colored = true,
   symbols = {
@@ -186,8 +186,8 @@ local default_options = {
   },
 }
 
----Apply default colors from palette
----@param opts table
+--- Apply default colors from palette
+--- @param opts table
 local function apply_default_colors(opts)
   local ui = require('utils.ui')
   local palette = ui.get_palette()
@@ -202,8 +202,8 @@ local function apply_default_colors(opts)
   opts.status_color = vim.tbl_deep_extend('keep', opts.status_color or {}, default_status_color)
 end
 
----Initialize the component
----@param options table
+--- Initialize the component
+--- @param options table
 function M:init(options)
   M.super.init(self, options)
   apply_default_colors(self.options)
@@ -228,8 +228,8 @@ function M:init(options)
   end
 end
 
----Update and return the status string
----@return string
+--- Update and return the status string
+--- @return string
 function M:update_status()
   local current_unsaved = get_current_unsaved()
   local global_unsaved = get_global_unsaved()

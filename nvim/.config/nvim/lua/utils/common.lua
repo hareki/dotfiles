@@ -1,8 +1,8 @@
----@class utils.common
+--- @class utils.common
 local M = {}
 
----Execute a function without triggering autocommands
----@param fn fun()
+--- Execute a function without triggering autocommands
+--- @param fn fun()
 function M.noautocmd(fn)
   local ei = vim.o.eventignore
   vim.o.eventignore = 'all'
@@ -13,9 +13,9 @@ function M.noautocmd(fn)
   end
 end
 
----Extend multiple arrays into a single flattened array
----@param ... table[] Variable number of arrays to concatenate
----@return table result A new array containing all elements from the input arrays
+--- Extend multiple arrays into a single flattened array
+--- @param ... table[] Variable number of arrays to concatenate
+--- @return table result A new array containing all elements from the input arrays
 function M.list_extend(...)
   local result = {}
   for _, keymap_array in ipairs({ ... }) do
@@ -27,9 +27,9 @@ function M.list_extend(...)
   return result
 end
 
----Check if a window is a floating window
----@param win integer Window handle (0 for current)
----@return boolean True if the window is floating
+--- Check if a window is a floating window
+--- @param win integer Window handle (0 for current)
+--- @return boolean True if the window is floating
 function M.is_float_win(win)
   local ok, cfg = pcall(vim.api.nvim_win_get_config, win)
   return ok and cfg and ((cfg.relative and cfg.relative ~= '') or cfg.external == true)
@@ -53,10 +53,10 @@ local function is_markdown_buf(win_id)
   return vim.bo[buf].filetype == 'markdown'
 end
 
----Focus a window without triggering autocommands
----If current window is a floating markdown preview, repaint it after focus change.
----@param win integer|nil Window handle to focus (0/nil returns false)
----@return boolean success True if window was successfully focused
+--- Focus a window without triggering autocommands
+--- If current window is a floating markdown preview, repaint it after focus change.
+--- @param win integer|nil Window handle to focus (0/nil returns false)
+--- @return boolean success True if window was successfully focused
 function M.focus_win(win)
   if not win or win == 0 or not vim.api.nvim_win_is_valid(win) then
     return false
@@ -76,9 +76,9 @@ function M.focus_win(win)
   return true
 end
 
----Count the number of string keys in a table (ignores numeric keys)
----@param t table The table to count string keys in
----@return integer count The number of keys with type 'string'
+--- Count the number of string keys in a table (ignores numeric keys)
+--- @param t table The table to count string keys in
+--- @return integer count The number of keys with type 'string'
 function M.count_string_keys(t)
   local n = 0
   for k in pairs(t) do

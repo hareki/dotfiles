@@ -1,4 +1,4 @@
----@class plugins.chrome.lualine.components.macro
+--- @class plugins.chrome.lualine.components.macro
 local M = {}
 
 function M.get()

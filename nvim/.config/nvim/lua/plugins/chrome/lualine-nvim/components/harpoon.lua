@@ -1,8 +1,8 @@
----@class Lualine.Components.harpoon
+--- @class Lualine.Components.harpoon
 local M = {}
 
 --- Get all harpoon indices that have files, with current buffer's index wrapped in brackets
----@return string|nil formatted as "1 [3] 4" or nil if harpoon list is empty
+--- @return string|nil formatted as "1 [3] 4" or nil if harpoon list is empty
 function M.get()
   local harpoon = require('harpoon')
   local list = harpoon:list()
@@ -34,8 +34,8 @@ function M.get()
   return table.concat(indices, ' ')
 end
 
----Check if there are any harpooned files
----@return boolean has_harpooned_files True if there are any files in the harpoon list
+--- Check if there are any harpooned files
+--- @return boolean has_harpooned_files True if there are any files in the harpoon list
 function M.cond()
   local harpoon = require('harpoon')
   local list = harpoon:list()

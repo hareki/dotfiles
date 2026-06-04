@@ -1,4 +1,4 @@
----@class Lualine.components.mode
+--- @class Lualine.components.mode
 local M = {}
 
 local ui = require('utils.ui')
@@ -21,7 +21,7 @@ for _, mode in ipairs({ 'COMMAND', 'EX', 'MORE', 'CONFIRM' }) do
   mode_hl[mode] = { fg = palette.surface0, bg = palette.peach }
 end
 
----@param mode string
+--- @param mode string
 function M.inverse_mode_hl(mode)
   -- Fallback for unmapped modes (e.g. terminal-normal 'NTERMINAL', insert-pending 'niI')
   -- without this, an unmapped mode would crash the statusline on every redraw.

@@ -73,8 +73,8 @@ return {
 
       return {
         terminal = {
-          ---@module "snacks"
-          ---@type snacks.win.Config|{}
+          --- @module "snacks"
+          --- @type snacks.win.Config|{}
           snacks_win_opts = {
             title = ' Claude Code ',
             position = 'float',

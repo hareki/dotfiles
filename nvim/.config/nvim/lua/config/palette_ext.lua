@@ -1,4 +1,4 @@
----@class config.palette_ext
+--- @class config.palette_ext
 local M = {
   blue0 = '#323c56', -- Darkest blue
   blue1 = '#414e70', -- Mid blue

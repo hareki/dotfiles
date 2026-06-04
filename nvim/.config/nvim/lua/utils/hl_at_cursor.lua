@@ -1,4 +1,4 @@
----@class utils.hl_at_cursor
+--- @class utils.hl_at_cursor
 local M = {}
 
 local function uniq(list)
@@ -26,7 +26,7 @@ local function uniq_ts(entries)
   return out
 end
 
----Walk highlight links to find the terminal group name.
+--- Walk highlight links to find the terminal group name.
 local function resolve_link(name)
   local seen, last = {}, name
   while name and not seen[name] do
@@ -45,8 +45,8 @@ local function resolve_link(name)
   return last
 end
 
----@param row0 integer
----@param col0 integer
+--- @param row0 integer
+--- @param col0 integer
 local function collect_syntax(row0, col0)
   local groups = {}
   for _, id in ipairs(vim.fn.synstack(row0 + 1, col0 + 1)) do
@@ -59,9 +59,9 @@ local function collect_syntax(row0, col0)
   return groups
 end
 
----@param bufnr integer
----@param row0 integer
----@param col0 integer
+--- @param bufnr integer
+--- @param row0 integer
+--- @param col0 integer
 local function collect_treesitter(bufnr, row0, col0)
   local pairs_out = {}
   if not (vim.treesitter and vim.treesitter.get_captures_at_pos) then
@@ -82,9 +82,9 @@ local function collect_treesitter(bufnr, row0, col0)
   return pairs_out
 end
 
----@param bufnr integer
----@param row0 integer
----@param col0 integer
+--- @param bufnr integer
+--- @param row0 integer
+--- @param col0 integer
 local function collect_extmarks(bufnr, row0, col0)
   local function cursor_in_range(srow, scol, d)
     local erow = d.end_row or srow
@@ -129,7 +129,7 @@ local function collect_matches()
   return groups
 end
 
----Render markdown lines for the popup.
+--- Render markdown lines for the popup.
 local function build_lines(syntax_groups, ts_pairs, extmark_entries, match_groups)
   local lines = {}
 
@@ -171,8 +171,8 @@ local function build_lines(syntax_groups, ts_pairs, extmark_entries, match_group
   return lines
 end
 
----Create the floating buffer/window pair for the popup.
----@return integer buf, integer win
+--- Create the floating buffer/window pair for the popup.
+--- @return integer buf, integer win
 local function open_popup(lines, row0, col0)
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
@@ -209,7 +209,7 @@ local function open_popup(lines, row0, col0)
   return buf, win
 end
 
----Wire popup lifecycle: keymaps, autocmds, focus toggling, cleanup.
+--- Wire popup lifecycle: keymaps, autocmds, focus toggling, cleanup.
 local function attach_lifecycle(buf, win, origin_buf, origin_win)
   local closing = false
   local ignore_cursor_close = false
@@ -348,9 +348,9 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
   })
 end
 
----Show all highlight groups affecting the cursor position in a Markdown popup.
----Displays syntax groups, Tree-sitter captures, extmarks, and window matches.
----@return nil
+--- Show all highlight groups affecting the cursor position in a Markdown popup.
+--- Displays syntax groups, Tree-sitter captures, extmarks, and window matches.
+--- @return nil
 function M.show()
   local bufnr = 0
   local pos = vim.api.nvim_win_get_cursor(0)

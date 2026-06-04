@@ -13,8 +13,8 @@ return {
     dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' },
 
     opts = function()
-      ---@module 'render-markdown'
-      ---@type render.md.UserConfig
+      --- @module 'render-markdown'
+      --- @type render.md.UserConfig
       return {
         file_types = md_filetypes,
         sign = {

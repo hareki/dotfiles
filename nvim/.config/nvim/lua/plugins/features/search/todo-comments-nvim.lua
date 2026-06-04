@@ -1,5 +1,5 @@
----@class snacks.picker
----@field todo_comments fun(opts?: snacks.picker.todo.Config|{}): snacks.Picker
+--- @class snacks.picker
+--- @field todo_comments fun(opts?: snacks.picker.todo.Config|{}): snacks.Picker
 
 return {
   'folke/todo-comments.nvim',

@@ -1,12 +1,12 @@
----@class plugins.chrome.lualine.components.snacks_image
+--- @class plugins.chrome.lualine.components.snacks_image
 local M = {}
 
----@class plugins.chrome.lualine.components.snacks_image.Cache
----@field buf integer
----@field tick integer
----@field row integer
----@field col integer
----@field has_image boolean
+--- @class plugins.chrome.lualine.components.snacks_image.Cache
+--- @field buf integer
+--- @field tick integer
+--- @field row integer
+--- @field col integer
+--- @field has_image boolean
 local cache = {
   buf = -1,
   tick = -1,
@@ -15,8 +15,8 @@ local cache = {
   has_image = false,
 }
 
----@param buf integer
----@return boolean
+--- @param buf integer
+--- @return boolean
 local function mermaid_has_content(buf)
   if vim.api.nvim_buf_line_count(buf) > 1 then
     return true
@@ -25,9 +25,9 @@ local function mermaid_has_content(buf)
   return first ~= nil and first ~= ''
 end
 
----Returns true when `gi` would render an image at the current cursor position.
----Mirrors the branching in `plugins.core.snacks.utils.image.hover_image`.
----@return boolean
+--- Returns true when `gi` would render an image at the current cursor position.
+--- Mirrors the branching in `plugins.core.snacks.utils.image.hover_image`.
+--- @return boolean
 function M.cond()
   local buf = vim.api.nvim_get_current_buf()
   local ft = vim.bo[buf].filetype
@@ -59,7 +59,7 @@ function M.cond()
   return cache.has_image
 end
 
----@return string
+--- @return string
 function M.get()
   return Icons.editor.image .. ' '
 end

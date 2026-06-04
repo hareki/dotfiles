@@ -1,11 +1,11 @@
----@class plugins.features.git.git-conflict.utils
+--- @class plugins.features.git.git-conflict.utils
 local M = {}
 
 -- Maximum number of lines to search backward/forward for conflict markers
 local CONFLICT_SEARCH_RANGE = 500
 
----Check if the current tab is a Diffview tab
----@return boolean is_diffview True if tab name starts with 'diffview-tab'
+--- Check if the current tab is a Diffview tab
+--- @return boolean is_diffview True if tab name starts with 'diffview-tab'
 function M.in_diffview_tab()
   local tab_name = vim.t.tab_name
   if type(tab_name) ~= 'string' then
@@ -15,11 +15,11 @@ function M.in_diffview_tab()
   return tab_name:find('^diffview%-tab') ~= nil
 end
 
----Detect if cursor is currently inside a git conflict block
----Searches for conflict markers and determines which region the cursor is in.
----Uses a single bulk line fetch instead of per-line API calls for performance.
----@return boolean in_conflict True if cursor is in a conflict block
----@return string|nil region 'current', 'incoming', 'ancestor', 'current_separator', 'ancestor_separator', 'separator', or 'incoming_separator'
+--- Detect if cursor is currently inside a git conflict block
+--- Searches for conflict markers and determines which region the cursor is in.
+--- Uses a single bulk line fetch instead of per-line API calls for performance.
+--- @return boolean in_conflict True if cursor is in a conflict block
+--- @return string|nil region 'current', 'incoming', 'ancestor', 'current_separator', 'ancestor_separator', 'separator', or 'incoming_separator'
 function M.cursor_in_conflict()
   local bufnr = vim.api.nvim_get_current_buf()
   local cursor = vim.api.nvim_win_get_cursor(0)
@@ -32,8 +32,8 @@ function M.cursor_in_conflict()
   local all_lines = vim.api.nvim_buf_get_lines(bufnr, fetch_start, fetch_end, false)
 
   --- Get line text by absolute 0-based line number from the bulk-fetched range
-  ---@param abs_idx integer 0-based absolute line number
-  ---@return string line_text The line content, or empty string if out of range
+  --- @param abs_idx integer 0-based absolute line number
+  --- @return string line_text The line content, or empty string if out of range
   local function get_line(abs_idx)
     return all_lines[abs_idx - fetch_start + 1] or ''
   end

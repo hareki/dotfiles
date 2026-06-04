@@ -1,5 +1,5 @@
 --- @module 'snacks'
----@class plugins.core.snacks-nvim.utils.transformers
+--- @class plugins.core.snacks-nvim.utils.transformers
 local M = {}
 
 local cache = require('plugins.core.snacks-nvim.utils.cache')
@@ -13,11 +13,11 @@ local function is_ds_store(path)
   return type(path) == 'string' and path:match('%.DS_Store$') ~= nil
 end
 
----Query spec descriptions from which-key mappings
----@param lhs string The left-hand side (key binding) to search for (required)
----@param mode string The mode to search for (required)
----@param buffer? number The buffer id to search for (optional)
----@return string? # The description of the first matching spec, or nil if not found
+--- Query spec descriptions from which-key mappings
+--- @param lhs string The left-hand side (key binding) to search for (required)
+--- @param mode string The mode to search for (required)
+--- @param buffer? number The buffer id to search for (optional)
+--- @return string? # The description of the first matching spec, or nil if not found
 local function query_spec_desc(lhs, mode, buffer)
   local wk_config = require('which-key.config')
 
@@ -49,9 +49,9 @@ local function query_spec_desc_cached(lhs, mode, buffer)
   return result
 end
 
----Transform function for file picker to filter out .DS_Store files
----@param item snacks.picker.Item The picker item to transform
----@return snacks.picker.Item|false item The item or false to filter out
+--- Transform function for file picker to filter out .DS_Store files
+--- @param item snacks.picker.Item The picker item to transform
+--- @return snacks.picker.Item|false item The item or false to filter out
 function M.files_transform(item)
   if is_ds_store(item.file) then
     return false
@@ -60,10 +60,10 @@ function M.files_transform(item)
   return item
 end
 
----Transform function for keymap picker to enrich with which-key descriptions
----Looks up descriptions from which-key config and filters unwanted mappings.
----@param item snacks.picker.Item The picker item to transform
----@return snacks.picker.Item|false item The enriched item or false to filter out
+--- Transform function for keymap picker to enrich with which-key descriptions
+--- Looks up descriptions from which-key config and filters unwanted mappings.
+--- @param item snacks.picker.Item The picker item to transform
+--- @return snacks.picker.Item|false item The enriched item or false to filter out
 function M.keymap_transform(item)
   local keymap_registry = require('services.keymap_registry')
   local desc_overrides = keymap_registry.desc_overrides
@@ -94,10 +94,10 @@ function M.keymap_transform(item)
   return item
 end
 
----Transform function for buffer select picker (index + buffer format)
----Adds index number to the search text so it can be matched
----@param item snacks.picker.Item The picker item to transform
----@return snacks.picker.Item item The transformed item with index prepended to text
+--- Transform function for buffer select picker (index + buffer format)
+--- Adds index number to the search text so it can be matched
+--- @param item snacks.picker.Item The picker item to transform
+--- @return snacks.picker.Item item The transformed item with index prepended to text
 function M.buffer_select_transform(item)
   if item.idx and item.text then
     item.text = item.idx .. ' ' .. item.text

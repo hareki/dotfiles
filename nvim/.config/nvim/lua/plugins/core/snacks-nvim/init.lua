@@ -35,7 +35,7 @@ return {
 
             Snacks.picker.files({
               layout = {
-                ---@diagnostic disable-next-line: assign-type-mismatch Wrong type from snacks
+                --- @diagnostic disable-next-line: assign-type-mismatch Wrong type from snacks
                 preview = state.get('files', 'preview'),
               },
             })
