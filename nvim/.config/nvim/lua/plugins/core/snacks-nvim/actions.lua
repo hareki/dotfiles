@@ -74,6 +74,7 @@ function M.snacks_to_trouble(picker)
   if picker.opts.source == 'todo_comments' then
     local todo_args = { 'todo', 'toggle' }
     local keywords = picker
+      ---@module "todo-comments"
       .opts --[[@as snacks.picker.todo.Config]]
       .keywords
 
