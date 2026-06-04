@@ -1,0 +1,3 @@
+#!/bin/sh
+# Disguise as typescript-language-server for Claude typescript-lsp to use
+exec vtsls "$@"

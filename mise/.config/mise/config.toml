@@ -11,10 +11,8 @@ bun = "latest"
 "npm:@mermaid-js/mermaid-cli" = "latest"
 "npm:@colbymchenry/codegraph" = "latest"
 
-# For claude lsp servers, I primarily use vtsls instead
-"npm:typescript-language-server" = "latest"
-
 "npm:@vtsls/language-server" = "latest"
+"npm:typescript" = "latest"
 "npm:@astrojs/language-server" = "latest"
 "npm:@t1ckbase/vscode-langservers-extracted" = "latest"
 "npm:css-variables-language-server" = "latest"

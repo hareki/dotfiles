@@ -2,6 +2,7 @@
 # Claude Code status line — mirrors Powerlevel10k Pure/Catppuccin Mocha style
 
 input=$(cat)
+# echo "$input" > /tmp/sl_debug.json # status line debug info
 
 blue='\033[38;2;137;180;250m'    # #89b4fa
 subtext1='\033[38;2;186;194;222m' # #bac2de
