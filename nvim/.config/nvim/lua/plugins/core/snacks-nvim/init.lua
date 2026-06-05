@@ -187,6 +187,13 @@ return {
       }
       local select_width = config.sm.width
 
+      local layouts = require('plugins.core.snacks-nvim.pickers.layouts')
+      local layout_opts = {
+        width = config.lg_border.width,
+        height = config.lg_border.height,
+        preview_title = picker_config.preview_title,
+      }
+
       -- Wrapping this with Defer.on_exported_call will result in `nvim_create_augroup must not be called in a fast event context` error
       local transformers = require('plugins.core.snacks-nvim.utils.transformers')
 
@@ -275,31 +282,9 @@ return {
             },
           },
 
-          -- Default layout
-          layout = {
-            layout = {
-              backdrop = false,
-              width = config.lg_border.width,
-              max_width = config.lg_border.width,
-              height = config.lg_border.height,
-              max_height = config.lg_border.height,
-              border = 'none',
-              box = 'vertical',
-              {
-                box = 'vertical',
-                border = 'rounded',
-                title = '{title} {live}',
-                title_pos = 'center',
-                { win = 'input', height = 1, border = 'bottom' },
-                { win = 'list', border = 'none' },
-              },
-              {
-                win = 'preview',
-                title = picker_config.preview_title,
-                height = 0.5,
-                border = 'rounded',
-              },
-            },
+          layout = layouts.preview_below(layout_opts), -- Default layout
+          layouts = {
+            preview_right = layouts.preview_right(layout_opts),
           },
 
           sources = {
@@ -328,6 +313,10 @@ return {
             files = {
               transform = transformers.files_transform,
               hidden = true,
+            },
+
+            highlights = {
+              layout = 'preview_right',
             },
 
             scratch = {
