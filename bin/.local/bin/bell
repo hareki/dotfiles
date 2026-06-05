@@ -1,0 +1,9 @@
+#!/bin/sh
+# tmux and neovim terminal nullify all of the choices
+# - bell feature doesn't work
+# - native notification needs 3rd party (terminal-notifier, alerter blocks)
+#   couldn't modify the app icon to be ghostty and while not blocking stdio
+
+# This is only choice left, a simple sound play
+# Claude needs to execute this, so it can't be a zsh function
+afplay /System/Library/Sounds/Glass.aiff

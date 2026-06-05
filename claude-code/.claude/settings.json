@@ -40,6 +40,31 @@
     ],
     "defaultMode": "plan"
   },
+  "model": "haiku",
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bell"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bell"
+          }
+        ]
+      }
+    ]
+  },
   "statusLine": {
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh"
@@ -57,10 +82,10 @@
     "rust-analyzer-lsp@claude-plugins-official": true,
     "claude-code-setup@claude-plugins-official": true
   },
+  "preferredNotifChannel": "auto",
   "syntaxHighlightingDisabled": false,
   "effortLevel": "high",
   "tui": "fullscreen",
   "theme": "custom:catppuccin-mocha",
-  "skipAutoPermissionPrompt": true,
-  "model": "opus"
+  "skipAutoPermissionPrompt": true
 }
