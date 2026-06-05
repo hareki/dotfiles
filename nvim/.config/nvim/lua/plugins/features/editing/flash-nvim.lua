@@ -4,6 +4,11 @@ return {
   WhichKey({
     rules = { plugin = 'flash.nvim', icon = Icons.tools.flash, color = 'yellow' },
   }),
+  Catppuccin(function(palette)
+    return {
+      FlashPromptIcon = { fg = palette.yellow },
+    }
+  end),
 
   {
     'folke/flash.nvim',
@@ -69,6 +74,10 @@ return {
       },
     },
     --- @type Flash.Config
-    opts = {},
+    opts = {
+      prompt = {
+        prefix = { { Icons.tools.flash .. ' Flash', 'FlashPromptIcon' } },
+      },
+    },
   },
 }
