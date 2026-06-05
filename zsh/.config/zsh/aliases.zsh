@@ -1,5 +1,4 @@
 alias lg="lazygit"
-alias ff="fastfetch"
 
 alias ..="z .."
 alias ...="z ..."

@@ -1,0 +1,8 @@
+#!/bin/zsh
+
+# Buffer fastfetch's full output, then print at once, => Avoid visible line-by-line streaming from slow modules.
+# --pipe false keeps colors since capturing makes fastfetch think it's not a TTY.
+# Tradeoff: breaks image/sixel logos when buffered (fine here, I use a blank data logo anyway).
+ff() {
+  printf '%s\n' "$(command fastfetch --pipe false "$@")"
+}
