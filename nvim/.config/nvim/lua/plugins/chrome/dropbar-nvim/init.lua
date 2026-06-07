@@ -80,28 +80,27 @@ return {
               return {}
             end
 
-            -- For diff views (except Claude), show a "Diffview" label without clearing winbar.
-            -- Clearing winbar here would destroy the format string inherited from the split
-            -- parent during lazy __index evaluation, preventing the bar from rendering.
-            if dropbar_utils.is_in_diff_view() and not dropbar_utils.is_in_claude_diff_view() then
-              return {
-                {
-                  get_symbols = function()
-                    local dropbar_bar = require('dropbar.bar')
-                    return {
-                      dropbar_bar.dropbar_symbol_t:new({
-                        icon = Icons.git.diff .. ' ',
-                        icon_hl = 'DropBarIconKindType',
-                        name = 'Diffview',
-                        name_hl = 'DropBarIconKindType',
-                      }),
-                    }
-                  end,
-                },
-              }
+            local sources = require('dropbar.sources')
+
+            if vim.bo[buf].ft == 'codediff-history' then
+              return dropbar_utils.title_symbol({
+                icon = Icons.kinds.History .. ' ',
+                icon_hl = 'DropBarIconKindObject',
+
+                name = 'Diff History',
+                name_hl = 'DropBarKindFileBar',
+              })
             end
 
-            local sources = require('dropbar.sources')
+            if vim.bo[buf].ft == 'codediff-explorer' then
+              return dropbar_utils.title_symbol({
+                icon = Icons.git.diff .. ' ',
+                icon_hl = 'DropBarIconKindType',
+
+                name = 'Diff Explorer',
+                name_hl = 'DropBarKindFileBar',
+              })
+            end
 
             if vim.bo[buf].ft == 'markdown' then
               return {

@@ -37,6 +37,7 @@ return {
     local diagnostics = require('plugins.chrome.lualine-nvim.components.diagnostics')
     local repo_name = require('plugins.chrome.lualine-nvim.components.repo_name')
     local branch = require('plugins.chrome.lualine-nvim.components.branch')
+    local tab = require('plugins.chrome.lualine-nvim.components.tab')
     local snacks_image = require('plugins.chrome.lualine-nvim.components.snacks_image')
     local copilot
     if vim.g.ai_provider == 'copilot' then
@@ -76,6 +77,13 @@ return {
         type = 'secondary-right',
         symbols = diagnostics.symbols,
         sections = diagnostics.sections,
+      }),
+      create_wrapper({
+        comp = tab.get,
+        type = 'primary-right',
+        color = 'green',
+        icon = tab.icon,
+        cond = tab.cond,
       }),
       create_wrapper({
         comp = repo_name.get,

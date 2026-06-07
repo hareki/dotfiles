@@ -111,9 +111,6 @@ return {
 
         calculate_win_size = function(tree_win)
           local tree_cfg = vim.api.nvim_win_get_config(tree_win)
-          local size_configs = require('config.size')
-
-          local side_preview = size_configs.side_preview
           local ui = require('utils.ui')
           local size = ui.popup_config(tree.compute_size())
 
@@ -128,7 +125,7 @@ return {
             }
           end
 
-          local preview_cols, preview_rows = ui.compute_size(side_preview.md)
+          local preview_cols, preview_rows = ui.side_size('side_preview', 'md')
 
           return {
             width = preview_cols,
@@ -169,7 +166,6 @@ return {
 
     opts = function()
       local ui = require('utils.ui')
-      local size_configs = require('config.size')
       local tree = require('plugins.features.navigation.nvim-tree-lua.utils')
       local state = tree.state
       local picker_config = require('config.picker')
@@ -272,7 +268,7 @@ return {
           side = 'right',
           -- Width when not in float mode
           width = function()
-            local panel_cols = ui.compute_size(size_configs.side_panel.md)
+            local panel_cols = ui.side_size('side_panel', 'md')
             return panel_cols
           end,
 

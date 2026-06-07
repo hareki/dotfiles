@@ -1,3 +1,4 @@
+-- [[ Only needed for nvim-notify as of now]]
 return {
   Catppuccin(function(palette)
     return {

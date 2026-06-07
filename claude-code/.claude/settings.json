@@ -81,10 +81,11 @@
     "rust-analyzer-lsp@claude-plugins-official": true,
     "claude-code-setup@claude-plugins-official": true
   },
-  "preferredNotifChannel": "auto",
   "syntaxHighlightingDisabled": false,
   "effortLevel": "high",
   "tui": "fullscreen",
   "theme": "custom:catppuccin-mocha",
-  "skipAutoPermissionPrompt": true
+  "preferredNotifChannel": "auto",
+  "skipAutoPermissionPrompt": true,
+  "model": "opus"
 }

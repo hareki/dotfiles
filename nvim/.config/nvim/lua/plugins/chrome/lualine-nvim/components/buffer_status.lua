@@ -65,15 +65,26 @@ local function get_current_unsaved()
     return cache.current_unsaved
   end
 
-  if IGNORE_FILETYPES[vim.bo.filetype] then
+  local status = Icons.file_status
+  local bo = vim.bo[bufnr]
+  local ft = bo.filetype
+  local name = vim.api.nvim_buf_get_name(bufnr) or ''
+
+  -- Empty filetype is ambiguous: ignore true scratch/UI buffers (nofile,
+  -- prompt), but allow readonly content like codediff:// diff views — which
+  -- clear their filetype to avoid LSP attach — to still report the lock icon.
+  local is_ignored
+  if ft == '' then
+    is_ignored = bo.buftype == 'nofile' or bo.buftype == 'prompt'
+  else
+    is_ignored = IGNORE_FILETYPES[ft] or false
+  end
+
+  if is_ignored then
     cache.current_unsaved = ''
     cache.last_bufnr = bufnr
     return ''
   end
-
-  local status = Icons.file_status
-  local bo = vim.bo[bufnr]
-  local name = vim.api.nvim_buf_get_name(bufnr) or ''
 
   local out = {}
 
@@ -89,7 +100,9 @@ local function get_current_unsaved()
     end
   end
 
-  local is_readonly = (bo.readonly or not bo.modifiable) and status.readonly ~= ''
+  local is_readonly = (bo.readonly or not bo.modifiable or bo.buftype == 'nowrite')
+    and status.readonly ~= ''
+
   if is_readonly then
     out[#out + 1] = status.readonly
   end

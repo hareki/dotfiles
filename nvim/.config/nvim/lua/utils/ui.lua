@@ -175,6 +175,17 @@ function M.compute_size(size, with_border)
   return width_in_cols + (with_border and 2 or 0), height_in_rows + (with_border and 2 or 0)
 end
 
+--- Compute width/height for a side panel or side preview size preset
+--- @param category 'side_panel' | 'side_preview' Size category in config.size
+--- @param variant 'sm' | 'md' | 'lg' Variant key within the category
+--- @param with_border? boolean Whether to add 2 for border (default false)
+--- @return integer width Width in columns
+--- @return integer height Height in rows
+function M.side_size(category, variant, with_border)
+  local size_configs = require('config.size')
+  return M.compute_size(size_configs[category][variant], with_border)
+end
+
 --- @class utils.ui.WinConfig
 --- @field width    integer
 --- @field height   integer

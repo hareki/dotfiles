@@ -4,23 +4,6 @@ local M = {}
 local IGNORED_FILETYPES = { help = true, trouble = true, ['grug-far'] = true }
 local IGNORED_BUFTYPES = { terminal = true }
 
---- Check if current window is in diff view
---- @return boolean
-function M.is_in_diff_view()
-  if vim.wo.diff then
-    return true
-  end
-  -- Check if buffer path is inside a subdirectory of .git/ (e.g. diffview temporary files).
-  -- Direct children like COMMIT_EDITMSG must not match.
-  local name = vim.api.nvim_buf_get_name(0)
-  local git_pos = name:find('/.git/', 1, true)
-  if git_pos then
-    local after = name:sub(git_pos + 6) -- skip past '/.git/'
-    return after:find('/', 1, true) ~= nil
-  end
-  return false
-end
-
 --- Check if current window is in claude diff view
 --- @return boolean
 function M.is_in_claude_diff_view()
@@ -66,6 +49,22 @@ function M.enable(buf, win, _)
   end
 
   return true
+end
+
+--- Build a dropbar source that renders a single static title symbol
+--- @param opts { icon: string, icon_hl: string, name: string, name_hl: string }
+--- @return table[] sources Dropbar sources list containing one static symbol
+function M.title_symbol(opts)
+  return {
+    {
+      get_symbols = function()
+        local dropbar_bar = require('dropbar.bar')
+        return {
+          dropbar_bar.dropbar_symbol_t:new(opts),
+        }
+      end,
+    },
+  }
 end
 
 -- From https://github.com/catppuccin/nvim/blob/main/lua/catppuccin/groups/integrations/dropbar.lua

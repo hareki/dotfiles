@@ -52,10 +52,9 @@ return {
 
     opts = function()
       local ui = require('utils.ui')
-      local size_configs = require('config.size')
       local picker_config = require('config.picker')
-      local preview_cols, preview_rows = ui.compute_size(size_configs.side_preview.md)
-      local panel_cols, _ = ui.compute_size(size_configs.side_panel.md)
+      local preview_cols, preview_rows = ui.side_size('side_preview', 'md')
+      local panel_cols, _ = ui.side_size('side_panel', 'md')
       local preview_width_offset = panel_cols + preview_cols + 3
       local preview_height_offset = math.floor((vim.o.lines - preview_rows) / 2) - 1
 

@@ -53,6 +53,12 @@ M.side_preview = {
 }
 
 M.side_panel = {
+  sm = {
+    width = 0.3,
+    height = 1,
+    min_width = 35,
+    min_height = 20,
+  },
   md = {
     width = 0.35,
     height = 1,

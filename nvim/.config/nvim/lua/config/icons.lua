@@ -2,7 +2,7 @@
 local M = {
   misc = {
     dots = '󰇘',
-    tab = ' ',
+    tab = '',
     location = '',
     neovim = '',
     macro = ' ',
