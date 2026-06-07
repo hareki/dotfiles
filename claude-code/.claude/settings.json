@@ -40,6 +40,7 @@
     ],
     "defaultMode": "plan"
   },
+  "model": "opus",
   "hooks": {
     "Notification": [
       {
@@ -79,13 +80,13 @@
     "code-review@claude-plugins-official": true,
     "commit-commands@claude-plugins-official": true,
     "rust-analyzer-lsp@claude-plugins-official": true,
-    "claude-code-setup@claude-plugins-official": true
+    "claude-code-setup@claude-plugins-official": true,
+    "gopls-lsp@claude-plugins-official": true
   },
   "syntaxHighlightingDisabled": false,
   "effortLevel": "high",
   "tui": "fullscreen",
   "theme": "custom:catppuccin-mocha",
   "preferredNotifChannel": "auto",
-  "skipAutoPermissionPrompt": true,
-  "model": "opus"
+  "skipAutoPermissionPrompt": true
 }
