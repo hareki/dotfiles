@@ -20,6 +20,7 @@ export FZF_DEFAULT_OPTS=" \
 --color=fg:#cdd6f4,header:#f38ba8,info:#6c7086,pointer:#f5e0dc,label:#89b4fa::bold \
 --color=marker:#89b4fa,fg+:#cdd6f4:regular,prompt:#89b4fa,hl+:#89b4fa:regular,query::regular \
 --color=selected-bg:#1e1e2e \
+--height=15 \
 --bind page-up:preview-half-page-up \
 --bind page-down:preview-half-page-down \
 --bind esc:abort \
@@ -27,4 +28,4 @@ export FZF_DEFAULT_OPTS=" \
 --multi"
 
 # Zoxide specific options
-export _ZO_FZF_OPTS="--height=45% $FZF_DEFAULT_OPTS"
+export _ZO_FZF_OPTS="$FZF_DEFAULT_OPTS"

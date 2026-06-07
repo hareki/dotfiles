@@ -4,7 +4,7 @@ dialect = "uk"
 show_help = false
 show_tabs = false
 
-inline_height = 11 # Match fzf-tab height
+inline_height = 15 # Match fzf-tab height
 
 # Update it with homebrew
 update_check = false
