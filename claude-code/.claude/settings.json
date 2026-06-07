@@ -40,7 +40,6 @@
     ],
     "defaultMode": "plan"
   },
-  "model": "haiku",
   "hooks": {
     "Notification": [
       {
