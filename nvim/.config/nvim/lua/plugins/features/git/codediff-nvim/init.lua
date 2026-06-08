@@ -26,6 +26,8 @@ return {
           hidden = false,
           indent_markers = false,
           flatten_dirs = true,
+          focus_on_select = false,
+          auto_open_on_cursor = true,
           position = 'right',
           width = preview_cols,
           view_mode = 'tree',
