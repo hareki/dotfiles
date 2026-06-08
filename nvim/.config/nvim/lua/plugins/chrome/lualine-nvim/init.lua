@@ -1,6 +1,11 @@
 return {
   'nvim-lualine/lualine.nvim',
 
+  enabled = function()
+    local lualine_utils = require('services.statusline')
+    return lualine_utils.have_status_line()
+  end,
+
   lazy = false,
   priority = Priority.CHROME,
   dependencies = {
@@ -9,11 +14,6 @@ return {
       enabled = vim.g.ai_provider == 'copilot',
     },
   },
-
-  enabled = function()
-    local lualine_utils = require('services.statusline')
-    return lualine_utils.have_status_line()
-  end,
 
   init = function()
     local opt = vim.opt

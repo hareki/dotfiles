@@ -1,3 +1,5 @@
+local prefix = 'Spider: '
+
 return {
   'chrisgrieser/nvim-spider',
   keys = function()
@@ -9,7 +11,7 @@ return {
           spider.motion('w')
         end,
         mode = { 'n', 'o', 'x' },
-        desc = 'Spider: Word Forward',
+        desc = prefix .. 'Word Forward',
       },
       {
         'e',
@@ -18,7 +20,7 @@ return {
           spider.motion('e')
         end,
         mode = { 'n', 'o', 'x' },
-        desc = 'Spider: Word End',
+        desc = prefix .. 'Word End',
       },
       {
         'b',
@@ -27,7 +29,7 @@ return {
           spider.motion('b')
         end,
         mode = { 'n', 'o', 'x' },
-        desc = 'Spider: Word Backward',
+        desc = prefix .. 'Word Backward',
       },
     }
   end,

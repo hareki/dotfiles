@@ -18,7 +18,12 @@ return {
     priority = Priority.CHROME,
     opts = function()
       -- PERF: Disable satellite mouse handler by occupying the keymap
-      vim.keymap.set({ 'n', 'v', 'o', 'i' }, '<leftmouse>', '<leftmouse>')
+      vim.keymap.set(
+        { 'n', 'v', 'o', 'i' },
+        '<leftmouse>',
+        '<leftmouse>',
+        { desc = 'Disable Satellite Mouse Handler' }
+      )
 
       return {
         current_only = false,

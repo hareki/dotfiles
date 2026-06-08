@@ -62,9 +62,9 @@
   "tiny-code-action.nvim": { "branch": "main", "commit": "bca75ad0eaf7d3f4e6298adbb2b4a85babf96f62" },
   "todo-comments.nvim": { "branch": "main", "commit": "31e3c38ce9b29781e4422fc0322eb0a21f4e8668" },
   "trouble.nvim": { "branch": "main", "commit": "41a394a6bd8feb98022bd4e13ebed6a9bb6ab81f" },
-  "ts-autotag.nvim": { "branch": "master", "commit": "07bcd146fa22558adf0d900e4a2601b6d142c805" },
+  "ts-autotag.nvim": { "branch": "master", "commit": "d8a12e00e3f32987cb29d50146a66061d4e5f98d" },
   "vim-tmux-navigator": { "branch": "master", "commit": "e41c431a0c7b7388ae7ba341f01a0d217eb3a432" },
   "visimatch.nvim": { "branch": "main", "commit": "4334be61a9d3a6b268179144c6354349e445eb89" },
   "which-key.nvim": { "branch": "main", "commit": "1a88b2430275b2ceed69c602bb3f64c765f0da12" },
-  "yanky.nvim": { "branch": "main", "commit": "be0cade96b83656c691282e8fda97f026df9ce89" }
+  "yanky.nvim": { "branch": "main", "commit": "606ef486faf084e140a58b7b490bdc65693a8d67" }
 }

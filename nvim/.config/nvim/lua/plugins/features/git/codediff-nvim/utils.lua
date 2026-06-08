@@ -10,10 +10,7 @@ local views = {}
 --- @param tabpage integer
 --- @return table|nil view winsaveview() result, or nil if the pane is gone
 local function modified_view(tabpage)
-  local ok, lifecycle = pcall(require, 'codediff.ui.lifecycle')
-  if not ok then
-    return nil
-  end
+  local lifecycle = require('codediff.ui.lifecycle')
   local _, modified_win = lifecycle.get_windows(tabpage)
   if modified_win and vim.api.nvim_win_is_valid(modified_win) then
     return vim.api.nvim_win_call(modified_win, vim.fn.winsaveview)

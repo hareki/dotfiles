@@ -7,6 +7,7 @@ return {
 
   init = function()
     vim.api.nvim_create_autocmd('FileType', {
+      group = vim.api.nvim_create_augroup('core.nvim_treesitter.start', { clear = true }),
       pattern = '*',
       callback = function(args)
         local buf = args.buf
