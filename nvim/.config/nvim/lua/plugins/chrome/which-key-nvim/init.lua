@@ -126,7 +126,7 @@ return {
     config = function(_, opts)
       local which_key = require('which-key')
       which_key.setup(opts)
-      local which_key_preset = require('plugins.core.which-key-nvim.preset')
+      local which_key_preset = require('plugins.chrome.which-key-nvim.preset')
       which_key_preset.setup()
     end,
   },

@@ -88,5 +88,6 @@
   "tui": "fullscreen",
   "theme": "custom:catppuccin-mocha",
   "preferredNotifChannel": "auto",
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "agentPushNotifEnabled": true
 }

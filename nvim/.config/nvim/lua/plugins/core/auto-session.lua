@@ -10,9 +10,7 @@ return {
     keys = {
       {
         '<leader>fs',
-        function()
-          vim.cmd.AutoSession({ args = { 'search' } })
-        end,
+        '<cmd>AutoSession search<cr>',
         desc = 'Find Session',
       },
     },
@@ -76,7 +74,7 @@ return {
             end
 
             for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-              if vim.bo[buf].buflisted and not visible[buf] then
+              if vim.bo[buf].buflisted and not visible[buf] and not vim.bo[buf].modified then
                 Snacks.bufdelete(buf)
               end
             end
