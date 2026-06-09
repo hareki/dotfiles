@@ -15,7 +15,7 @@ return {
         '<M-a>',
         '<cmd>ClaudeCode<cr>',
         desc = prefix .. 'Toggle',
-        mode = { 'n', 'x', 't' },
+        mode = { 'n', 'x', 't', 'i' },
       },
       {
         '<leader>ar',

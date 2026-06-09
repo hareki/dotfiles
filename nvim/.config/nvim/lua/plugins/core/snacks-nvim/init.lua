@@ -139,7 +139,7 @@ return {
           function()
             Snacks.terminal.toggle(nil, { win = { position = 'float' } })
           end,
-          mode = { 'n', 't', 'i' },
+          mode = { 'n', 'x', 't', 'i' },
           desc = 'Toggle Floating Terminal',
         },
 
@@ -149,7 +149,7 @@ return {
             local lazygit = require('plugins.core.snacks-nvim.utils.lazygit')
             lazygit.toggle()
           end,
-          mode = { 'n', 't', 'i' },
+          mode = { 'n', 'x', 't', 'i' },
           desc = 'Toggle Lazygit',
         },
 
