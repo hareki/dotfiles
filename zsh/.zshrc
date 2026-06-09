@@ -1,3 +1,11 @@
+# - Leading blank line above the first prompt (PROMPT_ADD_NEWLINE handles the rest)
+# - Emit beam cursor to override  Neovim's :terminal default cursor block
+[[ -t 1 ]] && print -n $'\e[5 q'
+
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 if [[ -n "$ZSH_DEBUGRC" ]]; then
   zmodload zsh/zprof
 fi
