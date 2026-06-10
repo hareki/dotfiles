@@ -7,6 +7,14 @@ sync-dots () {
   local -a dirs
   local package_dir
 
+  # Root-level module metadata (not real config); ignored at each package root only.
+  local -a ignore_names=(AGENTS.md CLAUDE.md README.md assets)
+  local -a ignore_args
+  local name
+  for name in $ignore_names; do
+    ignore_args+=(--ignore="^${name//./\\.}\$")
+  done
+
   if [[ -z "$STOW_REPO" || ! -d "$STOW_REPO" ]]; then
     echo "STOW_REPO must be set to an existing directory." >&2
     return 1
@@ -37,7 +45,7 @@ sync-dots () {
   for dir in $dirs; do
     if [[ -d "$dir" ]]; then
       print -P "\n%B%F{blue}======== Syncing $dir ========%f%b"
-      stow "$dir" -t "$target_dir" || { print -P "%F{red}==> Failed to sync $dir%f" >&2; failed=1; }
+      stow "${ignore_args[@]}" "$dir" -t "$target_dir" || { print -P "%F{red}==> Failed to sync $dir%f" >&2; failed=1; }
     else
       echo "Directory '$dir' does not exist in $STOW_REPO." >&2
       failed=1

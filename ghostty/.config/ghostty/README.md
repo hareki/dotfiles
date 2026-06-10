@@ -1,8 +1,8 @@
-## My Personal Ghostty Config
+# My Personal Ghostty Config
 
 Catppuccin Mocha-themed terminal config with heavy keybinding remaps for seamless tmux + Neovim workflows.
 
-### Core Ideas
+## Core Ideas
 
 - Catppuccin Mocha theme with hidden macOS title bar
 - Font: [Maple Mono NF](https://github.com/subframe7536/maple-font) (SemiBold, 20.5pt) with ligatures
@@ -10,7 +10,7 @@ Catppuccin Mocha-themed terminal config with heavy keybinding remaps for seamles
 - Shell integration: zsh with `no-cursor` (avoids conflicts with zsh vi-mode)
 - Copy-on-select enabled
 
-### Config Structure
+## Config Structure
 
 ```
 .config/ghostty/
