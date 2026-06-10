@@ -10,7 +10,7 @@
 
 | Dependency                                          | Required By                                             | Notes                                                           |
 | --------------------------------------------------- | ------------------------------------------------------- | --------------------------------------------------------------- |
-| [Neovim](https://neovim.io/) 0.11+                  | —                                                       | Native `vim.lsp.enable()` API                                   |
+| [Neovim](https://neovim.io/) 0.12+                  | —                                                       | Native `vim.lsp.enable()` API                                   |
 | [Git](https://git-scm.com/)                         | gitsigns.nvim, lazygit, blink-ripgrep (gitgrep backend) | —                                                               |
 | [Nerd Font](https://www.nerdfonts.com/)             | mini.icons, lualine, which-key, nvim-tree, etc.         | All icons are Nerd Font glyphs                                  |
 | [ripgrep](https://github.com/BurntSushi/ripgrep)    | Snacks picker, Telescope, blink-ripgrep                 | File search and grep                                            |
@@ -48,29 +48,33 @@
 | ------------- | --------------------------------------------------------- |
 | `size.lua`    | Popup dimensions: `sm`, `md`, `lg`, `vertical_lg`, `full` |
 | `icons.lua`   | All icons (diagnostics, git, file status, LSP kinds)      |
-| `globals.lua` | `_G.Notifier` and `_G.Defer` lazy proxies                 |
+| `globals.lua` | 8 project globals: `Defer`, `Notifier`, `Catppuccin`, `WhichKey`, `Filetypes`, `Icons`, `Priority`, `Project` |
 | `picker.lua`  | Shared picker UI constants                                |
 
 ### Utils (`lua/utils/`)
 
 | Module             | Key Exports                                             |
 | ------------------ | ------------------------------------------------------- |
-| `ui.lua`           | `popup_config(size)`, `catppuccin(fn)`, `get_palette()` |
+| `ui.lua`           | `popup_config(size, with_border)`, `catppuccin(fn)`, `get_palette()` |
 | `common.lua`       | `noautocmd(fn)`, `focus_win(win)`, `is_float_win()`     |
-| `lazy-require.lua` | `Defer.on_index()`, `Defer.on_exported_call()`          |
+| `lazy_require.lua` | `Defer.on_index()`, `Defer.on_exported_call()`          |
 
 ### Services (`lua/services/`)
 
-| Module         | Purpose                                                                          |
-| -------------- | -------------------------------------------------------------------------------- |
-| `notifier.lua` | Wrapper around nvim-notify; supports markdown, tuple lists for custom highlights |
+| Module                | Purpose                                                                          |
+| --------------------- | -------------------------------------------------------------------------------- |
+| `notifier.lua`        | Notification wrapper; supports markdown, tuple lists for custom highlight groups  |
+| `blink_cmp.lua`       | Completion tuning constants (AI cmp item cap/timeout, ripgrep min keyword length) |
+| `cursorline.lua`      | Cursorline / line-number highlight state management                              |
+| `keymap_registry.lua` | Centralized keymap `desc` overrides                                              |
+| `statusline.lua`      | Statusline visibility helpers (`have_status_line()`)                             |
 
 ### Complex Plugin Structure
 
 Plugins requiring state management use this pattern:
 
 ```
-nvim-tree/
+nvim-tree-lua/
   init.lua   -- Returns table: [1] catppuccin highlights, [2] plugin spec
   utils.lua  -- M.state = {} table + helper functions
 ```
@@ -79,11 +83,11 @@ nvim-tree/
 
 - Per-server configs in `lua/plugins/core/lsp/nvim-lspconfig/lsp/{server}.lua`
 - Tool installation (LSP servers, formatters, linters) is handled by [mise-en-place](https://mise.jdx.dev/) via `~/.config/mise/config.toml`
-- Single async formatting pipeline in `utils/style_enforcers/init.lua`
+- Async style-enforcement pipeline (formatters + linters) in `utils/style_enforcers/`
 
 ## Forks (author = hareki)
 
-- 15+ minimal-diff forks; updated via [wei/pull](https://github.com/wei/pull)
+- 17 minimal-diff forks; updated via [wei/pull](https://github.com/wei/pull)
 - Features toggleable — disabling custom bits reverts to upstream behavior
 - Enable unified UX by exposing layout hooks, focus toggles, preview coordination, UI tweaks and more.
 

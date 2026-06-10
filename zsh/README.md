@@ -5,10 +5,10 @@ Feature-packed zsh setup with ~110ms startup. Optimized via static plugin bundli
 ### Core Ideas
 
 - [Antidote](https://github.com/mattmc3/antidote) for static plugin bundling with deferred loading
-- [evalcache](https://github.com/mroth/evalcache) to cache expensive `eval` calls (brew, zoxide, atuin)
+- [evalcache](https://github.com/mroth/evalcache) to cache expensive `eval` calls (brew, zoxide, atuin, zsh-patina)
 - `zcompile` pre-compiles `.zshrc` to bytecode; functions autoload on first call
 - Vi mode with OSC52 clipboard integration (works over SSH)
-- Catppuccin Mocha theme applied across fzf, syntax highlighting, and eza
+- Catppuccin Mocha theme applied across fzf, zsh-patina syntax highlighting, and eza
 
 ### Plugins
 
@@ -16,7 +16,7 @@ Feature-packed zsh setup with ~110ms startup. Optimized via static plugin bundli
 | ------------------------------------------------------------------------------- | --------------------------------- | -------- |
 | [powerlevel10k](https://github.com/romkatv/powerlevel10k)                       | Prompt theme                      | eager    |
 | [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)         | History-based command suggestions | deferred |
-| [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting) | Real-time syntax highlighting     | deferred |
+| zsh-patina (Homebrew binary)                                                    | Real-time syntax highlighting     | eager (evalcache) |
 | [fzf-tab](https://github.com/Aloxaf/fzf-tab)                                    | Fuzzy tab completion              | deferred |
 | [evalcache](https://github.com/mroth/evalcache)                                 | Shell eval output caching         | eager    |
 | ohmyzsh ssh-agent                                                               | Auto-load SSH keys                | deferred |
@@ -24,17 +24,16 @@ Feature-packed zsh setup with ~110ms startup. Optimized via static plugin bundli
 ### Config Structure
 
 ```
-.zshenv                             # Non-interactive: XDG, PATH, mise shims
-.zshrc                              # Interactive: plugins, modules, tool init
+.zshenv                             # Non-interactive: XDG, secrets (keychain), PATH, mise shims
+.zshrc                              # Interactive: prompt, plugins, modules
 .zplugins                           # Antidote plugin manifest
 .config/zsh/
-├── aliases.zsh                     # Shell aliases (lg, ff, tree, etc.)
+├── aliases.zsh                     # Shell aliases (lg, tree, .., ..., etc.)
 ├── plugins.zsh                     # Antidote setup + plugin options
-├── env.zsh                         # Environment variables
-├── keymaps.zsh                     # Key bindings (Ctrl+F → atuin, etc.)
+├── options.zsh                     # Env vars, history, fzf theme/layout
+├── evalcache.zsh                   # Tool init: zoxide, atuin, zsh-patina
+├── keymaps.zsh                     # Key bindings (Alt+F → atuin, etc.)
 ├── vi-mode.zsh                     # Vi mode + OSC52 yank/paste
-├── fzf.zsh                         # Fzf theme and layout
-├── zoxide.zsh                      # Zoxide init + aliases (.., ...)
-├── compdef.zsh                     # Custom completions (sync-dots, tv, tmuxinator)
+├── compdef.zsh                     # Custom completions (sync-dots, tv, build, git-bwt, tmuxinator)
 └── functions/                      # Autoloaded utility functions (one per file)
 ```

@@ -48,7 +48,7 @@ Nine globals available everywhere (eight set in `globals.lua`, one by its plugin
 
 | Global       | Source                           | Usage                                                                               |
 | ------------ | -------------------------------- | ----------------------------------------------------------------------------------- |
-| `Defer`      | `utils.lazy-require`             | `Defer.on_index()`, `Defer.on_exported_call()`                                      |
+| `Defer`      | `utils.lazy_require`             | `Defer.on_index()`, `Defer.on_exported_call()`                                      |
 | `Notifier`   | Lazy proxy → `services.notifier` | `Notifier.info('msg')`, `Notifier.warn('msg', { title = 'T' })`                     |
 | `Catppuccin` | `utils.ui.catppuccin`            | Highlight registration in plugin specs                                              |
 | `WhichKey`   | `utils.ui.which_key`             | Which-key group/rule registration in plugin specs                                   |
@@ -84,7 +84,7 @@ Use `popup_config(size, with_border)`, never hardcode dimensions. **Gotcha**: Te
 
 ## LSP Setup
 
-Uses Neovim 0.12+ native `vim.lsp.enable()` / `vim.lsp.config()` (not `lspconfig[server].setup()`). Per-server files live at `plugins/core/lsp/nvim-lspconfig/lsp/{server}.lua` — **these are NOT lazy.nvim specs and NOT raw `vim.lsp.Config` tables**. Each file returns `{ opts = table|function, setup = function? }`; `utils/server_loader.lua` walks the directory, calls `vim.lsp.config(name, opts)`, then invokes `setup()` if present. General LSP keymaps live in `nvim-lspconfig/init.lua`, not server files.
+Uses Neovim 0.12+ native `vim.lsp.enable()` / `vim.lsp.config()` (not `lspconfig[server].setup()`). Per-server files live at `plugins/core/lsp/nvim-lspconfig/lsp/{server}.lua` — **these are NOT lazy.nvim specs and NOT raw `vim.lsp.Config` tables**. Each file returns `{ opts = table|function, setup = function? }`; `nvim-lspconfig/utils/server_loader.lua` walks the directory, calls `vim.lsp.config(name, opts)`, then invokes `setup()` if present. General LSP keymaps live in `nvim-lspconfig/init.lua`, not server files.
 
 Server-specific `LspAttach` autocmds use an early-return guard on client name — see existing server configs for the pattern.
 
