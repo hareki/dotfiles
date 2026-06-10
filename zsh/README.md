@@ -1,8 +1,10 @@
-## My Personal ZSH Config
+# My Personal ZSH Config
+
+![image](./assets/docs/demo.png)
 
 Feature-packed zsh setup with ~110ms startup. Optimized via static plugin bundling, eval caching, bytecode compilation, and function autoloading.
 
-### Core Ideas
+## Core Ideas
 
 - [Antidote](https://github.com/mattmc3/antidote) for static plugin bundling with deferred loading
 - [evalcache](https://github.com/mroth/evalcache) to cache expensive `eval` calls (brew, zoxide, atuin, zsh-patina)
@@ -10,18 +12,18 @@ Feature-packed zsh setup with ~110ms startup. Optimized via static plugin bundli
 - Vi mode with OSC52 clipboard integration (works over SSH)
 - Catppuccin Mocha theme applied across fzf, zsh-patina syntax highlighting, and eza
 
-### Plugins
+## Plugins
 
-| Plugin                                                                          | Purpose                           | Loading  |
-| ------------------------------------------------------------------------------- | --------------------------------- | -------- |
-| [powerlevel10k](https://github.com/romkatv/powerlevel10k)                       | Prompt theme                      | eager    |
-| [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)         | History-based command suggestions | deferred |
-| zsh-patina (Homebrew binary)                                                    | Real-time syntax highlighting     | eager (evalcache) |
-| [fzf-tab](https://github.com/Aloxaf/fzf-tab)                                    | Fuzzy tab completion              | deferred |
-| [evalcache](https://github.com/mroth/evalcache)                                 | Shell eval output caching         | eager    |
-| ohmyzsh ssh-agent                                                               | Auto-load SSH keys                | deferred |
+| Plugin                                                                  | Purpose                           | Loading           |
+| ----------------------------------------------------------------------- | --------------------------------- | ----------------- |
+| [powerlevel10k](https://github.com/romkatv/powerlevel10k)               | Prompt theme                      | eager             |
+| [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions) | History-based command suggestions | deferred          |
+| zsh-patina (Homebrew binary)                                            | Real-time syntax highlighting     | eager (evalcache) |
+| [fzf-tab](https://github.com/Aloxaf/fzf-tab)                            | Fuzzy tab completion              | deferred          |
+| [evalcache](https://github.com/mroth/evalcache)                         | Shell eval output caching         | eager             |
+| ohmyzsh ssh-agent                                                       | Auto-load SSH keys                | deferred          |
 
-### Config Structure
+## Config Structure
 
 ```
 .zshenv                             # Non-interactive: XDG, secrets (keychain), PATH, mise shims
