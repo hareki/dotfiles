@@ -1,0 +1,6 @@
+#!/bin/zsh
+
+# zsh-patina doesn't pick up this as an alias, so have to it a function instead
+profile() {
+  time ZSH_DEBUGRC=1 zsh -i -c exit
+}

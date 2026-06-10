@@ -1,43 +1,35 @@
-# - Leading blank line above the first prompt (PROMPT_ADD_NEWLINE handles the rest)
-# - Emit beam cursor to override  Neovim's :terminal default cursor block
+# ==== Emit beam cursor to override Neovim's :terminal default cursor block ====
 [[ -t 1 ]] && print -n $'\e[5 q'
 
+# ==== Load p10k instant prompt ====
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+# ==== Profile shell startup time ====
+# zsh-bench would be more accurate, but I just care about startup time
 if [[ -n "$ZSH_DEBUGRC" ]]; then
   zmodload zsh/zprof
 fi
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
-export HISTFILE=~/.zsh_history
-export HISTSIZE=10000
-export SAVEHIST=10000
-setopt appendhistory sharehistory
+# ==== Run `p10k configure` or edit ~/.p10k.zsh directly to customize p10k prompt ====
+source ~/.p10k.zsh
 
 __zsh_config_dir=~/.config/zsh
 source $__zsh_config_dir/plugins.zsh
 _evalcache /opt/homebrew/bin/brew shellenv
 
-# Load configuration files (the order matters)
-for cfg in aliases vi-mode compdef keymaps env; do
+# ==== Load configuration files, order matters ====
+for cfg in aliases vi-mode compdef keymaps options evalcache; do
   source $__zsh_config_dir/$cfg.zsh
 done
 
-# Autoload util functions when needed
+# ==== Autoload util functions when needed ====
 functions_dir=$__zsh_config_dir/functions
 fpath=($functions_dir $fpath)
 for func in $functions_dir/*(.N); do
   autoload -Uz "${func:t}"
 done
-
-
-_evalcache zoxide init zsh
-_evalcache atuin init zsh --disable-up-arrow
-_evalcache /opt/homebrew/bin/zsh-patina activate
 
 if [[ -n "$ZSH_DEBUGRC" ]]; then
   zprof

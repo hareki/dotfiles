@@ -4,7 +4,6 @@ alias ..="z .."
 alias ...="z ..."
 alias ....="z ...."
 
-alias profile="time ZSH_DEBUGRC=1 zsh -i -c exit"
 alias compz="zcompile ~/.zshrc"
 alias cl="clear"
 alias ez="nvim ~/.zshrc"

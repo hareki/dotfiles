@@ -1,5 +1,10 @@
 # [[ Settings ENV variables that are not needed outside interactive shells ]]
 
+export HISTFILE=~/.zsh_history
+export HISTSIZE=10000
+export SAVEHIST=10000
+setopt appendhistory sharehistory
+
 export STOW_REPO="$HOME/Repositories/personal/dotfiles"
 export TEALDEER_CONFIG_DIR="$XDG_CONFIG_HOME/tealdeer"
 export EZA_CONFIG_DIR="$XDG_CONFIG_HOME/eza"
