@@ -2,3 +2,4 @@
 - DO NOT remove comments, log statements, or any code unrelated to the current task unless explicitly asked. Treat all existing code as intentional.
 - Unless being asked, DO NOT add excessive comments when implementing tasks, only SELECTIVELY add comments that are necessary to explain complex logic or to answer the 'WHY' question.
 - When using LSP findReferences, always prewarm the relevant language server first with a documentSymbol call on the target file before calling findReferences.
+- When representing the arrow symbol, ALWAYS use "=>" instead of "→"
