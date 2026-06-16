@@ -8,6 +8,8 @@ return {
 
   {
     'coder/claudecode.nvim',
+    -- TODO: remove this when the focus management is fixed
+    commit = '102d835c964069c9c5e37abaf05ae4f9c3ee6f00',
     dependencies = { 'hareki/snacks.nvim' },
     cmd = 'ClaudeCode',
     keys = {
