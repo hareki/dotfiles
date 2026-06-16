@@ -84,10 +84,10 @@
     "gopls-lsp@claude-plugins-official": true
   },
   "syntaxHighlightingDisabled": false,
-  "effortLevel": "high",
+  "effortLevel": "xhigh",
   "tui": "fullscreen",
   "theme": "custom:catppuccin-mocha",
   "preferredNotifChannel": "auto",
-  "skipAutoPermissionPrompt": true,
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "skipAutoPermissionPrompt": true
 }

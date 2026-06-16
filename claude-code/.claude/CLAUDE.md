@@ -1,4 +1,5 @@
 - When presenting options that include code changes, DO NOT use interactive selection. The terminal UI truncates code previews, making it impossible to evaluate the differences. Instead, show each option as a full code block in the chat output and ask me to choose by number. Interactive selection is fine for options that don't involve code changes.
+- Use em dashes (—) sparingly, only when they add significant clarity or emphasis. Consider using commas, parentheses, or colons as alternatives when appropriate.
 - DO NOT remove comments, log statements, or any code unrelated to the current task unless explicitly asked. Treat all existing code as intentional.
 - Unless being asked, DO NOT add excessive comments when implementing tasks, only SELECTIVELY add comments that are necessary to explain complex logic or to answer the 'WHY' question.
 - When using LSP findReferences, always prewarm the relevant language server first with a documentSymbol call on the target file before calling findReferences.
