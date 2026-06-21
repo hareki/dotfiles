@@ -138,12 +138,15 @@ map('n', ']B', '<cmd>blast<cr>', { desc = 'Last Buffer' })
 map('n', '[b', '<cmd>bprevious<cr>', { desc = 'Previous Buffer' })
 map('n', '[B', '<cmd>brewind<cr>', { desc = 'First Buffer' })
 
-map(
-  { 'i', 'x', 'n', 's' },
-  '<A-r>',
-  '<cmd>edit!<cr>',
-  { desc = 'Reload Current Buffer', silent = true }
-)
+map({ 'i', 'x', 'n', 's' }, '<A-r>', function()
+  local garbage_day = require('garbage-day.utils')
+
+  -- Detach LSP clients first so they release the stale buffer, reload the file
+  -- from disk, then start fresh clients against the reloaded contents.
+  garbage_day.stop_lsp()
+  vim.cmd('edit!')
+  garbage_day.start_lsp()
+end, { desc = 'Reload Current Buffer', silent = true })
 
 map({ 'i', 'x', 'n', 's' }, '<A-w>', function()
   Snacks.bufdelete()
