@@ -101,6 +101,52 @@
       "pluginName": "example-skills",
       "installedAt": "2026-06-22T04:08:21.990Z",
       "updatedAt": "2026-06-22T04:08:21.990Z"
+    },
+    "verification-before-completion": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/obra/superpowers.git",
+      "skillPath": "skills/verification-before-completion/SKILL.md",
+      "skillFolderHash": "ceb2f1f67f4cadb29b32a06e54d3d0be832071f5",
+      "installedAt": "2026-06-22T05:37:43.749Z",
+      "updatedAt": "2026-06-22T05:37:43.749Z"
+    },
+    "resolving-merge-conflicts": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/mattpocock/skills.git",
+      "skillPath": "skills/engineering/resolving-merge-conflicts/SKILL.md",
+      "skillFolderHash": "b601c90446f887a94ec68e5c2301a8919f949a2c",
+      "installedAt": "2026-06-22T05:42:38.722Z",
+      "updatedAt": "2026-06-22T05:42:38.722Z"
+    },
+    "dispatching-parallel-agents": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/obra/superpowers.git",
+      "skillPath": "skills/dispatching-parallel-agents/SKILL.md",
+      "skillFolderHash": "adc9175fe3545914d5a07e5475bc0e82d5aaed6f",
+      "installedAt": "2026-06-22T05:48:48.153Z",
+      "updatedAt": "2026-06-22T05:48:48.153Z"
+    },
+    "diagnosing-bugs": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/mattpocock/skills.git",
+      "skillPath": "skills/engineering/diagnosing-bugs/SKILL.md",
+      "skillFolderHash": "0ecacff09e31245c34727abe7cb7cff71f615a35",
+      "pluginName": "mattpocock-skills",
+      "installedAt": "2026-06-22T05:52:21.650Z",
+      "updatedAt": "2026-06-22T05:52:21.650Z"
+    },
+    "subagent-driven-development": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/obra/superpowers.git",
+      "skillPath": "skills/subagent-driven-development/SKILL.md",
+      "skillFolderHash": "c2c349084c2bd52da9af12e4d65fc94181f284bb",
+      "installedAt": "2026-06-22T06:06:10.557Z",
+      "updatedAt": "2026-06-22T06:06:10.557Z"
     }
   },
   "dismissed": {
