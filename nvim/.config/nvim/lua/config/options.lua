@@ -49,6 +49,7 @@ opt.softtabstop = 2 -- Number of spaces tabs count for while performing editing 
 opt.expandtab = true -- Use spaces instead of tabs
 opt.autoread = true -- Automatically read file changes from disk, also required for opencode.nvim `events.reload`
 opt.showtabline = 0 -- Always hide the tabline
+opt.linebreak = true -- Wrap words, not characters (mid-word wrapping) when wrap mode is on
 
 -- Use typos-lsp for spell checking, datword for suggestions
 opt.spell = false
