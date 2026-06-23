@@ -20,7 +20,7 @@ source $__zsh_config_dir/plugins.zsh
 _evalcache /opt/homebrew/bin/brew shellenv
 
 # ==== Load configuration files, order matters ====
-for cfg in aliases vi-mode compdef keymaps options evalcache; do
+for cfg in aliases vi-mode compdef keymaps options evals; do
   source $__zsh_config_dir/$cfg.zsh
 done
 
