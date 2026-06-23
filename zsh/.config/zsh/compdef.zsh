@@ -44,8 +44,10 @@ _build_autocomplete() {
     '--help:Show usage info'
     'all:Build every target'
     'atuin:Build atuin from ~/Repositories/personal/atuin'
-    'lazygit:Build lazygit from ~/Repositories/personal/lazygit'
+    'eza:Build eza from ~/Repositories/personal/eza'
     'television:Build television from ~/Repositories/personal/television'
+    'worktrunk:Build worktrunk from ~/Repositories/personal/worktrunk'
+    'lazygit:Build lazygit from ~/Repositories/personal/lazygit'
     'tmux:Build tmux from ~/Repositories/personal/tmux'
   )
   _describe 'build targets' targets
@@ -53,21 +55,8 @@ _build_autocomplete() {
 
 compdef _build_autocomplete build
 
-_git_bwt_autocomplete() {
-  local -a items
-  if (( CURRENT == 2 )); then
-    items=(
-      '--help:Show usage info'
-    )
-    _describe 'git-bwt arguments' items
-  fi
-  # second positional arg is a free-form <remote-url>; no completion offered
-}
-
-compdef _git_bwt_autocomplete git-bwt
-
 # https://raw.githubusercontent.com/tmuxinator/tmuxinator/master/completion/tmuxinator.zsh
-_tmuxinator() {
+_tmuxinator_autocomplete() {
   local commands projects
 
   if (( CURRENT == 2 )); then
@@ -88,4 +77,4 @@ _tmuxinator() {
   return
 }
 
-compdef _tmuxinator tmuxinator
+compdef _tmuxinator_autocomplete tmuxinator

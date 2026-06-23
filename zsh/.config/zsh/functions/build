@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 build() {
-  local -a targets=(atuin eza lazygit television tmux)
+  local -a targets=(atuin eza television worktrunk lazygit tmux)
 
   case "$1" in
     --list) print -l all $targets; return 0 ;;
@@ -18,8 +18,9 @@ build() {
       ;;
     atuin)      cargo install --locked --path crates/atuin ;;
     eza)        cargo install --locked --path . ;;
-    lazygit)    go install ;;
     television) cargo install --locked --path . ;;
+    worktrunk)  cargo install --locked --path . ;;
+    lazygit)    go install ;;
     tmux)
         sh autogen.sh \
         && ./configure --enable-utf8proc \
