@@ -1,5 +1,3 @@
-local md_filetypes = { 'markdown' }
-
 return {
   Catppuccin(function(palette)
     return {
@@ -9,14 +7,14 @@ return {
 
   {
     'MeanderingProgrammer/render-markdown.nvim',
-    ft = md_filetypes,
+    ft = Filetypes.markdown,
     dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' },
 
     opts = function()
       --- @module 'render-markdown'
       --- @type render.md.UserConfig
       return {
-        file_types = md_filetypes,
+        file_types = Filetypes.markdown,
         sign = {
           enabled = false,
         },

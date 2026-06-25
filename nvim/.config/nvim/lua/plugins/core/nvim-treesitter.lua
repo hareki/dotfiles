@@ -77,5 +77,8 @@ return {
         TS.get_installed('parsers') -- refresh installed languages
       end)
     end
+
+    -- https://morizbuesing.com/blog/mdx-support-in-nvchad/
+    vim.treesitter.language.register('markdown', 'mdx')
   end,
 }

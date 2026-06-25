@@ -21,6 +21,7 @@ return {
           dbml = { glyph = icons.sql, hl = 'MiniIconsAzure' },
           ico = { glyph = icons.ico, hl = 'MiniIconsGreen' },
           scm = { glyph = icons.scheme, hl = 'MiniIconsGrey' },
+          mdx = { glyph = icons.markdown, hl = 'MiniIconsYellow' },
         },
         file = {
           ['.keep'] = { glyph = icons.keep, hl = 'MiniIconsGrey' },

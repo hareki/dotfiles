@@ -137,6 +137,7 @@ local M = {
     ico = '',
     text = '󰦨',
     scheme = '',
+    markdown = '',
   },
   editor = {
     terminal = '',

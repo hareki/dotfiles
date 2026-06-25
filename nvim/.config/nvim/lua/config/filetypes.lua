@@ -1,6 +1,12 @@
 --- @class config.filetypes
 local M = {}
 
+vim.filetype.add({
+  extension = {
+    mdx = 'mdx',
+  },
+})
+
 function M.merge(...)
   local result = {}
   for i = 1, select('#', ...) do
