@@ -55,24 +55,6 @@
       "installedAt": "2026-06-01T12:44:10.773Z",
       "updatedAt": "2026-06-20T02:16:46.296Z"
     },
-    "brainstorming": {
-      "source": "obra/superpowers",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/obra/superpowers.git",
-      "skillPath": "skills/brainstorming/SKILL.md",
-      "skillFolderHash": "27e73ef7b83994e913cba378081b587412d2e9cb",
-      "installedAt": "2026-06-01T13:14:41.759Z",
-      "updatedAt": "2026-06-20T02:16:48.409Z"
-    },
-    "using-superpowers": {
-      "source": "obra/superpowers",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/obra/superpowers.git",
-      "skillPath": "skills/using-superpowers/SKILL.md",
-      "skillFolderHash": "f017d4c720a208ebea9acb0cead3c1786897f6dc",
-      "installedAt": "2026-06-01T13:15:02.201Z",
-      "updatedAt": "2026-06-20T02:16:50.714Z"
-    },
     "requesting-code-review": {
       "source": "obra/superpowers",
       "sourceType": "github",
@@ -91,16 +73,6 @@
       "pluginName": "example-skills",
       "installedAt": "2026-06-22T03:53:09.613Z",
       "updatedAt": "2026-06-22T03:53:09.613Z"
-    },
-    "frontend-design": {
-      "source": "anthropics/skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/anthropics/skills.git",
-      "skillPath": "skills/frontend-design/SKILL.md",
-      "skillFolderHash": "0d5b74a14bdf3ebcd64f352d06376a2ef05ed296",
-      "pluginName": "example-skills",
-      "installedAt": "2026-06-22T04:08:21.990Z",
-      "updatedAt": "2026-06-22T04:08:21.990Z"
     },
     "verification-before-completion": {
       "source": "obra/superpowers",
@@ -139,15 +111,6 @@
       "installedAt": "2026-06-22T05:52:21.650Z",
       "updatedAt": "2026-06-22T05:52:21.650Z"
     },
-    "subagent-driven-development": {
-      "source": "obra/superpowers",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/obra/superpowers.git",
-      "skillPath": "skills/subagent-driven-development/SKILL.md",
-      "skillFolderHash": "c2c349084c2bd52da9af12e4d65fc94181f284bb",
-      "installedAt": "2026-06-22T06:06:10.557Z",
-      "updatedAt": "2026-06-22T06:06:10.557Z"
-    },
     "review": {
       "source": "mattpocock/skills",
       "sourceType": "github",
@@ -176,6 +139,16 @@
       "pluginName": "mattpocock-skills",
       "installedAt": "2026-06-22T10:47:48.747Z",
       "updatedAt": "2026-06-22T10:47:48.747Z"
+    },
+    "grilling": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/mattpocock/skills.git",
+      "skillPath": "skills/productivity/grilling/SKILL.md",
+      "skillFolderHash": "ab318c66a36253e872b5d0bd271b3df8f6ef816f",
+      "pluginName": "mattpocock-skills",
+      "installedAt": "2026-06-28T05:51:08.829Z",
+      "updatedAt": "2026-06-28T05:51:08.829Z"
     }
   },
   "dismissed": {
