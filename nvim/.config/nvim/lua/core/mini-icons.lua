@@ -1,5 +1,5 @@
 return {
-  Catppuccin(function(palette)
+  UI.catppuccin(function(palette)
     return { MiniIconsAzure = { fg = palette.teal } }
   end),
 
@@ -14,7 +14,7 @@ return {
     end,
 
     opts = function()
-      local icons = Icons.file_icons
+      local icons = Conf.Icons.file_icons
 
       return {
         extension = {

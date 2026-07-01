@@ -31,10 +31,35 @@ function M.save_hls(groups)
   return snapshot
 end
 
---- Get the catppuccin color palette for a given flavor
+--- @class utils.ui.Ext
+--- @field blue0 string
+--- @field blue1 string
+--- @field blue2 string
+--- @field green0 string
+--- @field green1 string
+--- @field surface15 string
+
+--- Extension colors that complement the catppuccin palette
+local ext = {
+  blue0 = '#323c56', -- Darkest blue
+  blue1 = '#414e70', -- Mid blue
+  blue2 = '#495d83', -- Brightest blue
+
+  green0 = '#394841', -- Darker green
+  green1 = '#57735b', -- Brighter green
+
+  surface15 = '#4f5164', -- Between palette surface1 and surface2
+}
+
+--- Get a catppuccin color palette, or the extension colors when name is 'ext'
+--- @overload fun(name: 'ext'): utils.ui.Ext
 --- @param name? "frappe" | "latte" | "macchiato" | "mocha" Flavor name (default: "mocha")
 --- @return utils.ui.Palette colors The color palette table
 function M.get_palette(name)
+  if name == 'ext' then
+    return ext
+  end
+
   local palettes = require('catppuccin.palettes')
 
   return palettes.get_palette(name or 'mocha')
@@ -42,7 +67,7 @@ end
 
 --- Create a catppuccin plugin spec with custom highlights
 --- Returns a lazy.nvim spec that registers highlights via catppuccin's custom_highlights option.
---- @param register fun(palette: utils.ui.Palette, sub_palette: utils.ui.Palette, extension: config.palette_ext): table<string, vim.api.keyset.highlight> Callback to generate highlights
+--- @param register fun(palette: utils.ui.Palette, sub_palette: utils.ui.Palette, extension: utils.ui.Ext): table<string, vim.api.keyset.highlight> Callback to generate highlights
 --- @return table spec A lazy.nvim plugin spec for catppuccin
 function M.catppuccin(register)
   return {
@@ -50,7 +75,7 @@ function M.catppuccin(register)
     opts = function(_, opts)
       local palette = M.get_palette()
       local sub_palette = M.get_palette('latte')
-      local extension = require('config.palette_ext')
+      local extension = M.get_palette('ext')
 
       opts.custom_highlights = vim.tbl_extend(
         'error',
@@ -108,9 +133,9 @@ end
 function M.pill_virt_text(content, inner_hl, outer_hl)
   return {
     { ' ' },
-    { Icons.misc.pill_left, outer_hl },
+    { Conf.Icons.misc.pill_left, outer_hl },
     { content, inner_hl },
-    { Icons.misc.pill_right, outer_hl },
+    { Conf.Icons.misc.pill_right, outer_hl },
   }
 end
 
@@ -119,9 +144,9 @@ end
 --- @return integer width Total display width in columns
 function M.pill_display_width(content)
   return 1
-    + vim.fn.strdisplaywidth(Icons.misc.pill_left)
+    + vim.fn.strdisplaywidth(Conf.Icons.misc.pill_left)
     + vim.fn.strdisplaywidth(content)
-    + vim.fn.strdisplaywidth(Icons.misc.pill_right)
+    + vim.fn.strdisplaywidth(Conf.Icons.misc.pill_right)
 end
 
 --- Generate telescope layout configuration for a given size preset
@@ -182,8 +207,7 @@ end
 --- @return integer width Width in columns
 --- @return integer height Height in rows
 function M.side_size(category, variant, with_border)
-  local size_configs = require('config.size')
-  return M.compute_size(size_configs[category][variant], with_border)
+  return M.compute_size(Conf.Size[category][variant], with_border)
 end
 
 --- @class utils.ui.WinConfig
@@ -198,7 +222,6 @@ end
 --- @param with_border boolean | nil Whether to add 2 for border (default false)
 --- @return utils.ui.WinConfig config Window config with width, height, col, row
 function M.popup_config(size, with_border)
-  local size_configs = require('config.size')
   local screen_w, screen_h = M.screen_size()
   local window_w, window_h
 
@@ -206,7 +229,7 @@ function M.popup_config(size, with_border)
     window_w = computed_input_size.width
     window_h = computed_input_size.height
   else
-    local dimensions = size_configs.popup[size]
+    local dimensions = Conf.Size.popup[size]
     if dimensions.width <= 1 then
       window_w = math.floor(screen_w * dimensions.width)
     else

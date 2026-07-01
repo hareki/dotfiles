@@ -1,7 +1,5 @@
-local limit = require('services.blink_cmp')
-
 return {
-  Catppuccin(function(palette)
+  UI.catppuccin(function(palette)
     return {
       BlinkCmpKindRenderMD = { fg = palette.text },
       BlinkCmpKindHistory = { fg = palette.mauve },
@@ -21,10 +19,10 @@ return {
     enabled = vim.g.ai_provider == 'copilot',
     opts = function()
       return {
-        max_completions = limit.ai_cmp_max_items,
-        max_attempts = limit.ai_cmp_max_items + 1,
+        max_completions = Conf.Cmp.ai_cmp_max_items,
+        max_attempts = Conf.Cmp.ai_cmp_max_items + 1,
         kind_name = 'Copilot',
-        kind_icon = Icons.kinds.Copilot,
+        kind_icon = Conf.Icons.kinds.Copilot,
         kind_hl = 'BlinkCmpKindCopilot',
         debounce = 200,
         auto_refresh = {

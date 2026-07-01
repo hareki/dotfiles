@@ -5,8 +5,7 @@ lazy_utils.ensure_lazy()
 -- { 'BufReadPost', 'BufNewFile', 'BufWritePre' }
 
 -- [[ Configure and install plugins ]]
-local size_configs = require('config.size')
-local lg = size_configs.popup.lg
+local lg = Conf.Size.popup.lg
 local lazy = require('lazy')
 lazy.setup({
   version = '*',
@@ -19,8 +18,8 @@ lazy.setup({
     backdrop = 100,
     title = ' Plugin Manager ',
     icons = {
-      loaded = Icons.misc.package_active,
-      not_loaded = Icons.misc.package_inactive,
+      loaded = Conf.Icons.misc.package_active,
+      not_loaded = Conf.Icons.misc.package_inactive,
     },
   },
   spec = {

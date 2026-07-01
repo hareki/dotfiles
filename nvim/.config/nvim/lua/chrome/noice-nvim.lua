@@ -1,7 +1,7 @@
 local dropbar_timer
 
 return {
-  Catppuccin(function(palette)
+  UI.catppuccin(function(palette)
     return {
       NoiceCmdlinePopupBorder = { fg = palette.blue },
       NoiceCmdlinePopupTitle = { fg = palette.blue },
@@ -16,11 +16,10 @@ return {
 
     -- Prevent layout shifting (it hides the cmdline row)
     lazy = false,
-    priority = Priority.CHROME,
+    priority = Conf.Priority.CHROME,
 
     opts = function()
-      local ui = require('utils.ui')
-      local popup = ui.popup_config('md')
+      local popup = UI.popup_config('md')
 
       return {
         format = {
@@ -30,8 +29,8 @@ return {
         },
         cmdline = {
           format = {
-            search_down = { icon = Icons.actions.search .. Icons.navigation.down },
-            search_up = { icon = Icons.actions.search .. Icons.navigation.up },
+            search_down = { icon = Conf.Icons.actions.search .. Conf.Icons.navigation.down },
+            search_up = { icon = Conf.Icons.actions.search .. Conf.Icons.navigation.up },
           },
         },
         messages = {

@@ -3,14 +3,27 @@ _G.Defer = require('utils.lazy_require')
 --- @module 'services.notifier'
 _G.Notifier = Defer.on_exported_call('services.notifier')
 
--- No need to defer these because they are needed during startup anyway
-_G.Filetypes = require('config.filetypes')
-_G.Icons = require('config.icons')
-_G.Priority = require('config.priority')
+-- Order matters if one config module is reading another
+--- @class Conf
+--- @field Filetypes config.filetypes
+--- @field Icons config.icons
+--- @field Priority config.priority
+--- @field Picker config.picker
+--- @field Size config.size
+--- @field Cmp config.cmp
+_G.Conf = {}
+Conf.Filetypes = require('config.filetypes')
+Conf.Icons = require('config.icons')
+Conf.Priority = require('config.priority')
+Conf.Picker = require('config.picker')
+Conf.Size = require('config.size')
+Conf.Cmp = require('config.cmp')
 
-local ui = require('utils.ui')
-_G.Catppuccin = ui.catppuccin
-_G.WhichKey = ui.which_key
+--- @module 'utils.ui'
+_G.UI = require('utils.ui')
+
+--- @module 'services.statusline'
+_G.Statusline = require('services.statusline')
 
 local project_config = require('utils.project_config')
 _G.Project = project_config.get()

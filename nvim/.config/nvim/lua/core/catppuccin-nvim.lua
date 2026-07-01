@@ -2,14 +2,13 @@ return {
   'catppuccin/nvim',
   name = 'catppuccin',
   lazy = false,
-  priority = Priority.CORE, -- Should be loaded first to register the colorscheme correctly
+  priority = Conf.Priority.CORE, -- Should be loaded first to register the colorscheme correctly
   opts = function()
-    local utils = require('utils.ui')
-    local palette = utils.get_palette()
-    local color = require('config.palette_ext')
+    local palette = UI.get_palette()
+    local color = UI.get_palette('ext')
 
     local substitute_fg = palette.red
-    local substitute_bg = utils.blend_hex(palette.mantle, substitute_fg)
+    local substitute_bg = UI.blend_hex(palette.mantle, substitute_fg)
 
     return {
       transparent_background = true,

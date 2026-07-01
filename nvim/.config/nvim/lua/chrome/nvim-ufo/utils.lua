@@ -1,8 +1,6 @@
 --- @class chrome.nvim-ufo.utils
 local M = {}
 
-local ui = require('utils.ui')
-
 --- Custom fold virtual text handler for nvim-ufo
 --- Displays a folded region with dynamic truncation and a pill-shaped line count indicator.
 --- Source: `https://github.com/kevinhwang91/nvim-ufo?tab=readme-ov-file#customize-fold-text`
@@ -15,8 +13,8 @@ local ui = require('utils.ui')
 function M.fold_text_handler(virt_text, lnum, end_lnum, width, truncate)
   local virt_text_result = {}
   local cur_width = 0
-  local suffix_content = ('%s %d'):format(Icons.actions.fold, end_lnum - lnum)
-  local target_width = width - ui.pill_display_width(suffix_content)
+  local suffix_content = ('%s %d'):format(Conf.Icons.actions.fold, end_lnum - lnum)
+  local target_width = width - UI.pill_display_width(suffix_content)
 
   for _, chunk in ipairs(virt_text) do
     local chunk_text = chunk[1]
@@ -45,7 +43,7 @@ function M.fold_text_handler(virt_text, lnum, end_lnum, width, truncate)
 
   vim.list_extend(
     virt_text_result,
-    ui.pill_virt_text(suffix_content, 'UfoFoldPillInner', 'UfoFoldPillOuter')
+    UI.pill_virt_text(suffix_content, 'UfoFoldPillInner', 'UfoFoldPillOuter')
   )
 
   return virt_text_result

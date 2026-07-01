@@ -1,7 +1,7 @@
 return {
-  WhichKey({
+  UI.which_key({
     specs = { '<leader>H', group = 'Pin File', mode = { 'n', 'v' } },
-    rules = { pattern = 'pin', icon = Icons.tools.pin, color = 'yellow' },
+    rules = { pattern = 'pin', icon = Conf.Icons.tools.pin, color = 'yellow' },
   }),
 
   {
@@ -99,8 +99,7 @@ return {
               }, { title = 'pin' })
             end
 
-            local statusline = require('services.statusline')
-            statusline.refresh()
+            Statusline.refresh()
           end,
           desc = 'Pin File to Slot ' .. current_index,
         })
@@ -119,8 +118,7 @@ return {
     end,
 
     opts = function()
-      local ui = require('utils.ui')
-      local menu_popup = ui.popup_config('sm', true)
+      local menu_popup = UI.popup_config('sm', true)
 
       return {
         menu = {

@@ -6,9 +6,9 @@ local mappings = {
 }
 
 return {
-  WhichKey({
+  UI.which_key({
     specs = { prefix, group = 'Mini Surround' },
-    rules = { pattern = 'mini.surround', icon = Icons.tools.surround, color = 'green' },
+    rules = { pattern = 'mini.surround', icon = Conf.Icons.tools.surround, color = 'green' },
   }),
 
   {

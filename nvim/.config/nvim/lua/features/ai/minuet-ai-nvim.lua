@@ -1,7 +1,5 @@
-local limit = require('services.blink_cmp')
-
 return {
-  Catppuccin(function(palette)
+  UI.catppuccin(function(palette)
     return {
       -- Hardcoded by the plugin
       BlinkCmpItemKindMinuet = { fg = palette.yellow },
@@ -13,8 +11,8 @@ return {
     enabled = vim.g.ai_provider == 'mercury',
     opts = {
       context_window = 20000,
-      request_timeout = limit.ai_cmp_timeout_ms / 1000,
-      n_completions = limit.ai_cmp_max_items,
+      request_timeout = Conf.Cmp.ai_cmp_timeout_ms / 1000,
+      n_completions = Conf.Cmp.ai_cmp_max_items,
       throttle = 2500,
       debounce = 500,
       provider = 'openai_fim_compatible',

@@ -2,7 +2,7 @@
 --- @field yanky fun(opts?: snacks.picker.Config|{}): snacks.Picker
 
 return {
-  Catppuccin(function(palette)
+  UI.catppuccin(function(palette)
     return {
       YankySystemYanked = {
         fg = palette.base,
@@ -23,8 +23,8 @@ return {
     }
   end),
 
-  WhichKey({
-    rules = { pattern = 'yank', icon = Icons.actions.yank, color = 'yellow' },
+  UI.which_key({
+    rules = { pattern = 'yank', icon = Conf.Icons.actions.yank, color = 'yellow' },
   }),
 
   {

@@ -1,15 +1,19 @@
 local prefix = 'Notification: '
 return {
-  WhichKey({
+  UI.which_key({
     specs = { '<leader>u', group = 'Notification' },
     rules = {
       {
         pattern = 'dismiss all notifications',
-        icon = Icons.editor.dismiss_notification,
+        icon = Conf.Icons.editor.dismiss_notification,
         color = 'yellow',
       },
-      { pattern = 'show notification', icon = Icons.editor.show_notification, color = 'yellow' },
-      { pattern = 'notification', icon = Icons.editor.notification, color = 'yellow' },
+      {
+        pattern = 'show notification',
+        icon = Conf.Icons.editor.show_notification,
+        color = 'yellow',
+      },
+      { pattern = 'notification', icon = Conf.Icons.editor.notification, color = 'yellow' },
     },
   }),
 
@@ -31,8 +35,7 @@ return {
           function()
             local telescope = require('telescope')
             local telescope_notify = telescope.extensions.notify.notify
-            local picker_config = require('config.picker')
-            local preview_title = picker_config.telescope_preview_title
+            local preview_title = Conf.Picker.telescope_preview_title
             local telescope_previewers = require('telescope.previewers')
             local new_buffer_previewer = telescope_previewers.new_buffer_previewer
 
@@ -74,8 +77,7 @@ return {
 
     opts = function()
       local title_key = 'notify_title_with_hl'
-      local size_configs = require('config.size')
-      local max_size = size_configs.inline_popup.max_height
+      local max_size = Conf.Size.inline_popup.max_height
 
       return {
         stages = 'static',

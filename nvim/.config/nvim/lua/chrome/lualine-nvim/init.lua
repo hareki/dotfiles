@@ -2,12 +2,11 @@ return {
   'nvim-lualine/lualine.nvim',
 
   enabled = function()
-    local lualine_utils = require('services.statusline')
-    return lualine_utils.have_status_line()
+    return Statusline.have_status_line()
   end,
 
   lazy = false,
-  priority = Priority.CHROME,
+  priority = Conf.Priority.CHROME,
   dependencies = {
     {
       'AndreM222/copilot-lualine',
@@ -44,8 +43,7 @@ return {
       copilot = require('chrome.lualine-nvim.components.copilot')
     end
 
-    local ui = require('utils.ui')
-    local palette = ui.get_palette()
+    local palette = UI.get_palette()
 
     local lualine_utils = require('chrome.lualine-nvim.utils')
     local create_wrapper = function(opts)
@@ -124,7 +122,7 @@ return {
             separator = separator,
             fmt = string.lower,
             icon = {
-              Icons.misc.neovim .. ' ',
+              Conf.Icons.misc.neovim .. ' ',
               color = mode.icon_color,
             },
             color = mode.color,

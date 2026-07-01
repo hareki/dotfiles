@@ -1,5 +1,5 @@
 return {
-  Catppuccin(function(palette)
+  UI.catppuccin(function(palette)
     local highlights = {
       DropBarKindDir = { fg = palette.overlay2 },
       DropBarKindDirMenu = { fg = palette.blue },
@@ -20,15 +20,15 @@ return {
     return highlights
   end),
 
-  WhichKey({
-    rules = { plugin = 'dropbar.nvim', icon = Icons.tools.breadcrumb, color = 'purple' },
+  UI.which_key({
+    rules = { plugin = 'dropbar.nvim', icon = Conf.Icons.tools.breadcrumb, color = 'purple' },
   }),
 
   {
     'hareki/dropbar.nvim',
     -- Prevent layout shifting
     lazy = false,
-    priority = Priority.CHROME,
+    priority = Conf.Priority.CHROME,
 
     keys = {
       {
@@ -54,15 +54,15 @@ return {
         icons = {
           ui = {
             menu = {
-              indicator = ' ' .. Icons.file_tree.collapsed .. ' ',
+              indicator = ' ' .. Conf.Icons.file_tree.collapsed .. ' ',
             },
           },
           kinds = {
             symbols = {
               Folder = '',
-              FolderMenu = Icons.file_tree.folder .. ' ',
-              FolderEmptyMenu = Icons.file_tree.folder_empty .. ' ',
-              FolderOpenMenu = Icons.file_tree.folder_open .. ' ',
+              FolderMenu = Conf.Icons.file_tree.folder .. ' ',
+              FolderEmptyMenu = Conf.Icons.file_tree.folder_empty .. ' ',
+              FolderOpenMenu = Conf.Icons.file_tree.folder_open .. ' ',
             },
           },
         },
@@ -84,7 +84,7 @@ return {
 
             if vim.bo[buf].ft == 'codediff-history' then
               return dropbar_utils.title_symbol({
-                icon = Icons.kinds.History .. ' ',
+                icon = Conf.Icons.kinds.History .. ' ',
                 icon_hl = 'DropBarIconKindObject',
 
                 name = 'Diff History',
@@ -94,7 +94,7 @@ return {
 
             if vim.bo[buf].ft == 'codediff-explorer' then
               return dropbar_utils.title_symbol({
-                icon = Icons.git.diff .. ' ',
+                icon = Conf.Icons.git.diff .. ' ',
                 icon_hl = 'DropBarIconKindType',
 
                 name = 'Diff Explorer',

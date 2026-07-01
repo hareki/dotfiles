@@ -1,5 +1,5 @@
 return {
-  Catppuccin(function(_, sub_palette)
+  UI.catppuccin(function(_, sub_palette)
     return {
       GitSignsStagedAdd = { fg = sub_palette.green },
       GitSignsStagedUntracked = { link = 'GitSignsStagedAdd' },
@@ -12,17 +12,17 @@ return {
     }
   end),
 
-  WhichKey({
+  UI.which_key({
     specs = { '<leader>h', group = 'Gitsigns', mode = { 'n', 'v' } },
-    rules = { pattern = 'gitsigns', icon = Icons.git.sign, color = 'yellow' },
+    rules = { pattern = 'gitsigns', icon = Conf.Icons.git.sign, color = 'yellow' },
   }),
 
   {
     'hareki/gitsigns.nvim',
     event = 'VeryLazy',
     opts = function()
-      local hunk = Icons.git.hunk
-      local hunk_delete = Icons.git.hunk_delete
+      local hunk = Conf.Icons.git.hunk
+      local hunk_delete = Conf.Icons.git.hunk_delete
       local utils = require('features.git.gitsigns-nvim.utils')
       local build_popup_navigation = utils.build_popup_navigation
 
@@ -39,8 +39,7 @@ return {
         },
 
         get_popup_max_height = function()
-          local size_configs = require('config.size')
-          return math.floor(vim.o.lines * size_configs.inline_popup.max_height)
+          return math.floor(vim.o.lines * Conf.Size.inline_popup.max_height)
         end,
         preview_config = {
           border = 'rounded',

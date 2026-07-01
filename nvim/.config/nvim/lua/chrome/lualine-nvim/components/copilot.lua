@@ -6,11 +6,11 @@ local noice_spinners = require('noice.util.spinners')
 M.symbols = {
   status = {
     icons = {
-      enabled = Icons.kinds.CopilotEnabled,
-      sleep = Icons.kinds.CopilotSleep,
-      disabled = Icons.kinds.CopilotDisabled,
-      warning = Icons.kinds.CopilotWarning,
-      unknown = Icons.kinds.CopilotUnknown,
+      enabled = Conf.Icons.kinds.CopilotEnabled,
+      sleep = Conf.Icons.kinds.CopilotSleep,
+      disabled = Conf.Icons.kinds.CopilotDisabled,
+      warning = Conf.Icons.kinds.CopilotWarning,
+      unknown = Conf.Icons.kinds.CopilotUnknown,
     },
   },
 

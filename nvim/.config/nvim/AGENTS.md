@@ -16,8 +16,8 @@ The LuaLS diagnostics surfaced to you will often report `undefined-global` for t
 - **LuaLS annotations**: `--- @class`, `--- @param`, `--- @return`, `--- @alias` for public APIs
 - **Requires**: always assign to a local before use — `local x = require('y')` then `x.method()`, never `require('y').method()`
 - **Keymaps**: always use `vim.keymap.set()` with `<cmd>...<cr>` strings — never structured `vim.cmd` API. Fall back to function callbacks only when runtime values or multi-statement logic are needed. Always include `desc` in CMOS 18 title case ("Find Files", "Go to Definition")
-- **Icons**: always import from `config/icons.lua` via the `Icons` global — never hardcode icon strings
-- **Spec file/dir names**: name a plugin's spec file/dir after its GitHub repo name (the part after `/`), with **every `.` replaced by `-`** — applied identically to single-file specs and directories (`noice.nvim` → `noice-nvim.lua`, `telescope.nvim` → `telescope-nvim/`, `mini.ai` → `mini-ai/`, `copilot.lua` → `copilot-lua.lua`, `nvim-tree.lua` → `nvim-tree-lua/`). This keeps every name dot-free (Lua `require` can't carry a literal dot in a segment) while staying consistent. User service/helper modules (under `lua/services/`, `lua/utils/`) stay `snake_case` even when related to a plugin (`services/blink_cmp.lua`); the dot-to-hyphen rule above applies only to plugin spec files/dirs. Never rename 3rd-party-required files (`lazy-lock.json`, `snippets/package.json`)
+- **Icons**: always import from `config/icons.lua` via the `Conf.Icons` global — never hardcode icon strings
+- **Spec file/dir names**: name a plugin's spec file/dir after its GitHub repo name (the part after `/`), with **every `.` replaced by `-`** — applied identically to single-file specs and directories (`noice.nvim` → `noice-nvim.lua`, `telescope.nvim` → `telescope-nvim/`, `mini.ai` → `mini-ai/`, `copilot.lua` → `copilot-lua.lua`, `nvim-tree.lua` → `nvim-tree-lua/`). This keeps every name dot-free (Lua `require` can't carry a literal dot in a segment) while staying consistent. User service/helper modules (under `lua/services/`, `lua/utils/`) stay `snake_case` even when related to a plugin (`services/statusline.lua` for lualine); the dot-to-hyphen rule above applies only to plugin spec files/dirs. Never rename 3rd-party-required files (`lazy-lock.json`, `snippets/package.json`)
 - **Comment spacing**: always put a space between the comment marker and content — `-- x` not `--x`, `--- @param` not `---@param`. Applies to both inline comments (`--`) and LuaLS annotations (`---`). Never touch `--` inside string literals or `--[[` block markers.
 - **Augroups**: `vim.api.nvim_create_augroup` names use a dotted module-path prefix with `snake_case` segments — `<tier-or-domain>.<plugin>.<purpose>`. Core/chrome plugins use the tier (`core.snacks.hover_image`, `chrome.lualine.buffer_status_cache`); features plugins use the domain name directly, dropping the `features.` prefix (`git.git_conflict.keymaps`, `navigation.nvim_tree.preview`); helpers under `lua/utils/` use the `utils.` prefix (`utils.hl_at_cursor.popup_<win>`); config-level autocmds use the `config.autocmds.` prefix (`config.autocmds.checktime`). For dynamic suffixes, concatenate after an underscore: `'utils.hl_at_cursor.popup_' .. win`
 
@@ -44,19 +44,17 @@ Import order in `config/lazy/init.lua`: `core` **must be first**. All plugins la
 
 ### Globals (`lua/config/globals.lua`)
 
-Nine globals available everywhere (eight set in `globals.lua`, one by its plugin):
+Seven globals available everywhere (six set in `globals.lua`, one by its plugin). `Conf` groups the constant config tables; `UI`/`Statusline` are lazy proxies to their modules:
 
-| Global       | Source                           | Usage                                                                               |
-| ------------ | -------------------------------- | ----------------------------------------------------------------------------------- |
-| `Defer`      | `utils.lazy_require`             | `Defer.on_index()`, `Defer.on_exported_call()`                                      |
-| `Notifier`   | Lazy proxy → `services.notifier` | `Notifier.info('msg')`, `Notifier.warn('msg', { title = 'T' })`                     |
-| `Catppuccin` | `utils.ui.catppuccin`            | Highlight registration in plugin specs                                              |
-| `WhichKey`   | `utils.ui.which_key`             | Which-key group/rule registration in plugin specs                                   |
-| `Filetypes`  | `config.filetypes`               | Filetype group constants (`M.js`, `M.jsx`, `M.css`, `M.json`, `M.js_all`, etc.)     |
-| `Icons`      | `config.icons`                   | All icons — never hardcode icon strings                                             |
-| `Priority`   | `config.priority`                | `CORE = 1000`, `CHROME = 900`, `FEATURE = 800`                                      |
-| `Project`    | `utils.project_config`           | Per-project overrides from `.neovimrc.json` — `Project.linter`, `Project.formatter` |
-| `Snacks`     | Set by snacks.nvim at runtime    | `Snacks.picker.*`, `Snacks.terminal.*`, etc.                                        |
+| Global       | Source                             | Usage                                                                               |
+| ------------ | ---------------------------------- | ----------------------------------------------------------------------------------- |
+| `Defer`      | `utils.lazy_require`               | `Defer.on_index()`, `Defer.on_exported_call()`                                      |
+| `Notifier`   | Lazy proxy → `services.notifier`   | `Notifier.info('msg')`, `Notifier.warn('msg', { title = 'T' })`                     |
+| `Conf`       | `config.*` constant tables         | `Conf.Icons` (never hardcode icons), `Conf.Filetypes` (`M.js`, `M.jsx`, …), `Conf.Priority` (`CORE=1000`, `CHROME=900`, `FEATURE=800`), `Conf.Picker`, `Conf.Size`, `Conf.Cmp` |
+| `UI`         | Lazy proxy → `utils.ui`            | `UI.catppuccin(fn)` / `UI.which_key(spec)` for spec registration, `UI.popup_config()`, `UI.get_palette('ext')`, `UI.blend_hex()` |
+| `Statusline` | Lazy proxy → `services.statusline` | `Statusline.have_status_line()`, `Statusline.refresh()`                            |
+| `Project`    | `utils.project_config`             | Per-project overrides from `.neovimrc.json` — `Project.linter`, `Project.formatter` |
+| `Snacks`     | Set by snacks.nvim at runtime      | `Snacks.picker.*`, `Snacks.terminal.*`, etc.                                        |
 
 ## Plugin Spec Conventions
 
@@ -70,8 +68,8 @@ Nine globals available everywhere (eight set in `globals.lua`, one by its plugin
 -- Single spec (majority):
 return { 'author/plugin', keys = { ... }, opts = { ... } }
 
--- List with Catppuccin/WhichKey highlights:
-return { WhichKey({ ... }), Catppuccin(function(...) ... end), { 'author/plugin', opts = ... } }
+-- List with catppuccin/which-key registration:
+return { UI.which_key({ ... }), UI.catppuccin(function(...) ... end), { 'author/plugin', opts = ... } }
 ```
 
 ### Directory Plugins

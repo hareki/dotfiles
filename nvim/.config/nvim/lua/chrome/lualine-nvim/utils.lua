@@ -2,7 +2,7 @@
 local M = {}
 
 --- Shared separator for primary-style pill components
-M.separator = { left = Icons.misc.pill_left, right = Icons.misc.pill_right }
+M.separator = { left = Conf.Icons.misc.pill_left, right = Conf.Icons.misc.pill_right }
 
 -- Cached function for empty components
 local function empty_func()
@@ -51,8 +51,7 @@ local DEFAULTS = {
 function M.create_styling_wrapper(opts)
   local palette = opts.palette
   if not palette then
-    local ui = require('utils.ui')
-    palette = ui.get_palette()
+    palette = UI.get_palette()
   end
 
   local style, _side = opts.type:match('^(%w+)-(%w+)$')

@@ -1,8 +1,7 @@
 --- @class Lualine.components.mode
 local M = {}
 
-local ui = require('utils.ui')
-local palette = ui.get_palette()
+local palette = UI.get_palette()
 
 local mode_hl = {}
 for _, mode in ipairs({ 'NORMAL', 'O-PENDING' }) do

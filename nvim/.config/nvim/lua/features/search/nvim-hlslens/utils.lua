@@ -1,8 +1,6 @@
 --- @class features.search.nvim-hlslens.utils
 local M = {}
 
-local ui = require('utils.ui')
-
 --- Execute search navigation (n/N) with hlslens integration
 --- @param direction 'n' | 'N'
 --- @return nil
@@ -38,11 +36,12 @@ function M.search_text_handler(render, position_list, nearest, index, relative_i
   if abs_relative_index > 1 then
     indicator = ('%d%s'):format(
       abs_relative_index,
-      search_forward ~= (relative_index > 1) and Icons.navigation.up or Icons.navigation.down
+      search_forward ~= (relative_index > 1) and Conf.Icons.navigation.up
+        or Conf.Icons.navigation.down
     )
   elseif abs_relative_index == 1 then
-    indicator = search_forward ~= (relative_index == 1) and Icons.navigation.up
-      or Icons.navigation.down
+    indicator = search_forward ~= (relative_index == 1) and Conf.Icons.navigation.up
+      or Conf.Icons.navigation.down
   else
     indicator = ''
   end
@@ -55,14 +54,14 @@ function M.search_text_handler(render, position_list, nearest, index, relative_i
   if nearest then
     local count = #position_list
     if indicator ~= '' then
-      text = ('%s%s %d/%d'):format(Icons.actions.search, indicator, index, count)
+      text = ('%s%s %d/%d'):format(Conf.Icons.actions.search, indicator, index, count)
     else
-      text = ('%s%d/%d'):format(Icons.actions.search, index, count)
+      text = ('%s%d/%d'):format(Conf.Icons.actions.search, index, count)
     end
-    chunks = ui.pill_virt_text(text, 'HlSearchLensPillNearInner', 'HlSearchLensPillNearOuter')
+    chunks = UI.pill_virt_text(text, 'HlSearchLensPillNearInner', 'HlSearchLensPillNearOuter')
   else
     text = ('%s %d'):format(indicator, index)
-    chunks = ui.pill_virt_text(text, 'HlSearchLensPillInner', 'HlSearchLensPillOuter')
+    chunks = UI.pill_virt_text(text, 'HlSearchLensPillInner', 'HlSearchLensPillOuter')
   end
 
   Snacks.words.disable()

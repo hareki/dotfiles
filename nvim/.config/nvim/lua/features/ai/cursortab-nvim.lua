@@ -1,5 +1,5 @@
 return {
-  Catppuccin(function()
+  UI.catppuccin(function()
     return {
       CursorTabAddition = { link = 'DiffAdd' },
       CursorTabDeletion = { link = 'DiffDelete' },

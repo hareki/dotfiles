@@ -1,5 +1,5 @@
 return {
-  Catppuccin(function()
+  UI.catppuccin(function()
     return {
       SidekickDiffAdd = { link = 'DiffAdd' },
     }

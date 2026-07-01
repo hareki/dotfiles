@@ -1,6 +1,6 @@
 -- [[ Neovim Scrollbar ]]
 return {
-  Catppuccin(function(palette)
+  UI.catppuccin(function(palette)
     return {
       SatelliteBar = { bg = palette.surface1 },
       SatelliteSearch = { fg = palette.yellow },
@@ -15,7 +15,7 @@ return {
   {
     'hareki/satellite.nvim',
     lazy = false,
-    priority = Priority.CHROME,
+    priority = Conf.Priority.CHROME,
     opts = function()
       -- PERF: Disable satellite mouse handler by occupying the keymap
       vim.keymap.set(

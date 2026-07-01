@@ -2,9 +2,9 @@
 local M = {}
 
 M.symbols = {
-  added = Icons.git.added,
-  modified = Icons.git.modified,
-  removed = Icons.git.removed,
+  added = Conf.Icons.git.added,
+  modified = Conf.Icons.git.modified,
+  removed = Conf.Icons.git.removed,
 }
 
 function M.source()

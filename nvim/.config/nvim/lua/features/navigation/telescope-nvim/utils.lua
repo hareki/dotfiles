@@ -28,12 +28,11 @@ function M.install_vertical_layout()
     -- 1. Collapse the blank row between *prompt* and *results*
     layout.results.line = layout.results.line - 1
     layout.results.height = layout.results.height + 1
-    local ui = require('utils.ui')
 
     -- 2. Seems like telescope.nvim exclude the statusline when centering the layout,
     -- Which is different from our logic in `size_utils.get_float_config('lg')`
     -- So we need to adjust/shift the position if needed
-    local target_row = ui.popup_config(size, true).row
+    local target_row = UI.popup_config(size, true).row
     -- The top most component is the prompt window, so we use it as the anchor to adjust the position
     local top_line = layout.prompt.line
 

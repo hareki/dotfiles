@@ -1,7 +1,6 @@
 return {
-  Catppuccin(function(palette)
-    local utils = require('utils.ui')
-    local pill_bg = utils.blend_hex(palette.base, palette.blue)
+  UI.catppuccin(function(palette)
+    local pill_bg = UI.blend_hex(palette.base, palette.blue)
 
     return {
       UfoFoldPillOuter = { fg = pill_bg },
@@ -9,8 +8,8 @@ return {
     }
   end),
 
-  WhichKey({
-    rules = { pattern = 'fold', icon = Icons.actions.fold, color = 'blue' },
+  UI.which_key({
+    rules = { pattern = 'fold', icon = Conf.Icons.actions.fold, color = 'blue' },
   }),
 
   {

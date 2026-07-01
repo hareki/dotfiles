@@ -1,5 +1,5 @@
 return {
-  Catppuccin(function()
+  UI.catppuccin(function()
     return {
       TroubleNormal = { link = 'NormalFloat' },
       TroublePreview = { link = 'Search' },
@@ -51,10 +51,8 @@ return {
     end,
 
     opts = function()
-      local ui = require('utils.ui')
-      local picker_config = require('config.picker')
-      local preview_cols, preview_rows = ui.side_size('side_preview', 'md')
-      local panel_cols, _ = ui.side_size('side_panel', 'md')
+      local preview_cols, preview_rows = UI.side_size('side_preview', 'md')
+      local panel_cols, _ = UI.side_size('side_panel', 'md')
       local preview_width_offset = panel_cols + preview_cols + 3
       local preview_height_offset = math.floor((vim.o.lines - preview_rows) / 2) - 1
 
@@ -104,15 +102,15 @@ return {
         win = { position = 'right', size = panel_cols },
 
         icons = {
-          folder_closed = Icons.file_tree.folder,
-          folder_open = Icons.file_tree.folder_empty_open,
+          folder_closed = Conf.Icons.file_tree.folder,
+          folder_open = Conf.Icons.file_tree.folder_empty_open,
         },
 
         preview = {
           type = 'float',
           relative = 'win',
           border = 'rounded',
-          title = picker_config.preview_title,
+          title = Conf.Picker.preview_title,
           title_pos = 'center',
           position = { preview_height_offset, -preview_width_offset },
           size = {

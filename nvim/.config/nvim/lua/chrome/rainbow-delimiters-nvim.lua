@@ -1,5 +1,5 @@
 return {
-  Catppuccin(function(palette)
+  UI.catppuccin(function(palette)
     return {
       RainbowDelimiterGreen = {
         fg = palette.pink, -- Avoid string color

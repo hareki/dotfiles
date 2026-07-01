@@ -1,9 +1,9 @@
 local prefix = 'Claude Code: '
 
 return {
-  WhichKey({
+  UI.which_key({
     specs = { '<leader>a', group = 'Claude Code', mode = { 'n', 'v' } },
-    rules = { pattern = 'claude', icon = Icons.kinds.Claude, color = 'orange' },
+    rules = { pattern = 'claude', icon = Conf.Icons.kinds.Claude, color = 'orange' },
   }),
 
   {
@@ -70,8 +70,7 @@ return {
     },
 
     opts = function()
-      local size_utils = require('utils.ui')
-      local size = size_utils.popup_config('full')
+      local size = UI.popup_config('full')
 
       return {
         terminal = {

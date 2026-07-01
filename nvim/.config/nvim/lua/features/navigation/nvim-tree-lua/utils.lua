@@ -156,8 +156,7 @@ function M.toggle_tree_height(action)
     return
   end
 
-  local ui = require('utils.ui')
-  local size = ui.popup_config(M.compute_size())
+  local size = UI.popup_config(M.compute_size())
   local window_h = math.floor(size.height / 2)
   local half_height = window_h - 1 -- Minus 1 for the space between the two windows
 
@@ -287,8 +286,8 @@ end
 function M.format_root_label(path)
   local home = vim.env.HOME
   local formatted = path
-  local home_icon = vim.trim(Icons.file_tree.home)
-  local separator = Icons.file_tree.collapsed .. ' '
+  local home_icon = vim.trim(Conf.Icons.file_tree.home)
+  local separator = Conf.Icons.file_tree.collapsed .. ' '
 
   if home and vim.startswith(path, home) then
     if path == home then

@@ -1,6 +1,6 @@
 local lualine_require = require('lualine_require')
 local component = lualine_require.require('lualine.component')
-local unmerged_icon = Icons.git.unmerged .. ' '
+local unmerged_icon = Conf.Icons.git.unmerged .. ' '
 
 --- @class chrome.lualine.components.buffer_status : lualine.component
 local M = component:extend()
@@ -65,7 +65,7 @@ local function get_current_unsaved()
     return cache.current_unsaved
   end
 
-  local status = Icons.file_status
+  local status = Conf.Icons.file_status
   local bo = vim.bo[bufnr]
   local ft = bo.filetype
   local name = vim.api.nvim_buf_get_name(bufnr) or ''
@@ -146,7 +146,7 @@ local function get_global_unsaved()
     end
   end
 
-  local status = Icons.file_status
+  local status = Conf.Icons.file_status
   local result = count > 0 and status.modified .. count .. '  ' or ''
   cache.global_unsaved = result
 
@@ -201,8 +201,7 @@ local default_options = {
 --- Apply default colors from palette
 --- @param opts table
 local function apply_default_colors(opts)
-  local ui = require('utils.ui')
-  local palette = ui.get_palette()
+  local palette = UI.get_palette()
 
   local default_status_color = {
     current_unsaved = { fg = palette.yellow },

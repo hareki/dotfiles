@@ -1,5 +1,5 @@
 return {
-  Catppuccin(function(palette)
+  UI.catppuccin(function(palette)
     return {
       RenderMarkdownCode = { bg = palette.base },
     }
@@ -7,27 +7,27 @@ return {
 
   {
     'MeanderingProgrammer/render-markdown.nvim',
-    ft = Filetypes.markdown,
+    ft = Conf.Filetypes.markdown,
     dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' },
 
     opts = function()
       --- @module 'render-markdown'
       --- @type render.md.UserConfig
       return {
-        file_types = Filetypes.markdown,
+        file_types = Conf.Filetypes.markdown,
         sign = {
           enabled = false,
         },
         callout = {
           error = {
-            rendered = Icons.diagnostics.Error .. 'Error',
+            rendered = Conf.Icons.diagnostics.Error .. 'Error',
           },
           hint = {
             highlight = 'RenderMarkdownHint',
           },
         },
         quote = {
-          icon = Icons.misc.quote_bar, -- Thinner line for quotes
+          icon = Conf.Icons.misc.quote_bar, -- Thinner line for quotes
         },
       }
     end,

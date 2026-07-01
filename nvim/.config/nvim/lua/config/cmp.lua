@@ -1,4 +1,4 @@
---- @class services.blink_cmp
+--- @class config.cmp
 local M = {}
 
 M.ai_cmp_max_items = 3

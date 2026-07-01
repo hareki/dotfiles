@@ -1,12 +1,11 @@
 local mc = Defer.on_exported_call('multicursor-nvim')
 
 return {
-  Catppuccin(function(palette)
-    local utils = require('utils.ui')
+  UI.catppuccin(function(palette)
     local enabled_fg = palette.green
     local disabled_fg = palette.red
-    local enabled_bg = utils.blend_hex(palette.mantle, enabled_fg)
-    local disabled_bg = utils.blend_hex(palette.mantle, disabled_fg)
+    local enabled_bg = UI.blend_hex(palette.mantle, enabled_fg)
+    local disabled_bg = UI.blend_hex(palette.mantle, disabled_fg)
 
     return {
       MultiCursorCursor = { bg = enabled_bg, fg = enabled_fg },
@@ -14,12 +13,12 @@ return {
     }
   end),
 
-  WhichKey({
+  UI.which_key({
     specs = {
       { '<leader>m', group = 'Multicursor', mode = { 'n', 'x' } },
     },
 
-    rules = { pattern = 'multicursor', icon = Icons.tools.multicursor, color = 'blue' },
+    rules = { pattern = 'multicursor', icon = Conf.Icons.tools.multicursor, color = 'blue' },
   }),
 
   {

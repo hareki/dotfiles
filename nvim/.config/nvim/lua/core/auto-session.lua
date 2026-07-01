@@ -1,12 +1,12 @@
 return {
-  WhichKey({
-    rules = { plugin = 'auto-session', icon = Icons.tools.session, color = 'green' },
+  UI.which_key({
+    rules = { plugin = 'auto-session', icon = Conf.Icons.tools.session, color = 'green' },
   }),
 
   {
     'rmagatti/auto-session',
     lazy = false,
-    priority = Priority.CORE,
+    priority = Conf.Priority.CORE,
     keys = {
       {
         '<leader>fs',
@@ -58,8 +58,7 @@ return {
     end,
 
     opts = function()
-      local ui = require('utils.ui')
-      local popup_config = ui.popup_config('sm')
+      local popup_config = UI.popup_config('sm')
 
       --- @module "auto-session"
       --- @type AutoSession.Config

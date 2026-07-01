@@ -1,5 +1,5 @@
 return {
-  Catppuccin(function(palette)
+  UI.catppuccin(function(palette)
     return {
       GrugFarResultsMatch = { link = 'Search' },
       GrugFarPreview = { link = 'Search' },
@@ -40,10 +40,8 @@ return {
     end,
 
     opts = function()
-      local ui_utils = require('utils.ui')
-      local picker_configs = require('config.picker')
-      local preview_cols, preview_rows = ui_utils.side_size('side_preview', 'md')
-      local panel_cols, _ = ui_utils.side_size('side_panel', 'md')
+      local preview_cols, preview_rows = UI.side_size('side_preview', 'md')
+      local panel_cols, _ = UI.side_size('side_panel', 'md')
       local preview_height_offset = math.floor((vim.o.lines - preview_rows) / 2) - 1
 
       return {
@@ -69,7 +67,7 @@ return {
         previewWindow = {
           row = preview_height_offset,
           col = -preview_cols - 3,
-          title = picker_configs.preview_title,
+          title = Conf.Picker.preview_title,
           title_pos = 'center',
           width = preview_cols,
           height = preview_rows,

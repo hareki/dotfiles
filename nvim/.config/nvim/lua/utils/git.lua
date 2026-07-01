@@ -32,9 +32,8 @@ function M.set_branch_name_format(format)
 
   Notifier.info('Branch name format set to ' .. format)
 
-  local statusline = require('services.statusline')
-  if statusline.have_status_line() then
-    statusline.refresh()
+  if Statusline.have_status_line() then
+    Statusline.refresh()
   end
 end
 

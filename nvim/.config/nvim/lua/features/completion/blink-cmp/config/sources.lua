@@ -2,7 +2,6 @@
 local M = {}
 
 local utils = require('features.completion.blink-cmp.utils')
-local limit = require('services.blink_cmp')
 
 local history = utils.register_kind('History')
 local spell = utils.register_kind('Spell')
@@ -38,7 +37,7 @@ M.default = {
   },
 
   providers = {
-    lsp = { opts = { tailwind_color_icon = Icons.misc.tailwind_color } },
+    lsp = { opts = { tailwind_color_icon = Conf.Icons.misc.tailwind_color } },
 
     datword = {
       name = 'Datword',
@@ -62,13 +61,13 @@ M.default = {
       name = 'Ripgrep',
       module = 'blink-ripgrep',
       max_items = 3,
-      min_keyword_length = limit.ripgrep_min_keyword_length,
+      min_keyword_length = Conf.Cmp.ripgrep_min_keyword_length,
       score_offset = -10,
 
       --- @module "blink-ripgrep"
       --- @type blink-ripgrep.Options
       opts = {
-        prefix_min_len = limit.ripgrep_min_keyword_length,
+        prefix_min_len = Conf.Cmp.ripgrep_min_keyword_length,
         backend = {
           use = 'gitgrep',
           context_size = 6,
@@ -96,7 +95,7 @@ M.default = {
     copilot = {
       name = 'Copilot',
       module = 'blink-copilot',
-      max_items = limit.ai_cmp_max_items,
+      max_items = Conf.Cmp.ai_cmp_max_items,
       async = true,
       -- Wrap around the menu items to quickly access the suggestion items while prevent items shifting
       score_offset = -100,
@@ -110,8 +109,8 @@ M.default = {
       name = 'Minuet',
       module = 'minuet.blink',
       -- With minuet `add_single_line_entry` we might get more than this
-      -- max_items = limit.ai_cmp_max_items,
-      timeout_ms = limit.ai_cmp_timeout_ms,
+      -- max_items = Conf.Cmp.ai_cmp_max_items,
+      timeout_ms = Conf.Cmp.ai_cmp_timeout_ms,
       async = true,
       score_offset = -100,
     },

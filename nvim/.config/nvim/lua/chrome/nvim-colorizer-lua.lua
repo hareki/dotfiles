@@ -1,4 +1,5 @@
-local filetypes = Filetypes.merge(Filetypes.css, Filetypes.js, { 'html', 'json', 'lua', 'toml' })
+local filetypes =
+  Conf.Filetypes.merge(Conf.Filetypes.css, Conf.Filetypes.js, { 'html', 'json', 'lua', 'toml' })
 
 return {
   'catgoose/nvim-colorizer.lua',

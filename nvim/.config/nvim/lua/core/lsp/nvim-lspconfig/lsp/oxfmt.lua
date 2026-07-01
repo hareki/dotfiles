@@ -20,12 +20,12 @@ return {
 
         -- Subset of oxfmt LSP's advertised filetypes that we want it to own.
         -- Excludes astro/mdx (oxfmt LSP doesn't support them) and toml (taplo owns it).
-        local oxfmt_filetypes = Filetypes.merge(
-          Filetypes.js, -- js/ts(x), no astro
-          Filetypes.css, -- css/scss/less
+        local oxfmt_filetypes = Conf.Filetypes.merge(
+          Conf.Filetypes.js, -- js/ts(x), no astro
+          Conf.Filetypes.css, -- css/scss/less
           { 'html' },
           { 'markdown' }, -- no mdx
-          Filetypes.json, -- json/jsonc/json5
+          Conf.Filetypes.json, -- json/jsonc/json5
           { 'yaml' }
         )
 

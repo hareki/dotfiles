@@ -30,8 +30,8 @@ function M.keymap_format(item, _picker, width)
     - 3
 
   if package.loaded['which-key'] then
-    local Icons = require('which-key.icons')
-    local icon, hl = Icons.get({ keymap = k, desc = k.desc })
+    local wk_icons = require('which-key.icons')
+    local icon, hl = wk_icons.get({ keymap = k, desc = k.desc })
     if icon then
       ret[#ret + 1] = { align(icon, col_width.icon), hl }
     else
@@ -77,7 +77,7 @@ function M.buffer_format(item, picker)
 
   local bufnr = item.buf or item.bufnr or (item.item and item.item.bufnr)
   if bufnr and vim.bo[bufnr].modified then
-    ret[#ret + 1] = { Icons.file_status.modified, 'ModifiedIndicator' }
+    ret[#ret + 1] = { Conf.Icons.file_status.modified, 'ModifiedIndicator' }
   end
 
   return ret

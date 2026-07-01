@@ -1,5 +1,5 @@
 return {
-  Catppuccin(function(palette)
+  UI.catppuccin(function(palette)
     return {
       SnacksPickerPrompt = { fg = palette.blue },
       SnacksPickerCursorLine = { bg = palette.base },
@@ -17,7 +17,7 @@ return {
     'hareki/snacks.nvim',
     lazy = false,
     -- This plugin has many responsibilities, should load it early to setup stuff correctly
-    priority = Priority.CORE,
+    priority = Conf.Priority.CORE,
     keys = function()
       return {
         {
@@ -175,9 +175,7 @@ return {
     end,
 
     opts = function()
-      local ui = require('utils.ui')
-      local popup_config = ui.popup_config
-      local picker_config = require('config.picker')
+      local popup_config = UI.popup_config
       local config = {
         input = popup_config('input'),
         full = popup_config('full'),
@@ -191,7 +189,7 @@ return {
       local layout_opts = {
         width = config.lg_border.width,
         height = config.lg_border.height,
-        preview_title = picker_config.preview_title,
+        preview_title = Conf.Picker.preview_title,
       }
 
       -- Wrapping this with Defer.on_exported_call will result in `nvim_create_augroup must not be called in a fast event context` error
@@ -224,19 +222,19 @@ return {
             inline = true,
             max_width = config.full.width,
             max_height = 15,
-            excluded_filetypes = Filetypes.merge(Filetypes.js_all, Filetypes.css),
+            excluded_filetypes = Conf.Filetypes.merge(Conf.Filetypes.js_all, Conf.Filetypes.css),
           },
         },
 
         picker = {
           icons = {
             ui = {
-              selected = Icons.file_tree.selected,
-              unselected = Icons.file_tree.unselected,
+              selected = Conf.Icons.file_tree.selected,
+              unselected = Conf.Icons.file_tree.unselected,
             },
           },
           ui_select = true,
-          prompt = picker_config.prompt_prefix,
+          prompt = Conf.Picker.prompt_prefix,
 
           actions = {
             list_half_page_down = defer_scroll_half_page('down'),

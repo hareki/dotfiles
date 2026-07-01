@@ -1,9 +1,9 @@
 local prefix = 'Debug Prints: '
 
 return {
-  WhichKey({
+  UI.which_key({
     specs = { '<leader>?', group = 'Debug' },
-    rules = { plugin = 'debugprint.nvim', icon = Icons.tools.debug, color = 'red' },
+    rules = { plugin = 'debugprint.nvim', icon = Conf.Icons.tools.debug, color = 'red' },
   }),
 
   {
@@ -76,7 +76,7 @@ return {
         highlight_lines = false,
         filetypes = (function()
           local fts = {}
-          for _, ft in ipairs(Filetypes.js_all) do
+          for _, ft in ipairs(Conf.Filetypes.js_all) do
             fts[ft] = js_like
           end
           return fts

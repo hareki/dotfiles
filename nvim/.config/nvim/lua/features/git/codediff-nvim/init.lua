@@ -1,5 +1,5 @@
 return {
-  Catppuccin(function(palette)
+  UI.catppuccin(function(palette)
     return {
       CodeDiffExplorerTreeGroup = { fg = palette.yellow },
       CodeDiffHistoryTitle = { fg = palette.yellow },
@@ -18,8 +18,7 @@ return {
     },
 
     opts = function()
-      local ui = require('utils.ui')
-      local preview_cols = ui.side_size('side_panel', 'sm')
+      local preview_cols = UI.side_size('side_panel', 'sm')
 
       return {
         explorer = {
@@ -33,8 +32,8 @@ return {
           view_mode = 'tree',
 
           icons = {
-            folder_closed = Icons.file_tree.folder,
-            folder_open = Icons.file_tree.folder_open,
+            folder_closed = Conf.Icons.file_tree.folder,
+            folder_open = Conf.Icons.file_tree.folder_open,
           },
         },
       }

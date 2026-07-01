@@ -1,10 +1,10 @@
 local prefix = 'Flash: '
 
 return {
-  WhichKey({
-    rules = { plugin = 'flash.nvim', icon = Icons.tools.flash, color = 'yellow' },
+  UI.which_key({
+    rules = { plugin = 'flash.nvim', icon = Conf.Icons.tools.flash, color = 'yellow' },
   }),
-  Catppuccin(function(palette)
+  UI.catppuccin(function(palette)
     return {
       FlashPromptIcon = { fg = palette.yellow },
     }
@@ -76,7 +76,7 @@ return {
     --- @type Flash.Config
     opts = {
       prompt = {
-        prefix = { { Icons.tools.flash .. ' Flash', 'FlashPromptIcon' } },
+        prefix = { { Conf.Icons.tools.flash .. ' Flash', 'FlashPromptIcon' } },
       },
     },
   },

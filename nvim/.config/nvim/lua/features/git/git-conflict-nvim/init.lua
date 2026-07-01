@@ -1,5 +1,5 @@
 return {
-  Catppuccin(function(palette, _, extension)
+  UI.catppuccin(function(palette, _, extension)
     return {
       GitConflictCurrentLabel = { bg = extension.green1, fg = palette.text },
       GitConflictCurrent = { bg = extension.green0 },
@@ -30,11 +30,10 @@ return {
       local plugin = require('git-conflict')
       plugin.setup(opts)
 
-      local ui = require('utils.ui')
-      local color = require('config.palette_ext')
+      local color = UI.get_palette('ext')
       local utils = require('features.git.git-conflict-nvim.utils')
       local package = require('utils.package')
-      local palette = ui.get_palette()
+      local palette = UI.get_palette()
       local group = vim.api.nvim_create_augroup('git.git_conflict.keymaps', { clear = true })
 
       -- Debounce window for the cursor-in-conflict scan. The scan walks up to

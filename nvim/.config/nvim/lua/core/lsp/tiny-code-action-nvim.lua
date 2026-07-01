@@ -7,8 +7,6 @@ return {
   },
 
   opts = function()
-    local picker_config = require('config.picker')
-
     return {
       backend = 'delta',
       picker = {
@@ -17,7 +15,7 @@ return {
           source = 'buffer',
           win = {
             preview = {
-              title = picker_config.preview_title,
+              title = Conf.Picker.preview_title,
             },
           },
         },

@@ -106,8 +106,7 @@ M.show = function(user_opts)
     picker.opts.items = refreshed
     picker:refresh()
 
-    local statusline = require('services.statusline')
-    statusline.refresh()
+    Statusline.refresh()
   end
 
   opts.actions = opts.actions or {}

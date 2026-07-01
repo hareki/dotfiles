@@ -1,9 +1,8 @@
 local ui_name = 'File Tree'
 
 return {
-  Catppuccin(function(palette, sub_palette)
-    local ui = require('utils.ui')
-    local picker_bg = ui.blend_hex(palette.base, palette.blue)
+  UI.catppuccin(function(palette, sub_palette)
+    local picker_bg = UI.blend_hex(palette.base, palette.blue)
 
     return {
       NvimTreeSignColumn = { link = 'NormalFloat' },
@@ -23,8 +22,8 @@ return {
     }
   end),
 
-  WhichKey({
-    rules = { plugin = 'nvim-tree.lua', icon = Icons.tools.tree, color = 'blue' },
+  UI.which_key({
+    rules = { plugin = 'nvim-tree.lua', icon = Conf.Icons.tools.tree, color = 'blue' },
   }),
 
   {
@@ -59,10 +58,9 @@ return {
       local tree = require('features.navigation.nvim-tree-lua.utils')
       local state = tree.state
 
-      local picker_config = require('config.picker')
       return {
         -- title_format = ' %s ', -- Use file name as title
-        title_format = picker_config.preview_title,
+        title_format = Conf.Picker.preview_title,
         zindex = 50, -- The default value makes vim.ui.input behind the preview window
         image_preview = { enable = true },
         on_close = function()
@@ -111,8 +109,7 @@ return {
 
         calculate_win_size = function(tree_win)
           local tree_cfg = vim.api.nvim_win_get_config(tree_win)
-          local ui = require('utils.ui')
-          local size = ui.popup_config(tree.compute_size())
+          local size = UI.popup_config(tree.compute_size())
 
           -- We need to fill the missing row if the total height is an odd number
           -- (we can't have equal height for both windows)
@@ -125,7 +122,7 @@ return {
             }
           end
 
-          local preview_cols, preview_rows = ui.side_size('side_preview', 'md')
+          local preview_cols, preview_rows = UI.side_size('side_preview', 'md')
 
           return {
             width = preview_cols,
@@ -165,10 +162,8 @@ return {
     end,
 
     opts = function()
-      local ui = require('utils.ui')
       local tree = require('features.navigation.nvim-tree-lua.utils')
       local state = tree.state
-      local picker_config = require('config.picker')
 
       state.opts = {
         hijack_cursor = true, -- Keep cursor on the first letter of filename
@@ -186,7 +181,7 @@ return {
           auto_open = false,
         },
         live_filter = {
-          prefix = picker_config.prompt_prefix,
+          prefix = Conf.Picker.prompt_prefix,
           always_show_folders = false,
         },
         update_focused_file = {
@@ -218,10 +213,10 @@ return {
             max = vim.diagnostic.severity.ERROR,
           },
           icons = {
-            error = Icons.diagnostics.Error,
-            warning = Icons.diagnostics.Warn,
-            info = Icons.diagnostics.Info,
-            hint = Icons.diagnostics.Hint,
+            error = Conf.Icons.diagnostics.Error,
+            warning = Conf.Icons.diagnostics.Warn,
+            info = Conf.Icons.diagnostics.Info,
+            hint = Conf.Icons.diagnostics.Hint,
           },
         },
         renderer = {
@@ -236,25 +231,25 @@ return {
             git_placement = 'after',
             diagnostics_placement = 'after',
             glyphs = {
-              bookmark = vim.trim(Icons.file_tree.selected),
+              bookmark = vim.trim(Conf.Icons.file_tree.selected),
               folder = {
-                arrow_closed = Icons.file_tree.collapsed,
-                arrow_open = Icons.file_tree.expanded,
-                default = Icons.file_tree.folder,
-                open = Icons.file_tree.folder_open,
-                empty = Icons.file_tree.folder_empty,
-                empty_open = Icons.file_tree.folder_empty_open,
-                symlink = Icons.file_tree.folder_symlink,
-                symlink_open = Icons.file_tree.folder_symlink,
+                arrow_closed = Conf.Icons.file_tree.collapsed,
+                arrow_open = Conf.Icons.file_tree.expanded,
+                default = Conf.Icons.file_tree.folder,
+                open = Conf.Icons.file_tree.folder_open,
+                empty = Conf.Icons.file_tree.folder_empty,
+                empty_open = Conf.Icons.file_tree.folder_empty_open,
+                symlink = Conf.Icons.file_tree.folder_symlink,
+                symlink_open = Conf.Icons.file_tree.folder_symlink,
               },
               git = {
-                unstaged = Icons.git.unstaged,
-                staged = Icons.git.staged,
-                unmerged = Icons.git.unmerged,
-                renamed = Icons.git.renamed,
-                untracked = Icons.git.untracked,
-                deleted = Icons.git.deleted,
-                ignored = Icons.git.ignored,
+                unstaged = Conf.Icons.git.unstaged,
+                staged = Conf.Icons.git.staged,
+                unmerged = Conf.Icons.git.unmerged,
+                renamed = Conf.Icons.git.renamed,
+                untracked = Conf.Icons.git.untracked,
+                deleted = Conf.Icons.git.deleted,
+                ignored = Conf.Icons.git.ignored,
               },
             },
           },
@@ -268,7 +263,7 @@ return {
           side = 'right',
           -- Width when not in float mode
           width = function()
-            local panel_cols = ui.side_size('side_panel', 'md')
+            local panel_cols = UI.side_size('side_panel', 'md')
             return panel_cols
           end,
 
@@ -276,7 +271,7 @@ return {
             enable = state.position == 'float',
             quit_on_focus_loss = true,
             open_win_config = function()
-              local size = ui.popup_config(tree.compute_size())
+              local size = UI.popup_config(tree.compute_size())
               local window_w = size.width
               local window_h = math.floor(size.height / 2)
               local col = size.col

@@ -1,6 +1,6 @@
 -- [[ Only needed for nvim-notify as of now]]
 return {
-  Catppuccin(function(palette)
+  UI.catppuccin(function(palette)
     return {
       TelescopeBufferMarker = { fg = palette.peach },
       TelescopePromptPrefix = { fg = palette.blue },
@@ -32,10 +32,9 @@ return {
 
       -- Unify the preview title for all pickers
       local default_picker_configs = {}
-      local picker_config = require('config.picker')
       for picker_name, _ in pairs(builtin) do
         default_picker_configs[picker_name] = {
-          preview_title = picker_config.telescope_preview_title,
+          preview_title = Conf.Picker.telescope_preview_title,
         }
       end
 
@@ -45,8 +44,7 @@ return {
       local scroll_results_up = utils.scroll_results('up')
       local scroll_results_down = utils.scroll_results('down')
 
-      local ui = require('utils.ui')
-      local layout_config = ui.telescope_layout
+      local layout_config = UI.telescope_layout
       local telescope_config = require('telescope.config')
       local default_get_status_text = telescope_config.values.get_status_text
 
@@ -58,11 +56,11 @@ return {
           },
         },
         defaults = {
-          prompt_prefix = picker_config.prompt_prefix,
+          prompt_prefix = Conf.Picker.prompt_prefix,
           -- selection_caret = ' ',
           selection_caret = ' ',
           entry_prefix = ' ', -- keep list text aligned
-          multi_icon = vim.trim(Icons.file_tree.selected) .. ' ',
+          multi_icon = vim.trim(Conf.Icons.file_tree.selected) .. ' ',
           get_status_text = function(self, opts)
             -- Prevent flashing the loading asterisk indicator
             opts = opts or {}
@@ -78,7 +76,7 @@ return {
           end,
           -- Merge prompt and results windows
           results_title = false,
-          borderchars = Icons.borders.telescope,
+          borderchars = Conf.Icons.borders.telescope,
 
           -- Make results appear from top to bottom
           -- https://github.com/nvim-telescope/telescope.nvim/issues/1933
