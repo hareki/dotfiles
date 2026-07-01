@@ -40,7 +40,7 @@
     ],
     "defaultMode": "plan"
   },
-  "model": "opus",
+  "model": "claude-opus-4-8",
   "hooks": {
     "Notification": [
       {
@@ -82,7 +82,7 @@
     "gopls-lsp@claude-plugins-official": true
   },
   "syntaxHighlightingDisabled": false,
-  "effortLevel": "high",
+  "effortLevel": "xhigh",
   "tui": "fullscreen",
   "theme": "custom:catppuccin-mocha",
   "preferredNotifChannel": "auto",
