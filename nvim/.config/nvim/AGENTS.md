@@ -32,7 +32,7 @@ The LuaLS diagnostics surfaced to you will often report `undefined-global` for t
 
 `vim.loader.enable` → `config.globals` → `config.options` → `config.autocmds` → `config.usercmds` → `config.keymaps` → `config.lazy`
 
-### Plugin Tiers (`lua/plugins/`)
+### Plugin Tiers (`lua/`)
 
 | Directory            | Purpose                                                                                               | Load behavior                          |
 | -------------------- | ----------------------------------------------------------------------------------------------------- | -------------------------------------- |
@@ -40,7 +40,7 @@ The LuaLS diagnostics surfaced to you will often report `undefined-global` for t
 | `chrome/`            | Visual-only — statusline, decorations, which-key                                                      | `priority=CHROME(900)`                 |
 | `features/{domain}/` | Domain features (8 groups: navigation, completion, git, editing, search, diagnostics, formatting, ai) | `event='VeryLazy'` or keymap-triggered |
 
-Import order in `config/lazy/init.lua`: `plugins.core` **must be first**. All plugins lazy by default (`defaults.lazy=true`).
+Import order in `config/lazy/init.lua`: `core` **must be first**. All plugins lazy by default (`defaults.lazy=true`).
 
 ### Globals (`lua/config/globals.lua`)
 
@@ -84,7 +84,7 @@ Use `popup_config(size, with_border)`, never hardcode dimensions. **Gotcha**: Te
 
 ## LSP Setup
 
-Uses Neovim 0.12+ native `vim.lsp.enable()` / `vim.lsp.config()` (not `lspconfig[server].setup()`). Per-server files live at `plugins/core/lsp/nvim-lspconfig/lsp/{server}.lua` — **these are NOT lazy.nvim specs and NOT raw `vim.lsp.Config` tables**. Each file returns `{ opts = table|function, setup = function? }`; `nvim-lspconfig/utils/server_loader.lua` walks the directory, calls `vim.lsp.config(name, opts)`, then invokes `setup()` if present. General LSP keymaps live in `nvim-lspconfig/init.lua`, not server files.
+Uses Neovim 0.12+ native `vim.lsp.enable()` / `vim.lsp.config()` (not `lspconfig[server].setup()`). Per-server files live at `core/lsp/nvim-lspconfig/lsp/{server}.lua` — **these are NOT lazy.nvim specs and NOT raw `vim.lsp.Config` tables**. Each file returns `{ opts = table|function, setup = function? }`; `nvim-lspconfig/utils/server_loader.lua` walks the directory, calls `vim.lsp.config(name, opts)`, then invokes `setup()` if present. General LSP keymaps live in `nvim-lspconfig/init.lua`, not server files.
 
 Server-specific `LspAttach` autocmds use an early-return guard on client name — see existing server configs for the pattern.
 

@@ -1,0 +1,415 @@
+local ui_name = 'File Tree'
+
+return {
+  Catppuccin(function(palette, sub_palette)
+    local ui = require('utils.ui')
+    local picker_bg = ui.blend_hex(palette.base, palette.blue)
+
+    return {
+      NvimTreeSignColumn = { link = 'NormalFloat' },
+      NvimTreeCursorLineNr = { link = 'CursorLine' },
+      NvimTreeNormal = { link = 'Normal' },
+      NvimTreeCutHL = { bg = palette.maroon, fg = palette.base },
+      NvimTreeCopiedHL = { bg = palette.surface2, fg = palette.text },
+      NvimTreeLiveFilterPrefix = { fg = palette.yellow },
+      NvimTreeGitStagedIcon = { fg = sub_palette.yellow },
+      NvimTreeRootFolder = { fg = palette.overlay2, style = {} },
+      NvimTreeGitMergeIcon = { fg = palette.yellow },
+      NvimTreeWindowPicker = {
+        bg = picker_bg,
+        bold = true,
+        fg = palette.blue,
+      },
+    }
+  end),
+
+  WhichKey({
+    rules = { plugin = 'nvim-tree.lua', icon = Icons.tools.tree, color = 'blue' },
+  }),
+
+  {
+    'hareki/nvim-tree-preview.lua',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      {
+        '3rd/image.nvim',
+        build = false, -- Skip rock build: https://github.com/3rd/image.nvim/issues/91#issuecomment-2453430239
+        opts = function()
+          return {
+            backend = 'kitty',
+            processor = 'magick_cli',
+
+            -- Let snacks.nvim handle these integrations
+            -- Only need image.nvim for rendering preview in nvim-tree-preview.lua
+            integrations = {
+              markdown = { enabled = false },
+              asciidoc = { enabled = false },
+              neorg = { enabled = false },
+              rst = { enabled = false },
+              typst = { enabled = false },
+              html = { enabled = false },
+              css = { enabled = false },
+            },
+          }
+        end,
+      },
+    },
+
+    opts = function()
+      local tree = require('features.navigation.nvim-tree-lua.utils')
+      local state = tree.state
+
+      local picker_config = require('config.picker')
+      return {
+        -- title_format = ' %s ', -- Use file name as title
+        title_format = picker_config.preview_title,
+        zindex = 50, -- The default value makes vim.ui.input behind the preview window
+        image_preview = { enable = true },
+        on_close = function()
+          tree.toggle_tree_height('expand')
+        end,
+
+        keymaps = {
+          ['q'] = tree.close_all,
+          ['<Tab>'] = tree.toggle_focus,
+          ['<C-t>'] = function()
+            tree.switch_position('side')
+            tree.open({ switching = true })
+          end,
+          ['B'] = function()
+            local api = require('nvim-tree.api')
+            api.tree.focus()
+            tree.toggle_preview()
+          end,
+          ['<CR>'] = function()
+            local nvim_tree_api = require('nvim-tree.api')
+            nvim_tree_api.node.open.edit()
+            if state.position == 'float' then
+              tree.close_all()
+            end
+          end,
+        },
+
+        win_position = {
+          col = function(_, size)
+            if state.position == 'float' then
+              return -1
+            end
+
+            return -size.width - 3
+          end,
+
+          row = function(tree_win, size)
+            local tree_cfg = vim.api.nvim_win_get_config(tree_win)
+
+            if state.position == 'float' then
+              return tree_cfg.height + 1
+            end
+            return math.floor((vim.o.lines - size.height) / 2) - 1
+          end,
+        },
+
+        calculate_win_size = function(tree_win)
+          local tree_cfg = vim.api.nvim_win_get_config(tree_win)
+          local ui = require('utils.ui')
+          local size = ui.popup_config(tree.compute_size())
+
+          -- We need to fill the missing row if the total height is an odd number
+          -- (we can't have equal height for both windows)
+          local height_offset = size.height % 2 == 0 and 0 or 1
+
+          if state.position == 'float' then
+            return {
+              width = tree_cfg.width,
+              height = tree_cfg.height + height_offset,
+            }
+          end
+
+          local preview_cols, preview_rows = ui.side_size('side_preview', 'md')
+
+          return {
+            width = preview_cols,
+            height = preview_rows,
+          }
+        end,
+      }
+    end,
+  },
+  {
+    'hareki/nvim-tree.lua',
+    version = '*',
+    dependencies = {
+      'echasnovski/mini.icons',
+    },
+    keys = function()
+      return {
+        {
+          '<leader>e',
+          function()
+            local api = require('nvim-tree.api')
+            local tree = require('features.navigation.nvim-tree-lua.utils')
+            local state = tree.state
+
+            if api.tree.is_tree_buf() and state.position == 'float' then
+              tree.close_all()
+              return
+            end
+
+            api.tree.reload()
+            tree.open()
+          end,
+          desc = ui_name,
+          remap = true,
+        },
+      }
+    end,
+
+    opts = function()
+      local ui = require('utils.ui')
+      local tree = require('features.navigation.nvim-tree-lua.utils')
+      local state = tree.state
+      local picker_config = require('config.picker')
+
+      state.opts = {
+        hijack_cursor = true, -- Keep cursor on the first letter of filename
+        actions = {
+          open_file = {
+            window_picker = {
+              enable = false, -- Skips the prompt of where to put the file where there're multiple windows
+            },
+          },
+        },
+
+        -- Hijack directories ourselves for the floating view to work correctly
+        hijack_directories = {
+          enable = false,
+          auto_open = false,
+        },
+        live_filter = {
+          prefix = picker_config.prompt_prefix,
+          always_show_folders = false,
+        },
+        update_focused_file = {
+          enable = true,
+          -- Prevent changing cwd when navigating to files outside of the tree root
+          update_root = {
+            enable = false,
+          },
+        },
+        filters = {
+          enable = true,
+          git_ignored = false,
+          custom = { '^\\.DS_Store$' },
+        },
+        git = {
+          enable = true,
+          show_on_dirs = false,
+          show_on_open_dirs = true,
+          disable_for_dirs = {},
+          timeout = 400,
+        },
+        diagnostics = {
+          enable = true,
+          show_on_dirs = false,
+          show_on_open_dirs = true,
+          debounce_delay = 500,
+          severity = {
+            min = vim.diagnostic.severity.HINT,
+            max = vim.diagnostic.severity.ERROR,
+          },
+          icons = {
+            error = Icons.diagnostics.Error,
+            warning = Icons.diagnostics.Warn,
+            info = Icons.diagnostics.Info,
+            hint = Icons.diagnostics.Hint,
+          },
+        },
+        renderer = {
+          root_folder_label = tree.format_root_label,
+          indent_width = 2,
+          special_files = {},
+          highlight_diagnostics = 'none',
+          icons = {
+            show = {
+              folder_arrow = false,
+            },
+            git_placement = 'after',
+            diagnostics_placement = 'after',
+            glyphs = {
+              bookmark = vim.trim(Icons.file_tree.selected),
+              folder = {
+                arrow_closed = Icons.file_tree.collapsed,
+                arrow_open = Icons.file_tree.expanded,
+                default = Icons.file_tree.folder,
+                open = Icons.file_tree.folder_open,
+                empty = Icons.file_tree.folder_empty,
+                empty_open = Icons.file_tree.folder_empty_open,
+                symlink = Icons.file_tree.folder_symlink,
+                symlink_open = Icons.file_tree.folder_symlink,
+              },
+              git = {
+                unstaged = Icons.git.unstaged,
+                staged = Icons.git.staged,
+                unmerged = Icons.git.unmerged,
+                renamed = Icons.git.renamed,
+                untracked = Icons.git.untracked,
+                deleted = Icons.git.deleted,
+                ignored = Icons.git.ignored,
+              },
+            },
+          },
+        },
+
+        view = {
+          number = false,
+          relativenumber = false,
+          signcolumn = 'no',
+          statuscolumn = ' ',
+          side = 'right',
+          -- Width when not in float mode
+          width = function()
+            local panel_cols = ui.side_size('side_panel', 'md')
+            return panel_cols
+          end,
+
+          float = {
+            enable = state.position == 'float',
+            quit_on_focus_loss = true,
+            open_win_config = function()
+              local size = ui.popup_config(tree.compute_size())
+              local window_w = size.width
+              local window_h = math.floor(size.height / 2)
+              local col = size.col
+              local row = size.row
+
+              return {
+                title = string.format(' %s ', ui_name),
+                title_pos = 'center',
+                border = 'rounded',
+                relative = 'editor',
+                row = row,
+                col = col,
+                width = window_w,
+                height = window_h - 1, -- Minus 1 for the space between the two windows
+              }
+            end,
+          },
+        },
+
+        on_attach = function(tree_bufnr)
+          local api = require('nvim-tree.api')
+          local function map(mode, lhs, rhs, desc)
+            local keys = type(lhs) == 'table' and lhs or { lhs }
+            for _, key in ipairs(keys) do
+              vim.keymap.set(mode, key, rhs, {
+                desc = 'File Tree' .. desc,
+                buffer = tree_bufnr,
+                noremap = true,
+                nowait = true,
+              })
+            end
+          end
+
+          map('n', '<C-t>', function()
+            tree.switch_position('side')
+            tree.open({ switching = true })
+          end, 'Switch to Side')
+
+          map('n', '<Tab>', function()
+            tree.toggle_focus()
+          end, 'Preview')
+
+          map('n', 'q', tree.close_all, 'Close')
+          map('n', 'B', tree.toggle_preview, 'Toggle Preview')
+
+          map('n', 'c', api.fs.copy.node, 'Copy')
+          map('n', 'x', api.fs.cut, 'Cut')
+          map('n', 'p', api.fs.paste, 'Paste')
+          map('n', 'N', api.fs.create, 'Create File or Directory')
+
+          map('n', 'f', function()
+            tree.toggle_preview(false)
+            api.filter.live.start()
+            state.live_filter_triggered = true
+          end, 'Live Filter: Start')
+          map('n', '<Esc>', function()
+            api.filter.live.clear()
+            vim.cmd.nohlsearch()
+          end, 'Clear Live Filter and Search Highlights')
+
+          map('n', 'd', api.fs.trash, 'Trash')
+          map('n', 'D', api.fs.remove, 'Remove')
+          map('n', 'y', api.fs.copy.filename, 'Copy Name')
+          map('n', 'r', api.fs.rename, 'Rename')
+
+          map('n', 'R', function()
+            local ok, node = pcall(api.tree.get_node_under_cursor)
+            if not ok or not node then
+              return
+            end
+
+            vim.system({ 'open', '-R', node.absolute_path })
+          end, 'Reveal in Finder')
+
+          map('n', 'Y', api.fs.copy.absolute_path, 'Copy Absolute Path')
+
+          map('n', '<Right>', tree.create_node_action('expand'), 'Expand Node')
+          map('n', '<S-Right>', api.tree.expand_all, 'Expand All Nodes')
+          map('n', '<Left>', tree.create_node_action('collapse'), 'Collapse Node')
+          map('n', '<S-Left>', api.tree.collapse_all, 'Collapse All Nodes')
+          map('n', { '<CR>', 'e' }, tree.create_node_action('toggle'), 'Open File/Toggle Folder')
+          map('n', 'g?', function()
+            api.tree.toggle_help()
+            local nvim_tree_help = require('nvim-tree.help')
+            vim.api.nvim_win_set_config(nvim_tree_help.winnr, { border = 'rounded' })
+          end, 'Help')
+
+          map('n', '<C-n>', tree.mark_and_next, 'Bookmark and Next')
+          map('n', '<C-p>', tree.mark_and_prev, 'Bookmark and Previous')
+          map('n', 'M', api.filter.no_bookmark.toggle, 'Toggle Bookmark Filter')
+          map('n', 'bd', api.marks.bulk.trash, 'Trash Bookmarked')
+          map('n', 'bt', api.marks.bulk.delete, 'Delete Bookmarked')
+          map('n', 'bm', api.marks.bulk.move, 'Move Bookmarked')
+          map('n', '<A-r>', api.tree.reload, 'Refresh')
+
+          vim.api.nvim_create_autocmd('BufEnter', {
+            group = state.preview_watcher,
+            callback = function(ev)
+              if ev.buf == tree_bufnr then
+                tree.toggle_preview(state.preview_on_focus)
+                return
+              end
+
+              if state.live_filter_triggered then
+                state.live_filter_triggered = false
+                return
+              end
+            end,
+          })
+        end,
+      }
+
+      return state.opts
+    end,
+
+    config = function(_, opts)
+      local prev = { new_name = '', old_name = '' } -- Prevents duplicate events
+      vim.api.nvim_create_autocmd('User', {
+        pattern = 'NvimTreeSetup',
+        callback = function()
+          local nvim_tree_api = require('nvim-tree.api')
+          local events = nvim_tree_api.events
+          events.subscribe(events.Event.NodeRenamed, function(data)
+            if prev.new_name ~= data.new_name or prev.old_name ~= data.old_name then
+              prev = data
+              Snacks.rename.on_rename_file(data.old_name, data.new_name)
+            end
+          end)
+        end,
+      })
+
+      local nvim_tree = require('nvim-tree')
+      nvim_tree.setup(opts)
+    end,
+  },
+}

@@ -34,7 +34,7 @@
 
 ## Core Ideas
 
-- One plugin per file under `lua/plugins/{core,chrome,features}/`
+- One plugin per file under `lua/{core,chrome,features}/`
 - On-demand loading via keymaps or `VeryLazy` event
 - Startup: ~38ms (no session or blank file) / ~80ms (opening file or directory with session) via `:Lazy profile`
 - Unified floating layout across Snacks picker, Telescope, floating nvim-tree
@@ -81,7 +81,7 @@ nvim-tree-lua/
 
 ### LSP & Formatting
 
-- Per-server configs in `lua/plugins/core/lsp/nvim-lspconfig/lsp/{server}.lua`
+- Per-server configs in `lua/core/lsp/nvim-lspconfig/lsp/{server}.lua`
 - Tool installation (LSP servers, formatters, linters) is handled by [mise-en-place](https://mise.jdx.dev/) via `~/.config/mise/config.toml`
 - Async style-enforcement pipeline (formatters + linters) in `utils/style_enforcers/`
 
