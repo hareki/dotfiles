@@ -12,6 +12,7 @@ green='\033[38;2;166;227;161m'  # #a6e3a1
 red='\033[38;2;243;139;168m'  # #f38ba8
 cyan='\033[38;2;148;226;213m'    # #94e2d5
 mauve='\033[38;2;203;166;247m'    # #cba6f7
+peach='\033[38;2;250;179;135m'    # #fab387
 reset='\033[0m'
 
 cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd')
@@ -78,22 +79,15 @@ if [ -n "$week_pct" ]; then
   usage_segments+=("${subtext1}week $(usage_color "$week_int")${week_int}%${reset}")
 fi
 
-# Model (use model.id — display_name is bugged, see claude-code#18270)
-model_id=$(echo "$input" | jq -r '.model.id // empty')
-model_version=$(echo "$model_id" | sed -n 's/.*claude-[a-z]*-\([0-9]*\)-\([0-9]*\).*/\1.\2/p')
-if [[ "$model_id" == *opus* ]]; then
-  model="Opus${model_version:+ $model_version}"
-  model_color="$red"
-elif [[ "$model_id" == *sonnet* ]]; then
-  model="Sonnet${model_version:+ $model_version}"
-  model_color="$yellow"
-elif [[ "$model_id" == *haiku* ]]; then
-  model="Haiku${model_version:+ $model_version}"
-  model_color="$green"
-else
-  model=""
-  model_color="$overlay1"
-fi
+# Model
+model=$(echo "$input" | jq -r '.model.display_name // empty')
+case "$model" in
+  *Opus*)   model_color="$red" ;;
+  *Sonnet*) model_color="$yellow" ;;
+  *Haiku*)  model_color="$green" ;;
+  *Fable*)  model_color="$peach" ;;
+  *)        model_color="$overlay1" ;;
+esac
 
 # Time
 time_str=$(date +"%I:%M:%S %p")
