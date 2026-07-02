@@ -69,9 +69,10 @@ keybind = cmd+s=text:\x1bs
 keybind = cmd+c=copy_to_clipboard
 keybind = cmd+v=paste_from_clipboard
 
-# Copilot suggestion navigation
-keybind = cmd+]=text:\x1b]
-keybind = cmd+[=text:\x1b[
+# Tmux window navigation (prev/next), matched via user-keys in tmux.keymaps.conf
+# 300xx is an arbitrary, collision-proof payload; ~ terminates the CSI sequence.
+keybind = cmd+[=text:\x1b[5;30013~
+keybind = cmd+]=text:\x1b[5;30014~
 
 # Close buffer keymap in Neovim
 keybind = cmd+w=text:\x1bw
