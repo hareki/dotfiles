@@ -69,10 +69,11 @@ keybind = cmd+s=text:\x1bs
 keybind = cmd+c=copy_to_clipboard
 keybind = cmd+v=paste_from_clipboard
 
-# Tmux window navigation (prev/next), matched via user-keys in tmux.keymaps.conf
-# 300xx is an arbitrary, collision-proof payload; ~ terminates the CSI sequence.
-keybind = cmd+[=text:\x1b[5;30013~
-keybind = cmd+]=text:\x1b[5;30014~
+# Tmux window navigation (prev/next). cmd+[ / cmd+] can't tunnel through
+# alt+[ / alt+] because ESC-[ is the CSI introducer (start of a control
+# sequence), so route through free alt keys instead. See tmux.keymaps.conf.
+keybind = cmd+[=text:\x1bh
+keybind = cmd+]=text:\x1bl
 
 # Close buffer keymap in Neovim
 keybind = cmd+w=text:\x1bw
@@ -81,7 +82,7 @@ keybind = cmd+a=text:\x1ba
 # opencode command palette
 keybind = cmd+p=text:\x1bp
 
-# Toggle floating terminal (Nvim + FloaX)
+# Toggle floating nvim terminal
 keybind = cmd+t=text:\x1bt
 
 # Snacks lazygit toggle
@@ -97,18 +98,6 @@ keybind = cmd+m=text:\x1bm
 keybind = cmd+n=text:\x1bn
 keybind = cmd+e=text:\x1be
 keybind = cmd+i=text:\x1bi
-
-# Tmux window navigation
-keybind = cmd+1=text:\x1b1
-keybind = cmd+2=text:\x1b2
-keybind = cmd+3=text:\x1b3
-keybind = cmd+4=text:\x1b4
-keybind = cmd+5=text:\x1b5
-keybind = cmd+6=text:\x1b6
-keybind = cmd+7=text:\x1b7
-keybind = cmd+8=text:\x1b8
-keybind = cmd+9=text:\x1b9
-keybind = cmd+0=text:\x1b0
 
 # Shift enter to insert new line in claude/copilot
 keybind = shift+enter=text:\x1b\r
