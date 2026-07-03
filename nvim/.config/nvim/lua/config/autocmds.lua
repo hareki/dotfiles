@@ -146,23 +146,26 @@ aucmd('CmdwinEnter', {
   end,
 })
 
--- Close all diffview tabs on exit so that auto-session doesn't save them
+-- Close all codediff tabs on exit so that auto-session doesn't save them
 aucmd('VimLeavePre', {
-  group = augroup('close_diffview_tabs_on_exit'),
+  group = augroup('close_codediff_tabs_on_exit'),
   callback = function()
-    local diffview_tabs = {}
-    local prefix = 'diffview-tab'
+    -- codediff is lazy; if it never loaded there are no diff tabs to close.
+    local package = require('utils.package')
+    if not package.is_loaded('codediff.nvim') then
+      return
+    end
+
+    local lifecycle = require('codediff.ui.lifecycle')
+    local codediff_tabs = {}
 
     for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
-      local tab_vars = vim.t[tab]
-      local name = tab_vars and tab_vars.tab_name
-
-      if type(name) == 'string' and name:sub(1, #prefix) == prefix then
-        table.insert(diffview_tabs, tab)
+      if lifecycle.get_session(tab) then
+        table.insert(codediff_tabs, tab)
       end
     end
 
-    for _, tab in ipairs(diffview_tabs) do
+    for _, tab in ipairs(codediff_tabs) do
       if vim.api.nvim_tabpage_is_valid(tab) then
         pcall(vim.api.nvim_set_current_tabpage, tab)
         vim.cmd.tabclose({ mods = { silent = true } })

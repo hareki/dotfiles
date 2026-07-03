@@ -21,7 +21,7 @@ return {
         default_mappings = false,
         default_commands = false,
         cond = function()
-          return not utils.in_diffview_tab()
+          return not utils.in_codediff_tab()
         end,
       }
     end,

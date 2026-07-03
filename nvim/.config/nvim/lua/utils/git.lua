@@ -283,17 +283,18 @@ function M.get_current_line_commit()
   return current_commit
 end
 
---- Open Diffview to compare a commit with its parent
+--- Open CodeDiff to compare a commit with its parent
 --- If no commit is provided, shows current staged/unstaged changes.
 --- @param commit? string The commit hash or reference to compare
 --- @return nil
 function M.diff_parent(commit)
   if not commit or commit == '' then
     -- No commit provided, show the current changes (both staged and unstaged) compared with the last commit
-    vim.cmd.DiffviewOpen()
+    vim.cmd.CodeDiff()
   else
-    --- Open Diffview with the commit range using commit~1.
-    vim.cmd.DiffviewOpen({ args = { string.format('%s~1..%s', commit, commit) } })
+    -- Compare the commit against its parent. codediff takes two positional
+    -- revisions (it does not parse two-dot ranges), so pass commit~1 and commit.
+    vim.cmd.CodeDiff({ args = { commit .. '~1', commit } })
   end
 end
 

@@ -4,15 +4,21 @@ local M = {}
 -- Maximum number of lines to search backward/forward for conflict markers
 local CONFLICT_SEARCH_RANGE = 500
 
---- Check if the current tab is a Diffview tab
---- @return boolean is_diffview True if tab name starts with 'diffview-tab'
-function M.in_diffview_tab()
-  local tab_name = vim.t.tab_name
-  if type(tab_name) ~= 'string' then
+--- Check if the current tab is a codediff diff/merge tab. codediff tracks a
+--- lifecycle session per diff tabpage; git-conflict should stay dormant there
+--- since codediff has its own 3-way merge UI.
+--- @return boolean in_codediff True if the current tabpage has a codediff session
+function M.in_codediff_tab()
+  -- codediff is lazy (cmd = 'CodeDiff'); requiring its module before it loads
+  -- would force-load the plugin on every git-conflict scan. When it isn't
+  -- loaded there are no sessions, so bail without touching it.
+  local package = require('utils.package')
+  if not package.is_loaded('codediff.nvim') then
     return false
   end
 
-  return tab_name:find('^diffview%-tab') ~= nil
+  local lifecycle = require('codediff.ui.lifecycle')
+  return lifecycle.get_session(vim.api.nvim_get_current_tabpage()) ~= nil
 end
 
 --- Detect if cursor is currently inside a git conflict block

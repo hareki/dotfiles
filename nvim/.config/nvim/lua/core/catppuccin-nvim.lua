@@ -92,7 +92,6 @@ return {
         nvimtree = true,
         grug_far = true,
         gitsigns = true,
-        diffview = true,
         rainbow_delimiters = true,
         lsp_trouble = true,
         render_markdown = true,

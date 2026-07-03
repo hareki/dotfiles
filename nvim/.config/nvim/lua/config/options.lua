@@ -59,7 +59,7 @@ opt.spelllang = {}
 opt.viewoptions:remove('curdir')
 opt.autochdir = false
 
--- https://github.com/sindrets/diffview.nvim?tab=readme-ov-file#tips-and-faq
+-- Diagonal hatch fill for deleted/filler lines in diff views (e.g. codediff)
 opt.fillchars:append({ diff = '╱', eob = ' ', lastline = '.' })
 
 -- Save undo history
