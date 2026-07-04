@@ -139,26 +139,26 @@ local function run_cli(input_object)
 
   -- vim.system throws on spawn failure (e.g. the CLI is not installed);
   -- fall back to the raw diagnostic message instead of breaking the popup.
-  local ok, res = pcall(function()
+  local arg_ok, arg_result = pcall(function()
     return vim.system({ exe, '-i', json_text }, { text = true }):wait()
   end)
-  if not ok then
+  if not arg_ok then
     M.state.cli_unavailable = true
     return nil
   end
-  if res and res.code == 0 and res.stdout and #res.stdout > 0 then
-    return trim_trailing_whitespace(res.stdout)
+  if arg_result and arg_result.code == 0 and arg_result.stdout and #arg_result.stdout > 0 then
+    return trim_trailing_whitespace(arg_result.stdout)
   end
 
-  local ok2, res2 = pcall(function()
+  local stdin_ok, stdin_result = pcall(function()
     return vim.system({ exe }, { text = true, stdin = json_text }):wait()
   end)
-  if not ok2 then
+  if not stdin_ok then
     M.state.cli_unavailable = true
     return nil
   end
-  if res2 and res2.code == 0 and res2.stdout and #res2.stdout > 0 then
-    return trim_trailing_whitespace(res2.stdout)
+  if stdin_result and stdin_result.code == 0 and stdin_result.stdout and #stdin_result.stdout > 0 then
+    return trim_trailing_whitespace(stdin_result.stdout)
   end
 
   return nil
