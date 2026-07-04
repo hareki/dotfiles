@@ -1,3 +1,6 @@
+--- @module 'colorizer'
+local colorizer = Defer.on_exported_call('colorizer')
+
 return {
   UI.catppuccin(function(palette, _, extension)
     return {
@@ -239,7 +242,6 @@ return {
           if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
             vim.b[bufnr].git_conflict = nil
             if package.is_loaded('nvim-colorizer.lua') then
-              local colorizer = require('colorizer')
               colorizer.attach_to_buffer(bufnr)
             end
             vim.diagnostic.enable(true, { bufnr = bufnr })

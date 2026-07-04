@@ -1,6 +1,9 @@
 --- @class snacks.picker
 --- @field todo_comments fun(opts?: snacks.picker.todo.Config|{}): snacks.Picker
 
+--- @module 'todo-comments'
+local todo_comments = Defer.on_exported_call('todo-comments')
+
 return {
   'folke/todo-comments.nvim',
   cmd = { 'TodoTrouble', 'TodoTelescope' },
@@ -11,7 +14,6 @@ return {
     {
       ']t',
       function()
-        local todo_comments = require('todo-comments')
         todo_comments.jump_next()
       end,
       desc = 'Next Todo Comment',
@@ -19,7 +21,6 @@ return {
     {
       '[t',
       function()
-        local todo_comments = require('todo-comments')
         todo_comments.jump_prev()
       end,
       desc = 'Previous Todo Comment',

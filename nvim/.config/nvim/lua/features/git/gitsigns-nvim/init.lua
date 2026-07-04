@@ -120,13 +120,11 @@ return {
           map({ 'o', 'x' }, 'ih', '<cmd>Gitsigns select_hunk<cr>', 'Gitsigns Select Hunk')
 
           map('n', '<leader>hb', function()
-            local gitsigns = require('gitsigns')
-            gitsigns.blame_line({ full = true }, build_popup_navigation(buffer, 'blame'))
+            gs.blame_line({ full = true }, build_popup_navigation(buffer, 'blame'))
           end, 'Blame Line')
 
           map('n', '<leader>hp', function()
-            local gitsigns = require('gitsigns')
-            gitsigns.preview_hunk()
+            gs.preview_hunk()
             vim.schedule(build_popup_navigation(buffer, 'hunk'))
           end, 'Preview Hunk')
         end,

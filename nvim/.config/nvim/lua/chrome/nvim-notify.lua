@@ -1,4 +1,8 @@
 local prefix = 'Notification: '
+
+--- @module 'notify'
+local notify = Defer.on_exported_call('notify')
+
 return {
   UI.which_key({
     specs = { '<leader>u', group = 'Notification' },
@@ -25,7 +29,6 @@ return {
         {
           '<leader>ud',
           function()
-            local notify = require('notify')
             notify.dismiss({ silent = true, pending = true })
           end,
           desc = prefix .. 'Dismiss All',
@@ -49,7 +52,6 @@ return {
                   local max_width = vim.api.nvim_win_get_config(status.preview_win).width or 1
                   local buf = self.state.bufnr
 
-                  local notify = require('notify')
                   notify.open(notification, {
                     buffer = buf,
                     max_width = max_width,

@@ -1,5 +1,8 @@
 local prefix = 'Debug Prints: '
 
+--- @module 'debugprint'
+local debugprint = Defer.on_exported_call('debugprint')
+
 return {
   UI.which_key({
     specs = { '<leader>?', group = 'Debug' },
@@ -33,7 +36,6 @@ return {
         {
           '<leader>?v',
           function()
-            local debugprint = require('debugprint')
             debugprint.debugprint({
               variable = true,
             })
@@ -43,7 +45,6 @@ return {
         {
           '<leader>?V',
           function()
-            local debugprint = require('debugprint')
             debugprint.debugprint({
               variable = true,
               surround = true,
@@ -54,7 +55,6 @@ return {
         {
           '<leader>?p',
           function()
-            local debugprint = require('debugprint')
             debugprint.debugprint({})
           end,
           desc = prefix .. 'Put Plain Text Below',

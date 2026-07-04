@@ -1,3 +1,9 @@
+--- @module 'eagle'
+local eagle = Defer.on_index('eagle')
+
+--- @module 'utils.common'
+local common = Defer.on_exported_call('utils.common')
+
 return {
   UI.which_key({
     rules = { plugin = 'eagle.nvim', icon = Conf.Icons.tools.eagle, color = 'yellow' },
@@ -89,17 +95,13 @@ return {
           eagle_map({ 'n', 'x' }, '<PageUp>', '<C-u>', 'Scroll Up')
           eagle_map({ 'n', 'x' }, '<PageDown>', '<C-d>', 'Scroll Down')
           eagle_map({ 'n', 'x' }, '<Tab>', function()
-            local eagle = require('eagle')
             eagle.ignore_cursor_moved = true
-            local common = require('utils.common')
             common.focus_win(current_win)
           end, 'Focus Parent Window')
 
           current_map({ 'n', 'x' }, '<Esc>', close_eagle, 'Close Eagle')
           current_map({ 'n', 'x' }, '<Tab>', function()
-            local eagle = require('eagle')
             eagle.ignore_cursor_moved = true
-            local common = require('utils.common')
             common.focus_win(eagle_win)
           end, 'Focus Eagle Window')
         end,

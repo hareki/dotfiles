@@ -1,5 +1,8 @@
 local prefix = 'Flash: '
 
+--- @module 'flash'
+local flash = Defer.on_exported_call('flash')
+
 return {
   UI.which_key({
     rules = { plugin = 'flash.nvim', icon = Conf.Icons.tools.flash, color = 'yellow' },
@@ -25,7 +28,6 @@ return {
         's',
         mode = { 'n', 'x', 'o' },
         function()
-          local flash = require('flash')
           flash.jump()
         end,
         desc = prefix .. 'Jump',
@@ -34,7 +36,6 @@ return {
         'S',
         mode = { 'n', 'o', 'x' },
         function()
-          local flash = require('flash')
           flash.treesitter()
         end,
         desc = prefix .. 'Treesitter',
@@ -43,7 +44,6 @@ return {
         'r',
         mode = 'o',
         function()
-          local flash = require('flash')
           flash.remote()
         end,
         desc = prefix .. 'Remote',
@@ -52,7 +52,6 @@ return {
         'R',
         mode = { 'o', 'x' },
         function()
-          local flash = require('flash')
           flash.treesitter_search()
         end,
         desc = prefix .. 'Treesitter Search',
@@ -62,7 +61,6 @@ return {
         '<C-Space>',
         mode = { 'n', 'o', 'x' },
         function()
-          local flash = require('flash')
           flash.treesitter({
             actions = {
               ['<C-Space>'] = 'next',

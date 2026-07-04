@@ -1,3 +1,6 @@
+--- @module 'trouble'
+local trouble = Defer.on_exported_call('trouble')
+
 return {
   UI.catppuccin(function()
     return {
@@ -15,8 +18,6 @@ return {
         {
           '[q',
           function()
-            local trouble = require('trouble')
-
             if trouble.is_open() then
               --- @diagnostic disable-next-line: missing-parameter, missing-fields
               trouble.prev({ skip_groups = true, jump = true })
@@ -33,8 +34,6 @@ return {
         {
           ']q',
           function()
-            local trouble = require('trouble')
-
             if trouble.is_open() then
               --- @diagnostic disable-next-line: missing-parameter, missing-fields
               trouble.next({ skip_groups = true, jump = true })

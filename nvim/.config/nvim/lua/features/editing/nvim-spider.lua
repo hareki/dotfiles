@@ -1,5 +1,8 @@
 local prefix = 'Spider: '
 
+--- @module 'spider'
+local spider = Defer.on_exported_call('spider')
+
 return {
   'chrisgrieser/nvim-spider',
   keys = function()
@@ -7,7 +10,6 @@ return {
       {
         'w',
         function()
-          local spider = require('spider')
           spider.motion('w')
         end,
         mode = { 'n', 'o', 'x' },
@@ -16,7 +18,6 @@ return {
       {
         'e',
         function()
-          local spider = require('spider')
           spider.motion('e')
         end,
         mode = { 'n', 'o', 'x' },
@@ -25,7 +26,6 @@ return {
       {
         'b',
         function()
-          local spider = require('spider')
           spider.motion('b')
         end,
         mode = { 'n', 'o', 'x' },
