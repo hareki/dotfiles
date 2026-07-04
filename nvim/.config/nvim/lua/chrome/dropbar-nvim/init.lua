@@ -73,10 +73,10 @@ return {
           enable = dropbar_utils.enable,
           truncate = false,
           hover = true,
-          sources = function(buf, _)
+          sources = function(buf, win)
             -- Some ft/bt can slip through the enable check because their ft/bt are set later (E.g. grug-far)
             if dropbar_utils.is_ignored_filetype(buf) or dropbar_utils.is_ignored_buftype(buf) then
-              vim.wo.winbar = ''
+              vim.wo[win].winbar = ''
               return {}
             end
 
@@ -114,8 +114,8 @@ return {
             local utils = require('dropbar.utils')
 
             local custom_path = {
-              get_symbols = function(b, win, cursor)
-                local syms = sources.path.get_symbols(b, win, cursor)
+              get_symbols = function(b, w, cursor)
+                local syms = sources.path.get_symbols(b, w, cursor)
                 local start_idx = math.max(1, #syms - path_item_limit + 1)
                 local sliced = {}
                 if start_idx <= #syms then
@@ -126,7 +126,7 @@ return {
                 if #sliced > 0 then
                   -- Set a different highlight group for the last item (the file name) to avoid affecting other places
                   local last = sliced[#sliced]
-                  local hl = (win == vim.api.nvim_get_current_win()) and 'DropBarKindFileBar'
+                  local hl = (w == vim.api.nvim_get_current_win()) and 'DropBarKindFileBar'
                     or 'DropBarKindFileBarNC'
                   last.name_hl = hl
                 end

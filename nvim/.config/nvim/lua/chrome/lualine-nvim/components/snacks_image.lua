@@ -36,6 +36,14 @@ function M.cond()
     return mermaid_has_content(buf)
   end
 
+  -- Skip buffers whose language has no snacks `images` query (json, yaml, help, ...):
+  -- nothing can match there, so don't pay the per-cursor-move treesitter work below.
+  -- query.get is memoized by Neovim, so this is a table lookup after the first call.
+  local lang = vim.treesitter.language.get_lang(ft)
+  if not lang or not vim.treesitter.query.get(lang, 'images') then
+    return false
+  end
+
   local tick = vim.api.nvim_buf_get_changedtick(buf)
   local cursor = vim.api.nvim_win_get_cursor(0)
   local row, col = cursor[1], cursor[2]

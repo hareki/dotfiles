@@ -75,6 +75,7 @@ return {
         type = 'secondary-right',
         symbols = diagnostics.symbols,
         sections = diagnostics.sections,
+        sources = diagnostics.sources,
       }),
       create_wrapper({
         comp = tab.get,

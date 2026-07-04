@@ -1,4 +1,5 @@
 local eslint_registered = false
+local wrapped_clients = {} --- @type table<integer, true>
 
 return {
   opts = function()
@@ -33,6 +34,13 @@ return {
         if not client or client.name ~= 'eslint' then
           return
         end
+
+        -- LspAttach fires once per (client, buffer) pair; wrap the shared
+        -- client's handlers only once or they'd nest on every buffer attach
+        if wrapped_clients[client.id] then
+          return
+        end
+        wrapped_clients[client.id] = true
 
         client:notify('$/setTrace', { value = 'verbose' }) -- Ask server to emit trace
 

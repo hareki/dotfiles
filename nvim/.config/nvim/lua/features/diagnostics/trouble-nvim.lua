@@ -100,6 +100,14 @@ return {
         auto_refresh = false,
         win = { position = 'right', size = panel_cols },
 
+        modes = {
+          diagnostics = {
+            -- Hide the synthetic empty-message duplicates injected by
+            -- diagnostic_underline_hack for underline styling
+            filter = { ['not'] = { source = 'underline-hack' } },
+          },
+        },
+
         icons = {
           folder_closed = Conf.Icons.file_tree.folder,
           folder_open = Conf.Icons.file_tree.folder_empty_open,

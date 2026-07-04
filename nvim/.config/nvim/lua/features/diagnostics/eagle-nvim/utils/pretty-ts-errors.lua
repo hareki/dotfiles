@@ -3,6 +3,7 @@ local M = {}
 
 M.state = {
   executable_path = 'pretty-ts-errors-markdown',
+  cli_unavailable = false, -- Set on spawn failure so we never re-pay a failed spawn
   max_cache_entries = 512,
   cache = {}, -- key -> { value, hits }
   cache_size = 0,
@@ -129,13 +130,33 @@ local function cache_set(key, value)
 end
 
 local function run_cli(input_object)
+  if M.state.cli_unavailable then
+    return nil
+  end
+
   local json_text = vim.json.encode(input_object)
   local exe = M.state.executable_path
-  local res = vim.system({ exe, '-i', json_text }, { text = true }):wait()
+
+  -- vim.system throws on spawn failure (e.g. the CLI is not installed);
+  -- fall back to the raw diagnostic message instead of breaking the popup.
+  local ok, res = pcall(function()
+    return vim.system({ exe, '-i', json_text }, { text = true }):wait()
+  end)
+  if not ok then
+    M.state.cli_unavailable = true
+    return nil
+  end
   if res and res.code == 0 and res.stdout and #res.stdout > 0 then
     return trim_trailing_whitespace(res.stdout)
   end
-  local res2 = vim.system({ exe }, { text = true, stdin = json_text }):wait()
+
+  local ok2, res2 = pcall(function()
+    return vim.system({ exe }, { text = true, stdin = json_text }):wait()
+  end)
+  if not ok2 then
+    M.state.cli_unavailable = true
+    return nil
+  end
   if res2 and res2.code == 0 and res2.stdout and #res2.stdout > 0 then
     return trim_trailing_whitespace(res2.stdout)
   end
