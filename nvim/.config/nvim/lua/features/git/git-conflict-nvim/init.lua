@@ -148,7 +148,6 @@ return {
           end
 
           if package.is_loaded('nvim-colorizer.lua') then
-            local colorizer = require('colorizer')
             colorizer.detach_from_buffer(bufnr)
           end
           vim.diagnostic.enable(false, { bufnr = bufnr })

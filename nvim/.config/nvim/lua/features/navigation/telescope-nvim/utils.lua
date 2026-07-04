@@ -1,5 +1,11 @@
 local M = {}
 
+--- @module 'telescope.actions'
+local actions = Defer.on_exported_call('telescope.actions')
+
+--- @module 'telescope.state'
+local state = Defer.on_exported_call('telescope.state')
+
 function M.find_command()
   if 1 == vim.fn.executable('rg') then
     return { 'rg', '--files', '--color', 'never', '-g', '!.git' }
@@ -57,15 +63,13 @@ end
 -- https://github.com/nvim-telescope/telescope.nvim/issues/2778#issuecomment-2202572413
 --- @param prompt_bufnr integer
 function M.toggle_focus_preview(prompt_bufnr)
-  local actions = require('telescope.actions')
   local actions_state = require('telescope.actions.state')
-  local telescope_state = require('telescope.state')
   local cursorline = require('services.cursorline')
   local common = require('utils.common')
 
   local picker = actions_state.get_current_picker(prompt_bufnr)
   local prompt_win = picker.prompt_win
-  local status = telescope_state.get_status(prompt_bufnr)
+  local status = state.get_status(prompt_bufnr)
   local previewer_winid = status and status.preview_win or nil
   local previewer_bufnr = previewer_winid and vim.api.nvim_win_get_buf(previewer_winid) or nil
 
@@ -138,7 +142,6 @@ end
 function M.scroll_results(direction)
   --- @param prompt_bufnr integer
   return function(prompt_bufnr)
-    local state = require('telescope.state')
     local action_set = require('telescope.actions.set')
 
     local status = state.get_status(prompt_bufnr)
@@ -162,7 +165,6 @@ end
 --- @param source string
 function M.trouble_open(source)
   return function(bufnr)
-    local actions = require('telescope.actions')
     actions.close(bufnr)
     local trouble = require('trouble')
     trouble.open(source)

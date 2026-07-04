@@ -19,6 +19,15 @@ M.state = {
   live_filter_triggered = false,
 }
 
+--- @module 'nvim-tree.api'
+local api = Defer.on_index('nvim-tree.api')
+
+--- @module 'nvim-tree-preview'
+local preview = Defer.on_exported_call('nvim-tree-preview')
+
+--- @module 'nvim-tree-preview.manager'
+local manager = Defer.on_index('nvim-tree-preview.manager')
+
 --- Compute the popup size preset for the float tree based on current state.
 --- Returns 'lg' when float mode has the preview visible (wider popup for readable
 --- preview code), otherwise 'vertical_lg' (narrower default).
@@ -45,9 +54,6 @@ end
 --- Close the nvim-tree and preview windows, cleaning up watchers
 --- @return nil
 function M.close_all()
-  local api = require('nvim-tree.api')
-  local preview = require('nvim-tree-preview')
-
   M.clean_up()
 
   preview.unwatch()
@@ -57,8 +63,6 @@ end
 --- Start watching for cursor movement to update preview
 --- @return nil
 function M.watch()
-  local preview = require('nvim-tree-preview')
-
   if not preview.is_open() then
     preview.watch()
     M.state.preview_on_focus = true
@@ -68,7 +72,6 @@ end
 --- Stop watching cursor movement for preview updates
 --- @return nil
 function M.unwatch()
-  local preview = require('nvim-tree-preview')
   preview.unwatch()
   M.state.preview_on_focus = false
 end
@@ -80,8 +83,6 @@ end
 --- @return function action The node action function
 function M.create_node_action(folder_action)
   return function()
-    local api = require('nvim-tree.api')
-
     local ok, node = pcall(api.tree.get_node_under_cursor)
     if not ok or not node then
       return
@@ -149,7 +150,6 @@ function M.toggle_tree_height(action)
     return
   end
 
-  local api = require('nvim-tree.api')
   local tree_win = api.tree.winid()
 
   if tree_win == nil then
@@ -184,9 +184,6 @@ end
 --- @param force_state boolean|nil Force specific state (true=open, false=close, nil=toggle)
 --- @return nil
 function M.toggle_preview(force_state)
-  local api = require('nvim-tree.api')
-  local preview = require('nvim-tree-preview')
-
   local tree_win = api.tree.winid()
 
   if not tree_win or not vim.api.nvim_win_is_valid(tree_win) then
@@ -222,7 +219,6 @@ end
 --- Toggle focus between nvim-tree and preview window
 --- @return nil
 function M.toggle_focus()
-  local manager = require('nvim-tree-preview.manager')
   manager.instance:toggle_focus()
 end
 
@@ -234,7 +230,6 @@ end
 --- @param opts nvim-tree.OpenParams|nil Options with switching flag
 --- @return nil
 function M.open(opts)
-  local api = require('nvim-tree.api')
   local switching = opts and opts.switching or false
 
   -- Reset the position back to 'float' when opening the tree
@@ -250,22 +245,18 @@ end
 --- Get the buffer number of the preview window
 --- @return number|nil bufnr The preview buffer number, or nil if not open
 function M.preview_buf()
-  local manager = require('nvim-tree-preview.manager')
   return manager.instance and manager.instance.preview_buf
 end
 
 --- Get the window handle of the preview window
 --- @return number|nil winid The preview window ID, or nil if not open
 function M.preview_win()
-  local manager = require('nvim-tree-preview.manager')
   return manager.instance and manager.instance.preview_win
 end
 
 --- Toggle mark on current node and move to next line
 --- @return nil
 function M.mark_and_next()
-  local api = require('nvim-tree.api')
-
   api.marks.toggle()
   vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Down>', true, false, true), 'n', false)
 end
@@ -273,8 +264,6 @@ end
 --- Toggle mark on current node and move to previous line
 --- @return nil
 function M.mark_and_prev()
-  local api = require('nvim-tree.api')
-
   api.marks.toggle()
   vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Up>', true, false, true), 'n', false)
 end

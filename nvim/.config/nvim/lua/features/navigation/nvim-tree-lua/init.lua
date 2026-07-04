@@ -1,5 +1,8 @@
 local ui_name = 'File Tree'
 
+--- @module 'nvim-tree.api'
+local api = Defer.on_index('nvim-tree.api')
+
 return {
   UI.catppuccin(function(palette, sub_palette)
     local picker_bg = UI.blend_hex(palette.base, palette.blue)
@@ -54,13 +57,11 @@ return {
             tree.open({ switching = true })
           end,
           ['B'] = function()
-            local api = require('nvim-tree.api')
             api.tree.focus()
             tree.toggle_preview()
           end,
           ['<CR>'] = function()
-            local nvim_tree_api = require('nvim-tree.api')
-            nvim_tree_api.node.open.edit()
+            api.node.open.edit()
             if state.position == 'float' then
               tree.close_all()
             end
@@ -122,7 +123,6 @@ return {
         {
           '<leader>e',
           function()
-            local api = require('nvim-tree.api')
             local tree = require('features.navigation.nvim-tree-lua.utils')
             local state = tree.state
 
@@ -271,7 +271,6 @@ return {
         },
 
         on_attach = function(tree_bufnr)
-          local api = require('nvim-tree.api')
           local function map(mode, lhs, rhs, desc)
             local keys = type(lhs) == 'table' and lhs or { lhs }
             for _, key in ipairs(keys) do
@@ -371,8 +370,7 @@ return {
       vim.api.nvim_create_autocmd('User', {
         pattern = 'NvimTreeSetup',
         callback = function()
-          local nvim_tree_api = require('nvim-tree.api')
-          local events = nvim_tree_api.events
+          local events = api.events
           events.subscribe(events.Event.NodeRenamed, function(data)
             if prev.new_name ~= data.new_name or prev.old_name ~= data.old_name then
               prev = data
