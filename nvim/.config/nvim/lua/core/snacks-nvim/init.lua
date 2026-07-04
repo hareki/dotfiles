@@ -4,6 +4,8 @@ return {
       SnacksPickerPrompt = { fg = palette.blue },
       SnacksPickerCursorLine = { bg = palette.surface0 },
       SnacksPickerPreviewCursorLine = { link = 'CursorLine' },
+      SnacksPickerInputCursorLine = { bg = 'none', fg = palette.text },
+      SnacksPickerListCursorLine = { bg = palette.surface0 },
       SnacksPickerKeymapLhs = { fg = palette.blue },
       SnacksPickerSelected = { bg = 'none', fg = palette.text },
       SnacksPickerUnselected = { bg = 'none', fg = palette.text },

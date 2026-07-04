@@ -112,7 +112,7 @@ return {
         globalstatus = vim.o.laststatus == 3,
         disabled_filetypes = { statusline = { 'dashboard', 'netrw' } },
         padding = { left = 0, right = 0 },
-        sections_separators = { left = '', right = '' },
+        section_separators = { left = '', right = '' },
         component_separators = { left = '', right = '' },
       },
 

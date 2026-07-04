@@ -1,21 +1,27 @@
-# general
-background = '#1e1e2e'
+# [[ General ]]
+
+# Fallback to terminal bg instead of hardcoding the same value
+# background = '#1e1e2e'
 border_fg = '#89b4fa'
 text_fg = '#cdd6f4'
 dimmed_text_fg = '#6c7086'
-# input
+
+# [[ Input ]]
 input_text_fg = '#89b4fa'
 result_count_fg = '#6c7086'
-# results
+
+# [[ Results ]]
 result_name_fg = '#cdd6f4'
 result_line_number_fg = '#89b4fa'
 result_value_fg = '#89b4fa'
 selection_fg = '#cdd6f4'
 selection_bg = '#313244'
 match_fg = '#89b4fa'
-# preview
+
+# [[ Preview ]]
 preview_title_fg = '#89b4fa'
-# modes
+
+# [[ Modes ]]
 channel_mode_fg = '#1e1e2e'
 channel_mode_bg = '#89b4fa'
 remote_control_mode_fg = '#1e1e2e'

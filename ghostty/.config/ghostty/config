@@ -24,8 +24,9 @@ font-style-bold  = ExtraBold
 font-style-italic  = SemiBold Italic
 font-style-bold-italic  = ExtraBold Italic
 
-# background-opacity = 0.8
-# background-blur = true
+background-image = background-images/stack-blur-50-planet_with_sunrise.png
+background-image-opacity = 0.048
+background-image-fit = cover
 
 # Shell & Cursor
 shell-integration = zsh
