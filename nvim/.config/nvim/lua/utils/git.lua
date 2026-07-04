@@ -182,8 +182,13 @@ function M.get_repo_name()
   -- Get toplevel to determine if we're in the same repo
   local toplevel = M.exec_cmd('rev-parse --show-toplevel')
 
-  -- Check if we're still in the same repo (same toplevel) and cache is recent
-  if repo_cache.name and repo_cache.toplevel == toplevel then
+  -- Check if we're still in the same repo (same toplevel) and cache is recent.
+  -- Refresh last_cwd so subsequent calls from this cwd hit the fast path above
+  -- instead of re-spawning git on every statusline redraw. Require a non-nil
+  -- toplevel: outside a repo, nil == nil would return a stale name from a
+  -- previously visited directory.
+  if repo_cache.name and toplevel and repo_cache.toplevel == toplevel then
+    repo_cache.last_cwd = current_cwd
     return repo_cache.name
   end
 
