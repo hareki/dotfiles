@@ -16,7 +16,7 @@ end
 local function create_empty_comp(palette, cond)
   return {
     empty_func,
-    color = { fg = palette.base, bg = palette.base },
+    color = { fg = 'none', bg = 'none' },
     padding = { left = 0, right = 0 },
     separator = { left = '', right = '' },
     cond = cond,
@@ -89,7 +89,7 @@ function M.create_styling_wrapper(opts)
     main_comp = vim.tbl_extend('force', {
       [1] = opts.comp,
       icon = opts.icon,
-      color = { fg = text_color, bg = palette.base },
+      color = { fg = text_color, bg = 'none' },
       padding = padding,
     }, extra)
 

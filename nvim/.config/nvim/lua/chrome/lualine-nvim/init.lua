@@ -58,7 +58,7 @@ return {
     lualine_require.require = require
 
     local theme_reset = {}
-    local color_reset = { fg = palette.subtext1, bg = palette.base }
+    local color_reset = { fg = palette.subtext1, bg = 'none' }
     for _, section in ipairs({ 'normal', 'insert', 'visual', 'replace', 'inactive' }) do
       theme_reset[section] = { a = color_reset, b = color_reset, c = color_reset }
     end

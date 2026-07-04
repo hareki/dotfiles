@@ -16,9 +16,9 @@ return {
 
       custom_highlights = {
         -- Native context menu
-        Pmenu = { bg = palette.base, fg = palette.text },
+        Pmenu = { bg = 'none', fg = palette.text },
         PmenuSel = { bg = palette.surface0, style = {} },
-        PmenuBorder = { bg = palette.base, fg = palette.blue },
+        PmenuBorder = { bg = 'none', fg = palette.blue },
 
         Substitute = { bg = substitute_bg, fg = substitute_fg },
         WinSeparator = { fg = palette.overlay0 },
@@ -40,18 +40,18 @@ return {
         LspReferenceWrite = { link = 'DocumentHighlight' },
 
         NormalFloat = { bg = 'none' },
-        FloatBorder = { bg = palette.base, fg = palette.blue },
-        FloatTitle = { bg = palette.base, fg = palette.blue, bold = true },
+        FloatBorder = { bg = 'none', fg = palette.blue },
+        FloatTitle = { bg = 'none', fg = palette.blue, bold = true },
 
         LineNr = { fg = palette.overlay0 },
         CursorLineNr = { fg = palette.blue },
 
         TabLine = {
-          bg = palette.base,
+          bg = 'none',
           fg = palette.surface1,
         },
         TabLineFill = {
-          bg = palette.base,
+          bg = 'none',
         },
 
         ['@string.special.path'] = { fg = palette.text },

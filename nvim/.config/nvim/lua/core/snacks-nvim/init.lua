@@ -2,11 +2,11 @@ return {
   UI.catppuccin(function(palette)
     return {
       SnacksPickerPrompt = { fg = palette.blue },
-      SnacksPickerCursorLine = { bg = palette.base },
+      SnacksPickerCursorLine = { bg = palette.surface0 },
       SnacksPickerPreviewCursorLine = { link = 'CursorLine' },
       SnacksPickerKeymapLhs = { fg = palette.blue },
-      SnacksPickerSelected = { bg = palette.base, fg = palette.text },
-      SnacksPickerUnselected = { bg = palette.base, fg = palette.text },
+      SnacksPickerSelected = { bg = 'none', fg = palette.text },
+      SnacksPickerUnselected = { bg = 'none', fg = palette.text },
       SnacksPickerDir = { fg = palette.overlay1 },
       SnacksPickerFile = { fg = palette.text },
       SnacksPickerTime = { fg = palette.text },

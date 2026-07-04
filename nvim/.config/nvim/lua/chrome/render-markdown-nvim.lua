@@ -1,7 +1,7 @@
 return {
-  UI.catppuccin(function(palette)
+  UI.catppuccin(function(_)
     return {
-      RenderMarkdownCode = { bg = palette.base },
+      RenderMarkdownCode = { bg = 'none' },
     }
   end),
 
