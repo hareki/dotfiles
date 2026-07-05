@@ -2,8 +2,6 @@
 --- @class core.snacks-nvim.utils.transformers
 local M = {}
 
-local cache = require('core.snacks-nvim.utils.cache')
-
 local filtered_descriptions = {
   'blink.cmp',
   'autopairs map key', -- nvim-autopairs
@@ -35,20 +33,6 @@ local function query_spec_desc(lhs, mode, buffer)
   return nil
 end
 
-local function query_spec_desc_cached(lhs, mode, buffer)
-  buffer = buffer or vim.api.nvim_get_current_buf()
-  local cache_key = lhs .. ':' .. mode .. ':' .. buffer
-
-  if cache.cache[cache_key] then
-    return cache.cache[cache_key]
-  end
-
-  local result = query_spec_desc(lhs, mode, buffer)
-  cache.set(cache_key, buffer, result)
-
-  return result
-end
-
 --- Transform function for file picker to filter out .DS_Store files
 --- @param item snacks.picker.Item The picker item to transform
 --- @return snacks.picker.Item|false item The item or false to filter out
@@ -75,7 +59,7 @@ function M.keymap_transform(item)
     and override_spec.desc
   local new_desc = override_desc
     or keymap.desc
-    or query_spec_desc_cached(keymap.lhs, keymap.mode, keymap.buffer)
+    or query_spec_desc(keymap.lhs, keymap.mode, keymap.buffer)
 
   item.file = nil -- We're not showing the file column anyway
   item.item.desc = new_desc

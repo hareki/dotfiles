@@ -17,18 +17,16 @@ local repo_cache = {
   toplevel = nil,
 }
 
-local branch_format_cache = {} -- Simple bounded cache for formatted branch names
-local branch_format_cache_size = 0
-local BRANCH_CACHE_MAX_SIZE = 100
+-- Single-slot memo: the statusline re-formats the same branch on every redraw,
+-- and a mode change re-keys the slot on its own
+local last_format = { mode = nil, branch = nil, result = nil }
 
 --- Set the branch display format and refresh the status line
---- Clears the LRU cache and notifies the user of the format change.
+--- Notifies the user of the format change.
 --- @param format utils.git.branch_formats The format to use ('id', 'id_and_name', 'id_and_author')
 --- @return nil
 function M.set_branch_name_format(format)
   branch_display_mode = format
-  branch_format_cache = {}
-  branch_format_cache_size = 0
 
   Notifier.info('Branch name format set to ' .. format)
 
@@ -39,13 +37,18 @@ end
 
 --- Format a branch name according to the current display mode
 --- Extracts CU-ID and formats based on the selected mode (id, id_and_name, id_and_author).
---- Uses LRU cache for performance.
 --- @param branch_name string The original branch name to format
 --- @return string formatted The formatted branch name
 function M.format_branch_name(branch_name)
-  local cache_key = branch_display_mode .. ':' .. branch_name
-  if branch_format_cache[cache_key] then
-    return branch_format_cache[cache_key]
+  if last_format.mode == branch_display_mode and last_format.branch == branch_name then
+    return last_format.result
+  end
+
+  local function memoize(result)
+    last_format.mode = branch_display_mode
+    last_format.branch = branch_name
+    last_format.result = result
+    return result
   end
 
   local prefix
@@ -58,8 +61,7 @@ function M.format_branch_name(branch_name)
   end
 
   if not prefix or not remaining or remaining == '' then
-    branch_format_cache[cache_key] = branch_name
-    return branch_name
+    return memoize(branch_name)
   end
 
   local task_name = remaining
@@ -93,16 +95,7 @@ function M.format_branch_name(branch_name)
     result = ''
   end
 
-  -- Reset cache if full (simple bounded cache — branch names rarely exceed 100 unique entries)
-  if branch_format_cache_size >= BRANCH_CACHE_MAX_SIZE then
-    branch_format_cache = {}
-    branch_format_cache_size = 0
-  end
-
-  branch_format_cache[cache_key] = result
-  branch_format_cache_size = branch_format_cache_size + 1
-
-  return result
+  return memoize(result)
 end
 
 --- Execute a git command synchronously and return trimmed output

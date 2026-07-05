@@ -44,15 +44,15 @@ Import order in `config/lazy/init.lua`: `core` **must be first**. All plugins la
 
 ### Globals (`lua/config/globals.lua`)
 
-Seven globals available everywhere (six set in `globals.lua`, one by its plugin). `Conf` groups the constant config tables; `UI`/`Statusline` are lazy proxies to their modules:
+Seven globals available everywhere (six set in `globals.lua`, one by its plugin). `Conf` groups the constant config tables; only `Notifier` is a lazy proxy, `UI`/`Statusline` are required directly:
 
 | Global       | Source                             | Usage                                                                               |
 | ------------ | ---------------------------------- | ----------------------------------------------------------------------------------- |
 | `Defer`      | `utils.lazy_require`               | `Defer.on_index()`, `Defer.on_exported_call()`                                      |
 | `Notifier`   | Lazy proxy → `services.notifier`   | `Notifier.info('msg')`, `Notifier.warn('msg', { title = 'T' })`                     |
 | `Conf`       | `config.*` constant tables         | `Conf.Icons` (never hardcode icons), `Conf.Filetypes` (`M.js`, `M.jsx`, …), `Conf.Priority` (`CORE=1000`, `CHROME=900`, `FEATURE=800`), `Conf.Picker`, `Conf.Size`, `Conf.Cmp` |
-| `UI`         | Lazy proxy → `utils.ui`            | `UI.catppuccin(fn)` / `UI.which_key(spec)` for spec registration, `UI.popup_config()`, `UI.get_palette('ext')`, `UI.blend_hex()` |
-| `Statusline` | Lazy proxy → `services.statusline` | `Statusline.have_status_line()`, `Statusline.refresh()`                            |
+| `UI`         | `utils.ui` (direct require)        | `UI.catppuccin(fn)` / `UI.which_key(spec)` for spec registration, `UI.popup_config()`, `UI.get_palette('ext')`, `UI.blend_hex()` |
+| `Statusline` | `services.statusline` (direct require) | `Statusline.have_status_line()`, `Statusline.refresh()`                        |
 | `Project`    | `utils.project_config`             | Per-project overrides from `.neovimrc.json` — `Project.linter`, `Project.formatter` |
 | `Snacks`     | Set by snacks.nvim at runtime      | `Snacks.picker.*`, `Snacks.terminal.*`, etc.                                        |
 
