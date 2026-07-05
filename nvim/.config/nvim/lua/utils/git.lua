@@ -5,8 +5,10 @@ local M = {}
 
 local branch_display_mode = 'id'
 
--- Task name truncation settings: show first TASK_NAME_START_LENGTH chars + '...' + last TASK_NAME_END_LENGTH chars
-local TASK_NAME_START_LENGTH = 999
+-- Task name truncation settings: when enabled, show first TASK_NAME_START_LENGTH chars
+-- + '...' + last TASK_NAME_END_LENGTH chars
+local TRUNCATE_TASK_NAME = false
+local TASK_NAME_START_LENGTH = 20
 local TASK_NAME_END_LENGTH = 10
 local max_task_name_length = TASK_NAME_START_LENGTH + TASK_NAME_END_LENGTH
 
@@ -78,7 +80,7 @@ function M.format_branch_name(branch_name)
     result = prefix
   elseif branch_display_mode == 'id_and_name' then
     local formatted_task_name = task_name
-    if #task_name > max_task_name_length then
+    if TRUNCATE_TASK_NAME and #task_name > max_task_name_length then
       -- Show start and end parts of the task name with ellipsis
       formatted_task_name = task_name:sub(1, TASK_NAME_START_LENGTH)
         .. '...'

@@ -55,6 +55,13 @@ vim.api.nvim_create_autocmd('User', {
   pattern = { 'GitConflictDetected', 'GitConflictResolved' },
   callback = invalidate_cache,
 })
+-- The readonly icon is derived from 'readonly'/'modifiable', which manual
+-- :set toggles change without firing any of the buffer events above
+vim.api.nvim_create_autocmd('OptionSet', {
+  group = group,
+  pattern = { 'readonly', 'modifiable' },
+  callback = invalidate_cache,
+})
 
 --- Get current buffer flags (new, readonly, modified)
 --- @return string
