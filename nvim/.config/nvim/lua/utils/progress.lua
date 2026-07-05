@@ -97,6 +97,10 @@ function ProgressHandle:finish(title)
     self._timer = nil
   end
   self:_queue_or_send('end', title, nil) -- Percentage is not sent for the `end` kind
+  -- The timer is gone, so nothing will ever flush the pending cache again;
+  -- clear the flag so a reused handle sends straight to Noice instead of
+  -- caching into the void.
+  self._pending = false
 end
 
 -- [[ Factory ]]

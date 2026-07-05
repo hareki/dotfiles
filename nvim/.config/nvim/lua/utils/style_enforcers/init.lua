@@ -55,6 +55,7 @@ function M.run(opts)
   running_bufs[buf] = true
 
   local progress
+  local settled = false
 
   -- Set timeout to auto-cleanup if something goes wrong
   local timeout_timer = vim.uv.new_timer()
@@ -69,31 +70,37 @@ function M.run(opts)
     pcall(timer.close, timer)
   end
 
+  -- Single completion point: fires on_done and releases the lock exactly once,
+  -- so a pipeline callback landing after the timeout can't double-report or
+  -- clobber the lock of a newer run on the same buffer.
+  --- @param ok boolean
+  --- @param err? string
+  local function cleanup(ok, err)
+    if settled then
+      return
+    end
+    settled = true
+
+    close_timeout_timer()
+    running_bufs[buf] = nil
+    finish(ok, err)
+  end
+
   if timeout_timer then
     timeout_timer:start(TIMEOUT_MS, 0, function()
       vim.schedule(function()
-        if running_bufs[buf] then
-          running_bufs[buf] = nil
-          close_timeout_timer()
-          if progress then
-            progress:finish()
-          end
-          Notifier.warn('Formatting/linting timed out', { title = 'Style Enforcer' })
-          finish(false, 'Timed out')
+        if settled then
+          return
         end
+        if progress then
+          progress:finish()
+        end
+        Notifier.warn('Formatting/linting timed out', { title = 'Style Enforcer' })
+        cleanup(false, 'Timed out')
       end)
     end)
   else
     Notifier.warn('Failed to create timeout timer', { title = 'Style Enforcer' })
-  end
-
-  --- @param ok boolean
-  --- @param err? string
-  local function cleanup(ok, err)
-    -- Cancel timeout timer and clean up lock
-    close_timeout_timer()
-    running_bufs[buf] = nil
-    finish(ok, err)
   end
 
   local conform = require('conform')
@@ -142,6 +149,10 @@ function M.run(opts)
       engine.run_by_ft({
         bufnr = buf,
         on_start = function(linter_name)
+          if settled then
+            return
+          end
+
           local label = 'Linting (' .. linter_name .. ')'
           if done_count == 0 then
             progress:start(label)
@@ -161,7 +172,7 @@ function M.run(opts)
           end
 
           done_count = done_count + (linter_name == 'none' and 0 or 1)
-          if done_count == total then
+          if done_count == total and not settled then
             write()
             progress:finish()
             cleanup(not had_lint_error)
@@ -199,6 +210,10 @@ function M.run(opts)
     bufnr = buf,
     quiet = true,
   }, function(format_error)
+    if settled then
+      return
+    end
+
     if format_error then
       local msg = debug and 'Format error: ' .. format_error
         or ('Formatter(s) used: `%s` \nSee `:ConformInfo` for more information'):format(

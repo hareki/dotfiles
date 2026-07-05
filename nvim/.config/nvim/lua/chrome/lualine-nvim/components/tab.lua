@@ -5,6 +5,14 @@ local M = {}
 -- plugin-created tab pages. First match wins.
 local detectors = {
   function(tabpage)
+    -- codediff is lazy (cmd = 'CodeDiff'); requiring its module before it loads
+    -- would force-load the whole plugin from a statusline redraw. When it isn't
+    -- loaded there are no sessions, so bail without touching it.
+    local package = require('utils.package')
+    if not package.is_loaded('codediff.nvim') then
+      return
+    end
+
     local lifecycle = require('codediff.ui.lifecycle')
     if lifecycle.get_session(tabpage) then
       return 'codediff'

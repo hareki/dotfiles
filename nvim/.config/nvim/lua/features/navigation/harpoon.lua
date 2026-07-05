@@ -99,6 +99,10 @@ return {
               }, { title = 'pin' })
             end
 
+            -- replace_at can keep the list length unchanged, which the statusline
+            -- component's (buf, length) cache key can't detect
+            local harpoon_component = require('chrome.lualine-nvim.components.harpoon')
+            harpoon_component.invalidate()
             Statusline.refresh()
           end,
           desc = 'Pin File to Slot ' .. current_index,

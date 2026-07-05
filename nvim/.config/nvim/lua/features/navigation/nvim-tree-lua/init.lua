@@ -345,6 +345,15 @@ return {
           map('n', 'bm', api.marks.bulk.move, 'Move Bookmarked')
           map('n', '<A-r>', api.tree.reload, 'Refresh')
 
+          -- The tree buffer is bufhidden=wipe, so on_attach reruns on every open;
+          -- (re)create the watcher group here so the autocmd's lifetime matches the
+          -- buffer that registers it. Creating it in tree.open() instead would leak
+          -- an ungrouped autocmd when the tree is opened via api.tree.open() directly
+          -- (e.g. auto-session's VimEnter), and lose the autocmd when tree.open()
+          -- clears the group while the buffer survives.
+          state.preview_watcher =
+            vim.api.nvim_create_augroup('navigation.nvim_tree.preview', { clear = true })
+
           vim.api.nvim_create_autocmd('BufEnter', {
             group = state.preview_watcher,
             callback = function(ev)

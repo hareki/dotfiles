@@ -62,14 +62,18 @@ local function get_code(diagnostic)
   return nil
 end
 
+local function get_severity(diagnostic)
+  return diagnostic.severity
+    or (diagnostic.user_data and diagnostic.user_data.lsp and diagnostic.user_data.lsp.severity)
+    or 1
+end
+
 local function build_cli_input(diagnostic)
   return {
     range = normalize_range(diagnostic),
     message = diagnostic.message or '',
     code = get_code(diagnostic),
-    severity = diagnostic.severity
-      or (diagnostic.user_data and diagnostic.user_data.lsp and diagnostic.user_data.lsp.severity)
-      or 1,
+    severity = get_severity(diagnostic),
     source = diagnostic.source
       or (diagnostic.user_data and diagnostic.user_data.lsp and diagnostic.user_data.lsp.source)
       or 'tsserver',
@@ -80,17 +84,18 @@ local function build_cli_input(diagnostic)
   }
 end
 
+-- Key only over the fields that change the CLI's output — verified empirically:
+-- identical input with different ranges or relatedInformation produces identical
+-- markdown, while severity changes the header icon. Keying on range would turn
+-- every line shift above the error into a miss, and each miss is a synchronous
+-- ~200ms CLI spawn.
 local function compute_cache_key(diagnostic)
-  local r = normalize_range(diagnostic)
   local parts = {
     diagnostic.source
       or (diagnostic.user_data and diagnostic.user_data.lsp and diagnostic.user_data.lsp.source)
       or '',
     tostring(get_code(diagnostic) or ''),
-    tostring(r.start.line),
-    tostring(r.start.character),
-    tostring(r['end'].line),
-    tostring(r['end'].character),
+    tostring(get_severity(diagnostic)),
     diagnostic.message or '',
   }
 
@@ -157,7 +162,12 @@ local function run_cli(input_object)
     M.state.cli_unavailable = true
     return nil
   end
-  if stdin_result and stdin_result.code == 0 and stdin_result.stdout and #stdin_result.stdout > 0 then
+  if
+    stdin_result
+    and stdin_result.code == 0
+    and stdin_result.stdout
+    and #stdin_result.stdout > 0
+  then
     return trim_trailing_whitespace(stdin_result.stdout)
   end
 
@@ -180,7 +190,8 @@ local function strip_cli_header(md)
 end
 
 --- Format a TypeScript diagnostic into pretty markdown using pretty-ts-errors-markdown CLI
---- Uses LRU cache to avoid redundant CLI calls for repeated diagnostics.
+--- Caches CLI output (evicting the least-hit entry past the cap) to avoid
+--- redundant CLI calls for repeated diagnostics.
 --- @param diagnostic table The vim.Diagnostic object to format
 --- @param opts? { href?: boolean } Options (href: keep CLI header with links)
 --- @return string markdown The formatted markdown message

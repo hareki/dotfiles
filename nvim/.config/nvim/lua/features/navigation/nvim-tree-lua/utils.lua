@@ -237,8 +237,8 @@ function M.open(opts)
     M.switch_position('float')
   end
 
-  M.state.preview_watcher =
-    vim.api.nvim_create_augroup('navigation.nvim_tree.preview', { clear = true })
+  -- The preview watcher augroup is created in on_attach (see the nvim-tree spec),
+  -- which reruns per open since the tree buffer is bufhidden=wipe.
   api.tree.open()
 end
 

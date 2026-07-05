@@ -106,6 +106,8 @@ M.show = function(user_opts)
     picker.opts.items = refreshed
     picker:refresh()
 
+    local harpoon_component = require('chrome.lualine-nvim.components.harpoon')
+    harpoon_component.invalidate()
     Statusline.refresh()
   end
 
