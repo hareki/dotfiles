@@ -18,8 +18,8 @@
 | [delta](https://github.com/dandavison/delta)        | tiny-code-action.nvim, Telescope undo                   | Diff previews                                                   |
 | [jq](https://jqlang.github.io/jq/)                  | jsonls                                                  | Optional — JSON sorting code action                             |
 | [lazygit](https://github.com/jesseduffield/lazygit) | Snacks (`<A-g>`)                                        | Terminal UI for Git                                             |
-| [ImageMagick](https://imagemagick.org/)             | image.nvim                                              | `magick_cli` processor                                          |
-| [kitty](https://sw.kovidgoez.net/kitty/)            | image.nvim                                              | Terminal with image protocol support                            |
+| [ImageMagick](https://imagemagick.org/)             | Snacks (`image`)                                        | `magick` CLI for image rendering                                |
+| [Ghostty](https://ghostty.org/)                     | Snacks (`image`)                                        | Terminal with kitty graphics protocol support                   |
 | C compiler + make                                   | nvim-treesitter, telescope-fzf-native                   | Parser compilation                                              |
 | [Go](https://go.dev/)                               | cursortab.nvim                                          | Build step: `cd server && go build`                             |
 | [Node.js](https://nodejs.org/) + npm                | mise-managed LSP servers (vtsls, eslint-lsp, etc.), vtsls LSP config | mise installs Node-based LSP servers; vtsls runs `npm root -g` |
@@ -48,7 +48,8 @@
 | ------------- | --------------------------------------------------------- |
 | `size.lua`    | Popup dimensions: `sm`, `md`, `lg`, `vertical_lg`, `full` |
 | `icons.lua`   | All icons (diagnostics, git, file status, LSP kinds)      |
-| `globals.lua` | 8 project globals: `Defer`, `Notifier`, `Catppuccin`, `WhichKey`, `Filetypes`, `Icons`, `Priority`, `Project` |
+| `globals.lua` | 7 project globals: `Defer`, `Notifier`, `Conf`, `UI`, `Statusline`, `Project` (`Snacks` set by snacks.nvim) |
+| `cmp.lua`     | Completion tuning constants (`Conf.Cmp`): AI item cap/timeout, ripgrep min keyword length |
 | `picker.lua`  | Shared picker UI constants                                |
 
 ### Utils (`lua/utils/`)
@@ -64,7 +65,6 @@
 | Module                | Purpose                                                                          |
 | --------------------- | -------------------------------------------------------------------------------- |
 | `notifier.lua`        | Notification wrapper; supports markdown, tuple lists for custom highlight groups  |
-| `blink_cmp.lua`       | Completion tuning constants (AI cmp item cap/timeout, ripgrep min keyword length) |
 | `cursorline.lua`      | Cursorline / line-number highlight state management                              |
 | `keymap_registry.lua` | Centralized keymap `desc` overrides                                              |
 | `statusline.lua`      | Statusline visibility helpers (`have_status_line()`)                             |
