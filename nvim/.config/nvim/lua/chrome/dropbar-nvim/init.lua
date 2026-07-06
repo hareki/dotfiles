@@ -82,6 +82,16 @@ return {
 
             local sources = require('dropbar.sources')
 
+            if vim.bo[buf].ft == 'NvimTree' then
+              return dropbar_utils.title_symbol({
+                icon = Conf.Icons.tools.tree,
+                icon_hl = 'DropBarIconKindString',
+
+                name = ' File Tree',
+                name_hl = 'DropBarKindFileBar',
+              })
+            end
+
             if vim.bo[buf].ft == 'codediff-history' then
               return dropbar_utils.title_symbol({
                 icon = Conf.Icons.kinds.History .. ' ',

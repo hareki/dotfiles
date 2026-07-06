@@ -381,7 +381,7 @@ return {
           lazygit = {
             backdrop = false,
             border = 'rounded',
-            title = ' Lazygit ',
+            title = ' Git Client ',
             title_pos = 'center',
             height = config.full.height,
             width = config.full.width,

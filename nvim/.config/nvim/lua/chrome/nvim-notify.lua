@@ -44,6 +44,7 @@ return {
 
             -- May use `:Telescope noice` as well
             telescope_notify({
+              prompt_title = 'Notifications',
               results_title = '',
               preview_title = preview_title,
               previewer = new_buffer_previewer({

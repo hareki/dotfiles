@@ -1,4 +1,2 @@
 .DS_Store
-bin/.local/bin/agent
-bin/.local/bin/cursor-agent
 **/.codegraph/
