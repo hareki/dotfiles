@@ -7,14 +7,14 @@ return {
 
   {
     'MeanderingProgrammer/render-markdown.nvim',
-    ft = Conf.Filetypes.markdown,
+    ft = Conf.Filetypes.MARKDOWN,
     dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' },
 
     opts = function()
       --- @module 'render-markdown'
       --- @type render.md.UserConfig
       return {
-        file_types = Conf.Filetypes.markdown,
+        file_types = Conf.Filetypes.MARKDOWN,
         sign = {
           enabled = false,
         },

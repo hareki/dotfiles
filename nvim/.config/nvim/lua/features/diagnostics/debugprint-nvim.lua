@@ -76,7 +76,7 @@ return {
         highlight_lines = false,
         filetypes = (function()
           local fts = {}
-          for _, ft in ipairs(Conf.Filetypes.js_all) do
+          for _, ft in ipairs(Conf.Filetypes.JS_ALL) do
             fts[ft] = js_like
           end
           return fts

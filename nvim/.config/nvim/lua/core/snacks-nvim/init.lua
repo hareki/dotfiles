@@ -224,7 +224,7 @@ return {
             inline = true,
             max_width = config.full.width,
             max_height = 15,
-            excluded_filetypes = Conf.Filetypes.merge(Conf.Filetypes.js_all, Conf.Filetypes.css),
+            excluded_filetypes = Conf.Filetypes.merge(Conf.Filetypes.JS_ALL, Conf.Filetypes.CSS),
           },
         },
 

@@ -1,4 +1,4 @@
-local filetypes = Conf.Filetypes.with_tags
+local filetypes = Conf.Filetypes.WITH_TAGS
 
 return {
   'tronikelis/ts-autotag.nvim',

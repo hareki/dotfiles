@@ -128,7 +128,7 @@ aucmd('FileType', {
 -- Fix conceallevel for json files
 aucmd({ 'FileType' }, {
   group = augroup('json_conceal'),
-  pattern = Conf.Filetypes.json,
+  pattern = Conf.Filetypes.JSON,
   callback = function()
     vim.opt_local.conceallevel = 0
   end,

@@ -16,16 +16,16 @@ function M.merge(...)
 end
 
 -- Atomic groups
-M.js = { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' }
-M.jsx = { 'javascriptreact', 'typescriptreact' }
-M.js_framework = { 'astro' }
-M.css = { 'css', 'scss', 'less' }
-M.json = { 'json', 'jsonc', 'json5' }
-M.markup = { 'html', 'xml' }
-M.markdown = { 'markdown', 'mdx' }
+M.JS = { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' }
+M.JSX = { 'javascriptreact', 'typescriptreact' }
+M.JS_FRAMEWORK = { 'astro' }
+M.CSS = { 'css', 'scss', 'less' }
+M.JSON = { 'json', 'jsonc', 'json5' }
+M.MARKUP = { 'html', 'xml' }
+M.MARKDOWN = { 'markdown', 'mdx' }
 
 -- Composed groups
-M.js_all = M.merge(M.js, M.js_framework)
-M.with_tags = M.merge(M.markup, M.jsx, M.js_framework)
+M.JS_ALL = M.merge(M.JS, M.JS_FRAMEWORK)
+M.WITH_TAGS = M.merge(M.MARKUP, M.JSX, M.JS_FRAMEWORK)
 
 return M
