@@ -10,14 +10,14 @@ _G.Notifier = Defer.on_exported_call('services.notifier')
 --- @field Priority config.priority
 --- @field Picker config.picker
 --- @field Size config.size
---- @field Cmp config.cmp
+--- @field Cmp config.completion
 _G.Conf = {}
 Conf.Filetypes = require('config.filetypes')
 Conf.Icons = require('config.icons')
 Conf.Priority = require('config.priority')
 Conf.Picker = require('config.picker')
 Conf.Size = require('config.size')
-Conf.Cmp = require('config.cmp')
+Conf.Cmp = require('config.completion')
 
 --- @module 'utils.ui'
 _G.UI = require('utils.ui')

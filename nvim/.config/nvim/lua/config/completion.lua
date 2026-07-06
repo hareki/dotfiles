@@ -1,4 +1,4 @@
---- @class config.cmp
+--- @class config.completion
 local M = {}
 
 M.AI_CMP_MAX_ITEMS = 3
