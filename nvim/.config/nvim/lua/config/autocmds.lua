@@ -19,7 +19,7 @@ aucmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
 
 -- Resize splits if window got resized
 aucmd({ 'VimResized' }, {
-  group = augroup('resize_splits'),
+  group = augroup('resize-splits'),
   callback = function()
     local current_tab = vim.api.nvim_get_current_tabpage()
 
@@ -34,7 +34,7 @@ aucmd({ 'VimResized' }, {
 
 -- Go to last location when opening a buffer
 aucmd('BufReadPost', {
-  group = augroup('last_location'),
+  group = augroup('last-location'),
   callback = function(event)
     local exclude = { 'gitcommit' }
     local buf = event.buf
@@ -56,7 +56,7 @@ aucmd('BufReadPost', {
 
 -- Close some filetypes with <q>
 aucmd('FileType', {
-  group = augroup('close_with_q'),
+  group = augroup('close-with-q'),
   pattern = {
     'PlenaryTestPopup',
     'checkhealth',
@@ -90,7 +90,7 @@ aucmd('FileType', {
 -- global 'Insert Newline After Cursor' <CR> map would otherwise shadow (and
 -- error on, since qf buffers are nomodifiable)
 aucmd('FileType', {
-  group = augroup('qf_native_enter'),
+  group = augroup('qf-native-enter'),
   pattern = { 'qf' },
   callback = function(event)
     vim.keymap.set('n', '<CR>', '<CR>', {
@@ -102,14 +102,14 @@ aucmd('FileType', {
 
 -- Open help vertically to the right
 aucmd('FileType', {
-  group = augroup('help_right'),
+  group = augroup('help-right'),
   pattern = { 'help' },
   command = 'wincmd L',
 })
 
 -- Stop starting auto comment insertion on new lines
 aucmd('FileType', {
-  group = augroup('stop_auto_comment'),
+  group = augroup('stop-auto-comment'),
   pattern = '*',
   callback = function()
     vim.opt_local.formatoptions:remove({ 'c', 'r', 'o' })
@@ -118,7 +118,7 @@ aucmd('FileType', {
 
 -- Make it easier to close man-files when opened inline
 aucmd('FileType', {
-  group = augroup('man_unlisted'),
+  group = augroup('man-unlisted'),
   pattern = { 'man' },
   callback = function(event)
     vim.bo[event.buf].buflisted = false
@@ -127,7 +127,7 @@ aucmd('FileType', {
 
 -- Fix conceallevel for json files
 aucmd({ 'FileType' }, {
-  group = augroup('json_conceal'),
+  group = augroup('json-conceal'),
   pattern = Conf.Filetypes.JSON,
   callback = function()
     vim.opt_local.conceallevel = 0
@@ -135,7 +135,7 @@ aucmd({ 'FileType' }, {
 })
 
 aucmd('FileType', {
-  group = augroup('markdown_defaults'),
+  group = augroup('markdown-defaults'),
   pattern = { 'markdown' },
   callback = function()
     vim.wo.wrap = true
@@ -144,7 +144,7 @@ aucmd('FileType', {
 
 -- Use the same keymap as switching to cmdline window mode (vim.opt.cedit) to switch back to cmdline mode
 aucmd('CmdwinEnter', {
-  group = augroup('cmdwin_keymaps'),
+  group = augroup('cmdwin-keymaps'),
   callback = function(event)
     local buf = event.buf
 
@@ -169,7 +169,7 @@ aucmd('CmdwinEnter', {
 
 -- Close all codediff tabs on exit so that auto-session doesn't save them
 aucmd('VimLeavePre', {
-  group = augroup('close_codediff_tabs_on_exit'),
+  group = augroup('close-codediff-tabs-on-exit'),
   callback = function()
     -- codediff is lazy; if it never loaded there are no diff tabs to close.
     local package = require('utils.package')
@@ -197,7 +197,7 @@ aucmd('VimLeavePre', {
 
 -- Clear search highlight when entering insert mode
 aucmd('InsertEnter', {
-  group = augroup('clear_hlsearch_on_insert'),
+  group = augroup('clear-hlsearch-on-insert'),
   callback = function()
     if vim.v.hlsearch == 1 then
       vim.schedule(function()
@@ -210,7 +210,7 @@ aucmd('InsertEnter', {
 local SNIPPET_STOP_DELAY_MS = 20
 
 aucmd('ModeChanged', {
-  group = augroup('stop_snippet_on_normal_mode'),
+  group = augroup('stop-snippet-on-normal-mode'),
   pattern = '[is]:n', -- Stricter: only exact 'i' or 's' to 'n'
   desc = 'Stop Snippet Session in Normal Mode',
   callback = function()
@@ -231,7 +231,7 @@ aucmd('ModeChanged', {
 
 -- Prevent accidental jumplist navigation in non-file buffers
 aucmd('BufEnter', {
-  group = augroup('disable_ctrl_o_non_file'),
+  group = augroup('disable-ctrl-o-non-file'),
   callback = function(event)
     local buf = event.buf
     local buftype = vim.bo[buf].buftype

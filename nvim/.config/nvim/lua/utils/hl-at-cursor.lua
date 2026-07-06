@@ -268,7 +268,7 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
     end)
   end
 
-  augroup = vim.api.nvim_create_augroup('utils.hl_at_cursor.popup_' .. win, { clear = true })
+  augroup = vim.api.nvim_create_augroup('utils.hl-at-cursor.popup-' .. win, { clear = true })
 
   vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
     group = augroup,

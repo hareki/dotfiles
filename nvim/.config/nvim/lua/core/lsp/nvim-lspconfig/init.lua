@@ -48,7 +48,7 @@ return {
 
     vim.api.nvim_create_autocmd('LspAttach', {
       group = vim.api.nvim_create_augroup(
-        'core.lsp.nvim_lspconfig.attach_keymaps',
+        'core.lsp.nvim-lspconfig.attach-keymaps',
         { clear = true }
       ),
       callback = function(args)

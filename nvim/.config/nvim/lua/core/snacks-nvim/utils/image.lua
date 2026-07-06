@@ -171,7 +171,7 @@ local function open(source_buf, src)
   local scratch = vim.api.nvim_create_buf(false, true)
   vim.bo[scratch].bufhidden = 'wipe'
 
-  local augroup = vim.api.nvim_create_augroup('core.snacks.hover_image', { clear = true })
+  local augroup = vim.api.nvim_create_augroup('core.snacks.hover-image', { clear = true })
 
   local placement = Snacks.image.placement.new(scratch, src, {
     inline = false,

@@ -26,7 +26,7 @@ local SEVERITY_NAMES = {
 --- @field counts { error: integer, warn: integer, info: integer, hint: integer } | nil
 local cache = { buf = -1, counts = nil }
 
-local group = vim.api.nvim_create_augroup('chrome.lualine.diagnostics_cache', { clear = true })
+local group = vim.api.nvim_create_augroup('chrome.lualine.diagnostics-cache', { clear = true })
 vim.api.nvim_create_autocmd('DiagnosticChanged', {
   group = group,
   callback = function(event)

@@ -81,6 +81,7 @@ return {
           end
           return fts
         end)(),
+
         -- Turn off all keymaps by default for performance reasons (mapping overhead + can't lazy load)
         -- Also, I want to customize the descriptions
         keymaps = {

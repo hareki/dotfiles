@@ -38,7 +38,7 @@ local function invalidate_cache()
 end
 
 -- Set up autocmds to invalidate cache on relevant events
-local group = vim.api.nvim_create_augroup('chrome.lualine.buffer_status_cache', { clear = true })
+local group = vim.api.nvim_create_augroup('chrome.lualine.buffer-status-cache', { clear = true })
 vim.api.nvim_create_autocmd({
   'BufReadPost',
   'BufWritePost',

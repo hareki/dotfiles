@@ -351,7 +351,7 @@ return {
           -- (e.g. auto-session's VimEnter), and lose the autocmd when tree.open()
           -- clears the group while the buffer survives.
           state.preview_watcher =
-            vim.api.nvim_create_augroup('navigation.nvim_tree.preview', { clear = true })
+            vim.api.nvim_create_augroup('navigation.nvim-tree.preview', { clear = true })
 
           vim.api.nvim_create_autocmd('BufEnter', {
             group = state.preview_watcher,

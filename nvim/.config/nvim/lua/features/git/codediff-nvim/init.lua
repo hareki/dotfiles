@@ -41,7 +41,7 @@ return {
 
     config = function(_, opts)
       local codediff_utils = require('features.git.codediff-nvim.utils')
-      local group = vim.api.nvim_create_augroup('git.codediff.restore_focus', { clear = true })
+      local group = vim.api.nvim_create_augroup('git.codediff.restore-focus', { clear = true })
 
       vim.api.nvim_create_autocmd('User', {
         group = group,

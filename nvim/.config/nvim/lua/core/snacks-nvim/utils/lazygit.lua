@@ -26,7 +26,7 @@ end
 --- can fall back to it when invoked from a non-file buffer (terminal, plugin UI, unnamed).
 function M.setup()
   vim.api.nvim_create_autocmd('BufEnter', {
-    group = vim.api.nvim_create_augroup('core.snacks.lazygit_last_file', { clear = true }),
+    group = vim.api.nvim_create_augroup('core.snacks.lazygit-last-file', { clear = true }),
     callback = function(args)
       local name = vim.api.nvim_buf_get_name(args.buf)
       if vim.bo[args.buf].buftype == '' and name ~= '' then
