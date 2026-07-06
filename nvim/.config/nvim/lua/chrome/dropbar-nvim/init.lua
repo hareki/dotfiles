@@ -1,15 +1,21 @@
 return {
   UI.catppuccin(function(palette)
     local highlights = {
+      DropBarIconGreen = { fg = palette.green },
+      DropBarIconPurple = { fg = palette.mauve },
+      DropBarIconYellow = { fg = palette.yellow },
+
       DropBarKindDir = { fg = palette.overlay2 },
       DropBarKindDirMenu = { fg = palette.blue },
-      DropBarMenuCurrentContext = { link = 'Visual' },
       DropBarKindFileBar = { fg = palette.blue, bold = true },
       DropBarKindFileBarNC = { link = 'DropBarKindFileBar' },
+
       DropBarIconUIIndicator = { fg = palette.blue, bg = nil },
-      DropBarMenuHoverIcon = { link = 'DropBarMenuIcon' }, -- Disable reversing color when hovering
       DropBarIconUISeparator = { fg = palette.overlay1 },
+
       DropBarMenuHoverEntry = { link = 'Visual' },
+      DropBarMenuCurrentContext = { link = 'Visual' },
+      DropBarMenuHoverIcon = { link = 'DropBarMenuIcon' }, -- Disable reversing color when hovering
     }
 
     local dropbar_utils = require('chrome.dropbar-nvim.utils')
@@ -85,7 +91,7 @@ return {
             if vim.bo[buf].ft == 'NvimTree' then
               return dropbar_utils.title_symbol({
                 icon = Conf.Icons.tools.tree,
-                icon_hl = 'DropBarIconKindString',
+                icon_hl = 'DropBarIconGreen',
 
                 name = ' File Tree',
                 name_hl = 'DropBarKindFileBar',
@@ -95,7 +101,7 @@ return {
             if vim.bo[buf].ft == 'codediff-history' then
               return dropbar_utils.title_symbol({
                 icon = Conf.Icons.kinds.History .. ' ',
-                icon_hl = 'DropBarIconKindObject',
+                icon_hl = 'DropBarIconPurple',
 
                 name = 'Diff History',
                 name_hl = 'DropBarKindFileBar',
@@ -105,7 +111,7 @@ return {
             if vim.bo[buf].ft == 'codediff-explorer' then
               return dropbar_utils.title_symbol({
                 icon = Conf.Icons.git.diff .. ' ',
-                icon_hl = 'DropBarIconKindType',
+                icon_hl = 'DropBarIconYellow',
 
                 name = 'Diff Explorer',
                 name_hl = 'DropBarKindFileBar',
