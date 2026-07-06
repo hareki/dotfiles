@@ -15,10 +15,6 @@ local word_paths = {
   my_words = extra_words_path .. '/my_words.txt',
 }
 
-local ai_source = vim.g.ai_provider == 'copilot' and 'copilot'
-  -- or vim.g.ai_provider == 'mercury' and 'minuet'
-  or nil
-
 M.default = {
   default = vim.tbl_filter(function(s)
     return s ~= nil
@@ -28,7 +24,7 @@ M.default = {
     'datword',
     'ripgrep',
     'buffer',
-    ai_source,
+    'minuet',
   }),
   per_filetype = {
     lua = { inherit_defaults = true, 'lazydev' },
@@ -90,19 +86,6 @@ M.default = {
 
         return not is_ignored_filetype
       end,
-    },
-
-    copilot = {
-      name = 'Copilot',
-      module = 'blink-copilot',
-      max_items = Conf.Cmp.ai_cmp_max_items,
-      async = true,
-      -- Wrap around the menu items to quickly access the suggestion items while prevent items shifting
-      score_offset = -100,
-      -- should_show_items = function(ctx)
-      --   -- Only show items if 'copilot' is the sole provider to avoid distraction
-      --   return ctx.providers[1] == 'copilot' and #ctx.providers == 1
-      -- end,
     },
 
     minuet = {

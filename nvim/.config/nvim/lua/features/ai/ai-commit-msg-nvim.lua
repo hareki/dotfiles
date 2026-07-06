@@ -6,14 +6,14 @@ return {
     local circle_full_frames = noice_spinners.spinners.circleFull.frames
 
     return {
-      provider = 'copilot',
+      provider = 'anthropic',
       spinner = circle_full_frames,
       cost_display = 'verbose',
       providers = {
-        copilot = {
-          model = 'gpt-5-mini',
+        anthropic = {
+          model = 'claude-haiku-4-5',
+          -- Required by the Anthropic Messages API
           max_tokens = 10000,
-          reasoning_effort = 'medium',
         },
       },
     }

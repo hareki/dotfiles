@@ -15,33 +15,12 @@ return {
     opts = {},
   },
   {
-    'fang2hou/blink-copilot',
-    enabled = vim.g.ai_provider == 'copilot',
-    opts = function()
-      return {
-        max_completions = Conf.Cmp.ai_cmp_max_items,
-        max_attempts = Conf.Cmp.ai_cmp_max_items + 1,
-        kind_name = 'Copilot',
-        kind_icon = Conf.Icons.kinds.Copilot,
-        kind_hl = 'BlinkCmpKindCopilot',
-        debounce = 200,
-        auto_refresh = {
-          backward = true,
-          forward = true,
-        },
-      }
-    end,
-  },
-  {
     'saghen/blink.cmp',
     version = '*', -- Use a release tag to download pre-built binaries
     event = { 'InsertEnter', 'CmdLineEnter' },
     dependencies = {
       'windwp/nvim-autopairs',
       'dmitmel/cmp-cmdline-history',
-
-      'zbirenbaum/copilot.lua',
-      'fang2hou/blink-copilot',
 
       'xieyonn/blink-cmp-dat-word',
       'hareki/blink-ripgrep.nvim',

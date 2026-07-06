@@ -92,7 +92,6 @@ return {
         { pattern = 'lsp', icon = Conf.Icons.tools.lsp, color = 'blue' },
         { pattern = 'register', icon = Conf.Icons.editor.register, color = 'yellow' },
         { pattern = 'tab', icon = Conf.Icons.misc.tab, color = 'blue' },
-        { pattern = 'copilot', icon = Conf.Icons.kinds.Copilot, color = 'azure' },
         { pattern = 'rename', icon = Conf.Icons.actions.rename, color = 'yellow' },
         { pattern = 'grep', icon = Conf.Icons.actions.grep, color = 'green' },
         { pattern = 'find', icon = Conf.Icons.actions.find, color = 'blue' },

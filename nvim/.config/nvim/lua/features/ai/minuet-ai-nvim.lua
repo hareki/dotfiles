@@ -8,7 +8,6 @@ return {
 
   {
     'milanglacier/minuet-ai.nvim',
-    enabled = vim.g.ai_provider == 'mercury',
     opts = {
       context_window = 20000,
       request_timeout = Conf.Cmp.ai_cmp_timeout_ms / 1000,

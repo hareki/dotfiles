@@ -8,6 +8,7 @@ export EDITOR='nvim'
 export VISUAL='nvim'
 # Use MacOS keychain to store secrets
 export MERCURY_API_KEY=$(security find-generic-password -a "$USER" -s "MERCURY_API_KEY" -w)
+export ANTHROPIC_API_KEY=$(security find-generic-password -a "$USER" -s "ANTHROPIC_API_KEY" -w)
 
 # [[ Aliases needed in non-interactive shells, others should go in to aliases.zsh for performance ]]
 alias eza='eza --icons=always --color=always --no-user'

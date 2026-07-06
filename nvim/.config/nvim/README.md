@@ -8,29 +8,29 @@
 
 ### System
 
-| Dependency                                          | Required By                                             | Notes                                                           |
-| --------------------------------------------------- | ------------------------------------------------------- | --------------------------------------------------------------- |
-| [Neovim](https://neovim.io/) 0.12+                  | —                                                       | Native `vim.lsp.enable()` API                                   |
-| [Git](https://git-scm.com/)                         | gitsigns.nvim, lazygit, blink-ripgrep (gitgrep backend) | —                                                               |
-| [Nerd Font](https://www.nerdfonts.com/)             | mini.icons, lualine, which-key, nvim-tree, etc.         | All icons are Nerd Font glyphs                                  |
-| [ripgrep](https://github.com/BurntSushi/ripgrep)    | Snacks picker, Telescope, blink-ripgrep                 | File search and grep                                            |
-| [fd](https://github.com/sharkdp/fd)                 | Telescope                                               | Fallback file finder (after ripgrep)                            |
-| [delta](https://github.com/dandavison/delta)        | tiny-code-action.nvim, Telescope undo                   | Diff previews                                                   |
-| [jq](https://jqlang.github.io/jq/)                  | jsonls                                                  | Optional — JSON sorting code action                             |
-| [lazygit](https://github.com/jesseduffield/lazygit) | Snacks (`<A-g>`)                                        | Terminal UI for Git                                             |
-| [ImageMagick](https://imagemagick.org/)             | Snacks (`image`)                                        | `magick` CLI for image rendering                                |
-| [Ghostty](https://ghostty.org/)                     | Snacks (`image`)                                        | Terminal with kitty graphics protocol support                   |
-| C compiler + make                                   | nvim-treesitter, telescope-fzf-native                   | Parser compilation                                              |
-| [Go](https://go.dev/)                               | cursortab.nvim                                          | Build step: `cd server && go build`                             |
+| Dependency                                          | Required By                                                          | Notes                                                          |
+| --------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------- |
+| [Neovim](https://neovim.io/) 0.12+                  | —                                                                    | Native `vim.lsp.enable()` API                                  |
+| [Git](https://git-scm.com/)                         | gitsigns.nvim, lazygit, blink-ripgrep (gitgrep backend)              | —                                                              |
+| [Nerd Font](https://www.nerdfonts.com/)             | mini.icons, lualine, which-key, nvim-tree, etc.                      | All icons are Nerd Font glyphs                                 |
+| [ripgrep](https://github.com/BurntSushi/ripgrep)    | Snacks picker, Telescope, blink-ripgrep                              | File search and grep                                           |
+| [fd](https://github.com/sharkdp/fd)                 | Telescope                                                            | Fallback file finder (after ripgrep)                           |
+| [delta](https://github.com/dandavison/delta)        | tiny-code-action.nvim, Telescope undo                                | Diff previews                                                  |
+| [jq](https://jqlang.github.io/jq/)                  | jsonls                                                               | Optional — JSON sorting code action                            |
+| [lazygit](https://github.com/jesseduffield/lazygit) | Snacks (`<A-g>`)                                                     | Terminal UI for Git                                            |
+| [ImageMagick](https://imagemagick.org/)             | Snacks (`image`)                                                     | `magick` CLI for image rendering                               |
+| [Ghostty](https://ghostty.org/)                     | Snacks (`image`)                                                     | Terminal with kitty graphics protocol support                  |
+| C compiler + make                                   | nvim-treesitter, telescope-fzf-native                                | Parser compilation                                             |
+| [Go](https://go.dev/)                               | cursortab.nvim                                                       | Build step: `cd server && go build`                            |
 | [Node.js](https://nodejs.org/) + npm                | mise-managed LSP servers (vtsls, eslint-lsp, etc.), vtsls LSP config | mise installs Node-based LSP servers; vtsls runs `npm root -g` |
 
 ### Subscriptions & API Keys
 
-| Dependency                                                         | Required By                                    | Notes                                    |
-| ------------------------------------------------------------------ | ---------------------------------------------- | ---------------------------------------- |
-| [GitHub Copilot](https://github.com/features/copilot) subscription | copilot.lua, blink-copilot, ai-commit-msg.nvim | Inline completions + AI commit messages  |
-| [Claude Code](https://claude.ai/download) CLI + subscription       | claudecode.nvim                                | `<M-a>` to toggle Claude terminal        |
-| `SWEEPAPI_TOKEN` env var                                           | cursortab.nvim                                 | SweepAPI token for next-edit predictions |
+| Dependency                                                   | Required By        | Notes                                    |
+| ------------------------------------------------------------ | ------------------ | ---------------------------------------- |
+| `ANTHROPIC_API_KEY` env var                                  | ai-commit-msg.nvim | AI-generated commit messages (Claude)    |
+| `MERCURY_API_KEY` env var                                    | cursortab.nvim     | SweepAPI token for next-edit predictions |
+| [Claude Code](https://claude.ai/download) CLI + subscription | claudecode.nvim    | `<M-a>` to toggle Claude terminal        |
 
 ## Core Ideas
 
@@ -44,27 +44,27 @@
 
 ### Central Modules (`lua/config/`)
 
-| Module        | Purpose                                                   |
-| ------------- | --------------------------------------------------------- |
-| `size.lua`    | Popup dimensions: `sm`, `md`, `lg`, `vertical_lg`, `full` |
-| `icons.lua`   | All icons (diagnostics, git, file status, LSP kinds)      |
+| Module        | Purpose                                                                                                     |
+| ------------- | ----------------------------------------------------------------------------------------------------------- |
+| `size.lua`    | Popup dimensions: `sm`, `md`, `lg`, `vertical_lg`, `full`                                                   |
+| `icons.lua`   | All icons (diagnostics, git, file status, LSP kinds)                                                        |
 | `globals.lua` | 7 project globals: `Defer`, `Notifier`, `Conf`, `UI`, `Statusline`, `Project` (`Snacks` set by snacks.nvim) |
-| `cmp.lua`     | Completion tuning constants (`Conf.Cmp`): AI item cap/timeout, ripgrep min keyword length |
-| `picker.lua`  | Shared picker UI constants                                |
+| `cmp.lua`     | Completion tuning constants (`Conf.Cmp`): AI item cap/timeout, ripgrep min keyword length                   |
+| `picker.lua`  | Shared picker UI constants                                                                                  |
 
 ### Utils (`lua/utils/`)
 
-| Module             | Key Exports                                             |
-| ------------------ | ------------------------------------------------------- |
+| Module             | Key Exports                                                          |
+| ------------------ | -------------------------------------------------------------------- |
 | `ui.lua`           | `popup_config(size, with_border)`, `catppuccin(fn)`, `get_palette()` |
-| `common.lua`       | `noautocmd(fn)`, `focus_win(win)`, `is_float_win()`     |
-| `lazy_require.lua` | `Defer.on_index()`, `Defer.on_exported_call()`          |
+| `common.lua`       | `noautocmd(fn)`, `focus_win(win)`, `is_float_win()`                  |
+| `lazy_require.lua` | `Defer.on_index()`, `Defer.on_exported_call()`                       |
 
 ### Services (`lua/services/`)
 
 | Module                | Purpose                                                                          |
 | --------------------- | -------------------------------------------------------------------------------- |
-| `notifier.lua`        | Notification wrapper; supports markdown, tuple lists for custom highlight groups  |
+| `notifier.lua`        | Notification wrapper; supports markdown, tuple lists for custom highlight groups |
 | `cursorline.lua`      | Cursorline / line-number highlight state management                              |
 | `keymap_registry.lua` | Centralized keymap `desc` overrides                                              |
 | `statusline.lua`      | Statusline visibility helpers (`have_status_line()`)                             |

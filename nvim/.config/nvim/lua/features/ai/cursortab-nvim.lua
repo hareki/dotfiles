@@ -10,6 +10,7 @@ return {
 
   {
     'cursortab/cursortab.nvim',
+    -- Quite token expensive , I'm still considering it...
     enabled = false,
     build = 'cd server && go build',
 

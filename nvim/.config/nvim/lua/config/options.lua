@@ -5,7 +5,6 @@ local g = vim.g
 
 g.mapleader = ' '
 g.maplocalleader = ' '
-g.ai_provider = 'mercury' -- 'copilot' | 'mercury'
 
 -- Disable netrw
 g.loaded_netrw = 1

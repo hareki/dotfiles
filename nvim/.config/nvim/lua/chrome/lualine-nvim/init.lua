@@ -7,12 +7,6 @@ return {
 
   lazy = false,
   priority = Conf.Priority.CHROME,
-  dependencies = {
-    {
-      'AndreM222/copilot-lualine',
-      enabled = vim.g.ai_provider == 'copilot',
-    },
-  },
 
   init = function()
     local opt = vim.opt
@@ -38,10 +32,6 @@ return {
     local branch = require('chrome.lualine-nvim.components.branch')
     local tab = require('chrome.lualine-nvim.components.tab')
     local snacks_image = require('chrome.lualine-nvim.components.snacks_image')
-    local copilot
-    if vim.g.ai_provider == 'copilot' then
-      copilot = require('chrome.lualine-nvim.components.copilot')
-    end
 
     local palette = UI.get_palette()
 
@@ -92,19 +82,6 @@ return {
         margin = { left = 0, right = 0 },
       }),
     }
-
-    if copilot then
-      table.insert(
-        lualine_z_components,
-        2,
-        create_wrapper({
-          comp = 'copilot',
-          type = 'secondary-right',
-          symbols = copilot.symbols,
-          padding = copilot.padding,
-        })
-      )
-    end
 
     return {
       options = {
