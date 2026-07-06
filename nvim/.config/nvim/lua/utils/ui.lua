@@ -193,8 +193,8 @@ function M.compute_size(size, with_border)
   else
     local screen_w, screen_h = M.screen_size()
 
-    width_in_cols = math.floor(screen_w * size.width)
-    height_in_rows = math.floor(screen_h * size.height)
+    width_in_cols = math.floor(screen_w * size.WIDTH)
+    height_in_rows = math.floor(screen_h * size.HEIGHT)
   end
 
   return width_in_cols + (with_border and 2 or 0), height_in_rows + (with_border and 2 or 0)
@@ -230,32 +230,32 @@ function M.popup_config(size, with_border)
     window_h = computed_input_size.height
   else
     local dimensions = Conf.Size.popup[size]
-    if dimensions.width <= 1 then
-      window_w = math.floor(screen_w * dimensions.width)
+    if dimensions.WIDTH <= 1 then
+      window_w = math.floor(screen_w * dimensions.WIDTH)
     else
-      window_w = dimensions.width
+      window_w = dimensions.WIDTH
     end
 
-    if dimensions.height <= 1 then
-      window_h = math.floor(screen_h * dimensions.height)
+    if dimensions.HEIGHT <= 1 then
+      window_h = math.floor(screen_h * dimensions.HEIGHT)
     else
-      window_h = dimensions.height
+      window_h = dimensions.HEIGHT
     end
 
-    if dimensions.width_offset then
-      window_w = math.max(window_w + dimensions.width_offset, 1)
+    if dimensions.WIDTH_OFFSET then
+      window_w = math.max(window_w + dimensions.WIDTH_OFFSET, 1)
     end
 
-    if dimensions.height_offset then
-      window_h = math.max(window_h + dimensions.height_offset, 1)
+    if dimensions.HEIGHT_OFFSET then
+      window_h = math.max(window_h + dimensions.HEIGHT_OFFSET, 1)
     end
 
-    if dimensions.min_width and window_w < dimensions.min_width then
-      window_w = dimensions.min_width
+    if dimensions.MIN_WIDTH and window_w < dimensions.MIN_WIDTH then
+      window_w = dimensions.MIN_WIDTH
     end
 
-    if dimensions.min_height and window_h < dimensions.min_height then
-      window_h = dimensions.min_height
+    if dimensions.MIN_HEIGHT and window_h < dimensions.MIN_HEIGHT then
+      window_h = dimensions.MIN_HEIGHT
     end
   end
 

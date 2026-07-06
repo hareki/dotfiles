@@ -13,7 +13,7 @@ return {
     'hareki/eagle.nvim',
     cmd = { 'EagleWin', 'EagleWinLineDiagnostic' },
     opts = function()
-      local max_size = Conf.Size.inline_popup.max_height
+      local max_size = Conf.Size.inline_popup.MAX_HEIGHT
 
       return {
         order = 3, -- LSP info comes first

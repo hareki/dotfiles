@@ -15,7 +15,7 @@ return {
           source = 'buffer',
           win = {
             preview = {
-              title = Conf.Picker.preview_title,
+              title = Conf.Picker.PREVIEW_TITLE,
             },
           },
         },

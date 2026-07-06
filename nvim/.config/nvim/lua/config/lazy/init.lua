@@ -13,7 +13,7 @@ lazy.setup({
     enabled = false,
   },
   ui = {
-    size = { width = lg.width, height = lg.height },
+    size = { width = lg.WIDTH, height = lg.HEIGHT },
     border = 'rounded',
     backdrop = 100,
     title = ' Plugin Manager ',

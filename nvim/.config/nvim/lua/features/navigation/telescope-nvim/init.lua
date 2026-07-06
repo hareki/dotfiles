@@ -34,7 +34,7 @@ return {
       local default_picker_configs = {}
       for picker_name, _ in pairs(builtin) do
         default_picker_configs[picker_name] = {
-          preview_title = Conf.Picker.telescope_preview_title,
+          preview_title = Conf.Picker.TELESCOPE_PREVIEW_TITLE,
         }
       end
 
@@ -56,7 +56,7 @@ return {
           },
         },
         defaults = {
-          prompt_prefix = Conf.Picker.prompt_prefix,
+          prompt_prefix = Conf.Picker.PROMPT_PREFIX,
           -- selection_caret = ' ',
           selection_caret = ' ',
           entry_prefix = ' ', -- keep list text aligned

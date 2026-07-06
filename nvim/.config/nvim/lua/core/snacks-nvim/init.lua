@@ -191,7 +191,7 @@ return {
       local layout_opts = {
         width = config.lg_border.width,
         height = config.lg_border.height,
-        preview_title = Conf.Picker.preview_title,
+        preview_title = Conf.Picker.PREVIEW_TITLE,
       }
 
       -- Wrapping this with Defer.on_exported_call will result in `nvim_create_augroup must not be called in a fast event context` error
@@ -236,7 +236,7 @@ return {
             },
           },
           ui_select = true,
-          prompt = Conf.Picker.prompt_prefix,
+          prompt = Conf.Picker.PROMPT_PREFIX,
 
           actions = {
             list_half_page_down = defer_scroll_half_page('down'),

@@ -42,7 +42,7 @@ return {
 
       return {
         -- title_format = ' %s ', -- Use file name as title
-        title_format = Conf.Picker.preview_title,
+        title_format = Conf.Picker.PREVIEW_TITLE,
         zindex = 50, -- The default value makes vim.ui.input behind the preview window
         image_preview = { enable = true },
         on_close = function()
@@ -160,7 +160,7 @@ return {
           auto_open = false,
         },
         live_filter = {
-          prefix = Conf.Picker.prompt_prefix,
+          prefix = Conf.Picker.PROMPT_PREFIX,
           always_show_folders = false,
         },
         update_focused_file = {

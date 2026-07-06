@@ -1,10 +1,10 @@
 --- @class config.cmp
 local M = {}
 
-M.ai_cmp_max_items = 3
-M.ai_mercury_key = 'MERCURY_API_KEY'
-M.ai_anthropic_key = 'ANTHROPIC_API_KEY'
-M.ai_cmp_timeout_ms = 4000
-M.ripgrep_min_keyword_length = 3
+M.AI_CMP_MAX_ITEMS = 3
+M.AI_MERCURY_KEY = 'MERCURY_API_KEY'
+M.AI_ANTHROPIC_KEY = 'ANTHROPIC_API_KEY'
+M.AI_CMP_TIMEOUT_MS = 4000
+M.RIPGREP_MIN_KEYWORD_LENGTH = 3
 
 return M

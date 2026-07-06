@@ -1,81 +1,81 @@
 --- @class config.size.Dimensions
---- @field height_offset? number
---- @field width_offset? number
---- @field height number
---- @field width number
+--- @field HEIGHT_OFFSET? number
+--- @field WIDTH_OFFSET? number
+--- @field HEIGHT number
+--- @field WIDTH number
 
 --- @class config.size
 local M = {}
 
 M.popup = {
   full = {
-    width = 1,
-    height = 1,
-    height_offset = -3, -- 2 for the top/bottom borders, 1 for the winbar, we cover the statusline
+    WIDTH = 1,
+    HEIGHT = 1,
+    HEIGHT_OFFSET = -3, -- 2 for the top/bottom borders, 1 for the winbar, we cover the statusline
   },
 
   lg = {
-    width = 0.8,
-    height = 0.8,
-    min_width = 90,
-    min_height = 15,
+    WIDTH = 0.8,
+    HEIGHT = 0.8,
+    MIN_WIDTH = 90,
+    MIN_HEIGHT = 15,
   },
 
   vertical_lg = {
-    width = 0.45,
-    height = 0.8,
-    min_width = 60,
-    min_height = 15,
+    WIDTH = 0.45,
+    HEIGHT = 0.8,
+    MIN_WIDTH = 60,
+    MIN_HEIGHT = 15,
   },
 
   md = {
-    width = 0.65,
-    height = 0.65,
-    min_width = 85,
-    min_height = 12,
+    WIDTH = 0.65,
+    HEIGHT = 0.65,
+    MIN_WIDTH = 85,
+    MIN_HEIGHT = 12,
   },
 
   sm = {
-    width = 0.5,
-    height = 0.5,
-    min_width = 60,
-    min_height = 10,
+    WIDTH = 0.5,
+    HEIGHT = 0.5,
+    MIN_WIDTH = 60,
+    MIN_HEIGHT = 10,
   },
 }
 
 M.side_preview = {
   md = {
-    width = 0.5,
-    height = 0.7,
-    min_width = 80,
-    min_height = 15,
+    WIDTH = 0.5,
+    HEIGHT = 0.7,
+    MIN_WIDTH = 80,
+    MIN_HEIGHT = 15,
   },
 }
 
 M.side_panel = {
   sm = {
-    width = 0.3,
-    height = 1,
-    min_width = 35,
-    min_height = 20,
+    WIDTH = 0.3,
+    HEIGHT = 1,
+    MIN_WIDTH = 35,
+    MIN_HEIGHT = 20,
   },
   md = {
-    width = 0.35,
-    height = 1,
-    min_width = 40,
-    min_height = 20,
+    WIDTH = 0.35,
+    HEIGHT = 1,
+    MIN_WIDTH = 40,
+    MIN_HEIGHT = 20,
   },
 
   lg = {
-    width = 0.5,
-    height = 1,
-    min_width = 40,
-    min_height = 20,
+    WIDTH = 0.5,
+    HEIGHT = 1,
+    MIN_WIDTH = 40,
+    MIN_HEIGHT = 20,
   },
 }
 
 M.inline_popup = {
-  max_height = 0.5,
+  MAX_HEIGHT = 0.5,
 }
 
 return M

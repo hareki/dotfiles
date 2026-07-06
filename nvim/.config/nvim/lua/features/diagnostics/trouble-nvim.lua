@@ -117,7 +117,7 @@ return {
           type = 'float',
           relative = 'win',
           border = 'rounded',
-          title = Conf.Picker.preview_title,
+          title = Conf.Picker.PREVIEW_TITLE,
           title_pos = 'center',
           position = { preview_height_offset, -preview_width_offset },
           size = {

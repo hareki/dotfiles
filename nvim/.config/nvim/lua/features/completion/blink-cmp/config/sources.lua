@@ -57,13 +57,13 @@ M.default = {
       name = 'Ripgrep',
       module = 'blink-ripgrep',
       max_items = 3,
-      min_keyword_length = Conf.Cmp.ripgrep_min_keyword_length,
+      min_keyword_length = Conf.Cmp.RIPGREP_MIN_KEYWORD_LENGTH,
       score_offset = -10,
 
       --- @module "blink-ripgrep"
       --- @type blink-ripgrep.Options
       opts = {
-        prefix_min_len = Conf.Cmp.ripgrep_min_keyword_length,
+        prefix_min_len = Conf.Cmp.RIPGREP_MIN_KEYWORD_LENGTH,
         backend = {
           use = 'gitgrep',
           context_size = 6,
@@ -93,7 +93,7 @@ M.default = {
       module = 'minuet.blink',
       -- With minuet `add_single_line_entry` we might get more than this
       -- max_items = Conf.Cmp.ai_cmp_max_items,
-      timeout_ms = Conf.Cmp.ai_cmp_timeout_ms,
+      timeout_ms = Conf.Cmp.AI_CMP_TIMEOUT_MS,
       async = true,
       score_offset = -100,
     },

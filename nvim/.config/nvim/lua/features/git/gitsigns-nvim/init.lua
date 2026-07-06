@@ -39,7 +39,7 @@ return {
         },
 
         get_popup_max_height = function()
-          return math.floor(vim.o.lines * Conf.Size.inline_popup.max_height)
+          return math.floor(vim.o.lines * Conf.Size.inline_popup.MAX_HEIGHT)
         end,
         preview_config = {
           border = 'rounded',
