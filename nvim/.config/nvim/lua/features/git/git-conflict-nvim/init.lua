@@ -46,6 +46,7 @@ return {
       -- Window-local 'winhighlight' redirect: only the listed groups are
       -- remapped in the conflict window, leaving every other highlight
       -- (NvimTreeWindowPicker, statusline, etc.) to resolve normally.
+
       -- We intentionally do NOT use nvim_win_set_hl_ns: with a window
       -- namespace set, winhighlight redirects in OTHER plugins (e.g.
       -- nvim-tree's picker remapping StatusLine -> NvimTreeWindowPicker)
@@ -193,6 +194,7 @@ return {
 
                 -- Cursor movement is debounced because cursor_in_conflict
                 -- scans up to 1000 lines and can stutter when held down.
+
                 -- BufWinEnter stays synchronous to avoid a visible gap when
                 -- entering a new split (which starts with empty winhighlight).
                 if args.event == 'CursorMoved' or args.event == 'CursorMovedI' then
