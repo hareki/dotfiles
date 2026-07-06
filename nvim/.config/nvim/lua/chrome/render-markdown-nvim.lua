@@ -20,14 +20,14 @@ return {
         },
         callout = {
           error = {
-            rendered = Conf.Icons.diagnostics.Error .. 'Error',
+            rendered = Conf.Icons.diagnostics.ERROR .. 'Error',
           },
           hint = {
             highlight = 'RenderMarkdownHint',
           },
         },
         quote = {
-          icon = Conf.Icons.misc.quote_bar, -- Thinner line for quotes
+          icon = Conf.Icons.misc.QUOTE_BAR, -- Thinner line for quotes
         },
       }
     end,

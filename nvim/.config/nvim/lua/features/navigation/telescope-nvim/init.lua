@@ -59,7 +59,7 @@ return {
           prompt_prefix = Conf.Picker.PROMPT_PREFIX,
           selection_caret = ' ',
           entry_prefix = ' ', -- keep list text aligned
-          multi_icon = vim.trim(Conf.Icons.file_tree.selected) .. ' ',
+          multi_icon = vim.trim(Conf.Icons.file_tree.SELECTED) .. ' ',
           get_status_text = function(self, opts)
             -- Prevent flashing the loading asterisk indicator
             opts = opts or {}
@@ -75,7 +75,7 @@ return {
           end,
           -- Merge prompt and results windows
           results_title = false,
-          borderchars = Conf.Icons.borders.telescope,
+          borderchars = Conf.Icons.telescope_borders,
 
           -- Make results appear from top to bottom
           -- https://github.com/nvim-telescope/telescope.nvim/issues/1933

@@ -187,9 +187,9 @@ M.g = {
   {
     'g,',
     desc = 'Go to [count] Newer Position in Change List',
-    icon = Conf.Icons.navigation.right,
+    icon = Conf.Icons.navigation.RIGHT,
   },
-  { 'g;', desc = 'Go to [count] Older Position in Change List', icon = Conf.Icons.navigation.left },
+  { 'g;', desc = 'Go to [count] Older Position in Change List', icon = Conf.Icons.navigation.LEFT },
   { 'gN', desc = 'Search Backwards and Select' },
   { 'gT', desc = 'Go to Previous Tab Page' },
   { 'gf', desc = 'Go to File Under Cursor' },

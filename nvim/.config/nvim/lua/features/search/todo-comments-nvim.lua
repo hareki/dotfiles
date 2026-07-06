@@ -43,7 +43,7 @@ return {
 
   opts = {
     keywords = {
-      FIX = { icon = Conf.Icons.tools.debug },
+      FIX = { icon = Conf.Icons.tools.DEBUG },
     },
     highlight = {
       multiline = false,

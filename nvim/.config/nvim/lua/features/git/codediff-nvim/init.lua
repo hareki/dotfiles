@@ -32,8 +32,8 @@ return {
           view_mode = 'tree',
 
           icons = {
-            folder_closed = Conf.Icons.file_tree.folder,
-            folder_open = Conf.Icons.file_tree.folder_open,
+            folder_closed = Conf.Icons.file_tree.FOLDER,
+            folder_open = Conf.Icons.file_tree.FOLDER_OPEN,
           },
         },
       }

@@ -6,7 +6,7 @@ local common = Defer.on_exported_call('utils.common')
 
 return {
   UI.which_key({
-    rules = { plugin = 'eagle.nvim', icon = Conf.Icons.tools.eagle, color = 'yellow' },
+    rules = { plugin = 'eagle.nvim', icon = Conf.Icons.tools.EAGLE, color = 'yellow' },
   }),
 
   {
@@ -46,10 +46,10 @@ return {
         improved_markdown = {
           replace_dashes = false,
           severity_renderer = {
-            ERROR = { icon = Conf.Icons.diagnostics.Error, hl = 'RenderMarkdownError' },
-            WARNING = { icon = Conf.Icons.diagnostics.Warn, hl = 'RenderMarkdownWarn' },
-            INFO = { icon = Conf.Icons.diagnostics.Info, hl = 'RenderMarkdownInfo' },
-            HINT = { icon = Conf.Icons.diagnostics.Hint, hl = 'RenderMarkdownHint' },
+            ERROR = { icon = Conf.Icons.diagnostics.ERROR, hl = 'RenderMarkdownError' },
+            WARNING = { icon = Conf.Icons.diagnostics.WARN, hl = 'RenderMarkdownWarn' },
+            INFO = { icon = Conf.Icons.diagnostics.INFO, hl = 'RenderMarkdownInfo' },
+            HINT = { icon = Conf.Icons.diagnostics.HINT, hl = 'RenderMarkdownHint' },
           },
         },
 

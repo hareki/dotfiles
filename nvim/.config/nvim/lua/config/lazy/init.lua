@@ -18,8 +18,8 @@ lazy.setup({
     backdrop = 100,
     title = ' Plugin Manager ',
     icons = {
-      loaded = Conf.Icons.misc.package_active,
-      not_loaded = Conf.Icons.misc.package_inactive,
+      loaded = Conf.Icons.misc.PACKAGE_ACTIVE,
+      not_loaded = Conf.Icons.misc.PACKAGE_INACTIVE,
     },
   },
   spec = {

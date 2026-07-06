@@ -133,9 +133,9 @@ end
 function M.pill_virt_text(content, inner_hl, outer_hl)
   return {
     { ' ' },
-    { Conf.Icons.misc.pill_left, outer_hl },
+    { Conf.Icons.misc.PILL_LEFT, outer_hl },
     { content, inner_hl },
-    { Conf.Icons.misc.pill_right, outer_hl },
+    { Conf.Icons.misc.PILL_RIGHT, outer_hl },
   }
 end
 
@@ -144,9 +144,9 @@ end
 --- @return integer width Total display width in columns
 function M.pill_display_width(content)
   return 1
-    + vim.fn.strdisplaywidth(Conf.Icons.misc.pill_left)
+    + vim.fn.strdisplaywidth(Conf.Icons.misc.PILL_LEFT)
     + vim.fn.strdisplaywidth(content)
-    + vim.fn.strdisplaywidth(Conf.Icons.misc.pill_right)
+    + vim.fn.strdisplaywidth(Conf.Icons.misc.PILL_RIGHT)
 end
 
 --- Generate telescope layout configuration for a given size preset

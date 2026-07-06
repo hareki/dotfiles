@@ -100,7 +100,7 @@ return {
             separator = separator,
             fmt = string.lower,
             icon = {
-              Conf.Icons.misc.neovim .. ' ',
+              Conf.Icons.misc.NEOVIM .. ' ',
               color = mode.icon_color,
             },
             color = mode.color,

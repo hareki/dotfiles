@@ -27,7 +27,7 @@ return {
   end),
 
   UI.which_key({
-    rules = { plugin = 'dropbar.nvim', icon = Conf.Icons.tools.breadcrumb, color = 'purple' },
+    rules = { plugin = 'dropbar.nvim', icon = Conf.Icons.tools.BREADCRUMB, color = 'purple' },
   }),
 
   {
@@ -60,15 +60,15 @@ return {
         icons = {
           ui = {
             menu = {
-              indicator = ' ' .. Conf.Icons.file_tree.collapsed .. ' ',
+              indicator = ' ' .. Conf.Icons.file_tree.COLLAPSED .. ' ',
             },
           },
           kinds = {
             symbols = {
               Folder = '',
-              FolderMenu = Conf.Icons.file_tree.folder .. ' ',
-              FolderEmptyMenu = Conf.Icons.file_tree.folder_empty .. ' ',
-              FolderOpenMenu = Conf.Icons.file_tree.folder_open .. ' ',
+              FolderMenu = Conf.Icons.file_tree.FOLDER .. ' ',
+              FolderEmptyMenu = Conf.Icons.file_tree.FOLDER_EMPTY .. ' ',
+              FolderOpenMenu = Conf.Icons.file_tree.FOLDER_OPEN .. ' ',
             },
           },
         },
@@ -90,7 +90,7 @@ return {
 
             if vim.bo[buf].ft == 'NvimTree' then
               return dropbar_utils.title_symbol({
-                icon = Conf.Icons.tools.tree,
+                icon = Conf.Icons.tools.TREE,
                 icon_hl = 'DropBarIconGreen',
 
                 name = ' File Tree',
@@ -100,7 +100,7 @@ return {
 
             if vim.bo[buf].ft == 'codediff-history' then
               return dropbar_utils.title_symbol({
-                icon = Conf.Icons.kinds.History .. ' ',
+                icon = Conf.Icons.cmp_kinds.History .. ' ',
                 icon_hl = 'DropBarIconPurple',
 
                 name = 'Diff History',
@@ -110,7 +110,7 @@ return {
 
             if vim.bo[buf].ft == 'codediff-explorer' then
               return dropbar_utils.title_symbol({
-                icon = Conf.Icons.git.diff .. ' ',
+                icon = Conf.Icons.git.DIFF .. ' ',
                 icon_hl = 'DropBarIconYellow',
 
                 name = 'Diff Explorer',

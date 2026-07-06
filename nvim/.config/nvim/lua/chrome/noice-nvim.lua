@@ -29,8 +29,8 @@ return {
         },
         cmdline = {
           format = {
-            search_down = { icon = Conf.Icons.actions.search .. Conf.Icons.navigation.down },
-            search_up = { icon = Conf.Icons.actions.search .. Conf.Icons.navigation.up },
+            search_down = { icon = Conf.Icons.actions.SEARCH .. Conf.Icons.navigation.DOWN },
+            search_up = { icon = Conf.Icons.actions.SEARCH .. Conf.Icons.navigation.UP },
           },
         },
         messages = {

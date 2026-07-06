@@ -1,6 +1,6 @@
 return {
   UI.which_key({
-    rules = { plugin = 'auto-session', icon = Conf.Icons.tools.session, color = 'green' },
+    rules = { plugin = 'auto-session', icon = Conf.Icons.tools.SESSION, color = 'green' },
   }),
 
   {

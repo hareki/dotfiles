@@ -9,15 +9,15 @@ return {
     rules = {
       {
         pattern = 'dismiss all notifications',
-        icon = Conf.Icons.editor.dismiss_notification,
+        icon = Conf.Icons.editor.DISMISS_NOTIFICATION,
         color = 'yellow',
       },
       {
         pattern = 'show notification',
-        icon = Conf.Icons.editor.show_notification,
+        icon = Conf.Icons.editor.SHOW_NOTIFICATION,
         color = 'yellow',
       },
-      { pattern = 'notification', icon = Conf.Icons.editor.notification, color = 'yellow' },
+      { pattern = 'notification', icon = Conf.Icons.editor.NOTIFICATION, color = 'yellow' },
     },
   }),
 

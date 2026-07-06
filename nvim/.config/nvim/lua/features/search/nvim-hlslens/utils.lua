@@ -36,12 +36,12 @@ function M.search_text_handler(render, position_list, nearest, index, relative_i
   if abs_relative_index > 1 then
     indicator = ('%d%s'):format(
       abs_relative_index,
-      search_forward ~= (relative_index > 1) and Conf.Icons.navigation.up
-        or Conf.Icons.navigation.down
+      search_forward ~= (relative_index > 1) and Conf.Icons.navigation.UP
+        or Conf.Icons.navigation.DOWN
     )
   elseif abs_relative_index == 1 then
-    indicator = search_forward ~= (relative_index == 1) and Conf.Icons.navigation.up
-      or Conf.Icons.navigation.down
+    indicator = search_forward ~= (relative_index == 1) and Conf.Icons.navigation.UP
+      or Conf.Icons.navigation.DOWN
   else
     indicator = ''
   end
@@ -54,9 +54,9 @@ function M.search_text_handler(render, position_list, nearest, index, relative_i
   if nearest then
     local count = #position_list
     if indicator ~= '' then
-      text = ('%s%s %d/%d'):format(Conf.Icons.actions.search, indicator, index, count)
+      text = ('%s%s %d/%d'):format(Conf.Icons.actions.SEARCH, indicator, index, count)
     else
-      text = ('%s%d/%d'):format(Conf.Icons.actions.search, index, count)
+      text = ('%s%d/%d'):format(Conf.Icons.actions.SEARCH, index, count)
     end
     chunks = UI.pill_virt_text(text, 'HlSearchLensPillNearInner', 'HlSearchLensPillNearOuter')
   else

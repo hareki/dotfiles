@@ -1,7 +1,7 @@
 return {
   UI.which_key({
     specs = { '<leader>H', group = 'Pin File', mode = { 'n', 'v' } },
-    rules = { pattern = 'pin', icon = Conf.Icons.tools.pin, color = 'yellow' },
+    rules = { pattern = 'pin', icon = Conf.Icons.tools.PIN, color = 'yellow' },
   }),
 
   {

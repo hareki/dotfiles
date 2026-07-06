@@ -1,6 +1,6 @@
 local lualine_require = require('lualine_require')
 local component = lualine_require.require('lualine.component')
-local unmerged_icon = Conf.Icons.git.unmerged .. ' '
+local unmerged_icon = Conf.Icons.git.UNMERGED .. ' '
 
 --- @class chrome.lualine.components.buffer-status : lualine.component
 local M = component:extend()
@@ -96,27 +96,27 @@ local function get_current_unsaved()
   local out = {}
 
   if name == '' then
-    if status.unnamed ~= '' then
-      out[#out + 1] = status.unnamed
+    if status.UNNAMED ~= '' then
+      out[#out + 1] = status.UNNAMED
     end
   else
     if bo.buftype == '' then
-      if not vim.uv.fs_stat(name) and status.new ~= '' then
-        out[#out + 1] = status.new
+      if not vim.uv.fs_stat(name) and status.NEW ~= '' then
+        out[#out + 1] = status.NEW
       end
     end
   end
 
   local is_readonly = (bo.readonly or not bo.modifiable or bo.buftype == 'nowrite')
-    and status.readonly ~= ''
+    and status.READONLY ~= ''
 
   if is_readonly then
-    out[#out + 1] = status.readonly
+    out[#out + 1] = status.READONLY
   end
 
-  local is_modified = bo.modified and status.modified ~= '' and not is_readonly
+  local is_modified = bo.modified and status.MODIFIED ~= '' and not is_readonly
   if is_modified then
-    out[#out + 1] = status.modified
+    out[#out + 1] = status.MODIFIED
   end
 
   local result = table.concat(out)
@@ -154,7 +154,7 @@ local function get_global_unsaved()
   end
 
   local status = Conf.Icons.file_status
-  local result = count > 0 and status.modified .. count .. '  ' or ''
+  local result = count > 0 and status.MODIFIED .. count .. '  ' or ''
   cache.global_unsaved = result
 
   return result

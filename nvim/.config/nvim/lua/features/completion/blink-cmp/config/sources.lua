@@ -33,7 +33,7 @@ M.default = {
   },
 
   providers = {
-    lsp = { opts = { tailwind_color_icon = Conf.Icons.misc.tailwind_color } },
+    lsp = { opts = { tailwind_color_icon = Conf.Icons.misc.TAILWIND_COLOR } },
 
     datword = {
       name = 'Datword',

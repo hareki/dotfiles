@@ -14,15 +14,15 @@ return {
 
   UI.which_key({
     specs = { '<leader>h', group = 'Gitsigns', mode = { 'n', 'v' } },
-    rules = { pattern = 'gitsigns', icon = Conf.Icons.git.sign, color = 'yellow' },
+    rules = { pattern = 'gitsigns', icon = Conf.Icons.git.SIGN, color = 'yellow' },
   }),
 
   {
     'hareki/gitsigns.nvim',
     event = 'VeryLazy',
     opts = function()
-      local hunk = Conf.Icons.git.hunk
-      local hunk_delete = Conf.Icons.git.hunk_delete
+      local hunk = Conf.Icons.git.HUNK
+      local hunk_delete = Conf.Icons.git.HUNK_DELETE
       local utils = require('features.git.gitsigns-nvim.utils')
       local build_popup_navigation = utils.build_popup_navigation
 

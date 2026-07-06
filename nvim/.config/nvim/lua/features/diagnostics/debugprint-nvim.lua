@@ -6,7 +6,7 @@ local debugprint = Defer.on_exported_call('debugprint')
 return {
   UI.which_key({
     specs = { '<leader>?', group = 'Debug' },
-    rules = { plugin = 'debugprint.nvim', icon = Conf.Icons.tools.debug, color = 'red' },
+    rules = { plugin = 'debugprint.nvim', icon = Conf.Icons.tools.DEBUG, color = 'red' },
   }),
 
   {

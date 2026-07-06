@@ -231,8 +231,8 @@ return {
         picker = {
           icons = {
             ui = {
-              selected = Conf.Icons.file_tree.selected,
-              unselected = Conf.Icons.file_tree.unselected,
+              selected = Conf.Icons.file_tree.SELECTED,
+              unselected = Conf.Icons.file_tree.UNSELECTED,
             },
           },
           ui_select = true,

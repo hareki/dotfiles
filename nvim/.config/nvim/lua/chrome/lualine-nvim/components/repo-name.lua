@@ -6,6 +6,6 @@ function M.get()
   return utils.get_repo_name()
 end
 
-M.icon = Conf.Icons.file_tree.folder
+M.icon = Conf.Icons.file_tree.FOLDER
 
 return M

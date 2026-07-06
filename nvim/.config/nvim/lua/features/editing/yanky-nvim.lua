@@ -24,7 +24,7 @@ return {
   end),
 
   UI.which_key({
-    rules = { pattern = 'yank', icon = Conf.Icons.actions.yank, color = 'yellow' },
+    rules = { pattern = 'yank', icon = Conf.Icons.actions.YANK, color = 'yellow' },
   }),
 
   {

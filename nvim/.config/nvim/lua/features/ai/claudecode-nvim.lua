@@ -3,7 +3,7 @@ local prefix = 'Claude Code: '
 return {
   UI.which_key({
     specs = { '<leader>a', group = 'Claude Code', mode = { 'n', 'v' } },
-    rules = { pattern = 'claude', icon = Conf.Icons.kinds.Claude, color = 'orange' },
+    rules = { pattern = 'claude', icon = Conf.Icons.cmp_kinds.Claude, color = 'orange' },
   }),
 
   {

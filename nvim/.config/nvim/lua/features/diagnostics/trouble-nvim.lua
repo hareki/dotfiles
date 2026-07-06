@@ -109,8 +109,8 @@ return {
         },
 
         icons = {
-          folder_closed = Conf.Icons.file_tree.folder,
-          folder_open = Conf.Icons.file_tree.folder_empty_open,
+          folder_closed = Conf.Icons.file_tree.FOLDER,
+          folder_open = Conf.Icons.file_tree.FOLDER_EMPTY_OPEN,
         },
 
         preview = {
