@@ -20,11 +20,6 @@ M.default = {
   list = {
     selection = {
       preselect = true,
-      -- Super-tab config: https://github.com/Saghen/blink.cmp/blob/242fd1f31dd619ccb7fa7b5895e046ad675b411b/doc/configuration/keymap.md#super-tab
-      -- preselect = function()
-      --   local blink = require('blink.cmp')
-      --   return not blink.snippet_active({ direction = 1 })
-      -- end,
       auto_insert = false,
     },
   },

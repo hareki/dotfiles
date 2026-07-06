@@ -135,11 +135,6 @@ return {
   end,
 
   opts = function()
-    -- local mise_where = vim
-    --   .system({ 'mise', 'where', 'npm:@styled/typescript-styled-plugin' }, { text = true })
-    --   :wait()
-    -- local plugin_root = mise_where and vim.trim(mise_where.stdout or '') or ''
-
     -- PERF: Hardcode it for faster resolve time, since the version rarely changes anyway
     local mise_where =
       vim.fn.expand('~/.local/share/mise/installs/npm-styled-typescript-styled-plugin/1')

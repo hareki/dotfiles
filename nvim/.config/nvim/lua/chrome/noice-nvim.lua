@@ -99,7 +99,6 @@ return {
                 { find = '; before #%d+' },
               },
             },
-            -- view = 'mini',
             opts = {
               skip = true,
             },

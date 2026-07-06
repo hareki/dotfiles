@@ -41,7 +41,6 @@ return {
       local state = tree.state
 
       return {
-        -- title_format = ' %s ', -- Use file name as title
         title_format = Conf.Picker.PREVIEW_TITLE,
         zindex = 50, -- The default value makes vim.ui.input behind the preview window
         image_preview = { enable = true },

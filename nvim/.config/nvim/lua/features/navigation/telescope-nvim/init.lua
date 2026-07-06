@@ -57,7 +57,6 @@ return {
         },
         defaults = {
           prompt_prefix = Conf.Picker.PROMPT_PREFIX,
-          -- selection_caret = ' ',
           selection_caret = ' ',
           entry_prefix = ' ', -- keep list text aligned
           multi_icon = vim.trim(Conf.Icons.file_tree.selected) .. ' ',
@@ -152,7 +151,6 @@ return {
           find_files = {
             find_command = utils.find_command,
             hidden = true,
-            -- layout_config = { scroll_speed = 3 }  -- Configure scroll speed per picker
           },
 
           diagnostics = {

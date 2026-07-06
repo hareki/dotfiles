@@ -91,8 +91,6 @@ M.default = {
     minuet = {
       name = 'Minuet',
       module = 'minuet.blink',
-      -- With minuet `add_single_line_entry` we might get more than this
-      -- max_items = Conf.Cmp.ai_cmp_max_items,
       timeout_ms = Conf.Cmp.AI_CMP_TIMEOUT_MS,
       async = true,
       score_offset = -100,

@@ -23,17 +23,6 @@ return {
     end
 
     vim.diagnostic.config({
-      -- https://neovim.io/doc/user/diagnostic.html#vim.diagnostic.Opts.VirtualLines
-      -- virtual_lines = {
-      --   current_line = true,
-      -- },
-
-      -- https://neovim.io/doc/user/diagnostic.html#vim.diagnostic.Opts.VirtualText
-      -- virtual_text = {
-      --   current_line = true,
-      --   source = false,
-      --   prefix = '●',
-      -- },
       underline = true,
       update_in_insert = false,
       severity_sort = true,
