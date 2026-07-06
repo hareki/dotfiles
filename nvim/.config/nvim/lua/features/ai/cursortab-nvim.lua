@@ -17,13 +17,9 @@ return {
     opts = function()
       return {
         provider = {
-          type = 'sweepapi',
-          api_key_env = 'SWEEPAPI_TOKEN',
-          model = 'sweep-next-edit-7b',
+          type = 'mercuryapi',
+          api_key_env = Conf.Cmp.ai_mercury_key,
         },
-        -- provider = {
-        --   type = 'copilot',
-        -- },
       }
     end,
   },

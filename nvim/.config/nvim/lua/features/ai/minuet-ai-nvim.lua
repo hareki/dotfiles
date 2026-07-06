@@ -22,7 +22,7 @@ return {
           name = 'Minuet',
           model = 'mercury-edit-2',
           end_point = 'https://api.inceptionlabs.ai/v1/fim/completions',
-          api_key = 'MERCURY_API_KEY',
+          api_key = Conf.Cmp.ai_mercury_key,
           stream = true,
         },
       },
