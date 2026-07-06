@@ -19,7 +19,7 @@ local state = {}
 
 --- @param picker_name string
 --- @param key string
---- @return boolean|number|string|nil
+--- @return boolean | number | string | nil
 function M.get(picker_name, key)
   if not PICKERS_WITH_STATE[picker_name] then
     return nil
@@ -38,7 +38,7 @@ end
 
 --- @param picker_name string
 --- @param key string
---- @param value boolean|number|string
+--- @param value boolean | number | string
 function M.set(picker_name, key, value)
   if not PICKERS_WITH_STATE[picker_name] then
     return

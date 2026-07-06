@@ -55,7 +55,7 @@ end
 
 --- Focus a window without triggering autocommands
 --- If current window is a floating markdown preview, repaint it after focus change.
---- @param win integer|nil Window handle to focus (0/nil returns false)
+--- @param win integer | nil Window handle to focus (0/nil returns false)
 --- @return boolean success True if window was successfully focused
 function M.focus_win(win)
   if not win or win == 0 or not vim.api.nvim_win_is_valid(win) then

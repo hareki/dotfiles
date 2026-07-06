@@ -11,7 +11,7 @@ end
 
 --- Create an empty component (1 margin unit)
 --- @param palette table Color palette
---- @param cond function|nil Condition function (synced with main component)
+--- @param cond function | nil Condition function (synced with main component)
 --- @return table component Empty lualine component
 local function create_empty_comp(palette, cond)
   return {
@@ -26,7 +26,7 @@ end
 --- Create margin components (empty_comp repeated n times)
 --- @param count number Number of margin units
 --- @param palette table Color palette
---- @param cond function|nil Condition function
+--- @param cond function | nil Condition function
 --- @return table[] components Array of empty components
 local function create_margins(count, palette, cond)
   local margins = {}
@@ -46,7 +46,7 @@ local DEFAULTS = {
 }
 
 --- Create lualine components with consistent styling
---- @param opts { type: 'primary-left'|'primary-right'|'secondary-left'|'secondary-right', comp: string|function, color: string, icon: string, margin?: {left: number, right: number}, padding?: {left: number, right: number}, palette?: table, [string]: any }
+--- @param opts { type: 'primary-left' | 'primary-right' | 'secondary-left' | 'secondary-right', comp: string | function, color: string, icon: string, margin?: {left: number, right: number}, padding?: {left: number, right: number}, palette?: table, [string]: any }
 --- @return table[] components Array of lualine components (main + margins for primary types)
 function M.create_styling_wrapper(opts)
   local palette = opts.palette

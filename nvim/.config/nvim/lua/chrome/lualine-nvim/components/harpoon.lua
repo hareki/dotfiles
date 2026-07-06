@@ -4,7 +4,7 @@ local M = {}
 --- @class Lualine.Components.harpoon.Cache
 --- @field buf integer
 --- @field length integer
---- @field text string|nil
+--- @field text string | nil
 local cache = {
   buf = -1,
   length = -1,
@@ -24,7 +24,7 @@ end
 --- The statusline re-evaluates on every redraw, so building the list item
 --- (plenary path normalization + cwd) each time is wasted work; cache by
 --- (current buffer, list length) and let BufEnter-driven redraws re-key it.
---- @return string|nil formatted as "1 [3] 4" or nil if harpoon list is empty
+--- @return string | nil formatted as "1 [3] 4" or nil if harpoon list is empty
 local function compute()
   local harpoon = require('harpoon')
   local list = harpoon:list()
@@ -66,7 +66,7 @@ local function compute()
 end
 
 --- Get all harpoon indices that have files, with current buffer's index wrapped in brackets
---- @return string|nil formatted as "1 [3] 4" or nil if harpoon list is empty
+--- @return string | nil formatted as "1 [3] 4" or nil if harpoon list is empty
 function M.get()
   return compute()
 end

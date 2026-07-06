@@ -277,7 +277,7 @@ end
 --- Returns a lazy.nvim spec that contributes to which-key's configuration.
 --- Icon rules are prepended (higher priority than generic rules in the main spec).
 --- @module 'which-key'
---- @param config { specs?: wk.Spec, rules?: wk.IconRule|wk.IconRule[] }
+--- @param config { specs?: wk.Spec, rules?: wk.IconRule | wk.IconRule[] }
 --- @return table spec A lazy.nvim plugin spec for which-key.nvim
 function M.which_key(config)
   local specs = config.specs

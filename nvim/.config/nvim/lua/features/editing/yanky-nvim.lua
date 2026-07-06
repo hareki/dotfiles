@@ -1,5 +1,5 @@
 --- @class snacks.picker
---- @field yanky fun(opts?: snacks.picker.Config|{}): snacks.Picker
+--- @field yanky fun(opts?: snacks.picker.Config | {}): snacks.Picker
 
 return {
   UI.catppuccin(function(palette)

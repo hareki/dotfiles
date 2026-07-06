@@ -25,7 +25,7 @@ end
 --- Searches for conflict markers and determines which region the cursor is in.
 --- Uses a single bulk line fetch instead of per-line API calls for performance.
 --- @return boolean in_conflict True if cursor is in a conflict block
---- @return string|nil region 'current', 'incoming', 'ancestor', 'current_separator', 'ancestor_separator', 'separator', or 'incoming_separator'
+--- @return string | nil region 'current', 'incoming', 'ancestor', 'current_separator', 'ancestor_separator', 'separator', or 'incoming_separator'
 function M.cursor_in_conflict()
   local bufnr = vim.api.nvim_get_current_buf()
   local cursor = vim.api.nvim_win_get_cursor(0)

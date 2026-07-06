@@ -31,7 +31,7 @@ end
 
 --- Get a plugin spec from lazy.nvim by name
 --- @param name string The plugin name
---- @return table|nil plugin The plugin spec or nil if not found
+--- @return table | nil plugin The plugin spec or nil if not found
 function M.get_plugin(name)
   local lazy_config = require('lazy.core.config')
   return lazy_config.spec.plugins[name]

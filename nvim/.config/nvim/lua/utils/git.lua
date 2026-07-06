@@ -102,8 +102,8 @@ end
 
 --- Execute a git command synchronously and return trimmed output
 --- @param cmd string The git command to execute (without 'git' prefix)
---- @param cwd string|nil The directory to run the command in (default: current)
---- @return string|nil output Trimmed stdout, or nil on error
+--- @param cwd string | nil The directory to run the command in (default: current)
+--- @return string | nil output Trimmed stdout, or nil on error
 function M.exec_cmd(cmd, cwd)
   local args = vim.split(cmd, '%s+')
   local git_cmd = { 'git' }
@@ -128,7 +128,7 @@ end
 
 --- Get the repository name from the git remote origin URL
 --- Strips .git suffix and extracts the last path component.
---- @return string|nil name The repository name, or nil if not found
+--- @return string | nil name The repository name, or nil if not found
 function M.get_repo_name_from_remote()
   local url = M.exec_cmd('config --get remote.origin.url')
   if not url or url == '' then
@@ -159,14 +159,14 @@ end
 --- Extract the repository name from a filesystem path
 --- Returns the last component of the path (directory/file name).
 --- @param path string The filesystem path
---- @return string|nil name The last path component, or nil if invalid
+--- @return string | nil name The last path component, or nil if invalid
 function M.get_repo_name_from_path(path)
   return path:match('([^/\\]+)$')
 end
 
 --- Get the repository name with caching and multiple fallback strategies
 --- Tries: remote URL → bare repo parent → toplevel dir → cwd name.
---- @return string|nil name The repository name, or nil if not determinable
+--- @return string | nil name The repository name, or nil if not determinable
 function M.get_repo_name()
   local current_cwd = vim.uv.cwd()
 
@@ -233,7 +233,7 @@ end
 
 --- Get the commit hash of the last commit affecting the current cursor line
 --- Uses git log -L to find the commit that last modified this line.
---- @return string|nil hash The commit hash, or nil if not found or not in a git repo
+--- @return string | nil hash The commit hash, or nil if not found or not in a git repo
 function M.get_current_line_commit()
   --- @type integer
   local line = vim.api.nvim_win_get_cursor(0)[1]
@@ -241,7 +241,7 @@ function M.get_current_line_commit()
   --- @type string
   local file = vim.api.nvim_buf_get_name(0)
 
-  --- @type string|nil
+  --- @type string | nil
   local root = Snacks.git.get_root()
   if not root then
     Notifier.error('Not inside a Git repository')
@@ -271,7 +271,7 @@ function M.get_current_line_commit()
 
   local output = vim.split((res.stdout or ''):gsub('\n$', ''), '\n')
 
-  --- @type string|nil
+  --- @type string | nil
   local current_commit = nil
   for _, out_line in ipairs(output) do
     current_commit = out_line:match('^commit%s+([0-9a-f]+)')

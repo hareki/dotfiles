@@ -28,7 +28,7 @@ end
 --- Filters out help files, terminals, and large files (>1MB).
 --- @param buf integer Buffer number
 --- @param win integer Window handle
---- @param _ table|nil Additional info (unused)
+--- @param _ table | nil Additional info (unused)
 --- @return boolean enabled True if dropbar should be enabled
 function M.enable(buf, win, _)
   buf = (buf == 0 or buf == nil) and vim.api.nvim_get_current_buf() or buf

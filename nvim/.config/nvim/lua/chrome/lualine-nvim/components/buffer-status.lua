@@ -17,9 +17,9 @@ local IGNORE_FILETYPES = {
   [''] = true,
 }
 --- @class chrome.lualine.components.buffer-status.Cache
---- @field current_unsaved string|nil
---- @field global_unsaved string|nil
---- @field global_conflict string|nil
+--- @field current_unsaved string | nil
+--- @field global_unsaved string | nil
+--- @field global_conflict string | nil
 --- @field last_bufnr number
 
 --- @type chrome.lualine.components.buffer-status.Cache

@@ -235,7 +235,7 @@ end
 
 --- Run format+lint on all modified listed buffers
 --- Shows a summary notification with success/error counts and file paths.
---- @param debug boolean|nil Enable verbose error messages
+--- @param debug boolean | nil Enable verbose error messages
 --- @return nil
 function M.run_all(debug)
   local all_buffers = {}

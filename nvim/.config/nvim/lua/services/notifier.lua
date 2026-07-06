@@ -7,8 +7,8 @@ local M = {}
 --- @alias NotifierOpts { level?: number, title?: string, once?: boolean, id?:string, on_open?: fun(), default_hl?: string, height_offset?: integer }
 
 --- @alias MessageTuple { [1]: string, [2]?: string }
---- @alias MessageChunk string|MessageTuple
---- @alias Message string|string[]|MessageChunk[]
+--- @alias MessageChunk string | MessageTuple
+--- @alias Message string | string[] | MessageChunk[]
 
 -- Per-id notification state. Only populated when opts.id is set, since only
 -- id'd notifications are ever replaced (and thus need their old autocmds cleaned
@@ -113,7 +113,7 @@ end
 
 --- Core notification function with rich highlighting and markdown support
 --- Supports both plain strings and tuple lists for custom highlight groups.
---- @param msg string|table Plain message or tuple list like {{text, hl}, ...}
+--- @param msg string | table Plain message or tuple list like {{text, hl}, ...}
 --- @param opts table? Notification options (level, title, once, id, on_open, default_hl)
 --- @return any handle The notification handle for replacement/tracking
 function M.notify(msg, opts)

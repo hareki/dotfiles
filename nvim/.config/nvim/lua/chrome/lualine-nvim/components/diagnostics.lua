@@ -23,7 +23,7 @@ local SEVERITY_NAMES = {
 -- back, and a per-buffer map would just accumulate entries that are never re-read.
 --- @class chrome.lualine.components.diagnostics.Cache
 --- @field buf integer
---- @field counts { error: integer, warn: integer, info: integer, hint: integer }|nil
+--- @field counts { error: integer, warn: integer, info: integer, hint: integer } | nil
 local cache = { buf = -1, counts = nil }
 
 local group = vim.api.nvim_create_augroup('chrome.lualine.diagnostics_cache', { clear = true })

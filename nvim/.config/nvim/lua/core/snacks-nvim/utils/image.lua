@@ -101,9 +101,9 @@ end
 --- prevents size juggling when the same image is rendered both inline and in
 --- the float, and ensures unsaved buffer edits (e.g. `.mmd` files) are picked
 --- up by re-hashing the live content.
---- @param original_src string|nil  Resolved on-disk file (used when `content` is nil)
+--- @param original_src string | nil  Resolved on-disk file (used when `content` is nil)
 --- @param ext string  File extension without leading dot
---- @param content string|nil  Raw bytes to persist (e.g. live buffer text)
+--- @param content string | nil  Raw bytes to persist (e.g. live buffer text)
 --- @return string?
 local function build_hover_src(original_src, ext, content)
   local cache = Snacks.image.config.cache

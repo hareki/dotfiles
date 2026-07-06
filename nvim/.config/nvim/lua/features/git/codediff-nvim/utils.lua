@@ -8,7 +8,7 @@ local views = {}
 
 --- Save the modified pane's view; it maps 1:1 to the working file's lines.
 --- @param tabpage integer
---- @return table|nil view winsaveview() result, or nil if the pane is gone
+--- @return table | nil view winsaveview() result, or nil if the pane is gone
 local function modified_view(tabpage)
   local lifecycle = require('codediff.ui.lifecycle')
   local _, modified_win = lifecycle.get_windows(tabpage)

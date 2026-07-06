@@ -2,8 +2,8 @@
 local M = {}
 
 --- Show the harpoon picker with items from the harpoon list
---- @param user_opts table|nil Optional picker configuration overrides
---- @return snacks.Picker|nil picker The picker instance, or nil if list is empty
+--- @param user_opts table | nil Optional picker configuration overrides
+--- @return snacks.Picker | nil picker The picker instance, or nil if list is empty
 M.show = function(user_opts)
   local harpoon = require('harpoon')
   local formatters = require('core.snacks-nvim.utils.formatters')

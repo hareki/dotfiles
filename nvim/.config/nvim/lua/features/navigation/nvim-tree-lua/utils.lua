@@ -181,7 +181,7 @@ end
 
 --- Toggle the preview window open/closed state
 --- Adjusts tree height in float mode and manages watch state.
---- @param force_state boolean|nil Force specific state (true=open, false=close, nil=toggle)
+--- @param force_state boolean | nil Force specific state (true=open, false=close, nil=toggle)
 --- @return nil
 function M.toggle_preview(force_state)
   local tree_win = api.tree.winid()
@@ -223,11 +223,11 @@ function M.toggle_focus()
 end
 
 --- @class nvim-tree.OpenParams
---- @field switching boolean|nil
+--- @field switching boolean | nil
 
 --- Open nvim-tree with optional switching behavior
 --- Resets to float position if not switching and tree is not visible.
---- @param opts nvim-tree.OpenParams|nil Options with switching flag
+--- @param opts nvim-tree.OpenParams | nil Options with switching flag
 --- @return nil
 function M.open(opts)
   local switching = opts and opts.switching or false
@@ -243,13 +243,13 @@ function M.open(opts)
 end
 
 --- Get the buffer number of the preview window
---- @return number|nil bufnr The preview buffer number, or nil if not open
+--- @return number | nil bufnr The preview buffer number, or nil if not open
 function M.preview_buf()
   return manager.instance and manager.instance.preview_buf
 end
 
 --- Get the window handle of the preview window
---- @return number|nil winid The preview window ID, or nil if not open
+--- @return number | nil winid The preview window ID, or nil if not open
 function M.preview_win()
   return manager.instance and manager.instance.preview_win
 end

@@ -1,6 +1,6 @@
 --- @class utils.project-config.Config
---- @field linter 'eslint'|'oxlint'
---- @field formatter 'prettier'|'oxfmt'
+--- @field linter 'eslint' | 'oxlint'
+--- @field formatter 'prettier' | 'oxfmt'
 
 --- @class utils.project-config
 local M = {}
@@ -8,7 +8,7 @@ local M = {}
 --- @type utils.project-config.Config
 local defaults = { linter = 'eslint', formatter = 'prettier' }
 
---- @type utils.project-config.Config|nil
+--- @type utils.project-config.Config | nil
 local cache
 
 --- Read and parse .neovimrc.json from the initial cwd, falling back to defaults.

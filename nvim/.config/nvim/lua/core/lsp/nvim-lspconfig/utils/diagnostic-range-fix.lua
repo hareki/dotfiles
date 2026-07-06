@@ -6,7 +6,7 @@ local M = {}
 
 --- Fix zero-width or out-of-bounds diagnostics to underline at least one character
 --- Corrects diagnostics that would otherwise be invisible due to invalid ranges.
---- @param line string|nil The line text for bounds checking
+--- @param line string | nil The line text for bounds checking
 --- @param diagnostic vim.Diagnostic The diagnostic to fix in-place
 --- @return nil
 local function fix_diagnostic_range(line, diagnostic)

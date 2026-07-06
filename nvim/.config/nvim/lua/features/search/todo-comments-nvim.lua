@@ -1,5 +1,5 @@
 --- @class snacks.picker
---- @field todo_comments fun(opts?: snacks.picker.todo.Config|{}): snacks.Picker
+--- @field todo_comments fun(opts?: snacks.picker.todo.Config | {}): snacks.Picker
 
 --- @module 'todo-comments'
 local todo_comments = Defer.on_exported_call('todo-comments')

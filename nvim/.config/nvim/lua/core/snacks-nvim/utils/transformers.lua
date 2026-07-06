@@ -35,7 +35,7 @@ end
 
 --- Transform function for file picker to filter out .DS_Store files
 --- @param item snacks.picker.Item The picker item to transform
---- @return snacks.picker.Item|false item The item or false to filter out
+--- @return snacks.picker.Item | false item The item or false to filter out
 function M.files_transform(item)
   if is_ds_store(item.file) then
     return false
@@ -47,7 +47,7 @@ end
 --- Transform function for keymap picker to enrich with which-key descriptions
 --- Looks up descriptions from which-key config and filters unwanted mappings.
 --- @param item snacks.picker.Item The picker item to transform
---- @return snacks.picker.Item|false item The enriched item or false to filter out
+--- @return snacks.picker.Item | false item The enriched item or false to filter out
 function M.keymap_transform(item)
   local keymap_registry = require('services.keymap-registry')
   local desc_overrides = keymap_registry.desc_overrides

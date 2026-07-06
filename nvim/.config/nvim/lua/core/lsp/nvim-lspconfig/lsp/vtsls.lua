@@ -117,9 +117,9 @@ return {
           end
         end
 
-        --- @param mode string|string[]
+        --- @param mode string | string[]
         --- @param lhs string
-        --- @param rhs string|function
+        --- @param rhs string | function
         --- @param desc string
         local function map(mode, lhs, rhs, desc)
           vim.keymap.set(mode, lhs, rhs, {

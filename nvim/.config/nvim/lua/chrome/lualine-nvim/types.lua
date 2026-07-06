@@ -6,5 +6,5 @@
 --- @field options table
 --- @field status string
 --- @field init fun(self, options?: table)
---- @field create_hl fun(self, color: table|string|function, hint?: string): table
+--- @field create_hl fun(self, color: table | string | function, hint?: string): table
 --- @field format_hl fun(self, hl_token: table): string

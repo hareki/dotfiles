@@ -3,7 +3,7 @@ local M = {}
 --- @alias TransformItems fun(ctx: blink.cmp.Context, items: blink.cmp.CompletionItem[]): blink.cmp.CompletionItem[]
 
 --- Returns a function that yields min keyword length for cmdline (or 0). Used so cmdline completion waits until after the first space.
---- @param length number|nil Minimum length when in cmdline before first space (default 3)
+--- @param length number | nil Minimum length when in cmdline before first space (default 3)
 --- @return fun(ctx: table): number
 function M.cmdline_min_keyword_length(length)
   return function(ctx)

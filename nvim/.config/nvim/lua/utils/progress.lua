@@ -9,10 +9,10 @@
 --- @field client_id      integer
 --- @field client_name    string
 --- @field _pending       boolean
---- @field _cached_kind   'begin'|'report'|'end'|nil
---- @field _cached_title  string|nil
---- @field _cached_perc   number|nil
---- @field _timer         uv.uv_timer_t|nil
+--- @field _cached_kind   'begin' | 'report' | 'end' | nil
+--- @field _cached_title  string | nil
+--- @field _cached_perc   number | nil
+--- @field _timer         uv.uv_timer_t | nil
 --- @field start          fun(self: utils.progress.Handle, title?: string, percentage?: number)
 --- @field report         fun(self: utils.progress.Handle, title?: string, percentage?: number)
 --- @field finish         fun(self: utils.progress.Handle, title?: string)
@@ -20,7 +20,7 @@
 --- @class utils.progress
 local M = {}
 
---- @param bufnr integer|nil
+--- @param bufnr integer | nil
 --- @return integer
 local function get_valid_client_id(bufnr)
   local client = vim.lsp.get_clients({ bufnr = bufnr or 0 })[1]
@@ -32,9 +32,9 @@ ProgressHandle.__index = ProgressHandle --[[@as utils.progress.Handle]]
 
 -- [[ Internal low‑level sender ]]
 --- @private
---- @param kind       'begin'|'report'|'end'
---- @param title      string|nil
---- @param percentage number|nil
+--- @param kind       'begin' | 'report' | 'end'
+--- @param title      string | nil
+--- @param percentage number | nil
 function ProgressHandle:_send(kind, title, percentage)
   local noice_progress = require('noice.lsp.progress')
   noice_progress.progress({
@@ -56,9 +56,9 @@ end
 -- treats as an abort (nothing is ever shown). Once delay passes
 -- (`self._pending == false`), all events go straight to Noice.
 --- @private
---- @param kind       'begin'|'report'|'end'
---- @param title      string|nil
---- @param percentage number|nil
+--- @param kind       'begin' | 'report' | 'end'
+--- @param title      string | nil
+--- @param percentage number | nil
 function ProgressHandle:_queue_or_send(kind, title, percentage)
   if self._pending then
     self._cached_kind = kind
@@ -106,7 +106,7 @@ end
 -- [[ Factory ]]
 --- Create a new progress handle for showing LSP-style progress notifications
 --- Supports delayed display via pending_ms to avoid flicker for fast operations.
---- @param opts utils.progress.CreateOpts|nil Options (token, client_name, client_id, pending_ms)
+--- @param opts utils.progress.CreateOpts | nil Options (token, client_name, client_id, pending_ms)
 --- @return utils.progress.Handle handle Progress handle with start/report/finish methods
 function M.create(opts)
   opts = opts or {}

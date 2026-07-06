@@ -75,7 +75,7 @@ return {
       return {
         terminal = {
           --- @module "snacks"
-          --- @type snacks.win.Config|{}
+          --- @type snacks.win.Config | {}
           snacks_win_opts = {
             title = ' Agentic Coding ',
             position = 'float',
