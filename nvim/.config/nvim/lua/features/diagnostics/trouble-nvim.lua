@@ -103,7 +103,7 @@ return {
         modes = {
           diagnostics = {
             -- Hide the synthetic empty-message duplicates injected by
-            -- diagnostic_underline_hack for underline styling
+            -- diagnostic-underline-hack for underline styling
             filter = { ['not'] = { source = 'underline-hack' } },
           },
         },

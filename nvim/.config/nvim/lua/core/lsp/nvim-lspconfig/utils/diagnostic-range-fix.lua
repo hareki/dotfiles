@@ -1,4 +1,4 @@
---- @class core.lsp.nvim-lspconfig.utils.diagnostic_range_fix
+--- @class core.lsp.nvim-lspconfig.utils.diagnostic-range-fix
 --- HACK: Some servers emit zero-width or out-of-bounds diagnostics whose end_col is 0
 --- and end_lnum is start_lnum+1, which makes them invisible. This module rewrites
 --- those ranges so they underline at least one character on the original line.

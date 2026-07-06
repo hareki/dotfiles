@@ -1,4 +1,4 @@
---- @class utils.style_enforcers.oxlint
+--- @class utils.style-enforcers.oxlint
 local M = {}
 
 --- Run oxlint auto-fix on a buffer via LSP

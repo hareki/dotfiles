@@ -3,9 +3,9 @@ return {
   -- https://www.reddit.com/r/neovim/comments/1l7pz1l/starting_from_0112_i_have_a_weird_issue
   event = 'VeryLazy',
   config = function()
-    local range_fix = require('core.lsp.nvim-lspconfig.utils.diagnostic_range_fix')
-    local underline_hack = require('core.lsp.nvim-lspconfig.utils.diagnostic_underline_hack')
-    local server_loader = require('core.lsp.nvim-lspconfig.utils.server_loader')
+    local range_fix = require('core.lsp.nvim-lspconfig.utils.diagnostic-range-fix')
+    local underline_hack = require('core.lsp.nvim-lspconfig.utils.diagnostic-underline-hack')
+    local server_loader = require('core.lsp.nvim-lspconfig.utils.server-loader')
 
     local original_set = vim.diagnostic.set
     --- @param namespace integer The diagnostic namespace
@@ -126,7 +126,7 @@ return {
     table.insert(servers, Project.linter == 'oxlint' and 'oxlint' or 'eslint')
 
     -- When oxfmt is the selected formatter, run it as an LSP server (see
-    -- lsp/oxfmt.lua + utils/style_enforcers/oxfmt.lua) instead of spawning the CLI.
+    -- lsp/oxfmt.lua + utils/style-enforcers/oxfmt.lua) instead of spawning the CLI.
     if Project.formatter == 'oxfmt' then
       table.insert(servers, 'oxfmt')
     end

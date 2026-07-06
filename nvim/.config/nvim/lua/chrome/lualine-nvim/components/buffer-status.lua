@@ -2,7 +2,7 @@ local lualine_require = require('lualine_require')
 local component = lualine_require.require('lualine.component')
 local unmerged_icon = Conf.Icons.git.unmerged .. ' '
 
---- @class chrome.lualine.components.buffer_status : lualine.component
+--- @class chrome.lualine.components.buffer-status : lualine.component
 local M = component:extend()
 
 local IGNORE_FILETYPES = {
@@ -16,13 +16,13 @@ local IGNORE_FILETYPES = {
   checkhealth = true,
   [''] = true,
 }
---- @class chrome.lualine.components.buffer_status.Cache
+--- @class chrome.lualine.components.buffer-status.Cache
 --- @field current_unsaved string|nil
 --- @field global_unsaved string|nil
 --- @field global_conflict string|nil
 --- @field last_bufnr number
 
---- @type chrome.lualine.components.buffer_status.Cache
+--- @type chrome.lualine.components.buffer-status.Cache
 local cache = {
   current_unsaved = nil,
   global_unsaved = nil,

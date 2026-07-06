@@ -14,7 +14,7 @@ local function diagnostic_goto(next, severity)
 end
 
 local function load_style_enforcers()
-  return require('utils.style_enforcers')
+  return require('utils.style-enforcers')
 end
 
 local function scroll_center(motion)
@@ -70,7 +70,7 @@ map({ 'n', 'i' }, '<A-s>', function()
 end, { desc = 'Format and Save' })
 
 map({ 'n', 'i' }, '<leader>F', function()
-  -- Still partially save the file when linter is oxlint, see `lua/utils/style_enforcers/oxlint.lua`
+  -- Still partially save the file when linter is oxlint, see `lua/utils/style-enforcers/oxlint.lua`
   load_style_enforcers().run({
     save = false,
   })

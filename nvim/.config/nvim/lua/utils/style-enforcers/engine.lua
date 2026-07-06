@@ -1,12 +1,12 @@
---- @class utils.style_enforcers.RunOpts
+--- @class utils.style-enforcers.RunOpts
 --- @field bufnr integer
 --- @field on_start fun(name: string, idx: integer, total: integer) | nil
 --- @field on_done  fun(name: string, ok: boolean, err?: string) | nil
 
---- @class utils.style_enforcers
+--- @class utils.style-enforcers
 local M = {}
 
---- @class utils.style_enforcers.Entry
+--- @class utils.style-enforcers.Entry
 --- @field name string
 --- @field filetypes string[]
 --- @field runner fun(opts: { bufnr: integer, on_done: fun(ok: boolean, err?: string) })
@@ -15,7 +15,7 @@ local M = {}
 
 local DEFAULT_ORDER = 100
 
---- @type utils.style_enforcers.Entry[]
+--- @type utils.style-enforcers.Entry[]
 local entries = {}
 local seq = 0
 
@@ -104,14 +104,14 @@ end
 
 --- Run a list of enforcers sequentially on a buffer
 --- @param names string[] List of enforcer names to run
---- @param opts utils.style_enforcers.RunOpts Options with bufnr, on_start, on_done callbacks
+--- @param opts utils.style-enforcers.RunOpts Options with bufnr, on_start, on_done callbacks
 --- @return nil
 function M.run(names, opts)
   run_next(names, opts, 1)
 end
 
 --- Auto-run all registered enforcers matching the buffer's filetype
---- @param opts utils.style_enforcers.RunOpts Options with bufnr, on_start, on_done callbacks
+--- @param opts utils.style-enforcers.RunOpts Options with bufnr, on_start, on_done callbacks
 --- @return nil
 function M.run_by_ft(opts)
   local bufnr = opts.bufnr

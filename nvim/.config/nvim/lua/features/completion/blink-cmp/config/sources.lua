@@ -10,9 +10,9 @@ local render_markdown = utils.register_kind('RenderMD')
 local extra_words_path = vim.fn.stdpath('config') .. '/words'
 local word_paths = {
   builtin = '/usr/share/dict/words',
-  google = extra_words_path .. '/google_10000_english_usa_no_swears_long.txt',
-  monkeytype = extra_words_path .. '/monkeytype_commonly_misspelled.txt',
-  my_words = extra_words_path .. '/my_words.txt',
+  google = extra_words_path .. '/google-10000-english-usa-no-swears-long.txt',
+  monkeytype = extra_words_path .. '/monkeytype-commonly-misspelled.txt',
+  my_words = extra_words_path .. '/my-words.txt',
 }
 
 M.default = {

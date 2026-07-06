@@ -15,8 +15,8 @@ return {
           return
         end
 
-        local engine = require('utils.style_enforcers.engine')
-        local oxfmt = require('utils.style_enforcers.oxfmt')
+        local engine = require('utils.style-enforcers.engine')
+        local oxfmt = require('utils.style-enforcers.oxfmt')
 
         -- Subset of oxfmt LSP's advertised filetypes that we want it to own.
         -- Excludes astro/mdx (oxfmt LSP doesn't support them) and toml (taplo owns it).

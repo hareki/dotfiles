@@ -1,4 +1,4 @@
---- @class chrome.lualine.components.repo_name
+--- @class chrome.lualine.components.repo-name
 local M = {}
 
 function M.get()

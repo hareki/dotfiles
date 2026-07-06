@@ -1,7 +1,7 @@
---- @class chrome.lualine.components.snacks_image
+--- @class chrome.lualine.components.snacks-image
 local M = {}
 
---- @class chrome.lualine.components.snacks_image.Cache
+--- @class chrome.lualine.components.snacks-image.Cache
 --- @field buf integer
 --- @field tick integer
 --- @field row integer

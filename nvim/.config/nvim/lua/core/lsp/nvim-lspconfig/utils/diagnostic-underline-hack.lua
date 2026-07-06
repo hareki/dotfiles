@@ -1,4 +1,4 @@
---- @class core.lsp.nvim-lspconfig.utils.diagnostic_underline_hack
+--- @class core.lsp.nvim-lspconfig.utils.diagnostic-underline-hack
 --- HACK: Diagnostics tagged "unnecessary" render with the faded DiagnosticUnnecessary
 --- highlight, which suppresses the severity-based underline. To get *both* effects,
 --- we duplicate the unnecessary diagnostic with the original severity but no tag —

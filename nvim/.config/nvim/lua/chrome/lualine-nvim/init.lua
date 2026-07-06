@@ -22,16 +22,16 @@ return {
   end,
 
   opts = function()
-    local buffer_status = require('chrome.lualine-nvim.components.buffer_status')
+    local buffer_status = require('chrome.lualine-nvim.components.buffer-status')
     local harpoon = require('chrome.lualine-nvim.components.harpoon')
     local macro = require('chrome.lualine-nvim.components.macro')
     local mode = require('chrome.lualine-nvim.components.mode')
     local diff = require('chrome.lualine-nvim.components.diff')
     local diagnostics = require('chrome.lualine-nvim.components.diagnostics')
-    local repo_name = require('chrome.lualine-nvim.components.repo_name')
+    local repo_name = require('chrome.lualine-nvim.components.repo-name')
     local branch = require('chrome.lualine-nvim.components.branch')
     local tab = require('chrome.lualine-nvim.components.tab')
-    local snacks_image = require('chrome.lualine-nvim.components.snacks_image')
+    local snacks_image = require('chrome.lualine-nvim.components.snacks-image')
 
     local palette = UI.get_palette()
 

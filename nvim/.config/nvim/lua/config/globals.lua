@@ -1,4 +1,4 @@
-_G.Defer = require('utils.lazy_require')
+_G.Defer = require('utils.lazy-require')
 
 --- @module 'services.notifier'
 _G.Notifier = Defer.on_exported_call('services.notifier')
@@ -25,5 +25,5 @@ _G.UI = require('utils.ui')
 --- @module 'services.statusline'
 _G.Statusline = require('services.statusline')
 
-local project_config = require('utils.project_config')
+local project_config = require('utils.project-config')
 _G.Project = project_config.get()

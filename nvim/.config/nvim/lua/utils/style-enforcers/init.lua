@@ -104,7 +104,7 @@ function M.run(opts)
   end
 
   local conform = require('conform')
-  local engine = require('utils.style_enforcers.engine')
+  local engine = require('utils.style-enforcers.engine')
   local progress_utils = require('utils.progress')
 
   progress = progress_utils.create({

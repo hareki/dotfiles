@@ -1,4 +1,4 @@
---- @class services.keymap_registry
+--- @class services.keymap-registry
 local M = {}
 
 M.desc_overrides = {

@@ -49,7 +49,7 @@ vim.api.nvim_create_autocmd('BufWipeout', {
 })
 
 --- Count diagnostics for the current buffer, excluding the synthetic
---- 'underline-hack' duplicates injected by diagnostic_underline_hack so
+--- 'underline-hack' duplicates injected by diagnostic-underline-hack so
 --- they don't inflate the displayed counts.
 --- @return { error: integer, warn: integer, info: integer, hint: integer }
 local function filtered_counts()

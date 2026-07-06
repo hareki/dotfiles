@@ -1,4 +1,4 @@
---- @class utils.hl_at_cursor
+--- @class utils.hl-at-cursor
 local M = {}
 
 local function uniq(list)

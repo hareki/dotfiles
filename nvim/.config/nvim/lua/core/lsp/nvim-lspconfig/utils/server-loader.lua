@@ -1,4 +1,4 @@
---- @class core.lsp.nvim-lspconfig.utils.server_loader
+--- @class core.lsp.nvim-lspconfig.utils.server-loader
 local M = {}
 
 --- Load all LSP server configurations from the lsp/ directory
