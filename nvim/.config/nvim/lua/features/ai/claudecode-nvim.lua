@@ -77,7 +77,7 @@ return {
           --- @module "snacks"
           --- @type snacks.win.Config | {}
           snacks_win_opts = {
-            title = ' Agentic Coding ',
+            title = ' Coding Agent ',
             position = 'float',
             width = size.width,
             height = size.height,
