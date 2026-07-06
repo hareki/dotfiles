@@ -7,7 +7,7 @@ local history = utils.register_kind('History')
 local spell = utils.register_kind('Spell')
 local render_markdown = utils.register_kind('RenderMD')
 
-local extra_words_path = vim.fn.stdpath('config') .. '/words'
+local extra_words_path = vim.fn.stdpath('config') .. '/lua/features/completion/blink-cmp/words'
 local word_paths = {
   builtin = '/usr/share/dict/words',
   google = extra_words_path .. '/google-10000-english-usa-no-swears-long.txt',
