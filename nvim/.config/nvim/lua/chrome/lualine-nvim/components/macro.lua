@@ -10,6 +10,6 @@ function M.cond()
   return vim.fn.reg_recording() ~= ''
 end
 
-M.icon = Conf.Icons.misc.MACRO
+M.icon = Conf.icons.misc.MACRO
 
 return M

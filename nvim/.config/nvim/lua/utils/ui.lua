@@ -133,9 +133,9 @@ end
 function M.pill_virt_text(content, inner_hl, outer_hl)
   return {
     { ' ' },
-    { Conf.Icons.misc.PILL_LEFT, outer_hl },
+    { Conf.icons.misc.PILL_LEFT, outer_hl },
     { content, inner_hl },
-    { Conf.Icons.misc.PILL_RIGHT, outer_hl },
+    { Conf.icons.misc.PILL_RIGHT, outer_hl },
   }
 end
 
@@ -144,9 +144,9 @@ end
 --- @return integer width Total display width in columns
 function M.pill_display_width(content)
   return 1
-    + vim.fn.strdisplaywidth(Conf.Icons.misc.PILL_LEFT)
+    + vim.fn.strdisplaywidth(Conf.icons.misc.PILL_LEFT)
     + vim.fn.strdisplaywidth(content)
-    + vim.fn.strdisplaywidth(Conf.Icons.misc.PILL_RIGHT)
+    + vim.fn.strdisplaywidth(Conf.icons.misc.PILL_RIGHT)
 end
 
 --- Generate telescope layout configuration for a given size preset
@@ -207,7 +207,7 @@ end
 --- @return integer width Width in columns
 --- @return integer height Height in rows
 function M.side_size(category, variant, with_border)
-  return M.compute_size(Conf.Size[category][variant], with_border)
+  return M.compute_size(Conf.size[category][variant], with_border)
 end
 
 --- @class utils.ui.WinConfig
@@ -229,7 +229,7 @@ function M.popup_config(size, with_border)
     window_w = computed_input_size.width
     window_h = computed_input_size.height
   else
-    local dimensions = Conf.Size.popup[size]
+    local dimensions = Conf.size.popup[size]
     if dimensions.WIDTH <= 1 then
       window_w = math.floor(screen_w * dimensions.WIDTH)
     else

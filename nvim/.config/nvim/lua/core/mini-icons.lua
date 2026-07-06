@@ -14,7 +14,7 @@ return {
     end,
 
     opts = function()
-      local icons = Conf.Icons.file_icons
+      local icons = Conf.icons.file_icons
 
       return {
         extension = {

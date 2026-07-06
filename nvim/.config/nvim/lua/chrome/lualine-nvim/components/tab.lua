@@ -40,6 +40,6 @@ function M.cond()
   return vim.fn.tabpagenr('$') > 1
 end
 
-M.icon = Conf.Icons.misc.TAB
+M.icon = Conf.icons.misc.TAB
 
 return M

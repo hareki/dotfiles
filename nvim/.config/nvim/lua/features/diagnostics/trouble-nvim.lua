@@ -109,15 +109,15 @@ return {
         },
 
         icons = {
-          folder_closed = Conf.Icons.file_tree.FOLDER,
-          folder_open = Conf.Icons.file_tree.FOLDER_EMPTY_OPEN,
+          folder_closed = Conf.icons.file_tree.FOLDER,
+          folder_open = Conf.icons.file_tree.FOLDER_EMPTY_OPEN,
         },
 
         preview = {
           type = 'float',
           relative = 'win',
           border = 'rounded',
-          title = Conf.Picker.PREVIEW_TITLE,
+          title = Conf.picker.PREVIEW_TITLE,
           title_pos = 'center',
           position = { preview_height_offset, -preview_width_offset },
           size = {

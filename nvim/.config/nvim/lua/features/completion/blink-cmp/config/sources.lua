@@ -33,7 +33,7 @@ M.default = {
   },
 
   providers = {
-    lsp = { opts = { tailwind_color_icon = Conf.Icons.misc.TAILWIND_COLOR } },
+    lsp = { opts = { tailwind_color_icon = Conf.icons.misc.TAILWIND_COLOR } },
 
     datword = {
       name = 'Datword',
@@ -57,13 +57,13 @@ M.default = {
       name = 'Ripgrep',
       module = 'blink-ripgrep',
       max_items = 3,
-      min_keyword_length = Conf.Cmp.RIPGREP_MIN_KEYWORD_LENGTH,
+      min_keyword_length = Conf.cmp.RIPGREP_MIN_KEYWORD_LENGTH,
       score_offset = -10,
 
       --- @module "blink-ripgrep"
       --- @type blink-ripgrep.Options
       opts = {
-        prefix_min_len = Conf.Cmp.RIPGREP_MIN_KEYWORD_LENGTH,
+        prefix_min_len = Conf.cmp.RIPGREP_MIN_KEYWORD_LENGTH,
         backend = {
           use = 'gitgrep',
           context_size = 6,
@@ -91,7 +91,7 @@ M.default = {
     minuet = {
       name = 'Minuet',
       module = 'minuet.blink',
-      timeout_ms = Conf.Cmp.AI_CMP_TIMEOUT_MS,
+      timeout_ms = Conf.cmp.AI_CMP_TIMEOUT_MS,
       async = true,
       score_offset = -100,
     },

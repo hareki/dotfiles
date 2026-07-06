@@ -34,7 +34,7 @@ return {
       local default_picker_configs = {}
       for picker_name, _ in pairs(builtin) do
         default_picker_configs[picker_name] = {
-          preview_title = Conf.Picker.TELESCOPE_PREVIEW_TITLE,
+          preview_title = Conf.picker.TELESCOPE_PREVIEW_TITLE,
         }
       end
 
@@ -56,10 +56,10 @@ return {
           },
         },
         defaults = {
-          prompt_prefix = Conf.Picker.PROMPT_PREFIX,
+          prompt_prefix = Conf.picker.PROMPT_PREFIX,
           selection_caret = ' ',
           entry_prefix = ' ', -- keep list text aligned
-          multi_icon = vim.trim(Conf.Icons.file_tree.SELECTED) .. ' ',
+          multi_icon = vim.trim(Conf.icons.file_tree.SELECTED) .. ' ',
           get_status_text = function(self, opts)
             -- Prevent flashing the loading asterisk indicator
             opts = opts or {}
@@ -75,7 +75,7 @@ return {
           end,
           -- Merge prompt and results windows
           results_title = false,
-          borderchars = Conf.Icons.telescope_borders,
+          borderchars = Conf.icons.telescope_borders,
 
           -- Make results appear from top to bottom
           -- https://github.com/nvim-telescope/telescope.nvim/issues/1933

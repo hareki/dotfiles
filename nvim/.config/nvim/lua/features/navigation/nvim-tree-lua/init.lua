@@ -26,7 +26,7 @@ return {
   end),
 
   UI.which_key({
-    rules = { plugin = 'nvim-tree.lua', icon = Conf.Icons.tools.TREE, color = 'blue' },
+    rules = { plugin = 'nvim-tree.lua', icon = Conf.icons.tools.TREE, color = 'blue' },
   }),
 
   {
@@ -41,7 +41,7 @@ return {
       local state = tree.state
 
       return {
-        title_format = Conf.Picker.PREVIEW_TITLE,
+        title_format = Conf.picker.PREVIEW_TITLE,
         zindex = 50, -- The default value makes vim.ui.input behind the preview window
         image_preview = { enable = true },
         on_close = function()
@@ -159,7 +159,7 @@ return {
           auto_open = false,
         },
         live_filter = {
-          prefix = Conf.Picker.PROMPT_PREFIX,
+          prefix = Conf.picker.PROMPT_PREFIX,
           always_show_folders = false,
         },
         update_focused_file = {
@@ -191,10 +191,10 @@ return {
             max = vim.diagnostic.severity.ERROR,
           },
           icons = {
-            error = Conf.Icons.diagnostics.ERROR,
-            warning = Conf.Icons.diagnostics.WARN,
-            info = Conf.Icons.diagnostics.INFO,
-            hint = Conf.Icons.diagnostics.HINT,
+            error = Conf.icons.diagnostics.ERROR,
+            warning = Conf.icons.diagnostics.WARN,
+            info = Conf.icons.diagnostics.INFO,
+            hint = Conf.icons.diagnostics.HINT,
           },
         },
         renderer = {
@@ -209,25 +209,25 @@ return {
             git_placement = 'after',
             diagnostics_placement = 'after',
             glyphs = {
-              bookmark = vim.trim(Conf.Icons.file_tree.SELECTED),
+              bookmark = vim.trim(Conf.icons.file_tree.SELECTED),
               folder = {
-                arrow_closed = Conf.Icons.file_tree.COLLAPSED,
-                arrow_open = Conf.Icons.file_tree.EXPANDED,
-                default = Conf.Icons.file_tree.FOLDER,
-                open = Conf.Icons.file_tree.FOLDER_OPEN,
-                empty = Conf.Icons.file_tree.FOLDER_EMPTY,
-                empty_open = Conf.Icons.file_tree.FOLDER_EMPTY_OPEN,
-                symlink = Conf.Icons.file_tree.FOLDER_SYMLINK,
-                symlink_open = Conf.Icons.file_tree.FOLDER_SYMLINK,
+                arrow_closed = Conf.icons.file_tree.COLLAPSED,
+                arrow_open = Conf.icons.file_tree.EXPANDED,
+                default = Conf.icons.file_tree.FOLDER,
+                open = Conf.icons.file_tree.FOLDER_OPEN,
+                empty = Conf.icons.file_tree.FOLDER_EMPTY,
+                empty_open = Conf.icons.file_tree.FOLDER_EMPTY_OPEN,
+                symlink = Conf.icons.file_tree.FOLDER_SYMLINK,
+                symlink_open = Conf.icons.file_tree.FOLDER_SYMLINK,
               },
               git = {
-                unstaged = Conf.Icons.git.UNSTAGED,
-                staged = Conf.Icons.git.STAGED,
-                unmerged = Conf.Icons.git.UNMERGED,
-                renamed = Conf.Icons.git.RENAMED,
-                untracked = Conf.Icons.git.UNTRACKED,
-                deleted = Conf.Icons.git.DELETED,
-                ignored = Conf.Icons.git.IGNORED,
+                unstaged = Conf.icons.git.UNSTAGED,
+                staged = Conf.icons.git.STAGED,
+                unmerged = Conf.icons.git.UNMERGED,
+                renamed = Conf.icons.git.RENAMED,
+                untracked = Conf.icons.git.UNTRACKED,
+                deleted = Conf.icons.git.DELETED,
+                ignored = Conf.icons.git.IGNORED,
               },
             },
           },

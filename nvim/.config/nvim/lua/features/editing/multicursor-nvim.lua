@@ -18,7 +18,7 @@ return {
       { '<leader>m', group = 'Multicursor', mode = { 'n', 'x' } },
     },
 
-    rules = { pattern = 'multicursor', icon = Conf.Icons.tools.MULTICURSOR, color = 'blue' },
+    rules = { pattern = 'multicursor', icon = Conf.icons.tools.MULTICURSOR, color = 'blue' },
   }),
 
   {

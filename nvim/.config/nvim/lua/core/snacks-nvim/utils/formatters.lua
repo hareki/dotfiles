@@ -77,7 +77,7 @@ function M.buffer_format(item, picker)
 
   local bufnr = item.buf or item.bufnr or (item.item and item.item.bufnr)
   if bufnr and vim.bo[bufnr].modified then
-    ret[#ret + 1] = { Conf.Icons.file_status.MODIFIED, 'ModifiedIndicator' }
+    ret[#ret + 1] = { Conf.icons.file_status.MODIFIED, 'ModifiedIndicator' }
   end
 
   return ret

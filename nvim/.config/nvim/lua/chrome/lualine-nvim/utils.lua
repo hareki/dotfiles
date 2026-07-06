@@ -2,7 +2,7 @@
 local M = {}
 
 --- Shared separator for primary-style pill components
-M.separator = { left = Conf.Icons.misc.PILL_LEFT, right = Conf.Icons.misc.PILL_RIGHT }
+M.separator = { left = Conf.icons.misc.PILL_LEFT, right = Conf.icons.misc.PILL_RIGHT }
 
 -- Cached function for empty components
 local function empty_func()

@@ -6,7 +6,7 @@ return {
   end,
 
   lazy = false,
-  priority = Conf.Priority.CHROME,
+  priority = Conf.priority.CHROME,
 
   init = function()
     local opt = vim.opt
@@ -100,7 +100,7 @@ return {
             separator = separator,
             fmt = string.lower,
             icon = {
-              Conf.Icons.misc.NEOVIM .. ' ',
+              Conf.icons.misc.NEOVIM .. ' ',
               color = mode.icon_color,
             },
             color = mode.color,

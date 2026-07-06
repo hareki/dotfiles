@@ -18,12 +18,12 @@ return {
     if use_prettier then
       formatter_groups.prettier = {
         config = { 'prettier', stop_after_first = true },
-        filetypes = Conf.Filetypes.merge(
-          Conf.Filetypes.JS_ALL,
-          Conf.Filetypes.CSS,
+        filetypes = Conf.filetypes.merge(
+          Conf.filetypes.JS_ALL,
+          Conf.filetypes.CSS,
           { 'html' },
-          Conf.Filetypes.MARKDOWN,
-          Conf.Filetypes.JSON,
+          Conf.filetypes.MARKDOWN,
+          Conf.filetypes.JSON,
           { 'yaml' }
         ),
       }

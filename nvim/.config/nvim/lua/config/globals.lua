@@ -5,19 +5,19 @@ _G.Notifier = Defer.on_exported_call('services.notifier')
 
 -- Order matters if one config module is reading another
 --- @class Conf
---- @field Filetypes config.filetypes
---- @field Icons config.icons
---- @field Priority config.priority
---- @field Picker config.picker
---- @field Size config.size
---- @field Cmp config.completion
+--- @field filetypes config.filetypes
+--- @field icons config.icons
+--- @field priority config.priority
+--- @field picker config.picker
+--- @field size config.size
+--- @field cmp config.completion
 _G.Conf = {}
-Conf.Filetypes = require('config.filetypes')
-Conf.Icons = require('config.icons')
-Conf.Priority = require('config.priority')
-Conf.Picker = require('config.picker')
-Conf.Size = require('config.size')
-Conf.Cmp = require('config.completion')
+Conf.filetypes = require('config.filetypes')
+Conf.icons = require('config.icons')
+Conf.priority = require('config.priority')
+Conf.picker = require('config.picker')
+Conf.size = require('config.size')
+Conf.cmp = require('config.completion')
 
 --- @module 'utils.ui'
 _G.UI = require('utils.ui')

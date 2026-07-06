@@ -23,6 +23,6 @@ function M.format(progress)
   return digits .. '%%'
 end
 
-M.icon = Conf.Icons.misc.LOCATION
+M.icon = Conf.icons.misc.LOCATION
 
 return M

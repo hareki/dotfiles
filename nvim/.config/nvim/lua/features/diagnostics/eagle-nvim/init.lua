@@ -6,14 +6,14 @@ local common = Defer.on_exported_call('utils.common')
 
 return {
   UI.which_key({
-    rules = { plugin = 'eagle.nvim', icon = Conf.Icons.tools.EAGLE, color = 'yellow' },
+    rules = { plugin = 'eagle.nvim', icon = Conf.icons.tools.EAGLE, color = 'yellow' },
   }),
 
   {
     'hareki/eagle.nvim',
     cmd = { 'EagleWin', 'EagleWinLineDiagnostic' },
     opts = function()
-      local max_size = Conf.Size.inline_popup.MAX_HEIGHT
+      local max_size = Conf.size.inline_popup.MAX_HEIGHT
 
       return {
         order = 3, -- LSP info comes first
@@ -46,10 +46,10 @@ return {
         improved_markdown = {
           replace_dashes = false,
           severity_renderer = {
-            ERROR = { icon = Conf.Icons.diagnostics.ERROR, hl = 'RenderMarkdownError' },
-            WARNING = { icon = Conf.Icons.diagnostics.WARN, hl = 'RenderMarkdownWarn' },
-            INFO = { icon = Conf.Icons.diagnostics.INFO, hl = 'RenderMarkdownInfo' },
-            HINT = { icon = Conf.Icons.diagnostics.HINT, hl = 'RenderMarkdownHint' },
+            ERROR = { icon = Conf.icons.diagnostics.ERROR, hl = 'RenderMarkdownError' },
+            WARNING = { icon = Conf.icons.diagnostics.WARN, hl = 'RenderMarkdownWarn' },
+            INFO = { icon = Conf.icons.diagnostics.INFO, hl = 'RenderMarkdownInfo' },
+            HINT = { icon = Conf.icons.diagnostics.HINT, hl = 'RenderMarkdownHint' },
           },
         },
 

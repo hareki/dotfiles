@@ -279,7 +279,7 @@ function M.inspect(...)
     parts[3] = '\n```'
   end
   local msg = table.concat(parts)
-  M.warn(msg, { title = 'Debug ' .. Conf.Icons.tools.DEBUG, height_offset = -1 })
+  M.warn(msg, { title = 'Debug ' .. Conf.icons.tools.DEBUG, height_offset = -1 })
 end
 
 return M

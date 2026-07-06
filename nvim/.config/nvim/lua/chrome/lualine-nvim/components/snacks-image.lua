@@ -69,7 +69,7 @@ end
 
 --- @return string
 function M.get()
-  return Conf.Icons.editor.IMAGE .. ' '
+  return Conf.icons.editor.IMAGE .. ' '
 end
 
 return M

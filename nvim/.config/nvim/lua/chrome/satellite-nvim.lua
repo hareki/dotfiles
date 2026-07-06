@@ -15,7 +15,7 @@ return {
   {
     'hareki/satellite.nvim',
     lazy = false,
-    priority = Conf.Priority.CHROME,
+    priority = Conf.priority.CHROME,
     opts = function()
       -- PERF: Disable satellite mouse handler by occupying the keymap
       vim.keymap.set(

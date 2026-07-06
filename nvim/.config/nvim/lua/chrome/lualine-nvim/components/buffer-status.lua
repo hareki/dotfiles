@@ -1,6 +1,6 @@
 local lualine_require = require('lualine_require')
 local component = lualine_require.require('lualine.component')
-local unmerged_icon = Conf.Icons.git.UNMERGED .. ' '
+local unmerged_icon = Conf.icons.git.UNMERGED .. ' '
 
 --- @class chrome.lualine.components.buffer-status : lualine.component
 local M = component:extend()
@@ -72,7 +72,7 @@ local function get_current_unsaved()
     return cache.current_unsaved
   end
 
-  local status = Conf.Icons.file_status
+  local status = Conf.icons.file_status
   local bo = vim.bo[bufnr]
   local ft = bo.filetype
   local name = vim.api.nvim_buf_get_name(bufnr) or ''
@@ -153,7 +153,7 @@ local function get_global_unsaved()
     end
   end
 
-  local status = Conf.Icons.file_status
+  local status = Conf.icons.file_status
   local result = count > 0 and status.MODIFIED .. count .. '  ' or ''
   cache.global_unsaved = result
 

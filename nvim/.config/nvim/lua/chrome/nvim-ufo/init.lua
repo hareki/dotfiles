@@ -9,7 +9,7 @@ return {
   end),
 
   UI.which_key({
-    rules = { pattern = 'fold', icon = Conf.Icons.actions.FOLD, color = 'blue' },
+    rules = { pattern = 'fold', icon = Conf.icons.actions.FOLD, color = 'blue' },
   }),
 
   {

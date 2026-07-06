@@ -77,6 +77,6 @@ function M.cond()
   return compute() ~= nil
 end
 
-M.icon = Conf.Icons.tools.PIN
+M.icon = Conf.icons.tools.PIN
 
 return M

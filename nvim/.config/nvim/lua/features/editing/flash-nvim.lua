@@ -5,7 +5,7 @@ local flash = Defer.on_exported_call('flash')
 
 return {
   UI.which_key({
-    rules = { plugin = 'flash.nvim', icon = Conf.Icons.tools.FLASH, color = 'yellow' },
+    rules = { plugin = 'flash.nvim', icon = Conf.icons.tools.FLASH, color = 'yellow' },
   }),
   UI.catppuccin(function(palette)
     return {
@@ -74,7 +74,7 @@ return {
     --- @type Flash.Config
     opts = {
       prompt = {
-        prefix = { { Conf.Icons.tools.FLASH .. ' Flash', 'FlashPromptIcon' } },
+        prefix = { { Conf.icons.tools.FLASH .. ' Flash', 'FlashPromptIcon' } },
       },
     },
   },

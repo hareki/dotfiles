@@ -6,7 +6,7 @@ local debugprint = Defer.on_exported_call('debugprint')
 return {
   UI.which_key({
     specs = { '<leader>?', group = 'Debug' },
-    rules = { plugin = 'debugprint.nvim', icon = Conf.Icons.tools.DEBUG, color = 'red' },
+    rules = { plugin = 'debugprint.nvim', icon = Conf.icons.tools.DEBUG, color = 'red' },
   }),
 
   {
@@ -76,7 +76,7 @@ return {
         highlight_lines = false,
         filetypes = (function()
           local fts = {}
-          for _, ft in ipairs(Conf.Filetypes.JS_ALL) do
+          for _, ft in ipairs(Conf.filetypes.JS_ALL) do
             fts[ft] = js_like
           end
           return fts

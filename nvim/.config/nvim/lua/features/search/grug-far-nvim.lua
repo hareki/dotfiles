@@ -67,7 +67,7 @@ return {
         previewWindow = {
           row = preview_height_offset,
           col = -preview_cols - 3,
-          title = Conf.Picker.PREVIEW_TITLE,
+          title = Conf.picker.PREVIEW_TITLE,
           title_pos = 'center',
           width = preview_cols,
           height = preview_rows,

@@ -14,15 +14,15 @@ return {
 
   UI.which_key({
     specs = { '<leader>h', group = 'Gitsigns', mode = { 'n', 'v' } },
-    rules = { pattern = 'gitsigns', icon = Conf.Icons.git.SIGN, color = 'yellow' },
+    rules = { pattern = 'gitsigns', icon = Conf.icons.git.SIGN, color = 'yellow' },
   }),
 
   {
     'hareki/gitsigns.nvim',
     event = 'VeryLazy',
     opts = function()
-      local hunk = Conf.Icons.git.HUNK
-      local hunk_delete = Conf.Icons.git.HUNK_DELETE
+      local hunk = Conf.icons.git.HUNK
+      local hunk_delete = Conf.icons.git.HUNK_DELETE
       local utils = require('features.git.gitsigns-nvim.utils')
       local build_popup_navigation = utils.build_popup_navigation
 
@@ -39,7 +39,7 @@ return {
         },
 
         get_popup_max_height = function()
-          return math.floor(vim.o.lines * Conf.Size.inline_popup.MAX_HEIGHT)
+          return math.floor(vim.o.lines * Conf.size.inline_popup.MAX_HEIGHT)
         end,
         preview_config = {
           border = 'rounded',

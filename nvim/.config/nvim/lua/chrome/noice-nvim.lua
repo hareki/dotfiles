@@ -16,7 +16,7 @@ return {
 
     -- Prevent layout shifting (it hides the cmdline row)
     lazy = false,
-    priority = Conf.Priority.CHROME,
+    priority = Conf.priority.CHROME,
 
     opts = function()
       local popup = UI.popup_config('md')
@@ -29,8 +29,8 @@ return {
         },
         cmdline = {
           format = {
-            search_down = { icon = Conf.Icons.actions.SEARCH .. Conf.Icons.navigation.DOWN },
-            search_up = { icon = Conf.Icons.actions.SEARCH .. Conf.Icons.navigation.UP },
+            search_down = { icon = Conf.icons.actions.SEARCH .. Conf.icons.navigation.DOWN },
+            search_up = { icon = Conf.icons.actions.SEARCH .. Conf.icons.navigation.UP },
           },
         },
         messages = {

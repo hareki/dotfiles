@@ -2,10 +2,10 @@
 local M = {}
 
 M.symbols = {
-  error = Conf.Icons.diagnostics.ERROR,
-  warn = Conf.Icons.diagnostics.WARN,
-  info = Conf.Icons.diagnostics.INFO,
-  hint = Conf.Icons.diagnostics.HINT,
+  error = Conf.icons.diagnostics.ERROR,
+  warn = Conf.icons.diagnostics.WARN,
+  info = Conf.icons.diagnostics.INFO,
+  hint = Conf.icons.diagnostics.HINT,
 }
 
 M.sections = { 'error', 'warn', 'info' }

@@ -19,7 +19,7 @@ return {
     'hareki/snacks.nvim',
     lazy = false,
     -- This plugin has many responsibilities, should load it early to setup stuff correctly
-    priority = Conf.Priority.CORE,
+    priority = Conf.priority.CORE,
     keys = function()
       return {
         {
@@ -191,7 +191,7 @@ return {
       local layout_opts = {
         width = config.lg_border.width,
         height = config.lg_border.height,
-        preview_title = Conf.Picker.PREVIEW_TITLE,
+        preview_title = Conf.picker.PREVIEW_TITLE,
       }
 
       -- Wrapping this with Defer.on_exported_call will result in `nvim_create_augroup must not be called in a fast event context` error
@@ -224,19 +224,19 @@ return {
             inline = true,
             max_width = config.full.width,
             max_height = 15,
-            excluded_filetypes = Conf.Filetypes.merge(Conf.Filetypes.JS_ALL, Conf.Filetypes.CSS),
+            excluded_filetypes = Conf.filetypes.merge(Conf.filetypes.JS_ALL, Conf.filetypes.CSS),
           },
         },
 
         picker = {
           icons = {
             ui = {
-              selected = Conf.Icons.file_tree.SELECTED,
-              unselected = Conf.Icons.file_tree.UNSELECTED,
+              selected = Conf.icons.file_tree.SELECTED,
+              unselected = Conf.icons.file_tree.UNSELECTED,
             },
           },
           ui_select = true,
-          prompt = Conf.Picker.PROMPT_PREFIX,
+          prompt = Conf.picker.PROMPT_PREFIX,
 
           actions = {
             list_half_page_down = defer_scroll_half_page('down'),

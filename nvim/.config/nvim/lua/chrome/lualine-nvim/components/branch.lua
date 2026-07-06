@@ -6,6 +6,6 @@ function M.format(branch_name)
   return utils.format_branch_name(branch_name)
 end
 
-M.icon = Conf.Icons.git.BRANCH
+M.icon = Conf.icons.git.BRANCH
 
 return M

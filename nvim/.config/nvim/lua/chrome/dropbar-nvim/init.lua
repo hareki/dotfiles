@@ -27,14 +27,14 @@ return {
   end),
 
   UI.which_key({
-    rules = { plugin = 'dropbar.nvim', icon = Conf.Icons.tools.BREADCRUMB, color = 'purple' },
+    rules = { plugin = 'dropbar.nvim', icon = Conf.icons.tools.BREADCRUMB, color = 'purple' },
   }),
 
   {
     'hareki/dropbar.nvim',
     -- Prevent layout shifting
     lazy = false,
-    priority = Conf.Priority.CHROME,
+    priority = Conf.priority.CHROME,
 
     keys = {
       {
@@ -60,15 +60,15 @@ return {
         icons = {
           ui = {
             menu = {
-              indicator = ' ' .. Conf.Icons.file_tree.COLLAPSED .. ' ',
+              indicator = ' ' .. Conf.icons.file_tree.COLLAPSED .. ' ',
             },
           },
           kinds = {
             symbols = {
               Folder = '',
-              FolderMenu = Conf.Icons.file_tree.FOLDER .. ' ',
-              FolderEmptyMenu = Conf.Icons.file_tree.FOLDER_EMPTY .. ' ',
-              FolderOpenMenu = Conf.Icons.file_tree.FOLDER_OPEN .. ' ',
+              FolderMenu = Conf.icons.file_tree.FOLDER .. ' ',
+              FolderEmptyMenu = Conf.icons.file_tree.FOLDER_EMPTY .. ' ',
+              FolderOpenMenu = Conf.icons.file_tree.FOLDER_OPEN .. ' ',
             },
           },
         },
@@ -90,7 +90,7 @@ return {
 
             if vim.bo[buf].ft == 'NvimTree' then
               return dropbar_utils.title_symbol({
-                icon = Conf.Icons.tools.TREE,
+                icon = Conf.icons.tools.TREE,
                 icon_hl = 'DropBarIconGreen',
 
                 name = ' File Tree',
@@ -100,7 +100,7 @@ return {
 
             if vim.bo[buf].ft == 'codediff-history' then
               return dropbar_utils.title_symbol({
-                icon = Conf.Icons.cmp_kinds.History .. ' ',
+                icon = Conf.icons.cmp_kinds.History .. ' ',
                 icon_hl = 'DropBarIconPurple',
 
                 name = 'Diff History',
@@ -110,7 +110,7 @@ return {
 
             if vim.bo[buf].ft == 'codediff-explorer' then
               return dropbar_utils.title_symbol({
-                icon = Conf.Icons.git.DIFF .. ' ',
+                icon = Conf.icons.git.DIFF .. ' ',
                 icon_hl = 'DropBarIconYellow',
 
                 name = 'Diff Explorer',

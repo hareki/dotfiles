@@ -2,7 +2,7 @@ return {
   'catppuccin/nvim',
   name = 'catppuccin',
   lazy = false,
-  priority = Conf.Priority.CORE, -- Should be loaded first to register the colorscheme correctly
+  priority = Conf.priority.CORE, -- Should be loaded first to register the colorscheme correctly
   opts = function()
     local palette = UI.get_palette()
     local color = UI.get_palette('ext')

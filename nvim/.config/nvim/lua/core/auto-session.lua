@@ -1,12 +1,12 @@
 return {
   UI.which_key({
-    rules = { plugin = 'auto-session', icon = Conf.Icons.tools.SESSION, color = 'green' },
+    rules = { plugin = 'auto-session', icon = Conf.icons.tools.SESSION, color = 'green' },
   }),
 
   {
     'rmagatti/auto-session',
     lazy = false,
-    priority = Conf.Priority.CORE,
+    priority = Conf.priority.CORE,
     keys = {
       {
         '<leader>fs',

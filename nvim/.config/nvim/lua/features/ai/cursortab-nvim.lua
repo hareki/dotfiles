@@ -19,7 +19,7 @@ return {
       return {
         provider = {
           type = 'mercuryapi',
-          api_key_env = Conf.Cmp.AI_MERCURY_KEY,
+          api_key_env = Conf.cmp.AI_MERCURY_KEY,
         },
       }
     end,

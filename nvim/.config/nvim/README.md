@@ -49,7 +49,7 @@
 | `size.lua`    | Popup dimensions: `sm`, `md`, `lg`, `vertical_lg`, `full`                                                   |
 | `icons.lua`   | All icons (diagnostics, git, file status, LSP kinds)                                                        |
 | `globals.lua` | 7 project globals: `Defer`, `Notifier`, `Conf`, `UI`, `Statusline`, `Project` (`Snacks` set by snacks.nvim) |
-| `cmp.lua`     | Completion tuning constants (`Conf.Cmp`): AI item cap/timeout, ripgrep min keyword length                   |
+| `cmp.lua`     | Completion tuning constants (`Conf.cmp`): AI item cap/timeout, ripgrep min keyword length                   |
 | `picker.lua`  | Shared picker UI constants                                                                                  |
 
 ### Utils (`lua/utils/`)
