@@ -30,7 +30,7 @@
 | ------------------------------------------------------------ | ------------------ | ---------------------------------------- |
 | `ANTHROPIC_API_KEY` env var                                  | ai-commit-msg.nvim | AI-generated commit messages (Claude)    |
 | `MERCURY_API_KEY` env var                                    | cursortab.nvim     | SweepAPI token for next-edit predictions |
-| [Claude Code](https://claude.ai/download) CLI + subscription | claudecode.nvim    | `<M-a>` to toggle Claude terminal        |
+| [Claude Code](https://claude.ai/download) CLI + subscription | claudecode.nvim    | `<A-a>` to toggle Claude terminal        |
 
 ## Core Ideas
 

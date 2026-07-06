@@ -14,7 +14,7 @@ return {
     dependencies = { 'hareki/snacks.nvim' },
     keys = {
       {
-        '<M-a>',
+        '<A-a>',
         '<cmd>ClaudeCode<cr>',
         desc = prefix .. 'Toggle',
         mode = { 'n', 'x', 't', 'i' },
