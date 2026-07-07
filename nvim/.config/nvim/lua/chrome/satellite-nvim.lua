@@ -16,7 +16,21 @@ return {
     'hareki/satellite.nvim',
     lazy = false,
     priority = Conf.priority.CHROME,
-    opts = function()
+    opts = {
+      current_only = false,
+      floating = true,
+      winblend = 0,
+      excluded_filetypes = {
+        'snacks_picker_list',
+        'TelescopeResults',
+      },
+      handlers = {
+        cursor = { enable = false },
+        gitsigns = { enable = false },
+        marks = { enable = false },
+      },
+    },
+    config = function(_, opts)
       -- PERF: Disable satellite mouse handler by occupying the keymap
       vim.keymap.set(
         { 'n', 'v', 'o', 'i' },
@@ -25,20 +39,8 @@ return {
         { desc = 'Disable Satellite Mouse Handler' }
       )
 
-      return {
-        current_only = false,
-        floating = true,
-        winblend = 0,
-        excluded_filetypes = {
-          'snacks_picker_list',
-          'TelescopeResults',
-        },
-        handlers = {
-          cursor = { enable = false },
-          gitsigns = { enable = false },
-          marks = { enable = false },
-        },
-      }
+      local satellite = require('satellite')
+      satellite.setup(opts)
     end,
   },
 }
