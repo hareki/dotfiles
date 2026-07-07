@@ -29,7 +29,7 @@ local function scroll_center(motion)
     local cursor_line = vim.fn.line('.')
 
     if last_line - cursor_line >= math.floor(win_height / 2) then
-      vim.cmd('normal! zz')
+      vim.cmd.normal({ args = { 'zz' }, bang = true })
     end
   end
 end
@@ -148,7 +148,7 @@ map({ 'i', 'x', 'n', 's' }, '<A-r>', function()
   -- Detach LSP clients first so they release the stale buffer, reload the file
   -- from disk, then start fresh clients against the reloaded contents.
   garbage_day.stop_lsp()
-  vim.cmd('edit!')
+  vim.cmd.edit({ bang = true })
   garbage_day.start_lsp()
 end, { desc = 'Reload Current Buffer', silent = true })
 
