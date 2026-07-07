@@ -274,7 +274,7 @@ return {
             local keys = type(lhs) == 'table' and lhs or { lhs }
             for _, key in ipairs(keys) do
               vim.keymap.set(mode, key, rhs, {
-                desc = 'File Tree' .. desc,
+                desc = 'File Tree: ' .. desc,
                 buffer = tree_bufnr,
                 noremap = true,
                 nowait = true,
