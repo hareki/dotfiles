@@ -8,24 +8,6 @@ return {
     local ai = require('mini.ai')
     local utils = require('features.editing.mini-ai.utils')
 
-    vim.api.nvim_create_autocmd('User', {
-      pattern = 'MiniAiSelectObject',
-      group = vim.api.nvim_create_augroup('editing.mini-ai.record-last-object', { clear = true }),
-      callback = function(ev)
-        last_obj = ev.data -- "iw", "af", "g", ...
-      end,
-    })
-
-    vim.keymap.set('x', '.', function()
-      if last_obj then
-        vim.api.nvim_feedkeys(
-          vim.api.nvim_replace_termcodes(last_obj, true, false, true), -- translate <Esc>, <CR> …
-          'x',
-          false -- not literally; integrate with typeahead
-        )
-      end
-    end, { desc = 'Repeat Last Text-Object Selection' })
-
     return {
       n_lines = 500,
       custom_textobjects = {
@@ -71,6 +53,25 @@ return {
   end,
   config = function(_, opts)
     local mini_ai = require('mini.ai')
+
+    vim.api.nvim_create_autocmd('User', {
+      pattern = 'MiniAiSelectObject',
+      group = vim.api.nvim_create_augroup('editing.mini-ai.record-last-object', { clear = true }),
+      callback = function(ev)
+        last_obj = ev.data -- "iw", "af", "g", ...
+      end,
+    })
+
+    vim.keymap.set('x', '.', function()
+      if last_obj then
+        vim.api.nvim_feedkeys(
+          vim.api.nvim_replace_termcodes(last_obj, true, false, true), -- translate <Esc>, <CR> …
+          'x',
+          false -- not literally; integrate with typeahead
+        )
+      end
+    end, { desc = 'Repeat Last Text-Object Selection' })
+
     mini_ai.setup(opts)
 
     local package_utils = require('utils.package')
