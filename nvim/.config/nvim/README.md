@@ -94,7 +94,7 @@ nvim-tree-lua/
 ## Code Style
 
 - stylua: 100-char lines, 2-space indent
-- LuaLS `---@class` / `---@param` / `---@return` annotations for public APIs
+- LuaLS `--- @class` / `--- @param` / `--- @return` annotations for public APIs
 - All keymaps include `desc` in CMOS 18 title case
 - Icons imported from `config/icons.lua` — never hardcoded
 
