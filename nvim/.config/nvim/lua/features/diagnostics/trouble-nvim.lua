@@ -134,7 +134,7 @@ return {
         keys = {
           ['<Tab>'] = {
             action = toggle_focus,
-            desc = 'Toggle Focus Between List and Preview',
+            desc = 'Toggle Focus between List and Preview',
           },
           B = 'toggle_preview',
         },
