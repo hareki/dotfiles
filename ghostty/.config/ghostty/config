@@ -24,7 +24,7 @@ font-style-bold  = ExtraBold
 font-style-italic  = SemiBold Italic
 font-style-bold-italic  = ExtraBold Italic
 
-background-image = background-images/stack-blur-50-planet_with_sunrise.png
+background-image = background-images/stack-blur-50-top-cropped-planet_with_sunrise.png
 background-image-opacity = 0.055
 background-image-fit = cover
 
