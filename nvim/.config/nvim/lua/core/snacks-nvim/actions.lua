@@ -1,4 +1,4 @@
---- @class core.snacks-nvim.actions
+--- @class core.snacks.actions
 local M = {}
 
 local state = require('core.snacks-nvim.utils.state')

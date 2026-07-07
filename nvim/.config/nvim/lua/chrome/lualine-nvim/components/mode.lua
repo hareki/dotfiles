@@ -1,4 +1,4 @@
---- @class Lualine.components.mode
+--- @class chrome.lualine.components.mode
 local M = {}
 
 local palette = UI.get_palette()

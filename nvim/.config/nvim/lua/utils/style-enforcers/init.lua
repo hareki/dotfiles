@@ -1,4 +1,4 @@
---- @class utils.formatters.async_style_enforcer
+--- @class utils.style-enforcers
 local M = {}
 
 local running_bufs = {}

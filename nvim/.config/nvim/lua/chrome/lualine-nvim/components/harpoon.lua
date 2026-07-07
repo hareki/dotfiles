@@ -1,7 +1,7 @@
---- @class Lualine.Components.harpoon
+--- @class chrome.lualine.components.harpoon
 local M = {}
 
---- @class Lualine.Components.harpoon.Cache
+--- @class chrome.lualine.components.harpoon.Cache
 --- @field buf integer
 --- @field length integer
 --- @field text string | nil

@@ -1,5 +1,5 @@
 --- @module 'snacks'
---- @class core.snacks-nvim.utils.transformers
+--- @class core.snacks.utils.transformers
 local M = {}
 
 local filtered_descriptions = {

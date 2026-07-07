@@ -1,4 +1,4 @@
---- @class core.snacks-nvim.pickers.harpoon
+--- @class core.snacks.pickers.sources.harpoon
 local M = {}
 
 --- Show the harpoon picker with items from the harpoon list

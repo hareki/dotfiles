@@ -3,7 +3,7 @@
 --- @field on_start fun(name: string, idx: integer, total: integer) | nil
 --- @field on_done  fun(name: string, ok: boolean, err?: string) | nil
 
---- @class utils.style-enforcers
+--- @class utils.style-enforcers.engine
 local M = {}
 
 --- @class utils.style-enforcers.Entry
