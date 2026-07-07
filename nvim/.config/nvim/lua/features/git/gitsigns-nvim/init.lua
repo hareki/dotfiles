@@ -125,7 +125,7 @@ return {
           map('n', '<leader>hD', function()
             gs.diffthis('~')
           end, 'Diff This ~')
-          map({ 'o', 'x' }, 'ih', '<cmd>Gitsigns select_hunk<cr>', 'Gitsigns Select Hunk')
+          map({ 'o', 'x' }, 'ih', '<cmd>Gitsigns select_hunk<cr>', 'Select Hunk')
 
           map('n', '<leader>hb', function()
             gs.blame_line({ full = true }, build_popup_navigation(buffer, 'blame'))
