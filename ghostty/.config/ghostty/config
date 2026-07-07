@@ -1,8 +1,8 @@
-# Updates
+# [[ Updates ]]
 auto-update = download
 auto-update-channel = stable
 
-# UI
+# [[ UI ]]
 theme = Catppuccin Mocha
 macos-titlebar-style = hidden
 mouse-hide-while-typing = true
@@ -14,7 +14,19 @@ window-padding-balance = true
 window-padding-x = 6
 window-padding-y = 3
 
-# Font
+background-image = background-images/stack-blur-50-top-cropped-planet_with_sunrise.png
+background-image-opacity = 0.055
+background-image-fit = cover
+
+# Cursor feature will mess up the cursor shape I set in zsh vi-mode
+shell-integration-features = no-cursor
+shell-integration = zsh
+
+cursor-color = #cdd6f4	
+cursor-text = #11111b
+cursor-style = bar
+cursor-style-blink = true
+
 font-size = 19.0
 adjust-icon-height = 15%
 font-style = SemiBold
@@ -24,25 +36,7 @@ font-style-bold  = ExtraBold
 font-style-italic  = SemiBold Italic
 font-style-bold-italic  = ExtraBold Italic
 
-background-image = background-images/stack-blur-50-top-cropped-planet_with_sunrise.png
-background-image-opacity = 0.055
-background-image-fit = cover
-
-# Shell & Cursor
-shell-integration = zsh
-
-# Cursor feature will mess up the cursor shape I set in zsh vi-mode
-shell-integration-features = no-cursor
-
-cursor-style = bar
-cursor-style-blink = true
-
-# Cursor
-cursor-color = #cdd6f4	
-cursor-text = #11111b
-# custom-shader = shaders/cursor_trail.glsl
-
-# Keybindings
+# [[ Keybindings ]]
 # Mapped heavily for tmux + neovim + zsh workflows
 # ----------------------
 
