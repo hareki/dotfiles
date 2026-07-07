@@ -116,7 +116,7 @@ local function build_hover_src(original_src, ext, content)
     if not original_src or vim.fn.filereadable(original_src) == 0 then
       return nil
     end
-    local stat = (vim.uv or vim.loop).fs_stat(original_src)
+    local stat = vim.uv.fs_stat(original_src)
     if not stat then
       return nil
     end
