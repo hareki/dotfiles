@@ -16,7 +16,7 @@ end
 local function uniq_ts(entries)
   local seen, out = {}, {}
   for _, e in ipairs(entries) do
-    local key = (e[1] or '') .. '→' .. (e[2] or '')
+    local key = (e[1] or '') .. Conf.icons.misc.ARROW .. (e[2] or '')
     if not seen[key] then
       seen[key] = true
       table.insert(out, e)
@@ -141,7 +141,7 @@ local function build_lines(syntax_groups, ts_pairs, extmark_entries, match_group
         table.insert(lines, 'none')
       else
         for _, e in ipairs(list) do
-          table.insert(lines, string.format('- `@%s` → `%s`', e[1], e[2]))
+          table.insert(lines, string.format('- `@%s` %s `%s`', e[1], Conf.icons.misc.ARROW, e[2]))
         end
       end
     else

@@ -1,6 +1,7 @@
 --- @class config.icons
 local M = {
   misc = {
+    ARROW = '→',
     DOTS = '󰇘',
     TAB = '',
     LOCATION = '',
