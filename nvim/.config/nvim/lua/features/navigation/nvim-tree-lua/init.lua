@@ -306,7 +306,8 @@ return {
           end, 'Live Filter: Start')
           map('n', '<Esc>', function()
             api.filter.live.clear()
-            vim.cmd.nohlsearch()
+            local search_highlight = require('services.search-highlight')
+            search_highlight.clear_search_highlight()
           end, 'Clear Live Filter and Search Highlights')
 
           map('n', 'd', api.fs.trash, 'Trash')

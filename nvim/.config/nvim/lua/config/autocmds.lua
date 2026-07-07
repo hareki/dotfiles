@@ -201,7 +201,8 @@ aucmd('InsertEnter', {
   callback = function()
     if vim.v.hlsearch == 1 then
       vim.schedule(function()
-        vim.cmd.nohlsearch()
+        local search_highlight = require('services.search-highlight')
+        search_highlight.clear_search_highlight()
       end)
     end
   end,

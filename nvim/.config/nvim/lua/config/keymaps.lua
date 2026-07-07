@@ -61,7 +61,8 @@ map('n', '<CR>', 'a<CR><Esc>', { desc = 'Insert Newline after Cursor' })
 map('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Leave Terminal Mode' })
 
 map({ 'n' }, '<Esc>', function()
-  vim.cmd.nohlsearch()
+  local search_highlight = require('services.search-highlight')
+  search_highlight.clear_search_highlight()
   vim.snippet.stop()
 end, { desc = 'Clear Highlight' })
 
