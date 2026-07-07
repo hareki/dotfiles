@@ -24,6 +24,7 @@ return {
         {
           '<CR>',
           mode = 'c',
+          desc = 'Execute Command Line',
         },
         {
           'n',
