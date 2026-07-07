@@ -75,7 +75,12 @@
     },
     {
       "key": " ",
-      "format": "{#1}{#separator}├{$2}┤\u001b[38D Software ",
+      "format": "{#1}{#separator}╰{$3}╯",
+      "type": "custom"
+    },
+    {
+      "key": " ",
+      "format": "{#1}{#separator}╭{$1}╮\u001b[38D Software ",
       "type": "custom"
     },
     {
@@ -97,7 +102,7 @@
       "format": "{ipv4}"
     },
     {
-      "key": "{#separator}{$4}{#35}  Terminal ",
+      "key": "{#separator}{$4}{#35}  Terminal ",
       "type": "terminal"
     },
     {
