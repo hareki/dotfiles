@@ -14,7 +14,7 @@ function M.navigate(direction)
 
   if not ok then
     local search_text = vim.fn.getreg('/')
-    Notifier.warn(string.format('`%s` is not found', search_text), {
+    Notifier.warn(('`%s` is not found'):format(search_text), {
       title = 'nvim-hlslens',
     })
   end
