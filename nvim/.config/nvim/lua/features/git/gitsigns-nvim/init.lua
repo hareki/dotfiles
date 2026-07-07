@@ -103,8 +103,16 @@ return {
             gs.nav_hunk('first')
           end, 'First Hunk')
 
-          map({ 'n', 'v' }, '<leader>hs', ':Gitsigns stage_hunk<CR>', 'Stage Hunk')
-          map({ 'n', 'v' }, '<leader>hr', ':Gitsigns reset_hunk<CR>', 'Reset Hunk')
+          -- Visual variants pass the selected line range so only those lines are
+          -- staged/reset (a <cmd> mapping would lose the range and hit the whole hunk)
+          map('n', '<leader>hs', gs.stage_hunk, 'Stage Hunk')
+          map('v', '<leader>hs', function()
+            gs.stage_hunk({ vim.fn.line('.'), vim.fn.line('v') })
+          end, 'Stage Hunk')
+          map('n', '<leader>hr', gs.reset_hunk, 'Reset Hunk')
+          map('v', '<leader>hr', function()
+            gs.reset_hunk({ vim.fn.line('.'), vim.fn.line('v') })
+          end, 'Reset Hunk')
           map('n', '<leader>hS', gs.stage_buffer, 'Stage Buffer')
           map('n', '<leader>hu', gs.undo_stage_hunk, 'Undo Stage Hunk')
           map('n', '<leader>hR', gs.reset_buffer, 'Reset Buffer')
