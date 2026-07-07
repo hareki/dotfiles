@@ -12,11 +12,16 @@ local TASK_NAME_START_LENGTH = 20
 local TASK_NAME_END_LENGTH = 10
 local max_task_name_length = TASK_NAME_START_LENGTH + TASK_NAME_END_LENGTH
 
--- A cache table to store the repository name and last known CWD
+-- A cache table to store the repository name and last known CWD.
+-- `name`, `last_cwd`, and `toplevel` are only written together (in
+-- `resolve_repo_name`'s finish step) so an abandoned resolve can never leave
+-- a name paired with another repo's toplevel. `pending_cwd` marks the cwd an
+-- async resolve chain is currently running for.
 local repo_cache = {
   name = nil,
   last_cwd = nil,
   toplevel = nil,
+  pending_cwd = nil,
 }
 
 -- Single-slot memo: the statusline re-formats the same branch on every redraw,
@@ -126,22 +131,55 @@ function M.exec_cmd(cmd, cwd)
   return nil
 end
 
---- Get the repository name from the git remote origin URL
+--- Execute a git command asynchronously and pass trimmed output to a callback
+--- The callback is dispatched via `vim.schedule`, so it always runs on the
+--- main loop and may safely touch vim APIs and module state.
+--- @param cmd string The git command to execute (without 'git' prefix)
+--- @param cwd string | nil The directory to run the command in (default: current)
+--- @param cb fun(output: string | nil) Receives trimmed stdout, or nil on error
+--- @return nil
+function M.exec_cmd_async(cmd, cwd, cb)
+  local args = vim.split(cmd, '%s+')
+  local git_cmd = { 'git' }
+
+  if cwd then
+    vim.list_extend(git_cmd, { '-C', cwd })
+  end
+
+  vim.list_extend(git_cmd, args)
+
+  vim.system(git_cmd, { text = true }, function(result)
+    vim.schedule(function()
+      if result.code == 0 and result.stdout and result.stdout ~= '' then
+        local trimmed = result.stdout:gsub('%s+$', ''):gsub('^%s+', '')
+        cb(trimmed)
+      else
+        cb(nil)
+      end
+    end)
+  end)
+end
+
+--- Extract the repository name from a git remote URL
 --- Strips .git suffix and extracts the last path component.
---- @return string | nil name The repository name, or nil if not found
-function M.get_repo_name_from_remote()
-  local url = M.exec_cmd('config --get remote.origin.url')
+--- @param url string | nil The remote URL
+--- @return string | nil name The repository name, or nil if not extractable
+local function repo_name_from_url(url)
   if not url or url == '' then
     return nil
   end
 
-  -- Remove .git suffix if present
+  -- Remove .git suffix if present, then take the last path component
   url = url:gsub('%.git$', '')
 
-  -- Extract the last path component (repo name)
-  local repo_name = url:match('([^/]+)$')
+  return url:match('([^/]+)$')
+end
 
-  return repo_name
+--- Get the repository name from the git remote origin URL
+--- Strips .git suffix and extracts the last path component.
+--- @return string | nil name The repository name, or nil if not found
+function M.get_repo_name_from_remote()
+  return repo_name_from_url(M.exec_cmd('config --get remote.origin.url'))
 end
 
 --- Check if a directory is a bare Git repository
@@ -164,8 +202,114 @@ function M.get_repo_name_from_path(path)
   return path:match('([^/\\]+)$')
 end
 
+--- Async continuation of `get_repo_name`'s cache-miss path
+--- Every callback runs on the main loop (see `exec_cmd_async`). A cwd change
+--- between steps abandons the chain; the next render restarts it for the new
+--- cwd. Cache fields are only written together in `finish` so the
+--- name/toplevel pairing stays consistent even when a chain is abandoned.
+--- @param cwd string The cwd this chain resolves for
+local function resolve_repo_name(cwd)
+  -- A cwd that changed and changed back compares equal, which is correct
+  local function superseded()
+    if vim.uv.cwd() ~= cwd then
+      if repo_cache.pending_cwd == cwd then
+        repo_cache.pending_cwd = nil
+      end
+      return true
+    end
+
+    return false
+  end
+
+  local function finish(name, toplevel)
+    repo_cache.name = name
+    repo_cache.last_cwd = cwd
+    repo_cache.toplevel = toplevel
+    if repo_cache.pending_cwd == cwd then
+      repo_cache.pending_cwd = nil
+    end
+
+    if Statusline.have_status_line() then
+      Statusline.refresh()
+    end
+  end
+
+  M.exec_cmd_async('rev-parse --show-toplevel', nil, function(toplevel)
+    if superseded() then
+      return
+    end
+
+    -- Still in the repo the cached name belongs to: re-key the fast path and
+    -- stop; the rendered name is already correct. Require a non-nil toplevel:
+    -- outside a repo, nil == nil would keep a stale name from a previously
+    -- visited directory.
+    if repo_cache.name and toplevel and repo_cache.toplevel == toplevel then
+      repo_cache.last_cwd = cwd
+      if repo_cache.pending_cwd == cwd then
+        repo_cache.pending_cwd = nil
+      end
+      return
+    end
+
+    -- Step 1: Attempt to get the repository name from the remote URL
+    M.exec_cmd_async('config --get remote.origin.url', nil, function(url)
+      if superseded() then
+        return
+      end
+
+      local repo_name = repo_name_from_url(url)
+      if repo_name then
+        finish(repo_name, toplevel)
+        return
+      end
+
+      -- Step 3 (shared fallback): repo name from the toplevel or cwd basename
+      local function finish_from_path()
+        if toplevel and toplevel ~= '' then
+          local toplevel_repo_name = M.get_repo_name_from_path(toplevel)
+          if toplevel_repo_name then
+            finish(toplevel_repo_name, toplevel)
+            return
+          end
+        end
+
+        finish(M.get_repo_name_from_path(cwd or '') or 'Unknown', toplevel)
+      end
+
+      -- Step 2: Determine if the parent of the top-level directory is a bare
+      -- repository (worktree checkouts named after the bare repo's directory)
+      local parent_dir = toplevel
+        and toplevel ~= ''
+        and (toplevel:match('(.+)/[^/\\]+$') or toplevel:match('(.+)\\[^\\]+$'))
+      if not parent_dir or parent_dir == '' then
+        finish_from_path()
+        return
+      end
+
+      M.exec_cmd_async('rev-parse --is-bare-repository', parent_dir, function(is_bare)
+        if superseded() then
+          return
+        end
+
+        if is_bare == 'true' then
+          local parent_repo_name = M.get_repo_name_from_path(parent_dir)
+          if parent_repo_name then
+            finish(parent_repo_name, toplevel)
+            return
+          end
+        end
+
+        finish_from_path()
+      end)
+    end)
+  end)
+end
+
 --- Get the repository name with caching and multiple fallback strategies
---- Tries: remote URL → bare repo parent → toplevel dir → cwd name.
+--- Never blocks a render: on cache miss the last known name (or the cwd
+--- basename) is returned immediately while an async git chain refreshes the
+--- cache and re-renders the statusline when it settles.
+--- Tries: remote URL => bare repo parent => toplevel dir => cwd name.
 --- @return string | nil name The repository name, or nil if not determinable
 function M.get_repo_name()
   local current_cwd = vim.uv.cwd()
@@ -174,61 +318,22 @@ function M.get_repo_name()
     return repo_cache.name
   end
 
-  -- Get toplevel to determine if we're in the same repo
-  local toplevel = M.exec_cmd('rev-parse --show-toplevel')
+  local placeholder = repo_cache.name or M.get_repo_name_from_path(current_cwd or '')
 
-  -- Check if we're still in the same repo (same toplevel) and cache is recent.
-  -- Refresh last_cwd so subsequent calls from this cwd hit the fast path above
-  -- instead of re-spawning git on every statusline redraw. Require a non-nil
-  -- toplevel: outside a repo, nil == nil would return a stale name from a
-  -- previously visited directory.
-  if repo_cache.name and toplevel and repo_cache.toplevel == toplevel then
-    repo_cache.last_cwd = current_cwd
-    return repo_cache.name
+  -- A resolve for this cwd is already in flight; keep rendering the stale
+  -- value until it lands
+  if repo_cache.pending_cwd == current_cwd then
+    return placeholder
   end
 
-  -- Update cache markers
-  repo_cache.last_cwd = current_cwd
-  repo_cache.toplevel = toplevel
+  repo_cache.pending_cwd = current_cwd
+  -- Kick the resolve outside the render path: even async spawn initiation
+  -- costs a few ms, which would still hitch the redraw that missed the cache
+  vim.schedule(function()
+    resolve_repo_name(current_cwd)
+  end)
 
-  -- Step 1: Attempt to get the repository name from the remote URL
-  local repo_name = M.get_repo_name_from_remote()
-  if repo_name then
-    repo_cache.name = repo_name
-
-    return repo_name
-  end
-
-  -- Step 2: Determine if the parent of the top-level directory is a bare repository
-  if toplevel and toplevel ~= '' then
-    -- Extract the parent directory of the top-level directory
-    local parent_dir = toplevel:match('(.+)/[^/\\]+$') or toplevel:match('(.+)\\[^\\]+$')
-    if parent_dir and parent_dir ~= '' then
-      if M.is_bare_repo(parent_dir) then
-        -- Extract the repository name from the parent directory
-        local parent_repo_name = M.get_repo_name_from_path(parent_dir)
-        if parent_repo_name then
-          repo_cache.name = parent_repo_name
-
-          return parent_repo_name
-        end
-      end
-    end
-
-    -- If the parent directory is not a bare repository, extract from the top-level directory
-    local toplevel_repo_name = M.get_repo_name_from_path(toplevel)
-    if toplevel_repo_name then
-      repo_cache.name = toplevel_repo_name
-
-      return toplevel_repo_name
-    end
-  end
-
-  -- Step 3: Fallback to using the current working directory's name
-  local cwd_name = M.get_repo_name_from_path(current_cwd or '')
-  repo_cache.name = cwd_name or 'Unknown'
-
-  return repo_cache.name
+  return placeholder
 end
 
 --- Get the commit hash of the last commit affecting the current cursor line
