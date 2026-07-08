@@ -55,6 +55,7 @@ return {
         },
         { 'p', '<Plug>(YankyPutAfter)', desc = 'Put Text' },
         { 'k', '"+<Plug>(YankyPutAfter)', mode = { 'n', 'x' }, desc = 'Put from System Clipboard' },
+
         -- Putting text in visual mode without overwriting the yank register
         {
           'p',
@@ -85,9 +86,11 @@ return {
           '<Plug>(YankyNextEntry)',
           desc = 'Next Yanky Entry',
         },
+
         -- Trimmed, No indent/trailing
         { 'yy', '^yg_', desc = 'Yank Line Trimmed' },
         { 'hh', '^"+yg_', desc = 'Yank Line Trimmed to System Clipboard' },
+
         -- Op-pending 'h' = trimmed current line (first non-blank to last non-blank).
         -- This makes 'hh' work regardless of typing speed: even if the 150ms timeoutlen
         -- fires and 'h' (operator) + 'h' (motion) executes, the result is identical.

@@ -93,7 +93,7 @@ M.default = {
       module = 'minuet.blink',
       timeout_ms = Conf.cmp.AI_CMP_TIMEOUT_MS,
       async = true,
-      score_offset = -100,
+      score_offset = -10,
     },
 
     cmdline = {
