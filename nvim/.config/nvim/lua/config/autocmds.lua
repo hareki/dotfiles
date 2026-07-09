@@ -87,7 +87,7 @@ aucmd('FileType', {
 })
 
 -- Restore native <CR> (jump to entry) in quickfix/loclist windows, which the
--- global 'Insert Newline After Cursor' <CR> map would otherwise shadow (and
+-- global 'Insert Newline after Cursor' <CR> map would otherwise shadow (and
 -- error on, since qf buffers are nomodifiable)
 aucmd('FileType', {
   group = augroup('qf-native-enter'),
@@ -159,7 +159,7 @@ aucmd('CmdwinEnter', {
     })
 
     -- Restore native <CR> (execute the selected command), which the global
-    -- 'Insert Newline After Cursor' <CR> map would otherwise shadow
+    -- 'Insert Newline after Cursor' <CR> map would otherwise shadow
     vim.keymap.set('n', '<CR>', '<CR>', {
       buffer = buf,
       desc = 'Execute Command',
