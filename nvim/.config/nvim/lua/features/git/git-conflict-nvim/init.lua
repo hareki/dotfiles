@@ -220,7 +220,8 @@ return {
       })
 
       -- Clean up state when buffers are deleted to prevent memory leak
-      vim.api.nvim_create_autocmd('BufDelete', {
+      -- (BufWipeout included: wiping an unlisted buffer never fires BufDelete)
+      vim.api.nvim_create_autocmd({ 'BufDelete', 'BufWipeout' }, {
         group = group,
         callback = function(event)
           cleanup_buf(event.buf)
