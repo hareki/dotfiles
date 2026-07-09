@@ -64,7 +64,7 @@ Seven globals available everywhere (six set in `globals.lua`, one by its plugin)
 
 ### Opts
 
-Always wrap `opts` in a function — `opts = function() return { ... } end` — even for a purely static table. lazy.nvim parses every spec file eagerly at startup to learn each plugin's load triggers (`ft`/`event`/`keys`/etc.), so a plain `opts = { ... }` table is built at that moment; a function defers the table's construction until the plugin actually loads, which is strictly never slower and saves real (if tiny) work on the startup path.
+Wrap `opts` in a function (`opts = function() return { ... } end`) only when the plugin is lazy-loaded AND opts is non-empty. lazy.nvim parses every spec file eagerly at startup to learn each plugin's load triggers (`ft`/`event`/`keys`/etc.), so for a lazy-loaded plugin the function defers the table's construction until the plugin actually loads. A plugin counts as NOT lazy-loaded when it has `lazy = false` or unfiltered buffer/window events (e.g. `BufReadPost`/`BufNewFile`): it loads unconditionally at startup, wrapping defers nothing, so its static opts must stay a plain table. Keep the function form for an eager plugin only when the body needs additional logic (requires, computed locals); converting such a body to a plain table would also shift evaluation to spec-parse time, before plugin rtp paths exist. Empty `opts = {}` stays plain everywhere. The same static-vs-logic split applies to the LSP server-loader files' `opts` (see LSP Setup below), where the loader resolves `opts` immediately either way.
 
 ### Return Convention
 

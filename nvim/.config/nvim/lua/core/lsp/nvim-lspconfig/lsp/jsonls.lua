@@ -31,26 +31,24 @@ local capabilities = {
 }
 
 return {
-  opts = function()
-    return {
-      handlers = {
-        ['workspace/executeCommand'] = function(_err, _result, ctx, _config)
-          local client = vim.lsp.get_client_by_id(ctx.client_id)
-          if not client then
-            return
-          end
+  opts = {
+    handlers = {
+      ['workspace/executeCommand'] = function(_err, _result, ctx, _config)
+        local client = vim.lsp.get_client_by_id(ctx.client_id)
+        if not client then
+          return
+        end
 
-          local params = ctx.params
-          local command_handler = capabilities[params.command]
+        local params = ctx.params
+        local command_handler = capabilities[params.command]
 
-          if command_handler then
-            command_handler()
-            return
-          end
+        if command_handler then
+          command_handler()
+          return
+        end
 
-          Notifier.error('Unhandled JSON Code Action')
-        end,
-      },
-    }
-  end,
+        Notifier.error('Unhandled JSON Code Action')
+      end,
+    },
+  },
 }

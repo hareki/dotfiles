@@ -71,11 +71,13 @@ return {
         desc = prefix .. 'Treesitter Incremental Selection',
       },
     },
-    --- @type Flash.Config
-    opts = {
-      prompt = {
-        prefix = { { Conf.icons.tools.FLASH .. ' Flash', 'FlashPromptIcon' } },
-      },
-    },
+    opts = function()
+      --- @type Flash.Config
+      return {
+        prompt = {
+          prefix = { { Conf.icons.tools.FLASH .. ' Flash', 'FlashPromptIcon' } },
+        },
+      }
+    end,
   },
 }

@@ -41,15 +41,17 @@ return {
     },
   },
 
-  opts = {
-    keywords = {
-      FIX = { icon = Conf.icons.tools.DEBUG },
-    },
-    highlight = {
-      multiline = false,
-      before = '',
-      keyword = 'wide_bg',
-      after = '',
-    },
-  },
+  opts = function()
+    return {
+      keywords = {
+        FIX = { icon = Conf.icons.tools.DEBUG },
+      },
+      highlight = {
+        multiline = false,
+        before = '',
+        keyword = 'wide_bg',
+        after = '',
+      },
+    }
+  end,
 }
