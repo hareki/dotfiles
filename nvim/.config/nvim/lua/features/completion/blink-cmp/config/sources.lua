@@ -35,12 +35,16 @@ M.default = {
   providers = {
     lsp = { opts = { tailwind_color_icon = Conf.icons.misc.TAILWIND_COLOR } },
 
+    snippets = {
+      score_offset = -10,
+    },
+
     datword = {
       name = 'Datword',
       module = 'blink-cmp-dat-word',
       max_items = 3,
       min_keyword_length = 3,
-      score_offset = -20,
+      score_offset = -15,
       opts = {
         paths = {
           word_paths.my_words,
@@ -93,7 +97,7 @@ M.default = {
       module = 'minuet.blink',
       timeout_ms = Conf.cmp.AI_CMP_TIMEOUT_MS,
       async = true,
-      score_offset = -10,
+      score_offset = -5,
     },
 
     cmdline = {
