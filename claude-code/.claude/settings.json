@@ -40,7 +40,7 @@
     ],
     "defaultMode": "plan"
   },
-  "model": "sonnet",
+  "model": "opus[1m]",
   "hooks": {
     "Notification": [
       {
@@ -83,7 +83,7 @@
     "clangd-lsp@claude-plugins-official": true
   },
   "syntaxHighlightingDisabled": false,
-  "effortLevel": "xhigh",
+  "effortLevel": "high",
   "tui": "fullscreen",
   "theme": "custom:catppuccin-mocha",
   "editorMode": "vim",
