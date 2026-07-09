@@ -33,13 +33,13 @@ function M.whichkey(opts)
     { '"', desc = '" String' },
     { "'", desc = "' String" },
     { '(', desc = '() Block' },
-    { ')', desc = '() Block with Ws' },
+    { ')', desc = '() Block with Whitespace' },
     { '<', desc = '<> Block' },
-    { '>', desc = '<> Block with Ws' },
+    { '>', desc = '<> Block with Whitespace' },
     { '?', desc = 'User Prompt' },
     { 'U', desc = 'Use/Call without Dot' },
     { '[', desc = '[] Block' },
-    { ']', desc = '[] Block with Ws' },
+    { ']', desc = '[] Block with Whitespace' },
     { '_', desc = 'Underscore' },
     { '`', desc = '` String' },
     { 'a', desc = 'Argument' },
@@ -56,7 +56,7 @@ function M.whichkey(opts)
     { 'w', desc = 'Subword (camelCase/snake_case)' },
     { 'W', desc = 'WORD (snake_case chunk)' },
     { '{', desc = '{} Block' },
-    { '}', desc = '{} with Ws' },
+    { '}', desc = '{} Block with Whitespace' },
   }
 
   --- @type wk.Spec[]
