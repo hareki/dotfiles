@@ -169,7 +169,7 @@ return {
           end, 100)
 
           local autocmd_id = vim.api.nvim_create_autocmd(
-            { 'CursorMoved', 'CursorMovedI', 'BufWinEnter', 'BufLeave' },
+            { 'CursorMoved', 'CursorMovedI', 'BufWinEnter', 'BufEnter', 'BufLeave' },
             {
               group = group,
               buffer = bufnr,
@@ -182,8 +182,8 @@ return {
                 -- 'winhighlight' is window-local and persists across buffer
                 -- swaps in the same window (e.g. opening a file via nvim-tree
                 -- / snacks picker), so clear it when the conflict buffer
-                -- leaves the window. BufWinEnter / CursorMoved re-apply on
-                -- return.
+                -- leaves the window. BufWinEnter / BufEnter / CursorMoved
+                -- re-apply on return.
                 if args.event == 'BufLeave' then
                   if state.timer then
                     state.timer:stop()
@@ -195,8 +195,11 @@ return {
                 -- Cursor movement is debounced because cursor_in_conflict
                 -- scans up to 1000 lines and can stutter when held down.
 
-                -- BufWinEnter stays synchronous to avoid a visible gap when
-                -- entering a new split (which starts with empty winhighlight).
+                -- BufWinEnter / BufEnter stay synchronous to avoid a visible
+                -- gap when entering a new split (which starts with empty
+                -- winhighlight). BufEnter covers refocusing a window that kept
+                -- the conflict buffer visible: BufLeave cleared its winhl, and
+                -- BufWinEnter won't fire since the buffer never left the window.
                 if args.event == 'CursorMoved' or args.event == 'CursorMovedI' then
                   schedule_cursor_check(bufnr)
                   return
