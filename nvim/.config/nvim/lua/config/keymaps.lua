@@ -66,6 +66,15 @@ map({ 'n' }, '<Esc>', function()
   vim.snippet.stop()
 end, { desc = 'Clear Highlight' })
 
+-- Mirrors the Neovim default (nohlsearch|diffupdate|normal! <C-L>) but goes through
+-- clear_search_highlight() so Snacks.words is re-enabled after the hlslens handler disabled it
+map({ 'n' }, '<C-L>', function()
+  local search_highlight = require('services.search-highlight')
+  search_highlight.clear_search_highlight()
+  vim.cmd.diffupdate()
+  vim.cmd.normal({ vim.keycode('<C-L>'), bang = true })
+end, { desc = 'Redraw and Clear Search Highlight' })
+
 map({ 'n', 'i' }, '<A-s>', function()
   load_style_enforcers().run()
 end, { desc = 'Format and Save' })
