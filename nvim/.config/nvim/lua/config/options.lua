@@ -59,7 +59,7 @@ opt.viewoptions:remove('curdir')
 opt.autochdir = false
 
 -- Diagonal hatch fill for deleted/filler lines in diff views (e.g. codediff)
-opt.fillchars:append({ diff = '╱', eob = ' ', lastline = '.' })
+opt.fillchars:append({ diff = Conf.icons.fillchars.DIFF, eob = ' ', lastline = '.' })
 
 -- Save undo history
 opt.undofile = true
