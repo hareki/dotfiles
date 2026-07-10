@@ -56,7 +56,7 @@ for _, key in ipairs({
   pcall(del, 'n', key)
 end
 
-map({ 'n' }, 'Q', '<cmd>q<cr>', { desc = 'Close Buffer' })
+map('n', 'Q', '<cmd>q<cr>', { desc = 'Close Buffer' })
 
 -- Fall back to native <CR> in nomodifiable buffers (help, man, checkhealth, ...),
 -- where feeding `a` would raise E21
@@ -65,7 +65,7 @@ map('n', '<CR>', function()
 end, { expr = true, desc = 'Insert Newline after Cursor' })
 map('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Leave Terminal Mode' })
 
-map({ 'n' }, '<Esc>', function()
+map('n', '<Esc>', function()
   local search_highlight = require('services.search-highlight')
   search_highlight.clear_search_highlight()
   vim.snippet.stop()
@@ -73,7 +73,7 @@ end, { desc = 'Clear Highlight' })
 
 -- Mirrors the Neovim default (nohlsearch|diffupdate|normal! <C-L>) but goes through
 -- clear_search_highlight() so Snacks.words is re-enabled after the hlslens handler disabled it
-map({ 'n' }, '<C-L>', function()
+map('n', '<C-L>', function()
   local search_highlight = require('services.search-highlight')
   search_highlight.clear_search_highlight()
   vim.cmd.diffupdate()
