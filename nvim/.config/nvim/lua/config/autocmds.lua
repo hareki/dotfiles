@@ -87,8 +87,7 @@ aucmd('FileType', {
 })
 
 -- Restore native <CR> (jump to entry) in quickfix/loclist windows, which the
--- global 'Insert Newline after Cursor' <CR> map would otherwise shadow (and
--- error on, since qf buffers are nomodifiable)
+-- global 'Insert Newline after Cursor' <CR> map would otherwise shadow
 aucmd('FileType', {
   group = augroup('qf-native-enter'),
   pattern = { 'qf' },

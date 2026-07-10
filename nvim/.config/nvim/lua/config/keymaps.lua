@@ -57,7 +57,12 @@ for _, key in ipairs({
 end
 
 map({ 'n' }, 'Q', '<cmd>q<cr>', { desc = 'Close Buffer' })
-map('n', '<CR>', 'a<CR><Esc>', { desc = 'Insert Newline after Cursor' })
+
+-- Fall back to native <CR> in nomodifiable buffers (help, man, checkhealth, ...),
+-- where feeding `a` would raise E21
+map('n', '<CR>', function()
+  return vim.bo.modifiable and 'a<CR><Esc>' or '<CR>'
+end, { expr = true, desc = 'Insert Newline after Cursor' })
 map('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Leave Terminal Mode' })
 
 map({ 'n' }, '<Esc>', function()
