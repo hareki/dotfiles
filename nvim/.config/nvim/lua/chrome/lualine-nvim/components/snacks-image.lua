@@ -56,12 +56,23 @@ function M.cond()
   cache.tick = tick
   cache.row = row
   cache.col = col
-  -- Reset before the (often-synchronous) callback so a stale `true` is never
-  -- displayed after the cursor leaves an image.
+  -- Reset eagerly so a stale `true` is never displayed after the cursor leaves
+  -- an image. `at_cursor` parses asynchronously on nvim 0.11.4+, so the callback
+  -- fires after this redraw; refresh the statusline once the real answer lands.
   cache.has_image = false
 
   Snacks.image.doc.at_cursor(function(src)
-    cache.has_image = src ~= nil
+    -- The cursor may have moved during the async gap; don't attribute this
+    -- result to a newer position
+    if cache.buf ~= buf or cache.tick ~= tick or cache.row ~= row or cache.col ~= col then
+      return
+    end
+
+    local has_image = src ~= nil
+    if has_image ~= cache.has_image then
+      cache.has_image = has_image
+      Statusline.refresh()
+    end
   end)
 
   return cache.has_image
