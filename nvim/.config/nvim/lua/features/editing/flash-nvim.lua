@@ -4,14 +4,14 @@ local prefix = 'Flash: '
 local flash = Defer.on_exported_call('flash')
 
 return {
-  UI.which_key({
-    rules = { plugin = 'flash.nvim', icon = Conf.icons.tools.FLASH, color = 'yellow' },
-  }),
   UI.catppuccin(function(palette)
     return {
       FlashPromptIcon = { fg = palette.yellow },
     }
   end),
+  UI.which_key({
+    rules = { plugin = 'flash.nvim', icon = Conf.icons.tools.FLASH, color = 'yellow' },
+  }),
 
   {
     'folke/flash.nvim',

@@ -72,8 +72,8 @@ Wrap `opts` in a function (`opts = function() return { ... } end`) only when the
 -- Single spec (majority):
 return { 'author/plugin', keys = { ... }, opts = { ... } }
 
--- List with catppuccin/which-key registration:
-return { UI.which_key({ ... }), UI.catppuccin(function(...) ... end), { 'author/plugin', opts = ... } }
+-- List with catppuccin/which-key registration (always in this order):
+return { UI.catppuccin(function(...) ... end), UI.which_key({ ... }), { 'author/plugin', opts = ... } }
 ```
 
 ### Directory Plugins
