@@ -87,6 +87,7 @@ return {
       options = {
         theme = theme_reset,
         globalstatus = vim.o.laststatus == 3,
+        refresh = { refresh_time = 33 }, -- ~30fps
         disabled_filetypes = { statusline = { 'dashboard', 'netrw' } },
         padding = { left = 0, right = 0 },
         section_separators = { left = '', right = '' },
