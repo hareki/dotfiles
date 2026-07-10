@@ -214,7 +214,7 @@ function M.format(diagnostic, opts)
     cache_set(key, md)
   end
 
-  -- Only keep the CLI’s header line when opts.href == true
+  -- Only keep the CLI's header line when opts.href == true
   if not (opts and opts.href) then
     md = strip_cli_header(md)
   end

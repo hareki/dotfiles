@@ -10,8 +10,7 @@ return {
 
   {
     'cursortab/cursortab.nvim',
-    -- Quite token expensive , I'm still considering it...
-    enabled = false,
+    enabled = false, -- Quite token expensive , I'm still considering it...
     build = 'cd server && go build',
 
     event = 'InsertEnter',

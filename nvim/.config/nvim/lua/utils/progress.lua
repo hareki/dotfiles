@@ -24,13 +24,13 @@ local M = {}
 --- @return integer
 local function get_valid_client_id(bufnr)
   local client = vim.lsp.get_clients({ bufnr = bufnr or 0 })[1]
-  return client and client.id or 0 -- 0 is the “anonymous” id in LSP
+  return client and client.id or 0 -- 0 is the "anonymous" id in LSP
 end
 
 local ProgressHandle = {}
 ProgressHandle.__index = ProgressHandle --[[@as utils.progress.Handle]]
 
--- [[ Internal low‑level sender ]]
+-- [[ Internal low-level sender ]]
 --- @private
 --- @param kind       'begin' | 'report' | 'end'
 --- @param title      string | nil

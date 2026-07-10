@@ -12,8 +12,7 @@ return {
       providers = {
         anthropic = {
           model = 'claude-haiku-4-5',
-          -- Required by the Anthropic Messages API
-          max_tokens = 10000,
+          max_tokens = 10000, -- Required by the Anthropic Messages API
         },
       },
     }
