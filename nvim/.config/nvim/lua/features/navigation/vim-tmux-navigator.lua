@@ -3,10 +3,10 @@ return {
   cmd = { 'TmuxNavigateLeft', 'TmuxNavigateDown', 'TmuxNavigateUp', 'TmuxNavigateRight' },
   keys = function()
     return {
-      { '<A-m>', '<cmd>TmuxNavigateLeft<cr>', mode = { 'n', 't' }, desc = 'To Window Left' },
-      { '<A-n>', '<cmd>TmuxNavigateDown<cr>', mode = { 'n', 't' }, desc = 'To Window Below' },
-      { '<A-e>', '<cmd>TmuxNavigateUp<cr>', mode = { 'n', 't' }, desc = 'To Window Above' },
-      { '<A-i>', '<cmd>TmuxNavigateRight<cr>', mode = { 'n', 't' }, desc = 'To Window Right' },
+      { '<A-m>', '<cmd>TmuxNavigateLeft<cr>', mode = { 'n', 't' }, desc = 'Go to Left Window' },
+      { '<A-n>', '<cmd>TmuxNavigateDown<cr>', mode = { 'n', 't' }, desc = 'Go to Lower Window' },
+      { '<A-e>', '<cmd>TmuxNavigateUp<cr>', mode = { 'n', 't' }, desc = 'Go to Upper Window' },
+      { '<A-i>', '<cmd>TmuxNavigateRight<cr>', mode = { 'n', 't' }, desc = 'Go to Right Window' },
     }
   end,
 }
