@@ -98,12 +98,6 @@ return {
                 { tostring(current_index), hl_title },
               }, { title = 'pin' })
             end
-
-            -- replace_at can keep the list length unchanged, which the statusline
-            -- component's (buf, length) cache key can't detect
-            local harpoon_component = require('chrome.lualine-nvim.components.harpoon')
-            harpoon_component.invalidate()
-            Statusline.refresh()
           end,
           desc = 'Pin File to Slot ' .. current_index,
         })
@@ -132,6 +126,28 @@ return {
           save_on_toggle = true,
         },
       }
+    end,
+
+    config = function(_, opts)
+      local harpoon = require('harpoon')
+      harpoon.setup(opts)
+
+      -- Mutations can keep the list length unchanged (replace_at, menu-save
+      -- reorder), which the statusline component's (buf, length) cache key
+      -- can't detect; invalidate on harpoon's own mutation events instead
+      local function refresh_component()
+        local harpoon_component = require('chrome.lualine-nvim.components.harpoon')
+        harpoon_component.invalidate()
+        Statusline.refresh()
+      end
+
+      harpoon:extend({
+        ADD = refresh_component,
+        REMOVE = refresh_component,
+        REPLACE = refresh_component,
+        REORDER = refresh_component,
+        LIST_CHANGE = refresh_component,
+      })
     end,
   },
 }

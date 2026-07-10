@@ -11,8 +11,9 @@ local cache = {
   text = nil,
 }
 
---- Drop the cached text. Needed after list mutations that keep the same length
---- (e.g. replace_at), which the (buf, length) key can't detect.
+--- Drop the cached text. Called from harpoon's extension events (see the spec's
+--- `config`) for mutations the (buf, length) key can't detect, e.g. replace_at
+--- or a same-length menu-save reorder.
 --- @return nil
 function M.invalidate()
   cache.buf = -1
