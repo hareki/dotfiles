@@ -8,12 +8,9 @@ local M = {}
 --- @type utils.project-config.Config
 local defaults = { linter = 'eslint', formatter = 'prettier' }
 
---- @type utils.project-config.Config | nil
-local cache
-
 --- Read and parse .neovimrc.json from the initial cwd, falling back to defaults.
 --- @return utils.project-config.Config
-local function load()
+function M.get()
   local path_utils = require('utils.path')
   local root = path_utils.get_initial_path()
   local file = vim.fs.joinpath(root, '.neovimrc.json')
@@ -46,15 +43,6 @@ local function load()
   end
 
   return cfg
-end
-
---- Get the project configuration. Cached after first call.
---- @return utils.project-config.Config
-function M.get()
-  if not cache then
-    cache = load()
-  end
-  return cache
 end
 
 return M
