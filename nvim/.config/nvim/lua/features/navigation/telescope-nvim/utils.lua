@@ -119,8 +119,8 @@ end
 
 function M.setup_previewer_autocmd()
   vim.api.nvim_create_autocmd('User', {
-    pattern = 'TelescopePreviewerLoaded',
     group = vim.api.nvim_create_augroup('navigation.telescope.previewer-loaded', { clear = true }),
+    pattern = 'TelescopePreviewerLoaded',
 
     -- Make it look more like the actual window we use to edit files
     callback = function(ev)
