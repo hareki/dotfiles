@@ -82,7 +82,7 @@ For plugins with state or large configs: `init.lua` (specs) + `utils.lua` (`M.st
 
 ### Popup Sizing
 
-Use `popup_config(size, with_border)`, never hardcode dimensions. **Gotcha**: Telescope always needs `with_border=true`; nvim-tree always needs `false`; Snacks varies by popup variant — `false` for the main pickers (`lg`, `full`, `input`) and `true` for bordered variants like `sm` / `lg_border`.
+Use `popup_config(size, with_border)`, never hardcode dimensions. **Gotcha**: Telescope always needs `with_border=true`; nvim-tree always needs `false`; Snacks varies by popup variant — `false` for the main pickers (`lg`, `full`, `input`) and `true` for bordered variants like `sm` / `lg_border`. Exception: content-sized, cursor-anchored tooltips (e.g. `utils/hl-at-cursor.lua`) size themselves from their content — `popup_config()` only produces centered preset-sized popups.
 
 ## LSP Setup
 
