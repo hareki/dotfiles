@@ -29,7 +29,7 @@ export FZF_DEFAULT_OPTS=" \
 --bind page-up:preview-half-page-up \
 --bind page-down:preview-half-page-down \
 --bind esc:abort \
---border-label ' Fzf Suggestions ' \
+--border-label ' Completions ' \
 --multi"
 
 # Zoxide specific options
