@@ -118,6 +118,7 @@ local M = {
     Yanky = '󰨸',
     RenderMD = '',
     Minuet = ' ',
+    CodingAgent = '󰚩 ',
   },
   file_icons = {
     KEEP = '󰊢',

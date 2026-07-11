@@ -1,9 +1,9 @@
-local prefix = 'Claude Code: '
+local prefix = 'Coding Agent: '
 
 return {
   UI.which_key({
-    specs = { '<leader>a', group = 'Claude Code', mode = { 'n', 'v' } },
-    rules = { pattern = 'claude', icon = Conf.icons.cmp_kinds.Claude, color = 'orange' },
+    specs = { '<leader>a', group = 'Coding Agent', mode = { 'n', 'v' } },
+    rules = { pattern = 'coding agent', icon = Conf.icons.cmp_kinds.CodingAgent, color = 'cyan' },
   }),
 
   {
