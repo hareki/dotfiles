@@ -6,10 +6,7 @@ return {
       TelescopePromptPrefix = { fg = palette.blue },
       TelescopeMultiIcon = { fg = palette.blue },
       TelescopeSelectionCaret = { fg = palette.blue },
-      TelescopeSelection = {
-        fg = 'NONE', -- Disable fg override
-        style = {}, -- Disable default bold
-      },
+      TelescopeSelection = { link = 'ListCursorLine' },
     }
   end),
 

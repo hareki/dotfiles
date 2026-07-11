@@ -68,6 +68,9 @@ return {
         LazyReasonStart = { fg = palette.blue },
         LazySpecial = { fg = palette.blue },
         LazyProgressDone = { fg = palette.blue },
+
+        -- Custom highlight group, shared across dropbar.nvim, snacks.nvim and nvim-telescope
+        ListCursorLine = { bg = palette.surface0 },
       },
       lsp_styles = {
         virtual_text = {

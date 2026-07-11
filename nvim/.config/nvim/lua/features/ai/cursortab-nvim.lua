@@ -9,11 +9,9 @@ return {
   end),
 
   {
-    'cursortab/cursortab.nvim',
-    enabled = false, -- Quite token expensive , I'm still considering it...
+    'hareki/cursortab.nvim',
     build = 'cd server && go build',
-
-    event = 'InsertEnter',
+    event = 'VeryLazy',
     opts = function()
       return {
         provider = {

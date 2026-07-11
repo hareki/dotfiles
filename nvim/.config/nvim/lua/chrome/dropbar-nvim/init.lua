@@ -13,8 +13,8 @@ return {
       DropBarIconUIIndicator = { fg = palette.blue, bg = nil },
       DropBarIconUISeparator = { fg = palette.overlay1 },
 
-      DropBarMenuHoverEntry = { link = 'Visual' },
-      DropBarMenuCurrentContext = { link = 'Visual' },
+      DropBarMenuHoverEntry = { link = 'ListCursorLine' },
+      DropBarMenuCurrentContext = { link = 'ListCursorLine' },
       DropBarMenuHoverIcon = { link = 'DropBarMenuIcon' }, -- Disable reversing color when hovering
     }
 
