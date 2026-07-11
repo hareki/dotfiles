@@ -4,7 +4,7 @@ yay() {
   _yay_header() { print -P "\n%B%F{blue}======== Updating $1 ========%f%b" }
 
   _yay_header "Homebrew" \
-    && brew update && brew upgrade && brew autoremove \
+    && brew update && brew upgrade -y && brew autoremove \
     && _yay_header "Antidote" \
     && antidote update \
     && _yay_header "Mise" \
@@ -14,8 +14,4 @@ yay() {
     && ~/.tmux/plugins/tpm/bin/clean_plugins \
     && ~/.tmux/plugins/tpm/bin/install_plugins \
     && ~/.tmux/plugins/tpm/bin/update_plugins all \
-    # && _yay_header "npm" \
-    # && npm update -g \
-    # && _yay_header "gem" \
-    # && gem update
 }
