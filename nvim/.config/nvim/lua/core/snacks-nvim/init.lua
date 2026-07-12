@@ -219,7 +219,10 @@ return {
         rename = { enabled = true },
         image = {
           enabled = true,
-          -- inline images are inserted as virtual lines, and virtual lines are tricky to scroll, so better keep it short
+          convert = {
+            notify = true,
+          },
+          -- Inline images are inserted as virtual lines, and virtual lines are tricky to scroll, so better keep it short
           doc = {
             inline = true,
             max_width = config.full.width,

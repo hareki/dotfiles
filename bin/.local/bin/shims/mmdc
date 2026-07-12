@@ -1,3 +1,9 @@
 #!/bin/sh
-# mermaid-cli doesn't support default config file, so we have to wrap the original command to specify the config file path.
-exec "$HOME/.local/share/mise/shims/mmdc" -c "$HOME/.config/mermaid-cli/config.json" "$@"
+# mermaid-cli doesn't support default config files, so we have to wrap the original command
+# to specify the config file paths. The puppeteer config routes rendering to the system
+# Chrome, since the default chrome-headless-shell is version-pinned per mermaid-cli release
+# and silently breaks whenever mise bumps mermaid-cli.
+exec "$HOME/.local/share/mise/shims/mmdc" \
+  -c "$HOME/.config/mermaid-cli/config.json" \
+  -p "$HOME/.config/mermaid-cli/puppeteer-config.json" \
+  "$@"
