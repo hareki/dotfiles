@@ -8,7 +8,7 @@ return {
   end),
 
   {
-    'https://gitlab.com/HiPhish/rainbow-delimiters.nvim',
+    'HiPhish/rainbow-delimiters.nvim',
     event = 'BufReadPost',
   },
 }
