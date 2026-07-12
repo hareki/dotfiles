@@ -320,6 +320,11 @@ function M.get_repo_name()
 
   local placeholder = repo_cache.name or M.get_repo_name_from_path(current_cwd or '')
 
+  -- cwd can be nil (e.g. the directory was deleted); nothing to resolve then
+  if not current_cwd then
+    return placeholder
+  end
+
   -- A resolve for this cwd is already in flight; keep rendering the stale
   -- value until it lands
   if repo_cache.pending_cwd == current_cwd then
