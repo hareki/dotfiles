@@ -12,7 +12,7 @@
   "codediff.nvim": { "branch": "main", "commit": "6d2413ee3f2ecfd31adf4b66360a17053d99b9ea" },
   "comment.nvim": { "branch": "master", "commit": "e30b7f2008e52442154b66f7c519bfd2f1e32acb" },
   "conform.nvim": { "branch": "master", "commit": "619363c30309d29ffa631e67c8183f2a72caa373" },
-  "cursortab.nvim": { "branch": "main", "commit": "2e1eb745712bb032d1bd883d2aa09ee354c02282" },
+  "cursortab.nvim": { "branch": "feat/inline-word-diff", "commit": "09b0eae3aa6f0ea8c462f7bc16e87412b4ce4d2b" },
   "debugprint.nvim": { "branch": "main", "commit": "957093d8b695aa4cc18c18f421ef0cb6c7380c59" },
   "dropbar.nvim": { "branch": "master", "commit": "6309aa6b702b5a2ddcd993f4765069bdb964a1af" },
   "eagle.nvim": { "branch": "main", "commit": "ebfc6f276835ed2111b92af530af6f083fb44a09" },

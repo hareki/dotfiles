@@ -6,6 +6,8 @@
 --- @field conflict_current_label string
 --- @field conflict_incoming string
 --- @field conflict_incoming_label string
+--- @field diff_add_word string
+--- @field diff_delete_word string
 --- @field snippet_tab_stop string
 
 --- Extension colors that complement the catppuccin palette
@@ -15,6 +17,8 @@ local ext = {
   conflict_current_label = '#57735b',
   conflict_incoming = '#323c56',
   conflict_incoming_label = '#495d83',
+  diff_add_word = '#4e6356',
+  diff_delete_word = '#694559',
   snippet_tab_stop = '#414e70',
 }
 
