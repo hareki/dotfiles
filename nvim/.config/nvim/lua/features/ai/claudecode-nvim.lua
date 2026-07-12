@@ -35,12 +35,12 @@ return {
         desc = prefix .. 'Select Model',
       },
       {
-        '<leader>ab',
+        '<leader>as',
         '<cmd>ClaudeCodeAdd %<cr>',
         desc = prefix .. 'Add Current Buffer',
       },
       {
-        '<leader>ab',
+        '<leader>as',
         '<cmd>ClaudeCodeTreeAdd<cr>',
         desc = prefix .. 'Add File',
         ft = { 'NvimTree' },
