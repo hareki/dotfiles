@@ -20,21 +20,6 @@ return {
         mode = { 'n', 'x', 't', 'i' },
       },
       {
-        '<leader>ar',
-        '<cmd>ClaudeCode --resume<cr>',
-        desc = prefix .. 'Resume',
-      },
-      {
-        '<leader>aC',
-        '<cmd>ClaudeCode --continue<cr>',
-        desc = prefix .. 'Continue',
-      },
-      {
-        '<leader>am',
-        '<cmd>ClaudeCodeSelectModel<cr>',
-        desc = prefix .. 'Select Model',
-      },
-      {
         '<leader>as',
         '<cmd>ClaudeCodeAdd %<cr>',
         desc = prefix .. 'Add Current Buffer',
