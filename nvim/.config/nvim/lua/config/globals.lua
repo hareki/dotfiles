@@ -1,7 +1,7 @@
 _G.Defer = require('utils.lazy-require')
 
---- @module 'services.notifier'
-_G.Notifier = Defer.on_exported_call('services.notifier')
+--- @module 'utils.notifier'
+_G.Notifier = Defer.on_exported_call('utils.notifier')
 
 -- Order matters if one config module is reading another
 --- @class Conf
@@ -21,9 +21,6 @@ Conf.cmp = require('config.completion')
 
 --- @module 'utils.ui'
 _G.UI = require('utils.ui')
-
---- @module 'services.statusline'
-_G.Statusline = require('services.statusline')
 
 local project_config = require('utils.project-config')
 _G.Project = project_config.get()

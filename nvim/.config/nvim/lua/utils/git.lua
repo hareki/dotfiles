@@ -37,8 +37,8 @@ function M.set_branch_name_format(format)
 
   Notifier.info('Branch name format set to ' .. format)
 
-  if Statusline.have_status_line() then
-    Statusline.refresh()
+  if UI.statusline.enabled() then
+    UI.statusline.refresh()
   end
 end
 
@@ -229,8 +229,8 @@ local function resolve_repo_name(cwd)
       repo_cache.pending_cwd = nil
     end
 
-    if Statusline.have_status_line() then
-      Statusline.refresh()
+    if UI.statusline.enabled() then
+      UI.statusline.refresh()
     end
   end
 

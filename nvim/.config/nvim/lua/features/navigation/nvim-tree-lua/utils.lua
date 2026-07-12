@@ -156,7 +156,7 @@ function M.toggle_tree_height(action)
     return
   end
 
-  local size = UI.popup_config(M.compute_size())
+  local size = UI.layout.popup(M.compute_size())
   local window_h = math.floor(size.height / 2)
   local half_height = window_h - 1 -- Minus 1 for the space between the two windows
 

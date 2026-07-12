@@ -40,8 +40,8 @@ return {
     end,
 
     opts = function()
-      local preview_cols, preview_rows = UI.side_size('side_preview', 'md')
-      local panel_cols, _ = UI.side_size('side_panel', 'md')
+      local preview_cols, preview_rows = UI.layout.side_size('side_preview', 'md')
+      local panel_cols, _ = UI.layout.side_size('side_panel', 'md')
       local preview_height_offset = math.floor((vim.o.lines - preview_rows) / 2) - 1
 
       return {

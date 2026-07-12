@@ -1,7 +1,7 @@
 return {
   UI.catppuccin(function(palette, _)
-    local near_pill_bg = UI.blend_hex(palette.base, palette.yellow)
-    local far_pill_bg = UI.blend_hex(palette.base, palette.overlay1)
+    local near_pill_bg = UI.color.blend_hex(palette.base, palette.yellow)
+    local far_pill_bg = UI.color.blend_hex(palette.base, palette.overlay1)
 
     return {
       HlSearchLensPillNearOuter = { fg = near_pill_bg },

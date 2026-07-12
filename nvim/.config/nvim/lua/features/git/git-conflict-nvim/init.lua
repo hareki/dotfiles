@@ -33,10 +33,10 @@ return {
       local plugin = require('git-conflict')
       plugin.setup(opts)
 
-      local color = UI.get_palette('ext')
+      local color = UI.catppuccin.get_palette('ext')
       local utils = require('features.git.git-conflict-nvim.utils')
       local package = require('utils.package')
-      local palette = UI.get_palette()
+      local palette = UI.catppuccin.get_palette()
       local group = vim.api.nvim_create_augroup('git.git-conflict.keymaps', { clear = true })
 
       -- Debounce window for the cursor-in-conflict scan. The scan walks up to

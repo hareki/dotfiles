@@ -42,7 +42,6 @@ function M.toggle_preview_focus(picker)
   local preview_win = picker.layout.opts.wins.preview.win
   local current_win = vim.api.nvim_get_current_win()
   local common = require('utils.common')
-  local cursorline = require('services.cursorline')
 
   if preview_win == nil then
     error("Can't toggle preview focus: no preview window found")
@@ -50,12 +49,12 @@ function M.toggle_preview_focus(picker)
 
   if current_win == preview_win then
     common.focus_win(input_win)
-    cursorline.set_cursorline(false, preview_win)
+    UI.cursorline.set_cursorline(false, preview_win)
     return
   end
 
   if common.focus_win(preview_win) then
-    cursorline.set_cursorline(true, preview_win)
+    UI.cursorline.set_cursorline(true, preview_win)
   end
 end
 

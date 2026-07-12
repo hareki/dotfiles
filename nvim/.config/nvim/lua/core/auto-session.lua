@@ -58,7 +58,7 @@ return {
     end,
 
     opts = function()
-      local popup_config = UI.popup_config('sm')
+      local popup_config = UI.layout.popup('sm')
 
       --- @module "auto-session"
       --- @type AutoSession.Config

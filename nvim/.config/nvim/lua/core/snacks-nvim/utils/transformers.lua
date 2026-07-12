@@ -49,8 +49,8 @@ end
 --- @param item snacks.picker.Item The picker item to transform
 --- @return snacks.picker.Item | false item The enriched item or false to filter out
 function M.keymap_transform(item)
-  local keymap_registry = require('services.keymap-registry')
-  local desc_overrides = keymap_registry.desc_overrides
+  local keymap_registry = require('config.keymap-registry')
+  local desc_overrides = keymap_registry.DESC_OVERRIDES
   local keymap = item.item
   local old_desc = keymap.desc
   local override_spec = desc_overrides[keymap.lhs]

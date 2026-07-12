@@ -38,7 +38,7 @@ function M.install_vertical_layout()
     -- 2. Seems like telescope.nvim exclude the statusline when centering the layout,
     -- Which is different from our logic in `size_utils.get_float_config('lg')`
     -- So we need to adjust/shift the position if needed
-    local target_row = UI.popup_config(size, true).row
+    local target_row = UI.layout.popup(size, true).row
     -- The top most component is the prompt window, so we use it as the anchor to adjust the position
     local top_line = layout.prompt.line
 
@@ -64,7 +64,6 @@ end
 --- @param prompt_bufnr integer
 function M.toggle_focus_preview(prompt_bufnr)
   local actions_state = require('telescope.actions.state')
-  local cursorline = require('services.cursorline')
   local common = require('utils.common')
 
   local picker = actions_state.get_current_picker(prompt_bufnr)
@@ -78,7 +77,7 @@ function M.toggle_focus_preview(prompt_bufnr)
     return
   end
 
-  local set_cursorline = cursorline.set_cursorline
+  local set_cursorline = UI.cursorline.set_cursorline
   local default_modifiable = previewer_bufnr and vim.bo[previewer_bufnr].modifiable or false
 
   vim.bo[previewer_bufnr].modifiable = false

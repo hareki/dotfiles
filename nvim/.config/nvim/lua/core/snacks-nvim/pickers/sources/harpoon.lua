@@ -108,7 +108,7 @@ M.show = function(user_opts)
 
     local harpoon_component = require('chrome.lualine-nvim.components.harpoon')
     harpoon_component.invalidate()
-    Statusline.refresh()
+    UI.statusline.refresh()
   end
 
   opts.actions = opts.actions or {}

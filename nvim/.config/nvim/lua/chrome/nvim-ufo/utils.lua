@@ -14,7 +14,7 @@ function M.fold_text_handler(virt_text, lnum, end_lnum, width, truncate)
   local virt_text_result = {}
   local cur_width = 0
   local suffix_content = ('%s %d'):format(Conf.icons.actions.FOLD, end_lnum - lnum)
-  local target_width = width - UI.pill_display_width(suffix_content)
+  local target_width = width - UI.pill.display_width(suffix_content)
 
   for _, chunk in ipairs(virt_text) do
     local chunk_text = chunk[1]
@@ -43,7 +43,7 @@ function M.fold_text_handler(virt_text, lnum, end_lnum, width, truncate)
 
   vim.list_extend(
     virt_text_result,
-    UI.pill_virt_text(suffix_content, 'UfoFoldPillInner', 'UfoFoldPillOuter')
+    UI.pill.virt_text(suffix_content, 'UfoFoldPillInner', 'UfoFoldPillOuter')
   )
 
   return virt_text_result

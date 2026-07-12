@@ -70,7 +70,7 @@ return {
     },
 
     opts = function()
-      local size = UI.popup_config('full')
+      local size = UI.layout.popup('full')
 
       return {
         terminal = {

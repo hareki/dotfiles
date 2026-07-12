@@ -51,7 +51,7 @@ local DEFAULTS = {
 function M.create_styling_wrapper(opts)
   local palette = opts.palette
   if not palette then
-    palette = UI.get_palette()
+    palette = UI.catppuccin.get_palette()
   end
 
   local style, _side = opts.type:match('^(%w+)-(%w+)$')

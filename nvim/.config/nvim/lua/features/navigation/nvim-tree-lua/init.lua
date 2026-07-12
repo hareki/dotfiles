@@ -5,7 +5,7 @@ local api = Defer.on_index('nvim-tree.api')
 
 return {
   UI.catppuccin(function(palette, sub_palette)
-    local picker_bg = UI.blend_hex(palette.base, palette.blue)
+    local picker_bg = UI.color.blend_hex(palette.base, palette.blue)
 
     return {
       NvimTreeSignColumn = { link = 'NormalFloat' },
@@ -88,7 +88,7 @@ return {
 
         calculate_win_size = function(tree_win)
           local tree_cfg = vim.api.nvim_win_get_config(tree_win)
-          local size = UI.popup_config(tree.compute_size())
+          local size = UI.layout.popup(tree.compute_size())
 
           -- We need to fill the missing row if the total height is an odd number
           -- (we can't have equal height for both windows)
@@ -101,7 +101,7 @@ return {
             }
           end
 
-          local preview_cols, preview_rows = UI.side_size('side_preview', 'md')
+          local preview_cols, preview_rows = UI.layout.side_size('side_preview', 'md')
 
           return {
             width = preview_cols,
@@ -241,7 +241,7 @@ return {
           side = 'right',
           -- Width when not in float mode
           width = function()
-            local panel_cols = UI.side_size('side_panel', 'md')
+            local panel_cols = UI.layout.side_size('side_panel', 'md')
             return panel_cols
           end,
 
@@ -249,7 +249,7 @@ return {
             enable = state.position == 'float',
             quit_on_focus_loss = true,
             open_win_config = function()
-              local size = UI.popup_config(tree.compute_size())
+              local size = UI.layout.popup(tree.compute_size())
               local window_w = size.width
               local window_h = math.floor(size.height / 2)
               local col = size.col
@@ -306,8 +306,7 @@ return {
           end, 'Live Filter: Start')
           map('n', '<Esc>', function()
             api.filter.live.clear()
-            local search_highlight = require('services.search-highlight')
-            search_highlight.clear_search_highlight()
+            UI.color.nohlsearch()
           end, 'Clear Live Filter and Search Highlights')
 
           map('n', 'd', api.fs.trash, 'Trash')

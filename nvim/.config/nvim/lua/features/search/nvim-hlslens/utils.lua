@@ -58,10 +58,10 @@ function M.search_text_handler(render, position_list, nearest, index, relative_i
     else
       text = ('%s%d/%d'):format(Conf.icons.actions.SEARCH, index, count)
     end
-    chunks = UI.pill_virt_text(text, 'HlSearchLensPillNearInner', 'HlSearchLensPillNearOuter')
+    chunks = UI.pill.virt_text(text, 'HlSearchLensPillNearInner', 'HlSearchLensPillNearOuter')
   else
     text = ('%s %d'):format(indicator, index)
-    chunks = UI.pill_virt_text(text, 'HlSearchLensPillInner', 'HlSearchLensPillOuter')
+    chunks = UI.pill.virt_text(text, 'HlSearchLensPillInner', 'HlSearchLensPillOuter')
   end
 
   Snacks.words.disable()

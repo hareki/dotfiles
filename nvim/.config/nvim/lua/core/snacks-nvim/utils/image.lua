@@ -165,7 +165,7 @@ end
 --- @param source_buf integer
 --- @param src string
 local function open(source_buf, src)
-  local lg = UI.popup_config('lg')
+  local lg = UI.layout.popup('lg')
   local previous_esc_map = get_buffer_esc_map(source_buf)
 
   local scratch = vim.api.nvim_create_buf(false, true)
@@ -202,7 +202,7 @@ local function open(source_buf, src)
       vim.api.nvim_buf_clear_namespace(scratch, -1, 0, -1)
 
       local loc = self:state().loc
-      local screen_w, screen_h = UI.screen_size()
+      local screen_w, screen_h = UI.layout.screen_size()
       local w = loc.width + 2
       local h = loc.height + 2
 

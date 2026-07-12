@@ -208,7 +208,7 @@ local default_options = {
 --- Apply default colors from palette
 --- @param opts table
 local function apply_default_colors(opts)
-  local palette = UI.get_palette()
+  local palette = UI.catppuccin.get_palette()
 
   local default_status_color = {
     current_unsaved = { fg = palette.yellow },

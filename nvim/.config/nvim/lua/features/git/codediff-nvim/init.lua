@@ -18,7 +18,7 @@ return {
     },
 
     opts = function()
-      local preview_cols = UI.side_size('side_panel', 'sm')
+      local preview_cols = UI.layout.side_size('side_panel', 'sm')
 
       return {
         explorer = {

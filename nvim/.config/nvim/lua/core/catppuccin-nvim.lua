@@ -4,11 +4,11 @@ return {
   lazy = false,
   priority = Conf.priority.CORE, -- Should be loaded first to register the colorscheme correctly
   opts = function()
-    local palette = UI.get_palette()
-    local color = UI.get_palette('ext')
+    local palette = UI.catppuccin.get_palette()
+    local color = UI.catppuccin.get_palette('ext')
 
     local substitute_fg = palette.red
-    local substitute_bg = UI.blend_hex(palette.mantle, substitute_fg)
+    local substitute_bg = UI.color.blend_hex(palette.mantle, substitute_fg)
 
     return {
       transparent_background = true,

@@ -4,8 +4,8 @@ return {
   UI.catppuccin(function(palette)
     local enabled_fg = palette.green
     local disabled_fg = palette.red
-    local enabled_bg = UI.blend_hex(palette.mantle, enabled_fg)
-    local disabled_bg = UI.blend_hex(palette.mantle, disabled_fg)
+    local enabled_bg = UI.color.blend_hex(palette.mantle, enabled_fg)
+    local disabled_bg = UI.color.blend_hex(palette.mantle, disabled_fg)
 
     return {
       MultiCursorCursor = { bg = enabled_bg, fg = enabled_fg },

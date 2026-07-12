@@ -19,7 +19,7 @@ return {
     priority = Conf.priority.CHROME,
 
     opts = function()
-      local popup = UI.popup_config('md')
+      local popup = UI.layout.popup('md')
 
       return {
         format = {

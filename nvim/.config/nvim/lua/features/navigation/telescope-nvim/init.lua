@@ -41,7 +41,7 @@ return {
       local scroll_results_up = utils.scroll_results('up')
       local scroll_results_down = utils.scroll_results('down')
 
-      local layout_config = UI.telescope_layout
+      local layout_config = UI.layout.telescope
       local telescope_config = require('telescope.config')
       local default_get_status_text = telescope_config.values.get_status_text
 

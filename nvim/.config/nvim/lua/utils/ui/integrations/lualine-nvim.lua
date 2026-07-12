@@ -1,10 +1,10 @@
---- @class services.statusline
+--- @class utils.ui.statusline
 local M = {}
 
---- Check if status line is enabled (not disabled by NVIM_NO_STATUS_LINE env var)
+--- Check if status line is enabled (not disabled by NVIM_NO_STATUSLINE env var)
 --- @return boolean enabled True if status line should be shown
-function M.have_status_line()
-  return vim.env.NVIM_NO_STATUS_LINE == nil
+function M.enabled()
+  return vim.env.NVIM_NO_STATUSLINE == nil
 end
 
 --- Refresh the lualine statusline if lualine is loaded

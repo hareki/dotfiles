@@ -44,30 +44,24 @@
 
 ### Central Modules (`lua/config/`)
 
-| Module        | Purpose                                                                                                     |
-| ------------- | ----------------------------------------------------------------------------------------------------------- |
-| `size.lua`    | Popup dimensions: `sm`, `md`, `lg`, `vertical_lg`, `full`                                                   |
-| `icons.lua`   | All icons (diagnostics, git, file status, LSP kinds)                                                        |
-| `globals.lua` | 7 project globals: `Defer`, `Notifier`, `Conf`, `UI`, `Statusline`, `Project` (`Snacks` set by snacks.nvim) |
-| `cmp.lua`     | Completion tuning constants (`Conf.cmp`): AI item cap/timeout, ripgrep min keyword length                   |
-| `picker.lua`  | Shared picker UI constants                                                                                  |
+| Module                | Purpose                                                                                       |
+| --------------------- | --------------------------------------------------------------------------------------------- |
+| `init.lua`            | Assembles the `Conf` global from the `config.*` tables below                                  |
+| `size.lua`            | Popup dimensions: `sm`, `md`, `lg`, `vertical_lg`, `full`                                     |
+| `icons.lua`           | All icons (diagnostics, git, file status, LSP kinds)                                          |
+| `globals.lua`         | 6 project globals: `Defer`, `Notifier`, `Conf`, `UI`, `Project` (`Snacks` set by snacks.nvim) |
+| `cmp.lua`             | Completion tuning constants (`Conf.cmp`): AI item cap/timeout, ripgrep min keyword length     |
+| `picker.lua`          | Shared picker UI constants                                                                    |
+| `keymap-registry.lua` | Centralized keymap `desc` overrides                                                           |
 
 ### Utils (`lua/utils/`)
 
-| Module             | Key Exports                                                          |
-| ------------------ | -------------------------------------------------------------------- |
-| `ui.lua`           | `popup_config(size, with_border)`, `catppuccin(fn)`, `get_palette()` |
-| `common.lua`       | `noautocmd(fn)`, `focus_win(win)`, `is_float_win()`                  |
-| `lazy_require.lua` | `Defer.on_index()`, `Defer.on_exported_call()`                       |
-
-### Services (`lua/services/`)
-
-| Module                | Purpose                                                                          |
-| --------------------- | -------------------------------------------------------------------------------- |
-| `notifier.lua`        | Notification wrapper; supports markdown, tuple lists for custom highlight groups |
-| `cursorline.lua`      | Cursorline / line-number highlight state management                              |
-| `keymap_registry.lua` | Centralized keymap `desc` overrides                                              |
-| `statusline.lua`      | Statusline visibility helpers (`have_status_line()`)                             |
+| Module             | Key Exports                                                                                                                                                                                                                              |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ui/`              | `UI` namespaces: `layout.popup(size, with_border)`, `color.blend_hex()`, `pill.virt_text()`, `cursorline.set_cursorline()`, plus integrations — `catppuccin(fn)` / `catppuccin.get_palette()`, `which_key(spec)`, `statusline.refresh()` |
+| `notifier.lua`     | Notification wrapper; supports markdown, tuple lists for custom highlight groups                                                                                                                                                         |
+| `common.lua`       | `noautocmd(fn)`, `focus_win(win)`, `is_float_win()`                                                                                                                                                                                      |
+| `lazy-require.lua` | `Defer.on_index()`, `Defer.on_exported_call()`                                                                                                                                                                                           |
 
 ### Complex Plugin Structure
 
@@ -83,7 +77,7 @@ nvim-tree-lua/
 
 - Per-server configs in `lua/core/lsp/nvim-lspconfig/lsp/{server}.lua`
 - Tool installation (LSP servers, formatters, linters) is handled by [mise-en-place](https://mise.jdx.dev/) via `~/.config/mise/config.toml`
-- Async style-enforcement pipeline (formatters + linters) in `utils/style_enforcers/`
+- Async style-enforcement pipeline (formatters + linters) in `utils/style-enforcers/`
 
 ## Forks (author = hareki)
 

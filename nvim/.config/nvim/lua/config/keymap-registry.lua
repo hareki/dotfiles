@@ -1,7 +1,7 @@
---- @class services.keymap-registry
+--- @class config.keymap-registry
 local M = {}
 
-M.desc_overrides = {
+M.DESC_OVERRIDES = {
   ['[<leader>'] = { desc = 'Add Empty Line Above Cursor', mode = { 'n' } },
   [']<leader>'] = { desc = 'Add Empty Line Below Cursor', mode = { 'n' } },
   ['grn'] = { desc = 'LSP: Rename', mode = { 'n' } },

@@ -1,7 +1,7 @@
 --- @class chrome.lualine.components.mode
 local M = {}
 
-local palette = UI.get_palette()
+local palette = UI.catppuccin.get_palette()
 
 local mode_hl = {}
 for _, mode in ipairs({ 'NORMAL', 'O-PENDING' }) do

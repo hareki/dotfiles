@@ -71,7 +71,7 @@ function M.cond()
     local has_image = src ~= nil
     if has_image ~= cache.has_image then
       cache.has_image = has_image
-      Statusline.refresh()
+      UI.statusline.refresh()
     end
   end)
 

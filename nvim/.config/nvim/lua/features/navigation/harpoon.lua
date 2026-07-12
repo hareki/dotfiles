@@ -116,7 +116,7 @@ return {
     end,
 
     opts = function()
-      local menu_popup = UI.popup_config('sm', true)
+      local menu_popup = UI.layout.popup('sm', true)
 
       return {
         menu = {
@@ -138,7 +138,7 @@ return {
       local function refresh_component()
         local harpoon_component = require('chrome.lualine-nvim.components.harpoon')
         harpoon_component.invalidate()
-        Statusline.refresh()
+        UI.statusline.refresh()
       end
 
       harpoon:extend({

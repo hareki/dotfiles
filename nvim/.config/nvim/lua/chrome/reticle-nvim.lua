@@ -2,12 +2,10 @@ return {
   'tummetott/reticle.nvim',
   event = 'VeryLazy',
   opts = function()
-    local utils = require('services.cursorline')
-
     return {
       disable_in_insert = false,
       disable_in_diff = true,
-      always_highlight_number = utils.always_highlight_number,
+      always_highlight_number = UI.cursorline.ALWAYS_HIGHLIGHT_NUMBER,
       ignore = {
         cursorline = {
           'TelescopePrompt',

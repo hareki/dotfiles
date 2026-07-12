@@ -1,14 +1,14 @@
 -- trouble.nvim notifier with supported custom highlight groups
 -- https://github.com/folke/trouble.nvim/blob/main/lua/trouble/util.lua
 
---- @class services.notifier
+--- @class utils.notifier
 local M = {}
 
---- @alias NotifierOpts { level?: number, title?: string, once?: boolean, id?:string, on_open?: fun(), default_hl?: string, height_offset?: integer }
+--- @alias utils.notifier.NotifierOpts { level?: number, title?: string, once?: boolean, id?:string, on_open?: fun(), default_hl?: string, height_offset?: integer }
 
---- @alias MessageTuple { [1]: string, [2]?: string }
---- @alias MessageChunk string | MessageTuple
---- @alias Message string | string[] | MessageChunk[]
+--- @alias utils.notifier.MessageTuple { [1]: string, [2]?: string }
+--- @alias utils.notifier.MessageChunk string | utils.notifier.MessageTuple
+--- @alias utils.notifier.Message string | string[] | utils.notifier.MessageChunk[]
 
 -- Per-id notification state. Only populated when opts.id is set, since only
 -- id'd notifications are ever replaced (and thus need their old autocmds cleaned
@@ -223,8 +223,8 @@ function M.notify(msg, opts)
 end
 
 --- Display an info-level notification with optional custom highlights
---- @param msg Message String, string array, or tuple list for rich formatting
---- @param opts? NotifierOpts Notification options (title, id, on_open, etc.)
+--- @param msg utils.notifier.Message String, string array, or tuple list for rich formatting
+--- @param opts? utils.notifier.NotifierOpts Notification options (title, id, on_open, etc.)
 --- @return any handle The notification handle for replacement/tracking
 function M.info(msg, opts)
   return M.notify(
@@ -238,8 +238,8 @@ function M.info(msg, opts)
 end
 
 --- Display a warning-level notification with optional custom highlights
---- @param msg Message String, string array, or tuple list for rich formatting
---- @param opts? NotifierOpts Notification options (title, id, on_open, etc.)
+--- @param msg utils.notifier.Message String, string array, or tuple list for rich formatting
+--- @param opts? utils.notifier.NotifierOpts Notification options (title, id, on_open, etc.)
 --- @return any handle The notification handle for replacement/tracking
 function M.warn(msg, opts)
   return M.notify(
@@ -253,8 +253,8 @@ function M.warn(msg, opts)
 end
 
 --- Display an error-level notification with optional custom highlights
---- @param msg Message String, string array, or tuple list for rich formatting
---- @param opts? NotifierOpts Notification options (title, id, on_open, etc.)
+--- @param msg utils.notifier.Message String, string array, or tuple list for rich formatting
+--- @param opts? utils.notifier.NotifierOpts Notification options (title, id, on_open, etc.)
 --- @return any handle The notification handle for replacement/tracking
 function M.error(msg, opts)
   return M.notify(

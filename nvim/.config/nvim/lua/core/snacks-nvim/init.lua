@@ -177,7 +177,7 @@ return {
     end,
 
     opts = function()
-      local popup_config = UI.popup_config
+      local popup_config = UI.layout.popup
       local config = {
         input = popup_config('input'),
         full = popup_config('full'),

@@ -205,8 +205,8 @@ M.lsp = {
   mode = { 'n' },
 }
 
-local keymap_registry = require('services.keymap-registry')
-M.desc_overrides = keymap_registry.desc_overrides
+local keymap_registry = require('config.keymap-registry')
+M.desc_overrides = keymap_registry.DESC_OVERRIDES
 
 function M.setup()
   local wk = require('which-key')

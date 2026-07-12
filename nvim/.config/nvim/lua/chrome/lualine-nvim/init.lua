@@ -2,7 +2,7 @@ return {
   'nvim-lualine/lualine.nvim',
 
   enabled = function()
-    return Statusline.have_status_line()
+    return UI.statusline.enabled()
   end,
 
   lazy = false,
@@ -33,7 +33,7 @@ return {
     local tab = require('chrome.lualine-nvim.components.tab')
     local snacks_image = require('chrome.lualine-nvim.components.snacks-image')
 
-    local palette = UI.get_palette()
+    local palette = UI.catppuccin.get_palette()
 
     local lualine_utils = require('chrome.lualine-nvim.utils')
     local create_wrapper = function(opts)

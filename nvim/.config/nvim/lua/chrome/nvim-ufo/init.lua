@@ -1,6 +1,6 @@
 return {
   UI.catppuccin(function(palette)
-    local pill_bg = UI.blend_hex(palette.base, palette.blue)
+    local pill_bg = UI.color.blend_hex(palette.base, palette.blue)
 
     return {
       UfoFoldPillOuter = { fg = pill_bg },
