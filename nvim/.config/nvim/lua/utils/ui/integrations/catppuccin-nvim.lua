@@ -1,23 +1,21 @@
 --- @alias utils.ui.catppuccin.Palette { rosewater: string, flamingo: string, pink: string, mauve: string, red: string, maroon: string, peach: string, yellow: string, green: string, teal: string, sky: string, sapphire: string, blue: string, lavender: string, text: string, subtext1: string, subtext0: string, overlay2: string, overlay1: string, overlay0: string, surface2: string, surface1: string, surface0: string, base: string, mantle: string, crust: string }
 
 --- @class utils.ui.catppuccin.Ext
---- @field blue0 string
---- @field blue1 string
---- @field blue2 string
---- @field green0 string
---- @field green1 string
 --- @field surface15 string
+--- @field conflict_current string
+--- @field conflict_current_label string
+--- @field conflict_incoming string
+--- @field conflict_incoming_label string
+--- @field snippet_tab_stop string
 
 --- Extension colors that complement the catppuccin palette
 local ext = {
-  blue0 = '#323c56', -- Darkest blue
-  blue1 = '#414e70', -- Mid blue
-  blue2 = '#495d83', -- Brightest blue
-
-  green0 = '#394841', -- Darker green
-  green1 = '#57735b', -- Brighter green
-
   surface15 = '#4f5164', -- Between palette surface1 and surface2
+  conflict_current = '#394841',
+  conflict_current_label = '#57735b',
+  conflict_incoming = '#323c56',
+  conflict_incoming_label = '#495d83',
+  snippet_tab_stop = '#414e70',
 }
 
 --- Get a catppuccin color palette, or the extension colors when name is 'ext'

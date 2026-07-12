@@ -4,14 +4,14 @@ local colorizer = Defer.on_exported_call('colorizer')
 return {
   UI.catppuccin(function(palette, _, extension)
     return {
-      GitConflictCurrentLabel = { bg = extension.green1, fg = palette.text },
-      GitConflictCurrent = { bg = extension.green0 },
+      GitConflictCurrentLabel = { bg = extension.conflict_current_label, fg = palette.text },
+      GitConflictCurrent = { bg = extension.conflict_current },
 
       GitConflictAncestorLabel = { bg = palette.surface2, fg = palette.text },
       GitConflictAncestor = { bg = palette.surface1 },
 
-      GitConflictIncomingLabel = { bg = extension.blue2, fg = palette.text },
-      GitConflictIncoming = { bg = extension.blue0 },
+      GitConflictIncomingLabel = { bg = extension.conflict_incoming_label, fg = palette.text },
+      GitConflictIncoming = { bg = extension.conflict_incoming },
     }
   end),
 

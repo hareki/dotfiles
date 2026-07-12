@@ -60,7 +60,7 @@ return {
         ['@markup.strong'] = { fg = palette.flamingo, bold = true },
 
         ModifiedIndicator = { fg = palette.yellow },
-        SnippetTabStop = { bg = color.blue1 },
+        SnippetTabStop = { bg = color.snippet_tab_stop },
 
         LazyH1 = { bg = palette.blue, fg = palette.base },
         LazyDir = { fg = palette.blue },
