@@ -11,7 +11,7 @@ return {
       MultiCursorCursor = { bg = enabled_bg, fg = enabled_fg },
       MultiCursorDisabledCursor = { bg = disabled_bg, fg = disabled_fg },
     }
-  end),
+  end, 'multicursor.nvim'),
 
   UI.which_key({
     specs = {

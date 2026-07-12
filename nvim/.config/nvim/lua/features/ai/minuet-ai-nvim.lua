@@ -4,7 +4,7 @@ return {
       -- Hardcoded by the plugin
       BlinkCmpItemKindMinuet = { fg = palette.yellow },
     }
-  end),
+  end, 'minuet-ai.nvim'),
 
   {
     'milanglacier/minuet-ai.nvim',

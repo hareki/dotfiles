@@ -8,7 +8,7 @@ return {
       GrugFarResultsChangeIndicator = { fg = palette.yellow },
       GrugFarResultsRemoveIndicator = { fg = palette.red },
     }
-  end),
+  end, 'grug-far.nvim'),
 
   {
     'hareki/grug-far.nvim',

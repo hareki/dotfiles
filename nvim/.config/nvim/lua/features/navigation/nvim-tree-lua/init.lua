@@ -15,7 +15,7 @@ return {
       NvimTreeCopiedHL = { bg = palette.surface2, fg = palette.text },
       NvimTreeLiveFilterPrefix = { fg = palette.yellow },
       NvimTreeGitStagedIcon = { fg = sub_palette.yellow },
-      NvimTreeRootFolder = { fg = palette.overlay2, style = {} },
+      NvimTreeRootFolder = { fg = palette.overlay2 },
       NvimTreeGitMergeIcon = { fg = palette.yellow },
       NvimTreeWindowPicker = {
         bg = picker_bg,
@@ -23,7 +23,7 @@ return {
         fg = palette.blue,
       },
     }
-  end),
+  end, 'nvim-tree.lua'),
 
   UI.which_key({
     rules = { plugin = 'nvim-tree.lua', icon = Conf.icons.tools.TREE, color = 'blue' },

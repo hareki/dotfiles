@@ -8,7 +8,7 @@ return {
       TelescopeSelectionCaret = { fg = palette.blue },
       TelescopeSelection = { link = 'ListCursorLine' },
     }
-  end),
+  end, 'telescope.nvim'),
 
   {
     'nvim-telescope/telescope.nvim',

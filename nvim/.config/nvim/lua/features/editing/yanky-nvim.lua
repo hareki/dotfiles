@@ -21,7 +21,7 @@ return {
         bg = palette.teal,
       },
     }
-  end),
+  end, 'yanky.nvim'),
 
   UI.which_key({
     rules = { pattern = 'yank', icon = Conf.icons.actions.YANK, color = 'yellow' },

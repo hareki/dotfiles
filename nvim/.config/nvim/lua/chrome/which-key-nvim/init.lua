@@ -7,7 +7,7 @@ return {
     return {
       WhichKeyDesc = { fg = palette.text },
     }
-  end),
+  end, 'which-key.nvim'),
 
   {
     'hareki/which-key.nvim',

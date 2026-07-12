@@ -10,7 +10,7 @@ return {
       GitSignsStagedDelete = { fg = sub_palette.red },
       GitSignsStagedTopDelete = { link = 'GitSignsStagedDelete' },
     }
-  end),
+  end, 'gitsigns.nvim'),
 
   UI.which_key({
     specs = { '<leader>h', group = 'Gitsigns', mode = { 'n', 'v' } },

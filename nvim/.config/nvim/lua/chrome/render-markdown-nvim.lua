@@ -3,7 +3,7 @@ return {
     return {
       RenderMarkdownCode = { bg = 'none' },
     }
-  end),
+  end, 'render-markdown.nvim'),
 
   {
     'MeanderingProgrammer/render-markdown.nvim',

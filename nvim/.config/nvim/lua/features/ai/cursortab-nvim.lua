@@ -6,7 +6,7 @@ return {
       CursorTabModification = { link = 'DiffText' },
       CursorTabCompletion = { link = 'Comment' },
     }
-  end),
+  end, 'cursortab.nvim'),
 
   {
     'hareki/cursortab.nvim',

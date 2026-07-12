@@ -8,7 +8,7 @@ return {
       BlinkCmpLabel = { fg = palette.text },
       BlinkCmpKindVariable = { link = '@variable' },
     }
-  end),
+  end, 'blink.cmp'),
 
   {
     'saghen/blink.compat',

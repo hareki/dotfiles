@@ -8,7 +8,7 @@ return {
       TroublePreview = { link = 'Search' },
       TroubleIconDirectory = { link = 'Directory' },
     }
-  end),
+  end, 'trouble.nvim'),
 
   {
     'hareki/trouble.nvim',

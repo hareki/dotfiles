@@ -4,7 +4,7 @@ return {
       CodeDiffExplorerTreeGroup = { fg = palette.yellow },
       CodeDiffHistoryTitle = { fg = palette.yellow },
     }
-  end),
+  end, 'codediff.nvim'),
 
   {
     'hareki/codediff.nvim',

@@ -1,7 +1,7 @@
 return {
   UI.catppuccin(function(palette)
     return { MiniIconsAzure = { fg = palette.teal } }
-  end),
+  end, 'mini.icons'),
 
   {
     'echasnovski/mini.icons',
