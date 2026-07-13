@@ -43,8 +43,10 @@ function M.toggle_preview_focus(picker)
   local current_win = vim.api.nvim_get_current_win()
   local common = require('utils.common')
 
+  -- No-op for pickers configured with `preview = false` (e.g. keymaps),
+  -- where <Tab> is still bound globally but there is no window to focus
   if preview_win == nil then
-    error("Can't toggle preview focus: no preview window found")
+    return
   end
 
   if current_win == preview_win then
