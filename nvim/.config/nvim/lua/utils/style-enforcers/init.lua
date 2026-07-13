@@ -130,6 +130,7 @@ function M.run(opts)
 
   local function run_linters(formatted)
     if not vim.api.nvim_buf_is_valid(buf) then
+      progress:finish()
       cleanup(false, 'Buffer became invalid')
       return
     end
@@ -339,35 +340,44 @@ function M.run_all(debug)
     end
   end
 
+  local to_run = {}
   for _, buf in ipairs(all_buffers) do
     -- Skip if already running on this buffer
     if running_bufs[buf] then
       skipped_count = skipped_count + 1
     else
-      pending_count = pending_count + 1
-      local display_path = buf_display_path(buf)
-
-      M.run({
-        debug = debug,
-        buf = buf,
-        on_done = function(ok, _err)
-          if ok then
-            table.insert(success_paths, display_path)
-          else
-            table.insert(error_paths, display_path)
-          end
-
-          pending_count = pending_count - 1
-          if pending_count == 0 then
-            vim.schedule(show_results)
-          end
-        end,
-      })
+      table.insert(to_run, buf)
     end
   end
 
+  -- Preset the counter before dispatching: a buffer with no formatter and no
+  -- linter completes synchronously inside M.run, so a live-incremented counter
+  -- would transiently hit zero mid-loop and fire a premature partial summary.
+  pending_count = #to_run
+
+  for _, buf in ipairs(to_run) do
+    local display_path = buf_display_path(buf)
+
+    M.run({
+      debug = debug,
+      buf = buf,
+      on_done = function(ok, _err)
+        if ok then
+          table.insert(success_paths, display_path)
+        else
+          table.insert(error_paths, display_path)
+        end
+
+        pending_count = pending_count - 1
+        if pending_count == 0 then
+          vim.schedule(show_results)
+        end
+      end,
+    })
+  end
+
   -- If all buffers were skipped (already running), show nothing
-  if pending_count == 0 and skipped_count > 0 then
+  if #to_run == 0 and skipped_count > 0 then
     Notifier.warn('All buffers are already being formatted', { title = 'Style Enforcer' })
   end
 end
