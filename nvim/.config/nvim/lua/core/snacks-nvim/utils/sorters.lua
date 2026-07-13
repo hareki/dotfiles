@@ -11,7 +11,9 @@ function M.buffer_sort(a, b)
     if not bufnr then
       return false
     end
-    local ok, modified = pcall(vim.api.nvim_get_option_value, 'modified', { buf = bufnr })
+    local ok, modified = pcall(function()
+      return vim.bo[bufnr].modified
+    end)
     return ok and modified or false
   end
 

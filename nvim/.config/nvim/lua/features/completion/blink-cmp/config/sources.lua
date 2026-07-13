@@ -85,7 +85,7 @@ M.default = {
       max_items = 3,
       score_offset = -10,
       should_show_items = function()
-        local filetype = vim.api.nvim_get_option_value('filetype', { buf = 0 })
+        local filetype = vim.bo.filetype
         local is_ignored_filetype = filetype == '' or filetype == 'NvimTree' -- NvimTree live_filter has a blank filetype
 
         return not is_ignored_filetype

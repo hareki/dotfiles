@@ -88,7 +88,7 @@ return {
 
             local sources = require('dropbar.sources')
 
-            if vim.bo[buf].ft == 'NvimTree' then
+            if vim.bo[buf].filetype == 'NvimTree' then
               return dropbar_utils.title_symbol({
                 icon = Conf.icons.tools.TREE,
                 icon_hl = 'DropBarIconGreen',
@@ -98,7 +98,7 @@ return {
               })
             end
 
-            if vim.bo[buf].ft == 'codediff-history' then
+            if vim.bo[buf].filetype == 'codediff-history' then
               return dropbar_utils.title_symbol({
                 icon = Conf.icons.cmp_kinds.History .. ' ',
                 icon_hl = 'DropBarIconPurple',
@@ -108,7 +108,7 @@ return {
               })
             end
 
-            if vim.bo[buf].ft == 'codediff-explorer' then
+            if vim.bo[buf].filetype == 'codediff-explorer' then
               return dropbar_utils.title_symbol({
                 icon = Conf.icons.git.DIFF .. ' ',
                 icon_hl = 'DropBarIconYellow',
@@ -118,7 +118,7 @@ return {
               })
             end
 
-            if vim.bo[buf].ft == 'markdown' then
+            if vim.bo[buf].filetype == 'markdown' then
               return {
                 sources.path,
                 sources.markdown,
