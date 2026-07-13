@@ -16,6 +16,41 @@ local ts_config = {
 local js_config = ts_config
 
 return {
+  opts = function()
+    -- PERF: Hardcode it for faster resolve time, since the version rarely changes anyway
+    local mise_where =
+      vim.fn.expand('~/.local/share/mise/installs/npm-styled-typescript-styled-plugin/1')
+    local plugin_root = mise_where
+    -- mise where returns the tool root, packages are under lib/node_modules
+    local npm_global_root = plugin_root ~= '' and (plugin_root .. '/lib/node_modules') or ''
+
+    return {
+      settings = {
+        complete_function_calls = false,
+        typescript = ts_config,
+        javascript = js_config,
+        vtsls = {
+          enableMoveToFileCodeAction = true,
+          autoUseWorkspaceTsdk = true,
+          tsserver = {
+            globalPlugins = {
+              {
+                name = '@styled/typescript-styled-plugin',
+                location = npm_global_root,
+                enableForWorkspaceTypeScriptVersions = true,
+              },
+            },
+          },
+          experimental = {
+            completion = {
+              enableServerSideFuzzyMatch = true,
+            },
+          },
+        },
+      },
+    }
+  end,
+
   setup = function()
     -- Snacks.util.lsp.on already fires once per attaching client matching the filter,
     -- so it must be registered at top level — nesting it inside LspAttach leaks watchers.
@@ -97,9 +132,9 @@ return {
     vim.api.nvim_create_autocmd('LspAttach', {
       group = vim.api.nvim_create_augroup('core.lsp.vtsls.attach', { clear = true }),
       callback = function(args)
-        local lsp_client = vim.lsp.get_client_by_id(args.data.client_id)
+        local client = vim.lsp.get_client_by_id(args.data.client_id)
 
-        if not (lsp_client and lsp_client.name == 'vtsls') then
+        if not (client and client.name == 'vtsls') then
           return
         end
 
@@ -132,40 +167,5 @@ return {
         map('n', '<leader>ci', code_action('source.addMissingImports.ts'), 'Add Missing Imports')
       end,
     })
-  end,
-
-  opts = function()
-    -- PERF: Hardcode it for faster resolve time, since the version rarely changes anyway
-    local mise_where =
-      vim.fn.expand('~/.local/share/mise/installs/npm-styled-typescript-styled-plugin/1')
-    local plugin_root = mise_where
-    -- mise where returns the tool root, packages are under lib/node_modules
-    local npm_global_root = plugin_root ~= '' and (plugin_root .. '/lib/node_modules') or ''
-
-    return {
-      settings = {
-        complete_function_calls = false,
-        typescript = ts_config,
-        javascript = js_config,
-        vtsls = {
-          enableMoveToFileCodeAction = true,
-          autoUseWorkspaceTsdk = true,
-          tsserver = {
-            globalPlugins = {
-              {
-                name = '@styled/typescript-styled-plugin',
-                location = npm_global_root,
-                enableForWorkspaceTypeScriptVersions = true,
-              },
-            },
-          },
-          experimental = {
-            completion = {
-              enableServerSideFuzzyMatch = true,
-            },
-          },
-        },
-      },
-    }
   end,
 }
