@@ -23,6 +23,11 @@ return {
           type = 'mercuryapi',
           api_key_env = Conf.cmp.AI_MERCURY_KEY,
         },
+        behavior = {
+          idle_completion_delay = 200,
+          text_change_debounce = 200,
+          ignore_filetypes = { '', 'terminal', 'grug-far' },
+        },
       }
     end,
   },

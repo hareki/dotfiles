@@ -24,7 +24,7 @@ M.default = {
     'datword',
     'ripgrep',
     'buffer',
-    'minuet',
+    -- 'minuet',
   }),
   per_filetype = {
     lua = { inherit_defaults = true, 'lazydev' },
