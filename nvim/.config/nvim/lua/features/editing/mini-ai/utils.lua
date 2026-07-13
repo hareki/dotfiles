@@ -83,7 +83,7 @@ function M.whichkey(opts)
       local desc = obj.desc
 
       if prefix:sub(1, 1) == 'i' then
-        desc = desc:gsub(' with Ws', '')
+        desc = desc:gsub(' with Whitespace', '')
       end
 
       ret[#ret + 1] = { prefix .. obj[1], desc = desc }
