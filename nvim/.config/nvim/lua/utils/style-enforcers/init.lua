@@ -163,8 +163,8 @@ function M.run(opts)
         on_done = function(linter_name, linter_ok, lint_error)
           if not linter_ok and lint_error then
             had_lint_error = true
-            local msg = debug and ('Linter %s error: %s'):format(linter_name, lint_error)
-              or ('Linter used: %s'):format(linter_name)
+            local msg = debug and string.format('Linter %s error: %s', linter_name, lint_error)
+              or string.format('Linter used: %s', linter_name)
 
             Notifier.warn(msg, {
               title = 'Linting Failed',
@@ -216,7 +216,8 @@ function M.run(opts)
 
     if format_error then
       local msg = debug and 'Format error: ' .. format_error
-        or ('Formatter(s) used: `%s` \nSee `:ConformInfo` for more information'):format(
+        or string.format(
+          'Formatter(s) used: `%s` \nSee `:ConformInfo` for more information',
           get_formatter_names(buf)
         )
 

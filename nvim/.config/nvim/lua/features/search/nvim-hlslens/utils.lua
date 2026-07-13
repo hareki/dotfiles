@@ -14,7 +14,7 @@ function M.navigate(direction)
 
   if not ok then
     local search_text = vim.fn.getreg('/')
-    Notifier.warn(('`%s` is not found'):format(search_text), {
+    Notifier.warn(string.format('`%s` is not found', search_text), {
       title = 'nvim-hlslens',
     })
   end
@@ -34,7 +34,7 @@ function M.search_text_handler(render, position_list, nearest, index, relative_i
   local abs_relative_index = math.abs(relative_index)
 
   if abs_relative_index > 1 then
-    indicator = ('%d%s'):format(
+    indicator = string.format(
       abs_relative_index,
       search_forward ~= (relative_index > 1) and Conf.icons.navigation.UP
         or Conf.icons.navigation.DOWN
@@ -54,13 +54,13 @@ function M.search_text_handler(render, position_list, nearest, index, relative_i
   if nearest then
     local count = #position_list
     if indicator ~= '' then
-      text = ('%s%s %d/%d'):format(Conf.icons.actions.SEARCH, indicator, index, count)
+      text = string.format('%s%s %d/%d', Conf.icons.actions.SEARCH, indicator, index, count)
     else
-      text = ('%s%d/%d'):format(Conf.icons.actions.SEARCH, index, count)
+      text = string.format('%s%d/%d', Conf.icons.actions.SEARCH, index, count)
     end
     chunks = UI.pill.virt_text(text, 'HlSearchLensPillNearInner', 'HlSearchLensPillNearOuter')
   else
-    text = ('%s %d'):format(indicator, index)
+    text = string.format('%s %d', indicator, index)
     chunks = UI.pill.virt_text(text, 'HlSearchLensPillInner', 'HlSearchLensPillOuter')
   end
 

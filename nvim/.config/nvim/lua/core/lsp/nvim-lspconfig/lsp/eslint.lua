@@ -60,7 +60,12 @@ return {
 
         client.handlers['$/logTrace'] = function(err, params, ctx, cfg)
           push(
-            ('%s %s%s'):format(os.date('%Y-%m-%d %H:%M:%S '), params.message, params.verbose or '')
+            string.format(
+              '%s %s%s',
+              os.date('%Y-%m-%d %H:%M:%S '),
+              params.message,
+              params.verbose or ''
+            )
           )
           if original_trace then
             return original_trace(err, params, ctx, cfg)
@@ -69,7 +74,7 @@ return {
 
         client.handlers['window/logMessage'] = function(err, params, ctx, cfg)
           local lvl = ({ 'Error', 'Warn', 'Info', 'Log' })[params.type] or tostring(params.type)
-          push(('%s [%s] %s'):format(os.date('%Y-%m-%d %H:%M:%S'), lvl, params.message))
+          push(string.format('%s [%s] %s', os.date('%Y-%m-%d %H:%M:%S'), lvl, params.message))
           if original_log then
             original_log(err, params, ctx, cfg)
           end

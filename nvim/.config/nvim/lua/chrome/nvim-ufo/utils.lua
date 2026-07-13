@@ -13,7 +13,7 @@ local M = {}
 function M.fold_text_handler(virt_text, lnum, end_lnum, width, truncate)
   local virt_text_result = {}
   local cur_width = 0
-  local suffix_content = ('%s %d'):format(Conf.icons.actions.FOLD, end_lnum - lnum)
+  local suffix_content = string.format('%s %d', Conf.icons.actions.FOLD, end_lnum - lnum)
   local target_width = width - UI.pill.display_width(suffix_content)
 
   for _, chunk in ipairs(virt_text) do
