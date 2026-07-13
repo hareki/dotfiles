@@ -37,12 +37,6 @@ return {
         desc = prefix .. 'Add Selection',
       },
       {
-        '<leader>as',
-        '<cmd>ClaudeCodeTreeAdd<cr>',
-        desc = prefix .. 'Add File',
-        ft = { 'NvimTree' },
-      },
-      {
         '<leader>aa',
         '<cmd>ClaudeCodeDiffAccept<cr>',
         desc = prefix .. 'Accept Diff',
