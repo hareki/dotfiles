@@ -17,7 +17,9 @@ M.show = function(user_opts)
       local item = list:get(harpoon_idx)
       if item then
         local filepath = item.value
-        local bufnr = vim.fn.bufnr(filepath)
+        -- Absolute path resolves by exact match; a relative harpoon path would
+        -- tail-match and can hit the wrong buffer when basenames collide
+        local bufnr = vim.fn.bufnr(vim.fn.fnamemodify(filepath, ':p'))
         local valid_buf = bufnr ~= -1 and vim.api.nvim_buf_is_valid(bufnr)
 
         items[#items + 1] = {
