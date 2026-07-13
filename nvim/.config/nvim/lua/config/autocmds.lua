@@ -208,10 +208,10 @@ aucmd('InsertEnter', {
 
 local SNIPPET_STOP_DELAY_MS = 20
 
+-- Stop snippet session in Normal mode
 aucmd('ModeChanged', {
   group = augroup('stop-snippet-on-normal-mode'),
   pattern = '[is]:n', -- Stricter: only exact 'i' or 's' to 'n'
-  desc = 'Stop Snippet Session in Normal Mode',
   callback = function()
     -- Defer the stop to avoid interfering with blink.cmp juggling between modes internally
     vim.defer_fn(function()
