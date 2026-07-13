@@ -35,7 +35,7 @@ return {
 
       local color = UI.catppuccin.get_palette('ext')
       local utils = require('features.git.git-conflict-nvim.utils')
-      local package = require('utils.package')
+      local package_utils = require('utils.package')
       local palette = UI.catppuccin.get_palette()
       local group = vim.api.nvim_create_augroup('git.git-conflict.keymaps', { clear = true })
 
@@ -148,7 +148,7 @@ return {
             return
           end
 
-          if package.is_loaded('nvim-colorizer.lua') then
+          if package_utils.is_loaded('nvim-colorizer.lua') then
             colorizer.detach_from_buffer(bufnr)
           end
           vim.diagnostic.enable(false, { bufnr = bufnr })
@@ -246,7 +246,7 @@ return {
 
           if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
             vim.b[bufnr].git_conflict = nil
-            if package.is_loaded('nvim-colorizer.lua') then
+            if package_utils.is_loaded('nvim-colorizer.lua') then
               colorizer.attach_to_buffer(bufnr)
             end
             vim.diagnostic.enable(true, { bufnr = bufnr })

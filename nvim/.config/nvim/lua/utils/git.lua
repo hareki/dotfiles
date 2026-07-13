@@ -358,8 +358,8 @@ function M.get_current_line_commit()
     return nil
   end
 
-  local path = require('utils.path')
-  local relative_file = path.get_relative_path(file, root)
+  local path_utils = require('utils.path')
+  local relative_file = path_utils.get_relative_path(file, root)
 
   --- @type string[]
   local cmd = {

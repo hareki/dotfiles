@@ -8,8 +8,8 @@ local detectors = {
     -- codediff is lazy (cmd = 'CodeDiff'); requiring its module before it loads
     -- would force-load the whole plugin from a statusline redraw. When it isn't
     -- loaded there are no sessions, so bail without touching it.
-    local package = require('utils.package')
-    if not package.is_loaded('codediff.nvim') then
+    local package_utils = require('utils.package')
+    if not package_utils.is_loaded('codediff.nvim') then
       return
     end
 

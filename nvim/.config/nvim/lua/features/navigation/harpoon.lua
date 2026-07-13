@@ -24,7 +24,7 @@ return {
           '<leader>H' .. current_index,
           function()
             local harpoon = require('harpoon')
-            local path = require('utils.path')
+            local path_utils = require('utils.path')
             local list = harpoon:list()
 
             local new_item = list.config.create_list_item(list.config)
@@ -32,11 +32,11 @@ return {
 
             local new_filepath = vim.api.nvim_buf_get_name(0)
             local new_relpath =
-              path.get_relative_path(new_filepath, vim.uv.cwd() or vim.fn.getcwd())
+              path_utils.get_relative_path(new_filepath, vim.uv.cwd() or vim.fn.getcwd())
 
             local old_filepath = old_item and old_item.value or nil
             local old_relpath = old_filepath
-                and path.get_relative_path(old_filepath, vim.uv.cwd() or vim.fn.getcwd())
+                and path_utils.get_relative_path(old_filepath, vim.uv.cwd() or vim.fn.getcwd())
               or nil
 
             if old_item and old_item.value == new_item.value then

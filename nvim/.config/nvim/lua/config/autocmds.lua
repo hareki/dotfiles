@@ -171,8 +171,8 @@ aucmd('VimLeavePre', {
   group = augroup('close-codediff-tabs-on-exit'),
   callback = function()
     -- codediff is lazy; if it never loaded there are no diff tabs to close.
-    local package = require('utils.package')
-    if not package.is_loaded('codediff.nvim') then
+    local package_utils = require('utils.package')
+    if not package_utils.is_loaded('codediff.nvim') then
       return
     end
 

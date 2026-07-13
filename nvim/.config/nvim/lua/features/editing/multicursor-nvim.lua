@@ -102,12 +102,12 @@ return {
       local multicursor = require('multicursor-nvim')
       multicursor.setup(opts)
 
-      multicursor.addKeymapLayer(function(layerSet)
+      multicursor.addKeymapLayer(function(layer_set)
         -- Delete the main cursor.
-        layerSet({ 'n', 'x' }, '<leader>mx', multicursor.deleteCursor)
+        layer_set({ 'n', 'x' }, '<leader>mx', multicursor.deleteCursor)
 
         -- Enable and clear cursors using escape.
-        layerSet('n', '<esc>', function()
+        layer_set('n', '<esc>', function()
           if not multicursor.cursorsEnabled() then
             multicursor.enableCursors()
           else

@@ -93,8 +93,8 @@ local function catppuccin(register, plugin_name)
     'catppuccin/nvim',
     opts = function(_, opts)
       if plugin_name then
-        local package = require('utils.package')
-        package.on_load(plugin_name, function()
+        local package_utils = require('utils.package')
+        package_utils.on_load(plugin_name, function()
           table.insert(lazy_registers, register)
           ensure_reapply_autocmd()
           apply(register)

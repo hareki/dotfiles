@@ -61,10 +61,10 @@ return {
   },
 
   config = function(_, opts)
-    local TS = require('nvim-treesitter')
+    local treesitter = require('nvim-treesitter')
 
     local installed = {}
-    for _, lang in ipairs(TS.get_installed('parsers')) do
+    for _, lang in ipairs(treesitter.get_installed('parsers')) do
       installed[lang] = true
     end
 
@@ -73,8 +73,8 @@ return {
     end, opts.ensure_installed or {})
 
     if #missing > 0 then
-      TS.install(missing, { summary = true }):await(function()
-        TS.get_installed('parsers') -- refresh installed languages
+      treesitter.install(missing, { summary = true }):await(function()
+        treesitter.get_installed('parsers') -- refresh installed languages
       end)
     end
 

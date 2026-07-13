@@ -12,8 +12,8 @@ function M.in_codediff_tab()
   -- codediff is lazy (cmd = 'CodeDiff'); requiring its module before it loads
   -- would force-load the plugin on every git-conflict scan. When it isn't
   -- loaded there are no sessions, so bail without touching it.
-  local package = require('utils.package')
-  if not package.is_loaded('codediff.nvim') then
+  local package_utils = require('utils.package')
+  if not package_utils.is_loaded('codediff.nvim') then
     return false
   end
 
