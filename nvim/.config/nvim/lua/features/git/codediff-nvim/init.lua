@@ -65,6 +65,11 @@ return {
         callback = codediff_utils.restore_focus,
       })
 
+      vim.api.nvim_create_autocmd('TabClosed', {
+        group = vim.api.nvim_create_augroup('git.codediff.state-eviction', { clear = true }),
+        callback = codediff_utils.evict_closed_tabs,
+      })
+
       local codediff = require('codediff')
       codediff.setup(opts)
     end,

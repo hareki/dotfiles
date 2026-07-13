@@ -30,6 +30,19 @@ function M.capture_view()
   views[tabpage] = modified_view(tabpage) or views[tabpage]
 end
 
+--- Drop state for tabpages that no longer exist: a codediff tab closed via
+--- :tabclose (rather than CodeDiffClose) never reaches restore_focus, which is
+--- what normally evicts these entries (TabClosed handler).
+function M.evict_closed_tabs()
+  for _, state in ipairs({ selected, views }) do
+    for tabpage in pairs(state) do
+      if not vim.api.nvim_tabpage_is_valid(tabpage) then
+        state[tabpage] = nil
+      end
+    end
+  end
+end
+
 --- Open the last-focused file in the initial tab and restore its scroll position,
 --- so quitting feels like simply turning codediff off (CodeDiffClose handler).
 --- @param args { data: { tabpage: integer } }
