@@ -138,6 +138,7 @@ local M = {
     TEXT = '󰦨',
     SCHEME = '',
     MARKDOWN = '',
+    HANDLEBARS = '',
   },
   editor = {
     TERMINAL = '',

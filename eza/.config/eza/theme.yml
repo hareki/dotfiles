@@ -196,7 +196,7 @@ extensions:
   gz: { filename: { foreground: '#cdd6f4' }, icon: { glyph: '󰗄', style: { foreground: '#cdd6f4' } } }
   h: { filename: { foreground: '#cdd6f4' }, icon: { glyph: '󰫵', style: { foreground: '#cba6f7' } } }
   haml: { filename: { foreground: '#cdd6f4' }, icon: { glyph: '󰅴', style: { foreground: '#cdd6f4' } } }
-  hbs: { filename: { foreground: '#cdd6f4' }, icon: { glyph: '󰌞', style: { foreground: '#a6e3a1' } } }
+  hbs: { filename: { foreground: '#cdd6f4' }, icon: { glyph: '', style: { foreground: '#fab387' } } }
   hex: { filename: { foreground: '#cdd6f4' }, icon: { glyph: '󰋘', style: { foreground: '#f9e2af' } } }
   hh: { filename: { foreground: '#cdd6f4' }, icon: { glyph: '󰙲', style: { foreground: '#94e2d5' } } }
   hpp: { filename: { foreground: '#cdd6f4' }, icon: { glyph: '󰙲', style: { foreground: '#94e2d5' } } }

@@ -108,6 +108,7 @@ return {
       'vtsls', -- TypeScript
       'tailwindcss', -- Tailwind
       'astro', -- Astro
+      'ember', -- Ember/Glimmer
     }
 
     -- eslint vs oxlint are mutually exclusive; selected by Project.linter

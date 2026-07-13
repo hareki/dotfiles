@@ -21,7 +21,7 @@ return {
         filetypes = Conf.filetypes.merge(
           Conf.filetypes.JS_ALL,
           Conf.filetypes.CSS,
-          { 'html' },
+          { 'html', 'handlebars' },
           Conf.filetypes.MARKDOWN,
           Conf.filetypes.JSON,
           { 'yaml' }

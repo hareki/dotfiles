@@ -57,6 +57,7 @@ return {
       'gitcommit',
       'astro',
       'mermaid',
+      'glimmer',
     },
   },
 
@@ -80,5 +81,8 @@ return {
 
     -- https://morizbuesing.com/blog/mdx-support-in-nvchad/
     vim.treesitter.language.register('markdown', 'mdx')
+
+    -- The handlebars grammar is provided by the glimmer parser
+    vim.treesitter.language.register('glimmer', 'handlebars')
   end,
 }
