@@ -117,27 +117,25 @@ return {
     dependencies = {
       'echasnovski/mini.icons',
     },
-    keys = function()
-      return {
-        {
-          '<leader>e',
-          function()
-            local tree = require('features.navigation.nvim-tree-lua.utils')
-            local state = tree.state
+    keys = {
+      {
+        '<leader>e',
+        function()
+          local tree = require('features.navigation.nvim-tree-lua.utils')
+          local state = tree.state
 
-            if api.tree.is_tree_buf() and state.position == 'float' then
-              tree.close_all()
-              return
-            end
+          if api.tree.is_tree_buf() and state.position == 'float' then
+            tree.close_all()
+            return
+          end
 
-            api.tree.reload()
-            tree.open()
-          end,
-          desc = ui_name,
-          remap = true,
-        },
-      }
-    end,
+          api.tree.reload()
+          tree.open()
+        end,
+        desc = ui_name,
+        remap = true,
+      },
+    },
 
     opts = function()
       local tree = require('features.navigation.nvim-tree-lua.utils')

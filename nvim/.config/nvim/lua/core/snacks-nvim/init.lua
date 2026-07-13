@@ -20,156 +20,154 @@ return {
     lazy = false,
     -- This plugin has many responsibilities, should load it early to setup stuff correctly
     priority = Conf.priority.CORE,
-    keys = function()
-      return {
-        {
-          'gi',
-          function()
-            local image_utils = require('core.snacks-nvim.utils.image')
-            image_utils.hover_image()
-          end,
-          desc = 'Hover Image',
-        },
-        {
-          '<leader><leader>',
-          function()
-            local state = require('core.snacks-nvim.utils.state')
+    keys = {
+      {
+        'gi',
+        function()
+          local image_utils = require('core.snacks-nvim.utils.image')
+          image_utils.hover_image()
+        end,
+        desc = 'Hover Image',
+      },
+      {
+        '<leader><leader>',
+        function()
+          local state = require('core.snacks-nvim.utils.state')
 
-            Snacks.picker.files({
-              layout = {
-                --- @diagnostic disable-next-line: assign-type-mismatch Wrong type from snacks
-                preview = state.get('files', 'preview'),
-              },
-            })
-          end,
-          desc = 'Find Files',
-        },
-        {
-          '<leader>fd',
-          function()
-            Snacks.picker.diagnostics_buffer()
-          end,
-          desc = 'Find Diagnostics Buffer',
-        },
-        {
-          '<leader>fD',
-          function()
-            Snacks.picker.diagnostics()
-          end,
-          desc = 'Find Diagnostics',
-        },
-        {
-          '<leader>f/',
-          function()
-            Snacks.picker.grep({
-              title = 'Grep',
-              regex = false,
-              hidden = true,
-            })
-          end,
-          desc = 'Find Text',
-        },
-        {
-          '<leader>fb',
-          function()
-            Snacks.picker.buffers({
-              title = 'Buffers',
-            })
-          end,
-          desc = 'Find Buffers',
-        },
-        {
-          '<leader>fR',
-          function()
-            Snacks.picker.registers()
-          end,
-          desc = "Find Registers' Contents",
-        },
-        {
-          '<leader>fk',
-          function()
-            Snacks.picker.keymaps()
-          end,
-          mode = { 'n', 'x' },
-          desc = 'Find Keymaps',
-        },
-        {
-          '<leader>fu',
-          function()
-            Snacks.picker.undo()
-          end,
-          desc = 'Open Undo History',
-        },
+          Snacks.picker.files({
+            layout = {
+              --- @diagnostic disable-next-line: assign-type-mismatch Wrong type from snacks
+              preview = state.get('files', 'preview'),
+            },
+          })
+        end,
+        desc = 'Find Files',
+      },
+      {
+        '<leader>fd',
+        function()
+          Snacks.picker.diagnostics_buffer()
+        end,
+        desc = 'Find Diagnostics Buffer',
+      },
+      {
+        '<leader>fD',
+        function()
+          Snacks.picker.diagnostics()
+        end,
+        desc = 'Find Diagnostics',
+      },
+      {
+        '<leader>f/',
+        function()
+          Snacks.picker.grep({
+            title = 'Grep',
+            regex = false,
+            hidden = true,
+          })
+        end,
+        desc = 'Find Text',
+      },
+      {
+        '<leader>fb',
+        function()
+          Snacks.picker.buffers({
+            title = 'Buffers',
+          })
+        end,
+        desc = 'Find Buffers',
+      },
+      {
+        '<leader>fR',
+        function()
+          Snacks.picker.registers()
+        end,
+        desc = "Find Registers' Contents",
+      },
+      {
+        '<leader>fk',
+        function()
+          Snacks.picker.keymaps()
+        end,
+        mode = { 'n', 'x' },
+        desc = 'Find Keymaps',
+      },
+      {
+        '<leader>fu',
+        function()
+          Snacks.picker.undo()
+        end,
+        desc = 'Open Undo History',
+      },
 
-        {
-          '<leader>fh',
-          function()
-            Snacks.picker.highlights()
-          end,
-          desc = 'Find Highlight Groups',
-        },
-        {
-          '<leader>fH',
-          function()
-            Snacks.picker.help()
-          end,
-          desc = 'Find Helps',
-        },
-        {
-          '<leader>fgb',
-          function()
-            Snacks.picker.git_branches()
-          end,
-          desc = 'Find Git Branches',
-        },
-        {
-          '<leader>.',
-          function()
-            Snacks.scratch()
-          end,
-          desc = 'Toggle Scratch Buffer',
-        },
-        {
-          '<leader>f.',
-          function()
-            Snacks.scratch.select()
-          end,
-          desc = 'Select Scratch Buffer',
-        },
-        {
-          '<A-t>',
-          function()
-            Snacks.terminal.toggle(nil, { win = { position = 'float' } })
-          end,
-          mode = { 'n', 'x', 't', 'i' },
-          desc = 'Toggle Floating Terminal',
-        },
+      {
+        '<leader>fh',
+        function()
+          Snacks.picker.highlights()
+        end,
+        desc = 'Find Highlight Groups',
+      },
+      {
+        '<leader>fH',
+        function()
+          Snacks.picker.help()
+        end,
+        desc = 'Find Helps',
+      },
+      {
+        '<leader>fgb',
+        function()
+          Snacks.picker.git_branches()
+        end,
+        desc = 'Find Git Branches',
+      },
+      {
+        '<leader>.',
+        function()
+          Snacks.scratch()
+        end,
+        desc = 'Toggle Scratch Buffer',
+      },
+      {
+        '<leader>f.',
+        function()
+          Snacks.scratch.select()
+        end,
+        desc = 'Select Scratch Buffer',
+      },
+      {
+        '<A-t>',
+        function()
+          Snacks.terminal.toggle(nil, { win = { position = 'float' } })
+        end,
+        mode = { 'n', 'x', 't', 'i' },
+        desc = 'Toggle Floating Terminal',
+      },
 
-        {
-          '<A-g>',
-          function()
-            local lazygit = require('core.snacks-nvim.utils.lazygit')
-            lazygit.toggle()
-          end,
-          mode = { 'n', 'x', 't', 'i' },
-          desc = 'Toggle Lazygit',
-        },
+      {
+        '<A-g>',
+        function()
+          local lazygit = require('core.snacks-nvim.utils.lazygit')
+          lazygit.toggle()
+        end,
+        mode = { 'n', 'x', 't', 'i' },
+        desc = 'Toggle Lazygit',
+      },
 
-        -- Hack to get keymaps to show int Snacks.picker.keymaps
-        { 'za', 'za', desc = 'Toggle Fold under Cursor' },
-        { 'zA', 'zA', desc = 'Toggle All Folds under Cursor' },
-        { 'zC', 'zC', desc = 'Close All Folds under Cursor' },
-        { 'zD', 'zD', desc = 'Delete All Folds under Cursor' },
-        { 'zE', 'zE', desc = 'Delete All Folds in File' },
-        { 'zM', 'zM', desc = 'Close All Folds' },
-        { 'zO', 'zO', desc = 'Open All Folds under Cursor' },
-        { 'zR', 'zR', desc = 'Open All Folds' },
-        { 'zi', 'zi', desc = 'Toggle Folding' },
-        { 'zm', 'zm', desc = 'Fold More' },
-        { 'zo', 'zo', desc = 'Open Fold under Cursor' },
-        { 'zr', 'zr', desc = 'Fold Less' },
-      }
-    end,
+      -- Hack to get keymaps to show int Snacks.picker.keymaps
+      { 'za', 'za', desc = 'Toggle Fold under Cursor' },
+      { 'zA', 'zA', desc = 'Toggle All Folds under Cursor' },
+      { 'zC', 'zC', desc = 'Close All Folds under Cursor' },
+      { 'zD', 'zD', desc = 'Delete All Folds under Cursor' },
+      { 'zE', 'zE', desc = 'Delete All Folds in File' },
+      { 'zM', 'zM', desc = 'Close All Folds' },
+      { 'zO', 'zO', desc = 'Open All Folds under Cursor' },
+      { 'zR', 'zR', desc = 'Open All Folds' },
+      { 'zi', 'zi', desc = 'Toggle Folding' },
+      { 'zm', 'zm', desc = 'Fold More' },
+      { 'zo', 'zo', desc = 'Open Fold under Cursor' },
+      { 'zr', 'zr', desc = 'Fold Less' },
+    },
 
     init = function()
       local lazygit = require('core.snacks-nvim.utils.lazygit')

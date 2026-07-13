@@ -11,56 +11,54 @@ return {
 
   {
     'andrewferrier/debugprint.nvim',
-    keys = function()
-      return {
-        {
-          '<leader>f?',
-          '<cmd>Debugprint search<cr>',
-          desc = prefix .. 'Find',
-        },
-        {
-          '<leader>?r',
-          '<cmd>Debugprint resetcounter<cr>',
-          desc = prefix .. 'Reset Counter',
-        },
-        {
-          '<leader>?d',
-          '<cmd>Debugprint delete<cr>',
-          desc = prefix .. 'Delete All',
-        },
-        {
-          '<leader>?t',
-          '<cmd>Debugprint commenttoggle<cr>',
-          desc = prefix .. 'Toggle Comments',
-        },
-        {
-          '<leader>?v',
-          function()
-            debugprint.debugprint({
-              variable = true,
-            })
-          end,
-          desc = prefix .. 'Put Variable Below',
-        },
-        {
-          '<leader>?V',
-          function()
-            debugprint.debugprint({
-              variable = true,
-              surround = true,
-            })
-          end,
-          desc = prefix .. 'Put Variable Surround',
-        },
-        {
-          '<leader>?p',
-          function()
-            debugprint.debugprint({})
-          end,
-          desc = prefix .. 'Put Plain Text Below',
-        },
-      }
-    end,
+    keys = {
+      {
+        '<leader>f?',
+        '<cmd>Debugprint search<cr>',
+        desc = prefix .. 'Find',
+      },
+      {
+        '<leader>?r',
+        '<cmd>Debugprint resetcounter<cr>',
+        desc = prefix .. 'Reset Counter',
+      },
+      {
+        '<leader>?d',
+        '<cmd>Debugprint delete<cr>',
+        desc = prefix .. 'Delete All',
+      },
+      {
+        '<leader>?t',
+        '<cmd>Debugprint commenttoggle<cr>',
+        desc = prefix .. 'Toggle Comments',
+      },
+      {
+        '<leader>?v',
+        function()
+          debugprint.debugprint({
+            variable = true,
+          })
+        end,
+        desc = prefix .. 'Put Variable Below',
+      },
+      {
+        '<leader>?V',
+        function()
+          debugprint.debugprint({
+            variable = true,
+            surround = true,
+          })
+        end,
+        desc = prefix .. 'Put Variable Surround',
+      },
+      {
+        '<leader>?p',
+        function()
+          debugprint.debugprint({})
+        end,
+        desc = prefix .. 'Put Plain Text Below',
+      },
+    },
 
     opts = function()
       local js_like = {

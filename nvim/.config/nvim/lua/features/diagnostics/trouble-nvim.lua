@@ -13,41 +13,39 @@ return {
   {
     'hareki/trouble.nvim',
     cmd = { 'Trouble' },
-    keys = function()
-      return {
-        {
-          '[q',
-          function()
-            if trouble.is_open() then
-              --- @diagnostic disable-next-line: missing-parameter, missing-fields
-              trouble.prev({ skip_groups = true, jump = true })
-            else
-              local ok, err = pcall(vim.cmd.cprev)
-              if not ok then
-                Notifier.error(err)
-              end
+    keys = {
+      {
+        '[q',
+        function()
+          if trouble.is_open() then
+            --- @diagnostic disable-next-line: missing-parameter, missing-fields
+            trouble.prev({ skip_groups = true, jump = true })
+          else
+            local ok, err = pcall(vim.cmd.cprev)
+            if not ok then
+              Notifier.error(err)
             end
-          end,
-          desc = 'Previous Trouble/Quickfix Item',
-        },
+          end
+        end,
+        desc = 'Previous Trouble/Quickfix Item',
+      },
 
-        {
-          ']q',
-          function()
-            if trouble.is_open() then
-              --- @diagnostic disable-next-line: missing-parameter, missing-fields
-              trouble.next({ skip_groups = true, jump = true })
-            else
-              local ok, err = pcall(vim.cmd.cnext)
-              if not ok then
-                Notifier.error(err)
-              end
+      {
+        ']q',
+        function()
+          if trouble.is_open() then
+            --- @diagnostic disable-next-line: missing-parameter, missing-fields
+            trouble.next({ skip_groups = true, jump = true })
+          else
+            local ok, err = pcall(vim.cmd.cnext)
+            if not ok then
+              Notifier.error(err)
             end
-          end,
-          desc = 'Next Trouble/Quickfix Item',
-        },
-      }
-    end,
+          end
+        end,
+        desc = 'Next Trouble/Quickfix Item',
+      },
+    },
 
     opts = function()
       local preview_cols, preview_rows = UI.layout.side_size('side_preview', 'md')

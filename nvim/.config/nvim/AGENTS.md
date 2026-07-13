@@ -66,6 +66,10 @@ Six globals available everywhere (five set in `globals.lua`, one by its plugin).
 
 Wrap `opts` in a function (`opts = function() return { ... } end`) only when the plugin is lazy-loaded AND opts is non-empty. lazy.nvim parses every spec file eagerly at startup to learn each plugin's load triggers (`ft`/`event`/`keys`/etc.), so for a lazy-loaded plugin the function defers the table's construction until the plugin actually loads. A plugin counts as NOT lazy-loaded when it has `lazy = false` or unfiltered buffer/window events (e.g. `BufReadPost`/`BufNewFile`): it loads unconditionally at startup, wrapping defers nothing, so its static opts must stay a plain table. Keep the function form for an eager plugin only when the body needs additional logic (requires, computed locals); converting such a body to a plain table would also shift evaluation to spec-parse time, before plugin rtp paths exist. Empty `opts = {}` stays plain everywhere. The same static-vs-logic split applies to the LSP server-loader files' `opts` (see LSP Setup below), where the loader resolves `opts` immediately either way.
 
+### Keys
+
+`keys` defaults to a plain table: lazy.nvim resolves `keys` eagerly at startup to register the load triggers, so wrapping a static list in a function (`keys = function() return { ... } end`) defers nothing, unlike the Opts rule above. Entries whose callbacks close over parse-time locals or `Defer` proxies, or `require()` inside the callback body, are still static and belong in the plain table. Keep the function form only when the keys body itself needs logic at resolve time: building entries programmatically (`features/navigation/harpoon.lua` loops over pin slots) or a body-level local shared by several entries (`features/search/nvim-hlslens/init.lua` requires its utils module once).
+
 ### Return Convention
 
 ```lua
