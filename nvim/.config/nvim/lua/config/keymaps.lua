@@ -75,7 +75,7 @@ end, { desc = 'Clear Highlight' })
 map('n', '<C-L>', function()
   UI.color.nohlsearch()
   vim.cmd.diffupdate()
-  vim.cmd.normal({ vim.keycode('<C-L>'), bang = true })
+  vim.cmd.normal({ args = { vim.keycode('<C-L>') }, bang = true })
 end, { desc = 'Redraw and Clear Search Highlight' })
 
 map({ 'n', 'i' }, '<A-s>', function()

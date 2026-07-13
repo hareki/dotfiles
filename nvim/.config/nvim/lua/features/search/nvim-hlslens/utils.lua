@@ -8,7 +8,7 @@ function M.navigate(direction)
   local ok = pcall(function()
     local hlslens = require('hlslens')
 
-    vim.cmd.normal({ vim.v.count1 .. direction, bang = true })
+    vim.cmd.normal({ args = { vim.v.count1 .. direction }, bang = true })
     hlslens.start()
   end)
 
