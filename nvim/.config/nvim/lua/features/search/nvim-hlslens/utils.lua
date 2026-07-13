@@ -35,6 +35,7 @@ function M.search_text_handler(render, position_list, nearest, index, relative_i
 
   if abs_relative_index > 1 then
     indicator = string.format(
+      '%d%s',
       abs_relative_index,
       search_forward ~= (relative_index > 1) and Conf.icons.navigation.UP
         or Conf.icons.navigation.DOWN
