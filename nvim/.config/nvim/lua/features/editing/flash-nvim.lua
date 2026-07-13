@@ -19,10 +19,12 @@ return {
       {
         'f',
         mode = { 'n', 'x' },
+        desc = prefix .. 'Find Char',
       },
       {
         't',
         mode = { 'n', 'x' },
+        desc = prefix .. 'Till Char',
       },
       {
         's',
