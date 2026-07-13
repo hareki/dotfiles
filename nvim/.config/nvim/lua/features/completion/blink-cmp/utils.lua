@@ -1,4 +1,4 @@
---- @class blink-cmp.utils
+--- @class features.completion.blink-cmp.utils
 local M = {}
 --- @alias TransformItems fun(ctx: blink.cmp.Context, items: blink.cmp.CompletionItem[]): blink.cmp.CompletionItem[]
 

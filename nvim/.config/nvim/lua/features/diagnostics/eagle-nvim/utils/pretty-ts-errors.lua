@@ -1,4 +1,4 @@
---- @class diagnostics.eagle.utils.pretty-ts-errors
+--- @class features.diagnostics.eagle.utils.pretty-ts-errors
 local M = {}
 
 M.state = {

@@ -1,4 +1,4 @@
---- @class blink-cmp.config.sources
+--- @class features.completion.blink-cmp.config.sources
 local M = {}
 
 local utils = require('features.completion.blink-cmp.utils')

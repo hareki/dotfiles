@@ -1,4 +1,4 @@
---- @class blink-cmp.config.keymap
+--- @class features.completion.blink-cmp.config.keymap
 local M = {}
 
 local ai_cmp_sources = { 'minuet' }

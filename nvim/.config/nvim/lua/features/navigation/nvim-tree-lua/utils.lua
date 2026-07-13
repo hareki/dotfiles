@@ -1,16 +1,16 @@
---- @class nvim-tree.utils
+--- @class features.navigation.nvim-tree.utils
 local M = {}
 
---- @alias nvim-tree.utils.Position  'side' | 'float'
+--- @alias features.navigation.nvim-tree.utils.Position  'side' | 'float'
 
---- @class nvim-tree.utils.State
---- @field position nvim-tree.utils.Position
+--- @class features.navigation.nvim-tree.utils.State
+--- @field position features.navigation.nvim-tree.utils.Position
 --- @field opts table | nil
 --- @field preview_on_focus boolean
 --- @field preview_watcher integer | nil
 --- @field live_filter_triggered boolean
 
---- @type nvim-tree.utils.State
+--- @type features.navigation.nvim-tree.utils.State
 M.state = {
   position = 'float',
   opts = nil,
@@ -120,7 +120,7 @@ function M.create_node_action(folder_action)
 end
 
 --- Switch nvim-tree between float and side panel positions
---- @param position nvim-tree.utils.Position The target position ('float' or other)
+--- @param position features.navigation.nvim-tree.utils.Position The target position ('float' or other)
 --- @return nil
 function M.switch_position(position)
   if position == M.state.position then
@@ -222,12 +222,12 @@ function M.toggle_focus()
   manager.instance:toggle_focus()
 end
 
---- @class nvim-tree.OpenParams
+--- @class features.navigation.nvim-tree.utils.OpenParams
 --- @field switching boolean | nil
 
 --- Open nvim-tree with optional switching behavior
 --- Resets to float position if not switching and tree is not visible.
---- @param opts nvim-tree.OpenParams | nil Options with switching flag
+--- @param opts features.navigation.nvim-tree.utils.OpenParams | nil Options with switching flag
 --- @return nil
 function M.open(opts)
   local switching = opts and opts.switching or false
