@@ -44,7 +44,7 @@ return {
                 { new_relpath, 'NotifyWARNTitle' },
                 { '\nis already in slot ', 'Normal' },
                 { tostring(current_index), 'NotifyWARNTitle' },
-              }, { title = 'pin' })
+              }, { title = 'Pin' })
 
               return
             end
@@ -79,7 +79,7 @@ return {
                 { tostring(old_index), hl_title },
                 { ' to ', 'Normal' },
                 { tostring(current_index), hl_title },
-              }, { title = 'pin' })
+              }, { title = 'Pin' })
             elseif slot_has_different_item then
               Notifier.warn({
                 { 'Replaced ', 'Normal' },
@@ -88,7 +88,7 @@ return {
                 { new_relpath, hl_title },
                 { '\nfor slot ', 'Normal' },
                 { tostring(current_index), hl_title },
-              }, { title = 'pin' })
+              }, { title = 'Pin' })
             else
               -- Slot was empty, new file added
               Notifier.info({
@@ -96,7 +96,7 @@ return {
                 { new_relpath, hl_title },
                 { '\ninto slot ', 'Normal' },
                 { tostring(current_index), hl_title },
-              }, { title = 'pin' })
+              }, { title = 'Pin' })
             end
           end,
           desc = 'Pin File to Slot ' .. current_index,
