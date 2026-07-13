@@ -142,16 +142,19 @@ local function run_cli(input_object)
   local json_text = vim.json.encode(input_object)
   local exe = M.state.executable_path
 
-  -- vim.system throws on spawn failure (e.g. the CLI is not installed);
-  -- fall back to the raw diagnostic message instead of breaking the popup.
+  -- vim.system throws on spawn failure: the CLI not being installed, but also
+  -- a JSON arg exceeding the OS arg limit, which the stdin form below handles.
+  -- So only latch cli_unavailable when the stdin form throws too.
   local arg_ok, arg_result = pcall(function()
     return vim.system({ exe, '-i', json_text }, { text = true }):wait()
   end)
-  if not arg_ok then
-    M.state.cli_unavailable = true
-    return nil
-  end
-  if arg_result and arg_result.code == 0 and arg_result.stdout and #arg_result.stdout > 0 then
+  if
+    arg_ok
+    and arg_result
+    and arg_result.code == 0
+    and arg_result.stdout
+    and #arg_result.stdout > 0
+  then
     return trim_trailing_whitespace(arg_result.stdout)
   end
 
