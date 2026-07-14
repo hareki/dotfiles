@@ -21,6 +21,11 @@ aucmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
 aucmd({ 'VimResized' }, {
   group = augroup('resize-splits'),
   callback = function()
+    -- Switching tabpages is forbidden (E11) while the cmdline window is open
+    if vim.fn.win_gettype() == 'command' then
+      return
+    end
+
     local current_tab = vim.api.nvim_get_current_tabpage()
 
     for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
