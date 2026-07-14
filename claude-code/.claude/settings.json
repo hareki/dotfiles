@@ -83,7 +83,7 @@
     "clangd-lsp@claude-plugins-official": true
   },
   "syntaxHighlightingDisabled": false,
-  "effortLevel": "high",
+  "effortLevel": "xhigh",
   "tui": "fullscreen",
   "theme": "custom:catppuccin-mocha",
   "editorMode": "vim",
