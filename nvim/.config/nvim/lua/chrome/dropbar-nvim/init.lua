@@ -34,6 +34,14 @@ return {
     'hareki/dropbar.nvim',
     event = 'VeryLazy',
 
+    init = function()
+      local has_cli_args = vim.fn.argc(-1) > 0
+      if has_cli_args then
+        -- Reserve a winbar line till dropbar loads to prevent layout shifting
+        vim.opt.winbar = ' '
+      end
+    end,
+
     keys = {
       {
         '<leader>b',
@@ -44,14 +52,6 @@ return {
         desc = 'Pick Breadcrumb Item',
       },
     },
-
-    init = function()
-      local has_cli_args = vim.fn.argc(-1) > 0
-      if has_cli_args then
-        -- Reserve a winbar line till dropbar loads to prevent layout shifting
-        vim.opt.winbar = ' '
-      end
-    end,
 
     opts = function()
       local dropbar_utils = require('chrome.dropbar-nvim.utils')

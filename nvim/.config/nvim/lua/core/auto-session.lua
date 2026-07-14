@@ -7,14 +7,6 @@ return {
     'rmagatti/auto-session',
     lazy = false,
     priority = Conf.priority.CORE,
-    keys = {
-      {
-        '<leader>fs',
-        '<cmd>AutoSession search<cr>',
-        desc = 'Find Session',
-      },
-    },
-
     init = function()
       vim.opt.sessionoptions = 'buffers,curdir,folds'
 
@@ -56,6 +48,14 @@ return {
         end,
       })
     end,
+
+    keys = {
+      {
+        '<leader>fs',
+        '<cmd>AutoSession search<cr>',
+        desc = 'Find Session',
+      },
+    },
 
     opts = function()
       -- Bordered snacks popup variants take with_border=true; function-valued

@@ -16,6 +16,15 @@ return {
     'kevinhwang91/nvim-ufo',
     event = 'BufReadPost', -- Prevent built-in folding flashing
     dependencies = { 'kevinhwang91/promise-async' },
+    init = function()
+      local opt = vim.opt
+
+      opt.foldcolumn = '0'
+      opt.foldlevel = 99
+      opt.foldlevelstart = 99
+      opt.foldenable = true
+    end,
+
     keys = {
       {
         'zh',
@@ -56,15 +65,6 @@ return {
         desc = 'Peek Folded Lines',
       },
     },
-
-    init = function()
-      local opt = vim.opt
-
-      opt.foldcolumn = '0'
-      opt.foldlevel = 99
-      opt.foldlevelstart = 99
-      opt.foldenable = true
-    end,
 
     opts = function()
       local utils = require('chrome.nvim-ufo.utils')

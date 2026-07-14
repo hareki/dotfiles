@@ -20,6 +20,11 @@ return {
     lazy = false,
     -- This plugin has many responsibilities, should load it early to setup stuff correctly
     priority = Conf.priority.CORE,
+    init = function()
+      local lazygit = require('core.snacks-nvim.utils.lazygit')
+      lazygit.setup()
+    end,
+
     keys = function()
       local which_key_preset = require('chrome.which-key-nvim.preset')
 
@@ -165,11 +170,6 @@ return {
       end
 
       return keys
-    end,
-
-    init = function()
-      local lazygit = require('core.snacks-nvim.utils.lazygit')
-      lazygit.setup()
     end,
 
     opts = function()
