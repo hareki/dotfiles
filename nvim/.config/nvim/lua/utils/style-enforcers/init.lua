@@ -112,20 +112,30 @@ function M.run(opts)
     client_name = 'stenfo',
   })
 
+  -- Returns ok, err instead of throwing: an unwritable buffer (E32 no-name,
+  -- E45 readonly) would otherwise escape the async pipeline and leak the lock.
   local function write()
     if not save then
-      return
+      return true
     end
 
     if not vim.api.nvim_buf_is_valid(buf) then
-      return
+      return true
     end
 
-    if vim.bo[buf].modified then
-      vim.api.nvim_buf_call(buf, function()
-        vim.cmd.write()
-      end)
+    if not vim.bo[buf].modified then
+      return true
     end
+
+    local ok, err = pcall(vim.api.nvim_buf_call, buf, function()
+      vim.cmd.write()
+    end)
+
+    if not ok then
+      Notifier.error('Write failed: ' .. tostring(err), { title = 'Style Enforcer' })
+    end
+
+    return ok, err
   end
 
   local function run_linters(formatted)
@@ -137,8 +147,8 @@ function M.run(opts)
 
     local total = #engine.names_for_filetype(vim.bo[buf].filetype) + (formatted and 1 or 0)
     if total == 0 then
-      write()
-      cleanup(true)
+      local write_ok, write_err = write()
+      cleanup(write_ok, write_err)
       return
     end
 
@@ -174,9 +184,9 @@ function M.run(opts)
 
           done_count = done_count + (linter_name == 'none' and 0 or 1)
           if done_count == total and not settled then
-            write()
+            local write_ok, write_err = write()
             progress:finish()
-            cleanup(not had_lint_error)
+            cleanup(write_ok and not had_lint_error, write_err)
           end
         end,
       })
