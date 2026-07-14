@@ -14,22 +14,25 @@ return {
 
   {
     'hareki/satellite.nvim',
-    lazy = false,
-    priority = Conf.priority.CHROME,
-    opts = {
-      current_only = false,
-      floating = true,
-      winblend = 0,
-      excluded_filetypes = {
-        'snacks_picker_list',
-        'TelescopeResults',
-      },
-      handlers = {
-        cursor = { enable = false },
-        gitsigns = { enable = false },
-        marks = { enable = false },
-      },
-    },
+    -- Floating scrollbar reserves no layout space, so deferring it past
+    -- startup causes no layout shift (unlike dropbar/noice/lualine)
+    event = 'VeryLazy',
+    opts = function()
+      return {
+        current_only = false,
+        floating = true,
+        winblend = 0,
+        excluded_filetypes = {
+          'snacks_picker_list',
+          'TelescopeResults',
+        },
+        handlers = {
+          cursor = { enable = false },
+          gitsigns = { enable = false },
+          marks = { enable = false },
+        },
+      }
+    end,
     config = function(_, opts)
       -- PERF: Disable satellite mouse handler by occupying the keymap
       vim.keymap.set(

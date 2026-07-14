@@ -32,9 +32,7 @@ return {
 
   {
     'hareki/dropbar.nvim',
-    -- Prevent layout shifting
-    lazy = false,
-    priority = Conf.priority.CHROME,
+    event = 'VeryLazy',
 
     keys = {
       {
@@ -46,6 +44,14 @@ return {
         desc = 'Pick Breadcrumb Item',
       },
     },
+
+    init = function()
+      local has_cli_args = vim.fn.argc(-1) > 0
+      if has_cli_args then
+        -- Reserve a winbar line till dropbar loads to prevent layout shifting
+        vim.opt.winbar = ' '
+      end
+    end,
 
     opts = function()
       local dropbar_utils = require('chrome.dropbar-nvim.utils')
@@ -185,6 +191,13 @@ return {
           },
         },
       }
+    end,
+
+    config = function(_, opts)
+      -- Clear the placeholder before dropbar's own per-window enable check
+      -- runs, otherwise it reads back as already-claimed and never attaches
+      vim.opt.winbar = ''
+      require('dropbar').setup(opts)
     end,
   },
 }
