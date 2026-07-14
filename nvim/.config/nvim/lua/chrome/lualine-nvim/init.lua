@@ -5,8 +5,7 @@ return {
     return UI.statusline.enabled()
   end,
 
-  lazy = false,
-  priority = Conf.priority.CHROME,
+  event = 'VeryLazy',
 
   init = function()
     local opt = vim.opt
@@ -86,7 +85,9 @@ return {
     return {
       options = {
         theme = theme_reset,
-        globalstatus = vim.o.laststatus == 3,
+        -- options.lua sets laststatus=3 (global statusline); don't derive this
+        -- from vim.o.laststatus here, init() may have temporarily set it to 0
+        globalstatus = true,
         refresh = { refresh_time = 33 }, -- ~30fps
         disabled_filetypes = { statusline = { 'dashboard', 'netrw' } },
         padding = { left = 0, right = 0 },
@@ -151,5 +152,27 @@ return {
         lualine_z = flatten(unpack(lualine_z_components)),
       },
     }
+  end,
+
+  config = function(_, opts)
+    local lualine = require('lualine')
+    lualine.setup(opts)
+
+    -- lualine.setup forces laststatus back on (3 for globalstatus); keep the
+    -- starter page bare and restore once the first real buffer shows. Skip
+    -- when a session was already restored before lualine loaded
+    local on_starter_page = vim.fn.argc(-1) == 0 and vim.v.this_session == ''
+    if not on_starter_page then
+      return
+    end
+
+    vim.o.laststatus = 0
+    vim.api.nvim_create_autocmd({ 'BufReadPre', 'BufNewFile', 'TermOpen' }, {
+      group = vim.api.nvim_create_augroup('chrome.lualine.starter-statusline', {}),
+      once = true,
+      callback = function()
+        vim.o.laststatus = 3
+      end,
+    })
   end,
 }
