@@ -278,7 +278,12 @@ function M.format_root_label(path)
   local home_icon = vim.trim(Conf.icons.file_tree.HOME)
   local separator = Conf.icons.file_tree.COLLAPSED .. ' '
 
-  if home and vim.startswith(path, home) then
+  -- The prefix must end at a path boundary: /Users/foo2 is not under /Users/foo
+  local is_under_home = home
+    and vim.startswith(path, home)
+    and (path == home or path:sub(#home + 1, #home + 1) == '/')
+
+  if is_under_home then
     if path == home then
       -- If we're exactly at home, just show the icon
       return home_icon .. ' '
