@@ -17,10 +17,11 @@ local SEVERITY_NAMES = {
   [vim.diagnostic.severity.HINT] = 'hint',
 }
 
--- vim.diagnostic.get() copies every diagnostic and the statusline re-evaluates on
--- every redraw. A single slot is enough: with globalstatus the statusline only
--- renders the current buffer, so almost all redraws hit the same buffer back to
--- back, and a per-buffer map would just accumulate entries that are never re-read.
+-- The statusline re-evaluates on every redraw, so even vim.diagnostic.count()'s
+-- store walk is worth caching. A single slot is enough: with globalstatus the
+-- statusline only renders the current buffer, so almost all redraws hit the same
+-- buffer back to back, and a per-buffer map would just accumulate entries that
+-- are never re-read.
 --- @class chrome.lualine.components.diagnostics.Cache
 --- @field buf integer
 --- @field counts { error: integer, warn: integer, info: integer, hint: integer } | nil
@@ -48,11 +49,9 @@ vim.api.nvim_create_autocmd('BufWipeout', {
   end,
 })
 
---- Count diagnostics for the current buffer, excluding the synthetic
---- 'underline-hack' duplicates injected by diagnostic-underline-hack so
---- they don't inflate the displayed counts.
+--- Count diagnostics for the current buffer.
 --- @return { error: integer, warn: integer, info: integer, hint: integer }
-local function filtered_counts()
+local function cached_counts()
   local bufnr = vim.api.nvim_get_current_buf()
   if cache.buf == bufnr and cache.counts then
     return cache.counts
@@ -60,12 +59,10 @@ local function filtered_counts()
 
   local counts = { error = 0, warn = 0, info = 0, hint = 0 }
 
-  for _, diagnostic in ipairs(vim.diagnostic.get(bufnr)) do
-    if diagnostic.source ~= 'underline-hack' then
-      local name = SEVERITY_NAMES[diagnostic.severity]
-      if name then
-        counts[name] = counts[name] + 1
-      end
+  for severity, count in pairs(vim.diagnostic.count(bufnr)) do
+    local name = SEVERITY_NAMES[severity]
+    if name then
+      counts[name] = count
     end
   end
 
@@ -75,6 +72,6 @@ local function filtered_counts()
   return counts
 end
 
-M.sources = { filtered_counts }
+M.sources = { cached_counts }
 
 return M

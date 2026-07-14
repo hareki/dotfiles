@@ -4,7 +4,6 @@ return {
   event = 'VeryLazy',
   config = function()
     local range_fix = require('core.lsp.nvim-lspconfig.utils.diagnostic-range-fix')
-    local underline_hack = require('core.lsp.nvim-lspconfig.utils.diagnostic-underline-hack')
     local server_loader = require('core.lsp.nvim-lspconfig.utils.server-loader')
 
     local original_set = vim.diagnostic.set
@@ -16,7 +15,6 @@ return {
     vim.diagnostic.set = function(namespace, bufnr, diagnostics, opts)
       if diagnostics and #diagnostics > 0 then
         range_fix.apply(bufnr, diagnostics)
-        underline_hack.apply(diagnostics)
       end
 
       return original_set(namespace, bufnr, diagnostics, opts)

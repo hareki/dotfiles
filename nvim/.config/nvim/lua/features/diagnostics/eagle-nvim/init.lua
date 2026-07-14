@@ -29,11 +29,6 @@ return {
           return math.floor(vim.o.columns * max_size)
         end,
 
-        --- @param diagnostic vim.Diagnostic
-        diagnostic_filter = function(diagnostic)
-          return diagnostic.source ~= 'underline-hack'
-        end,
-
         source_formatters = {
           ts = function(diagnostic)
             local ts_errors = require('features.diagnostics.eagle-nvim.utils.pretty-ts-errors')

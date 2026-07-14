@@ -5,7 +5,7 @@ M.state = {
   executable_path = 'pretty-ts-errors-markdown',
   cli_unavailable = false, -- Set on spawn failure so we never re-pay a failed spawn
   max_cache_entries = 512,
-  cache = {}, -- key -> { value, hits }
+  cache = {}, -- key -> { value, from_cli, hits }
   cache_size = 0,
   supported_sources = {
     tsserver = true,
@@ -122,15 +122,15 @@ local function cache_get(key)
   local e = M.state.cache[key]
   if e then
     e.hits = e.hits + 1
-    return e.value
+    return e
   end
 end
 
-local function cache_set(key, value)
+local function cache_set(key, value, from_cli)
   if not M.state.cache[key] then
     M.state.cache_size = M.state.cache_size + 1
   end
-  M.state.cache[key] = { value = value, hits = 1 }
+  M.state.cache[key] = { value = value, from_cli = from_cli, hits = 1 }
   maybe_evict_cache()
 end
 
@@ -209,16 +209,21 @@ function M.format(diagnostic, opts)
   end
 
   local key = compute_cache_key(diagnostic)
-  local cached = cache_get(key)
+  local entry = cache_get(key)
 
-  local md = cached
-  if not md then
-    md = run_cli(build_cli_input(diagnostic)) or diagnostic.message
-    cache_set(key, md)
+  local md, from_cli
+  if entry then
+    md, from_cli = entry.value, entry.from_cli
+  else
+    local cli_md = run_cli(build_cli_input(diagnostic))
+    from_cli = cli_md ~= nil
+    md = cli_md or diagnostic.message
+    cache_set(key, md, from_cli)
   end
 
-  -- Only keep the CLI's header line when opts.href == true
-  if not (opts and opts.href) then
+  -- Only the CLI's markdown carries a header line; stripping the raw-message
+  -- fallback would delete the first line of the actual error text
+  if from_cli and not (opts and opts.href) then
     md = strip_cli_header(md)
   end
 
