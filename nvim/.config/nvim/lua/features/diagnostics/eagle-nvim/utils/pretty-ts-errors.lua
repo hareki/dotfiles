@@ -8,6 +8,7 @@ M.state = {
   cache = {}, -- key -> { value, from_cli, hits }
   cache_size = 0,
   supported_sources = {
+    ts = true, -- What vtsls actually reports as diagnostic.source
     tsserver = true,
     typescript = true,
     ['typescript-tools'] = true,
