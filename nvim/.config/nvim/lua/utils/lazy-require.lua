@@ -56,10 +56,10 @@ end
 --- Creates a new function wrapper. Cannot be used to compare functions,
 --- set new values, etc. Only useful for deferring require until the function is called.
 --- ```lua
------ This is not loaded yet
+--- -- This is not loaded yet
 --- local lazy_mod = lazy.on_exported_call('my_module')
 --- local lazy_func = lazy_mod.exported_func
------ ... some time later
+--- -- ... some time later
 --- lazy_func(42)  -- <- Only loads the module now
 --- ```
 --- @param require_path string The module path to lazy-require

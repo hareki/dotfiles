@@ -23,7 +23,7 @@ end
 --- Blend two hex colors together
 --- @param from string Starting hex color (alpha=0)
 --- @param to string Target hex color (alpha=1)
---- @param alpha? number Blend factor (0.0 = fully from, 1.0 = fully to, default: 0.18)
+--- @param alpha? number Blend factor (0.0 = fully from, 1.0 = fully to, default: 0.28)
 --- @return string hex Blended hex color
 function M.blend_hex(from, to, alpha)
   alpha = alpha or 0.28
