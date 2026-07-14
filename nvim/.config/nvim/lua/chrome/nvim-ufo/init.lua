@@ -44,12 +44,8 @@ return {
               ufo_preview.close()
             end, { buffer = preview_buf, desc = 'Close Fold Preview' })
 
-            vim.api.nvim_create_autocmd('BufWipeout', {
-              buffer = preview_buf,
-              once = true,
-              callback = clear_mapping,
-            })
-
+            -- No BufWipeout twin: ufo reuses one bufhidden=hide preview buffer,
+            -- so a once-autocmd on it would never fire and pile up per peek
             vim.api.nvim_create_autocmd('WinClosed', {
               pattern = tostring(preview_win_id),
               once = true,
