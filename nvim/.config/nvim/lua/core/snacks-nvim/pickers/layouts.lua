@@ -2,9 +2,9 @@
 local M = {}
 
 --- @class core.snacks.pickers.layouts.Opts
---- @field width integer        Outer window width
---- @field height integer       Outer window height
---- @field preview_title string Title shown above the preview pane
+--- @field width integer | fun(): integer   Outer window width
+--- @field height integer | fun(): integer  Outer window height
+--- @field preview_title string             Title shown above the preview pane
 
 --- The input + list column shared by every layout.
 local function input_list_box()
@@ -26,10 +26,10 @@ local function frame(opts, box, preview)
     cycle = true,
     layout = {
       backdrop = false,
+      -- No max_width/max_height: they cannot be function-valued in snacks and
+      -- would pin resize-safe (callable) dimensions back to stale numbers
       width = opts.width,
-      max_width = opts.width,
       height = opts.height,
-      max_height = opts.height,
       border = 'none',
       box = box,
       input_list_box(),

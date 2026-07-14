@@ -58,7 +58,9 @@ return {
     end,
 
     opts = function()
-      local popup_config = UI.layout.popup('sm')
+      -- Bordered snacks popup variants take with_border=true; function-valued
+      -- so the session picker follows terminal resizes
+      local popup_config = UI.layout.popup_fn('sm', true)
 
       --- @module "auto-session"
       --- @type AutoSession.Config
@@ -95,9 +97,7 @@ return {
             preview = false,
             layout = {
               width = popup_config.width,
-              max_width = popup_config.width,
               height = popup_config.height,
-              max_height = popup_config.height,
             },
           },
 

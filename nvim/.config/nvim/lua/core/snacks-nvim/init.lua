@@ -176,12 +176,16 @@ return {
 
     opts = function()
       local popup_config = UI.layout.popup
+      -- Function-valued geometry: snacks resolves these when a window opens,
+      -- so popups stay sized/centered after terminal resizes instead of
+      -- keeping the startup screen's cell counts
+      local popup_fn = UI.layout.popup_fn
       local config = {
-        input = popup_config('input'),
-        full = popup_config('full'),
-        sm = popup_config('sm', true),
-        lg_border = popup_config('lg', true),
-        lg = popup_config('lg'),
+        input = popup_fn('input'),
+        full = popup_fn('full'),
+        sm = popup_fn('sm', true),
+        lg_border = popup_fn('lg', true),
+        lg = popup_fn('lg'),
       }
       local select_width = config.sm.width
 
@@ -223,7 +227,8 @@ return {
           -- Inline images are inserted as virtual lines, and virtual lines are tricky to scroll, so better keep it short
           doc = {
             inline = true,
-            max_width = config.full.width,
+            -- Static number: snacks.image does no callable resolution here
+            max_width = popup_config('full').width,
             max_height = 15,
             excluded_filetypes = Conf.filetypes.merge(Conf.filetypes.JS_ALL, Conf.filetypes.CSS),
           },
@@ -293,7 +298,10 @@ return {
               layout = {
                 layout = {
                   width = select_width,
-                  max_width = select_width,
+                  -- Neutralize the select preset's min_width=80/max_width=100,
+                  -- which would otherwise clamp the function-valued width
+                  min_width = 0,
+                  max_width = math.huge,
                 },
               },
             },
@@ -333,7 +341,7 @@ return {
             keymaps = {
               transform = transformers.keymap_transform,
               format = function(item, picker)
-                return formatters.keymap_format(item, picker, config.sm.width)
+                return formatters.keymap_format(item, picker, select_width())
               end,
 
               layout = {
@@ -343,8 +351,9 @@ return {
                   backdrop = false,
                   height = config.sm.height,
                   width = config.sm.width,
-                  max_height = config.sm.height,
-                  max_width = config.sm.width,
+                  -- Neutralize the default preset's min_width=120, which would
+                  -- otherwise floor the function-valued width
+                  min_width = 0,
                   col = config.sm.col,
                   row = config.sm.row,
                 },

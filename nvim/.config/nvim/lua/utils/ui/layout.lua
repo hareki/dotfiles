@@ -128,4 +128,35 @@ function M.popup(size, with_border)
   }
 end
 
+--- @class utils.ui.layout.WinConfigFn
+--- @field width  fun(): integer
+--- @field height fun(): integer
+--- @field col    fun(): integer
+--- @field row    fun(): integer
+
+--- Like M.popup, but with function-valued fields the consumer resolves at
+--- window-open time, so popups opened after a terminal resize are sized and
+--- centered against the current screen instead of the startup one. Snacks
+--- resolves callables for width/height/col/row; its max_width/max_height do
+--- not support callables, so pair these with no max fields
+--- @param size 'lg' | 'md' | 'sm' | 'input' | 'full' | 'vertical_lg' Size preset name
+--- @param with_border boolean | nil Whether to add 2 for border (default false)
+--- @return utils.ui.layout.WinConfigFn config Window config resolved per call
+function M.popup_fn(size, with_border)
+  return {
+    width = function()
+      return M.popup(size, with_border).width
+    end,
+    height = function()
+      return M.popup(size, with_border).height
+    end,
+    col = function()
+      return M.popup(size, with_border).col
+    end,
+    row = function()
+      return M.popup(size, with_border).row
+    end,
+  }
+end
+
 return M
