@@ -1,6 +1,6 @@
 local function lazy(fn)
   vim.api.nvim_create_autocmd('User', {
-    group = vim.api.nvim_create_augroup('config.init.lazy', { clear = true }),
+    group = vim.api.nvim_create_augroup('config.autocmds.deferred-boot', { clear = true }),
     pattern = 'VeryLazy',
     once = true,
     callback = fn,

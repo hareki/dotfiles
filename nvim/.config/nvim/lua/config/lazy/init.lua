@@ -8,7 +8,6 @@ lazy_utils.ensure_lazy()
 local lg = Conf.size.popup.lg
 local lazy = require('lazy')
 lazy.setup({
-  version = '*',
   rocks = {
     enabled = false,
   },
