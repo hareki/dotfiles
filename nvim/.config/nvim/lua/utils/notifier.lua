@@ -33,19 +33,26 @@ local function is_notify_record(handle)
 end
 
 --- Return true if tbl looks like a chunk list: { 'txt', { 'txt', 'hl' }, … }.
+--- A table of only bare strings is a string[] message (markdown path, joined
+--- with newlines), so at least one {text, hl} tuple is required here.
 local function is_chunk_list(tbl)
   if type(tbl) ~= 'table' then
     return false
   end
+
+  local has_tuple = false
   for _, v in ipairs(tbl) do
-    if
-      type(v) ~= 'string'
-      and (type(v) ~= 'table' or type(v[1]) ~= 'string' or (v[2] ~= nil and type(v[2]) ~= 'string'))
-    then
+    if type(v) == 'table' then
+      if type(v[1]) ~= 'string' or (v[2] ~= nil and type(v[2]) ~= 'string') then
+        return false
+      end
+      has_tuple = true
+    elseif type(v) ~= 'string' then
       return false
     end
   end
-  return true
+
+  return has_tuple
 end
 
 --- Flatten a tuple-list and build an on_open that restores highlights.
