@@ -46,6 +46,8 @@ vim.api.nvim_create_autocmd({
   'BufEnter',
   'BufDelete',
   'BufWipeout',
+  -- Renames (:file, nvim_buf_set_name, Snacks.rename) fire only BufFilePre/Post
+  'BufFilePost',
 }, {
   group = group,
   callback = invalidate_cache,
