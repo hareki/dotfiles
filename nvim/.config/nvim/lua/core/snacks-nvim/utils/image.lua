@@ -165,6 +165,13 @@ end
 --- @param source_buf integer
 --- @param src string
 local function open(source_buf, src)
+  -- A second hover can arrive through the async at_cursor callback before the
+  -- toggle guard sees the first; close it here, or get_buffer_esc_map below
+  -- would capture our own hover <Esc> mapping as the one to "restore"
+  if hover then
+    close()
+  end
+
   local lg = UI.layout.popup('lg')
   local previous_esc_map = get_buffer_esc_map(source_buf)
 
@@ -276,6 +283,14 @@ function M.hover_image()
     if not src then
       return
     end
+
+    -- Remote images: snacks downloads URLs itself, while the local-copy step
+    -- below would fail filereadable() and silently drop the hover
+    if src:find('^%w%w+://') then
+      open(source_buf, src)
+      return
+    end
+
     local ext = vim.fn.fnamemodify(src, ':e')
     if ext == '' then
       ext = 'png'
