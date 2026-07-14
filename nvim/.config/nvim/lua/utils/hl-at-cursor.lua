@@ -3,6 +3,11 @@ local render_markdown_evict = require('utils.render-markdown-evict')
 --- @class utils.hl-at-cursor
 local M = {}
 
+-- Closer of the currently open popup, if any. Only one popup may exist at a
+-- time: a second one would otherwise fight the first over the origin buffer's
+-- <Tab>/<Esc> keymaps and orphan the earlier float
+local close_active_popup
+
 local function uniq(list)
   local seen, out = {}, {}
   for _, v in ipairs(list) do
@@ -106,7 +111,8 @@ local function collect_extmarks(bufnr, row0, col0)
       ns_id,
       { row0, 0 },
       { row0, -1 },
-      { details = true }
+      -- overlap: also return marks that start on earlier lines but span row0
+      { details = true, overlap = true }
     )
     for _, m in ipairs(marks) do
       local _, srow, scol, d = m[1], m[2], m[3], m[4]
@@ -229,6 +235,9 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
       return false
     end
     closing = true
+    if close_active_popup == close_popup then
+      close_active_popup = nil
+    end
     if augroup then
       pcall(vim.api.nvim_del_augroup_by_id, augroup)
       augroup = nil
@@ -351,12 +360,18 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
     nowait = true,
     desc = 'Close Highlight Popup',
   })
+
+  close_active_popup = close_popup
 end
 
 --- Show all highlight groups affecting the cursor position in a Markdown popup.
 --- Displays syntax groups, Tree-sitter captures, extmarks, and window matches.
 --- @return nil
 function M.show()
+  if close_active_popup then
+    close_active_popup()
+  end
+
   local bufnr = 0
   local pos = vim.api.nvim_win_get_cursor(0)
   local row0, col0 = pos[1] - 1, pos[2]
