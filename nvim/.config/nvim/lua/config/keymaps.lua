@@ -62,7 +62,7 @@ map('n', 'Q', '<cmd>q<cr>', { desc = 'Close Buffer' })
 -- where feeding `a` would raise E21
 map('n', '<CR>', function()
   return vim.bo.modifiable and 'a<CR><Esc>' or '<CR>'
-end, { expr = true, desc = 'Insert Newline after Cursor' })
+end, { expr = true, desc = 'Insert Newline After Cursor' })
 map('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Leave Terminal Mode' })
 
 map('n', '<Esc>', function()

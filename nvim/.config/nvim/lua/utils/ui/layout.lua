@@ -31,6 +31,40 @@ local computed_input_size = {
   width = 60,
 }
 
+--- Resolve a dimensions preset into whole width/height cells: fractions of the
+--- screen when <= 1, absolute values otherwise, then offsets and minimums
+--- @param dimensions config.size.Dimensions
+--- @return integer width Width in columns
+--- @return integer height Height in rows
+local function resolve_dimensions(dimensions)
+  local screen_w, screen_h = M.screen_size()
+
+  local width = dimensions.WIDTH <= 1 and screen_w * dimensions.WIDTH or dimensions.WIDTH
+  local height = dimensions.HEIGHT <= 1 and screen_h * dimensions.HEIGHT or dimensions.HEIGHT
+
+  local width_offset = dimensions.WIDTH_OFFSET
+  if width_offset then
+    width = math.max(width + width_offset, 1)
+  end
+
+  local height_offset = dimensions.HEIGHT_OFFSET
+  if height_offset then
+    height = math.max(height + height_offset, 1)
+  end
+
+  local min_width = dimensions.MIN_WIDTH
+  if min_width and width < min_width then
+    width = min_width
+  end
+
+  local min_height = dimensions.MIN_HEIGHT
+  if min_height and height < min_height then
+    height = min_height
+  end
+
+  return math.floor(width), math.floor(height)
+end
+
 --- Compute actual dimensions from a size configuration
 --- @param size config.size.Dimensions | 'input' Size config or 'input' preset
 --- @param with_border? boolean Whether to add 2 for border (default false)
@@ -43,10 +77,7 @@ function M.compute_size(size, with_border)
     width_in_cols = computed_input_size.width
     height_in_rows = computed_input_size.height
   else
-    local screen_w, screen_h = M.screen_size()
-
-    width_in_cols = math.floor(screen_w * size.WIDTH)
-    height_in_rows = math.floor(screen_h * size.HEIGHT)
+    width_in_cols, height_in_rows = resolve_dimensions(size --[[@as config.size.Dimensions]])
   end
 
   return width_in_cols + (with_border and 2 or 0), height_in_rows + (with_border and 2 or 0)
@@ -80,34 +111,7 @@ function M.popup(size, with_border)
     window_w = computed_input_size.width
     window_h = computed_input_size.height
   else
-    local dimensions = Conf.size.popup[size]
-    if dimensions.WIDTH <= 1 then
-      window_w = math.floor(screen_w * dimensions.WIDTH)
-    else
-      window_w = dimensions.WIDTH
-    end
-
-    if dimensions.HEIGHT <= 1 then
-      window_h = math.floor(screen_h * dimensions.HEIGHT)
-    else
-      window_h = dimensions.HEIGHT
-    end
-
-    if dimensions.WIDTH_OFFSET then
-      window_w = math.max(window_w + dimensions.WIDTH_OFFSET, 1)
-    end
-
-    if dimensions.HEIGHT_OFFSET then
-      window_h = math.max(window_h + dimensions.HEIGHT_OFFSET, 1)
-    end
-
-    if dimensions.MIN_WIDTH and window_w < dimensions.MIN_WIDTH then
-      window_w = dimensions.MIN_WIDTH
-    end
-
-    if dimensions.MIN_HEIGHT and window_h < dimensions.MIN_HEIGHT then
-      window_h = dimensions.MIN_HEIGHT
-    end
+    window_w, window_h = resolve_dimensions(Conf.size.popup[size])
   end
 
   -- Minus 1 to account for the border

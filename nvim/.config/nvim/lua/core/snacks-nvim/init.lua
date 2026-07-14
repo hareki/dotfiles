@@ -155,17 +155,17 @@ return {
       },
 
       -- Hack to get keymaps to show int Snacks.picker.keymaps
-      { 'za', 'za', desc = 'Toggle Fold under Cursor' },
-      { 'zA', 'zA', desc = 'Toggle All Folds under Cursor' },
-      { 'zC', 'zC', desc = 'Close All Folds under Cursor' },
-      { 'zD', 'zD', desc = 'Delete All Folds under Cursor' },
+      { 'za', 'za', desc = 'Toggle Fold Under Cursor' },
+      { 'zA', 'zA', desc = 'Toggle All Folds Under Cursor' },
+      { 'zC', 'zC', desc = 'Close All Folds Under Cursor' },
+      { 'zD', 'zD', desc = 'Delete All Folds Under Cursor' },
       { 'zE', 'zE', desc = 'Delete All Folds in File' },
       { 'zM', 'zM', desc = 'Close All Folds' },
-      { 'zO', 'zO', desc = 'Open All Folds under Cursor' },
+      { 'zO', 'zO', desc = 'Open All Folds Under Cursor' },
       { 'zR', 'zR', desc = 'Open All Folds' },
       { 'zi', 'zi', desc = 'Toggle Folding' },
       { 'zm', 'zm', desc = 'Fold More' },
-      { 'zo', 'zo', desc = 'Open Fold under Cursor' },
+      { 'zo', 'zo', desc = 'Open Fold Under Cursor' },
       { 'zr', 'zr', desc = 'Fold Less' },
     },
 

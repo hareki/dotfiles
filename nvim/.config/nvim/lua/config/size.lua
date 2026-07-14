@@ -1,6 +1,8 @@
 --- @class config.size.Dimensions
 --- @field HEIGHT_OFFSET? number
 --- @field WIDTH_OFFSET? number
+--- @field MIN_HEIGHT? number
+--- @field MIN_WIDTH? number
 --- @field HEIGHT number
 --- @field WIDTH number
 

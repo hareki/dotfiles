@@ -37,7 +37,7 @@ function M.whichkey(opts)
     { '<', desc = '<> Block' },
     { '>', desc = '<> Block with Whitespace' },
     { '?', desc = 'User Prompt' },
-    { 'U', desc = 'Use/Call without Dot' },
+    { 'U', desc = 'Use/Call Without Dot' },
     { '[', desc = '[] Block' },
     { ']', desc = '[] Block with Whitespace' },
     { '_', desc = 'Underscore' },

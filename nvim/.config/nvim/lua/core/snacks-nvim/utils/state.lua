@@ -1,6 +1,7 @@
 --- @class snacks.picker.state.PickerDefaults
 --- @field preview? boolean
 
+--- @class core.snacks.utils.state
 local M = {}
 
 --- Pickers that participate in state management.

@@ -72,7 +72,7 @@ local function ensure_reapply_autocmd()
   reapply_autocmd_created = true
 
   vim.api.nvim_create_autocmd('ColorScheme', {
-    group = vim.api.nvim_create_augroup('utils.ui.catppuccin.reapply', {}),
+    group = vim.api.nvim_create_augroup('utils.ui.catppuccin.reapply', { clear = true }),
     callback = function()
       for _, register in ipairs(lazy_registers) do
         apply(register)
