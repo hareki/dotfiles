@@ -130,9 +130,7 @@ map(
 )
 map({ 'n', 'x' }, '<Up>', "v:count == 0 ? 'gk' : 'k'", { desc = 'Up', expr = true, silent = true })
 
-map('n', 'yow', function()
-  vim.wo.wrap = not vim.wo.wrap
-end, { desc = 'Toggle Line Wrap' })
+map('n', 'yow', '<cmd>setlocal wrap!<cr>', { desc = 'Toggle Line Wrap' })
 
 map('n', '<leader>l', '<cmd>Lazy<cr>', { desc = 'Plugin Manager' })
 map('n', '<leader>-', '<cmd>split<cr>', { desc = 'Split Window Below' })

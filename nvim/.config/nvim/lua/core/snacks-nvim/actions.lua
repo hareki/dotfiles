@@ -85,7 +85,7 @@ function M.snacks_to_trouble(picker)
     end
 
     picker:close()
-    vim.cmd({ cmd = 'Trouble', args = todo_args })
+    vim.cmd.Trouble({ args = todo_args })
   else
     local trouble_sources = require('trouble.sources.snacks')
     trouble_sources.open(picker)

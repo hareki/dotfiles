@@ -32,7 +32,7 @@ return {
             end
 
             -- Set cwd to that dir
-            vim.cmd({ cmd = 'cd', args = { data.file } })
+            vim.cmd.cd({ args = { data.file } })
 
             -- AutoSession disables autosave when argv cwd mismatches; flip it back after cd
             local auto_session_config = require('auto-session.config')
