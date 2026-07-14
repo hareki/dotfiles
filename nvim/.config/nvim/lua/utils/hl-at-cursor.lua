@@ -1,3 +1,5 @@
+local render_markdown_evict = require('utils.render-markdown-evict')
+
 --- @class utils.hl-at-cursor
 local M = {}
 
@@ -238,6 +240,9 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
     if vim.api.nvim_win_is_valid(win) then
       ok = pcall(vim.api.nvim_win_close, win, true)
     end
+    -- The popup buffer (bufhidden=wipe) is gone with the window, but its
+    -- render-markdown entries are not; evict them or they leak per popup
+    render_markdown_evict.evict(buf)
     closing = false
     return ok
   end

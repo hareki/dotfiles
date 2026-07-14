@@ -1,6 +1,8 @@
 -- trouble.nvim notifier with supported custom highlight groups
 -- https://github.com/folke/trouble.nvim/blob/main/lua/trouble/util.lua
 
+local render_markdown_evict = require('utils.render-markdown-evict')
+
 --- @class utils.notifier
 local M = {}
 
@@ -147,9 +149,12 @@ function M.notify(msg, opts)
   local user_on_open = opts.on_open
   -- Local autocmd_id closes over both on_open and on_close
   local autocmd_id
+  -- Buffer of the open notification window, for render-markdown eviction
+  local notif_buf
 
   local function merged_on_open(win)
     local buf = vim.api.nvim_win_get_buf(win)
+    notif_buf = buf
 
     apply_highlight(win)
 
@@ -187,6 +192,13 @@ function M.notify(msg, opts)
     if autocmd_id then
       pcall(vim.api.nvim_del_autocmd, autocmd_id)
       autocmd_id = nil
+    end
+
+    -- Each notification gets a fresh buffer; without eviction its
+    -- render-markdown entries would outlive it for the whole session
+    if is_markdown and notif_buf then
+      render_markdown_evict.evict(notif_buf)
+      notif_buf = nil
     end
 
     if opts.id then
