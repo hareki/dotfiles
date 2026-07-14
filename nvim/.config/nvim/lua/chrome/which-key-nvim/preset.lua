@@ -127,29 +127,35 @@ M.windows = {
   { '<c-w>L', desc = 'Move Window to Far Right' },
 }
 
+--- Fold-key descriptions in { key, desc } pairs. Single source of truth,
+--- shared with core/snacks-nvim/init.lua, which registers identity keymaps
+--- from this list so the fold keys show up in Snacks.picker.keymaps
+M.fold_descs = {
+  { 'za', 'Toggle Fold Under Cursor' },
+  { 'zA', 'Toggle All Folds Under Cursor' },
+  { 'zC', 'Close All Folds Under Cursor' },
+  { 'zD', 'Delete All Folds Under Cursor' },
+  { 'zE', 'Delete All Folds in File' },
+  { 'zM', 'Close All Folds' },
+  { 'zO', 'Open All Folds Under Cursor' },
+  { 'zR', 'Open All Folds' },
+  { 'zi', 'Toggle Folding' },
+  { 'zm', 'Fold More' },
+  { 'zo', 'Open Fold Under Cursor' },
+  { 'zr', 'Fold Less' },
+}
+
 M.z = {
   preset = true,
   { 'z<CR>', desc = 'Top This Line' },
   { 'z=', desc = 'Spelling Suggestions' },
-  { 'zA', desc = 'Toggle All Folds Under Cursor' },
-  { 'zC', desc = 'Close All Folds Under Cursor' },
-  { 'zD', desc = 'Delete All Folds Under Cursor' },
-  { 'zE', desc = 'Delete All Folds in File' },
   { 'zH', desc = 'Half Screen to the Left' },
   { 'zL', desc = 'Half Screen to the Right' },
-  { 'zM', desc = 'Close All Folds' },
-  { 'zO', desc = 'Open All Folds Under Cursor' },
-  { 'zR', desc = 'Open All Folds' },
-  { 'za', desc = 'Toggle Fold Under Cursor' },
   { 'zb', desc = 'Bottom This Line' },
   { 'zc', desc = 'Close Fold Under Cursor' },
   { 'zd', desc = 'Delete Fold Under Cursor' },
   { 'ze', desc = 'Right This Line' },
   { 'zg', desc = 'Add Word to Spell List' },
-  { 'zi', desc = 'Toggle Folding' },
-  { 'zm', desc = 'Fold More' },
-  { 'zo', desc = 'Open Fold Under Cursor' },
-  { 'zr', desc = 'Fold Less' },
   { 'zs', desc = 'Left This Line' },
   { 'zt', desc = 'Top This Line' },
   { 'zv', desc = 'Show Cursor Line' },
@@ -157,6 +163,10 @@ M.z = {
   { 'zx', desc = 'Update Folds' },
   { 'zz', desc = 'Center This Line' },
 }
+
+for _, fold in ipairs(M.fold_descs) do
+  table.insert(M.z, { fold[1], desc = fold[2] })
+end
 
 M.nav = {
   preset = true,
