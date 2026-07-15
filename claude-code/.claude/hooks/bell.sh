@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # tmux and neovim terminal nullify all of the choices
 # - Bell feature doesn't work
 # - Native notification needs 3rd party (terminal-notifier, alerter)

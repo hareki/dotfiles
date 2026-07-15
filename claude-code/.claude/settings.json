@@ -48,18 +48,31 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bell"
+            "command": "bash ~/.claude/hooks/bell.sh"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/prevent-sleep.sh"
           }
         ]
       }
     ],
     "Stop": [
       {
-        "matcher": "",
         "hooks": [
           {
             "type": "command",
-            "command": "bell"
+            "command": "bash ~/.claude/hooks/allow-sleep.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/bell.sh"
           }
         ]
       }

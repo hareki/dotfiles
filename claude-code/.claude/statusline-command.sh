@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Claude Code status line — mirrors Powerlevel10k Pure/Catppuccin Mocha style
 
 input=$(cat)
