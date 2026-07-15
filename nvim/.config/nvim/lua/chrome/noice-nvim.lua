@@ -7,12 +7,13 @@ return {
       NoiceCmdlinePopupTitle = { fg = palette.blue },
       NoiceCmdlineIcon = { fg = palette.blue },
       NoiceConfirmBorder = { fg = palette.yellow },
+      NoiceFormatConfirm = { bg = palette.surface1 },
       NoiceFormatConfirmDefault = { link = 'NoiceFormatConfirm' }, -- Make "Default" option have the same color as the others
     }
   end),
 
   {
-    'folke/noice.nvim',
+    'hareki/noice.nvim',
 
     -- Prevent layout shifting (it hides the cmdline row)
     lazy = false,
