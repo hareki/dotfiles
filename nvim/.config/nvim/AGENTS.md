@@ -32,7 +32,7 @@ The LuaLS diagnostics surfaced to you will often report `undefined-global` for t
 
 ### Boot Order (`init.lua`)
 
-`vim.loader.enable` => `config.globals` => `config.options` => `config.autocmds` => `config.usercmds` => `config.keymaps` => `config.lazy`
+`vim.loader.enable` => `config.globals` => `config.options` => `config.autocmds` => `config.lazy` (`config.usercmds` and `config.keymaps` are deferred to `User VeryLazy`)
 
 ### Plugin Tiers (`lua/`)
 

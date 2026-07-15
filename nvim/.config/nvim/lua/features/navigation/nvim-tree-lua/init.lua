@@ -300,7 +300,6 @@ return {
           map('n', 'f', function()
             tree.toggle_preview(false)
             api.filter.live.start()
-            state.live_filter_triggered = true
           end, 'Live Filter: Start')
           map('n', '<Esc>', function()
             api.filter.live.clear()
@@ -356,12 +355,6 @@ return {
             callback = function(ev)
               if ev.buf == tree_bufnr then
                 tree.toggle_preview(state.preview_on_focus)
-                return
-              end
-
-              if state.live_filter_triggered then
-                state.live_filter_triggered = false
-                return
               end
             end,
           })

@@ -14,7 +14,6 @@ local IGNORE_FILETYPES = {
   help = true,
   lspinfo = true,
   checkhealth = true,
-  [''] = true,
 }
 --- @class chrome.lualine.components.buffer-status.Cache
 --- @field current_unsaved string | nil
@@ -82,8 +81,12 @@ local function get_current_unsaved()
   -- Empty filetype is ambiguous: ignore true scratch/UI buffers (nofile,
   -- prompt), but allow readonly content like codediff:// diff views — which
   -- clear their filetype to avoid LSP attach — to still report the lock icon.
+  -- Terminals are always 'modifiable = false' and would show a misleading
+  -- padlock, so they are ignored regardless of filetype
   local is_ignored
-  if ft == '' then
+  if bo.buftype == 'terminal' then
+    is_ignored = true
+  elseif ft == '' then
     is_ignored = bo.buftype == 'nofile' or bo.buftype == 'prompt'
   else
     is_ignored = IGNORE_FILETYPES[ft] or false

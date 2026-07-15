@@ -19,7 +19,7 @@ M.DESC_OVERRIDES = {
   ['*'] = { desc = 'Search Forward for Selection', mode = { 'x' } },
   ['#'] = { desc = 'Search Backward for Selection', mode = { 'x' } },
   ['<C-W>'] = { desc = 'Delete Previous Word (New Undo Point)', mode = { 'i' } },
-  ['<C-U>'] = { desc = 'Delete Previous Word (New Undo Point)', mode = { 'i' } },
+  ['<C-U>'] = { desc = 'Delete Text Before Cursor (New Undo Point)', mode = { 'i' } },
   ['<C-L>'] = { desc = 'Redraw (Clear Search Highlight, Update Diffs)', mode = { 'n' } },
   ['@'] = { desc = 'Execute Register on Each Selected Line', mode = { 'x' } },
   ['Q'] = { desc = 'Replay Last Macro on Each Selected Line', mode = { 'x' } },

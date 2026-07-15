@@ -116,12 +116,7 @@ return {
     end,
 
     opts = function()
-      local menu_popup = UI.layout.popup('sm', true)
-
       return {
-        menu = {
-          width = menu_popup.width,
-        },
         settings = {
           save_on_toggle = true,
         },

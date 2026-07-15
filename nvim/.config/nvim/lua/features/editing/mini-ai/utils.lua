@@ -63,8 +63,6 @@ function M.whichkey(opts)
   local ret = { mode = { 'o', 'x' } }
   --- @type table<string, string>
   local mappings = vim.tbl_extend('force', {}, {
-    Next = ']',
-    Previous = '[',
     Around = 'a',
     Inside = 'i',
     ['Around Next'] = 'an',
@@ -72,9 +70,6 @@ function M.whichkey(opts)
     ['Around Last'] = 'al',
     ['Inside Last'] = 'il',
   }, opts.mappings or {})
-
-  mappings.goto_left = nil
-  mappings.goto_right = nil
 
   for name, prefix in pairs(mappings) do
     name = name:gsub('^around_', ''):gsub('^inside_', '')

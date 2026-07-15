@@ -1,3 +1,5 @@
+local stdin_session = false
+
 return {
   'nvim-lualine/lualine.nvim',
 
@@ -9,6 +11,19 @@ return {
 
   init = function()
     local opt = vim.opt
+
+    -- Stdin sessions (`git diff | nvim -`) report argc 0 but are not the
+    -- starter page; StdinReadPre fires after init() and before VeryLazy, so
+    -- flag them here and undo the starter-page hiding below
+    vim.api.nvim_create_autocmd('StdinReadPre', {
+      group = vim.api.nvim_create_augroup('chrome.lualine.stdin-statusline', { clear = true }),
+      once = true,
+      callback = function()
+        stdin_session = true
+        opt.statusline = ' '
+        opt.laststatus = 3
+      end,
+    })
 
     local has_cli_args = vim.fn.argc(-1) > 0
     if has_cli_args then
@@ -161,7 +176,7 @@ return {
     -- lualine.setup forces laststatus back on (3 for globalstatus); keep the
     -- starter page bare and restore once the first real buffer shows. Skip
     -- when a session was already restored before lualine loaded
-    local on_starter_page = vim.fn.argc(-1) == 0 and vim.v.this_session == ''
+    local on_starter_page = vim.fn.argc(-1) == 0 and vim.v.this_session == '' and not stdin_session
     if not on_starter_page then
       return
     end

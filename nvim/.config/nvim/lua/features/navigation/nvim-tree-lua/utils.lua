@@ -8,7 +8,6 @@ local M = {}
 --- @field opts table | nil
 --- @field preview_on_focus boolean
 --- @field preview_watcher integer | nil
---- @field live_filter_triggered boolean
 
 --- @type features.navigation.nvim-tree.utils.State
 M.state = {
@@ -16,7 +15,6 @@ M.state = {
   opts = nil,
   preview_on_focus = false, -- Preview is off on startup
   preview_watcher = nil,
-  live_filter_triggered = false,
 }
 
 --- @module 'nvim-tree.api'

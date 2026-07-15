@@ -223,6 +223,19 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
   local ignore_cursor_close = false
   local augroup
 
+  -- The popup's <Tab>/<Esc> maps shadow any pre-existing buffer-local ones on
+  -- the origin buffer (e.g. nvim-tree's <Tab> preview); snapshot those so
+  -- close_popup can restore them instead of deleting them outright
+  local saved_maps = {}
+  vim.api.nvim_buf_call(origin_buf, function()
+    for _, lhs in ipairs({ '<Tab>', '<Esc>' }) do
+      local map = vim.fn.maparg(lhs, 'n', false, true)
+      if map.buffer == 1 then
+        saved_maps[lhs] = map
+      end
+    end
+  end)
+
   local function with_cursor_ignore()
     ignore_cursor_close = true
     vim.defer_fn(function()
@@ -244,6 +257,13 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
     end
     pcall(vim.keymap.del, 'n', '<Tab>', { buffer = origin_buf })
     pcall(vim.keymap.del, 'n', '<Esc>', { buffer = origin_buf })
+    if vim.api.nvim_buf_is_valid(origin_buf) then
+      vim.api.nvim_buf_call(origin_buf, function()
+        for _, map in pairs(saved_maps) do
+          vim.fn.mapset('n', false, map)
+        end
+      end)
+    end
     pcall(vim.keymap.del, 'n', '<Tab>', { buffer = buf })
     local ok = true
     if vim.api.nvim_win_is_valid(win) then

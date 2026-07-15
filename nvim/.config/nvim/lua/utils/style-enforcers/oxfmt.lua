@@ -13,7 +13,9 @@ function M.run(opts)
     return opts.on_done(false, 'oxfmt client missing')
   end
 
-  local params = vim.lsp.util.make_formatting_params()
+  -- make_formatting_params reads tabSize/insertSpaces from the current buffer,
+  -- which is not necessarily the target buffer (run_all formats in background)
+  local params = vim.api.nvim_buf_call(bufnr, vim.lsp.util.make_formatting_params)
   params.textDocument = { uri = vim.uri_from_bufnr(bufnr) }
 
   oxfmt:request('textDocument/formatting', params, function(err, result)

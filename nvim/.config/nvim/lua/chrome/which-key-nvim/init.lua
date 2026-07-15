@@ -63,7 +63,6 @@ return {
         { '<leader>fg', group = 'Git: Find' },
         { '<leader>q', group = 'Quit', mode = { 'n', 'v' } },
         { '<leader>s', group = 'Search', mode = { 'n', 'v' } },
-        { '<leader>t', group = 'Tab' },
       })
       vim.list_extend(opts.spec, desc_override_specs)
 

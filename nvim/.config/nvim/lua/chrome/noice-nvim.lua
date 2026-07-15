@@ -79,8 +79,8 @@ return {
             opts = {
               border = 'rounded',
               size = {
-                row = popup.row,
-                col = popup.col,
+                width = popup.width,
+                height = popup.height,
               },
             },
           },

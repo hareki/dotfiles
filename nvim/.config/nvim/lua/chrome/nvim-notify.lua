@@ -104,9 +104,6 @@ return {
         end,
 
         render = function(bufnr, notif, hl, _)
-          local base = require('notify.render.base')
-          local ns = base.namespace()
-
           local title = notif.title[1]
           if notif.duplicates then
             title = string.format('%s (x%d)', title, #notif.duplicates)
@@ -128,13 +125,9 @@ return {
             end
           end
 
-          -- Set notification content
+          -- Set notification content; body coloring comes from the window's
+          -- winhl (Normal:Notify*Body), no extmark highlighting needed
           vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, notif.message)
-          vim.api.nvim_buf_set_extmark(bufnr, ns, 0, 0, {
-            end_line = #notif.message - 1,
-            end_col = #notif.message[#notif.message],
-            priority = 50,
-          })
         end,
       }
     end,

@@ -53,7 +53,15 @@ function M.keymap_transform(item)
   local desc_overrides = keymap_registry.DESC_OVERRIDES
   local keymap = item.item
   local old_desc = keymap.desc
-  local override_spec = desc_overrides[keymap.lhs]
+  -- nvim_get_keymap reports the resolved lhs (mapleader as a literal space),
+  -- while the registry keys use <leader> notation for the which-key path;
+  -- normalize before the lookup
+  local lhs = keymap.lhs
+  local leader = vim.g.mapleader
+  if type(leader) == 'string' and leader ~= '' then
+    lhs = lhs:gsub(vim.pesc(leader), '<leader>')
+  end
+  local override_spec = desc_overrides[lhs]
   local override_desc = override_spec
     and vim.list_contains(override_spec.mode, keymap.mode)
     and override_spec.desc

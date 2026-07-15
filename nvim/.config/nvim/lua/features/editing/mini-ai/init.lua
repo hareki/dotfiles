@@ -21,11 +21,12 @@ return {
         d = { '%f[%d]%d+' }, -- digits
         w = {
           {
-            -- Acronyms / ALL-CAPS segments (incl. digits), e.g. "CONSTANT", "HTTP2".
-            -- Note: an acronym glued to a camel chunk ("XML" in "XMLHttpRequest")
-            -- is not expressible with Lua frontier patterns; the camel pattern
-            -- below picks up "Http"-style chunks instead
-            '%f[%a%d][%u%d]+%f[^%a%d]',
+            -- Acronyms / ALL-CAPS segments (incl. digits), e.g. "CONSTANT", "HTTP2",
+            -- and trailing acronyms like "JSON" in "parseJSON". A leading acronym
+            -- glued to a camel chunk ("XML" in "XMLHttpRequest") is still not
+            -- expressible with Lua frontier patterns; the camel pattern below
+            -- picks up "Http"-style chunks instead
+            '%f[%u%d][%u%d]+%f[^%a%d]',
 
             -- Pascal/Camel subwords, e.g. "Http" in "XMLHttp"
             '%u[%l%d]+%f[^%l%d]',

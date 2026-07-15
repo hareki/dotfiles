@@ -110,6 +110,9 @@ function M.run(opts)
   progress = progress_utils.create({
     pending_ms = 500,
     client_name = 'stenfo',
+    -- run_all targets background buffers; sample the client from the target,
+    -- not whatever buffer happens to be current
+    bufnr = buf,
   })
 
   -- Returns ok, err instead of throwing: an unwritable buffer (E32 no-name,

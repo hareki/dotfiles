@@ -17,9 +17,17 @@ M.show = function(user_opts)
       local item = list:get(harpoon_idx)
       if item then
         local filepath = item.value
-        -- Absolute path resolves by exact match; a relative harpoon path would
-        -- tail-match and can hit the wrong buffer when basenames collide
-        local bufnr = vim.fn.bufnr(vim.fn.fnamemodify(filepath, ':p'))
+        -- Compare names exactly: vim.fn.bufnr() treats its argument as a
+        -- file-pattern, so paths with magic chars (e.g. "app/[slug]/page.tsx")
+        -- can pattern-match an unrelated buffer
+        local abs = vim.fn.fnamemodify(filepath, ':p')
+        local bufnr = -1
+        for _, b in ipairs(vim.api.nvim_list_bufs()) do
+          if vim.api.nvim_buf_get_name(b) == abs then
+            bufnr = b
+            break
+          end
+        end
         local valid_buf = bufnr ~= -1 and vim.api.nvim_buf_is_valid(bufnr)
 
         items[#items + 1] = {

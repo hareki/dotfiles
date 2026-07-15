@@ -70,7 +70,6 @@ return {
 
       return {
         picker = 'snacks.picker',
-        picker_title = 'Debug Prints',
         highlight_lines = false,
         filetypes = (function()
           local fts = {}
