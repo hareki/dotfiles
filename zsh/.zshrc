@@ -19,6 +19,11 @@ __zsh_config_dir=~/.config/zsh
 source $__zsh_config_dir/plugins.zsh
 _evalcache /opt/homebrew/bin/brew shellenv
 
+# Restore shims precedence so same-name wrappers win over Homebrew binaries
+path=(~/.local/bin/shims $path)
+# Remove duplicates
+typeset -U path
+
 # ==== Load configuration files, order matters ====
 for cfg in aliases vi-mode compdef keymaps options evals; do
   source $__zsh_config_dir/$cfg.zsh

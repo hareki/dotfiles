@@ -17,4 +17,4 @@ alias fdt='fd --type dir --hidden --exclude .git'
 alias fd='gtimeout 5s fd'
 
 # [[ Append commands to use in non-interactive shells ]]
-export PATH="$HOME/.local/bin/shims:$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+path=(~/.local/bin/shims ~/.local/bin ~/.local/share/mise/shims $path)

@@ -1,0 +1,8 @@
+#!/bin/sh
+# Claude Code keeps whatever cursor style is active at launch,
+# making each launch path look different. Force blinking block here.
+
+# Only emit when stdout is a terminal, so piped/captured runs
+# don't get escape bytes mixed into their output
+[ -t 1 ] && printf '\033[1 q'
+exec /opt/homebrew/bin/claude "$@"

@@ -7,9 +7,7 @@ return {
   }),
 
   {
-    'coder/claudecode.nvim',
-    -- TODO: remove this when the focus management is fixed
-    commit = '102d835c964069c9c5e37abaf05ae4f9c3ee6f00',
+    'hareki/claudecode.nvim',
     cmd = 'ClaudeCode',
     dependencies = { 'hareki/snacks.nvim' },
     keys = {
@@ -49,9 +47,10 @@ return {
     },
 
     opts = function()
-      local size = UI.layout.popup('full')
+      local size = UI.layout.popup_fn('full')
 
       return {
+        focus_after_send = true,
         terminal = {
           --- @module "snacks"
           --- @type snacks.win.Config | {}
