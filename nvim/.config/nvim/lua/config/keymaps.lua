@@ -34,7 +34,7 @@ local function scroll_center(motion)
   end
 end
 
--- Clean up Snacks keymaps picker a little
+-- Clean up unused keymaps
 for _, key in ipairs({
   ']a',
   '[a',
@@ -122,13 +122,16 @@ map('v', '<', '<gv', { desc = 'Indent Left' })
 map('v', '>', '>gv', { desc = 'Indent Right' })
 
 -- Better up/down
-map(
-  { 'n', 'x' },
-  '<Down>',
-  "v:count == 0 ? 'gj' : 'j'",
-  { desc = 'Down', expr = true, silent = true }
-)
-map({ 'n', 'x' }, '<Up>', "v:count == 0 ? 'gk' : 'k'", { desc = 'Up', expr = true, silent = true })
+-- Uses normal! (bypasses user mappings) since 'j'/'k' might be remapped for other purposes
+map({ 'n', 'x' }, '<Down>', function()
+  local motion = vim.v.count1 == 1 and 'gj' or (vim.v.count1 .. 'j')
+  vim.cmd.normal({ args = { motion }, bang = true })
+end, { desc = 'Down', silent = true })
+
+map({ 'n', 'x' }, '<Up>', function()
+  local motion = vim.v.count1 == 1 and 'gk' or (vim.v.count1 .. 'k')
+  vim.cmd.normal({ args = { motion }, bang = true })
+end, { desc = 'Up', silent = true })
 
 map('n', 'yow', '<cmd>setlocal wrap!<cr>', { desc = 'Toggle Line Wrap' })
 

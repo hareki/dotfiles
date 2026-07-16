@@ -81,7 +81,7 @@ nvim-tree-lua/
 
 ## Forks (author = hareki)
 
-- 18 minimal-diff forks; updated via [wei/pull](https://github.com/wei/pull)
+- 19 minimal-diff forks; updated via [wei/pull](https://github.com/wei/pull)
 - Features toggleable — disabling custom bits reverts to upstream behavior
 - Enable unified UX by exposing layout hooks, focus toggles, preview coordination, UI tweaks and more.
 

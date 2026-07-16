@@ -66,6 +66,12 @@ return {
       })
       vim.list_extend(opts.spec, desc_override_specs)
 
+      -- <auto> installs triggers for every prefix except single-letter builtins;
+      -- plugins needing a single-letter prefix (e.g. Mini Surround's `l`) contribute a
+      -- manual trigger via UI.which_key({ triggers = ... }). Order among triggers is irrelevant.
+      opts.triggers = opts.triggers or {}
+      table.insert(opts.triggers, { '<auto>', mode = 'nxso' })
+
       -- Plugin > filetype > pattern
       -- Elements come first have higher priority when multiple patterns match
       -- Plugin-specific rules are defined in their respective plugin files via UI.which_key()
