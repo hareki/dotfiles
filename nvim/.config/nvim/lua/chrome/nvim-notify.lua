@@ -8,12 +8,12 @@ return {
     specs = { '<leader>u', group = 'Notification' },
     rules = {
       {
-        pattern = 'dismiss all',
+        pattern = prefix:lower() .. 'dismiss all',
         icon = Conf.icons.editor.DISMISS_NOTIFICATION,
         color = 'yellow',
       },
       {
-        pattern = 'show history',
+        pattern = prefix:lower() .. 'show history',
         icon = Conf.icons.editor.SHOW_NOTIFICATION,
         color = 'yellow',
       },
