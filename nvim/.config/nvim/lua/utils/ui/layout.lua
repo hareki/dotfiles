@@ -84,8 +84,10 @@ function M.compute_size(size, with_border)
 end
 
 --- Compute width/height for a side panel or side preview size preset
+--- @overload fun(category: 'side_panel', variant: 'sm'|'md'|'lg', with_border?: boolean): integer, integer
+--- @overload fun(category: 'side_preview', variant: 'md', with_border?: boolean): integer, integer
 --- @param category 'side_panel' | 'side_preview' Size category in config.size
---- @param variant 'sm' | 'md' | 'lg' Variant key within the category
+--- @param variant string Variant key within the category
 --- @param with_border? boolean Whether to add 2 for border (default false)
 --- @return integer width Width in columns
 --- @return integer height Height in rows

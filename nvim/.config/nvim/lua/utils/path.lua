@@ -2,11 +2,18 @@
 local M = {}
 
 --- Get the initial working directory path
---- Returns the CWD set at startup (matches directory passed in neovim args).
+--- Returns the directory passed as the single neovim argument, or the startup CWD.
 --- @return string path The initial working directory path
 function M.get_initial_path()
-  -- We always set the cwd to match what's passed in neovim args if it's a directory.
-  -- See lua/core/auto-session.lua
+  -- The cwd only catches up to a directory argument at VimEnter
+  -- (lua/core/auto-session.lua), so resolve the argument itself.
+  if vim.fn.argc() == 1 then
+    local arg = vim.fn.argv(0) --[[@as string]]
+    local stat = vim.uv.fs_stat(arg)
+    if stat and stat.type == 'directory' then
+      return vim.fs.normalize(vim.fn.fnamemodify(arg, ':p'))
+    end
+  end
   return vim.uv.cwd() or vim.fn.getcwd()
 end
 
