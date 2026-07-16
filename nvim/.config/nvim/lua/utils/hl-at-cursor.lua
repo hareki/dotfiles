@@ -187,7 +187,6 @@ local function open_popup(lines, row0, col0)
   vim.bo[buf].bufhidden = 'wipe'
   vim.bo[buf].buftype = 'nofile'
   vim.bo[buf].modifiable = false
-  vim.bo[buf].syntax = 'off' -- avoid legacy syntax racing TS
 
   local maxw = 0
   for _, s in ipairs(lines) do
@@ -210,6 +209,8 @@ local function open_popup(lines, row0, col0)
   })
 
   vim.bo[buf].filetype = 'markdown'
+  -- avoid legacy syntax racing TS; must follow the ft change, whose cascade resets 'syntax'
+  vim.bo[buf].syntax = 'off'
   vim.wo[win].conceallevel = 2
   vim.wo[win].wrap = false
   vim.wo[win].signcolumn = 'no'
@@ -298,7 +299,9 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
     close_popup()
     vim.schedule(function()
       local esc = vim.api.nvim_replace_termcodes('<Esc>', true, false, true)
-      vim.api.nvim_feedkeys(esc, 'n', false)
+      -- 'm' (remap) so the global <Esc> mapping (Clear Highlight) runs; the popup's
+      -- buffer-local <Esc> is already deleted by close_popup, so this cannot recurse
+      vim.api.nvim_feedkeys(esc, 'm', false)
     end)
   end
 

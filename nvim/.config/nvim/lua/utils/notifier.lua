@@ -13,9 +13,12 @@ local M = {}
 --- @alias utils.notifier.Message string | string[] | utils.notifier.MessageChunk[]
 
 -- Per-id notification state. Only populated when opts.id is set, since only
--- id'd notifications are ever replaced (and thus need their old autocmds cleaned
--- up). Notifications without an id rely on the on_close closure for cleanup.
---- @type table<string, { handle: any, autocmd_id: integer? }>
+-- id'd notifications are ever replaced. nvim-notify re-renders a replaced
+-- notification without re-firing on_open, so the replacement's closures never
+-- see the window: the surviving FileType autocmd and on_close reach the current
+-- highlighter/buffer through this table instead. Notifications without an id
+-- rely on the on_close closure alone.
+--- @type table<string, { handle: any, autocmd_id: integer?, apply_highlight: fun(win: integer), buf: integer? }>
 local notif_state = {}
 local highlight_ns = vim.api.nvim_create_namespace('trouble_notify_hl')
 
@@ -175,14 +178,19 @@ function M.notify(msg, opts)
           return
         end
 
-        apply_highlight(win)
+        -- A replace re-render must use the replacement's highlighter, which
+        -- only lives in notif_state (this closure predates it)
+        local current = opts.id and notif_state[opts.id]
+        local highlight = current and current.apply_highlight or apply_highlight
+        highlight(win)
       end,
       desc = 'Reapply Notifier Highlighting for Duplicate Messages',
     })
 
-    -- Track autocmd in shared state for replace-path cleanup (id'd notifications only)
+    -- Track autocmd/buffer in shared state for the replace path (id'd notifications only)
     if opts.id and notif_state[opts.id] then
       notif_state[opts.id].autocmd_id = autocmd_id
+      notif_state[opts.id].buf = buf
     end
 
     if user_on_open then
@@ -196,15 +204,21 @@ function M.notify(msg, opts)
   end
 
   local function on_close()
-    if autocmd_id then
-      pcall(vim.api.nvim_del_autocmd, autocmd_id)
+    -- A replaced notification never ran merged_on_open, so its autocmd_id and
+    -- notif_buf locals are nil; fall back to the values inherited through state
+    local state = opts.id and notif_state[opts.id]
+
+    local active_autocmd = autocmd_id or (state and state.autocmd_id)
+    if active_autocmd then
+      pcall(vim.api.nvim_del_autocmd, active_autocmd)
       autocmd_id = nil
     end
 
     -- Each notification gets a fresh buffer; without eviction its
     -- render-markdown entries would outlive it for the whole session
-    if is_markdown and notif_buf then
-      render_markdown_evict.evict(notif_buf)
+    local buf = notif_buf or (state and state.buf)
+    if is_markdown and buf then
+      render_markdown_evict.evict(buf)
       notif_buf = nil
     end
 
@@ -213,14 +227,18 @@ function M.notify(msg, opts)
     end
   end
 
-  -- Clean up old autocmd if we're replacing a notification
-  local replace_handle
+  -- When replacing a still-open notification, nvim-notify re-renders its buffer
+  -- without re-firing on_open, so the previous notification's FileType autocmd is
+  -- the only hook left: keep it alive and swap in this call's highlighter before
+  -- vim.notify, whose re-render may fire FileType synchronously
+  local replace_handle, inherited
   if supports_state_tracking and opts.id and notif_state[opts.id] then
     local prev = notif_state[opts.id]
     if is_notify_record(prev.handle) then
       replace_handle = prev.handle
-    end
-    if prev.autocmd_id then
+      prev.apply_highlight = apply_highlight
+      inherited = prev
+    elseif prev.autocmd_id then
       pcall(vim.api.nvim_del_autocmd, prev.autocmd_id)
     end
   end
@@ -233,7 +251,12 @@ function M.notify(msg, opts)
   })
 
   if supports_state_tracking and opts.id and is_notify_record(ret) then
-    notif_state[opts.id] = { handle = ret, autocmd_id = autocmd_id }
+    notif_state[opts.id] = {
+      handle = ret,
+      autocmd_id = autocmd_id or (inherited and inherited.autocmd_id),
+      apply_highlight = apply_highlight,
+      buf = notif_buf or (inherited and inherited.buf),
+    }
   elseif opts.id then
     notif_state[opts.id] = nil
   end
