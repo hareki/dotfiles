@@ -66,28 +66,28 @@ return {
         function()
           debugprint_ops.jump_prev_debug_print()
         end,
-        desc = prefix .. 'Jump to Previous Print',
+        desc = prefix .. 'Previous Print',
       },
       {
         ']g',
         function()
           debugprint_ops.jump_next_debug_print()
         end,
-        desc = prefix .. 'Jump to Next Print',
+        desc = prefix .. 'Next Print',
       },
       {
         '[G',
         function()
           debugprint_ops.jump_first_debug_print()
         end,
-        desc = prefix .. 'Jump to First Print',
+        desc = prefix .. 'First Print',
       },
       {
         ']G',
         function()
           debugprint_ops.jump_last_debug_print()
         end,
-        desc = prefix .. 'Jump to Last Print',
+        desc = prefix .. 'Last Print',
       },
     },
 

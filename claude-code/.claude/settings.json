@@ -1,5 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "EDITOR": "nvim",
+    "NVIM_NO_STATUSLINE": "1"
+  },
   "permissions": {
     "allow": [
       "Agent",
