@@ -48,7 +48,6 @@ function M.whichkey(opts)
     { 'd', desc = 'Digit(s)' },
     { 'f', desc = 'Function' },
     { 'g', desc = 'Entire File' },
-    { 'i', desc = 'Indent' },
     { 'o', desc = 'Block, Conditional, Loop' },
     { 'q', desc = 'Quote `"\'' },
     { 't', desc = 'Tag' },

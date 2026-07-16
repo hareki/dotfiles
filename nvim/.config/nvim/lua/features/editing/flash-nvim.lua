@@ -27,6 +27,26 @@ return {
         desc = prefix .. 'Till Char',
       },
       {
+        'F',
+        mode = { 'n', 'x' },
+        desc = prefix .. 'Find Char Backwards',
+      },
+      {
+        'T',
+        mode = { 'n', 'x' },
+        desc = prefix .. 'Till Char Backwards',
+      },
+      {
+        ';',
+        mode = { 'n', 'x' },
+        desc = prefix .. 'Repeat Char Motion',
+      },
+      {
+        ',',
+        mode = { 'n', 'x' },
+        desc = prefix .. 'Repeat Char Motion Reversed',
+      },
+      {
         's',
         mode = { 'n', 'x', 'o' },
         function()

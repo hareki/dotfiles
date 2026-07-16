@@ -1,6 +1,6 @@
 return {
   UI.which_key({
-    specs = { '<leader>H', group = 'Pin File', mode = { 'n', 'v' } },
+    specs = { '<leader>H', group = 'Pin File' },
     rules = { pattern = 'pin', icon = Conf.icons.tools.PIN, color = 'yellow' },
   }),
 
@@ -140,7 +140,6 @@ return {
         ADD = refresh_component,
         REMOVE = refresh_component,
         REPLACE = refresh_component,
-        REORDER = refresh_component,
         LIST_CHANGE = refresh_component,
       })
     end,

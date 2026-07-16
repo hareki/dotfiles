@@ -217,6 +217,11 @@ end
 --- Toggle focus between nvim-tree and preview window
 --- @return nil
 function M.toggle_focus()
+  -- No instance exists until the first preview has been opened
+  if not manager.instance then
+    return
+  end
+
   manager.instance:toggle_focus()
 end
 

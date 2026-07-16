@@ -13,20 +13,6 @@ function M.noautocmd(fn)
   end
 end
 
---- Extend multiple arrays into a single flattened array
---- @param ... table[] Variable number of arrays to concatenate
---- @return table result A new array containing all elements from the input arrays
-function M.list_extend(...)
-  local result = {}
-  for _, keymap_array in ipairs({ ... }) do
-    if keymap_array then
-      vim.list_extend(result, keymap_array)
-    end
-  end
-
-  return result
-end
-
 --- Check if a window is a floating window
 --- @param win integer Window handle (0 for current)
 --- @return boolean True if the window is floating
@@ -43,7 +29,9 @@ local function repaint_render_markdown(win_id)
 
   M.noautocmd(function()
     vim.api.nvim_win_call(win_id, function()
-      render_md.enable()
+      -- buf_enable scopes to the float's buffer; enable() would flip the
+      -- plugin's global state and force-render every attached buffer
+      render_md.buf_enable()
     end)
   end)
 end

@@ -292,7 +292,13 @@ end
 function M.inspect(...)
   local parts = {}
   if select('#', ...) > 0 then
-    local obj = select('#', ...) == 1 and ... or { ... }
+    -- Explicit branch: `cond and ... or { ... }` would misroute a falsy single arg
+    local obj
+    if select('#', ...) == 1 then
+      obj = ...
+    else
+      obj = { ... }
+    end
     parts[1] = '```lua\n'
     parts[2] = vim.inspect(obj)
     parts[3] = '\n```'

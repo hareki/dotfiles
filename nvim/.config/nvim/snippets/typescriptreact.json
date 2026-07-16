@@ -6,9 +6,9 @@
       "  ${2:}",
       "};",
       "",
-      "export function ${1:${TM_FILENAME_BASE}} ({${3:}}:${1:${TM_FILENAME_BASE}}Props) {",
+      "export function ${1:${TM_FILENAME_BASE}}({${3:}}: ${1:${TM_FILENAME_BASE}}Props) {",
       "  return <h2>${1:${TM_FILENAME_BASE}}</h2>;",
-      "};"
+      "}"
     ],
     "description": "Exported Functional Component"
   }

@@ -46,7 +46,7 @@ opt.shiftwidth = 2 -- Number of spaces to use for each step of (auto)indent
 opt.tabstop = 2 -- Number of spaces tabs count for
 opt.softtabstop = 2 -- Number of spaces tabs count for while performing editing operations
 opt.expandtab = true -- Use spaces instead of tabs
-opt.autoread = true -- Automatically read file changes from disk, also required for opencode.nvim `events.reload`
+opt.autoread = true -- Automatically read file changes from disk (e.g. edits made by claudecode.nvim)
 opt.showtabline = 0 -- Always hide the tabline
 opt.linebreak = true -- Wrap words, not characters (mid-word wrapping) when wrap mode is on
 
@@ -80,12 +80,12 @@ opt.confirm = true
 opt.mousemoveevent = true
 
 opt.guicursor = table.concat({
-  -- Normal & Visual ⇒ solid block that starts blinking after 700 ms
+  -- Normal & Visual ⇒ solid block, blinks immediately (blinkwait0)
   'n-v:block-blinkwait0-blinkon400-blinkoff250',
-  -- Insert & Command-line ⇒ 25-cell vertical bar, blinks immediately
+  -- Insert & Command-line ⇒ 25%-width vertical bar, same blink timing
   'i-c-ci-ve:ver25-blinkwait0-blinkon400-blinkoff250',
-  -- Replace modes ⇒ 20-cell underline, same blink timing
+  -- Replace modes ⇒ 20%-height underline, same blink timing
   'r-cr:hor20-blinkwait0-blinkon400-blinkoff250',
-  -- Operator-pending ⇒ 50-cell underline, no blink (steady)
+  -- Operator-pending ⇒ 50%-height underline, no blink (steady)
   'o:hor50',
 }, ',')

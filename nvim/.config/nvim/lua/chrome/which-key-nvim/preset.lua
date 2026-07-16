@@ -210,11 +210,6 @@ M.g = {
   { 'gx', desc = 'Open File with System App' },
 }
 
-M.lsp = {
-  preset = true,
-  mode = { 'n' },
-}
-
 local keymap_registry = require('config.keymap-registry')
 M.desc_overrides = keymap_registry.DESC_OVERRIDES
 
@@ -227,7 +222,6 @@ function M.setup()
   wk.add(M.z)
   wk.add(M.nav)
   wk.add(M.g)
-  wk.add(M.lsp)
 end
 
 return M

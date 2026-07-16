@@ -56,7 +56,7 @@ for _, key in ipairs({
   pcall(del, 'n', key)
 end
 
-map('n', 'Q', '<cmd>q<cr>', { desc = 'Close Buffer' })
+map('n', 'Q', '<cmd>q<cr>', { desc = 'Close Window' })
 
 -- Fall back to native <CR> in nomodifiable buffers (help, man, checkhealth, ...),
 -- where feeding `a` would raise E21
@@ -89,14 +89,14 @@ map({ 'n', 'i' }, '<leader>F', function()
   })
 end, { desc = 'Format' })
 
--- Mapped from Ctrl+Shift+S in ghostty config
+-- Mapped from Cmd+Shift+S in ghostty config
 -- Test the keymap Neovim will receive with
 -- :echo keytrans(getcharstr())
 map({ 'n', 'i' }, '<F40>', function()
   load_style_enforcers().run_all()
 end, { desc = 'Format and Save All' })
 
--- Mapped to Ctrl+Shift+W in ghostty config
+-- Mapped to Cmd+Shift+W in ghostty config
 -- Test the keymap Neovim will receive with
 -- :echo keytrans(getcharstr())
 map({ 'i', 'x', 'n', 's' }, '<C-S-End>', function()

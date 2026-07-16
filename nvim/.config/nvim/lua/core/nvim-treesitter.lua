@@ -74,9 +74,7 @@ return {
     end, opts.ensure_installed or {})
 
     if #missing > 0 then
-      treesitter.install(missing, { summary = true }):await(function()
-        treesitter.get_installed('parsers') -- refresh installed languages
-      end)
+      treesitter.install(missing, { summary = true })
     end
 
     -- https://morizbuesing.com/blog/mdx-support-in-nvchad/

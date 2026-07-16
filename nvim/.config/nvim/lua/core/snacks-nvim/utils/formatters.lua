@@ -83,20 +83,4 @@ function M.buffer_format(item, picker)
   return ret
 end
 
---- Format function for buffer select picker (index + buffer format)
---- Adds index number prefix to buffer_format output.
---- @param item snacks.picker.Item The picker item
---- @param picker snacks.Picker The picker instance
---- @return snacks.picker.Highlight[] highlights Array of highlight segments
-function M.buffer_select_format(item, picker)
-  local count = picker:count()
-  local ret = {} --- @type snacks.picker.Highlight[]
-  local idx = tostring(item.idx)
-  idx = (' '):rep(#tostring(count) - #idx) .. idx
-  ret[#ret + 1] = { idx .. '.', 'SnacksPickerIdx' }
-  ret[#ret + 1] = { ' ' }
-  vim.list_extend(ret, M.buffer_format(item, picker))
-  return ret
-end
-
 return M

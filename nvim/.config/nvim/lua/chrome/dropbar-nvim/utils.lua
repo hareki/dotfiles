@@ -4,12 +4,6 @@ local M = {}
 local IGNORED_FILETYPES = { help = true, trouble = true, ['grug-far'] = true }
 local IGNORED_BUFTYPES = { terminal = true }
 
---- Check if current window is in claude diff view
---- @return boolean
-function M.is_in_claude_diff_view()
-  return vim.b.claudecode_diff_new_win ~= nil
-end
-
 --- Check if buffer has an ignored filetype
 --- @param buf integer Buffer number
 --- @return boolean

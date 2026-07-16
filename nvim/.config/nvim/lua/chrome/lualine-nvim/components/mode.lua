@@ -22,7 +22,7 @@ end
 
 --- @param mode string
 function M.inverse_mode_hl(mode)
-  -- Fallback for unmapped modes (e.g. terminal-normal 'NTERMINAL', insert-pending 'niI')
+  -- Fallback for raw codes lualine leaves unmapped (e.g. cmdline overstrike 'cr');
   -- without this, an unmapped mode would crash the statusline on every redraw.
   local c = mode_hl[mode] or mode_hl.NORMAL
   return { fg = c.bg, bg = c.fg, gui = c.gui }

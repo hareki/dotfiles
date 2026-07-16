@@ -98,6 +98,13 @@ return {
       {
         'dd',
         function()
+          -- Trimming only makes sense for a single line; with a count, fall
+          -- back to native linewise semantics so 3dd still deletes 3 lines
+          if vim.v.count1 > 1 then
+            vim.cmd.normal({ args = { vim.v.count1 .. 'dd' }, bang = true })
+            return
+          end
+
           vim.cmd.normal({ args = { [[^dg_]] }, bang = true }) -- Delete from first nonblank to last nonblank
           vim.cmd.normal({ args = { [["_dd]] }, bang = true }) -- Remove remaining indent + newline (blackhole)
         end,

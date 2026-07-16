@@ -44,8 +44,15 @@ aucmd('BufReadPost', {
     local exclude = { 'gitcommit' }
     local buf = event.buf
 
+    -- BufReadPost runs before filetype detection (this autocmd is registered
+    -- ahead of filetypedetect), so vim.bo.filetype is still empty here
+    local ft = vim.bo[buf].filetype
+    if ft == '' then
+      ft = vim.filetype.match({ buf = buf }) or ''
+    end
+
     -- Skip if the filetype is excluded or we've already restored once
-    if vim.list_contains(exclude, vim.bo[buf].filetype) or vim.b[buf].restored_last_position then
+    if vim.list_contains(exclude, ft) or vim.b[buf].restored_last_position then
       return
     end
 

@@ -60,13 +60,6 @@ function M.toggle_preview_focus(picker)
   end
 end
 
---- Select the current item in the picker list
---- @param picker snacks.Picker The picker instance
---- @return nil
-function M.select(picker)
-  picker.list:select()
-end
-
 --- Send picker results to Trouble for persistent viewing
 --- Handles todo_comments source specially by opening Trouble's todo view.
 --- @param picker snacks.Picker The picker instance

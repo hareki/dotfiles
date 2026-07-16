@@ -113,7 +113,6 @@ return {
   },
   {
     'hareki/nvim-tree.lua',
-    version = '*',
     dependencies = {
       'echasnovski/mini.icons',
     },
@@ -287,7 +286,7 @@ return {
 
           map('n', '<Tab>', function()
             tree.toggle_focus()
-          end, 'Preview')
+          end, 'Toggle Preview Focus')
 
           map('n', 'q', tree.close_all, 'Close')
           map('n', 'B', tree.toggle_preview, 'Toggle Preview')

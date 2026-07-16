@@ -38,7 +38,7 @@ lazy.setup({
   },
   checker = { enabled = false, notify = false },
   defaults = {
-    lazy = true, -- Don't eaglerly load plugins by default
+    lazy = true, -- Don't eagerly load plugins by default
     version = false, -- Always use the latest git commit
   },
   performance = {

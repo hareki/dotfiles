@@ -28,7 +28,12 @@ return {
     {
       '<leader>ft',
       function()
-        Snacks.picker.todo_comments({ keywords = { 'TODO', 'FIXME', 'HACK' }, show_pattern = false })
+        Snacks.picker.todo_comments({
+          -- The snacks source builds the regex verbatim from these strings
+          -- (no alias expansion), so FIX and its alts must be listed explicitly
+          keywords = { 'TODO', 'FIX', 'FIXME', 'BUG', 'FIXIT', 'ISSUE', 'HACK' },
+          show_pattern = false,
+        })
       end,
       desc = 'Find Todo/Fix/Hack Comments',
     },

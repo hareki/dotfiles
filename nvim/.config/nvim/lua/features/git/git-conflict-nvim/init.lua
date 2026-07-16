@@ -245,14 +245,20 @@ return {
           end
 
           if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
+            -- Resolved fires on every parse (with default_mappings = false the
+            -- fork's mappings flag is never set), so only undo what Detected did
+            local was_conflicted = vim.b[bufnr].git_conflict
             vim.b[bufnr].git_conflict = nil
-            if package_utils.is_loaded('nvim-colorizer.lua') then
-              colorizer.attach_to_buffer(bufnr)
-            end
-            vim.diagnostic.enable(true, { bufnr = bufnr })
 
-            for _, win in ipairs(vim.fn.win_findbuf(bufnr)) do
-              vim.wo[win].winhighlight = ''
+            if was_conflicted then
+              if package_utils.is_loaded('nvim-colorizer.lua') then
+                colorizer.attach_to_buffer(bufnr)
+              end
+              vim.diagnostic.enable(true, { bufnr = bufnr })
+
+              for _, win in ipairs(vim.fn.win_findbuf(bufnr)) do
+                vim.wo[win].winhighlight = ''
+              end
             end
           end
         end,

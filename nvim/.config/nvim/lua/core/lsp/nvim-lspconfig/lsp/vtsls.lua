@@ -26,7 +26,6 @@ return {
 
     return {
       settings = {
-        complete_function_calls = false,
         typescript = ts_config,
         javascript = js_config,
         vtsls = {

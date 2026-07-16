@@ -101,7 +101,7 @@ M.default = {
     },
 
     cmdline = {
-      min_keyword_length = utils.cmdline_min_keyword_length(0),
+      min_keyword_length = utils.cmdline_min_keyword_length(),
       max_items = 6,
     },
 
@@ -110,7 +110,7 @@ M.default = {
       name = 'cmdline_history',
       module = 'blink.compat.source',
       max_items = 6,
-      min_keyword_length = utils.cmdline_min_keyword_length(0),
+      min_keyword_length = utils.cmdline_min_keyword_length(),
       transform_items = history.transform_items,
     },
 

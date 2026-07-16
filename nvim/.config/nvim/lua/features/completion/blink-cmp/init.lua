@@ -3,6 +3,7 @@ return {
     return {
       BlinkCmpKindRenderMD = { fg = palette.text },
       BlinkCmpKindHistory = { fg = palette.mauve },
+      BlinkCmpKindSpell = { fg = palette.teal },
       BlinkCmpLabelMatch = { fg = palette.blue },
       BlinkCmpKindRipgrepGit = { fg = palette.red },
       BlinkCmpLabel = { fg = palette.text },

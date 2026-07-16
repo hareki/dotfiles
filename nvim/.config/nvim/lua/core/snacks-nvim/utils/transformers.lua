@@ -19,7 +19,7 @@ end
 local function query_spec_desc(lhs, mode, buffer)
   local wk_config = require('which-key.config')
 
-  -- Traverse backward
+  -- First matching spec wins
   for _, mapping in ipairs(wk_config.mappings) do
     if
       mapping.lhs == lhs
@@ -81,18 +81,6 @@ function M.keymap_transform(item)
         return false
       end
     end
-  end
-
-  return item
-end
-
---- Transform function for buffer select picker (index + buffer format)
---- Adds index number to the search text so it can be matched
---- @param item snacks.picker.Item The picker item to transform
---- @return snacks.picker.Item item The transformed item with index prepended to text
-function M.buffer_select_transform(item)
-  if item.idx and item.text then
-    item.text = item.idx .. ' ' .. item.text
   end
 
   return item

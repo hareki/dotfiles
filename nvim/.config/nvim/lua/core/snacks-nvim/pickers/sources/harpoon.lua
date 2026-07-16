@@ -39,7 +39,10 @@ M.show = function(user_opts)
           name = vim.fs.basename(filepath),
           buftype = valid_buf and vim.bo[bufnr].buftype or '',
           filetype = valid_buf and vim.bo[bufnr].filetype or '',
-          text = filepath,
+          -- Index prefix is built here, not in a transform: snacks re-runs
+          -- transforms over these same item tables on every find(), so a
+          -- mutating transform would re-prefix the text each time
+          text = harpoon_idx .. ' ' .. filepath,
         }
       end
     end
@@ -63,15 +66,6 @@ M.show = function(user_opts)
     return ret
   end
 
-  local function harpoon_transform(item)
-    if item.harpoon_idx and item.text then
-      item.text = item.harpoon_idx .. ' ' .. item.text
-    elseif item.idx and item.text then
-      item.text = item.idx .. ' ' .. item.text
-    end
-    return item
-  end
-
   local items = build_harpoon_items()
   if vim.tbl_isempty(items) then
     Notifier.info('Pin list is empty')
@@ -83,7 +77,6 @@ M.show = function(user_opts)
     items = items,
     source = 'harpoon',
     format = harpoon_format,
-    transform = harpoon_transform,
   }, user_opts or {})
 
   local function remove_harpoon_item(picker)

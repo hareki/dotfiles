@@ -6,7 +6,7 @@ local M = {}
 --- @return string path The initial working directory path
 function M.get_initial_path()
   -- We always set the cwd to match what's passed in neovim args if it's a directory.
-  -- See plugins/editor/auto-session.lua
+  -- See lua/core/auto-session.lua
   return vim.uv.cwd() or vim.fn.getcwd()
 end
 

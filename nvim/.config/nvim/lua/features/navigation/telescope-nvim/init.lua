@@ -46,12 +46,6 @@ return {
       local default_get_status_text = telescope_config.values.get_status_text
 
       return {
-        extensions = {
-          undo = {
-            use_delta = true,
-            saved_only = true,
-          },
-        },
         defaults = {
           prompt_prefix = Conf.picker.PROMPT_PREFIX,
           selection_caret = ' ',

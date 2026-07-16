@@ -247,7 +247,6 @@ return {
             list_half_page_up = defer_scroll_half_page('up'),
             toggle_preview_focus = actions.toggle_preview_focus,
             toggle_preview = actions.toggle_preview,
-            select = actions.select,
             snacks_to_trouble = actions.snacks_to_trouble,
           },
 

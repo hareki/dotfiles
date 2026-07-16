@@ -104,7 +104,6 @@ return {
         -- from vim.o.laststatus here, init() may have temporarily set it to 0
         globalstatus = true,
         refresh = { refresh_time = 33 }, -- ~30fps
-        disabled_filetypes = { statusline = { 'dashboard', 'netrw' } },
         padding = { left = 0, right = 0 },
         section_separators = { left = '', right = '' },
         component_separators = { left = '', right = '' },
