@@ -1,6 +1,12 @@
 local prefix = 'l'
 
 return {
+  UI.catppuccin(function()
+    return {
+      MiniSurround = { link = 'IncSearch' },
+    }
+  end, 'mini.surround'),
+
   UI.which_key({
     specs = { prefix, group = 'Mini Surround', mode = { 'n', 'x' } },
     rules = { pattern = 'mini.surround', icon = Conf.icons.tools.SURROUND, color = 'purple' },
@@ -15,6 +21,7 @@ return {
     opts = function()
       return {
         n_lines = 100,
+        highlight_duration = 1000,
         mappings = {
           add = prefix .. 'a',
           delete = prefix .. 'd',
