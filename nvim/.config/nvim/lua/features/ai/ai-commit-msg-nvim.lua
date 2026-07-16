@@ -13,8 +13,10 @@ return {
         anthropic = {
           model = 'claude-haiku-4-5',
           max_tokens = 10000, -- Required by the Anthropic Messages API
+
           -- The plugin's default pricing table doesn't cover this model, and
           -- cost_display silently shows nothing without a matching entry
+          -- https://platform.claude.com/docs/en/about-claude/pricing
           pricing = {
             ['claude-haiku-4-5'] = { input_per_million = 1.00, output_per_million = 5.00 },
           },
