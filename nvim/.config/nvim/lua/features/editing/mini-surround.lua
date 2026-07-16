@@ -1,4 +1,5 @@
-local prefix = 'gs'
+local prefix = 'l'
+
 local mappings = {
   add = prefix .. 'a',
   delete = prefix .. 'd',
