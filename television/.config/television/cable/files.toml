@@ -5,7 +5,7 @@ requirements = ["fd", "bat", "eza", "nvim"]
 
 [ui]
 layout = "portrait"
-input_bar = { header = "Files", prompt = "  " }
+input_bar = { header = "Files", prompt = "  ", border_type = "rounded" }
 
 [source]
 ansi = true

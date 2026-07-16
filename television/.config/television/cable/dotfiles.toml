@@ -5,7 +5,7 @@ requirements = ["fd", "eza", "nvim"]
 
 [ui]
 layout = "landscape"
-input_bar = { header = "Dotfiles", prompt = "  " }
+input_bar = { header = "Dotfiles", prompt = "  ", border_type = "rounded" }
 
 [source]
 command = "fdt '^\\.config$' $HOME/Repositories/personal/dotfiles --exec zsh -c 'ls \"$1\"' _ {}"

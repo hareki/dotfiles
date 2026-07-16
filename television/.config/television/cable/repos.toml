@@ -5,7 +5,7 @@ requirements = ["fd", "eza", "nvim"]
 
 [ui]
 layout = "landscape"
-input_bar = { header = "Repositories", prompt = "  " }
+input_bar = { header = "Repositories", prompt = "  ", border_type = "rounded" }
 
 [source]
 ansi = true
