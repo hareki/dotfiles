@@ -20,7 +20,7 @@ gui:
   fileTreeSortOrder: foldersFirst
   sidePanelWidth: 40
   screenMode: half
-  mainPanelSplitMode: flexible
+  mainPanelSplitMode: horizontal
   switchTabsWithPanelJumpKeys: true
   cursorStyle: 'blinkingBar'
   scrollHeight: 6
