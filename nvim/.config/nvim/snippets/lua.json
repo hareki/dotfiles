@@ -23,10 +23,10 @@
     "prefix": "---",
     "body": [
       "--- ${1:A one-line summary.}",
-      "-- ${2:Description.}$0",
-      "-- @param ${5:name} ${6:type} ${7:Parameter description.}",
-      "-- @return ${3:type} ${4: Description of the returned object.}",
-      "-- @usage ${8:Example about how to use it.}"
+      "-- ${2:Description.}",
+      "-- @param ${3:name} ${4:type} ${5:Parameter description.}",
+      "-- @return ${6:type} ${7:Description of the returned object.}",
+      "-- @usage ${8:Example about how to use it.}$0"
     ],
     "description": "A lua comment with short summary, description, parameters, return, and example."
   }

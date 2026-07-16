@@ -65,9 +65,7 @@ function M.keymap_transform(item)
   local override_desc = override_spec
     and vim.list_contains(override_spec.mode, keymap.mode)
     and override_spec.desc
-  local new_desc = override_desc
-    or keymap.desc
-    or query_spec_desc(keymap.lhs, keymap.mode, keymap.buffer)
+  local new_desc = override_desc or keymap.desc or query_spec_desc(lhs, keymap.mode, keymap.buffer)
 
   item.file = nil -- We're not showing the file column anyway
   item.item.desc = new_desc

@@ -89,11 +89,11 @@ return {
         { pattern = 'keymaps', icon = Conf.icons.editor.KEYMAPS, color = 'orange' },
         { pattern = 'scroll up', icon = Conf.icons.navigation.SCROLL_UP },
         { pattern = 'scroll down', icon = Conf.icons.navigation.SCROLL_DOWN },
+        { pattern = 'code actions', icon = Conf.icons.actions.CODE_ACTION, color = 'yellow' },
         { pattern = 'code', icon = Conf.icons.tools.CODE, color = 'red' },
 
         -- Generic ones, should have lower priority
         { pattern = 'typescript', icon = Conf.icons.ft.TYPESCRIPT, color = 'blue' },
-        { pattern = 'code actions', icon = Conf.icons.actions.CODE_ACTION, color = 'yellow' },
         { pattern = 'lsp', icon = Conf.icons.tools.LSP, color = 'blue' },
         { pattern = 'register', icon = Conf.icons.editor.REGISTER, color = 'yellow' },
         { pattern = 'tab', icon = Conf.icons.misc.TAB, color = 'blue' },
@@ -115,7 +115,9 @@ return {
         { pattern = 'last', icon = Conf.icons.navigation.NEXT },
         { pattern = 'end', icon = Conf.icons.navigation.NEXT },
         { pattern = 'cut', icon = Conf.icons.actions.CUT, color = 'yellow' },
-        { pattern = 'up', icon = Conf.icons.navigation.UP },
+        -- Frontier-anchored to whole-word 'up' so it stops matching 'uppercase' /
+        -- 'group' (the latter would pre-empt the 'cycle' rule below)
+        { pattern = '%f[%a]up%f[%A]', icon = Conf.icons.navigation.UP },
         { pattern = 'low', icon = Conf.icons.navigation.DOWN },
         { pattern = 'down', icon = Conf.icons.navigation.DOWN },
         { pattern = 'right', icon = Conf.icons.navigation.RIGHT },

@@ -31,7 +31,7 @@ end
 function M.icon_color()
   local mode_utils = require('lualine.utils.mode')
   local mode = mode_utils.get_mode()
-  return mode_hl[mode]
+  return mode_hl[mode] or mode_hl.NORMAL
 end
 
 function M.color()

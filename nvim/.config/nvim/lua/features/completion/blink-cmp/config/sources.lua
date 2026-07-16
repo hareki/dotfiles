@@ -16,16 +16,14 @@ local word_paths = {
 }
 
 M.default = {
-  default = vim.tbl_filter(function(s)
-    return s ~= nil
-  end, {
+  default = {
     'lsp',
     'snippets',
     'datword',
     'ripgrep',
     'buffer',
     -- 'minuet',
-  }),
+  },
   per_filetype = {
     lua = { inherit_defaults = true, 'lazydev' },
     markdown = { inherit_defaults = true, 'markdown' },

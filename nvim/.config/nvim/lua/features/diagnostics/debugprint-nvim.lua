@@ -3,6 +3,9 @@ local prefix = 'Debug Prints: '
 --- @module 'debugprint'
 local debugprint = Defer.on_exported_call('debugprint')
 
+--- @module 'debugprint.printtag_operations'
+local debugprint_ops = Defer.on_exported_call('debugprint.printtag_operations')
+
 return {
   UI.which_key({
     specs = { '<leader>?', group = 'Debug' },
@@ -57,6 +60,34 @@ return {
           debugprint.debugprint({})
         end,
         desc = prefix .. 'Put Plain Text Below',
+      },
+      {
+        '[g',
+        function()
+          debugprint_ops.jump_prev_debug_print()
+        end,
+        desc = prefix .. 'Jump to Previous Print',
+      },
+      {
+        ']g',
+        function()
+          debugprint_ops.jump_next_debug_print()
+        end,
+        desc = prefix .. 'Jump to Next Print',
+      },
+      {
+        '[G',
+        function()
+          debugprint_ops.jump_first_debug_print()
+        end,
+        desc = prefix .. 'Jump to First Print',
+      },
+      {
+        ']G',
+        function()
+          debugprint_ops.jump_last_debug_print()
+        end,
+        desc = prefix .. 'Jump to Last Print',
       },
     },
 
