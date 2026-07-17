@@ -58,6 +58,8 @@ return {
       'astro',
       'mermaid',
       'glimmer',
+      'rust',
+      'go',
     },
   },
 
