@@ -58,43 +58,54 @@ usage_color() {
 
 usage_segments=()
 
-# Each segment: label in subtext1, only the number colorized by threshold.
+# Each segment: icon and number both colorized by threshold.
 
 # Context window (always shown, defaults to 0%)
 used=$(echo "$input" | jq -r '.context_window.used_percentage // "0"')
 used_int=${used%.*}
-usage_segments+=("${subtext1}context $(usage_color "$used_int")${used_int}%${reset}")
+usage_segments+=("$(usage_color "$used_int") ${used_int}%${reset}")
 
 # 5h session window — only when present
 session_pct=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
 if [ -n "$session_pct" ]; then
   session_int=${session_pct%.*}
-  usage_segments+=("${subtext1}session $(usage_color "$session_int")${session_int}%${reset}")
+  usage_segments+=("$(usage_color "$session_int")󰥔 ${session_int}%${reset}")
 fi
 
 # 7d week window — only when present
 week_pct=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty')
 if [ -n "$week_pct" ]; then
   week_int=${week_pct%.*}
-  usage_segments+=("${subtext1}week $(usage_color "$week_int")${week_int}%${reset}")
+  usage_segments+=("$(usage_color "$week_int") ${week_int}%${reset}")
 fi
 
-# Model
-model=$(echo "$input" | jq -r '.model.display_name // empty')
-case "$model" in
-  *Opus*)   model_color="$red" ;;
-  *Sonnet*) model_color="$yellow" ;;
-  *Haiku*)  model_color="$green" ;;
-  *Fable*)  model_color="$peach" ;;
-  *)        model_color="$overlay1" ;;
+# Model — short family name inferred from the model id
+# (display_name is verbose, e.g. "Opus 4.8 (1M context)")
+model_id=$(echo "$input" | jq -r '.model.id // empty')
+case "$model_id" in
+  *opus*)   model="Opus";   model_color="$red" ;;
+  *sonnet*) model="Sonnet"; model_color="$yellow" ;;
+  *haiku*)  model="Haiku";  model_color="$green" ;;
+  *fable*)  model="Fable";  model_color="$peach" ;;
+  *)        model=$(echo "$input" | jq -r '.model.display_name // empty'); model_color="$overlay1" ;;
 esac
 
-# Time
-time_str=$(date +"%I:%M:%S %p")
+# Session name — custom name (--name / /rename) when set, otherwise the
+# auto-generated conversation title from Claude Code's session store (by session_id).
+session_name=$(echo "$input" | jq -r '.session_name // empty')
+if [ -z "$session_name" ]; then
+  sid=$(echo "$input" | jq -r '.session_id // empty')
+  if [ -n "$sid" ]; then
+    session_file=$(grep -l "$sid" ~/.claude/sessions/*.json 2>/dev/null | head -1)
+    if [ -n "$session_file" ]; then
+      session_name=$(jq -r 'if .nameSource == "derived" then "new session" else (.name // empty) end' "$session_file" 2>/dev/null)
+    fi
+  fi
+fi
 
 [ -n "$model" ] && printf "${model_color}%s${reset}" "$model"
 
-# Usage group: [context 4% | session 30% | week 21%] — brackets & pipes in subtext1
+# Usage group: [ 4% | 󰥔 30% |  21%] - brackets & pipes in subtext1
 printf " ${subtext1}[${reset}"
 for i in "${!usage_segments[@]}"; do
   [ "$i" -gt 0 ] && printf "${subtext1} | ${reset}"
@@ -105,4 +116,4 @@ printf "${subtext1}]${reset} "
 # printf " ${blue}%s${reset}" "$cwd"
 [ -n "$git_info" ] && printf " ${subtext1}%s${reset}" "$git_info"
 [ -n "$sync" ] && printf "${cyan}%s${reset}" "$sync"
-printf " ${overlay1}%s${reset}" "$time_str"
+[ -n "$session_name" ] && printf " ${overlay1}%s${reset}" "$session_name"
