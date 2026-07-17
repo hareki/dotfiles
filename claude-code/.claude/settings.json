@@ -48,11 +48,10 @@
   "hooks": {
     "Notification": [
       {
-        "matcher": "",
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/hooks/bell.sh"
+            "command": "bash ~/.claude/hooks/bell.sh Funk"
           }
         ]
       }

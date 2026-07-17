@@ -6,4 +6,5 @@
 
 # This is only choice left, a simple sound play
 # Claude needs to execute this, so it can't be a zsh function
-afplay /System/Library/Sounds/Glass.aiff
+# Accepts an optional sound name from /System/Library/Sounds, defaulting to Glass
+afplay "/System/Library/Sounds/${1:-Glass}.aiff"
