@@ -115,4 +115,40 @@ function M.cursor_in_conflict()
   end
 end
 
+--- Whether the buffer still contains a conflict start marker. A cheap
+--- whole-buffer scan used to reconcile a stale `git_conflict` flag.
+--- @param bufnr integer
+--- @return boolean
+function M.buffer_has_conflict(bufnr)
+  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+  for _, line in ipairs(lines) do
+    if line:match('^<<<<<<<') then
+      return true
+    end
+  end
+  return false
+end
+
+--- Reconcile a possibly-stale `git_conflict` flag on a reloaded buffer.
+--- git-conflict.nvim evicts a buffer from its watch list without firing
+--- `GitConflictResolved` when the conflict is resolved outside Neovim (e.g.
+--- `git merge --abort`), leaving `vim.b.git_conflict` stuck true. When a still
+--- flagged buffer no longer has markers, fire `GitConflictResolved` so the
+--- wrapper's own handler runs the full cleanup.
+--- @param bufnr integer? Defaults to the current buffer
+function M.resync_conflict(bufnr)
+  bufnr = bufnr or vim.api.nvim_get_current_buf()
+  if not vim.api.nvim_buf_is_valid(bufnr) then
+    return
+  end
+
+  if vim.b[bufnr].git_conflict and not M.buffer_has_conflict(bufnr) then
+    vim.api.nvim_exec_autocmds('User', {
+      pattern = 'GitConflictResolved',
+      modeline = false,
+      data = { buf = bufnr },
+    })
+  end
+end
+
 return M

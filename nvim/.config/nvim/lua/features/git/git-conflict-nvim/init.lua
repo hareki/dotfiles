@@ -263,6 +263,18 @@ return {
           end
         end,
       })
+
+      -- git-conflict.nvim evicts a buffer from its watch list WITHOUT emitting
+      -- GitConflictResolved when the conflict is resolved/aborted outside Neovim
+      -- (e.g. git merge --abort), so vim.b.git_conflict sticks. On reload
+      -- (:edit! via <A-r>, or autoread on a disk change) re-check the flagged
+      -- buffer and emit Resolved ourselves if the markers are gone.
+      vim.api.nvim_create_autocmd({ 'BufReadPost', 'FileChangedShellPost' }, {
+        group = group,
+        callback = function(event)
+          utils.resync_conflict(event.buf)
+        end,
+      })
     end,
   },
 }
