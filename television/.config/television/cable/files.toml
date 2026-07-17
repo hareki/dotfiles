@@ -9,7 +9,7 @@ input_bar = { header = "Files", prompt = "  ", border_type = "rounded" }
 
 [source]
 ansi = true
-command = "fd -t f --exec eza --icons=always --color=always"
+command = "fd -t f --strip-cwd-prefix --exec eza --icons=always --color=always"
 output = "{strip_ansi|substring:1..}"
 
 [preview]
