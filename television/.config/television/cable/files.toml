@@ -9,17 +9,17 @@ input_bar = { header = "Files", prompt = "  ", border_type = "rounded" }
 
 [source]
 ansi = true
-command = "fd -t f --strip-cwd-prefix --exec eza --icons=always --color=always"
-output = "{strip_ansi|substring:1..}"
+command = "fd -t f -t l --strip-cwd-prefix --hidden -E .git -0 | xargs -0 -r eza --icons=always --color=always --sort=none -1 -d --no-quotes -X"
+output = "{strip_ansi|substring:1..|trim}"
 
 [preview]
 # https://docs.rs/string_pipeline/0.12.0/string_pipeline/
-command = "bat -n --color=always {strip_ansi|substring:1..}"
+command = "bat -n --color=always '{strip_ansi|substring:1..|trim}'"
 
 [keybindings]
 enter = "actions:edit"
 
 [actions.edit]
 description = "Open selected files in editor"
-command = "nvim {strip_ansi|substring:1..}"
+command = "nvim '{strip_ansi|substring:1..|trim}'"
 mode = "execute"
