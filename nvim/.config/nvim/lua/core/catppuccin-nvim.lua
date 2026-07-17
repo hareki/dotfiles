@@ -71,6 +71,9 @@ return {
 
         -- Custom highlight group, shared across dropbar.nvim, snacks.nvim and nvim-telescope
         ListCursorLine = { bg = palette.surface0 },
+
+        ErrorMsg = { fg = palette.text, style = {} },
+        WarningMsg = { fg = palette.text, style = {} },
       },
       lsp_styles = {
         virtual_text = {
