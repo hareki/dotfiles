@@ -125,6 +125,23 @@ return {
             },
             opts = { skip = true },
           },
+
+          -- Unify both "not modifiable" error variants into one concise message:
+          --  - native       "E21: Cannot make changes, 'modifiable' is off"
+          --  - Lua-wrapped  "E5108: ...: Vim:E21: ..." + stack traceback
+          -- Both carry "E21:"; rewrite in place and let noice's default error route display it.
+          {
+            filter = {
+              error = true,
+              cond = function(message)
+                if message:content():find('E21:') then
+                  message:set('Cannot make changes, readonly buffer', 'ErrorMsg')
+                end
+                return false -- Rewrite-only hook; fall through to the default error route
+              end,
+            },
+            opts = {}, -- No view: this route never displays, it only mutates the message
+          },
           {
             filter = {
               event = 'lsp',
