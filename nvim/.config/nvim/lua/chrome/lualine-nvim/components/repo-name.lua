@@ -3,7 +3,7 @@ local M = {}
 
 function M.get()
   local utils = require('utils.git')
-  return utils.get_repo_name()
+  return utils.get_repo_name() or ''
 end
 
 M.icon = Conf.icons.file_tree.FOLDER

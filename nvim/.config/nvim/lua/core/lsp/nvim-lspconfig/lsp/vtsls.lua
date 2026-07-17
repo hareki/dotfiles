@@ -6,7 +6,8 @@ local ts_config = {
   inlayHints = {
     enumMemberValues = { enabled = false },
     functionLikeReturnTypes = { enabled = false },
-    parameterNames = { enabled = false },
+    -- Unlike its boolean siblings, this key is an enum: 'none' | 'literals' | 'all'
+    parameterNames = { enabled = 'none' },
     parameterTypes = { enabled = false },
     propertyDeclarationTypes = { enabled = false },
     variableTypes = { enabled = false },

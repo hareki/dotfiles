@@ -327,10 +327,13 @@ return {
           map('n', '<S-Left>', api.tree.collapse_all, 'Collapse All Nodes')
           map('n', { '<CR>', 'e' }, tree.create_node_action('toggle'), 'Open File/Toggle Folder')
           map('n', 'g?', function()
+            -- Toggle can only work when the tree callback is
+            -- api.tree.toggle_help by identity, which this wrapper breaks
+            -- but I don't use it anyway
             api.tree.toggle_help()
             local nvim_tree_help = require('nvim-tree.help')
             vim.api.nvim_win_set_config(nvim_tree_help.winnr, { border = 'rounded' })
-          end, 'Help')
+          end, 'Open Help')
 
           map('n', '<C-n>', tree.mark_and_next, 'Bookmark and Next')
           map('n', '<C-p>', tree.mark_and_prev, 'Bookmark and Previous')

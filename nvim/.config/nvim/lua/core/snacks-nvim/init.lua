@@ -120,7 +120,7 @@ return {
           function()
             Snacks.picker.help()
           end,
-          desc = 'Find Helps',
+          desc = 'Find Help Tags',
         },
         {
           '<leader>fgb',
@@ -285,8 +285,9 @@ return {
             },
           },
 
-          layout = layouts.preview_below(layout_opts), -- Default layout
+          layout = { cycle = true, preset = 'preview_below' }, -- Default layout
           layouts = {
+            preview_below = layouts.preview_below(layout_opts),
             preview_right = layouts.preview_right(layout_opts),
           },
 
@@ -343,14 +344,10 @@ return {
 
               layout = {
                 preview = false,
-                preset = 'default',
                 layout = {
                   backdrop = false,
                   height = config.sm.height,
                   width = config.sm.width,
-                  -- Neutralize the default preset's min_width=120, which would
-                  -- otherwise floor the function-valued width
-                  min_width = 0,
                   col = config.sm.col,
                   row = config.sm.row,
                 },

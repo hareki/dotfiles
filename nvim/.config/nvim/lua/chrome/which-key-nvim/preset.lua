@@ -206,9 +206,6 @@ M.g = {
   { 'gx', desc = 'Open File with System App' },
 }
 
-local keymap_registry = require('config.keymap-registry')
-M.desc_overrides = keymap_registry.DESC_OVERRIDES
-
 function M.setup()
   local wk = require('which-key')
   wk.add(M.operators)

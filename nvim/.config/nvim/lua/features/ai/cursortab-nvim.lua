@@ -24,8 +24,8 @@ return {
           api_key_env = Conf.cmp.AI_MERCURY_KEY,
         },
         behavior = {
-          idle_completion_delay = 150,
-          text_change_debounce = 150,
+          idle_completion_delay = 100,
+          text_change_debounce = 100,
           ignore_filetypes = { '', 'terminal', 'grug-far' },
         },
       }

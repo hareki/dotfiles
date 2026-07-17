@@ -202,12 +202,6 @@ end
 --- Default options for buffer status component
 local default_options = {
   colored = true,
-  symbols = {
-    current_unsaved = '', -- Will use current_unsaved result directly
-    global_unsaved = '', -- Will use global_unsaved result directly
-    current_conflict = '', -- Will use current_conflict result directly
-    global_conflict = '', -- Will use global_conflict result directly
-  },
 }
 
 --- Apply default colors from palette
