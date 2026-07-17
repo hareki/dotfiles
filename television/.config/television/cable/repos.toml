@@ -1,0 +1,25 @@
+[metadata]
+name = "repos"
+description = "A channel to select repositories"
+requirements = ["fd", "eza", "nvim"]
+
+[ui]
+layout = "landscape"
+input_bar = { header = "Repositories", prompt = "  ", border_type = "rounded" }
+
+[source]
+ansi = true
+command = "EZA_COLORS='di=38;2;205;214;244' fdt --min-depth 2 --max-depth 2 --strip-cwd-prefix --base-directory $HOME/Repositories . --exec eza -d --color=always"
+output = "{strip_ansi}"
+
+[preview]
+command = "eza --tree --git-ignore --level 2 $HOME/Repositories/{strip_ansi}"
+
+[keybindings]
+enter = "actions:edit"
+
+[actions.edit]
+description = "Open selected files in editor"
+command = "cd $HOME/Repositories/{strip_ansi} && nvim ."
+# Exiting television upon opening Neovim
+mode = "execute"
