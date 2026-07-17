@@ -19,7 +19,7 @@ return {
         function()
           if trouble.is_open() then
             --- @diagnostic disable-next-line: missing-parameter, missing-fields
-            trouble.prev({ skip_groups = true, jump = true })
+            trouble.prev({ jump = true })
           else
             local ok, err = pcall(vim.cmd.cprev)
             if not ok then
@@ -35,7 +35,7 @@ return {
         function()
           if trouble.is_open() then
             --- @diagnostic disable-next-line: missing-parameter, missing-fields
-            trouble.next({ skip_groups = true, jump = true })
+            trouble.next({ jump = true })
           else
             local ok, err = pcall(vim.cmd.cnext)
             if not ok then

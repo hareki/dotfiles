@@ -156,9 +156,19 @@ function M.scroll_results(direction)
   end
 end
 
-function M.telescope_to_trouble()
+--- @param prompt_bufnr integer
+function M.telescope_to_trouble(prompt_bufnr)
+  -- Trouble's telescope source requires every entry to resolve to a file
+  -- location (path/filename/bufnr); non-file pickers (e.g. notification
+  -- history) would otherwise crash it with "filename is required".
+  local entry = state.get_global_key('selected_entry')
+  if entry and not (entry.path or entry.filename or entry.bufnr) then
+    Notifier.warn('This picker has no file locations to send to Trouble')
+    return
+  end
+
   local trouble_sources = require('trouble.sources.telescope')
-  trouble_sources.open()
+  trouble_sources.open(prompt_bufnr)
 end
 
 --- @param source string

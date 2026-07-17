@@ -37,7 +37,6 @@ M.motions = {
   { 'f', desc = 'Move to Next Character' },
   { 'ge', desc = 'Previous End of Word' },
   { 'gg', desc = 'First Line' },
-  { 'j', desc = 'Down' },
   { 't', desc = 'Move Before Next Character' },
   { 'w', desc = 'Next Word' },
   { '{', desc = 'Previous Empty Line' },

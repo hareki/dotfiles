@@ -137,6 +137,10 @@ return {
             textobj_surround = false,
             toggle_comment_debug_prints = false,
             delete_debug_prints = false,
+            jump_prev_debug_print = false,
+            jump_next_debug_print = false,
+            jump_first_debug_print = false,
+            jump_last_debug_print = false,
           },
         },
       }
