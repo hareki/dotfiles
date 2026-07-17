@@ -40,6 +40,10 @@ global_history = false
 # │                         │
 # └─────────────────────────┘
 ui_scale = 80
+# Minimum inner size (in cells) of the centered UI popup; the bordered
+# footprint adds 2 cells per axis. Matches the nvim `lg` popup preset.
+min_width = 90
+min_height = 15
 merge_input_and_results = true
 # What orientation should tv be (landscape or portrait)
 orientation = "portrait"
