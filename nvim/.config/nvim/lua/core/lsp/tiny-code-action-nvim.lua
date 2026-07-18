@@ -1,5 +1,5 @@
 return {
-  'hareki/tiny-code-action.nvim',
+  'rachartier/tiny-code-action.nvim',
   event = 'LspAttach',
   dependencies = {
     'nvim-lua/plenary.nvim',

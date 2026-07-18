@@ -80,7 +80,14 @@ return {
         map('n', '<leader>cr', vim.lsp.buf.rename, 'Rename')
         map({ 'n', 'x' }, '<leader>ca', function()
           local tiny_code_action = require('tiny-code-action')
-          tiny_code_action.code_action({})
+          tiny_code_action.code_action({
+            -- Drop actions the server marked as disabled (e.g. vtsls
+            -- non-applicable refactors); resolving them for preview surfaces
+            -- raw server errors.
+            filter = function(action)
+              return action.disabled == nil
+            end,
+          })
         end, 'Code Actions')
 
         map('n', ']]', function()
