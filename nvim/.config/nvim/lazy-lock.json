@@ -55,7 +55,7 @@
   "snacks.nvim": { "branch": "main", "commit": "84e6cb07c15a10077c4d7aa3ce1098d1fee274bf" },
   "telescope-fzf-native.nvim": { "branch": "main", "commit": "b25b749b9db64d375d782094e2b9dce53ad53a40" },
   "telescope.nvim": { "branch": "master", "commit": "427b576c16792edad01a92b89721d923c19ad60f" },
-  "tiny-code-action.nvim": { "branch": "main", "commit": "bca75ad0eaf7d3f4e6298adbb2b4a85babf96f62" },
+  "tiny-code-action.nvim": { "branch": "main", "commit": "c68d2b42b7cefdc8850902730692a431b5b367ea" },
   "todo-comments.nvim": { "branch": "main", "commit": "31e3c38ce9b29781e4422fc0322eb0a21f4e8668" },
   "tree-sitter-ghostty": { "branch": "main", "commit": "1f47dfd4da0faab5321b47518ce2faa4be163580" },
   "trouble.nvim": { "branch": "main", "commit": "41a394a6bd8feb98022bd4e13ebed6a9bb6ab81f" },
