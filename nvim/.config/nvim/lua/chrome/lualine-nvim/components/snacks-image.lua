@@ -1,6 +1,25 @@
 --- @class chrome.lualine.components.snacks-image
 local M = {}
 
+local image_icon = Conf.icons.editor.IMAGE .. ' '
+
+-- vim.treesitter.query.get is memoized, but in a GC-weak cache: after any
+-- collection the next lookup re-scans the runtimepath (and recompiles the
+-- query), which is too slow for a per-redraw path. Pin the answer here.
+--- @type table<string, boolean>
+local lang_has_images_query = {}
+
+--- @param lang string
+--- @return boolean
+local function has_images_query(lang)
+  local has = lang_has_images_query[lang]
+  if has == nil then
+    has = vim.treesitter.query.get(lang, 'images') ~= nil
+    lang_has_images_query[lang] = has
+  end
+  return has
+end
+
 --- @class chrome.lualine.components.snacks-image.Cache
 --- @field buf integer
 --- @field tick integer
@@ -38,9 +57,8 @@ function M.cond()
 
   -- Skip buffers whose language has no snacks `images` query (json, yaml, help, ...):
   -- nothing can match there, so don't pay the per-cursor-move treesitter work below.
-  -- query.get is memoized by Neovim, so this is a table lookup after the first call.
   local lang = vim.treesitter.language.get_lang(ft)
-  if not lang or not vim.treesitter.query.get(lang, 'images') then
+  if not lang or not has_images_query(lang) then
     return false
   end
 
@@ -80,7 +98,7 @@ end
 
 --- @return string
 function M.get()
-  return Conf.icons.editor.IMAGE .. ' '
+  return image_icon
 end
 
 return M

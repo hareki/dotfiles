@@ -199,6 +199,14 @@ local function get_global_conflict()
   return result
 end
 
+--- Status parts in display order, paired with their highlight-group key
+local PART_GETTERS = {
+  { 'current_unsaved', get_current_unsaved },
+  { 'global_unsaved', get_global_unsaved },
+  { 'current_conflict', get_current_conflict },
+  { 'global_conflict', get_global_conflict },
+}
+
 --- Default options for buffer status component
 local default_options = {
   colored = true,
@@ -248,62 +256,23 @@ end
 --- Update and return the status string
 --- @return string
 function M:update_status()
-  local current_unsaved = get_current_unsaved()
-  local global_unsaved = get_global_unsaved()
-  local current_conflict = get_current_conflict()
-  local global_conflict = get_global_conflict()
-
-  if
-    current_unsaved == ''
-    and global_unsaved == ''
-    and current_conflict == ''
-    and global_conflict == ''
-  then
-    return ''
-  end
-
   local result = {}
+  local colored = self.options.colored
 
-  if self.options.colored then
-    local colors = {}
-    for name, hl in pairs(self.highlight_groups) do
-      colors[name] = self:format_hl(hl)
-    end
-
-    if current_unsaved ~= '' then
-      table.insert(result, colors.current_unsaved .. current_unsaved)
-    end
-
-    if global_unsaved ~= '' then
-      table.insert(result, colors.global_unsaved .. global_unsaved)
-    end
-
-    if current_conflict ~= '' then
-      table.insert(result, colors.current_conflict .. current_conflict)
-    end
-
-    if global_conflict ~= '' then
-      table.insert(result, colors.global_conflict .. global_conflict)
-    end
-  else
-    if current_unsaved ~= '' then
-      table.insert(result, current_unsaved)
-    end
-
-    if global_unsaved ~= '' then
-      table.insert(result, global_unsaved)
-    end
-
-    if current_conflict ~= '' then
-      table.insert(result, current_conflict)
-    end
-
-    if global_conflict ~= '' then
-      table.insert(result, global_conflict)
+  for _, part in ipairs(PART_GETTERS) do
+    local text = part[2]()
+    if text ~= '' then
+      if colored then
+        -- format_hl re-resolves the mode suffix (an nvim_get_mode call) per
+        -- group, so only pay it for parts that are actually shown
+        result[#result + 1] = self:format_hl(self.highlight_groups[part[1]]) .. text
+      else
+        result[#result + 1] = text
+      end
     end
   end
 
-  return table.concat(result, '')
+  return table.concat(result)
 end
 
 return M

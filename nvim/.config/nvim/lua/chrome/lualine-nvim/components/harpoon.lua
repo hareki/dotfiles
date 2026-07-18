@@ -67,9 +67,13 @@ local function compute()
 end
 
 --- Get all harpoon indices that have files, with current buffer's index wrapped in brackets
+--- Reads the cache directly: lualine invokes `cond` immediately before
+--- `update_status` within the same synchronous draw, so `compute` has already
+--- refreshed the cache for this render (harpoon:list() does a getcwd syscall
+--- plus an extension emit per call, so skipping the re-compute is worth it)
 --- @return string | nil formatted as "1 [3] 4" or nil if harpoon list is empty
 function M.get()
-  return compute()
+  return cache.text
 end
 
 --- Check if there are any harpooned files
