@@ -14,7 +14,6 @@ return {
 
   {
     'hareki/cursortab.nvim',
-    branch = 'feat/inline-word-diff',
     build = 'cd server && go build',
     event = 'VeryLazy',
     opts = function()
