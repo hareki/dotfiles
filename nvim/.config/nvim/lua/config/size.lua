@@ -38,8 +38,8 @@ M.popup = {
   },
 
   sm = {
-    WIDTH = 0.5,
-    HEIGHT = 0.5,
+    WIDTH = 0.35,
+    HEIGHT = 0.35,
     MIN_WIDTH = 60,
     MIN_HEIGHT = 10,
   },
