@@ -73,6 +73,8 @@ return {
         },
 
         on_attach = function(buffer)
+          local nav_opts = { target = 'all', navigation_message = false }
+
           local gs = package.loaded.gitsigns
 
           local function map(mode, lhs, rhs, desc)
@@ -83,7 +85,7 @@ return {
             if vim.wo.diff then
               vim.cmd.normal({ args = { ']c' }, bang = true })
             else
-              gs.nav_hunk('next')
+              gs.nav_hunk('next', nav_opts)
             end
           end, 'Next Hunk')
 
@@ -91,16 +93,16 @@ return {
             if vim.wo.diff then
               vim.cmd.normal({ args = { '[c' }, bang = true })
             else
-              gs.nav_hunk('prev')
+              gs.nav_hunk('prev', nav_opts)
             end
           end, 'Previous Hunk')
 
           map('n', ']H', function()
-            gs.nav_hunk('last')
+            gs.nav_hunk('last', nav_opts)
           end, 'Last Hunk')
 
           map('n', '[H', function()
-            gs.nav_hunk('first')
+            gs.nav_hunk('first', nav_opts)
           end, 'First Hunk')
 
           -- Visual variants pass the selected line range so only those lines are
