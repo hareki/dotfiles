@@ -1,0 +1,44 @@
+#!/bin/zsh
+
+# cts = "Claude Toggle Settings"
+#
+# Claude Code persists runtime /model and /effort changes back into
+# ~/.claude/settings.json, which is stow-symlinked to the git-tracked
+# claude-code/.claude/settings.json in this repo. That constant rewriting
+# keeps dirtying the worktree, and Claude Code exposes no setting to redirect
+# where those two fields are written.
+#
+# So instead we tell git to ignore local changes to that one file via
+# `--skip-worktree`, and toggle the flag with this function:
+#   - skip-worktree SET   => git ignores model/effort churn (normal resting state)
+#   - skip-worktree CLEAR => git sees the file again so you can stage & commit a
+#                            deliberate settings change, then run `cts` to re-hide it.
+cts() {
+  local file="claude-code/.claude/settings.json"
+
+  if [[ -z "$STOW_REPO" || ! -d "$STOW_REPO" ]]; then
+    echo "STOW_REPO must be set to an existing directory." >&2
+    return 1
+  fi
+
+  # `git ls-files -v` prefixes the path with a status letter:
+  #   H = normal tracked file, S = skip-worktree already set.
+  local flag
+  flag=$(git -C "$STOW_REPO" ls-files -v -- "$file" | cut -c1)
+
+  if [[ -z "$flag" ]]; then
+    print -P "%F{red}cts: '%F{blue}$file%F{red}' is not tracked in $STOW_REPO%f" >&2
+    return 1
+  fi
+
+  if [[ "$flag" == "S" ]]; then
+    # Currently ignoring churn => re-expose the file for an intentional commit.
+    git -C "$STOW_REPO" update-index --no-skip-worktree -- "$file" || return 1
+    print -P "%F{green}TRACKING ON%f => git now tracks %F{blue}$file%f"
+    print -P "     commit your intended change, then run %F{green}cts%f again to resume ignoring model/effort churn"
+  else
+    # Currently visible => start ignoring the runtime churn.
+    git -C "$STOW_REPO" update-index --skip-worktree -- "$file" || return 1
+    print -P "%F{red}TRACKING OFF%f => git now ignores model/effort churn in %F{blue}$file%f"
+  fi
+}
