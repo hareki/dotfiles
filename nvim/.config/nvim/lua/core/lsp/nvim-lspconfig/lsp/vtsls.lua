@@ -159,7 +159,7 @@ return {
         local function map(mode, lhs, rhs, desc)
           vim.keymap.set(mode, lhs, rhs, {
             buffer = args.buf,
-            desc = 'TypeScript: ' .. desc,
+            desc = 'TypeScript LSP: ' .. desc,
           })
         end
 

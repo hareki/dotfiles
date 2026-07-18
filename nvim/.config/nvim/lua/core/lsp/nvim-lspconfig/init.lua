@@ -53,7 +53,7 @@ return {
         local function map(mode, lhs, rhs, desc)
           vim.keymap.set(mode, lhs, rhs, {
             buffer = args.buf,
-            desc = desc,
+            desc = 'LSP: ' .. desc,
           })
         end
 
@@ -74,13 +74,15 @@ return {
           Snacks.picker.lsp_references({ filter = { buf = 0 } })
         end, 'Find References in Current Buffer')
 
-        map({ 'n', 'x' }, 'gh', '<cmd>EagleWin<cr>', 'Open Eagle LSP and Diagnostics')
-        map({ 'n', 'x' }, 'gH', '<cmd>EagleWinLineDiagnostic<cr>', 'Open Eagle Line Diagnostics')
+        map({ 'n', 'x' }, 'gh', '<cmd>EagleWin<cr>', 'Open Info and Diagnostics')
+        map({ 'n', 'x' }, 'gH', '<cmd>EagleWinLineDiagnostic<cr>', 'Open Line Diagnostics')
+
+        map('n', '<leader>cr', vim.lsp.buf.rename, 'Rename')
         map({ 'n', 'x' }, '<leader>ca', function()
           local tiny_code_action = require('tiny-code-action')
           tiny_code_action.code_action({})
-        end, 'Code Actions') -- Ctrl + Z
-        map('n', '<leader>cr', vim.lsp.buf.rename, 'Rename') -- F2
+        end, 'Code Actions')
+
         map('n', ']]', function()
           Snacks.words.jump(vim.v.count1)
         end, 'Next Reference')

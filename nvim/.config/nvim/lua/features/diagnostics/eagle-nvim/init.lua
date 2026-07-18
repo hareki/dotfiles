@@ -5,12 +5,6 @@ local eagle = Defer.on_index('eagle')
 local common = Defer.on_exported_call('utils.common')
 
 return {
-  UI.which_key({
-    -- Matched against the keymap descs ("Open Eagle ..."); a `plugin` rule would
-    -- only match keymaps created through lazy.nvim's `keys` spec, which eagle has none of
-    rules = { pattern = 'eagle', icon = Conf.icons.tools.EAGLE, color = 'yellow' },
-  }),
-
   {
     'hareki/eagle.nvim',
     cmd = { 'EagleWin', 'EagleWinLineDiagnostic' },

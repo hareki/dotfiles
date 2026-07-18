@@ -161,7 +161,6 @@ local M = {
     SESSION = '󰆓',
     FLASH = '',
     LSP = ' ',
-    EAGLE = '󱗆',
     DEBUG = '󰃤',
     MULTICURSOR = '',
     SURROUND = '󰗅 ',
