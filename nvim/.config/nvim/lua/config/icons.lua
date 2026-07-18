@@ -168,6 +168,7 @@ local M = {
     TREE = ' ',
     CODE = '',
     PIN = '󰐃',
+    MARK = '',
   },
   navigation = {
     PREV = '󰒮',

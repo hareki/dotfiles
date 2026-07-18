@@ -13,6 +13,8 @@ M.DESC_OVERRIDES = {
   ['<C-S>'] = { desc = 'LSP: Signature Help', mode = { 's', 'i' } },
   ['K'] = { desc = 'LSP: Hover', mode = { 'n' } },
   ['gx'] = { desc = 'Open URL', mode = { 'n' } },
+  ['g`'] = { desc = 'Go to Mark Exact Position (Keep Jumplist)', mode = { 'n' } },
+  ["g'"] = { desc = 'Go to Mark Line (Keep Jumplist)', mode = { 'n' } },
 
   -- Default mappings having descriptions like :help &-default, :help v_#-default,...
   ['&'] = { desc = 'Repeat Last Substitute (Keep Flags)', mode = { 'n' } },

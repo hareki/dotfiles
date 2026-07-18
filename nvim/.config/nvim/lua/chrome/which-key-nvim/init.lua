@@ -94,7 +94,8 @@ return {
 
         -- Generic ones, should have lower priority
         { pattern = 'typescript', icon = Conf.icons.ft.TYPESCRIPT, color = 'blue' },
-        { pattern = 'lsp', icon = Conf.icons.tools.LSP, color = 'blue' },
+        { pattern = 'mark', icon = Conf.icons.tools.MARK, color = 'yellow' },
+        { pattern = 'lsp', icon = Conf.icons.tools.LSP, color = 'yellow' },
         { pattern = 'register', icon = Conf.icons.editor.REGISTER, color = 'yellow' },
         { pattern = 'tab', icon = Conf.icons.misc.TAB, color = 'blue' },
         { pattern = 'rename', icon = Conf.icons.actions.RENAME, color = 'yellow' },
