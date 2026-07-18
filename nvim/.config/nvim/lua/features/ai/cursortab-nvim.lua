@@ -22,6 +22,11 @@ return {
           type = 'mercuryapi',
           api_key_env = Conf.cmp.AI_MERCURY_KEY,
         },
+        ui = {
+          jump = {
+            shape = 'pill', -- Jump indicator shape: "default" or "pill"
+          },
+        },
         behavior = {
           idle_completion_delay = 100,
           text_change_debounce = 100,
