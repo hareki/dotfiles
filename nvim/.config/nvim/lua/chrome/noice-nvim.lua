@@ -114,6 +114,16 @@ return {
             opts = { skip = true },
           },
 
+          -- Suppress the `client.stop` deprecation warning emitted by third-party
+          -- plugins we don't control, like garbage-day.nvim.
+          -- Only fork them when they actually break
+          {
+            filter = {
+              find = 'client%.stop is deprecated',
+            },
+            opts = { skip = true },
+          },
+
           -- Unify both "not modifiable" error variants into one concise message:
           --  - native       "E21: Cannot make changes, 'modifiable' is off"
           --  - Lua-wrapped  "E5108: ...: Vim:E21: ..." + stack traceback
@@ -130,6 +140,8 @@ return {
             },
             opts = {}, -- No view: this route never displays, it only mutates the message
           },
+
+          -- Refresh dropbar when LSP progress completes
           {
             filter = {
               event = 'lsp',
