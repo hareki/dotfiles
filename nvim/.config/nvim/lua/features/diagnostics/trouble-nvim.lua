@@ -60,13 +60,12 @@ return {
           return
         end
 
+        local trouble_win = vim.api.nvim_get_current_win()
+        local common = require('utils.common')
         local function map(mode, lhs, rhs, desc)
           vim.keymap.set(mode, lhs, rhs, { buffer = preview.buf, desc = desc })
         end
 
-        local trouble_win = vim.api.nvim_get_current_win()
-
-        local common = require('utils.common')
         common.focus_win(preview.win)
 
         map('n', '<Tab>', function()
