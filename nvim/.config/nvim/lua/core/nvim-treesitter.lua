@@ -58,6 +58,7 @@ return {
       'astro',
       'mermaid',
       'glimmer',
+      'angular',
       'rust',
       'go',
     },
@@ -84,5 +85,8 @@ return {
 
     -- The handlebars grammar is provided by the glimmer parser
     vim.treesitter.language.register('glimmer', 'handlebars')
+
+    -- The angular grammar drives Angular component templates (htmlangular)
+    vim.treesitter.language.register('angular', 'htmlangular')
   end,
 }

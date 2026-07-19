@@ -116,6 +116,7 @@ return {
       'tailwindcss', -- Tailwind
       'astro', -- Astro
       'ember', -- Ember/Glimmer
+      'angularls', -- Angular
     }
 
     -- eslint vs oxlint are mutually exclusive; selected by Project.linter

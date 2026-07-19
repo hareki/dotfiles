@@ -1,6 +1,7 @@
 local filetypes = Conf.filetypes.merge(
   Conf.filetypes.CSS,
   Conf.filetypes.JS,
+  Conf.filetypes.ANGULAR,
   { 'html', 'json', 'lua', 'toml', 'ghostty', 'yaml' }
 )
 

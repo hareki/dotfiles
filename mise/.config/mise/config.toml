@@ -19,6 +19,7 @@ bun = "latest"
 "npm:@tailwindcss/language-server" = "latest"
 "npm:yaml-language-server" = "latest"
 "npm:@ember-tooling/ember-language-server" = "latest"
+"npm:@angular/language-server" = "latest"
 
 "npm:oxfmt" = "latest"
 "npm:oxlint" = "latest"

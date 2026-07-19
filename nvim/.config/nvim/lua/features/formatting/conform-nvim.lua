@@ -22,6 +22,7 @@ return {
           Conf.filetypes.JS_ALL,
           Conf.filetypes.CSS,
           { 'html', 'handlebars' },
+          Conf.filetypes.ANGULAR,
           Conf.filetypes.MARKDOWN,
           Conf.filetypes.JSON,
           { 'yaml' }
@@ -36,6 +37,15 @@ return {
       end
     end
 
-    return { formatters_by_ft = formatters_by_ft }
+    local opts = { formatters_by_ft = formatters_by_ft }
+    if use_prettier then
+      -- prettier infers the angular parser only for *.component.html; Angular 20
+      -- style templates (app.html) would fall back to the html parser, which
+      -- mangles @if/@for control flow blocks
+      opts.formatters = {
+        prettier = { options = { ft_parsers = { htmlangular = 'angular' } } },
+      }
+    end
+    return opts
   end,
 }
