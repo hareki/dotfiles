@@ -21,6 +21,7 @@ return {
 
     opts = function()
       local popup = UI.layout.popup('md')
+      local trouble_ignored_parsers = { 'text' }
 
       return {
         format = {
@@ -120,6 +121,21 @@ return {
           {
             filter = {
               find = 'client%.stop is deprecated',
+            },
+            opts = { skip = true },
+          },
+
+          -- Suppress trouble.nvim's cosmetic "parser missing" warning, but ONLY for
+          -- the allowlisted pseudo-languages real missing parsers still
+          -- surface so they can be added to nvim-treesitter's `ensure_installed`.
+          {
+            filter = {
+              event = 'notify',
+              find = 'nvim%-treesitter parser missing',
+              cond = function(message)
+                local lang = message:content():match('parser missing `([^`]+)`')
+                return lang ~= nil and vim.tbl_contains(trouble_ignored_parsers, lang)
+              end,
             },
             opts = { skip = true },
           },
