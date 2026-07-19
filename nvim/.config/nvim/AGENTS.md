@@ -99,4 +99,4 @@ Server-specific `LspAttach` autocmds use an early-return guard on client name â€
 
 ## Forks
 
-18 minimal-diff forks by `hareki`. Updated via [wei/pull](https://github.com/wei/pull).
+19 minimal-diff forks by `hareki`. Updated via [wei/pull](https://github.com/wei/pull).

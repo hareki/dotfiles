@@ -4,7 +4,7 @@ return {
   }),
 
   {
-    'rmagatti/auto-session',
+    'hareki/auto-session',
     lazy = false,
     priority = Conf.priority.CORE,
     init = function()
