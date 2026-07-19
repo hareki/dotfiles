@@ -25,6 +25,8 @@ return {
         excluded_filetypes = {
           'snacks_picker_list',
           'TelescopeResults',
+          'blink-cmp-menu',
+          'blink-cmp-documentation',
         },
         handlers = {
           cursor = { enable = false },
