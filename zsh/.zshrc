@@ -20,7 +20,7 @@ source $__zsh_config_dir/plugins.zsh
 _evalcache /opt/homebrew/bin/brew shellenv
 
 # Restore shims precedence so same-name wrappers win over Homebrew binaries
-path=(~/.local/bin/shims $path)
+path=(~/.local/bin/shims ~/.local/share/mise/shims $path)
 # Remove duplicates
 typeset -U path
 
