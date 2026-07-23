@@ -15,6 +15,21 @@ return {
       end,
     })
 
+    vim.api.nvim_create_autocmd('User', {
+      group = vim.api.nvim_create_augroup('core.nvim-treesitter.glimmer-fork', { clear = true }),
+      pattern = 'TSUpdate',
+      callback = function()
+        local ts_parsers = require('nvim-treesitter.parsers')
+
+        --- We don't need revision, use the default HEAD
+        --- @diagnostic disable: missing-fields
+        ts_parsers.glimmer.install_info = {
+          url = 'https://github.com/hareki/tree-sitter-glimmer',
+          queries = 'queries/glimmer',
+        }
+      end,
+    })
+
     vim.api.nvim_create_user_command('TSInstallAll', function()
       local lazy_config = require('lazy.core.config')
       local spec = lazy_config.plugins['nvim-treesitter']
@@ -57,7 +72,6 @@ return {
       'gitcommit',
       'astro',
       'mermaid',
-      'glimmer',
       'angular',
       'rust',
       'go',
