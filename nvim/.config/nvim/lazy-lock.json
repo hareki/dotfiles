@@ -17,7 +17,6 @@
   "dropbar.nvim": { "branch": "master", "commit": "6309aa6b702b5a2ddcd993f4765069bdb964a1af" },
   "eagle.nvim": { "branch": "main", "commit": "ebfc6f276835ed2111b92af530af6f083fb44a09" },
   "flash.nvim": { "branch": "main", "commit": "b6346946d10d07998efee029fb0f7a593806d0cd" },
-  "garbage-day.nvim": { "branch": "main", "commit": "2fcc56556281de8ee871a5f3beb9db7ab747ef32" },
   "git-conflict.nvim": { "branch": "main", "commit": "4827a307b623327c2fff0f539a569fc5c9b4d2f7" },
   "gitsigns.nvim": { "branch": "main", "commit": "57676cb50f0f4e70ed955fb57513c7f1792a8400" },
   "grug-far.nvim": { "branch": "main", "commit": "1365af22ce5a792419cc5e314ed31e59f6f816a4" },

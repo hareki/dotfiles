@@ -115,16 +115,6 @@ return {
             opts = { skip = true },
           },
 
-          -- Suppress the `client.stop` deprecation warning emitted by third-party
-          -- plugins we don't control, like garbage-day.nvim.
-          -- Only fork them when they actually break
-          {
-            filter = {
-              find = 'client%.stop is deprecated',
-            },
-            opts = { skip = true },
-          },
-
           -- Suppress trouble.nvim's cosmetic "parser missing" warning, but ONLY for
           -- the allowlisted pseudo-languages real missing parsers still
           -- surface so they can be added to nvim-treesitter's `ensure_installed`.
