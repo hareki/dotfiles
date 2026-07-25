@@ -1,17 +1,22 @@
 local fn, fs, uv = vim.fn, vim.fs, vim.uv
 
--- nvim-lspconfig's default cmd derives ngserver's probe locations from
--- exepath('ngserver'), but mise puts a shim on $PATH whose realpath is the
--- `mise` binary itself (/opt/homebrew/.../bin/mise), so the heuristic resolves
--- to /opt/homebrew/Cellar and ngserver exits 1, unable to find typescript /
--- @angular/language-service. The mise global install bundles both under the
--- language-server's own node_modules, so point the probe locations there
--- directly. mise pins this tool to "latest" (mise/config.toml), and the alias
--- symlink tracks the installed version, so the path stays correct across
--- upgrades.
-local ng_bundle = fn.expand(
-  '~/.local/share/mise/installs/npm-angular-language-server/latest/lib/node_modules/@angular/language-server/node_modules'
-)
+-- nvim-lspconfig derives probe locations from exepath('ngserver'), but the mise
+-- shim's realpath is the `mise` binary itself, so ngserver can't find
+-- typescript / @angular/language-service and exits 1. Probe the mise install's
+-- bundled toolchain instead.
+--
+-- mise's npm backend hoists those deps into its virtual store and symlinks the
+-- package into it, so realpath the package and take its grandparent to reach
+-- the store's node_modules. The stable `latest` install dir tracks the pinned
+-- version (mise/config.toml), so this survives upgrades.
+local function resolve_ng_bundle()
+  local pkg = fn.expand(
+    '~/.local/share/mise/installs/npm-angular-language-server/latest/node_modules/@angular/language-server'
+  )
+  local real = uv.fs_realpath(pkg)
+  return real and fs.dirname(fs.dirname(real)) or nil
+end
+local ng_bundle = resolve_ng_bundle()
 
 --- @param root_dir string
 --- @return string
@@ -54,7 +59,7 @@ return {
       if uv.fs_stat(project_node) then
         table.insert(probe, project_node)
       end
-      if uv.fs_stat(ng_bundle) then
+      if ng_bundle and uv.fs_stat(ng_bundle) then
         table.insert(probe, ng_bundle)
       end
       local probe_str = table.concat(probe, ',')
