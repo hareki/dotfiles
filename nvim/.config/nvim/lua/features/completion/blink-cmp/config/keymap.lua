@@ -67,6 +67,7 @@ M.default = {
 
 M.cmdline = {
   preset = 'inherit',
+  ['<Tab>'] = { 'show', 'select_next', 'fallback' },
   ['<Esc>'] = {
     function(cmp)
       if cmp.is_menu_visible() then

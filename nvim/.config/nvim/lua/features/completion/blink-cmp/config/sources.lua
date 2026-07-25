@@ -100,14 +100,14 @@ M.default = {
 
     cmdline = {
       min_keyword_length = utils.cmdline_min_keyword_length(0),
-      max_items = 6,
+      max_items = 9,
     },
 
     cmdline_history = {
       -- IMPORTANT: use the same name as you would for nvim-cmp
       name = 'cmdline_history',
       module = 'blink.compat.source',
-      max_items = 6,
+      max_items = 9,
       min_keyword_length = utils.cmdline_min_keyword_length(0),
       transform_items = history.transform_items,
     },
