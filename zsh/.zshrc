@@ -36,6 +36,11 @@ for func in $functions_dir/*(.N); do
   autoload -Uz "${func:t}"
 done
 
+# ==== Register their completions upfront, since the functions are autoloaded ====
+for func_compdef in $__zsh_config_dir/function-compdef/*.zsh(.N); do
+  source $func_compdef
+done
+
 if [[ -n "$ZSH_DEBUGRC" ]]; then
   zprof
 fi

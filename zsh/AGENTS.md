@@ -24,6 +24,7 @@ This is a zsh dotfiles configuration targeting macOS with Homebrew. Files are de
   → brew shellenv (via evalcache)
   → config modules in order: aliases, vi-mode, compdef, keymaps, options, evalcache
   → autoload functions from .config/zsh/functions/
+  → source their completions from .config/zsh/function-compdef/
 ```
 
 The sourcing order of config modules matters — later files depend on earlier ones (e.g., keymaps overrides vi-mode bindings, evalcache runs tool init that needs PATH set up earlier).
@@ -55,7 +56,8 @@ build <target>        # Build a local tool from source (atuin, eza, lazygit, tel
 
 ## Conventions
 
-- New utility functions go in `.config/zsh/functions/` as standalone files (one function per file, filename = function name, no `.zsh` extension). They are autoloaded automatically.
+- New utility functions go in `.config/zsh/functions/` as standalone files (one function per file, filename = function name, no `.zsh` extension, since `autoload` looks the file up by function name). They are autoloaded automatically.
+- Completions for those functions go in `.config/zsh/function-compdef/`, one file per function named after it (e.g. `build.zsh`); they are sourced eagerly so completion works before the function is first called. Completions for external commands stay in `.config/zsh/compdef.zsh`.
 - Aliases for non-interactive shells go in `.zshenv`; all others go in `.config/zsh/aliases.zsh`.
 - Interactive env vars / history / fzf options go in `.config/zsh/options.zsh`. Tool init (`zoxide`, `atuin`, `zsh-patina`) goes in `.config/zsh/evalcache.zsh`.
 - Plugin configuration (zstyles, env vars) goes in `.config/zsh/plugins.zsh`, before the bundle is sourced.

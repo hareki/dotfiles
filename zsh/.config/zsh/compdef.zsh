@@ -1,26 +1,7 @@
 #!/bin/zsh
 
-_sync_dots_autocomplete() {
-  local -a items
-  local repo_dir="$STOW_REPO"
-  local d
-
-  items=(
-    '--help:Show usage info'
-    'all:Sync every package directory in $STOW_REPO'
-  )
-
-  # Get package directories under $STOW_REPO and feed them into completion
-  if [[ -n "$repo_dir" && -d "$repo_dir" ]]; then
-    for d in "$repo_dir"/*(/N); do
-      items+=("${d:t}:Sync ${d:t} configs")
-    done
-  fi
-
-  _describe 'stow directories' items
-}
-
-compdef _sync_dots_autocomplete sync-dots
+# Completions for autoloaded functions live in `function-compdef/`, one file per
+# function, and are sourced by .zshrc so they work before the first call.
 
 _tv_autocomplete() {
   local -a files
@@ -37,23 +18,6 @@ _tv_autocomplete() {
 }
 
 compdef _tv_autocomplete tv
-
-_build_autocomplete() {
-  local -a targets
-  targets=(
-    '--help:Show usage info'
-    'all:Build every target'
-    'atuin:Build atuin from ~/Repositories/personal/atuin'
-    'eza:Build eza from ~/Repositories/personal/eza'
-    'television:Build television from ~/Repositories/personal/television'
-    'worktrunk:Build worktrunk from ~/Repositories/personal/worktrunk'
-    'lazygit:Build lazygit from ~/Repositories/personal/lazygit'
-    'tmux:Build tmux from ~/Repositories/personal/tmux'
-  )
-  _describe 'build targets' targets
-}
-
-compdef _build_autocomplete build
 
 # https://raw.githubusercontent.com/tmuxinator/tmuxinator/master/completion/tmuxinator.zsh
 _tmuxinator_autocomplete() {

@@ -36,6 +36,7 @@ Feature-packed zsh setup with ~110ms startup. Optimized via static plugin bundli
 ├── evalcache.zsh                   # Tool init: zoxide, atuin, zsh-patina
 ├── keymaps.zsh                     # Key bindings (Alt+F → atuin, etc.)
 ├── vi-mode.zsh                     # Vi mode + OSC52 yank/paste
-├── compdef.zsh                     # Custom completions (sync-dots, tv, build, git-bwt, tmuxinator)
+├── compdef.zsh                     # Custom completions for external commands (tv, tmuxinator)
+├── function-compdef/               # Completions for the autoloaded functions (one per function)
 └── functions/                      # Autoloaded utility functions (one per file)
 ```
