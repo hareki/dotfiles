@@ -53,11 +53,15 @@ fi
 # Source your static plugins file.
 source ${bundled_zsh_plugins}
 
-# omz re-encodes and re-emits OSC 7 on every prompt; skip when $PWD is unchanged
+# omz URL-encodes $PWD (two subshell forks) on every prompt; cache the escape
+# sequence per $PWD but still emit it each prompt, so the terminal's recorded
+# cwd survives `reset` and tmux reattach
 functions -c omz_termsupport_cwd _omz_termsupport_cwd_orig
 omz_termsupport_cwd() {
-  [[ $PWD == $_termsupport_cwd_last ]] && return
-  typeset -g _termsupport_cwd_last=$PWD
-  _omz_termsupport_cwd_orig
+  if [[ $PWD != $_termsupport_cwd_last ]]; then
+    typeset -g _termsupport_cwd_last=$PWD
+    typeset -g _termsupport_cwd_seq=$(_omz_termsupport_cwd_orig)
+  fi
+  printf '%s' "$_termsupport_cwd_seq"
 }
 
