@@ -25,7 +25,7 @@ path=(~/.local/bin/shims ~/.local/share/mise/shims $path)
 typeset -U path
 
 # ==== Load configuration files, order matters ====
-for cfg in aliases vi-mode compdef keymaps options evals; do
+for cfg in aliases vi-mode keymaps options evals; do
   source $__zsh_config_dir/$cfg.zsh
 done
 
@@ -36,10 +36,9 @@ for func in $functions_dir/*(.N); do
   autoload -Uz "${func:t}"
 done
 
-# ==== Register their completions upfront, since the functions are autoloaded ====
-for func_compdef in $__zsh_config_dir/function-compdef/*.zsh(.N); do
-  source $func_compdef
-done
+# ==== Custom completions, picked up by compinit via their `#compdef` tag ====
+compdefs_dir=$__zsh_config_dir/compdefs
+fpath=($compdefs_dir $fpath)
 
 if [[ -n "$ZSH_DEBUGRC" ]]; then
   zprof

@@ -1,7 +1,3 @@
-# Show labels for completions (pressing tab)
-# zstyle ':completion:*' format '%d'
-# zstyle ':completion:*' group-name ''
-
 export ZSH_EVALCACHE_DIR="$HOME/.cache/.zsh-evalcache"
 export ANTIDOTE_HOME="$HOME/.cache/antidote"
 
