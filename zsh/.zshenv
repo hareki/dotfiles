@@ -7,9 +7,9 @@ export XDG_CONFIG_HOME="$HOME/.config"
 export EDITOR='nvim'
 export VISUAL='nvim'
 
-# Use MacOS keychain to store secrets
-export MERCURY_API_KEY=$(security find-generic-password -a "$USER" -s "MERCURY_API_KEY" -w)
-export ANTHROPIC_API_KEY=$(security find-generic-password -a "$USER" -s "ANTHROPIC_API_KEY" -w)
+# Use MacOS keychain to store secrets; skip when a parent shell already exported the value
+[[ -n $MERCURY_API_KEY ]] || export MERCURY_API_KEY=$(security find-generic-password -a "$USER" -s "MERCURY_API_KEY" -w)
+[[ -n $ANTHROPIC_API_KEY ]] || export ANTHROPIC_API_KEY=$(security find-generic-password -a "$USER" -s "ANTHROPIC_API_KEY" -w)
 
 # Aliases needed in non-interactive shells, others should go in to aliases.zsh for performance
 alias eza='eza --icons=always --color=always --no-user'
@@ -18,4 +18,7 @@ alias fdt='fd --type dir --hidden --exclude .git'
 alias fd='gtimeout 5s fd'
 
 # Append commands to use in non-interactive shells
-path=(~/.local/bin/shims ~/.local/bin ~/.local/share/mise/shims $path)
+# shim_paths is re-prepended in .zshrc after brew shellenv reorders PATH
+typeset -a shim_paths=(~/.local/bin/shims ~/.local/share/mise/shims)
+typeset -U path
+path=($shim_paths ~/.local/bin $path)

@@ -5,13 +5,16 @@ export HISTSIZE=10000
 export SAVEHIST=10000
 setopt appendhistory sharehistory
 
-export STOW_REPO="$HOME/Repositories/personal/dotfiles"
+export REPOS_DIR="$HOME/Repositories/personal"
+export STOW_REPO="$REPOS_DIR/dotfiles"
 export TEALDEER_CONFIG_DIR="$XDG_CONFIG_HOME/tealdeer"
 export EZA_CONFIG_DIR="$XDG_CONFIG_HOME/eza"
 unset EZA_COLORS LS_COLORS # Centralize eza theme config
 
 # Make sure ImageMagick work properly in image.nvim
-export DYLD_FALLBACK_LIBRARY_PATH="/opt/homebrew/lib:$DYLD_FALLBACK_LIBRARY_PATH"
+# Tied unique array keeps re-sourcing in nested shells from growing the list
+typeset -TUx DYLD_FALLBACK_LIBRARY_PATH dyld_fallback_library_path
+dyld_fallback_library_path=(/opt/homebrew/lib $dyld_fallback_library_path)
 
 # Prevent the dollar sign at the start when restoring sessions with tmux-resurrect
 # https://unix.stackexchange.com/questions/167582/why-zsh-ends-a-line-with-a-highlighted-percent-symbol

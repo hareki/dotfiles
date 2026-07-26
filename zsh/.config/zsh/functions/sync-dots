@@ -1,19 +1,11 @@
 #!/bin/zsh
 
+# Root-level package metadata (AGENTS.md, README.md, ...) is excluded via
+# root-anchored patterns in stow/.stow-global-ignore
 sync-dots () {
-  local target_dir="$HOME"
-  local original_dir="$PWD"
   local failed=0
   local -a dirs
-  local package_dir
-
-  # Root-level module metadata (not real config); ignored at each package root only.
-  local -a ignore_names=(AGENTS.md CLAUDE.md README.md assets)
-  local -a ignore_args
-  local name
-  for name in $ignore_names; do
-    ignore_args+=(--ignore="^${name//./\\.}\$")
-  done
+  local dir package_dir
 
   if [[ -z "$STOW_REPO" || ! -d "$STOW_REPO" ]]; then
     echo "STOW_REPO must be set to an existing directory." >&2
@@ -36,22 +28,15 @@ sync-dots () {
       ;;
   esac
 
-  # Ensure target exists
-  mkdir -p "$target_dir" || return 1
-
-  # Change to repo once
-  cd "$STOW_REPO" || return 1
-
   for dir in $dirs; do
-    if [[ -d "$dir" ]]; then
-      print -P "\n%B%F{blue}======== Syncing $dir ========%f%b"
-      stow "${ignore_args[@]}" "$dir" -t "$target_dir" || { print -P "%F{red}==> Failed to sync $dir%f" >&2; failed=1; }
+    if [[ -d "$STOW_REPO/$dir" ]]; then
+      print-header "Syncing $dir"
+      stow -d "$STOW_REPO" -t "$HOME" "$dir" || { print -P "%F{red}==> Failed to sync $dir%f" >&2; failed=1; }
     else
       echo "Directory '$dir' does not exist in $STOW_REPO." >&2
       failed=1
     fi
   done
 
-  cd "$original_dir" || failed=1
   return $failed
 }

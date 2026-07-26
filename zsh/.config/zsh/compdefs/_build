@@ -1,14 +1,12 @@
 #compdef build
 
-local -a targets
-targets=(
+local -a targets=(
   '--help:Show usage info'
+  '--list:Print target names'
   'all:Build every target'
-  'atuin:Build atuin from ~/Repositories/personal/atuin'
-  'eza:Build eza from ~/Repositories/personal/eza'
-  'television:Build television from ~/Repositories/personal/television'
-  'worktrunk:Build worktrunk from ~/Repositories/personal/worktrunk'
-  'lazygit:Build lazygit from ~/Repositories/personal/lazygit'
-  'tmux:Build tmux from ~/Repositories/personal/tmux'
 )
+local t
+for t in ${(f)"$(build --list)"}; do
+  [[ $t == all ]] || targets+=("$t:Build $t from $REPOS_DIR/$t")
+done
 _describe 'build targets' targets

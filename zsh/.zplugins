@@ -1,8 +1,7 @@
 getantidote/use-omz
 ohmyzsh/ohmyzsh path:lib
 ohmyzsh/ohmyzsh path:plugins/ssh-agent kind:defer
-romkatv/powerlevel10k kind:fpath
+romkatv/powerlevel10k
 
 zsh-users/zsh-autosuggestions kind:defer
 Aloxaf/fzf-tab kind:defer
-mroth/evalcache

@@ -13,64 +13,45 @@ cursor_beam()  { echo -ne '\e[5 q'; }
 
 # https://gist.github.com/LukeSmithxyz/e62f26e55ea8b0ed41a65912fbebbe52
 zle-keymap-select() {
-  if [[ ${KEYMAP} == vicmd ]] ||
-    [[ $1 = 'block' ]]; then
+  if [[ $KEYMAP == vicmd ]]; then
     cursor_block
-  elif [[ ${KEYMAP} == main ]] ||
-    [[ ${KEYMAP} == viins ]] ||
-    [[ ${KEYMAP} = '' ]] ||
-    [[ $1 = 'beam' ]]; then
+  elif [[ $KEYMAP == (main|viins|'') ]]; then
     cursor_beam
   fi
 }
 zle -N zle-keymap-select
 
 zle-line-init() {
-  zle -K viins # initiate `vi insert` as keymap (can be removed if `bindkey -V` has been set elsewhere)
   cursor_beam
 }
 zle -N zle-line-init
 
-cursor_beam
-autoload -Uz add-zsh-hook
-add-zsh-hook precmd cursor_beam
-
-typeset -f osc52_copy >/dev/null || osc52_copy() {
+osc52_copy() {
   local data; data=$(printf %s "$1" | base64)
   printf '\e]52;c;%s\a' "$data"
 }
 
 is_local() { [[ -z "$SSH_TTY" ]]; }
 
-
-vi_yank_osc52() { zle .vi-yank; osc52_copy "$CUTBUFFER"; cursor_block }
-vi_yank_eol_osc52() { zle .vi-yank-eol; osc52_copy "$CUTBUFFER"; cursor_block }
-vi_yank_whole_line_osc52() { zle .vi-yank-whole-line; osc52_copy "$CUTBUFFER"; cursor_block }
+# One function serves several widgets: $WIDGET holds the name it was invoked as,
+# so `zle .$WIDGET` dispatches to the matching builtin
+vi_yank_osc52() { zle .$WIDGET; osc52_copy "$CUTBUFFER"; cursor_block }
 
 zle -N vi-yank vi_yank_osc52
-zle -N vi-yank-eol vi_yank_eol_osc52
-zle -N vi-yank-whole-line vi_yank_whole_line_osc52
+zle -N vi-yank-eol vi_yank_osc52
+zle -N vi-yank-whole-line vi_yank_osc52
 
-vi_put_after_smart() {
+vi_put_smart() {
   if is_local; then
-    local prev=$CUTBUFFER; CUTBUFFER="$(pbpaste)"; zle .vi-put-after;  CUTBUFFER=$prev
+    local prev=$CUTBUFFER; CUTBUFFER="$(pbpaste)"; zle .$WIDGET; CUTBUFFER=$prev
   else
-    zle .vi-put-after
+    zle .$WIDGET
   fi
   cursor_block
 }
-vi_put_before_smart() {
-  if is_local; then
-    local prev=$CUTBUFFER; CUTBUFFER="$(pbpaste)"; zle .vi-put-before; CUTBUFFER=$prev
-  else
-    zle .vi-put-before
-  fi
 
-  cursor_block
-}
-
-zle -N vi-put-after vi_put_after_smart
-zle -N vi-put-before vi_put_before_smart
+zle -N vi-put-after vi_put_smart
+zle -N vi-put-before vi_put_smart
 
 # Copy on visual `x` (delete selection + copy via OSC52)
 visual_x_copy() {

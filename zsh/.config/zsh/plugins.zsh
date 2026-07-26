@@ -1,6 +1,25 @@
 export ZSH_EVALCACHE_DIR="$HOME/.cache/.zsh-evalcache"
 export ANTIDOTE_HOME="$HOME/.cache/antidote"
 
+# Cache expensive `eval "$(cmd)"` output; invalidate by deleting the cache
+# file (`yay` and `build`).
+#
+# Local replacement for mroth/evalcache without its per-call `echo | md5` fork:
+# the args alone are the cache key and filename.
+#   - Fine for external binaries with short, distinct args (our only use)
+#   - Do NOT reuse for shell functions: body edits go silently stale
+#     (upstream hashes `typeset -f` and auto-invalidates)
+#   - Do NOT reuse for exotic/long args: sanitization collisions, NAME_MAX overflow
+_evalcache() {
+  local cache="$ZSH_EVALCACHE_DIR/init-${${(j:-:)@}//[^A-Za-z0-9_.-]/_}.sh"
+  if [[ ! -s $cache ]]; then
+    mkdir -p "$ZSH_EVALCACHE_DIR"
+    "$@" >"$cache" || { rm -f "$cache"; print -u2 "_evalcache: '$*' failed"; return 1 }
+    zcompile "$cache"
+  fi
+  source "$cache"
+}
+
 # Update oh-my-zsh automatically without asking
 zstyle ':omz:update' mode auto  
 
@@ -17,17 +36,6 @@ zstyle ':fzf-tab:*' use-fzf-default-opts yes
 zstyle ':completion:*' menu no
 
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-ZSH_CUSTOM_AUTOUPDATE_NUM_WORKERS=8
-ZSH_CUSTOM_AUTOUPDATE_QUIET=true
-
-# Nvim built-in terminal doesn't support colored underlines 
-typeset -gA ZSH_HIGHLIGHT_STYLES
-ZSH_HIGHLIGHT_STYLES[path]='fg=#cdd6f4'
-ZSH_HIGHLIGHT_STYLES[path_prefix]='fg=#cdd6f4'
-ZSH_HIGHLIGHT_STYLES[path_pathseparator]='fg=#cdd6f4'
-# Remove bold style
-ZSH_HIGHLIGHT_STYLES[unknown-token]='fg=red'
-ZSH_HIGHLIGHT_STYLES[unknown-command]='fg=red'
 
 # Set the root name of the plugins files (.txt and .zsh) antidote will use.
 zsh_plugins="$HOME/.zplugins"
@@ -44,7 +52,12 @@ fi
 
 # Source your static plugins file.
 source ${bundled_zsh_plugins}
-# Comment guide in `zsh_plugins.txt` file from the antidote docs (https://antidote.sh/)
-# Special treatment for prompt plugins
-autoload -Uz promptinit && promptinit && prompt powerlevel10k
+
+# omz re-encodes and re-emits OSC 7 on every prompt; skip when $PWD is unchanged
+functions -c omz_termsupport_cwd _omz_termsupport_cwd_orig
+omz_termsupport_cwd() {
+  [[ $PWD == $_termsupport_cwd_last ]] && return
+  typeset -g _termsupport_cwd_last=$PWD
+  _omz_termsupport_cwd_orig
+}
 

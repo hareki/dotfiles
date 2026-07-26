@@ -1,7 +1,6 @@
 #compdef sync-dots
 
 local -a items
-local repo_dir="$STOW_REPO"
 local d
 
 items=(
@@ -10,8 +9,8 @@ items=(
 )
 
 # Get package directories under $STOW_REPO and feed them into completion
-if [[ -n "$repo_dir" && -d "$repo_dir" ]]; then
-  for d in "$repo_dir"/*(/N); do
+if [[ -n "$STOW_REPO" && -d "$STOW_REPO" ]]; then
+  for d in "$STOW_REPO"/*(/N); do
     items+=("${d:t}:Sync ${d:t} configs")
   done
 fi

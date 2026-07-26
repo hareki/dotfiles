@@ -1,21 +1,19 @@
 #compdef tmuxinator
 # https://raw.githubusercontent.com/tmuxinator/tmuxinator/master/completion/tmuxinator.zsh
 
-local commands projects
+local -a projects=("$XDG_CONFIG_HOME"/tmuxinator/*.yml(N:t:r))
 
 if (( CURRENT == 2 )); then
-  commands=(${(f)"$(tmuxinator commands zsh)"})
-  projects=(${(f)"$(tmuxinator completions start)"})
+  # `tmuxinator commands` boots Ruby (>100ms); cache per shell since the
+  # command set can't change mid-session
+  (( $+_tmuxinator_commands )) || typeset -ga _tmuxinator_commands=(${(f)"$(tmuxinator commands zsh)"})
   _alternative \
-    'commands:: _describe -t commands "tmuxinator subcommands" commands' \
+    'commands:: _describe -t commands "tmuxinator subcommands" _tmuxinator_commands' \
     'projects:: _describe -t projects "tmuxinator projects" projects'
-elif (( CURRENT == 3)); then
+elif (( CURRENT == 3 )); then
   case $words[2] in
     copy|cp|c|debug|delete|rm|open|o|start|s|stop|edit|e)
-      projects=(${(f)"$(tmuxinator completions start)"})
       _arguments '*:projects:($projects)'
     ;;
   esac
 fi
-
-return
