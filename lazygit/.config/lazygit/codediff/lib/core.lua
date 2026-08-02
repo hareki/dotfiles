@@ -79,7 +79,7 @@ end
 local function render_hunk_inline(out, hunk, cell, changes, ctx)
   local function emit(side, row, line_type, emph)
     local c = cell(side, row, line_type, emph)
-    out[#out + 1] = layout.content_line(c.text, c.spans, c.line_type, c.emph, ctx.cols)
+    layout.content_line(out, c.text, c.spans, c.line_type, c.emph, ctx.cols)
   end
 
   local mod = 1
@@ -104,7 +104,7 @@ end
 -- modified right, absent lines shown as filler.
 local function render_hunk_split(out, hunk, cell, changes, ctx)
   local function row(left, right)
-    out[#out + 1] = layout.split_line(left, right, ctx.cols)
+    layout.split_line(out, left, right, ctx.cols)
   end
 
   local old_ptr, new_ptr = 1, 1

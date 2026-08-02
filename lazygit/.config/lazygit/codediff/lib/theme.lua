@@ -51,6 +51,8 @@ function M.load_diff_colors()
   end
 end
 
+-- Nested by language then capture, so the lookup on the renderer's hot path
+-- costs two table reads instead of a composite key built per segment.
 local cache = {}
 
 --- Resolve a treesitter capture to highlight attrs. nvim maintains the default
@@ -58,9 +60,16 @@ local cache = {}
 --- => @function, see :h treesitter-highlight-groups), so resolving the most
 --- specific name is enough. Returns nil when the theme defines nothing (render
 --- with the default fg).
+---
+--- The returned table is shared and must not be mutated: callers key their own
+--- memos on its identity.
 function M.attrs(capture, lang)
-  local key = capture .. "\0" .. lang
-  local hit = cache[key]
+  local by_capture = cache[lang]
+  if not by_capture then
+    by_capture = {}
+    cache[lang] = by_capture
+  end
+  local hit = by_capture[capture]
   if hit ~= nil then
     return hit or nil
   end
@@ -71,7 +80,7 @@ function M.attrs(capture, lang)
     attrs = { fg = hl.fg, bold = hl.bold, italic = hl.italic, underline = hl.underline }
   end
 
-  cache[key] = attrs or false
+  by_capture[capture] = attrs or false
   return attrs
 end
 
