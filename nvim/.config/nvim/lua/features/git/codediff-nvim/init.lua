@@ -8,6 +8,7 @@ return {
 
   {
     'hareki/codediff.nvim',
+    build = ':CodeDiff install',
     cmd = 'CodeDiff',
     keys = {
       {
