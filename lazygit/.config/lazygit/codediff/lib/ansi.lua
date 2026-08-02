@@ -29,16 +29,4 @@ end
 
 M.reset = ESC .. "[0m"
 
---- Stdout emitter that exits quietly when the pipe closes (lazygit killed the
---- render task); a half-written diff is expected there, an error message is not.
-function M.stdout_emitter()
-  return function(chunk)
-    local ok = io.write(chunk)
-    if not ok then
-      os.exit(0)
-    end
-    io.flush()
-  end
-end
-
 return M

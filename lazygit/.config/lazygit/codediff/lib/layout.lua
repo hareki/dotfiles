@@ -13,6 +13,11 @@ end
 
 -- Clip a string to at most `limit` display cells (UTF-8 aware). Returns the
 -- clipped string and its display width.
+--
+-- Widths are measured per codepoint *in context*, never standalone: a lone
+-- combining mark measures one cell but contributes nothing to the character it
+-- attaches to, so summing standalone widths overstates decomposed text (macOS
+-- stores filenames NFD) and the caller's layout arithmetic breaks apart.
 local function clip_to_width(s, limit)
   local w = util.display_width(s)
   if w <= limit then
@@ -24,15 +29,21 @@ local function clip_to_width(s, limit)
     return clipped, util.display_width(clipped)
   end
   local out = {}
+  local cluster, cluster_w = nil, 0
   w = 0
   for i = 1, #pos do
     local char = s:sub(pos[i], (pos[i + 1] or #s + 1) - 1)
-    local cw = util.display_width(char)
+    local cw = cluster and (util.display_width(cluster .. char) - cluster_w) or util.display_width(char)
     if w + cw > limit then
       break
     end
     out[#out + 1] = char
     w = w + cw
+    if cw == 0 then
+      cluster = (cluster or "") .. char
+    else
+      cluster, cluster_w = char, cw
+    end
   end
   return table.concat(out), w
 end
@@ -52,15 +63,24 @@ local function clip_left_to_width(s, limit)
     return clip_to_width(s, limit)
   end
   local out = {}
+  -- Walking right to left, a combining mark is seen before the character it
+  -- belongs to; hold it back so the clip never keeps a mark whose base it drops.
+  local pending = ""
   w = 0
   for i = #pos, 1, -1 do
     local char = s:sub(pos[i], (pos[i + 1] or #s + 1) - 1)
-    local cw = util.display_width(char)
-    if w + cw > limit - 1 then
-      break
+    local base = i > 1 and s:sub(pos[i - 1], pos[i] - 1) or nil
+    local cw = base and (util.display_width(base .. char) - util.display_width(base)) or util.display_width(char)
+    if cw == 0 then
+      pending = char .. pending
+    else
+      if w + cw > limit - 1 then
+        break
+      end
+      table.insert(out, 1, char .. pending)
+      pending = ""
+      w = w + cw
     end
-    table.insert(out, 1, char)
-    w = w + cw
   end
   return "…" .. table.concat(out), w + 1
 end
@@ -72,8 +92,13 @@ function M.hunk_header(path, hunk, cols)
   -- A pure-deletion hunk has new_count == 0 and a new_start pointing at the
   -- line *before* it (0 for a whole-file delete), so anchor on the old side.
   local num = tostring(hunk.new_count > 0 and hunk.new_start or hunk.old_start)
-  local heading = hunk.heading and (": " .. hunk.heading) or ""
-  local plain = (path or "") .. ":" .. num .. heading
+  -- A tab is measured relative to column 0, so the three pieces below only add
+  -- up if each of them starts there. Collapse tabs instead of expanding them:
+  -- this line is metadata (git keeps interior tabs in the section heading, and
+  -- a tab in a path survives unquoting), not source that needs its indentation.
+  local path_plain = (path or ""):gsub("\t", " ")
+  local heading = hunk.heading and (": " .. (hunk.heading:gsub("\t", " "))) or ""
+  local plain = path_plain .. ":" .. num .. heading
   local width = math.min(util.display_width(plain) + 2, math.max(cols - 1, 1))
 
   -- Everything must fit inside the rule with at least one pad cell before the
@@ -81,8 +106,14 @@ function M.hunk_header(path, hunk, cols)
   -- loses its head first, then the section heading its tail.
   local budget = math.max(width - 1, 1)
   local num_w = util.display_width(":" .. num)
-  local path_text, path_w = clip_left_to_width(path or "", math.max(budget - num_w, 0))
-  local heading_text, heading_w = clip_to_width(heading, math.max(budget - path_w - num_w, 0))
+  local path_text, path_w = clip_left_to_width(path_plain, math.max(budget - num_w, 0))
+  -- Under three cells nothing but the heading's own ": " prefix survives, which
+  -- just reads as a stray colon; drop the heading entirely instead.
+  local heading_budget = math.max(budget - path_w - num_w, 0)
+  local heading_text, heading_w = "", 0
+  if heading_budget >= 3 then
+    heading_text, heading_w = clip_to_width(heading, heading_budget)
+  end
   local used = path_w + num_w + heading_w
 
   local rule = ansi.style({ fg = p.decoration }) .. string.rep("─", width)

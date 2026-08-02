@@ -55,7 +55,9 @@ fi
 # until its idle timeout) and races a concurrent client that just spawned one.
 # The spawner puts the daemon in its own session; anything attached to
 # lazygit's render pty would be SIGHUP'd when the pty closes after this render.
-if ! nvim --clean --server "$SOCK" --remote-expr 1 >/dev/null 2>&1; then
+# The -S test short-circuits the cold path, where the probe would be a second
+# full nvim startup only to rediscover that there is nothing to connect to.
+if [ ! -S "$SOCK" ] || ! nvim --clean --server "$SOCK" --remote-expr 1 >/dev/null 2>&1; then
   rm -f "$SOCK"
   nvim --clean -l "$DIR/spawn_daemon.lua" "$SOCK" >/dev/null 2>&1
   i=0

@@ -17,7 +17,13 @@ function M.lang_for(path, content_lines)
   -- path alone is not a safe key: content-based detection (shebangs) makes the
   -- same relative path resolve differently across repos, and between a render
   -- that had the file's content and one that did not.
-  local key = path .. "\0" .. ((content_lines and content_lines[1]) or "")
+  --
+  -- Only a bounded fingerprint of the first line goes into the key. Embedding
+  -- the line itself would pin it in this never-evicted cache for the daemon's
+  -- lifetime, and a first line can be the whole file (a minified bundle, up to
+  -- max_blob_bytes); the detectors only ever look at its head anyway.
+  local sample = (content_lines and content_lines[1]) or ""
+  local key = path .. "\0" .. #sample .. "\0" .. sample:sub(1, 256)
   local hit = cache[key]
   if hit ~= nil then
     return hit or nil
