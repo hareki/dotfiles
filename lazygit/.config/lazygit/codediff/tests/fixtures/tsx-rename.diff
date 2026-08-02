@@ -1,0 +1,26 @@
+diff --git a/App.tsx b/Widget.tsx
+similarity index 75%
+rename from App.tsx
+rename to Widget.tsx
+index e224927..0366aa5 100644
+--- a/App.tsx
++++ b/Widget.tsx
+@@ -2,7 +2,8 @@ import React from 'react';
+ import styled from 'styled-components';
+ 
+ const Button = styled.button`
+-  background: #1e1e2e;
++  background: #181825;
++  border: none;
+   color: ${(props) => props.color};
+ `;
+ 
+@@ -10,7 +11,7 @@ export function App({ items }: { items: string[] }) {
+   return (
+     <div className="app">
+       {items.map((item) => (
+-        <Button key={item} color="red">{item}</Button>
++        <Button key={item} color="blue">{item}</Button>
+       ))}
+     </div>
+   );

@@ -1,0 +1,600 @@
+commit 8731d8a51bf9b50364ada0ad2fb8e7d57296dd51
+Author: Stefan Haller <stefan@haller-berlin.de>
+Date:   Mon Jul 27 18:36:09 2026 +0200
+
+    Rework the custom pager config (rename to diff renderer)
+    
+    For a long time lazygit has used the term "custom pager" to refer to
+    what's really a "diff renderer". A pager is a program that allows you to
+    view output page by page (hence the name), e.g. less; lazygit's custom
+    diff renderers are not pagers. It used the term only because the feature
+    is implemented using git's GIT_PAGER env var, but that's an
+    implementation detail.
+    
+    Rename the 'git.pagers' config to 'git.diffRenderers', and restructure
+    its elements while we're at it to make things clearer:
+    
+    - Add a 'type' field to explicitly specify which type of diff renderer
+      it is (the two fundamentally different ones are 'stdinFilter' and
+      'extDiff').
+    - Add a third type, 'rawGit', which has an 'args' field that makes it
+      easy to use 'git --color-words' as a custom renderer
+    - Unify the old 'pager' and 'externalDiffCommand' fields to a single
+      'command' field for both types
+    
+    Existing config files are migrated automatically.
+
+diff --git a/docs-master/Config.md b/docs-master/Config.md
+index b5bf09088..3dede3bc9 100644
+--- a/docs-master/Config.md
++++ b/docs-master/Config.md
+@@ -66,8 +66,8 @@ gui:
+ 
+   # The number of spaces per tab; used for everything that's shown in the main
+   # view, but probably mostly relevant for diffs.
+-  # Note that when using a pager, the pager has its own tab width setting, so you
+-  # need to pass it separately in the pager command.
++  # Note that when using a diff renderer, the renderer has its own tab width
++  # setting, so you need to pass it separately in the renderer command.
+   tabWidth: 4
+ 
+   # If true, capture mouse events.
+@@ -360,38 +360,39 @@ gui:
+ 
+ # Config relating to git
+ git:
+-  # Array of pagers. Each entry has the following format:
++  # Array of diff renderers. Each entry has the following format:
+   #
+-  #   # A name for the pager, shown in the notification when cycling pagers.
+-  #   # If not set, the name is derived from the first word of the pager
+-  #   # command (or of the external diff command).
++  #   # The type of diff renderer. One of: 'stdinFilter' (default) | 'extDiff'
++  #   # | 'rawGit'
++  #   type: "stdinFilter"
++  #
++  #   # A name for the diff renderer, shown in the notification when cycling
++  #   # renderers. If not set, the name is derived from the first word of the
++  #   # renderer command.
+   #   name: ""
+   #
+-  #   # Value of the --color arg in the git diff command. Some pagers want
+-  #   # this to be set to 'always' and some want it set to 'never'
++  #   # Value of the --color arg in the git diff command. Only used for type
++  #   # 'stdinFilter'. Some renderers want this to be set to 'always' and some
++  #   # want it set to 'never'.
+   #   colorArg: "always"
+   #
++  #   # The command to use for rendering diffs. This is either a stdinFilter or
++  #   # an external diff command, depending on the type field; not applicable if
++  #   # the type is 'rawGit'.
+   #   # e.g.
+   #   # diff-so-fancy
+   #   # delta --dark --paging=never
+-  #   # ydiff -p cat -s --wrap --width={{columnWidth}}
+-  #   pager: ""
+-  #
+-  #   # e.g. 'difft --color=always'
+-  #   externalDiffCommand: ""
+-  #
+-  #   # If true, Lazygit will use git's `diff.external` config for paging.
+-  #   # The advantage over `externalDiffCommand` is that this can be
+-  #   # configured per file type in .gitattributes; see
+-  #   # https://git-scm.com/docs/gitattributes#_defining_an_external_diff_driver.
+-  #   useExternalDiffGitConfig: false
++  #   # ydiff -p cat
++  #   # difft --color=always
++  #   command: ""
+   #
+-  # 'pager', 'externalDiffCommand', and 'useExternalDiffGitConfig' are mutually
+-  # exclusive; set at most one per entry.
++  #   # Extra arguments (array of strings) passed to the git command. Only
++  #   # applicable if the type is 'rawGit'.
++  #   args: []
+   #
+   # See https://github.com/jesseduffield/lazygit/blob/master/docs/Custom_Pagers.md
+   # for more information.
+-  pagers: []
++  diffRenderers: []
+ 
+   # Config relating to committing
+   commit:
+@@ -714,8 +715,8 @@ keybinding:
+     prevTab: '['
+     nextScreenMode: +
+     prevScreenMode: _
+-    cyclePagers: '|'
+-    cyclePagersReverse: \
++    cycleDiffRenderers: '|'
++    cycleDiffRenderersReverse: \
+     undo: z
+     redo: Z
+     filteringMenu: <ctrl+s>
+diff --git a/docs-master/keybindings/Keybindings_en.md b/docs-master/keybindings/Keybindings_en.md
+index 4aa202740..3ec731bf2 100644
+--- a/docs-master/keybindings/Keybindings_en.md
++++ b/docs-master/keybindings/Keybindings_en.md
+@@ -22,8 +22,8 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
+ | `` R `` | Refresh | Refresh the git state (i.e. run `git status`, `git branch`, etc in background to update the contents of panels). This does not run `git fetch`. |
+ | `` + `` | Next screen mode (normal/half/fullscreen) |  |
+ | `` _ `` | Prev screen mode |  |
+-| `` \| `` | Cycle pagers | Choose the next pager in the list of configured pagers. |
+-| `` \ `` | Cycle pagers (reverse) | Choose the previous pager in the list of configured pagers. |
++| `` \| `` | Cycle diff renderers | Choose the next renderer in the list of configured diff renderers. |
++| `` \ `` | Cycle diff renderers (reverse) | Choose the previous renderer in the list of configured diff renderers. |
+ | `` <esc> `` | Cancel |  |
+ | `` ? `` | Open keybindings menu |  |
+ | `` <ctrl+s> `` | View filter options | View options for filtering the commit log, so that only commits matching the filter are shown. |
+diff --git a/docs-master/keybindings/Keybindings_ja.md b/docs-master/keybindings/Keybindings_ja.md
+index 5b9c798a1..6a3d9b5c1 100644
+--- a/docs-master/keybindings/Keybindings_ja.md
++++ b/docs-master/keybindings/Keybindings_ja.md
+@@ -22,8 +22,8 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
+ | `` R `` | 更新 | Gitの状態を更新します（`git status`、`git branch`などをバックグラウンドで実行してパネルの内容を更新します）。これは`git fetch`を実行しません。 |
+ | `` + `` | 次の画面モード（通常/半分/全画面） |  |
+ | `` _ `` | 前の画面モード |  |
+-| `` \| `` | Cycle pagers | Choose the next pager in the list of configured pagers. |
+-| `` \ `` | Cycle pagers (reverse) | Choose the previous pager in the list of configured pagers. |
++| `` \| `` | Cycle diff renderers | Choose the next renderer in the list of configured diff renderers. |
++| `` \ `` | Cycle diff renderers (reverse) | Choose the previous renderer in the list of configured diff renderers. |
+ | `` <esc> `` | キャンセル |  |
+ | `` ? `` | キーバインディングメニューを開く |  |
+ | `` <ctrl+s> `` | フィルターオプションを表示 | コミットログのフィルタリングオプションを表示し、フィルタに一致するコミットのみを表示します。 |
+diff --git a/docs-master/keybindings/Keybindings_ko.md b/docs-master/keybindings/Keybindings_ko.md
+index d1eb3afb1..a0e5d84dc 100644
+--- a/docs-master/keybindings/Keybindings_ko.md
++++ b/docs-master/keybindings/Keybindings_ko.md
+@@ -22,8 +22,8 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
+ | `` R `` | 새로고침 | Refresh the git state (i.e. run `git status`, `git branch`, etc in background to update the contents of panels). This does not run `git fetch`. |
+ | `` + `` | 다음 스크린 모드 (normal/half/fullscreen) |  |
+ | `` _ `` | 이전 스크린 모드 |  |
+-| `` \| `` | Cycle pagers | Choose the next pager in the list of configured pagers. |
+-| `` \ `` | Cycle pagers (reverse) | Choose the previous pager in the list of configured pagers. |
++| `` \| `` | Cycle diff renderers | Choose the next renderer in the list of configured diff renderers. |
++| `` \ `` | Cycle diff renderers (reverse) | Choose the previous renderer in the list of configured diff renderers. |
+ | `` <esc> `` | 취소 |  |
+ | `` ? `` | 매뉴 열기 |  |
+ | `` <ctrl+s> `` | View filter-by-path options | View options for filtering the commit log, so that only commits matching the filter are shown. |
+diff --git a/docs-master/keybindings/Keybindings_nl.md b/docs-master/keybindings/Keybindings_nl.md
+index 0eb61729b..cf9934b40 100644
+--- a/docs-master/keybindings/Keybindings_nl.md
++++ b/docs-master/keybindings/Keybindings_nl.md
+@@ -22,8 +22,8 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
+ | `` R `` | Verversen | Refresh the git state (i.e. run `git status`, `git branch`, etc in background to update the contents of panels). This does not run `git fetch`. |
+ | `` + `` | Volgende scherm modus (normaal/half/groot) |  |
+ | `` _ `` | Vorige scherm modus |  |
+-| `` \| `` | Cycle pagers | Choose the next pager in the list of configured pagers. |
+-| `` \ `` | Cycle pagers (reverse) | Choose the previous pager in the list of configured pagers. |
++| `` \| `` | Cycle diff renderers | Choose the next renderer in the list of configured diff renderers. |
++| `` \ `` | Cycle diff renderers (reverse) | Choose the previous renderer in the list of configured diff renderers. |
+ | `` <esc> `` | Annuleren |  |
+ | `` ? `` | Open menu |  |
+ | `` <ctrl+s> `` | Bekijk scoping opties | View options for filtering the commit log, so that only commits matching the filter are shown. |
+diff --git a/docs-master/keybindings/Keybindings_pl.md b/docs-master/keybindings/Keybindings_pl.md
+index 719a7e6c4..ba46f7c46 100644
+--- a/docs-master/keybindings/Keybindings_pl.md
++++ b/docs-master/keybindings/Keybindings_pl.md
+@@ -22,8 +22,8 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
+ | `` R `` | Odśwież | Odśwież stan git (tj. uruchom `git status`, `git branch`, itp. w tle, aby zaktualizować zawartość paneli). To nie uruchamia `git fetch`. |
+ | `` + `` | Następny tryb ekranu (normalny/półpełny/pełnoekranowy) |  |
+ | `` _ `` | Poprzedni tryb ekranu |  |
+-| `` \| `` | Cycle pagers | Choose the next pager in the list of configured pagers. |
+-| `` \ `` | Cycle pagers (reverse) | Choose the previous pager in the list of configured pagers. |
++| `` \| `` | Cycle diff renderers | Choose the next renderer in the list of configured diff renderers. |
++| `` \ `` | Cycle diff renderers (reverse) | Choose the previous renderer in the list of configured diff renderers. |
+ | `` <esc> `` | Anuluj |  |
+ | `` ? `` | Otwórz menu przypisań klawiszy |  |
+ | `` <ctrl+s> `` | Pokaż opcje filtrowania | Pokaż opcje filtrowania dziennika commitów, tak aby pokazywane były tylko commity pasujące do filtra. |
+diff --git a/docs-master/keybindings/Keybindings_pt.md b/docs-master/keybindings/Keybindings_pt.md
+index 5fcba2688..3071613be 100644
+--- a/docs-master/keybindings/Keybindings_pt.md
++++ b/docs-master/keybindings/Keybindings_pt.md
+@@ -22,8 +22,8 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
+ | `` R `` | Atualizar | Atualize o estado do git (ou seja, execute `git status`, `git branch`, etc em segundo plano para atualizar o conteúdo de painéis). Isso não executa `git fetch`. |
+ | `` + `` | Modo de tela seguinte (normal/metade/tela cheia) |  |
+ | `` _ `` | Modo de tela anterior |  |
+-| `` \| `` | Cycle pagers | Choose the next pager in the list of configured pagers. |
+-| `` \ `` | Cycle pagers (reverse) | Choose the previous pager in the list of configured pagers. |
++| `` \| `` | Cycle diff renderers | Choose the next renderer in the list of configured diff renderers. |
++| `` \ `` | Cycle diff renderers (reverse) | Choose the previous renderer in the list of configured diff renderers. |
+ | `` <esc> `` | Cancelar |  |
+ | `` ? `` | Abrir o menu de atalhos do teclado |  |
+ | `` <ctrl+s> `` | Ver opções de filtro | View options for filtering the commit log, so that only commits matching the filter are shown. |
+diff --git a/docs-master/keybindings/Keybindings_ru.md b/docs-master/keybindings/Keybindings_ru.md
+index 683135448..3d03f9ca6 100644
+--- a/docs-master/keybindings/Keybindings_ru.md
++++ b/docs-master/keybindings/Keybindings_ru.md
+@@ -22,8 +22,8 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
+ | `` R `` | Обновить | Refresh the git state (i.e. run `git status`, `git branch`, etc in background to update the contents of panels). This does not run `git fetch`. |
+ | `` + `` | Следующий режим экрана (нормальный/полуэкранный/полноэкранный) |  |
+ | `` _ `` | Предыдущий режим экрана |  |
+-| `` \| `` | Cycle pagers | Choose the next pager in the list of configured pagers. |
+-| `` \ `` | Cycle pagers (reverse) | Choose the previous pager in the list of configured pagers. |
++| `` \| `` | Cycle diff renderers | Choose the next renderer in the list of configured diff renderers. |
++| `` \ `` | Cycle diff renderers (reverse) | Choose the previous renderer in the list of configured diff renderers. |
+ | `` <esc> `` | Отменить |  |
+ | `` ? `` | Открыть меню |  |
+ | `` <ctrl+s> `` | Просмотреть параметры фильтрации по пути | View options for filtering the commit log, so that only commits matching the filter are shown. |
+diff --git a/docs-master/keybindings/Keybindings_zh-CN.md b/docs-master/keybindings/Keybindings_zh-CN.md
+index b4f1134ec..9819cb982 100644
+--- a/docs-master/keybindings/Keybindings_zh-CN.md
++++ b/docs-master/keybindings/Keybindings_zh-CN.md
+@@ -22,8 +22,8 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
+ | `` R `` | 刷新 | 刷新Git状态（即在后台运行`git status`、`git branch`等命令以更新面板内容）。此操作不会执行`git fetch`。 |
+ | `` + `` | 下一屏模式(正常/半屏/全屏) |  |
+ | `` _ `` | 上一屏模式 |  |
+-| `` \| `` | 切换分页器 | 从已配置的分页器列表中选择下一个分页器 |
+-| `` \ `` | Cycle pagers (reverse) | Choose the previous pager in the list of configured pagers. |
++| `` \| `` | Cycle diff renderers | Choose the next renderer in the list of configured diff renderers. |
++| `` \ `` | Cycle diff renderers (reverse) | Choose the previous renderer in the list of configured diff renderers. |
+ | `` <esc> `` | 取消 |  |
+ | `` ? `` | 打开菜单 |  |
+ | `` <ctrl+s> `` | 查看按路径过滤选项 | 查看用于过滤提交日志的选项，以便仅显示与过滤器匹配的提交。 |
+diff --git a/docs-master/keybindings/Keybindings_zh-TW.md b/docs-master/keybindings/Keybindings_zh-TW.md
+index b50e25d35..1706a627e 100644
+--- a/docs-master/keybindings/Keybindings_zh-TW.md
++++ b/docs-master/keybindings/Keybindings_zh-TW.md
+@@ -22,8 +22,8 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
+ | `` R `` | 重新整理 | Refresh the git state (i.e. run `git status`, `git branch`, etc in background to update the contents of panels). This does not run `git fetch`. |
+ | `` + `` | 下一個螢幕模式（常規/半螢幕/全螢幕） |  |
+ | `` _ `` | 上一個螢幕模式 |  |
+-| `` \| `` | Cycle pagers | Choose the next pager in the list of configured pagers. |
+-| `` \ `` | Cycle pagers (reverse) | Choose the previous pager in the list of configured pagers. |
++| `` \| `` | Cycle diff renderers | Choose the next renderer in the list of configured diff renderers. |
++| `` \ `` | Cycle diff renderers (reverse) | Choose the previous renderer in the list of configured diff renderers. |
+ | `` <esc> `` | 取消 |  |
+ | `` ? `` | 開啟選單 |  |
+ | `` <ctrl+s> `` | 檢視篩選路徑選項 | View options for filtering the commit log, so that only commits matching the filter are shown. |
+diff --git a/pkg/commands/git.go b/pkg/commands/git.go
+index ba6e5a033..6a08c1d2b 100644
+--- a/pkg/commands/git.go
++++ b/pkg/commands/git.go
+@@ -60,7 +60,7 @@ func NewGitCommand(
+ 	version *git_commands.GitVersion,
+ 	osCommand *oscommands.OSCommand,
+ 	gitConfig git_config.IGitConfig,
+-	pagerConfig *config.PagerConfig,
++	diffRendererConfigManager *config.DiffRendererConfigManager,
+ ) (*GitCommand, error) {
+ 	repoPaths, err := git_commands.GetRepoPaths(osCommand.Cmd, version)
+ 	if err != nil {
+@@ -82,7 +82,7 @@ func NewGitCommand(
+ 		osCommand,
+ 		gitConfig,
+ 		repoPaths,
+-		pagerConfig,
++		diffRendererConfigManager,
+ 	), nil
+ }
+ 
+@@ -92,7 +92,7 @@ func NewGitCommandAux(
+ 	osCommand *oscommands.OSCommand,
+ 	gitConfig git_config.IGitConfig,
+ 	repoPaths *git_commands.RepoPaths,
+-	pagerConfig *config.PagerConfig,
++	diffRendererConfigManager *config.DiffRendererConfigManager,
+ ) *GitCommand {
+ 	cmd := NewGitCmdObjBuilder(cmn.Log, osCommand.Cmd, repoPaths.WorktreePath())
+ 
+@@ -103,7 +103,7 @@ func NewGitCommandAux(
+ 	// common ones are: cmn, osCommand, dotGitDir, configCommands
+ 	configCommands := git_commands.NewConfigCommands(cmn, gitConfig)
+ 
+-	gitCommon := git_commands.NewGitCommon(cmn, version, cmd, osCommand, repoPaths, configCommands, pagerConfig)
++	gitCommon := git_commands.NewGitCommon(cmn, version, cmd, osCommand, repoPaths, configCommands, diffRendererConfigManager)
+ 
+ 	fileLoader := git_commands.NewFileLoader(gitCommon, cmd, configCommands)
+ 	statusCommands := git_commands.NewStatusCommands(gitCommon)
+diff --git a/pkg/commands/git_commands/commit.go b/pkg/commands/git_commands/commit.go
+index 17aca59d2..d067e9831 100644
+--- a/pkg/commands/git_commands/commit.go
++++ b/pkg/commands/git_commands/commit.go
+@@ -243,9 +243,9 @@ func (self *CommitCommands) AmendHeadCmdObj() *oscommands.CmdObj {
+ func (self *CommitCommands) ShowCmdObj(hash string, filterPaths []string) *oscommands.CmdObj {
+ 	cmdArgs := NewGitCmd("show").
+ 		Config("diff.noprefix=false").
+-		AddCommonDiffArgs(self.pagerConfig, self.UserConfig(), true).
++		AddCommonDiffArgs(self.diffRendererConfigManager, self.UserConfig(), true).
+ 		Arg("--submodule").
+-		Arg("--color=" + self.pagerConfig.GetColorArg()).
++		Arg("--color=" + self.diffRendererConfigManager.GetColorArg()).
+ 		Arg("--stat").
+ 		Arg("--decorate").
+ 		Arg("-p").
+diff --git a/pkg/commands/git_commands/commit_test.go b/pkg/commands/git_commands/commit_test.go
+index 72d2ed1b2..9b2ddecfb 100644
+--- a/pkg/commands/git_commands/commit_test.go
++++ b/pkg/commands/git_commands/commit_test.go
+@@ -255,7 +255,7 @@ func TestCommitShowCmdObj(t *testing.T) {
+ 		contextSize         uint64
+ 		similarityThreshold int
+ 		ignoreWhitespace    bool
+-		pagerConfig         *config.PagingConfig
++		diffRendererConfig  *config.DiffRendererConfig
+ 		expected            []string
+ 	}
+ 
+@@ -266,7 +266,7 @@ func TestCommitShowCmdObj(t *testing.T) {
+ 			contextSize:         3,
+ 			similarityThreshold: 50,
+ 			ignoreWhitespace:    false,
+-			pagerConfig:         nil,
++			diffRendererConfig:  nil,
+ 			expected:            []string{"-C", "/path/to/worktree", "-c", "diff.noprefix=false", "show", "--no-ext-diff", "--unified=3", "--find-renames=50%", "--submodule", "--color=always", "--stat", "--decorate", "-p", "1234567890", "--"},
+ 		},
+ 		{
+@@ -275,7 +275,7 @@ func TestCommitShowCmdObj(t *testing.T) {
+ 			contextSize:         3,
+ 			similarityThreshold: 50,
+ 			ignoreWhitespace:    false,
+-			pagerConfig:         nil,
++			diffRendererConfig:  nil,
+ 			expected:            []string{"-C", "/path/to/worktree", "-c", "diff.noprefix=false", "show", "--no-ext-diff", "--unified=3", "--find-renames=50%", "--submodule", "--color=always", "--stat", "--decorate", "-p", "1234567890", "--", "file.txt"},
+ 		},
+ 		{
+@@ -284,7 +284,7 @@ func TestCommitShowCmdObj(t *testing.T) {
+ 			contextSize:         77,
+ 			similarityThreshold: 50,
+ 			ignoreWhitespace:    false,
+-			pagerConfig:         nil,
++			diffRendererConfig:  nil,
+ 			expected:            []string{"-C", "/path/to/worktree", "-c", "diff.noprefix=false", "show", "--no-ext-diff", "--unified=77", "--find-renames=50%", "--submodule", "--color=always", "--stat", "--decorate", "-p", "1234567890", "--"},
+ 		},
+ 		{
+@@ -293,7 +293,7 @@ func TestCommitShowCmdObj(t *testing.T) {
+ 			contextSize:         3,
+ 			similarityThreshold: 33,
+ 			ignoreWhitespace:    false,
+-			pagerConfig:         nil,
++			diffRendererConfig:  nil,
+ 			expected:            []string{"-C", "/path/to/worktree", "-c", "diff.noprefix=false", "show", "--no-ext-diff", "--unified=3", "--find-renames=33%", "--submodule", "--color=always", "--stat", "--decorate", "-p", "1234567890", "--"},
+ 		},
+ 		{
+@@ -302,7 +302,7 @@ func TestCommitShowCmdObj(t *testing.T) {
+ 			contextSize:         77,
+ 			similarityThreshold: 50,
+ 			ignoreWhitespace:    true,
+-			pagerConfig:         nil,
++			diffRendererConfig:  nil,
+ 			expected:            []string{"-C", "/path/to/worktree", "-c", "diff.noprefix=false", "show", "--no-ext-diff", "--unified=77", "--ignore-all-space", "--find-renames=50%", "--submodule", "--color=always", "--stat", "--decorate", "-p", "1234567890", "--"},
+ 		},
+ 		{
+@@ -311,7 +311,7 @@ func TestCommitShowCmdObj(t *testing.T) {
+ 			contextSize:         3,
+ 			similarityThreshold: 50,
+ 			ignoreWhitespace:    false,
+-			pagerConfig:         &config.PagingConfig{ExternalDiffCommand: "difft --color=always"},
++			diffRendererConfig:  &config.DiffRendererConfig{Type: "extDiff", Command: "difft --color=always"},
+ 			expected:            []string{"-C", "/path/to/worktree", "-c", "diff.external=difft --color=always", "-c", "diff.noprefix=false", "show", "--ext-diff", "--unified=3", "--find-renames=50%", "--submodule", "--color=always", "--stat", "--decorate", "-p", "1234567890", "--"},
+ 		},
+ 		{
+@@ -320,7 +320,7 @@ func TestCommitShowCmdObj(t *testing.T) {
+ 			contextSize:         3,
+ 			similarityThreshold: 50,
+ 			ignoreWhitespace:    false,
+-			pagerConfig:         &config.PagingConfig{UseExternalDiffGitConfig: true},
++			diffRendererConfig:  &config.DiffRendererConfig{Type: "extDiff"},
+ 			expected:            []string{"-C", "/path/to/worktree", "-c", "diff.noprefix=false", "show", "--ext-diff", "--unified=3", "--find-renames=50%", "--submodule", "--color=always", "--stat", "--decorate", "-p", "1234567890", "--"},
+ 		},
+ 	}
+@@ -328,8 +328,8 @@ func TestCommitShowCmdObj(t *testing.T) {
+ 	for _, s := range scenarios {
+ 		t.Run(s.testName, func(t *testing.T) {
+ 			userConfig := config.GetDefaultConfig()
+-			if s.pagerConfig != nil {
+-				userConfig.Git.Pagers = []config.PagingConfig{*s.pagerConfig}
++			if s.diffRendererConfig != nil {
++				userConfig.Git.DiffRenderers = []config.DiffRendererConfig{*s.diffRendererConfig}
+ 			}
+ 			userConfig.Git.IgnoreWhitespaceInDiffView = s.ignoreWhitespace
+ 			userConfig.Git.DiffContextSize = s.contextSize
+diff --git a/pkg/commands/git_commands/common.go b/pkg/commands/git_commands/common.go
+index ba3b64d7f..4a8c85213 100644
+--- a/pkg/commands/git_commands/common.go
++++ b/pkg/commands/git_commands/common.go
+@@ -8,12 +8,12 @@ import (
+ 
+ type GitCommon struct {
+ 	*common.Common
+-	version     *GitVersion
+-	cmd         oscommands.ICmdObjBuilder
+-	os          *oscommands.OSCommand
+-	repoPaths   *RepoPaths
+-	config      *ConfigCommands
+-	pagerConfig *config.PagerConfig
++	version                   *GitVersion
++	cmd                       oscommands.ICmdObjBuilder
++	os                        *oscommands.OSCommand
++	repoPaths                 *RepoPaths
++	config                    *ConfigCommands
++	diffRendererConfigManager *config.DiffRendererConfigManager
+ }
+ 
+ func NewGitCommon(
+@@ -23,15 +23,15 @@ func NewGitCommon(
+ 	osCommand *oscommands.OSCommand,
+ 	repoPaths *RepoPaths,
+ 	config *ConfigCommands,
+-	pagerConfig *config.PagerConfig,
++	diffRendererConfigManager *config.DiffRendererConfigManager,
+ ) *GitCommon {
+ 	return &GitCommon{
+-		Common:      cmn,
+-		version:     version,
+-		cmd:         cmd,
+-		os:          osCommand,
+-		repoPaths:   repoPaths,
+-		config:      config,
+-		pagerConfig: pagerConfig,
++		Common:                    cmn,
++		version:                   version,
++		cmd:                       cmd,
++		os:                        osCommand,
++		repoPaths:                 repoPaths,
++		config:                    config,
++		diffRendererConfigManager: diffRendererConfigManager,
+ 	}
+ }
+diff --git a/pkg/commands/git_commands/deps_test.go b/pkg/commands/git_commands/deps_test.go
+index 235f21716..91332cff6 100644
+--- a/pkg/commands/git_commands/deps_test.go
++++ b/pkg/commands/git_commands/deps_test.go
+@@ -62,7 +62,7 @@ func buildGitCommon(deps commonDeps) *GitCommon {
+ 		gitCommon.Common.SetUserConfig(config.GetDefaultConfig())
+ 	}
+ 
+-	gitCommon.pagerConfig = config.NewPagerConfig(func() *config.UserConfig {
++	gitCommon.diffRendererConfigManager = config.NewDiffRendererConfigManager(func() *config.UserConfig {
+ 		return gitCommon.Common.UserConfig()
+ 	})
+ 
+diff --git a/pkg/commands/git_commands/diff.go b/pkg/commands/git_commands/diff.go
+index 5e0cae109..d532f1bbb 100644
+--- a/pkg/commands/git_commands/diff.go
++++ b/pkg/commands/git_commands/diff.go
+@@ -17,14 +17,14 @@ func NewDiffCommands(gitCommon *GitCommon) *DiffCommands {
+ }
+ 
+ // This is for generating diffs to be shown in the UI (e.g. rendering a range
+-// diff to the main view). It uses a custom pager if one is configured.
++// diff to the main view). It uses a custom diff renderer if one is configured.
+ func (self *DiffCommands) DiffCmdObj(diffArgs []string) *oscommands.CmdObj {
+ 	return self.cmd.New(
+ 		NewGitCmd("diff").
+ 			Config("diff.noprefix=false").
+-			AddCommonDiffArgs(self.pagerConfig, self.UserConfig(), true).
++			AddCommonDiffArgs(self.diffRendererConfigManager, self.UserConfig(), true).
+ 			Arg("--submodule").
+-			Arg(fmt.Sprintf("--color=%s", self.pagerConfig.GetColorArg())).
++			Arg(fmt.Sprintf("--color=%s", self.diffRendererConfigManager.GetColorArg())).
+ 			Arg(diffArgs...).
+ 			Dir(self.repoPaths.worktreePath).
+ 			ToArgv(),
+@@ -32,8 +32,8 @@ func (self *DiffCommands) DiffCmdObj(diffArgs []string) *oscommands.CmdObj {
+ }
+ 
+ // This is a basic generic diff command that can be used for any diff operation
+-// (e.g. copying a diff to the clipboard). It will not use a custom pager, and
+-// does not use user configs such as ignore whitespace.
++// (e.g. copying a diff to the clipboard). It will not use a custom diff renderer,
++// and does not use user configs such as ignore whitespace.
+ // If you want to diff specific refs (one or two), you need to add them yourself
+ // in additionalArgs; it is recommended to also pass `--` after that. If you
+ // want to restrict the diff to specific paths, pass them in additionalArgs
+diff --git a/pkg/commands/git_commands/git_command_builder.go b/pkg/commands/git_commands/git_command_builder.go
+index ee1723c32..49e27ec1f 100644
+--- a/pkg/commands/git_commands/git_command_builder.go
++++ b/pkg/commands/git_commands/git_command_builder.go
+@@ -113,18 +113,18 @@ func (self *GitCommandBuilder) GitDirIf(condition bool, path string) *GitCommand
+ 	return self
+ }
+ 
+-func (self *GitCommandBuilder) AddCommonDiffArgs(pagerConfig *config.PagerConfig, userConfig *config.UserConfig, forUI bool) *GitCommandBuilder {
++func (self *GitCommandBuilder) AddCommonDiffArgs(diffRendererConfigManager *config.DiffRendererConfigManager, userConfig *config.UserConfig, forUI bool) *GitCommandBuilder {
+ 	contextSize := userConfig.Git.DiffContextSize
+-	extDiffCmd := pagerConfig.GetExternalDiffCommand(contextSize)
+-	useExtDiff := forUI && extDiffCmd != ""
+-	useExtDiffGitConfig := forUI && pagerConfig.GetUseExternalDiffGitConfig()
++	extDiffCmd := diffRendererConfigManager.GetExternalDiffCommand(contextSize)
++	useExtDiff := forUI && diffRendererConfigManager.GetDiffRendererType() == config.DiffRendererType_ExtDiff
+ 
+ 	return self.
+-		ConfigIf(useExtDiff, "diff.external="+extDiffCmd).
+-		ArgIfElse(useExtDiff || useExtDiffGitConfig, "--ext-diff", "--no-ext-diff").
++		ConfigIf(forUI && extDiffCmd != "", "diff.external="+extDiffCmd).
++		ArgIfElse(useExtDiff, "--ext-diff", "--no-ext-diff").
+ 		Arg(fmt.Sprintf("--unified=%d", contextSize)).
+ 		ArgIf(forUI && userConfig.Git.IgnoreWhitespaceInDiffView, "--ignore-all-space").
+-		Arg(fmt.Sprintf("--find-renames=%d%%", userConfig.Git.RenameSimilarityThreshold))
++		Arg(fmt.Sprintf("--find-renames=%d%%", userConfig.Git.RenameSimilarityThreshold)).
++		ArgIf(forUI, diffRendererConfigManager.GetRawGitArgs()...)
+ }
+ 
+ func (self *GitCommandBuilder) ToArgv() []string {
+diff --git a/pkg/commands/git_commands/stash.go b/pkg/commands/git_commands/stash.go
+index 08a944bc3..ea23c5141 100644
+--- a/pkg/commands/git_commands/stash.go
++++ b/pkg/commands/git_commands/stash.go
+@@ -83,11 +83,11 @@ func (self *StashCommands) Hash(index int) (string, error) {
+ func (self *StashCommands) ShowStashEntryCmdObj(index int) *oscommands.CmdObj {
+ 	// "-u" is the same as "--include-untracked", but the latter fails in older git versions for some reason
+ 	cmdArgs := NewGitCmd("stash").Arg("show").
+-		AddCommonDiffArgs(self.pagerConfig, self.UserConfig(), true).
++		AddCommonDiffArgs(self.diffRendererConfigManager, self.UserConfig(), true).
+ 		Arg("-p").
+ 		Arg("--stat").
+ 		Arg("-u").
+-		Arg(fmt.Sprintf("--color=%s", self.pagerConfig.GetColorArg())).
++		Arg(fmt.Sprintf("--color=%s", self.diffRendererConfigManager.GetColorArg())).
+ 		Arg(fmt.Sprintf("refs/stash@{%d}", index)).
+ 		Dir(self.repoPaths.worktreePath).
+ 		ToArgv()
+diff --git a/pkg/commands/git_commands/stash_test.go b/pkg/commands/git_commands/stash_test.go
+index 1d318ffc6..8f5629c98 100644
+--- a/pkg/commands/git_commands/stash_test.go
++++ b/pkg/commands/git_commands/stash_test.go
+@@ -103,7 +103,7 @@ func TestStashStashEntryCmdObj(t *testing.T) {
+ 		contextSize         uint64
+ 		similarityThreshold int
+ 		ignoreWhitespace    bool
+-		pagerConfig         *config.PagingConfig
++		diffRendererConfig  *config.DiffRendererConfig
+ 		expected            []string
+ 	}
+ 
+@@ -138,7 +138,7 @@ func TestStashStashEntryCmdObj(t *testing.T) {
+ 			contextSize:         3,
+ 			similarityThreshold: 50,
+ 			ignoreWhitespace:    false,
+-			pagerConfig:         &config.PagingConfig{ExternalDiffCommand: "difft --color=always"},
++			diffRendererConfig:  &config.DiffRendererConfig{Type: "extDiff", Command: "difft --color=always"},
+ 			expected:            []string{"git", "-C", "/path/to/worktree", "-c", "diff.external=difft --color=always", "stash", "show", "--ext-diff", "--unified=3", "--find-renames=50%", "-p", "--stat", "-u", "--color=always", "refs/stash@{5}"},
+ 		},
+ 		{
+@@ -147,7 +147,7 @@ func TestStashStashEntryCmdObj(t *testing.T) {
+ 			contextSize:         3,
+ 			similarityThreshold: 50,
+ 			ignoreWhitespace:    false,
+-			pagerConfig:         &config.PagingConfig{UseExternalDiffGitConfig: true},
++			diffRendererConfig:  &config.DiffRendererConfig{Type: "extDiff"},
+ 			expected:            []string{"git", "-C", "/path/to/worktree", "stash", "show", "--ext-diff", "--unified=3", "--find-renames=50%", "-p", "--stat", "-u", "--color=always", "refs/stash@{5}"},
+ 		},
+ 		{
+@@ -166,8 +166,8 @@ func TestStashStashEntryCmdObj(t *testing.T) {
+ 			userConfig.Git.IgnoreWhitespaceInDiffView = s.ignoreWhitespace
+ 			userConfig.Git.DiffContextSize = s.contextSize
+ 			userConfig.Git.RenameSimilarityThreshold = s.similarityThreshold
+-			if s.pagerConfig != nil {
+-				userConfig.Git.Pagers = []config.PagingConfig{*s.pagerConfig}
++			if s.diffRendererConfig != nil {
++				userConfig.Git.DiffRenderers = []config.DiffRendererConfig{*s.diffRendererConfig}
+ 			}
+ 			repoPaths := RepoPaths{
+ 				worktreePath: "/path/to/worktree",
+diff --git a/pkg/commands/git_commands/working_tree.go b/pkg/commands/git_commands/working_tree.go
+index f0a0c1b83..1f9d9653b 100644
+--- a/pkg/commands/git_commands/working_tree.go
++++ b/pkg/commands/git_commands/working_tree.go
+@@ -393,7 +393,7 @@ func (self *WorkingTreeCommands) WorktreeFileDiff(file *models.File, plain bool,
+ // in the working tree. When pathOverrides is non-empty, those paths are used instead of
+ // the node's path (used to diff only filtered/visible files within a directory).
+ func (self *WorkingTreeCommands) WorktreeFileDiffCmdObj(node models.IFile, plain bool, cached bool, pathOverrides []string) *oscommands.CmdObj {
+-	colorArg := self.pagerConfig.GetColorArg()
++	colorArg := self.diffRendererConfigManager.GetColorArg()
+ 	if plain {
+ 		colorArg = "never"
+ 	}
+@@ -407,7 +407,7 @@ func (self *WorkingTreeCommands) WorktreeFileDiffCmdObj(node models.IFile, plain
+ 	}
+ 
+ 	cmdArgs := NewGitCmd("diff").
+-		AddCommonDiffArgs(self.pagerConfig, self.UserConfig(), !plain).
++		AddCommonDiffArgs(self.diffRendererConfigManager, self.UserConfig(), !plain).
+ 		Arg("--submodule").
+ 		Arg(fmt.Sprintf("--color=%s", colorArg)).
+ 		ArgIf(cached, "--cached").
+@@ -435,14 +435,14 @@ func (self *WorkingTreeCommands) ShowFileDiff(from string, to string, reverse bo
+ }
+ 
+ func (self *WorkingTreeCommands) ShowFileDiffCmdObj(from string, to string, reverse bool, fileNames []string, plain bool) *oscommands.CmdObj {
+-	colorArg := self.pagerConfig.GetColorArg()

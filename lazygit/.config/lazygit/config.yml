@@ -2,18 +2,13 @@
 os:
   editPreset: 'nvim-remote'
   edit: >
-    if [ -z "$NVIM" ]; then NVIM_NO_STATUSLINE=1 nvim -- {{filename}};
-    else nvim --server "$NVIM" --remote-send "<A-g>" &&
-    nvim --server "$NVIM" --remote {{filename}}; fi
+    if [ -z "$NVIM" ]; then NVIM_NO_STATUSLINE=1 nvim -- {{filename}}; else nvim --server "$NVIM" --remote-send "<A-g>" && nvim --server "$NVIM" --remote {{filename}}; fi
+
   editAtLine: >
-    if [ -z "$NVIM" ]; then NVIM_NO_STATUSLINE=1 nvim +{{line}} -- {{filename}};
-    else nvim --server "$NVIM" --remote-send "<A-g>" &&
-    nvim --server "$NVIM" --remote {{filename}} &&
-    nvim --server "$NVIM" --remote-send ":{{line}}<CR>"; fi
+    if [ -z "$NVIM" ]; then NVIM_NO_STATUSLINE=1 nvim +{{line}} -- {{filename}}; else nvim --server "$NVIM" --remote-send "<A-g>" && nvim --server "$NVIM" --remote {{filename}} && nvim --server "$NVIM" --remote-send ":{{line}}<CR>"; fi
+
   openDirInEditor: >
-    if [ -z "$NVIM" ]; then NVIM_NO_STATUSLINE=1 nvim -- {{dir}};
-    else nvim --server "$NVIM" --remote-send "<A-g>" &&
-    nvim --server "$NVIM" --remote {{dir}}; fi
+    if [ -z "$NVIM" ]; then NVIM_NO_STATUSLINE=1 nvim -- {{dir}}; else nvim --server "$NVIM" --remote-send "<A-g>" && nvim --server "$NVIM" --remote {{dir}}; fi
 
 gui:
   showFileTree: true
@@ -50,6 +45,10 @@ gui:
     searchingActiveBorderColor:
       - '#f9e2af'
 git:
-  pagers:
-    - colorArg: always
-      pager: delta --dark --paging=never --file-style omit
+  diffRenderers:
+    - name: codediff
+      colorArg: never
+      command: ~/.config/lazygit/codediff/client.sh
+    - name: codediff-split
+      colorArg: never
+      command: ~/.config/lazygit/codediff/client.sh --layout=side-by-side
