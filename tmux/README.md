@@ -10,7 +10,7 @@
 - Vi keybindings in copy mode with system clipboard integration
 - Seamless pane navigation shared with Neovim via [vim-tmux-navigator](https://github.com/christoomey/vim-tmux-navigator)
 - Catppuccin Mocha theme with customized status bar
-- Image passthrough enabled for tools like [yazi](https://github.com/sxyazi/yazi) and [image.nvim](https://github.com/3rd/image.nvim)
+- Image passthrough enabled for tools like [yazi](https://github.com/sxyazi/yazi) and [snacks.image](https://github.com/folke/snacks.nvim/blob/main/docs/image.md)
 
 ## Plugins
 
@@ -19,17 +19,27 @@
 | [TPM](https://github.com/tmux-plugins/tpm)                                     | Plugin manager                          |
 | [tmux-yank](https://github.com/tmux-plugins/tmux-yank)                         | System clipboard integration            |
 | [tmux-catppuccin](https://github.com/catppuccin/tmux) (fork)                   | Catppuccin Mocha status bar and theming |
-| [vim-tmux-navigator](https://github.com/christoomey/vim-tmux-navigator) (fork) | Seamless Neovim ↔ tmux pane navigation  |
+| [vim-tmux-navigator](https://github.com/christoomey/vim-tmux-navigator)        | Seamless Neovim ↔ tmux pane navigation  |
 
 ## Config Structure
 
 ```
-.tmux.conf                              # Entry point — sources everything + TPM plugins
 .config/tmux/
-├── tmux.options.conf                   # Terminal, mouse, true color, image passthrough
-├── tmux.keymaps.conf                   # All keybindings
+├── tmux.conf                  # Entry point: sources everything + TPM plugins
+├── options.conf               # Terminal, mouse, true color, image passthrough
+├── keymaps.conf               # All keybindings
+├── typos.toml                 # typos-lsp allowlist (@thm_* palette vars)
 └── plugins/
-    ├── tmux.tmux-catppuccin.conf       # Theme: status bar layout, pane borders, icons
-    ├── tmux.tmux-yank.conf             # Clipboard bindings
-    └── tmux.vim-tmux-navigator.conf    # Pane navigation keys
+    ├── catppuccin.conf        # Theme: status bar layout, pane borders, icons
+    ├── yank.conf              # Clipboard bindings
+    └── vim-tmux-navigator.conf # Pane navigation keys
+```
+
+Plugins themselves are installed by TPM into `~/.tmux/plugins/` (pinned via
+`TMUX_PLUGIN_MANAGER_PATH`); the `plugins/` directory here only holds their configs.
+
+On a fresh machine, bootstrap TPM once, then install plugins with `prefix + I`:
+
+```sh
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 ```

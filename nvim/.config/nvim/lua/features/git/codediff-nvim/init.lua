@@ -21,6 +21,12 @@ return {
       local preview_cols = UI.layout.side_size('side_panel', 'sm')
 
       return {
+        keymaps = {
+          view = {
+            next_hunk = ']h',
+            prev_hunk = '[h',
+          },
+        },
         explorer = {
           hidden = false,
           indent_markers = false,

@@ -42,10 +42,9 @@ font-style-bold-italic  = ExtraBold Italic
 
 macos-option-as-alt = true
 # Remap cmd + keys to alt + keys so that tmux can understand them.
-# They was previously esc:<key> but .tmux.conf does not support those key sequences correctly...
+# They was previously esc:<key> but tmux.conf does not support those key sequences correctly...
 
 # Special sequences for zsh keybinding to consume in keymaps.zsh or in neovim, since we can't normally bind shift key
-keybind = cmd+shift+o=text:\x1b[1;6O
 keybind = ctrl+shift+y=text:\x1b[1;6Y
 # Ctrl+Shift+F4 escape sequences
 keybind = cmd+shift+s=text:\x1b[1;6S
@@ -66,7 +65,7 @@ keybind = cmd+v=paste_from_clipboard
 
 # Tmux window navigation (prev/next). cmd+[ / cmd+] can't tunnel through
 # alt+[ / alt+] because ESC-[ is the CSI introducer (start of a control
-# sequence), so route through free alt keys instead. See tmux.keymaps.conf.
+# sequence), so route through free alt keys instead. See tmux's keymaps.conf.
 keybind = cmd+[=text:\x1bh
 keybind = cmd+]=text:\x1bl
 
@@ -82,8 +81,6 @@ keybind = cmd+t=text:\x1bt
 
 # Snacks lazygit toggle
 keybind = cmd+g=text:\x1bg
-# Toggle terminal tab (Nvim)
-keybind = cmd+shift+t=text:\x1bT
 
 # Tmux prefix
 keybind = cmd+d=text:\x1bd
