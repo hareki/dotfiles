@@ -76,6 +76,26 @@ local function batch_cat_file(hashes, cwd)
   return results
 end
 
+-- Resolved lazily: only the worktree-side fallback below needs it, and a commit
+-- diff (the whole commits panel) never reaches that. Memoized because the
+-- daemon outlives the request and a cwd's repo root cannot change.
+local root_cache = { cwd = nil, root = nil }
+
+local function worktree_root(cwd)
+  if root_cache.cwd ~= cwd then
+    local root
+    local ok, proc = pcall(vim.system, { "git", "rev-parse", "--show-toplevel" }, { cwd = cwd, text = true })
+    if ok then
+      local res = proc:wait()
+      if res.code == 0 and res.stdout then
+        root = vim.trim(res.stdout)
+      end
+    end
+    root_cache = { cwd = cwd, root = root }
+  end
+  return root_cache.root
+end
+
 local function read_worktree_file(root, path, max_bytes)
   local f = io.open(root .. "/" .. path, "rb")
   if not f then
@@ -107,7 +127,7 @@ function M.hunk_fragment(hunk, side)
   local want_minus = side == "old"
   for _, l in ipairs(hunk.lines) do
     if l.origin == " " or (want_minus and l.origin == "-") or (not want_minus and l.origin == "+") then
-      lines[#lines + 1] = util.strip_cr(l.text)
+      lines[#lines + 1] = l.text
     end
   end
   return lines
@@ -116,18 +136,9 @@ end
 --- Attach full old/new file contents to each file block where possible.
 --- Sets file.content_mode = "full" | "fragment" | "plain", and
 --- file.old_lines / file.new_lines in full mode.
-function M.acquire(files, cwd, limits)
-  local root
-  do
-    local ok, proc = pcall(vim.system, { "git", "rev-parse", "--show-toplevel" }, { cwd = cwd, text = true })
-    if ok then
-      local res = proc:wait()
-      if res.code == 0 and res.stdout then
-        root = vim.trim(res.stdout)
-      end
-    end
-  end
-
+--- With `fragment_only`, files are classified but no git lookup is performed,
+--- so a render stays reproducible outside the repo it was captured from.
+function M.acquire(files, cwd, limits, fragment_only)
   -- Which sides does each file actually need?
   local requests = {} -- flat list of hashes for one batched cat-file call
   local slots = {} -- parallel list of {file, side}
@@ -147,6 +158,10 @@ function M.acquire(files, cwd, limits)
         slots[#slots + 1] = { file = file, side = "new" }
       end
     end
+  end
+
+  if fragment_only then
+    return
   end
 
   -- Size/type pass first, so an oversized blob or a gitlink's commit object is
@@ -180,7 +195,8 @@ function M.acquire(files, cwd, limits)
       else
         -- Worktree-side fallback: unstaged/untracked diffs have zero or
         -- odb-missing hashes on the new side; the file on disk is that side.
-        if file.need_new and not file.new_content and root and file.new_path then
+        local root = file.need_new and not file.new_content and file.new_path and worktree_root(cwd) or nil
+        if root then
           local content, oversized = read_worktree_file(root, file.new_path, limits.max_blob_bytes)
           if oversized then
             file.content_mode = "plain"

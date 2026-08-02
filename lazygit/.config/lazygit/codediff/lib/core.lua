@@ -82,39 +82,21 @@ local function render_hunk_inline(out, hunk, cell, changes, ctx)
     out[#out + 1] = layout.content_line(c.text, c.spans, c.line_type, c.emph, ctx.cols)
   end
 
-  if changes then
-    local mod = 1
-    for _, change in ipairs(changes) do
-      for row = mod, change.new_start - 1 do
-        emit("new", row, "context", nil)
-      end
-      for row = change.old_start, change.old_end - 1 do
-        emit("old", row, "minus", change.old_emph[row])
-      end
-      for row = change.new_start, change.new_end - 1 do
-        emit("new", row, "plus", change.new_emph[row])
-      end
-      mod = change.new_end
-    end
-    for row = mod, #hunk.frag_new do
+  local mod = 1
+  for _, change in ipairs(changes) do
+    for row = mod, change.new_start - 1 do
       emit("new", row, "context", nil)
     end
-  else
-    -- Engine unavailable (plugin missing, timeout, oversized file, CRLF-only
-    -- change): keep the patch's own line runs, tints only.
-    local old_row, new_row = 0, 0
-    for _, hline in ipairs(hunk.lines) do
-      if hline.origin == "-" then
-        old_row = old_row + 1
-        emit("old", old_row, "minus", nil)
-      elseif hline.origin == "+" then
-        new_row = new_row + 1
-        emit("new", new_row, "plus", nil)
-      else
-        old_row, new_row = old_row + 1, new_row + 1
-        emit("new", new_row, "context", nil)
-      end
+    for row = change.old_start, change.old_end - 1 do
+      emit("old", row, "minus", change.old_emph[row])
     end
+    for row = change.new_start, change.new_end - 1 do
+      emit("new", row, "plus", change.new_emph[row])
+    end
+    mod = change.new_end
+  end
+  for row = mod, #hunk.frag_new do
+    emit("new", row, "context", nil)
   end
 end
 
@@ -125,65 +107,38 @@ local function render_hunk_split(out, hunk, cell, changes, ctx)
     out[#out + 1] = layout.split_line(left, right, ctx.cols)
   end
 
-  if changes then
-    local old_ptr, new_ptr = 1, 1
-    local function context_rows(count)
-      for _ = 1, count do
-        row(cell("old", old_ptr, "context"), cell("new", new_ptr, "context"))
-        old_ptr, new_ptr = old_ptr + 1, new_ptr + 1
-      end
-    end
-    for _, change in ipairs(changes) do
-      context_rows(change.new_start - new_ptr)
-      old_ptr = change.old_start -- stay aligned if the side gaps ever differ
-      local old_n = change.old_end - change.old_start
-      local new_n = change.new_end - change.new_start
-      for k = 0, math.max(old_n, new_n) - 1 do
-        local left = k < old_n
-            and cell("old", change.old_start + k, "minus", change.old_emph[change.old_start + k])
-          or { filler = true }
-        local right = k < new_n
-            and cell("new", change.new_start + k, "plus", change.new_emph[change.new_start + k])
-          or { filler = true }
-        row(left, right)
-      end
-      old_ptr, new_ptr = change.old_end, change.new_end
-    end
-    context_rows(#hunk.frag_new - new_ptr + 1)
-  else
-    -- Patch fallback: pair each minus run with the plus run that follows it.
-    local lines = hunk.lines
-    local i, old_row, new_row = 1, 0, 0
-    while i <= #lines do
-      if lines[i].origin == " " then
-        old_row, new_row = old_row + 1, new_row + 1
-        row(cell("old", old_row, "context"), cell("new", new_row, "context"))
-        i = i + 1
-      else
-        local minus_n, plus_n = 0, 0
-        while i <= #lines and lines[i].origin == "-" do
-          minus_n, i = minus_n + 1, i + 1
-        end
-        while i <= #lines and lines[i].origin == "+" do
-          plus_n, i = plus_n + 1, i + 1
-        end
-        for k = 0, math.max(minus_n, plus_n) - 1 do
-          local left = k < minus_n and cell("old", old_row + k + 1, "minus") or { filler = true }
-          local right = k < plus_n and cell("new", new_row + k + 1, "plus") or { filler = true }
-          row(left, right)
-        end
-        old_row, new_row = old_row + minus_n, new_row + plus_n
-      end
+  local old_ptr, new_ptr = 1, 1
+  local function context_rows(count)
+    for _ = 1, count do
+      row(cell("old", old_ptr, "context"), cell("new", new_ptr, "context"))
+      old_ptr, new_ptr = old_ptr + 1, new_ptr + 1
     end
   end
+  for _, change in ipairs(changes) do
+    context_rows(change.new_start - new_ptr)
+    old_ptr = change.old_start -- stay aligned if the side gaps ever differ
+    local old_n = change.old_end - change.old_start
+    local new_n = change.new_end - change.new_start
+    for k = 0, math.max(old_n, new_n) - 1 do
+      local left = k < old_n
+          and cell("old", change.old_start + k, "minus", change.old_emph[change.old_start + k])
+        or { filler = true }
+      local right = k < new_n
+          and cell("new", change.new_start + k, "plus", change.new_emph[change.new_start + k])
+        or { filler = true }
+      row(left, right)
+    end
+    old_ptr, new_ptr = change.old_end, change.new_end
+  end
+  context_rows(#hunk.frag_new - new_ptr + 1)
 end
 
 local function render_hunk(out, file, hunk, sides, langs_by_side, ctx)
   local changes = file.content_mode ~= "plain" and engine.compute(hunk.frag_old, hunk.frag_new) or nil
-  if changes and #changes == 0 then
-    -- The engine sees no difference (e.g. a CRLF-only change: fragments are
-    -- CR-stripped); the patch's own runs are the only truthful rendering.
-    changes = nil
+  if not changes or #changes == 0 then
+    -- No engine, or it sees no difference at all (a CRLF-only change: fragments
+    -- are CR-stripped); the patch's own runs are the only truthful rendering.
+    changes = engine.patch_changes(hunk)
   end
 
   local function cell(side, row, line_type, emph)
@@ -285,20 +240,24 @@ local function render_file(file, ctx)
   return table.concat(out)
 end
 
---- Render raw git diff/show output to ANSI. opts:
+--- Render raw git diff/show output to ANSI, returning the whole document.
+--- All-or-nothing by contract: a caller that fails must be able to fall back to
+--- the raw diff, and appending it behind a half-written render would show the
+--- same hunks twice. opts:
 ---   cwd    repo directory for blob lookups
 ---   cols   target width (LAZYGIT_COLUMNS)
----   emit   callback receiving output chunks (called once per block)
 ---   layout "side-by-side" for the split view; anything else renders inline
 ---   force_fragment  skip git blob lookups (repo-independent fixtures)
 function M.render(input, opts)
-  local emit = opts.emit
   if #input > LIMITS.max_input_bytes then
-    emit(input)
-    return
+    return input
   end
 
-  input = input:gsub("\27%[[%d;]*m", "")
+  -- Git is asked for uncolored output, so the strip almost never has anything
+  -- to do; the find keeps a pattern scan off the whole input for that case.
+  if input:find("\27", 1, true) then
+    input = input:gsub("\27%[[%d;]*m", "")
+  end
   local lines = util.split_lines(input)
   local blocks = diffparse.parse(lines)
 
@@ -310,21 +269,13 @@ function M.render(input, opts)
   end
   local looks_like_git = #files > 0 or (lines[1] and lines[1]:match("^commit %x+"))
   if not looks_like_git then
-    emit(input)
-    return
+    return input
   end
 
-  if opts.force_fragment then
-    for _, file in ipairs(files) do
-      local eligible = not (file.is_combined or file.is_binary) and #file.hunks > 0
-      file.content_mode = eligible and "fragment" or "plain"
-    end
-  else
-    blob.acquire(files, opts.cwd, LIMITS)
-  end
+  blob.acquire(files, opts.cwd, LIMITS, opts.force_fragment)
 
   local ctx = { cols = opts.cols or 120, budget = LIMITS.max_highlighted_lines, layout = opts.layout }
-  local emitted = false
+  local out = {}
   for _, block in ipairs(blocks) do
     local chunk
     if block.kind == "raw" then
@@ -334,13 +285,13 @@ function M.render(input, opts)
     end
     if #chunk > 0 then
       -- Blank separator between sections; raw blocks keep git's own spacing.
-      if block.kind == "file" and emitted then
-        emit("\n")
+      if block.kind == "file" and #out > 0 then
+        out[#out + 1] = "\n"
       end
-      emit(chunk)
-      emitted = true
+      out[#out + 1] = chunk
     end
   end
+  return table.concat(out)
 end
 
 return M

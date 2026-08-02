@@ -4,7 +4,6 @@
 # one-shot render, and to plain cat as the last resort.
 set -u
 
-DIR=$(cd "$(dirname "$0")" && pwd)
 # $TMPDIR is trailing-slash-terminated on macOS but bare on most other systems.
 TMP="${TMPDIR:-/tmp}"
 TMP="${TMP%/}"
@@ -27,18 +26,32 @@ for a in "$@"; do
 done
 
 # The daemon ties its lifetime to the lazygit process that owns this render.
+# One ps per level: it reports the parent and the command name together, and
+# shell word-splitting separates them.
 OWNER=""
 pid=$$
-for _ in 1 2 3 4 5 6; do
-  pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ')
-  [ -n "$pid" ] && [ "$pid" -gt 1 ] || break
-  case "$(ps -o comm= -p "$pid" 2>/dev/null)" in
+for _ in 1 2 3 4 5 6 7; do
+  # shellcheck disable=SC2046 # deliberate word-splitting into ppid + comm
+  set -- $(ps -o ppid=,comm= -p "$pid" 2>/dev/null)
+  [ $# -ge 2 ] || break
+  parent=$1
+  shift
+  case "$*" in
     *lazygit*) OWNER=$pid; break ;;
   esac
+  [ "$parent" -gt 1 ] 2>/dev/null || break
+  pid=$parent
 done
 
-# Single quotes in a vimscript string literal are escaped by doubling.
-esc() { printf %s "$1" | sed "s/'/''/g"; }
+# Single quotes in a vimscript string literal are escaped by doubling. The
+# arguments are two mktemp paths, $PWD, a column count and a layout name, so the
+# quote is essentially never there and the common case stays fork-free.
+esc() {
+  case $1 in
+    *\'*) printf %s "$1" | sed "s/'/''/g" ;;
+    *) printf %s "$1" ;;
+  esac
+}
 EXPR="v:lua.CODEDIFF.render('$(esc "$IN")','$(esc "$OUT")','$(esc "$PWD")','$(esc "$COLS")','$OWNER','$(esc "$LAYOUT")')"
 
 request() {
@@ -50,13 +63,17 @@ if request; then
   exit 0
 fi
 
-# The render failed. Only replace the socket when nothing is listening on it:
-# unlinking a live daemon's socket orphans it (it keeps running, unreachable,
-# until its idle timeout) and races a concurrent client that just spawned one.
-# The spawner puts the daemon in its own session; anything attached to
-# lazygit's render pty would be SIGHUP'd when the pty closes after this render.
-# The -S test short-circuits the cold path, where the probe would be a second
-# full nvim startup only to rediscover that there is nothing to connect to.
+# The render failed. Everything from here down is a cold path, and only these
+# paths need the script's own directory.
+DIR=$(cd "$(dirname "$0")" && pwd)
+
+# Only replace the socket when nothing is listening on it: unlinking a live
+# daemon's socket orphans it (it keeps running, unreachable, until its idle
+# timeout) and races a concurrent client that just spawned one. The spawner puts
+# the daemon in its own session; anything attached to lazygit's render pty would
+# be SIGHUP'd when the pty closes after this render. The -S test short-circuits
+# the cold path, where the probe would be a second full nvim startup only to
+# rediscover that there is nothing to connect to.
 if [ ! -S "$SOCK" ] || ! nvim --clean --server "$SOCK" --remote-expr 1 >/dev/null 2>&1; then
   rm -f "$SOCK"
   nvim --clean -l "$DIR/spawn_daemon.lua" "$SOCK" >/dev/null 2>&1
@@ -71,9 +88,9 @@ if [ ! -S "$SOCK" ] || ! nvim --clean --server "$SOCK" --remote-expr 1 >/dev/nul
   fi
 fi
 
-# Last resort. Buffered, because nvim can die (parser crash, OOM, a signal)
-# after the emitter has already streamed part of the render: appending the raw
-# diff to a half-rendered one would show the hunks twice.
+# Last resort. Written to a file rather than piped, because nvim can die (parser
+# crash, OOM, a signal) with part of the render already on stdout: appending the
+# raw diff to a half-written one would show the hunks twice.
 if CODEDIFF_LAYOUT="$LAYOUT" nvim --clean -l "$DIR/render.lua" <"$IN" >"$OUT" 2>/dev/null; then
   cat "$OUT"
 else

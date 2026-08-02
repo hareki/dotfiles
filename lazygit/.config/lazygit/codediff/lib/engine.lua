@@ -2,22 +2,16 @@ local M = {}
 
 -- codediff.nvim is required lazily and behind pcall: a missing or broken
 -- plugin must degrade to the patch's own line runs, never break the render.
-local diff_mod, compat_mod
+local loaded = {}
 
-local function get_diff()
-  if diff_mod == nil then
-    local ok, mod = pcall(require, "codediff.core.diff")
-    diff_mod = ok and mod or false
+local function lazy_require(name)
+  local mod = loaded[name]
+  if mod == nil then
+    local ok, result = pcall(require, name)
+    mod = ok and result or false
+    loaded[name] = mod
   end
-  return diff_mod or nil
-end
-
-local function get_compat()
-  if compat_mod == nil then
-    local ok, mod = pcall(require, "codediff.core.compat")
-    compat_mod = ok and mod or false
-  end
-  return compat_mod or nil
+  return mod or nil
 end
 
 -- Mirrors codediff's utf16_col_to_byte_col (ui/inline.lua): engine columns are
@@ -26,7 +20,7 @@ local function utf16_col_to_byte_col(line, utf16_col)
   if not line or utf16_col <= 1 then
     return utf16_col
   end
-  local compat = get_compat()
+  local compat = lazy_require("codediff.core.compat")
   if compat then
     local ok, byte_idx = pcall(compat.str_byteindex_utf16, line, utf16_col - 1)
     if ok then
@@ -97,7 +91,7 @@ end
 --- old_emph/new_emph, or nil when the engine is unavailable or timed out
 --- (the caller then falls back to the patch's own line runs).
 function M.compute(frag_old, frag_new)
-  local diff = get_diff()
+  local diff = lazy_require("codediff.core.diff")
   if not diff then
     return nil
   end
@@ -118,6 +112,40 @@ function M.compute(frag_old, frag_new)
       old_emph = side_char_ranges(change.inner_changes, "original", frag_old),
       new_emph = side_char_ranges(change.inner_changes, "modified", frag_new),
     }
+  end
+  return changes
+end
+
+--- The same change list derived from the patch's own line runs: each minus run
+--- pairs with the plus run that follows it. Used when the engine is unavailable
+--- (plugin missing, timeout, oversized file) or when it reports no difference at
+--- all (a CRLF-only change: fragments are CR-stripped), so every renderer gets
+--- one shape to consume instead of its own fallback path.
+function M.patch_changes(hunk)
+  local lines = hunk.lines
+  local changes = {}
+  local i, old_row, new_row = 1, 0, 0
+  while i <= #lines do
+    if lines[i].origin == " " then
+      old_row, new_row, i = old_row + 1, new_row + 1, i + 1
+    else
+      local minus_n, plus_n = 0, 0
+      while i <= #lines and lines[i].origin == "-" do
+        minus_n, i = minus_n + 1, i + 1
+      end
+      while i <= #lines and lines[i].origin == "+" do
+        plus_n, i = plus_n + 1, i + 1
+      end
+      changes[#changes + 1] = {
+        old_start = old_row + 1,
+        old_end = old_row + 1 + minus_n,
+        new_start = new_row + 1,
+        new_end = new_row + 1 + plus_n,
+        old_emph = {},
+        new_emph = {},
+      }
+      old_row, new_row = old_row + minus_n, new_row + plus_n
+    end
   end
   return changes
 end

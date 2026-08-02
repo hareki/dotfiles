@@ -16,7 +16,11 @@ function M.line_spans(content, lang, row_ranges)
   if not ok or not parser then
     return nil
   end
-  local parse_ok = pcall(parser.parse, parser, true)
+  -- Parse only the span the diff actually shows, not the whole document: the
+  -- rows outside it are never queried, and injection discovery over them is the
+  -- single most expensive part of highlighting a large file.
+  local first, last = row_ranges[1], row_ranges[#row_ranges]
+  local parse_ok = pcall(parser.parse, parser, first and { first[1], last[2] + 1 } or true)
   if not parse_ok then
     return nil
   end
@@ -65,7 +69,8 @@ function M.line_spans(content, lang, row_ranges)
           for id, node, metadata in query:iter_captures(root, content, range[1], range[2] + 1) do
             local name = query.captures[id]
             if name ~= "spell" and name ~= "nospell" and name ~= "conceal" and name:sub(1, 1) ~= "_" then
-              local prio = tonumber(metadata.priority or (metadata[id] and metadata[id].priority)) or 100
+              local prio = tonumber(metadata.priority or (metadata[id] and metadata[id].priority))
+                or vim.hl.priorities.treesitter
               local sr, sc, er, ec
               local meta_range = metadata[id] and metadata[id].range
               if meta_range then

@@ -4,9 +4,7 @@ local util = require("lib.util")
 
 local M = {}
 
-local function styled(attrs, text)
-  return ansi.style(attrs) .. text
-end
+local styled = ansi.styled
 
 local function render_stat_line(line, p)
   local name, sep, rest = line:match("^(.-)(%s|%s)(.*)$")
@@ -44,8 +42,7 @@ end
 function M.render_raw(lines, cols)
   local p = theme.palette
   local out = {}
-  for _, raw_line in ipairs(lines) do
-    local line = util.strip_cr(raw_line)
+  for _, line in ipairs(lines) do
     local hash, decorations = line:match("^commit (%x+)%s*(.*)$")
     if hash then
       local rendered = styled({ fg = p.default_fg }, "commit ") .. styled({ fg = p.commit_hash, bold = true }, hash)
@@ -54,22 +51,22 @@ function M.render_raw(lines, cols)
       end
       out[#out + 1] = rendered .. ansi.reset .. "\n"
       local rule_width = math.min(util.display_width(line), math.max((cols or 80) - 1, 1))
-      out[#out + 1] = styled({ fg = p.decoration }, string.rep("─", rule_width)) .. ansi.reset .. "\n"
+      out[#out + 1] = ansi.line({ fg = p.decoration }, string.rep("─", rule_width))
     elseif line:match("^%u[%w]*:%s") and not line:match("^%s") then
       local label, rest = line:match("^([%u][%w]*:)(.*)$")
       out[#out + 1] = styled({ fg = p.decoration }, label) .. styled({ fg = p.default_fg }, rest) .. ansi.reset .. "\n"
     elseif line:match("^%s.+%s|%s") then
-      out[#out + 1] = render_stat_line(line, p) or (styled({ fg = p.default_fg }, line) .. ansi.reset .. "\n")
+      out[#out + 1] = render_stat_line(line, p) or ansi.line({ fg = p.default_fg }, line)
     elseif line:match("^ %d+ files? changed") then
-      out[#out + 1] = styled({ fg = p.decoration }, line) .. ansi.reset .. "\n"
+      out[#out + 1] = ansi.line({ fg = p.decoration }, line)
     elseif line:match("^Submodule ") then
-      out[#out + 1] = styled({ fg = p.default_fg, bold = true }, line) .. ansi.reset .. "\n"
+      out[#out + 1] = ansi.line({ fg = p.default_fg, bold = true }, line)
     elseif line:match("^  > ") then
-      out[#out + 1] = styled({ fg = p.plus_num }, line) .. ansi.reset .. "\n"
+      out[#out + 1] = ansi.line({ fg = p.plus_num }, line)
     elseif line:match("^  < ") then
-      out[#out + 1] = styled({ fg = p.minus_num }, line) .. ansi.reset .. "\n"
+      out[#out + 1] = ansi.line({ fg = p.minus_num }, line)
     else
-      out[#out + 1] = styled({ fg = p.default_fg }, line) .. ansi.reset .. "\n"
+      out[#out + 1] = ansi.line({ fg = p.default_fg }, line)
     end
   end
   return table.concat(out)
@@ -78,18 +75,17 @@ end
 --- Combined (merge) diffs are shown with simple prefix tinting only.
 function M.render_combined(file)
   local p = theme.palette
-  local out = { styled({ fg = p.default_fg, bold = true }, file.new_path or "merge diff") .. ansi.reset .. "\n" }
-  for _, raw_line in ipairs(file.raw_lines) do
-    local line = util.strip_cr(raw_line)
+  local out = { ansi.line({ fg = p.default_fg, bold = true }, file.new_path or "merge diff") }
+  for _, line in ipairs(file.raw_lines) do
     local prefix = line:sub(1, 2)
     if line:match("^@@@") then
-      out[#out + 1] = styled({ fg = p.hunk_num, bold = true }, line) .. ansi.reset .. "\n"
+      out[#out + 1] = ansi.line({ fg = p.hunk_num, bold = true }, line)
     elseif prefix:find("+", 1, true) and not line:match("^%+%+%+ ") then
-      out[#out + 1] = styled({ fg = p.default_fg, bg = p.plus_bg }, line) .. ansi.reset .. "\n"
+      out[#out + 1] = ansi.line({ fg = p.default_fg, bg = p.plus_bg }, line)
     elseif prefix:find("-", 1, true) and not line:match("^%-%-%- ") then
-      out[#out + 1] = styled({ fg = p.default_fg, bg = p.minus_bg }, line) .. ansi.reset .. "\n"
+      out[#out + 1] = ansi.line({ fg = p.default_fg, bg = p.minus_bg }, line)
     else
-      out[#out + 1] = styled({ fg = p.default_fg }, line) .. ansi.reset .. "\n"
+      out[#out + 1] = ansi.line({ fg = p.default_fg }, line)
     end
   end
   return table.concat(out)

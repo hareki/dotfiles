@@ -65,7 +65,13 @@ function M.unquote_c_string(s)
 end
 
 --- Display width of a plain string; safe on invalid UTF-8.
+--- Printable ASCII is one cell per byte, so the common case never has to cross
+--- into vimscript. Control bytes are excluded deliberately: strdisplaywidth
+--- measures them as their two-cell ^X form, which the byte count would not match.
 function M.display_width(s)
+  if not s:find("[^\32-\126]") then
+    return #s
+  end
   local ok, w = pcall(vim.fn.strdisplaywidth, s)
   if ok then
     return w

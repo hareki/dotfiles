@@ -19,7 +19,6 @@ end
 local function new_file(diff_line)
   local file = {
     kind = "file",
-    diff_line = diff_line,
     old_path = nil,
     new_path = nil,
     old_hex = nil,
@@ -32,7 +31,6 @@ local function new_file(diff_line)
     is_combined = false,
     renamed_from = nil,
     renamed_to = nil,
-    similarity = nil,
     hunks = {},
     raw_lines = {}, -- combined-diff body kept verbatim
   }
@@ -63,9 +61,7 @@ local function parse_extended_header(file, line)
   elseif line:match("^deleted file mode %d") then
     file.is_deleted = true
     file.old_mode = line:match("^deleted file mode (%d+)")
-  elseif line:match("^similarity index %d+%%$") then
-    file.similarity = tonumber(line:match("(%d+)%%$"))
-  elseif line:match("^dissimilarity index %d+%%$") then
+  elseif line:match("^similarity index %d+%%$") or line:match("^dissimilarity index %d+%%$") then
     -- consumed, nothing to record
   elseif line:match("^rename from ") then
     file.renamed_from = util.unquote_c_string(line:sub(#"rename from " + 1))

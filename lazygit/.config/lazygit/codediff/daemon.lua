@@ -41,12 +41,7 @@ end
 local function scripts_mtime()
   local latest = 0
   for _, d in ipairs({ dir, dir .. "/lib" }) do
-    local it = uv.fs_scandir(d)
-    while it do
-      local name, kind = uv.fs_scandir_next(it)
-      if not name then
-        break
-      end
+    for name, kind in vim.fs.dir(d) do
       if kind == "file" then
         latest = math.max(latest, mtime_of(d .. "/" .. name))
       end
@@ -55,17 +50,23 @@ local function scripts_mtime()
   return latest
 end
 
-local generation = {
-  nvim_binary = mtime_of(vim.v.progpath),
-  parsers = mtime_of(PARSER_DIR),
-  codediff = mtime_of(CODEDIFF_VERSION),
-  scripts = scripts_mtime(),
-}
+-- Everything whose change must recycle the daemon, in one value: listing the
+-- inputs once means a new one cannot be added to the snapshot but missed in the
+-- comparison, which would silently never trigger a reload.
+local function fingerprint()
+  return table.concat({
+    mtime_of(vim.v.progpath),
+    mtime_of(PARSER_DIR),
+    mtime_of(CODEDIFF_VERSION),
+    scripts_mtime(),
+  }, ":")
+end
+
+local generation = fingerprint()
 
 local watched = {}
 local saw_owner = false
 local last_request = uv.now()
-local stale = false
 
 -- Captured on the main loop: vim.v is not accessible from timer callbacks.
 local socket_path = vim.v.servername
@@ -123,14 +124,7 @@ function _G.CODEDIFF.render(infile, outfile, cwd, cols, owner_pid, layout)
     saw_owner = true
   end
 
-  if
-    mtime_of(vim.v.progpath) ~= generation.nvim_binary
-    or mtime_of(PARSER_DIR) ~= generation.parsers
-    or mtime_of(CODEDIFF_VERSION) ~= generation.codediff
-    or scripts_mtime() ~= generation.scripts
-  then
-    stale = true
-  end
+  local stale = fingerprint() ~= generation
 
   local f = io.open(infile, "rb")
   if not f then
@@ -139,21 +133,17 @@ function _G.CODEDIFF.render(infile, outfile, cwd, cols, owner_pid, layout)
   local input = f:read("*a") or ""
   f:close()
 
-  local chunks = {}
-  local ok = pcall(core.render, input, {
+  local ok, rendered = pcall(core.render, input, {
     cwd = cwd,
     cols = tonumber(cols) or 120,
     layout = layout,
-    emit = function(s)
-      chunks[#chunks + 1] = s
-    end,
   })
 
   local out = io.open(outfile, "wb")
   if not out then
     return "err:output"
   end
-  out:write(ok and table.concat(chunks) or input)
+  out:write(ok and rendered or input)
   out:close()
 
   if stale then

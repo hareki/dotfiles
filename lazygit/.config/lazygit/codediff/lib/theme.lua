@@ -21,6 +21,15 @@ M.palette = {
   filler_fg = 0x444444,
 }
 
+--- Fully resolved attrs of a highlight group, or nil when it is undefined.
+local function get_hl(group)
+  local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = group, link = false })
+  if ok and hl then
+    return hl
+  end
+  return nil
+end
+
 --- Copy the diff backgrounds out of the CodeDiff* groups. Must run after
 --- codediff.nvim's highlights.setup() has derived them from the colorscheme.
 function M.load_diff_colors()
@@ -31,31 +40,24 @@ function M.load_diff_colors()
     plus_emph_bg = "CodeDiffCharInsert",
   }
   for key, group in pairs(map) do
-    local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = group, link = false })
-    if ok and hl and hl.bg then
+    local hl = get_hl(group)
+    if hl and hl.bg then
       M.palette[key] = hl.bg
     end
   end
-  local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = "CodeDiffFiller", link = false })
-  if ok and hl and hl.fg then
-    M.palette.filler_fg = hl.fg
+  local filler = get_hl("CodeDiffFiller")
+  if filler and filler.fg then
+    M.palette.filler_fg = filler.fg
   end
 end
 
 local cache = {}
 
-local function lookup(group)
-  local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = group, link = false })
-  if ok and hl and (hl.fg or hl.bold or hl.italic or hl.underline) then
-    return { fg = hl.fg, bold = hl.bold, italic = hl.italic, underline = hl.underline }
-  end
-  return nil
-end
-
---- Resolve a treesitter capture to highlight attrs the way nvim does:
---- @capture.lang, then the capture with dot-segments progressively stripped
---- (@function.call.lua => @function.call => @function). Returns nil when the
---- theme defines nothing (render with the default fg).
+--- Resolve a treesitter capture to highlight attrs. nvim maintains the default
+--- link chain for @capture groups itself (@function.call.lua => @function.call
+--- => @function, see :h treesitter-highlight-groups), so resolving the most
+--- specific name is enough. Returns nil when the theme defines nothing (render
+--- with the default fg).
 function M.attrs(capture, lang)
   local key = capture .. "\0" .. lang
   local hit = cache[key]
@@ -63,15 +65,10 @@ function M.attrs(capture, lang)
     return hit or nil
   end
 
-  local attrs = lookup("@" .. capture .. "." .. lang)
-  local cap = capture
-  while not attrs do
-    attrs = lookup("@" .. cap)
-    local stripped = cap:match("^(.*)%.[^.]+$")
-    if not stripped then
-      break
-    end
-    cap = stripped
+  local hl = get_hl("@" .. capture .. "." .. lang)
+  local attrs = nil
+  if hl and (hl.fg or hl.bold or hl.italic or hl.underline) then
+    attrs = { fg = hl.fg, bold = hl.bold, italic = hl.italic, underline = hl.underline }
   end
 
   cache[key] = attrs or false

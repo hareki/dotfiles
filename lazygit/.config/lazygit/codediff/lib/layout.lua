@@ -7,43 +7,59 @@ local M = {}
 local TAB_WIDTH = 4
 local FILLER_CHAR = "╱" -- codediff's diff.filler_text default
 
-local function pal()
-  return theme.palette
+local palette = theme.palette
+
+-- True when every byte is printable ASCII, i.e. exactly one display cell each,
+-- so clipping by cells is clipping by bytes. Control bytes are excluded: they
+-- measure as their two-cell ^X form.
+local function is_plain_ascii(s)
+  return not s:find("[^\32-\126]")
+end
+
+-- Split into grapheme clusters with their display widths.
+--
+-- Widths are measured per cluster, never per codepoint: a lone combining mark
+-- measures one cell but contributes nothing to the character it attaches to, so
+-- summing standalone widths overstates decomposed text (macOS stores filenames
+-- NFD) and the caller's layout arithmetic breaks apart. strcharpart's skipcc
+-- argument yields a base character together with its composing marks.
+local function clusters(s)
+  local ok, count = pcall(vim.fn.strchars, s, 1)
+  if not ok then
+    return nil
+  end
+  local units = {}
+  for i = 0, count - 1 do
+    local text = vim.fn.strcharpart(s, i, 1, 1)
+    units[#units + 1] = { text = text, w = util.display_width(text) }
+  end
+  return units
 end
 
 -- Clip a string to at most `limit` display cells (UTF-8 aware). Returns the
 -- clipped string and its display width.
---
--- Widths are measured per codepoint *in context*, never standalone: a lone
--- combining mark measures one cell but contributes nothing to the character it
--- attaches to, so summing standalone widths overstates decomposed text (macOS
--- stores filenames NFD) and the caller's layout arithmetic breaks apart.
 local function clip_to_width(s, limit)
   local w = util.display_width(s)
   if w <= limit then
     return s, w
   end
-  local ok, pos = pcall(vim.str_utf_pos, s)
-  if not ok then
+  if is_plain_ascii(s) then
+    local clipped = s:sub(1, math.max(limit, 0))
+    return clipped, #clipped
+  end
+  local units = clusters(s)
+  if not units then
     local clipped = s:sub(1, limit)
     return clipped, util.display_width(clipped)
   end
   local out = {}
-  local cluster, cluster_w = nil, 0
   w = 0
-  for i = 1, #pos do
-    local char = s:sub(pos[i], (pos[i + 1] or #s + 1) - 1)
-    local cw = cluster and (util.display_width(cluster .. char) - cluster_w) or util.display_width(char)
-    if w + cw > limit then
+  for _, unit in ipairs(units) do
+    if w + unit.w > limit then
       break
     end
-    out[#out + 1] = char
-    w = w + cw
-    if cw == 0 then
-      cluster = (cluster or "") .. char
-    else
-      cluster, cluster_w = char, cw
-    end
+    out[#out + 1] = unit.text
+    w = w + unit.w
   end
   return table.concat(out), w
 end
@@ -58,46 +74,44 @@ local function clip_left_to_width(s, limit)
   if limit < 2 then
     return "", 0
   end
-  local ok, pos = pcall(vim.str_utf_pos, s)
-  if not ok then
+  if is_plain_ascii(s) then
+    return "…" .. s:sub(#s - limit + 2), limit
+  end
+  local units = clusters(s)
+  if not units then
     return clip_to_width(s, limit)
   end
   local out = {}
-  -- Walking right to left, a combining mark is seen before the character it
-  -- belongs to; hold it back so the clip never keeps a mark whose base it drops.
-  local pending = ""
   w = 0
-  for i = #pos, 1, -1 do
-    local char = s:sub(pos[i], (pos[i + 1] or #s + 1) - 1)
-    local base = i > 1 and s:sub(pos[i - 1], pos[i] - 1) or nil
-    local cw = base and (util.display_width(base .. char) - util.display_width(base)) or util.display_width(char)
-    if cw == 0 then
-      pending = char .. pending
-    else
-      if w + cw > limit - 1 then
-        break
-      end
-      table.insert(out, 1, char .. pending)
-      pending = ""
-      w = w + cw
+  for i = #units, 1, -1 do
+    local unit = units[i]
+    if w + unit.w > limit - 1 then
+      break
     end
+    table.insert(out, 1, unit.text)
+    w = w + unit.w
   end
   return "…" .. table.concat(out), w + 1
+end
+
+-- Collapse the bytes that would break a row out of a single line. A tab is
+-- measured relative to column 0, so a header's pieces only add up if none of
+-- them contains one; git keeps interior tabs in a section heading, and a tab or
+-- a newline in a path survives unquoting. Collapsing beats expanding here: this
+-- text is metadata, not source that needs its indentation.
+local function one_line(s)
+  return (s:gsub("[\t\r\n]", " "))
 end
 
 --- Delta-style boxed hunk header: path, new-side start line and the section
 --- heading, framed by decoration-colored rules.
 function M.hunk_header(path, hunk, cols)
-  local p = pal()
+  local p = palette
   -- A pure-deletion hunk has new_count == 0 and a new_start pointing at the
   -- line *before* it (0 for a whole-file delete), so anchor on the old side.
   local num = tostring(hunk.new_count > 0 and hunk.new_start or hunk.old_start)
-  -- A tab is measured relative to column 0, so the three pieces below only add
-  -- up if each of them starts there. Collapse tabs instead of expanding them:
-  -- this line is metadata (git keeps interior tabs in the section heading, and
-  -- a tab in a path survives unquoting), not source that needs its indentation.
-  local path_plain = (path or ""):gsub("\t", " ")
-  local heading = hunk.heading and (": " .. (hunk.heading:gsub("\t", " "))) or ""
+  local path_plain = one_line(path or "")
+  local heading = hunk.heading and (": " .. one_line(hunk.heading)) or ""
   local plain = path_plain .. ":" .. num .. heading
   local width = math.min(util.display_width(plain) + 2, math.max(cols - 1, 1))
 
@@ -116,25 +130,25 @@ function M.hunk_header(path, hunk, cols)
   end
   local used = path_w + num_w + heading_w
 
-  local rule = ansi.style({ fg = p.decoration }) .. string.rep("─", width)
-  local header = ansi.style({ fg = p.default_fg, bold = true }) .. path_text
-    .. ansi.style({ fg = p.decoration }) .. ":"
-    .. ansi.style({ fg = p.hunk_num, bold = true }) .. num
-    .. ansi.style({ fg = p.default_fg }) .. heading_text
+  local rule = ansi.styled({ fg = p.decoration }, string.rep("─", width))
+  local header = ansi.styled({ fg = p.default_fg, bold = true }, path_text)
+    .. ansi.styled({ fg = p.decoration }, ":")
+    .. ansi.styled({ fg = p.hunk_num, bold = true }, num)
+    .. ansi.styled({ fg = p.default_fg }, heading_text)
 
   -- The corners sit after `width` rule cells; the bar must land in the same
   -- column, so the pad is exactly the leftover width (no -1).
   local pad = width - used
   return table.concat({
     rule .. "┐" .. ansi.reset .. "\n",
-    header .. string.rep(" ", math.max(pad, 1)) .. ansi.style({ fg = p.decoration }) .. "│" .. ansi.reset .. "\n",
+    header .. string.rep(" ", math.max(pad, 1)) .. ansi.styled({ fg = p.decoration }, "│") .. ansi.reset .. "\n",
     rule .. "┘" .. ansi.reset .. "\n",
   })
 end
 
 --- One-off informational rows (rename, mode change, binary, no-newline).
 function M.note_row(text)
-  return ansi.style({ fg = pal().decoration, italic = true }) .. text .. ansi.reset .. "\n"
+  return ansi.line({ fg = palette.decoration, italic = true }, one_line(text))
 end
 
 -- Winner per segment, resolved by a left-to-right sweep over the spans sorted
@@ -143,10 +157,7 @@ end
 -- the treesitter nesting depth, never the line's span count (a scan per
 -- segment turns a minified line into seconds of CPU).
 local function segment_winners(spans, boundaries)
-  local sorted = {}
-  for i, span in ipairs(spans) do
-    sorted[i] = span
-  end
+  local sorted = vim.list_slice(spans)
   table.sort(sorted, function(x, y)
     return x.s1 < y.s1
   end)
@@ -181,7 +192,7 @@ end
 -- spans: 0-based byte spans from highlight.line_spans (may be nil)
 -- emph_ranges: 1-based {s, e-exclusive} byte ranges (may be nil)
 local function line_segments(text, spans, line_type, emph_ranges)
-  local p = pal()
+  local p = palette
   local line_bg, emph_bg
   if line_type == "minus" then
     line_bg, emph_bg = p.minus_bg, p.minus_emph_bg
@@ -215,6 +226,12 @@ local function line_segments(text, spans, line_type, emph_ranges)
   local winners = segment_winners(clamped, boundaries)
 
   local segs = {}
+  -- Every range edge is also a segment boundary, so a segment is either wholly
+  -- inside a range or wholly outside it, and the ranges arrive sorted by start
+  -- (engine.side_char_ranges). A single advancing cursor therefore answers the
+  -- coverage question, where rescanning every range per segment made the range
+  -- count a quadratic term on heavily-refactored lines.
+  local next_emph = 1
   for bi = 1, #boundaries - 1 do
     local a, b = boundaries[bi], boundaries[bi + 1]
     if b > a then
@@ -223,12 +240,11 @@ local function line_segments(text, spans, line_type, emph_ranges)
       local attrs = span and theme.attrs(span.capture, span.lang) or nil
       local emph = false
       if emph_ranges then
-        for _, r in ipairs(emph_ranges) do
-          if r.s <= a and r.e >= b then
-            emph = true
-            break
-          end
+        while next_emph <= #emph_ranges and emph_ranges[next_emph].e <= a do
+          next_emph = next_emph + 1
         end
+        local r = emph_ranges[next_emph]
+        emph = r ~= nil and r.s <= a and r.e >= b
       end
       segs[#segs + 1] = {
         text = seg,
@@ -245,53 +261,21 @@ local function line_segments(text, spans, line_type, emph_ranges)
   return segs, line_bg
 end
 
---- Render one inline content line, padded to the view width when tinted.
-function M.content_line(text, spans, line_type, emph_ranges, cols)
-  local segs, line_bg = line_segments(text, spans, line_type, emph_ranges)
-  local out = {}
+-- Append styled segments, expanding tabs against the running visual column and
+-- collapsing repeated SGR sequences. `limit` bounds the row to that many display
+-- cells; without it the row runs to its natural end. Returns the final column.
+local function emit_segments(out, segs, limit)
   local col = 0
   local prev = nil
   for _, seg in ipairs(segs) do
-    local expanded
-    expanded, col = util.expand_tabs(seg.text, TAB_WIDTH, col)
-    local sgr = ansi.style(seg.style)
-    if sgr ~= prev then
-      out[#out + 1] = sgr
-      prev = sgr
-    end
-    out[#out + 1] = expanded
-  end
-  if line_bg then
-    local pad = cols - col
-    if pad > 0 then
-      out[#out + 1] = ansi.style({ bg = line_bg }) .. string.rep(" ", pad)
-    end
-  end
-  out[#out + 1] = ansi.reset
-  out[#out + 1] = "\n"
-  return table.concat(out)
-end
-
--- Render one side-by-side cell to exactly `width` display cells, truncating
--- overlong lines. cell: { text, spans, line_type, emph } or { filler = true }
--- (codediff renders absent lines as ╱ filler).
-local function render_cell(out, cell, width)
-  if not cell or cell.filler then
-    out[#out + 1] = ansi.style({ fg = pal().filler_fg }) .. string.rep(FILLER_CHAR, width)
-    return
-  end
-  local segs, line_bg = line_segments(cell.text, cell.spans, cell.line_type, cell.emph)
-  local col = 0
-  local prev = nil
-  for _, seg in ipairs(segs) do
-    if col >= width then
+    if limit and col >= limit then
       break
     end
     local expanded, next_col = util.expand_tabs(seg.text, TAB_WIDTH, col)
     local truncated = false
-    if next_col > width then
+    if limit and next_col > limit then
       local clipped_w
-      expanded, clipped_w = clip_to_width(expanded, width - col)
+      expanded, clipped_w = clip_to_width(expanded, limit - col)
       next_col = col + clipped_w
       truncated = true
     end
@@ -308,8 +292,34 @@ local function render_cell(out, cell, width)
       break
     end
   end
+  return col
+end
+
+--- Render one inline content line, padded to the view width when tinted.
+function M.content_line(text, spans, line_type, emph_ranges, cols)
+  local segs, line_bg = line_segments(text, spans, line_type, emph_ranges)
+  local out = {}
+  local col = emit_segments(out, segs)
+  if line_bg and cols > col then
+    out[#out + 1] = ansi.styled({ bg = line_bg }, string.rep(" ", cols - col))
+  end
+  out[#out + 1] = ansi.reset
+  out[#out + 1] = "\n"
+  return table.concat(out)
+end
+
+-- Render one side-by-side cell to exactly `width` display cells, truncating
+-- overlong lines. cell: { text, spans, line_type, emph } or { filler = true }
+-- (codediff renders absent lines as ╱ filler).
+local function render_cell(out, cell, width)
+  if not cell or cell.filler then
+    out[#out + 1] = ansi.styled({ fg = palette.filler_fg }, string.rep(FILLER_CHAR, width))
+    return
+  end
+  local segs, line_bg = line_segments(cell.text, cell.spans, cell.line_type, cell.emph)
+  local col = emit_segments(out, segs, width)
   if col < width then
-    out[#out + 1] = ansi.style({ bg = line_bg }) .. string.rep(" ", width - col)
+    out[#out + 1] = ansi.styled({ bg = line_bg }, string.rep(" ", width - col))
   end
 end
 
@@ -319,7 +329,7 @@ function M.split_line(left, right, cols)
   local right_w = math.max(cols - 1 - left_w, 1)
   local out = {}
   render_cell(out, left, left_w)
-  out[#out + 1] = ansi.style({ fg = pal().decoration }) .. "│"
+  out[#out + 1] = ansi.styled({ fg = palette.decoration }, "│")
   render_cell(out, right, right_w)
   out[#out + 1] = ansi.reset
   out[#out + 1] = "\n"

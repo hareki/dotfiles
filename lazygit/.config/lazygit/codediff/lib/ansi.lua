@@ -29,4 +29,14 @@ end
 
 M.reset = ESC .. "[0m"
 
+--- `text` prefixed with its SGR sequence.
+function M.styled(attrs, text)
+  return M.style(attrs) .. text
+end
+
+--- A complete output row: styled text, reset, newline.
+function M.line(attrs, text)
+  return M.style(attrs) .. text .. M.reset .. "\n"
+end
+
 return M
