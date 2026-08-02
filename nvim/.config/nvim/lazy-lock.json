@@ -9,7 +9,7 @@
   "catppuccin": { "branch": "main", "commit": "79e2049a0fdf7ec840f8463fe1d962c94493196b" },
   "claudecode.nvim": { "branch": "main", "commit": "14743d9d7016e50fdf8af847298d7e0f61c26dcf" },
   "cmp-cmdline-history": { "branch": "master", "commit": "003573b72d4635ce636234a826fa8c4ba2895ffe" },
-  "codediff.nvim": { "branch": "main", "commit": "cfd7f0bea5a14dc20d96f6897723ae5a9f513b29" },
+  "codediff.nvim": { "branch": "main", "commit": "9acb647d1b9f6713a913bc8a756dd362614c8964" },
   "comment.nvim": { "branch": "master", "commit": "e30b7f2008e52442154b66f7c519bfd2f1e32acb" },
   "conform.nvim": { "branch": "master", "commit": "619363c30309d29ffa631e67c8183f2a72caa373" },
   "cursortab.nvim": { "branch": "main", "commit": "aa25865d503ecc161828c792209e7e890eddfb7c" },

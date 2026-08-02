@@ -21,6 +21,9 @@ return {
       local preview_cols = UI.layout.side_size('side_panel', 'sm')
 
       return {
+        diff = {
+          navigation_message = false,
+        },
         keymaps = {
           view = {
             next_hunk = ']h',
