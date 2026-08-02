@@ -36,6 +36,15 @@ local function utf16_col_to_byte_col(line, utf16_col)
   return utf16_col
 end
 
+-- Byte index of the last byte of the UTF-8 sequence covering byte `i`.
+local function char_last_byte(line, i)
+  if i < 1 or i > #line then
+    return i
+  end
+  local ok, off = pcall(vim.str_utf_end, line, i)
+  return ok and (i + off) or i
+end
+
 -- Split one side of the char-level inner changes into per-row byte ranges:
 -- { [row] = { {s, e}, ... } } with 1-based cols, e exclusive — the shape
 -- layout.content_line takes for emphasis. Follows codediff's own per-side
@@ -53,7 +62,10 @@ local function side_char_ranges(inner_changes, side, lines)
         if row == r.end_line then
           e = utf16_col_to_byte_col(text, r.end_col) - 1
           if side == "original" then
-            e = math.max(e, s)
+            -- Widen an empty tail marker to a whole character, not a single
+            -- byte: a range ending mid-sequence makes the renderer cut the
+            -- character in two and emit an SGR escape between its bytes.
+            e = math.max(e, char_last_byte(text, s))
           end
         else
           e = #text

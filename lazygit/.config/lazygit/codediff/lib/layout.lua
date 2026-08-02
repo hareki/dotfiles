@@ -11,24 +11,89 @@ local function pal()
   return theme.palette
 end
 
+-- Clip a string to at most `limit` display cells (UTF-8 aware). Returns the
+-- clipped string and its display width.
+local function clip_to_width(s, limit)
+  local w = util.display_width(s)
+  if w <= limit then
+    return s, w
+  end
+  local ok, pos = pcall(vim.str_utf_pos, s)
+  if not ok then
+    local clipped = s:sub(1, limit)
+    return clipped, util.display_width(clipped)
+  end
+  local out = {}
+  w = 0
+  for i = 1, #pos do
+    local char = s:sub(pos[i], (pos[i + 1] or #s + 1) - 1)
+    local cw = util.display_width(char)
+    if w + cw > limit then
+      break
+    end
+    out[#out + 1] = char
+    w = w + cw
+  end
+  return table.concat(out), w
+end
+
+-- Same, but keeps the tail and marks the elision with a leading ellipsis --
+-- for paths the basename carries far more signal than the leading directories.
+local function clip_left_to_width(s, limit)
+  local w = util.display_width(s)
+  if w <= limit then
+    return s, w
+  end
+  if limit < 2 then
+    return "", 0
+  end
+  local ok, pos = pcall(vim.str_utf_pos, s)
+  if not ok then
+    return clip_to_width(s, limit)
+  end
+  local out = {}
+  w = 0
+  for i = #pos, 1, -1 do
+    local char = s:sub(pos[i], (pos[i + 1] or #s + 1) - 1)
+    local cw = util.display_width(char)
+    if w + cw > limit - 1 then
+      break
+    end
+    table.insert(out, 1, char)
+    w = w + cw
+  end
+  return "…" .. table.concat(out), w + 1
+end
+
 --- Delta-style boxed hunk header: path, new-side start line and the section
 --- heading, framed by decoration-colored rules.
 function M.hunk_header(path, hunk, cols)
   local p = pal()
-  local num = tostring(hunk.new_start)
+  -- A pure-deletion hunk has new_count == 0 and a new_start pointing at the
+  -- line *before* it (0 for a whole-file delete), so anchor on the old side.
+  local num = tostring(hunk.new_count > 0 and hunk.new_start or hunk.old_start)
   local heading = hunk.heading and (": " .. hunk.heading) or ""
   local plain = (path or "") .. ":" .. num .. heading
   local width = math.min(util.display_width(plain) + 2, math.max(cols - 1, 1))
 
+  -- Everything must fit inside the rule with at least one pad cell before the
+  -- bar, or the box breaks apart. The line number is never dropped: the path
+  -- loses its head first, then the section heading its tail.
+  local budget = math.max(width - 1, 1)
+  local num_w = util.display_width(":" .. num)
+  local path_text, path_w = clip_left_to_width(path or "", math.max(budget - num_w, 0))
+  local heading_text, heading_w = clip_to_width(heading, math.max(budget - path_w - num_w, 0))
+  local used = path_w + num_w + heading_w
+
   local rule = ansi.style({ fg = p.decoration }) .. string.rep("─", width)
-  local header = ansi.style({ fg = p.default_fg, bold = true }) .. (path or "")
+  local header = ansi.style({ fg = p.default_fg, bold = true }) .. path_text
     .. ansi.style({ fg = p.decoration }) .. ":"
     .. ansi.style({ fg = p.hunk_num, bold = true }) .. num
-    .. ansi.style({ fg = p.default_fg }) .. heading
+    .. ansi.style({ fg = p.default_fg }) .. heading_text
 
   -- The corners sit after `width` rule cells; the bar must land in the same
   -- column, so the pad is exactly the leftover width (no -1).
-  local pad = width - util.display_width(plain)
+  local pad = width - used
   return table.concat({
     rule .. "┐" .. ansi.reset .. "\n",
     header .. string.rep(" ", math.max(pad, 1)) .. ansi.style({ fg = p.decoration }) .. "│" .. ansi.reset .. "\n",
@@ -41,16 +106,40 @@ function M.note_row(text)
   return ansi.style({ fg = pal().decoration, italic = true }) .. text .. ansi.reset .. "\n"
 end
 
-local function winning_span(spans, a, b)
-  local best
-  for _, span in ipairs(spans) do
-    if span.s1 <= a and span.e1 >= b then
-      if not best or span.prio > best.prio or (span.prio == best.prio and span.order > best.order) then
+-- Winner per segment, resolved by a left-to-right sweep over the spans sorted
+-- by start. Every span edge is also a segment boundary, so a span that is
+-- still open at a segment's start covers the whole segment; the active set is
+-- the treesitter nesting depth, never the line's span count (a scan per
+-- segment turns a minified line into seconds of CPU).
+local function segment_winners(spans, boundaries)
+  local sorted = {}
+  for i, span in ipairs(spans) do
+    sorted[i] = span
+  end
+  table.sort(sorted, function(x, y)
+    return x.s1 < y.s1
+  end)
+
+  local winners = {}
+  local active = {}
+  local next_span = 1
+  for bi = 1, #boundaries - 1 do
+    local a = boundaries[bi]
+    while next_span <= #sorted and sorted[next_span].s1 <= a do
+      active[sorted[next_span]] = true
+      next_span = next_span + 1
+    end
+    local best
+    for span in pairs(active) do
+      if span.e1 <= a then
+        active[span] = nil
+      elseif not best or span.prio > best.prio or (span.prio == best.prio and span.order > best.order) then
         best = span
       end
     end
+    winners[bi] = best
   end
-  return best
+  return winners
 end
 
 -- Build the styled segments for one content line in codediff.nvim's style:
@@ -92,13 +181,14 @@ local function line_segments(text, spans, line_type, emph_ranges)
     end
   end
   table.sort(boundaries)
+  local winners = segment_winners(clamped, boundaries)
 
   local segs = {}
   for bi = 1, #boundaries - 1 do
     local a, b = boundaries[bi], boundaries[bi + 1]
     if b > a then
       local seg = text:sub(a, b - 1)
-      local span = winning_span(clamped, a, b)
+      local span = winners[bi]
       local attrs = span and theme.attrs(span.capture, span.lang) or nil
       local emph = false
       if emph_ranges then
@@ -151,32 +241,6 @@ function M.content_line(text, spans, line_type, emph_ranges, cols)
   return table.concat(out)
 end
 
--- Clip a string to at most `limit` display cells (UTF-8 aware). Returns the
--- clipped string and its display width.
-local function clip_to_width(s, limit)
-  local w = util.display_width(s)
-  if w <= limit then
-    return s, w
-  end
-  local ok, pos = pcall(vim.str_utf_pos, s)
-  if not ok then
-    local clipped = s:sub(1, limit)
-    return clipped, util.display_width(clipped)
-  end
-  local out = {}
-  w = 0
-  for i = 1, #pos do
-    local char = s:sub(pos[i], (pos[i + 1] or #s + 1) - 1)
-    local cw = util.display_width(char)
-    if w + cw > limit then
-      break
-    end
-    out[#out + 1] = char
-    w = w + cw
-  end
-  return table.concat(out), w
-end
-
 -- Render one side-by-side cell to exactly `width` display cells, truncating
 -- overlong lines. cell: { text, spans, line_type, emph } or { filler = true }
 -- (codediff renders absent lines as ╱ filler).
@@ -193,10 +257,12 @@ local function render_cell(out, cell, width)
       break
     end
     local expanded, next_col = util.expand_tabs(seg.text, TAB_WIDTH, col)
+    local truncated = false
     if next_col > width then
       local clipped_w
       expanded, clipped_w = clip_to_width(expanded, width - col)
       next_col = col + clipped_w
+      truncated = true
     end
     local sgr = ansi.style(seg.style)
     if sgr ~= prev then
@@ -205,6 +271,11 @@ local function render_cell(out, cell, width)
     end
     out[#out + 1] = expanded
     col = next_col
+    if truncated then
+      -- A clipped segment may leave a cell or two unfilled (a wide char that
+      -- did not fit); resuming would splice the line's tail onto its head.
+      break
+    end
   end
   if col < width then
     out[#out + 1] = ansi.style({ bg = line_bg }) .. string.rep(" ", width - col)

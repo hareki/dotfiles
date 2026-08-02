@@ -2,26 +2,59 @@ local util = require("lib.util")
 
 local M = {}
 
+local function git_batch(args, oids, cwd)
+  local ok, proc = pcall(vim.system, args, {
+    cwd = cwd,
+    stdin = table.concat(oids, "\n") .. "\n",
+    text = false,
+  })
+  if not ok then
+    return nil
+  end
+  local res = proc:wait()
+  if res.code ~= 0 or not res.stdout then
+    return nil
+  end
+  return res.stdout
+end
+
+--- Sizes and types only: "<oid> <type> <size>\n" or "<name> missing\n" per
+--- input line, no payloads. Returns a parallel list of { type, size }.
+local function batch_check(oids, cwd)
+  if #oids == 0 then
+    return {}
+  end
+  local out = git_batch({ "git", "cat-file", "--batch-check" }, oids, cwd)
+  if not out then
+    return {}
+  end
+  local info = {}
+  local i = 0
+  for line in out:gmatch("([^\n]*)\n") do
+    i = i + 1
+    local kind, size = line:match("^%S+ (%S+) (%d+)$")
+    if kind then
+      info[i] = { type = kind, size = tonumber(size) }
+    end
+  end
+  return info
+end
+
+--- Fetch blob contents in input order. Oversized and non-blob objects must be
+--- filtered out by the caller: git streams whatever is asked for straight into
+--- memory, and a non-blob payload left in the stream would desync every
+--- record after it.
 local function batch_cat_file(hashes, cwd)
   if #hashes == 0 then
     return {}
   end
-  local ok, proc = pcall(vim.system, { "git", "cat-file", "--batch" }, {
-    cwd = cwd,
-    stdin = table.concat(hashes, "\n") .. "\n",
-    text = false,
-  })
-  if not ok then
-    return {}
-  end
-  local res = proc:wait()
-  if res.code ~= 0 or not res.stdout then
+  local out = git_batch({ "git", "cat-file", "--batch" }, hashes, cwd)
+  if not out then
     return {}
   end
 
-  -- Records arrive in input order: "<oid> blob <size>\n<bytes>\n" or "<name> missing\n".
+  -- Records arrive in input order: "<oid> <type> <size>\n<bytes>\n" or "<name> missing\n".
   local results = {}
-  local out = res.stdout
   local pos = 1
   for i = 1, #hashes do
     local nl = out:find("\n", pos, true)
@@ -30,13 +63,14 @@ local function batch_cat_file(hashes, cwd)
     end
     local header = out:sub(pos, nl - 1)
     pos = nl + 1
-    local size = header:match("^%S+ blob (%d+)$")
+    local kind, size = header:match("^%S+ (%S+) (%d+)$")
     if size then
       size = tonumber(size)
-      results[i] = { content = out:sub(pos, pos + size - 1), size = size }
+      if kind == "blob" then
+        results[i] = { content = out:sub(pos, pos + size - 1), size = size }
+      end
+      -- Skip the payload either way; "missing" records have none.
       pos = pos + size + 1
-    else
-      results[i] = nil -- "missing" or a non-blob object
     end
   end
   return results
@@ -115,15 +149,27 @@ function M.acquire(files, cwd, limits)
     end
   end
 
-  local fetched = batch_cat_file(requests, cwd)
+  -- Size/type pass first, so an oversized blob or a gitlink's commit object is
+  -- never streamed into the (long-lived) daemon's memory at all.
+  local info = batch_check(requests, cwd)
+  local wanted, wanted_slots = {}, {}
   for i, slot in ipairs(slots) do
-    local rec = fetched[i]
-    if rec then
+    local rec = info[i]
+    if rec and rec.type == "blob" then
       if rec.size > limits.max_blob_bytes then
         slot.file.oversized = true
       else
-        slot.file[slot.side .. "_content"] = rec.content
+        wanted[#wanted + 1] = requests[i]
+        wanted_slots[#wanted_slots + 1] = slot
       end
+    end
+  end
+
+  local fetched = batch_cat_file(wanted, cwd)
+  for i, slot in ipairs(wanted_slots) do
+    local rec = fetched[i]
+    if rec then
+      slot.file[slot.side .. "_content"] = rec.content
     end
   end
 

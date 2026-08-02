@@ -13,7 +13,12 @@ function M.lang_for(path, content_lines)
   if not path then
     return nil
   end
-  local hit = cache[path]
+  -- The daemon is per-user, not per-repo, and lives for up to an hour, so the
+  -- path alone is not a safe key: content-based detection (shebangs) makes the
+  -- same relative path resolve differently across repos, and between a render
+  -- that had the file's content and one that did not.
+  local key = path .. "\0" .. ((content_lines and content_lines[1]) or "")
+  local hit = cache[key]
   if hit ~= nil then
     return hit or nil
   end
@@ -23,7 +28,7 @@ function M.lang_for(path, content_lines)
     -- Retry without contents: some filetype matchers error on odd content.
     ok, ft = pcall(vim.filetype.match, { filename = path })
     if not ok or not ft then
-      cache[path] = false
+      cache[key] = false
       return nil
     end
   end
@@ -35,7 +40,7 @@ function M.lang_for(path, content_lines)
     lang = parser_available(vim.treesitter.language.get_lang(base) or base)
   end
 
-  cache[path] = lang or false
+  cache[key] = lang or false
   return lang
 end
 

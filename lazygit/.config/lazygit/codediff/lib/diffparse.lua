@@ -3,6 +3,10 @@ local util = require("lib.util")
 local M = {}
 
 local function strip_path_prefix(path)
+  -- git appends a TAB (and diff(1) a TAB plus a timestamp) after the name
+  -- whenever it contains a space. A real tab in a path is always C-quoted, so
+  -- everything from the first raw tab is metadata.
+  path = path:gsub("\t.*$", "")
   if path == "/dev/null" then
     return nil
   end

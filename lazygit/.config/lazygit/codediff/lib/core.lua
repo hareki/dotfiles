@@ -27,23 +27,29 @@ end
 
 -- Compute treesitter spans for one side. In fragment mode the "file" is the
 -- per-hunk reconstruction, so spans are stored on the hunk keyed by side.
-local function compute_spans(file, lang)
+-- `langs_by_side` differs between sides only for renames that change the
+-- extension, where the old side is not the new side's language at all.
+local function compute_spans(file, langs_by_side)
   if file.content_mode == "full" then
     local sides = {}
-    if file.need_old then
+    if file.need_old and langs_by_side.old then
       local ranges = highlight.needed_ranges(file.hunks, "old", LIMITS.context_pad_rows)
-      sides.old = highlight.line_spans(table.concat(file.old_lines, "\n"), lang, ranges)
+      sides.old = highlight.line_spans(table.concat(file.old_lines, "\n"), langs_by_side.old, ranges)
     end
-    if file.need_new then
+    if file.need_new and langs_by_side.new then
       local ranges = highlight.needed_ranges(file.hunks, "new", LIMITS.context_pad_rows)
-      sides.new = highlight.line_spans(table.concat(file.new_lines, "\n"), lang, ranges)
+      sides.new = highlight.line_spans(table.concat(file.new_lines, "\n"), langs_by_side.new, ranges)
     end
     return sides
   end
 
   for _, hunk in ipairs(file.hunks) do
-    hunk.frag_old_spans = highlight.line_spans(table.concat(hunk.frag_old, "\n"), lang, { { 0, math.max(#hunk.frag_old - 1, 0) } })
-    hunk.frag_new_spans = highlight.line_spans(table.concat(hunk.frag_new, "\n"), lang, { { 0, math.max(#hunk.frag_new - 1, 0) } })
+    if langs_by_side.old then
+      hunk.frag_old_spans = highlight.line_spans(table.concat(hunk.frag_old, "\n"), langs_by_side.old, { { 0, math.max(#hunk.frag_old - 1, 0) } })
+    end
+    if langs_by_side.new then
+      hunk.frag_new_spans = highlight.line_spans(table.concat(hunk.frag_new, "\n"), langs_by_side.new, { { 0, math.max(#hunk.frag_new - 1, 0) } })
+    end
   end
   return nil
 end
@@ -172,7 +178,7 @@ local function render_hunk_split(out, hunk, cell, changes, ctx)
   end
 end
 
-local function render_hunk(out, file, hunk, sides, lang, ctx)
+local function render_hunk(out, file, hunk, sides, langs_by_side, ctx)
   local changes = file.content_mode ~= "plain" and engine.compute(hunk.frag_old, hunk.frag_new) or nil
   if changes and #changes == 0 then
     -- The engine sees no difference (e.g. a CRLF-only change: fragments are
@@ -184,7 +190,7 @@ local function render_hunk(out, file, hunk, sides, lang, ctx)
     local frag = side == "old" and hunk.frag_old or hunk.frag_new
     return {
       text = frag[row] or "",
-      spans = lang and spans_for(file, hunk, sides, side, row) or nil,
+      spans = langs_by_side[side] and spans_for(file, hunk, sides, side, row) or nil,
       line_type = line_type,
       emph = emph,
     }
@@ -237,10 +243,18 @@ local function render_file(file, ctx)
   if total_lines > LIMITS.max_file_section_lines then
     file.content_mode = "plain"
   end
-  local lang = nil
+  local langs_by_side = {}
   if file.content_mode ~= "plain" and ctx.budget > 0 then
-    local sample = file.content_mode == "full" and (file.need_new and file.new_lines or file.old_lines) or nil
-    lang = langs.lang_for(display_path, sample)
+    local full = file.content_mode == "full"
+    langs_by_side.new = langs.lang_for(display_path, full and (file.need_new and file.new_lines or file.old_lines) or nil)
+    -- A rename may change the extension, and then the old side is a different
+    -- language entirely (script.sh => script.py).
+    local old_path = file.old_path or display_path
+    if old_path == display_path then
+      langs_by_side.old = langs_by_side.new
+    else
+      langs_by_side.old = langs.lang_for(old_path, full and file.old_lines or nil)
+    end
   end
 
   -- Both the engine and the fallback renderer consume the per-hunk fragments.
@@ -250,9 +264,9 @@ local function render_file(file, ctx)
   end
 
   local sides = nil
-  if lang then
+  if langs_by_side.old or langs_by_side.new then
     ctx.budget = ctx.budget - total_lines
-    sides = compute_spans(file, lang)
+    sides = compute_spans(file, langs_by_side)
   end
 
   for i, hunk in ipairs(file.hunks) do
@@ -263,7 +277,7 @@ local function render_file(file, ctx)
       out[#out + 1] = "\n"
     end
     out[#out + 1] = layout.hunk_header(display_path, hunk, ctx.cols)
-    render_hunk(out, file, hunk, sides, lang, ctx)
+    render_hunk(out, file, hunk, sides, langs_by_side, ctx)
     hunk.frag_old, hunk.frag_new = nil, nil
     hunk.frag_old_spans, hunk.frag_new_spans = nil, nil
   end
