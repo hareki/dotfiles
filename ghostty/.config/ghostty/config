@@ -9,7 +9,7 @@ mouse-hide-while-typing = true
 copy-on-select = clipboard
 bell-features = system, attention, title
 
-adjust-cell-height = 31%
+adjust-cell-height = 30%
 window-padding-balance = true
 window-padding-x = 6
 window-padding-y = 3
@@ -27,7 +27,7 @@ cursor-text = #11111b
 cursor-style = bar
 cursor-style-blink = true
 
-font-size = 19.0
+font-size = 18.5
 adjust-icon-height = 15%
 font-style = SemiBold
 font-family = Maple Mono NF
