@@ -13,7 +13,7 @@ os:
 gui:
   showFileTree: true
   fileTreeSortOrder: foldersFirst
-  sidePanelWidth: 40
+  sidePanelWidth: 38
   screenMode: half
   mainPanelSplitMode: horizontal
   switchTabsWithPanelJumpKeys: true
