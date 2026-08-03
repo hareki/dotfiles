@@ -153,6 +153,14 @@ aucmd('FileType', {
   end,
 })
 
+aucmd('FileType', {
+  group = augroup('ghostty-defaults'),
+  pattern = { 'ghostty' },
+  callback = function(event)
+    vim.bo[event.buf].commentstring = '# %s'
+  end,
+})
+
 -- Use the same keymap as switching to cmdline window mode (vim.opt.cedit) to switch back to cmdline mode
 aucmd('CmdwinEnter', {
   group = augroup('cmdwin-keymaps'),

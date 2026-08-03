@@ -1,8 +1,12 @@
 vim.filetype.add({
   extension = {
     mdx = 'mdx',
+    ghostty = 'ghostty',
   },
   pattern = {
+    ['.*ghostty/config.*'] = 'ghostty',
+    ['.*ghostty/themes/.*'] = 'ghostty',
+
     -- Angular component templates co-locate a same-named .ts sibling within an
     -- Angular workspace: app.html + app.ts, foo.component.html + foo.component.ts.
     -- The cheap sibling check short-circuits before the upward workspace walk, so

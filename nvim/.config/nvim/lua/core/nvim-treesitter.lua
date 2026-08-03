@@ -17,7 +17,7 @@ return {
     })
 
     vim.api.nvim_create_autocmd('User', {
-      group = vim.api.nvim_create_augroup('core.nvim-treesitter.glimmer-fork', { clear = true }),
+      group = vim.api.nvim_create_augroup('core.nvim-treesitter.custom-parsers', { clear = true }),
       pattern = 'TSUpdate',
       callback = function()
         local ts_parsers = require('nvim-treesitter.parsers')
@@ -27,6 +27,13 @@ return {
         ts_parsers.glimmer.install_info = {
           url = 'https://github.com/hareki/tree-sitter-glimmer',
           queries = 'queries/glimmer',
+        }
+
+        ts_parsers.ghostty = {
+          install_info = {
+            url = 'https://github.com/bezhermoso/tree-sitter-ghostty',
+            queries = 'queries/ghostty',
+          },
         }
       end,
     })
@@ -76,6 +83,7 @@ return {
       'angular',
       'rust',
       'go',
+      'ghostty',
     },
   },
 
