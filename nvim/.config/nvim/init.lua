@@ -11,6 +11,7 @@ vim.loader.enable(true)
 
 require('config.globals')
 require('config.options')
+require('config.filetypes')
 require('config.autocmds')
 
 lazy(function()

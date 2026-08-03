@@ -3,7 +3,7 @@
 --- @class config
 local M = {}
 
-M.filetypes = require('config.filetypes')
+M.filetypes = require('config.filetypes.groups')
 M.icons = require('config.icons')
 M.priority = require('config.priority')
 M.picker = require('config.picker')
