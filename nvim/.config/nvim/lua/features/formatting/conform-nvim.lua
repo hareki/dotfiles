@@ -21,7 +21,7 @@ return {
         filetypes = Conf.filetypes.merge(
           Conf.filetypes.JS_ALL,
           Conf.filetypes.CSS,
-          { 'html', 'handlebars' },
+          { 'html' },
           Conf.filetypes.ANGULAR,
           Conf.filetypes.MARKDOWN,
           Conf.filetypes.JSON,
@@ -36,6 +36,12 @@ return {
         formatters_by_ft[ft] = group.config
       end
     end
+
+    -- prettier parses handlebars with Ember's glimmer parser, which rejects the
+    -- Express flavor (blocks inside attributes) and rewrites HTML attribute
+    -- quotes per `singleQuote`; vscode-html-language-server handles it instead
+    -- (see the format settings in core/lsp/nvim-lspconfig/lsp/html.lua)
+    formatters_by_ft.handlebars = { lsp_format = 'fallback' }
 
     local opts = { formatters_by_ft = formatters_by_ft }
     if use_prettier then
