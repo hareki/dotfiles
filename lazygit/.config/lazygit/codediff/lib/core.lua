@@ -13,9 +13,24 @@ local LIMITS = {
   max_input_bytes = 2 * 1024 * 1024,
   max_file_section_lines = 20000,
   max_blob_bytes = 1024 * 1024,
+  -- Above this, a side is highlighted from its hunk fragments instead of the
+  -- full blob: a full-content treesitter parse is O(file bytes) per side no
+  -- matter how little of the file the diff shows, and a half-megabyte file
+  -- costs ~300ms per side before a single span is extracted.
+  max_highlight_blob_bytes = 256 * 1024,
   max_highlighted_lines = 8000,
+  -- Wall-clock ceiling on span extraction for the whole render; past it the
+  -- remaining rows and files fall back to tints. Generous enough that only a
+  -- render that would visibly stall lazygit ever hits it.
+  max_highlight_ms = 1000,
   context_pad_rows = 1,
 }
+
+local uv = vim.uv
+
+local function hl_expired(ctx)
+  return uv.hrtime() > ctx.hl_deadline
+end
 
 local function hunk_line_total(file)
   local total = 0
@@ -25,30 +40,88 @@ local function hunk_line_total(file)
   return total
 end
 
+-- Merge a padded 0-based row range into the tail of `ranges` (they are built
+-- in ascending order, so only the last one can overlap).
+local function push_range(ranges, s, e)
+  local last = ranges[#ranges]
+  if last and s <= last[2] + 1 then
+    last[2] = math.max(last[2], e)
+  else
+    ranges[#ranges + 1] = { s, e }
+  end
+end
+
+-- The inline layout renders context rows from the new side, so old-side spans
+-- are only ever consulted for minus rows: restricting extraction to them makes
+-- the old side's cost scale with the deletions rather than with everything the
+-- hunks show, and a pure-addition file skips its old side entirely.
+--
+-- Absolute old-file rows of every minus run, padded and merged (full mode).
+local function minus_row_ranges(hunks, pad)
+  local ranges = {}
+  for _, hunk in ipairs(hunks) do
+    local row = hunk.old_start - 1 -- 0-based row of the next old-side line
+    for _, l in ipairs(hunk.lines) do
+      if l.origin ~= "+" then
+        if l.origin == "-" then
+          push_range(ranges, math.max(0, row - pad), row + pad)
+        end
+        row = row + 1
+      end
+    end
+  end
+  return ranges
+end
+
+-- The same runs in one hunk's frag_old coordinates (fragment mode).
+local function minus_frag_ranges(hunk, pad, max_row)
+  local ranges = {}
+  local row = 0
+  for _, l in ipairs(hunk.lines) do
+    if l.origin ~= "+" then
+      if l.origin == "-" then
+        push_range(ranges, math.max(0, row - pad), math.min(row + pad, max_row))
+      end
+      row = row + 1
+    end
+  end
+  return ranges
+end
+
 -- Compute treesitter spans for one side. In fragment mode the "file" is the
 -- per-hunk reconstruction, so spans are stored on the hunk keyed by side.
 -- `langs_by_side` differs between sides only for renames that change the
 -- extension, where the old side is not the new side's language at all.
-local function compute_spans(file, langs_by_side)
+-- The side-by-side layout keeps whole-hunk old ranges: its left context cells
+-- render from the old side, which the inline layout never does.
+local function compute_spans(file, langs_by_side, ctx)
+  local pad = LIMITS.context_pad_rows
+  local minus_only = ctx.layout ~= "side-by-side"
   if file.content_mode == "full" then
     local sides = {}
-    if file.need_old and langs_by_side.old then
-      local ranges = highlight.needed_ranges(file.hunks, "old", LIMITS.context_pad_rows)
-      sides.old = highlight.line_spans(table.concat(file.old_lines, "\n"), langs_by_side.old, ranges)
+    if file.need_old and langs_by_side.old and not hl_expired(ctx) then
+      local ranges = minus_only and minus_row_ranges(file.hunks, pad) or highlight.needed_ranges(file.hunks, "old", pad)
+      if #ranges > 0 then
+        sides.old = highlight.line_spans(table.concat(file.old_lines, "\n"), langs_by_side.old, ranges, ctx.hl_deadline)
+      end
     end
-    if file.need_new and langs_by_side.new then
-      local ranges = highlight.needed_ranges(file.hunks, "new", LIMITS.context_pad_rows)
-      sides.new = highlight.line_spans(table.concat(file.new_lines, "\n"), langs_by_side.new, ranges)
+    if file.need_new and langs_by_side.new and not hl_expired(ctx) then
+      local ranges = highlight.needed_ranges(file.hunks, "new", pad)
+      sides.new = highlight.line_spans(table.concat(file.new_lines, "\n"), langs_by_side.new, ranges, ctx.hl_deadline)
     end
     return sides
   end
 
   for _, hunk in ipairs(file.hunks) do
-    if langs_by_side.old then
-      hunk.frag_old_spans = highlight.line_spans(table.concat(hunk.frag_old, "\n"), langs_by_side.old, { { 0, math.max(#hunk.frag_old - 1, 0) } })
+    if langs_by_side.old and not hl_expired(ctx) then
+      local max_row = math.max(#hunk.frag_old - 1, 0)
+      local ranges = minus_only and minus_frag_ranges(hunk, pad, max_row) or { { 0, max_row } }
+      if #ranges > 0 then
+        hunk.frag_old_spans = highlight.line_spans(table.concat(hunk.frag_old, "\n"), langs_by_side.old, ranges, ctx.hl_deadline)
+      end
     end
-    if langs_by_side.new then
-      hunk.frag_new_spans = highlight.line_spans(table.concat(hunk.frag_new, "\n"), langs_by_side.new, { { 0, math.max(#hunk.frag_new - 1, 0) } })
+    if langs_by_side.new and not hl_expired(ctx) then
+      hunk.frag_new_spans = highlight.line_spans(table.concat(hunk.frag_new, "\n"), langs_by_side.new, { { 0, math.max(#hunk.frag_new - 1, 0) } }, ctx.hl_deadline)
     end
   end
   return nil
@@ -199,7 +272,7 @@ local function render_file(file, ctx)
     file.content_mode = "plain"
   end
   local langs_by_side = {}
-  if file.content_mode ~= "plain" and ctx.budget > 0 then
+  if file.content_mode ~= "plain" and ctx.budget > 0 and not hl_expired(ctx) then
     local full = file.content_mode == "full"
     langs_by_side.new = langs.lang_for(display_path, full and (file.need_new and file.new_lines or file.old_lines) or nil)
     -- A rename may change the extension, and then the old side is a different
@@ -221,7 +294,7 @@ local function render_file(file, ctx)
   local sides = nil
   if langs_by_side.old or langs_by_side.new then
     ctx.budget = ctx.budget - total_lines
-    sides = compute_spans(file, langs_by_side)
+    sides = compute_spans(file, langs_by_side, ctx)
   end
 
   for i, hunk in ipairs(file.hunks) do
@@ -248,9 +321,11 @@ end
 ---   cols   target width (LAZYGIT_COLUMNS)
 ---   layout "side-by-side" for the split view; anything else renders inline
 ---   force_fragment  skip git blob lookups (repo-independent fixtures)
+--- Returns the document plus a cacheable flag: false when the render read the
+--- worktree (an unstaged diff), whose files can change under an unchanged diff.
 function M.render(input, opts)
   if #input > LIMITS.max_input_bytes then
-    return input
+    return input, false
   end
 
   -- Git is asked for uncolored output, so the strip almost never has anything
@@ -269,12 +344,17 @@ function M.render(input, opts)
   end
   local looks_like_git = #files > 0 or (lines[1] and lines[1]:match("^commit %x+"))
   if not looks_like_git then
-    return input
+    return input, false
   end
 
-  blob.acquire(files, opts.cwd, LIMITS, opts.force_fragment)
+  local worktree_dep = blob.acquire(files, opts.cwd, LIMITS, opts.force_fragment)
 
-  local ctx = { cols = opts.cols or 120, budget = LIMITS.max_highlighted_lines, layout = opts.layout }
+  local ctx = {
+    cols = opts.cols or 120,
+    budget = LIMITS.max_highlighted_lines,
+    layout = opts.layout,
+    hl_deadline = uv.hrtime() + LIMITS.max_highlight_ms * 1e6,
+  }
   local out = {}
   for _, block in ipairs(blocks) do
     local chunk
@@ -291,7 +371,7 @@ function M.render(input, opts)
       out[#out + 1] = chunk
     end
   end
-  return table.concat(out)
+  return table.concat(out), not worktree_dep
 end
 
 return M

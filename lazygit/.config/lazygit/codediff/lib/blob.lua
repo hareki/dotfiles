@@ -23,16 +23,22 @@ local function worktree_root(cwd)
   return root_cache.root
 end
 
-local function read_worktree_file(root, path, max_bytes)
+local function read_worktree_file(root, path, limits)
   local f = io.open(root .. "/" .. path, "rb")
   if not f then
     return nil
   end
   local size = f:seek("end")
   f:seek("set")
-  if size > max_bytes then
+  if size > limits.max_blob_bytes then
     f:close()
     return nil, true -- oversized
+  end
+  if size > limits.max_highlight_blob_bytes then
+    -- Worth showing but not worth a full-content parse: no content means the
+    -- file stays in fragment mode and is highlighted from its hunks.
+    f:close()
+    return nil
   end
   local content = f:read("*a")
   f:close()
@@ -65,6 +71,8 @@ end
 --- file.old_lines / file.new_lines in full mode.
 --- With `fragment_only`, files are classified but no git lookup is performed,
 --- so a render stays reproducible outside the repo it was captured from.
+--- Returns true when any file consulted the worktree, i.e. the render depends
+--- on state the diff text does not capture.
 function M.acquire(files, cwd, limits, fragment_only)
   -- Which sides does each file actually need?
   local requests = {} -- flat list of hashes for one batched cat-file call
@@ -88,19 +96,26 @@ function M.acquire(files, cwd, limits, fragment_only)
   end
 
   if fragment_only then
-    return
+    return false
   end
 
-  local infos, blobs = catfile.fetch(cwd, requests, limits.max_blob_bytes)
+  -- Blobs past the highlight cap are sized but never fetched: full-content
+  -- highlighting is the only consumer of the bytes, and a full-file parse on
+  -- something that large costs more than the render it decorates. The file
+  -- keeps fragment mode and is highlighted from its hunks instead.
+  local infos, blobs = catfile.fetch(cwd, requests, limits.max_highlight_blob_bytes)
   for i, slot in ipairs(slots) do
     local rec = infos[i]
     if rec and rec.type == "blob" and rec.size > limits.max_blob_bytes then
       slot.file.oversized = true
+    elseif rec and rec.type == "blob" and rec.size > limits.max_highlight_blob_bytes then
+      slot.file.hl_skip = true
     elseif blobs[i] then
       slot.file[slot.side .. "_content"] = blobs[i]
     end
   end
 
+  local worktree_dep = false
   for _, file in ipairs(files) do
     if file.content_mode == "fragment" then
       if file.oversized then
@@ -108,9 +123,12 @@ function M.acquire(files, cwd, limits, fragment_only)
       else
         -- Worktree-side fallback: unstaged/untracked diffs have zero or
         -- odb-missing hashes on the new side; the file on disk is that side.
-        local root = file.need_new and not file.new_content and file.new_path and worktree_root(cwd) or nil
+        -- Not taken for a blob skipped by the highlight cap: its hash is real,
+        -- and the checked-out file may be another version entirely.
+        local root = file.need_new and not file.new_content and not file.hl_skip and file.new_path and worktree_root(cwd) or nil
         if root then
-          local content, oversized = read_worktree_file(root, file.new_path, limits.max_blob_bytes)
+          worktree_dep = true
+          local content, oversized = read_worktree_file(root, file.new_path, limits)
           if oversized then
             file.content_mode = "plain"
           else
@@ -128,6 +146,7 @@ function M.acquire(files, cwd, limits, fragment_only)
     end
     file.old_content, file.new_content = nil, nil
   end
+  return worktree_dep
 end
 
 return M

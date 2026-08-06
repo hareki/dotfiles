@@ -13,12 +13,16 @@ local UNDERSCORE = string.byte("_")
 --- lang:       treesitter language (parser must be loadable)
 --- row_ranges: sorted, merged list of {start_row, end_row} (0-based, inclusive)
 ---             restricting extraction to the rows the diff actually shows
+--- deadline:   optional vim.uv.hrtime() value; collection stops between query
+---             windows once it passes, returning whatever was gathered so far
+---             (those rows still render highlighted, the rest fall back to
+---             tints), so one pathological file cannot stall the whole render
 ---
 --- Returns rows: { [row0] = { {s1=col, e1=col_end_excl, capture, lang, prio, order}, ... } }
 --- or nil when parsing is unavailable. Columns are 1-based and end-exclusive --
 --- the form layout.lua clips and sweeps in, so the renderer never has to rebase
 --- a span it was handed.
-function M.line_spans(content, lang, row_ranges)
+function M.line_spans(content, lang, row_ranges, deadline)
   local ok, parser = pcall(vim.treesitter.get_string_parser, content, lang)
   if not ok or not parser then
     return nil
@@ -71,7 +75,20 @@ function M.line_spans(content, lang, row_ranges)
     end
   end
 
+  -- Checked between query windows, never inside one: the uv.hrtime call is
+  -- nothing next to a window's worth of captures.
+  local expired = false
+  local function past_deadline()
+    if not expired and deadline and vim.uv.hrtime() > deadline then
+      expired = true
+    end
+    return expired
+  end
+
   local function collect(langtree)
+    if past_deadline() then
+      return
+    end
     local tree_lang = langtree:lang()
     local query_ok, query = pcall(vim.treesitter.query.get, tree_lang, "highlights")
     if query_ok and query then
@@ -84,6 +101,9 @@ function M.line_spans(content, lang, row_ranges)
         -- full of code blocks) would pay that once per hunk shown.
         local tree_first, _, tree_last, _ = root:range()
         for _, range in ipairs(row_ranges) do
+          if past_deadline() then
+            return
+          end
           if range[1] <= tree_last and range[2] >= tree_first then
             for id, node, metadata in query:iter_captures(root, content, range[1], range[2] + 1) do
               local name = captures[id]

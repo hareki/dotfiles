@@ -114,6 +114,44 @@ if not ok_boot then
   shutdown(1)
 end
 
+-- Rendered-output cache: browsing commits in lazygit re-requests the same diff
+-- every time the selection returns to it, and the expensive renders (large
+-- commits) are exactly the ones worth never paying twice. Keyed by the full
+-- input plus everything else that shapes the output; renders that consulted
+-- the worktree are not cached, since the file on disk can change under an
+-- unchanged diff. A daemon recycle (parser/plugin/source updates) drops the
+-- cache with the process.
+local CACHE_MAX = 8
+local cache_entries, cache_count, cache_tick = {}, 0, 0
+
+local function cache_get(key)
+  local e = cache_entries[key]
+  if not e then
+    return nil
+  end
+  cache_tick = cache_tick + 1
+  e.stamp = cache_tick
+  return e.out
+end
+
+local function cache_put(key, out)
+  if not cache_entries[key] then
+    if cache_count >= CACHE_MAX then
+      local oldest_key, oldest = nil, math.huge
+      for k, e in pairs(cache_entries) do
+        if e.stamp < oldest then
+          oldest_key, oldest = k, e.stamp
+        end
+      end
+      cache_entries[oldest_key] = nil
+      cache_count = cache_count - 1
+    end
+    cache_count = cache_count + 1
+  end
+  cache_tick = cache_tick + 1
+  cache_entries[key] = { out = out, stamp = cache_tick }
+end
+
 _G.CODEDIFF = {}
 
 function _G.CODEDIFF.render(infile, outfile, cwd, cols, owner_pid, layout)
@@ -133,17 +171,25 @@ function _G.CODEDIFF.render(infile, outfile, cwd, cols, owner_pid, layout)
   local input = f:read("*a") or ""
   f:close()
 
-  local ok, rendered = pcall(core.render, input, {
-    cwd = cwd,
-    cols = tonumber(cols) or 120,
-    layout = layout,
-  })
+  local key = table.concat({ vim.fn.sha256(input), cwd, tostring(cols), tostring(layout) }, "\0")
+  local rendered = not stale and cache_get(key) or nil
+  if not rendered then
+    local ok, result, cacheable = pcall(core.render, input, {
+      cwd = cwd,
+      cols = tonumber(cols) or 120,
+      layout = layout,
+    })
+    rendered = ok and result or input
+    if ok and cacheable then
+      cache_put(key, rendered)
+    end
+  end
 
   local out = io.open(outfile, "wb")
   if not out then
     return "err:output"
   end
-  out:write(ok and rendered or input)
+  out:write(rendered)
   out:close()
 
   if stale then
