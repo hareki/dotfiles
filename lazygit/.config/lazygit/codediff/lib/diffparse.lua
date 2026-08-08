@@ -2,7 +2,7 @@ local util = require("lib.util")
 
 local M = {}
 
-local function strip_path_prefix(path)
+local function strip_path_prefix(path, prefixed)
   -- git appends a TAB (and diff(1) a TAB plus a timestamp) after the name
   -- whenever it contains a space. A real tab in a path is always C-quoted, so
   -- everything from the first raw tab is metadata.
@@ -11,6 +11,12 @@ local function strip_path_prefix(path)
     return nil
   end
   path = util.unquote_c_string(path)
+  -- With diff.noPrefix (or empty src/dst prefixes) the headers carry bare
+  -- paths, and stripping would eat the first segment of a file genuinely under
+  -- a top-level a/, b/, w/ ... directory.
+  if not prefixed then
+    return path
+  end
   -- Standard prefixes: a/ b/ plus i/ w/ c/ o/ 1/ 2/ used by mnemonicPrefix.
   local stripped = path:match("^[abciwo12]/(.+)$")
   return stripped or path
@@ -35,6 +41,12 @@ local function new_file(diff_line)
     raw_lines = {}, -- combined-diff body kept verbatim
   }
   if diff_line:match("^diff %-%-git ") then
+    -- Whether this file's paths carry the a/ b/ (or mnemonic) prefixes: the
+    -- diff line is the one place the form shows, and the ---/+++ headers of
+    -- the same file always use the same setting. Only source prefixes can
+    -- open the line (a/ plus mnemonic i/ c/ o/ w/ and 1/); b/ and 2/ are
+    -- destination-only, so a bare path starting with b/ stays unprefixed.
+    file.prefixed = diff_line:match('^diff %-%-git "?[aciow1]/') ~= nil
     -- Path pair from the diff line for the common unquoted case; overridden
     -- by ---/+++ or rename headers when present.
     local a, b = diff_line:match("^diff %-%-git a/(.-) b/(.+)$")
@@ -79,12 +91,12 @@ local function parse_extended_header(file, line)
   elseif line:match("^Binary files ") or line:match("^GIT binary patch") then
     file.is_binary = true
   elseif line:match("^%-%-%- ") then
-    local p = strip_path_prefix(line:sub(5))
+    local p = strip_path_prefix(line:sub(5), file.prefixed)
     if p then
       file.old_path = p
     end
   elseif line:match("^%+%+%+ ") then
-    local p = strip_path_prefix(line:sub(5))
+    local p = strip_path_prefix(line:sub(5), file.prefixed)
     if p then
       file.new_path = p
     end

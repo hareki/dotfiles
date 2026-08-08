@@ -22,6 +22,10 @@ uv.new_signal():start("sighup", function() end)
 local PARSER_DIR = vim.fs.normalize("~/.local/share/nvim/site/parser")
 -- VERSION changes whenever the plugin (and its native diff library) updates.
 local CODEDIFF_VERSION = vim.fs.normalize("~/.local/share/nvim/lazy/codediff.nvim/VERSION")
+-- The editor's filetype-rules module that bootstrap sources into the daemon:
+-- its detection rules and ft => language aliases shape every render, so an
+-- edit must recycle the daemon like any renderer source.
+local FILETYPE_RULES = vim.fs.joinpath(vim.fn.stdpath("config"), "lua/config/filetypes/init.lua")
 local IDLE_WITH_OWNER_MS = 60 * 60 * 1000
 local IDLE_NO_OWNER_MS = 5 * 60 * 1000
 local POLL_MS = 3000
@@ -58,6 +62,7 @@ local function fingerprint()
     mtime_of(vim.v.progpath),
     mtime_of(PARSER_DIR),
     mtime_of(CODEDIFF_VERSION),
+    mtime_of(FILETYPE_RULES),
     scripts_mtime(),
   }, ":")
 end
@@ -122,7 +127,11 @@ end
 -- unchanged diff. A daemon recycle (parser/plugin/source updates) drops the
 -- cache with the process.
 local CACHE_MAX = 8
-local cache_entries, cache_count, cache_tick = {}, 0, 0
+-- Rendered ANSI runs ~5-8x its input (tinted rows pad out to the full width),
+-- so a handful of large-commit renders can pin tens of MB for the daemon's
+-- lifetime; the byte ceiling bounds memory where the entry count cannot.
+local CACHE_MAX_BYTES = 32 * 1024 * 1024
+local cache_entries, cache_count, cache_bytes, cache_tick = {}, 0, 0, 0
 
 local function cache_get(key)
   local e = cache_entries[key]
@@ -135,21 +144,29 @@ local function cache_get(key)
 end
 
 local function cache_put(key, out)
-  if not cache_entries[key] then
-    if cache_count >= CACHE_MAX then
-      local oldest_key, oldest = nil, math.huge
-      for k, e in pairs(cache_entries) do
-        if e.stamp < oldest then
-          oldest_key, oldest = k, e.stamp
-        end
-      end
-      cache_entries[oldest_key] = nil
-      cache_count = cache_count - 1
-    end
+  if #out > CACHE_MAX_BYTES then
+    return
+  end
+  local prev = cache_entries[key]
+  if prev then
+    cache_bytes = cache_bytes - #prev.out
+  else
     cache_count = cache_count + 1
   end
   cache_tick = cache_tick + 1
   cache_entries[key] = { out = out, stamp = cache_tick }
+  cache_bytes = cache_bytes + #out
+  while cache_count > CACHE_MAX or cache_bytes > CACHE_MAX_BYTES do
+    local oldest_key, oldest = nil, math.huge
+    for k, e in pairs(cache_entries) do
+      if e.stamp < oldest then
+        oldest_key, oldest = k, e.stamp
+      end
+    end
+    cache_bytes = cache_bytes - #cache_entries[oldest_key].out
+    cache_entries[oldest_key] = nil
+    cache_count = cache_count - 1
+  end
 end
 
 _G.CODEDIFF = {}

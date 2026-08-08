@@ -56,33 +56,32 @@ end
 -- the old side's cost scale with the deletions rather than with everything the
 -- hunks show, and a pure-addition file skips its old side entirely.
 --
--- Absolute old-file rows of every minus run, padded and merged (full mode).
+-- Ranges come from the engine's own change rows (hunk.changes), not the patch's
+-- minus runs: the engine may realign a deletion to a row the patch never marked
+-- as minus, and a row emitted outside the extracted ranges renders tinted but
+-- unstyled.
+--
+-- Absolute old-file rows of every change's old side, padded and merged
+-- (full mode).
 local function minus_row_ranges(hunks, pad)
   local ranges = {}
   for _, hunk in ipairs(hunks) do
-    local row = hunk.old_start - 1 -- 0-based row of the next old-side line
-    for _, l in ipairs(hunk.lines) do
-      if l.origin ~= "+" then
-        if l.origin == "-" then
-          push_range(ranges, math.max(0, row - pad), row + pad)
-        end
-        row = row + 1
+    local base = hunk.old_start - 2 -- 1-based fragment row => 0-based file row
+    for _, change in ipairs(hunk.changes) do
+      if change.old_end > change.old_start then
+        push_range(ranges, math.max(0, base + change.old_start - pad), base + change.old_end - 1 + pad)
       end
     end
   end
   return ranges
 end
 
--- The same runs in one hunk's frag_old coordinates (fragment mode).
+-- The same rows in one hunk's frag_old coordinates (fragment mode).
 local function minus_frag_ranges(hunk, pad, max_row)
   local ranges = {}
-  local row = 0
-  for _, l in ipairs(hunk.lines) do
-    if l.origin ~= "+" then
-      if l.origin == "-" then
-        push_range(ranges, math.max(0, row - pad), math.min(row + pad, max_row))
-      end
-      row = row + 1
+  for _, change in ipairs(hunk.changes) do
+    if change.old_end > change.old_start then
+      push_range(ranges, math.max(0, change.old_start - 1 - pad), math.min(change.old_end - 2 + pad, max_row))
     end
   end
   return ranges
@@ -207,12 +206,7 @@ local function render_hunk_split(out, hunk, cell, changes, ctx)
 end
 
 local function render_hunk(out, file, hunk, sides, langs_by_side, ctx)
-  local changes = file.content_mode ~= "plain" and engine.compute(hunk.frag_old, hunk.frag_new) or nil
-  if not changes or #changes == 0 then
-    -- No engine, or it sees no difference at all (a CRLF-only change: fragments
-    -- are CR-stripped); the patch's own runs are the only truthful rendering.
-    changes = engine.patch_changes(hunk)
-  end
+  local changes = hunk.changes
 
   local function cell(side, row, line_type, emph)
     local frag = side == "old" and hunk.frag_old or hunk.frag_new
@@ -246,7 +240,10 @@ local function render_file(file, ctx)
   end
 
   local out = {}
-  local display_path = file.new_path or file.old_path or "?"
+  -- A deleted file's +++ header is /dev/null, so its new_path can only be the
+  -- diff-line guess, which mis-splits a path containing " b/"; prefer the old
+  -- path, which the --- header corrects whenever one exists.
+  local display_path = file.is_deleted and file.old_path or file.new_path or file.old_path or "?"
 
   if file.renamed_from and file.renamed_to then
     out[#out + 1] = layout.note_row("renamed: " .. file.renamed_from .. " => " .. file.renamed_to)
@@ -286,9 +283,19 @@ local function render_file(file, ctx)
   end
 
   -- Both the engine and the fallback renderer consume the per-hunk fragments.
+  -- Changes are computed before span extraction so the old-side ranges can
+  -- follow the rows the engine actually emits (see minus_row_ranges).
   for _, hunk in ipairs(file.hunks) do
     hunk.frag_old = blob.hunk_fragment(hunk, "old")
     hunk.frag_new = blob.hunk_fragment(hunk, "new")
+    local changes = file.content_mode ~= "plain" and engine.compute(hunk.frag_old, hunk.frag_new) or nil
+    if not changes or #changes == 0 then
+      -- No engine, or it sees no difference at all (a CRLF-only change:
+      -- fragments are CR-stripped); the patch's own runs are the only truthful
+      -- rendering.
+      changes = engine.patch_changes(hunk)
+    end
+    hunk.changes = changes
   end
 
   local sides = nil
@@ -306,7 +313,7 @@ local function render_file(file, ctx)
     end
     out[#out + 1] = layout.hunk_header(display_path, hunk, ctx.cols)
     render_hunk(out, file, hunk, sides, langs_by_side, ctx)
-    hunk.frag_old, hunk.frag_new = nil, nil
+    hunk.frag_old, hunk.frag_new, hunk.changes = nil, nil, nil
     hunk.frag_old_spans, hunk.frag_new_spans = nil, nil
   end
 
@@ -322,7 +329,11 @@ end
 ---   layout "side-by-side" for the split view; anything else renders inline
 ---   force_fragment  skip git blob lookups (repo-independent fixtures)
 --- Returns the document plus a cacheable flag: false when the render read the
---- worktree (an unstaged diff), whose files can change under an unchanged diff.
+--- worktree (an unstaged diff), whose files can change under an unchanged diff,
+--- and false when the wall-clock highlight deadline degraded the output --
+--- caching would replay a transiently slow first render (cold parsers, query
+--- compilation) as tint-only for the daemon's lifetime, while a warm re-render
+--- may finish well inside the budget.
 function M.render(input, opts)
   if #input > LIMITS.max_input_bytes then
     return input, false
@@ -371,7 +382,7 @@ function M.render(input, opts)
       out[#out + 1] = chunk
     end
   end
-  return table.concat(out), not worktree_dep
+  return table.concat(out), not worktree_dep and not hl_expired(ctx)
 end
 
 return M

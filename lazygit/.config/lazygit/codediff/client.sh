@@ -76,15 +76,19 @@ DIR=$(cd "$(dirname "$0")" && pwd)
 # rediscover that there is nothing to connect to.
 if [ ! -S "$SOCK" ] || ! nvim --clean --server "$SOCK" --remote-expr 1 >/dev/null 2>&1; then
   rm -f "$SOCK"
-  nvim --clean -l "$DIR/spawn_daemon.lua" "$SOCK" >/dev/null 2>&1
-  i=0
-  while [ $i -lt 40 ] && [ ! -e "$SOCK" ]; do
-    sleep 0.05
-    i=$((i + 1))
-  done
-  if request; then
-    cat "$OUT"
-    exit 0
+  # A failed spawn (uv.spawn returned nothing; the spawner exits 1) can never
+  # produce a socket: skip the wait loop and the doomed request, so a broken
+  # nvim binary or fork pressure costs nothing extra on every render.
+  if nvim --clean -l "$DIR/spawn_daemon.lua" "$SOCK" >/dev/null 2>&1; then
+    i=0
+    while [ $i -lt 40 ] && [ ! -e "$SOCK" ]; do
+      sleep 0.05
+      i=$((i + 1))
+    done
+    if request; then
+      cat "$OUT"
+      exit 0
+    fi
   fi
 fi
 

@@ -3,6 +3,10 @@ local util = require("lib.util")
 
 local M = {}
 
+-- Mirrors catfile's READ_TIMEOUT_MS: a hung git (dead network mount, stuck
+-- fsmonitor) must fail this render, not wedge the daemon indefinitely.
+local GIT_TIMEOUT_MS = 5000
+
 -- Resolved lazily: only the worktree-side fallback below needs it, and a commit
 -- diff (the whole commits panel) never reaches that. Memoized because the
 -- daemon outlives the request and a cwd's repo root cannot change.
@@ -13,7 +17,7 @@ local function worktree_root(cwd)
     local root
     local ok, proc = pcall(vim.system, { "git", "rev-parse", "--show-toplevel" }, { cwd = cwd, text = true })
     if ok then
-      local res = proc:wait()
+      local res = proc:wait(GIT_TIMEOUT_MS)
       if res.code == 0 and res.stdout then
         root = vim.trim(res.stdout)
       end
@@ -107,7 +111,7 @@ function M.acquire(files, cwd, limits, fragment_only)
   for i, slot in ipairs(slots) do
     local rec = infos[i]
     if rec and rec.type == "blob" and rec.size > limits.max_blob_bytes then
-      slot.file.oversized = true
+      slot.file[slot.side .. "_oversized"] = true
     elseif rec and rec.type == "blob" and rec.size > limits.max_highlight_blob_bytes then
       slot.file.hl_skip = true
     elseif blobs[i] then
@@ -118,26 +122,37 @@ function M.acquire(files, cwd, limits, fragment_only)
   local worktree_dep = false
   for _, file in ipairs(files) do
     if file.content_mode == "fragment" then
-      if file.oversized then
+      -- Worktree-side fallback: unstaged/untracked diffs have zero or
+      -- odb-missing hashes on the new side; the file on disk is that side.
+      -- Not taken for a blob skipped by the highlight cap or the blob cap:
+      -- its hash is real, and the checked-out file may be another version
+      -- entirely.
+      local root = file.need_new
+          and not file.new_content
+          and not file.hl_skip
+          and not file.new_oversized
+          and file.new_path
+          and worktree_root(cwd)
+        or nil
+      if root then
+        worktree_dep = true
+        local content, oversized = read_worktree_file(root, file.new_path, limits)
+        file.new_content = content
+        if oversized then
+          file.new_oversized = true
+        end
+      end
+      -- Oversized is per side: that side just has no full content and keeps
+      -- highlighting from its hunk fragments, whose cost is bounded by the
+      -- input caps rather than the blob size. Only a file whose every needed
+      -- side is oversized drops to plain, so a huge blob on one side cannot
+      -- disable the engine and highlighting for the other, fully visible side.
+      if (not file.need_old or file.old_oversized) and (not file.need_new or file.new_oversized) then
         file.content_mode = "plain"
       else
-        -- Worktree-side fallback: unstaged/untracked diffs have zero or
-        -- odb-missing hashes on the new side; the file on disk is that side.
-        -- Not taken for a blob skipped by the highlight cap: its hash is real,
-        -- and the checked-out file may be another version entirely.
-        local root = file.need_new and not file.new_content and not file.hl_skip and file.new_path and worktree_root(cwd) or nil
-        if root then
-          worktree_dep = true
-          local content, oversized = read_worktree_file(root, file.new_path, limits)
-          if oversized then
-            file.content_mode = "plain"
-          else
-            file.new_content = content
-          end
-        end
         local have_old = not file.need_old or file.old_content ~= nil
         local have_new = not file.need_new or file.new_content ~= nil
-        if file.content_mode ~= "plain" and have_old and have_new then
+        if have_old and have_new then
           file.content_mode = "full"
           file.old_lines = file.old_content and to_lines(file.old_content) or {}
           file.new_lines = file.new_content and to_lines(file.new_content) or {}

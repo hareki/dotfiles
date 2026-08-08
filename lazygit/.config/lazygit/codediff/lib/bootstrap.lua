@@ -55,16 +55,14 @@ function M.setup()
   -- nvim-treesitter's query files use.
   vim.cmd("runtime! plugin/filetypes.lua plugin/query_predicates.lua")
 
-  -- The editor's own vim.filetype.add() rules live in the user config, which
-  -- --clean never loads, so a path with no builtin rule (a ghostty config, a
-  -- .mdx file) resolves to no filetype here and renders unhighlighted. Sourcing
-  -- the one module that owns those rules keeps them from drifting out of sync;
-  -- guarded because a render must never fail over filetype detection alone.
+  -- The editor's own vim.filetype.add() rules and its filetype => treesitter
+  -- language aliases (mdx, handlebars, htmlangular) live in the user config,
+  -- which --clean never loads, so a path with no builtin rule (a ghostty
+  -- config, a .mdx file) resolves to no filetype here and renders
+  -- unhighlighted. Sourcing the one module that owns both keeps them from
+  -- drifting out of sync; guarded because a render must never fail over
+  -- filetype detection alone.
   pcall(dofile, vim.fs.joinpath(vim.fn.stdpath("config"), "lua/config/filetypes/init.lua"))
-
-  vim.treesitter.language.register("markdown", "mdx")
-  vim.treesitter.language.register("glimmer", "handlebars")
-  vim.treesitter.language.register("angular", "htmlangular")
 
   -- Keep EPIPE as a write error instead of a fatal signal so the emitter can
   -- exit cleanly when lazygit kills the render task mid-stream.

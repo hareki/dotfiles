@@ -40,7 +40,7 @@ local function char_last_byte(line, i)
 end
 
 -- Split one side of the char-level inner changes into per-row byte ranges:
--- { [row] = { {s, e}, ... } } with 1-based cols, e exclusive — the shape
+-- { [row] = { {s, e}, ... } } with 1-based cols, e exclusive: the shape
 -- layout.content_line takes for emphasis. Follows codediff's own per-side
 -- semantics (ui/inline.lua): the original side widens an empty tail on the
 -- end line to one byte, the modified side drops it.

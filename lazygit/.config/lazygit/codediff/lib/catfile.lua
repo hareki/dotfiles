@@ -203,7 +203,11 @@ local function git_batch(args, oids, cwd)
   if not ok then
     return nil
   end
-  local res = proc:wait()
+  -- Bounded like the session reads: a git hung on a dead network mount or a
+  -- stuck fsmonitor must fail this render, not wedge the daemon's event loop
+  -- (and with it every queued client) indefinitely. On timeout wait() kills
+  -- the process and reports code 124, so the nil path below covers it.
+  local res = proc:wait(READ_TIMEOUT_MS)
   if res.code ~= 0 or not res.stdout then
     return nil
   end
