@@ -1,5 +1,5 @@
 --- @module 'eagle'
-local eagle = Defer.on_index('eagle')
+local eagle = Defer.on_exported_call('eagle')
 
 --- @module 'utils.common'
 local common = Defer.on_exported_call('utils.common')
@@ -13,17 +13,19 @@ return {
 
       return {
         order = 3, -- LSP info comes first
-        border = 'rounded',
-        keyboard_mode = true,
-        mouse_mode = false,
         show_headers = false,
+        keyboard = { enabled = true },
+        mouse = { enabled = false },
 
-        get_max_height = function()
-          return math.floor(vim.o.lines * max_size)
-        end,
-        get_max_width = function()
-          return math.floor(vim.o.columns * max_size)
-        end,
+        window = {
+          border = 'rounded',
+          max_height = function()
+            return math.floor(vim.o.lines * max_size)
+          end,
+          max_width = function()
+            return math.floor(vim.o.columns * max_size)
+          end,
+        },
 
         source_formatters = {
           ts = function(diagnostic)
@@ -34,11 +36,11 @@ return {
           end,
         },
 
-        improved_markdown = {
-          replace_dashes = false,
-          severity_renderer = {
+        render = {
+          expand_separators = false,
+          severity = {
             ERROR = { icon = Conf.icons.diagnostics.ERROR, hl = 'RenderMarkdownError' },
-            WARNING = { icon = Conf.icons.diagnostics.WARN, hl = 'RenderMarkdownWarn' },
+            WARN = { icon = Conf.icons.diagnostics.WARN, hl = 'RenderMarkdownWarn' },
             INFO = { icon = Conf.icons.diagnostics.INFO, hl = 'RenderMarkdownInfo' },
             HINT = { icon = Conf.icons.diagnostics.HINT, hl = 'RenderMarkdownHint' },
           },
@@ -86,13 +88,13 @@ return {
           eagle_map({ 'n', 'x' }, '<PageUp>', '<C-u>', 'Scroll Up')
           eagle_map({ 'n', 'x' }, '<PageDown>', '<C-d>', 'Scroll Down')
           eagle_map({ 'n', 'x' }, '<Tab>', function()
-            eagle.ignore_cursor_moved = true
+            eagle.ignore_next_cursor_move()
             common.focus_win(current_win)
           end, 'Focus Parent Window')
 
           current_map({ 'n', 'x' }, '<Esc>', close_eagle, 'Close Eagle')
           current_map({ 'n', 'x' }, '<Tab>', function()
-            eagle.ignore_cursor_moved = true
+            eagle.ignore_next_cursor_move()
             common.focus_win(eagle_win)
           end, 'Focus Eagle Window')
         end,
