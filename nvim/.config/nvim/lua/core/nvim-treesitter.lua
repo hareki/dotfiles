@@ -22,19 +22,27 @@ return {
       callback = function()
         local ts_parsers = require('nvim-treesitter.parsers')
 
-        --- We don't need revision, use the default HEAD
-        --- @diagnostic disable: missing-fields
-        ts_parsers.glimmer.install_info = {
-          url = 'https://github.com/hareki/tree-sitter-glimmer',
-          queries = 'queries/glimmer',
-        }
+        local install_infos = {
+          glimmer = {
+            url = 'https://github.com/hareki/tree-sitter-glimmer',
+            queries = 'queries/glimmer',
+          },
 
-        ts_parsers.ghostty = {
-          install_info = {
+          scss = {
+            url = 'https://github.com/hareki/tree-sitter-scss',
+            branch = 'master',
+          },
+
+          ghostty = {
             url = 'https://github.com/bezhermoso/tree-sitter-ghostty',
             queries = 'queries/ghostty',
           },
         }
+
+        for lang, install_info in pairs(install_infos) do
+          ts_parsers[lang] = ts_parsers[lang] or {}
+          ts_parsers[lang].install_info = install_info
+        end
       end,
     })
 
