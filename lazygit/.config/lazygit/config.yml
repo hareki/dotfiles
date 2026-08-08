@@ -23,6 +23,16 @@ gui:
   authorColors:
     '*': '#b4befe'
   nerdFontsVersion: '3'
+  spinner:
+    frames:
+      - '󰄰'
+      - '󰪞'
+      - '󰪟'
+      - '󰪠'
+      - '󰪢'
+      - '󰪣'
+      - '󰪤'
+      - '󰪥'
   # https://github.com/catppuccin/lazygit
   theme:
     activeBorderColor:
