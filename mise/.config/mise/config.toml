@@ -20,6 +20,7 @@ bun = "latest"
 "npm:yaml-language-server" = "latest"
 "npm:@ember-tooling/ember-language-server" = "latest"
 "npm:@angular/language-server" = "latest"
+"npm:@angular/cli" = "13.3.2"
 
 "npm:oxfmt" = "latest"
 "npm:oxlint" = "latest"
