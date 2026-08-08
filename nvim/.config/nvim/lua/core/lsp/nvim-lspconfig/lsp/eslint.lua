@@ -19,7 +19,10 @@ return {
         local engine = require('utils.style-enforcers.engine')
         local eslint = require('utils.style-enforcers.eslint')
 
-        engine.register('eslint', Conf.filetypes.JS_ALL, eslint.run)
+        -- The eslint server also attaches to htmlangular (upstream filetypes),
+        -- so angular-eslint template fixes should run on save too
+        local filetypes = Conf.filetypes.merge(Conf.filetypes.JS_ALL, Conf.filetypes.ANGULAR)
+        engine.register('eslint', filetypes, eslint.run)
 
         eslint_registered = true
       end,
