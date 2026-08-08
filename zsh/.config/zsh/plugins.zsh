@@ -14,8 +14,35 @@ _evalcache() {
   local cache="$ZSH_EVALCACHE_DIR/init-${${(j:-:)@}//[^A-Za-z0-9_.-]/_}.sh"
   if [[ ! -s $cache ]]; then
     mkdir -p "$ZSH_EVALCACHE_DIR"
-    "$@" >"$cache" || { rm -f "$cache"; print -u2 "_evalcache: '$*' failed"; return 1 }
-    zcompile "$cache"
+    # A `tmuxinator start` brings up many shells at once, and on a cold cache
+    # every one of them rebuilds: they truncate each other's output, and they
+    # collide on zcompile's O_EXCL create of the .zwc ("can't write zwc file").
+    # Serialize the rebuild and re-check, so only the first shell does the work.
+    # -i: flock's default retry interval is a full second, stalling waiters.
+    local lock="$ZSH_EVALCACHE_DIR/.lock" fd
+    : >>"$lock"
+    zmodload -F zsh/system b:zsystem
+    if ! zsystem flock -t 10 -i 0.05 -f fd "$lock"; then
+      # Timed out (a rebuild is wedged): run uncached instead of racing it.
+      print -u2 "_evalcache: lock timeout, sourcing '$*' uncached"
+      source <("$@")
+      return
+    fi
+    {
+      if [[ ! -s $cache ]]; then
+        # Build both files under dot-prefixed temp names and mv in: a fast-path
+        # shell can't read (or SIGBUS on) a half-written file, and `yay`/
+        # `build`'s `rm init-*` can't delete them mid-build. The two-arg
+        # zcompile records the source path, not the output name, so the
+        # renamed .zwc stays valid.
+        local tmp="${cache:h}/.${cache:t}.$$"
+        "$@" >"$tmp" || { rm -f "$tmp"; print -u2 "_evalcache: '$*' failed"; return 1 }
+        mv -f "$tmp" "$cache"
+        zcompile "$tmp.zwc" "$cache" && mv -f "$tmp.zwc" "$cache.zwc"
+      fi
+    } always {
+      [[ -n $fd ]] && exec {fd}>&-
+    }
   fi
   source "$cache"
 }
@@ -64,4 +91,3 @@ omz_termsupport_cwd() {
   fi
   printf '%s' "$_termsupport_cwd_seq"
 }
-
