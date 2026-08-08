@@ -92,6 +92,7 @@ return {
       'rust',
       'go',
       'ghostty',
+      'glimmer',
     },
   },
 
