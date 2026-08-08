@@ -1,18 +1,23 @@
 #!/bin/bash
 
-# Re-enable Mac sleep only when all Claude Code sessions have stopped
-# Removes session marker, cleans stale sessions, kills caffeinate when none remain
+# Re-enable sleep when a Claude Code turn ends
+# Kills this session's caffeinate, removes its marker, cleans stale sessions
 
 LOCK_DIR="/tmp/claude_caffeinate"
 SESSIONS_DIR="$LOCK_DIR/sessions"
-PID_FILE="$LOCK_DIR/pid"
 
 [ ! -d "$SESSIONS_DIR" ] && exit 0
 
-# Remove this session's marker
-rm -f "$SESSIONS_DIR/$PPID"
+# Kill this session's caffeinate (only if the recorded pid is still caffeinate)
+if [ -f "$SESSIONS_DIR/$PPID" ]; then
+    pid=$(cat "$SESSIONS_DIR/$PPID")
+    if ps -p "$pid" -o args= 2>/dev/null | grep -q '^caffeinate'; then
+        kill "$pid" 2>/dev/null
+    fi
+    rm -f "$SESSIONS_DIR/$PPID"
+fi
 
-# Clean up stale sessions (process no longer exists)
+# Clean up stale sessions (Claude process gone; -w already reaped their caffeinate)
 for f in "$SESSIONS_DIR"/*; do
     [ -f "$f" ] || continue
     sid=$(basename "$f")
@@ -21,15 +26,7 @@ for f in "$SESSIONS_DIR"/*; do
     fi
 done
 
-# Count remaining active sessions
-remaining=$(find "$SESSIONS_DIR" -type f 2>/dev/null | wc -l | tr -d ' ')
-
-if [ "$remaining" -eq 0 ]; then
-    if [ -f "$PID_FILE" ]; then
-        pid=$(cat "$PID_FILE")
-        if ps -p "$pid" -o args= 2>/dev/null | grep -q '^caffeinate'; then
-            kill "$pid" 2>/dev/null
-        fi
-    fi
+# Remove the lock dir when no sessions remain
+if [ -z "$(find "$SESSIONS_DIR" -type f 2>/dev/null | head -1)" ]; then
     rm -rf "$LOCK_DIR"
 fi
