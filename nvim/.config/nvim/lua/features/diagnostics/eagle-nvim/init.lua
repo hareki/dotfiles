@@ -38,6 +38,9 @@ return {
 
         render = {
           expand_separators = false,
+          -- render-markdown conceals the closing fence (code.border = 'hide')
+          -- after eagle has already sized the float, leaving a blank row behind
+          concealed_fence_rows = 1,
           severity = {
             ERROR = { icon = Conf.icons.diagnostics.ERROR, hl = 'RenderMarkdownError' },
             WARN = { icon = Conf.icons.diagnostics.WARN, hl = 'RenderMarkdownWarn' },
