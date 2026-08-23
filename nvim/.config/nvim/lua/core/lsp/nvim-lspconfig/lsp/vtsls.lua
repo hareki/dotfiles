@@ -26,6 +26,10 @@ return {
     local npm_global_root = plugin_root ~= '' and (plugin_root .. '/lib/node_modules') or ''
 
     return {
+      -- Parent-pid watchdog: vscode-languageserver polls this pid and exits vtsls
+      -- normally (running its cleanup hooks, which reap the forked tsserver) if
+      -- nvim dies without completing the LSP shutdown handshake
+      cmd = { 'vtsls', '--stdio', '--clientProcessId', tostring(vim.uv.os_getpid()) },
       settings = {
         typescript = ts_config,
         javascript = js_config,
