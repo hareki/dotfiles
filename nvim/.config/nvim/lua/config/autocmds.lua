@@ -7,13 +7,31 @@ end
 
 local aucmd = vim.api.nvim_create_autocmd
 
--- Check if we need to reload the file when it changed
+-- Reload files changed on disk. Bare `:checktime` only inspects buffers shown
+-- in a window (check_timestamps() skips b_nwindows == 0, contra its docs), so
+-- hidden buffers rewritten from outside keep serving stale text.
 aucmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
   group = augroup('checktime'),
   callback = function()
-    if vim.bo.buftype ~= 'nofile' then
-      vim.cmd.checktime()
-    end
+    -- `:checktime {bufnr}` reloads immediately, while the argument-less form
+    -- postpones the reload to a harmless moment when called from an autocmd.
+    -- Deferring to the event loop restores that guarantee.
+    vim.schedule(function()
+      for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+        local bo = vim.bo[bufnr]
+
+        if
+          vim.api.nvim_buf_is_loaded(bufnr)
+          and bo.buftype == ''
+          and not bo.modified
+          and vim.api.nvim_buf_get_name(bufnr) ~= ''
+        then
+          -- `silent!` on top of `pcall`: a file that no longer exists (branch
+          -- switch, agent deletion) *reports* E211 instead of raising it
+          pcall(vim.cmd, 'silent! checktime ' .. bufnr)
+        end
+      end
+    end)
   end,
 })
 
