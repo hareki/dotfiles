@@ -18,7 +18,7 @@ display_name() {
     "MacBook Pro Speakers") echo "MacBook Speakers" ;;
     "Redmi 电脑音箱") echo "Redmi Speaker" ;;
     "PRO X") echo "Logitech G Pro X" ;;
-    "KT USB Audio") echo "MOXPAD X9" ;;
+    "KT USB Audio") echo "Castor Pro" ;;
     *) echo "$1" ;;
   esac
 }
