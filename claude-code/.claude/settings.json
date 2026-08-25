@@ -54,6 +54,15 @@
             "command": "bash ~/.claude/hooks/bell.sh Funk"
           }
         ]
+      },
+      {
+        "matcher": "idle_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/allow-sleep.sh"
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -76,6 +85,16 @@
           {
             "type": "command",
             "command": "bash ~/.claude/hooks/bell.sh"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/allow-sleep.sh"
           }
         ]
       }
