@@ -115,7 +115,9 @@
     "rust-analyzer-lsp@claude-plugins-official": true,
     "claude-code-setup@claude-plugins-official": true,
     "gopls-lsp@claude-plugins-official": true,
-    "clangd-lsp@claude-plugins-official": true
+    "clangd-lsp@claude-plugins-official": true,
+    "atlassian@claude-plugins-official": true,
+    "figma@claude-plugins-official": true
   },
   "syntaxHighlightingDisabled": false,
   "effortLevel": "xhigh",
