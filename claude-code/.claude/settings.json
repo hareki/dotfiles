@@ -75,6 +75,16 @@
         ]
       }
     ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/prevent-sleep.sh"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [
