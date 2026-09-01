@@ -47,7 +47,7 @@
 | Module                | Purpose                                                                                       |
 | --------------------- | --------------------------------------------------------------------------------------------- |
 | `init.lua`            | Assembles the `Conf` global from the `config.*` tables below                                  |
-| `size.lua`            | Popup dimensions: `sm`, `md`, `lg`, `vertical_lg`, `full`                                     |
+| `size.lua`            | Popup dimensions: `sm`, `md`, `lg`, `vertical_sm`, `vertical_md`, `full`                      |
 | `icons.lua`           | All icons (diagnostics, git, file status, LSP kinds)                                          |
 | `globals.lua`         | 6 project globals: `Defer`, `Notifier`, `Conf`, `UI`, `Project` (`Snacks` set by snacks.nvim) |
 | `cmp.lua`             | Completion tuning constants (`Conf.cmp`): AI item cap/timeout, ripgrep min keyword length     |

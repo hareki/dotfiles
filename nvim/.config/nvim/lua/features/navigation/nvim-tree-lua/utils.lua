@@ -28,13 +28,13 @@ local manager = Defer.on_index('nvim-tree-preview.manager')
 
 --- Compute the popup size preset for the float tree based on current state.
 --- Returns 'lg' when float mode has the preview visible (wider popup for readable
---- preview code), otherwise 'vertical_lg' (narrower default).
---- @return 'lg' | 'vertical_lg'
+--- preview code), otherwise 'vertical_sm' (narrower default).
+--- @return 'lg' | 'vertical_sm'
 function M.compute_size()
   if M.state.position == 'float' and M.state.preview_on_focus then
     return 'lg'
   end
-  return 'vertical_lg'
+  return 'vertical_sm'
 end
 
 --- Clean up the preview watcher autocmd group

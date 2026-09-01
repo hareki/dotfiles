@@ -6,6 +6,8 @@
 --- @field HEIGHT number
 --- @field WIDTH number
 
+--- @alias config.size.PopupPreset 'full' | 'lg' | 'vertical_md' | 'vertical_sm' | 'md' | 'sm'
+
 --- @class config.size
 local M = {}
 
@@ -23,10 +25,17 @@ M.popup = {
     MIN_HEIGHT = 15,
   },
 
-  vertical_lg = {
+  vertical_md = {
+    WIDTH = 0.6,
+    HEIGHT = 0.8,
+    MIN_WIDTH = 85,
+    MIN_HEIGHT = 15,
+  },
+
+  vertical_sm = {
     WIDTH = 0.45,
     HEIGHT = 0.8,
-    MIN_WIDTH = 60,
+    MIN_WIDTH = 65,
     MIN_HEIGHT = 15,
   },
 

@@ -1,8 +1,12 @@
 --- @class utils.ui.layout
 local M = {}
 
+--- The config.size.popup presets plus 'input', which is sized here rather than
+--- in config.size and so is not a key of that table
+--- @alias utils.ui.layout.PopupSize config.size.PopupPreset | 'input'
+
 --- Generate telescope layout configuration for a given size preset
---- @param size 'sm' | 'md' | 'lg' | 'vertical_lg' | 'full' Size preset name
+--- @param size config.size.PopupPreset Size preset name
 --- @return table layout Layout config with size hint, height, and width functions
 function M.telescope(size)
   return {
@@ -102,7 +106,7 @@ end
 --- @field row      integer
 
 --- Compute a centered window configuration from a size preset
---- @param size 'lg' | 'md' | 'sm' | 'input' | 'full' | 'vertical_lg' Size preset name
+--- @param size utils.ui.layout.PopupSize Size preset name
 --- @param with_border boolean | nil Whether to add 2 for border (default false)
 --- @return utils.ui.layout.WinConfig config Window config with width, height, col, row
 function M.popup(size, with_border)
@@ -141,7 +145,7 @@ end
 --- centered against the current screen instead of the startup one. Snacks
 --- resolves callables for width/height/col/row; its max_width/max_height do
 --- not support callables, so pair these with no max fields
---- @param size 'lg' | 'md' | 'sm' | 'input' | 'full' | 'vertical_lg' Size preset name
+--- @param size utils.ui.layout.PopupSize Size preset name
 --- @param with_border boolean | nil Whether to add 2 for border (default false)
 --- @return utils.ui.layout.WinConfigFn config Window config resolved per call
 function M.popup_fn(size, with_border)

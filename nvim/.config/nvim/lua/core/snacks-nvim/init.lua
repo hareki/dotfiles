@@ -144,6 +144,14 @@ return {
           desc = 'Select Scratch Buffer',
         },
         {
+          '<leader>>',
+          function()
+            local zen = require('core.snacks-nvim.utils.zen')
+            zen.toggle()
+          end,
+          desc = 'Toggle Zen Mode',
+        },
+        {
           '<A-t>',
           function()
             Snacks.terminal.toggle(nil, { win = { position = 'float' } })
@@ -184,6 +192,7 @@ return {
         sm = popup_fn('sm', true),
         lg_border = popup_fn('lg', true),
         lg = popup_fn('lg'),
+        vertical_md = popup_fn('vertical_md'),
       }
       local select_width = config.sm.width
 
@@ -197,6 +206,7 @@ return {
       -- Wrapping this with Defer.on_exported_call will result in `nvim_create_augroup must not be called in a fast event context` error
       local transformers = require('core.snacks-nvim.utils.transformers')
 
+      local zen = Defer.on_exported_call('core.snacks-nvim.utils.zen')
       local formatters = Defer.on_exported_call('core.snacks-nvim.utils.formatters')
       local sorters = Defer.on_exported_call('core.snacks-nvim.utils.sorters')
       local actions = Defer.on_exported_call('core.snacks-nvim.actions')
@@ -217,6 +227,13 @@ return {
         lazygit = { enabled = true, configure = false },
         scratch = { enabled = true },
         rename = { enabled = true },
+        zen = {
+          enabled = true,
+          -- Snacks.dim greys out everything outside the current scope
+          toggles = { dim = false },
+          on_open = zen.on_open,
+          on_close = zen.on_close,
+        },
         image = {
           enabled = true,
           convert = {
@@ -391,6 +408,25 @@ return {
             width = config.full.width,
             col = config.full.col,
             row = config.full.row,
+          },
+          zen = {
+            -- transparent = false makes snacks drop winblend entirely, so the
+            -- backdrop is an opaque window (painted in the Normal background, or
+            -- in nothing under our transparent colorscheme) and the window behind
+            -- the popup is hidden outright rather than dimmed, then restored on
+            -- close. Its geometry is anchored to that window in utils/zen.lua
+            backdrop = { transparent = false, blend = 0 },
+            border = 'rounded',
+            title = ' Zen ',
+            title_pos = 'center',
+            -- The zen style pins zindex to 40, tying with satellite.nvim's bars over a normal
+            -- window (its default; it only bumps to parent + 1 over a float, hence the 51 above).
+            -- 50 clears them while staying under styles.float (52) so pickers from zen stay on top
+            zindex = 50,
+            height = config.vertical_md.height,
+            width = config.vertical_md.width,
+            col = config.vertical_md.col,
+            row = config.vertical_md.row,
           },
         },
       }
