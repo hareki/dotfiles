@@ -177,6 +177,25 @@ function M.toggle_tree_height(action)
   vim.api.nvim_win_set_config(tree_win, cfg)
 end
 
+--- Re-apply the tree geometry against the current screen dimensions, so the
+--- tree tracks terminal resizes the way the snacks-powered popups do.
+--- @return nil
+function M.resize()
+  if not api.tree.is_visible() then
+    return
+  end
+
+  if M.state.position == 'float' then
+    M.toggle_tree_height(preview.is_open() and 'collapse' or 'expand')
+  else
+    api.tree.resize()
+  end
+
+  -- The preview is positioned relative to the tree, so it can only be laid out
+  -- once the tree has taken its new size
+  preview.resize()
+end
+
 --- Toggle the preview window open/closed state
 --- Adjusts tree height in float mode and manages watch state.
 --- @param force_state boolean | nil Force specific state (true=open, false=close, nil=toggle)
