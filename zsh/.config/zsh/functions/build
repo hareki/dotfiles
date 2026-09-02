@@ -23,7 +23,10 @@ build() {
     worktrunk)  cargo install --locked --path . ;;
     lazygit)    go install ;;
     tmux)
-        sh autogen.sh \
+        # Installing explicitly marks them installed_on_request, so `brew
+        # autoremove` won't reap deps of a binary brew can't see
+        brew install libevent utf8proc jemalloc \
+        && sh autogen.sh \
         && ./configure --enable-utf8proc --enable-jemalloc \
         && make clean \
         && make \
