@@ -43,9 +43,9 @@ local IDLE_NO_OWNER_MS = 5 * 60 * 1000
 -- quitting lazygit still reaps the daemon within seconds, while a session whose
 -- owner has not been registered yet keeps it alive by rendering at all.
 local ORPHANED_GRACE_MS = 10 * 1000
--- An answer that asks for the owner costs the client a process tree walk, so it
--- is not repeated per render for a client that never finds one (a manual pipe
--- into the renderer, a lazygit reached through some wrapper).
+-- An answer that asks for the owner costs the client a process tree walk, so a
+-- client that answered that it found none (a manual pipe into the renderer, a
+-- lazygit reached through some wrapper) is not asked again for this long.
 local OWNER_ASK_INTERVAL_MS = 30 * 1000
 local POLL_MS = 3000
 
@@ -91,7 +91,7 @@ local generation = fingerprint()
 local watched = {}
 local saw_owner = false
 local last_request = uv.now()
-local owner_asked = -OWNER_ASK_INTERVAL_MS
+local owner_declined = -OWNER_ASK_INTERVAL_MS
 
 -- Captured on the main loop: vim.v is not accessible from timer callbacks.
 local socket_path = vim.v.servername
@@ -202,17 +202,12 @@ local function watch_owner(pid)
   end
 end
 
--- Whether this answer should ask the client for an owner pid.
+-- Whether this answer should ask the client for an owner pid. The throttle
+-- starts from a client's *answer*, not from the ask: a client that lazygit
+-- terminated between its render and its answer must not leave the daemon
+-- unowned for the whole interval, so the next render simply asks again.
 local function want_owner()
-  if next(watched) ~= nil then
-    return false
-  end
-  local now = uv.now()
-  if now - owner_asked < OWNER_ASK_INTERVAL_MS then
-    return false
-  end
-  owner_asked = now
-  return true
+  return next(watched) == nil and uv.now() - owner_declined >= OWNER_ASK_INTERVAL_MS
 end
 
 -- The output path is derived from the client's mktemp'd input path rather than
@@ -303,7 +298,7 @@ end
 --
 -- One request per connection, one line, tab separated, answered with one line:
 --   render\t<in>\t<out>\t<cols>\t<layout>\t<cwd>  =>  ok | ok:owner | err:<why>
---   owner\t<pid>                                  =>  ok
+--   owner\t<pid>  (0: the client found none)      =>  ok
 --   ping                                          =>  pong
 -- cwd comes last because it is the only field that can legitimately contain a
 -- tab, so it simply takes the rest of the line.
@@ -331,9 +326,13 @@ local function dispatch(request)
   if request == "ping" then
     return "pong"
   end
-  local pid = request:match("^owner\t(%d+)$")
+  local pid = tonumber(request:match("^owner\t(%d+)$"))
   if pid then
-    watch_owner(tonumber(pid))
+    if pid > 0 then
+      watch_owner(pid)
+    else
+      owner_declined = uv.now()
+    end
     return "ok"
   end
   local infile, outfile, cols, layout, cwd = request:match("^render\t([^\t]*)\t([^\t]*)\t([^\t]*)\t([^\t]*)\t(.*)$")

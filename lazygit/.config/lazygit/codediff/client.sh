@@ -76,11 +76,15 @@ request_pipe() {
 
 # Deliberately after the rendered bytes are on their way out: registering an
 # owner costs a process tree walk, and nothing about this render depends on it.
+# lazygit terminates the render task (SIGTERM, then the pty's SIGHUP) as soon as
+# the selection moves on, and the answer to a once-per-session question must not
+# be lost to that: the walk takes ~15ms, ignoring both for that long is harmless,
+# and answering `0` (nothing found) is what stops the daemon asking again.
 register_owner() {
   [ "$reply" = "ok:owner" ] || return 0
+  trap '' TERM HUP
   find_owner
-  [ -n "$OWNER" ] || return 0
-  printf 'owner\t%s\n' "$OWNER" | nc -U "$PIPE" >/dev/null 2>&1
+  printf 'owner\t%s\n' "${OWNER:-0}" | nc -U "$PIPE" >/dev/null 2>&1
 }
 
 # Single quotes in a vimscript string literal are escaped by doubling. The
