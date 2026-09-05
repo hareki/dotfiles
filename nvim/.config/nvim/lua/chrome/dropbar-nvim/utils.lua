@@ -29,7 +29,9 @@ function M.enable(buf, win, _)
   if
     not vim.api.nvim_buf_is_valid(buf)
     or not vim.api.nvim_win_is_valid(win)
-    or vim.fn.win_gettype(win) ~= ''
+    -- Floats stay bare unless Snacks flags one as a main window: its zen popup
+    -- hosts a real buffer and earns a breadcrumb like any split
+    or (vim.fn.win_gettype(win) ~= '' and not vim.w[win].snacks_main)
     or vim.wo[win].winbar ~= ''
     or M.is_ignored_filetype(buf)
     or M.is_ignored_buftype(buf)
