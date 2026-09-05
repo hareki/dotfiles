@@ -35,6 +35,9 @@ autoload -Uz $functions_dir/*(.N:t)
 # Custom completions, picked up by compinit via their `#compdef` tag
 fpath=($__zsh_config_dir/compdefs $fpath)
 
+# Temporary: self-heal + forensics for the dead-prompt bug (drop with tty-guard.zsh)
+source $__zsh_config_dir/tty-guard.zsh
+
 if [[ -n "$ZSH_DEBUGRC" ]]; then
   zprof
 fi
