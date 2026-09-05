@@ -1,7 +1,12 @@
 -- Persistent render daemon, started by client.sh as:
 --   nvim --clean --headless --listen <sock> -c "luafile daemon.lua"
 -- (-l would exit after running the script; -c keeps the server alive.)
--- Serves v:lua.CODEDIFF.render(...) requests from client.sh.
+--
+-- Two transports serve the same render:
+--   * a plain line protocol on <sock-without-.sock>.pipe, which is what every
+--     render actually uses -- see the pipe section at the bottom;
+--   * v:lua.CODEDIFF.render(...) over nvim's own RPC socket, the fallback for a
+--     machine whose client.sh cannot reach the first one.
 --
 -- Lifetime: exits when every lazygit process that ever used it is gone (polled
 -- every few seconds), so quitting lazygit (or the nvim :terminal hosting it)
@@ -26,8 +31,22 @@ local CODEDIFF_VERSION = vim.fs.normalize("~/.local/share/nvim/lazy/codediff.nvi
 -- its detection rules and ft => language aliases shape every render, so an
 -- edit must recycle the daemon like any renderer source.
 local FILETYPE_RULES = vim.fs.joinpath(vim.fn.stdpath("config"), "lua/config/filetypes/init.lua")
+-- Derived the same way client.sh derives it, rather than from v:servername, so
+-- an nvim that failed to bind its own RPC socket still serves the fast path.
+local TMP = ((vim.env.TMPDIR or "/tmp"):gsub("/+$", ""))
+local PIPE_PATH = string.format("%s/lazygit-codediff-%s.pipe", TMP, vim.env.USER or "u")
 local IDLE_WITH_OWNER_MS = 60 * 60 * 1000
 local IDLE_NO_OWNER_MS = 5 * 60 * 1000
+-- Owners are registered on demand (a client walks its process tree only when
+-- asked to), so an empty watch list also describes a live lazygit that has not
+-- been asked yet. A short grace after the last request tells the two apart:
+-- quitting lazygit still reaps the daemon within seconds, while a session whose
+-- owner has not been registered yet keeps it alive by rendering at all.
+local ORPHANED_GRACE_MS = 10 * 1000
+-- An answer that asks for the owner costs the client a process tree walk, so it
+-- is not repeated per render for a client that never finds one (a manual pipe
+-- into the renderer, a lazygit reached through some wrapper).
+local OWNER_ASK_INTERVAL_MS = 30 * 1000
 local POLL_MS = 3000
 
 -- Microseconds, not seconds: a whole-second resolution lets an edit that lands
@@ -72,21 +91,28 @@ local generation = fingerprint()
 local watched = {}
 local saw_owner = false
 local last_request = uv.now()
+local owner_asked = -OWNER_ASK_INTERVAL_MS
 
 -- Captured on the main loop: vim.v is not accessible from timer callbacks.
 local socket_path = vim.v.servername
 local socket_ino = (socket_path ~= "" and uv.fs_stat(socket_path) or {}).ino
+local pipe_ino = nil
 
-local function shutdown(code)
-  -- os.exit skips nvim's own socket cleanup, so unlink it here -- but only
-  -- while it is still *our* socket: the path is shared by every daemon, and a
-  -- successor may already have bound its own at the same name.
-  if socket_path and socket_path ~= "" then
-    local st = uv.fs_stat(socket_path)
-    if st and st.ino == socket_ino then
-      pcall(os.remove, socket_path)
+-- os.exit skips nvim's own socket cleanup, so unlink here -- but only while the
+-- path is still *ours*: both are shared by every daemon, and a successor may
+-- already have bound its own at the same name.
+local function unlink_own(path, ino)
+  if path and path ~= "" and ino then
+    local st = uv.fs_stat(path)
+    if st and st.ino == ino then
+      pcall(os.remove, path)
     end
   end
+end
+
+local function shutdown(code)
+  unlink_own(socket_path, socket_ino)
+  unlink_own(PIPE_PATH, pipe_ino)
   os.exit(code or 0)
 end
 
@@ -98,7 +124,7 @@ poll:start(POLL_MS, POLL_MS, function()
     end
   end
   local idle = uv.now() - last_request
-  if saw_owner and next(watched) == nil then
+  if saw_owner and next(watched) == nil and idle > ORPHANED_GRACE_MS then
     shutdown()
   end
   if idle > (saw_owner and IDLE_WITH_OWNER_MS or IDLE_NO_OWNER_MS) then
@@ -169,15 +195,58 @@ local function cache_put(key, out)
   end
 end
 
-_G.CODEDIFF = {}
-
-function _G.CODEDIFF.render(infile, outfile, cwd, cols, owner_pid, layout)
-  last_request = uv.now()
-  local pid = tonumber(owner_pid)
-  if pid then
+local function watch_owner(pid)
+  if pid and pid > 0 then
     watched[pid] = true
     saw_owner = true
   end
+end
+
+-- Whether this answer should ask the client for an owner pid.
+local function want_owner()
+  if next(watched) ~= nil then
+    return false
+  end
+  local now = uv.now()
+  if now - owner_asked < OWNER_ASK_INTERVAL_MS then
+    return false
+  end
+  owner_asked = now
+  return true
+end
+
+-- The output path is derived from the client's mktemp'd input path rather than
+-- made by a second mktemp of its own, so this is the one file the daemon
+-- creates: O_EXCL after an unlink, never O_TRUNC, means a name somebody else
+-- planted in between (a symlink, on a /tmp shared with other users) fails the
+-- render instead of being followed and written through.
+local function write_output(path, data)
+  pcall(uv.fs_unlink, path)
+  local ok_open, fd = pcall(uv.fs_open, path, "wx", 384) -- 0600
+  if not ok_open or not fd then
+    return false
+  end
+  local ok_write = pcall(function()
+    local off = 0
+    while off < #data do
+      local written = uv.fs_write(fd, data:sub(off + 1), off)
+      if not written or written <= 0 then
+        error("short write")
+      end
+      off = off + written
+    end
+  end)
+  pcall(uv.fs_close, fd)
+  if not ok_write then
+    pcall(uv.fs_unlink, path)
+  end
+  return ok_write
+end
+
+--- Render `infile` to `outfile`, returning the status line a client reads
+--- ("ok" or "err:<reason>").
+local function render_request(infile, outfile, cwd, cols, layout)
+  last_request = uv.now()
 
   local stale = fingerprint() ~= generation
 
@@ -202,12 +271,9 @@ function _G.CODEDIFF.render(infile, outfile, cwd, cols, owner_pid, layout)
     end
   end
 
-  local out = io.open(outfile, "wb")
-  if not out then
+  if not write_output(outfile, rendered) then
     return "err:output"
   end
-  out:write(rendered)
-  out:close()
 
   if stale then
     -- Serve this request with the old world, then let the next spawn reload
@@ -215,4 +281,163 @@ function _G.CODEDIFF.render(infile, outfile, cwd, cols, owner_pid, layout)
     vim.defer_fn(shutdown, 50)
   end
   return "ok"
+end
+
+_G.CODEDIFF = {}
+
+--- RPC entry point, kept for clients that cannot reach the pipe below. Unlike
+--- the pipe protocol it is handed the owner pid on every render: an
+--- `nvim --remote-expr` client has already paid far more than a process tree
+--- walk costs by the time it connects.
+function _G.CODEDIFF.render(infile, outfile, cwd, cols, owner_pid, layout)
+  watch_owner(tonumber(owner_pid))
+  return render_request(infile, outfile, cwd, cols, layout)
+end
+
+-- -------------------------------------------------------------------- pipe ---
+-- lazygit starts a fresh client process for every diff it draws, so whatever
+-- that client costs to start is paid on every keypress that moves the
+-- selection. An `nvim --remote-expr` client is ~36ms of startup before it says
+-- a word; `nc -U` round-trips a line here in ~4ms, which is what keeps the
+-- transport cheaper than the render it asks for.
+--
+-- One request per connection, one line, tab separated, answered with one line:
+--   render\t<in>\t<out>\t<cols>\t<layout>\t<cwd>  =>  ok | ok:owner | err:<why>
+--   owner\t<pid>                                  =>  ok
+--   ping                                          =>  pong
+-- cwd comes last because it is the only field that can legitimately contain a
+-- tab, so it simply takes the rest of the line.
+
+local MAX_REQUEST_BYTES = 8 * 1024
+
+local pipe_server = nil
+local rendering = false
+local queue = {}
+
+local function reply(client, message)
+  if client:is_closing() then
+    return
+  end
+  client:write(message .. "\n", function()
+    client:shutdown(function()
+      if not client:is_closing() then
+        client:close()
+      end
+    end)
+  end)
+end
+
+local function dispatch(request)
+  if request == "ping" then
+    return "pong"
+  end
+  local pid = request:match("^owner\t(%d+)$")
+  if pid then
+    watch_owner(tonumber(pid))
+    return "ok"
+  end
+  local infile, outfile, cols, layout, cwd = request:match("^render\t([^\t]*)\t([^\t]*)\t([^\t]*)\t([^\t]*)\t(.*)$")
+  if not infile then
+    return "err:request"
+  end
+  local status = render_request(infile, outfile, cwd, cols, layout)
+  if status == "ok" and want_owner() then
+    return "ok:owner"
+  end
+  return status
+end
+
+local function run(request, client)
+  local ok, status = pcall(dispatch, request)
+  reply(client, ok and status or "err:internal")
+end
+
+-- One render at a time. `vim.wait` inside the git object session pumps the
+-- event loop, so a second client's request arrives *during* a render: queueing
+-- it keeps two renders from interleaving on one Lua stack (and two voices off
+-- the one `git cat-file` pipe).
+local function submit(request, client)
+  if rendering then
+    queue[#queue + 1] = { request = request, client = client }
+    return
+  end
+  rendering = true
+  run(request, client)
+  while queue[1] do
+    local job = table.remove(queue, 1)
+    run(job.request, job.client)
+  end
+  rendering = false
+end
+
+local function on_connection(err)
+  if err or not pipe_server then
+    return
+  end
+  local client = uv.new_pipe(false)
+  local accepted = pcall(function()
+    assert(pipe_server:accept(client))
+  end)
+  if not accepted then
+    client:close()
+    return
+  end
+
+  local chunks, bytes, done = {}, 0, false
+  client:read_start(function(read_err, chunk)
+    if done then
+      return
+    end
+    local request = nil
+    if read_err then
+      done = true
+      client:close()
+      return
+    elseif chunk then
+      chunks[#chunks + 1] = chunk
+      bytes = bytes + #chunk
+      if chunk:find("\n", 1, true) then
+        local buf = table.concat(chunks)
+        request = buf:sub(1, buf:find("\n", 1, true) - 1)
+      elseif bytes > MAX_REQUEST_BYTES then
+        done = true
+        client:close()
+        return
+      end
+    else
+      -- nc half-closes its write side as soon as its own stdin ends, so EOF is
+      -- the other end of a request that arrived without its newline.
+      request = bytes > 0 and table.concat(chunks) or nil
+      if not request then
+        done = true
+        client:close()
+        return
+      end
+    end
+    if request then
+      done = true
+      client:read_stop()
+      -- Off the callback and onto the main loop: a render is nothing but calls
+      -- (vim.fn, treesitter, vim.system) that a libuv callback is not allowed
+      -- to make, and every one of them errors out of a fast event context.
+      vim.schedule(function()
+        submit(request, client)
+      end)
+    end
+  end)
+end
+
+-- A bind that fails means another daemon holds the path (two clients can spawn
+-- one at the same moment). It is serving; this process keeps the RPC entry
+-- point alive for its own client and then idles out.
+local server = uv.new_pipe(false)
+local bound = pcall(function()
+  assert(server:bind(PIPE_PATH))
+  assert(server:listen(64, on_connection))
+end)
+if bound then
+  pipe_server = server
+  pipe_ino = (uv.fs_stat(PIPE_PATH) or {}).ino
+else
+  pcall(server.close, server)
 end
