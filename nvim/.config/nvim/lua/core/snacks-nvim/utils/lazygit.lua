@@ -1,3 +1,5 @@
+local fullscreen_panels = require('core.snacks-nvim.utils.fullscreen-panels')
+
 --- @class core.snacks.utils.lazygit
 local M = {}
 
@@ -54,6 +56,8 @@ end
 --- returned on creation and toggle it directly afterwards; `--file` only matters at startup.
 function M.toggle()
   local state = M.state
+  fullscreen_panels.hide_others(state.win and state.win.buf)
+
   if state.win and state.win:buf_valid() then
     state.win:toggle()
     return

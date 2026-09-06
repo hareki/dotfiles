@@ -13,7 +13,13 @@ return {
     keys = {
       {
         '<A-a>',
-        '<cmd>ClaudeCode<cr>',
+        function()
+          local fullscreen_panels = require('core.snacks-nvim.utils.fullscreen-panels')
+          local terminal = require('claudecode.terminal')
+
+          fullscreen_panels.hide_others(terminal.get_active_terminal_bufnr())
+          vim.cmd.ClaudeCode()
+        end,
         desc = prefix .. 'Toggle',
         mode = { 'n', 'x', 't', 'i' },
       },
