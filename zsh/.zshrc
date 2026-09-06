@@ -23,7 +23,7 @@ _evalcache /opt/homebrew/bin/brew shellenv
 path=($shim_paths $path)
 
 # Load configuration files, order matters
-for cfg in aliases vi-mode keymaps options evals; do
+for cfg in aliases vi-mode keymaps options evals tty-guard; do
   source $__zsh_config_dir/$cfg.zsh
 done
 
@@ -34,9 +34,6 @@ autoload -Uz $functions_dir/*(.N:t)
 
 # Custom completions, picked up by compinit via their `#compdef` tag
 fpath=($__zsh_config_dir/compdefs $fpath)
-
-# Temporary: self-heal + forensics for the dead-prompt bug (drop with tty-guard.zsh)
-source $__zsh_config_dir/tty-guard.zsh
 
 if [[ -n "$ZSH_DEBUGRC" ]]; then
   zprof

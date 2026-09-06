@@ -23,7 +23,7 @@ This is a zsh dotfiles configuration targeting macOS with Homebrew. Files are de
   => plugins.zsh (Antidote plugin manager, local _evalcache)
   => brew shellenv (via evalcache)
   => re-prepend shim_paths (brew shellenv runs path_helper, which reorders PATH)
-  => config modules in order: aliases, vi-mode, keymaps, options, evals
+  => config modules in order: aliases, vi-mode, keymaps, options, evals, tty-guard
   => autoload functions from .config/zsh/functions/
   => put .config/zsh/compdefs/ on fpath (compinit picks up their `#compdef` tags)
 ```
@@ -32,6 +32,7 @@ The sourcing order of config modules matters: later files depend on earlier ones
 
 - `options.zsh` holds interactive-only env vars (history, `REPOS_DIR`/`STOW_REPO`, eza/tealdeer dirs, `DYLD_FALLBACK_LIBRARY_PATH`, `PROMPT_EOL_MARK`) and the Catppuccin `FZF_DEFAULT_OPTS` / `_ZO_FZF_OPTS`.
 - `evals.zsh` runs tool init via `_evalcache`: zoxide, atuin, and `wt` (worktrunk); zsh-patina (syntax highlighter) is a plain `eval` because evalcache is unreliable for it.
+- `tty-guard.zsh` is a `sched`-driven self-heal for the tty being put back into cooked mode while zle is reading the line (Node.js restores its startup termios on exit, even from a background process group): one `stty -g` per idle 2s tick, an empty `zle -M` to force `zsetterm` when icanon/echo are set.
 
 ### Plugin Management
 
