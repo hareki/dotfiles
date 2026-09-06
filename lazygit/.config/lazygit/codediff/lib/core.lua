@@ -149,34 +149,42 @@ end
 -- Inline layout (codediff.nvim's inline view): deleted blocks render above
 -- their inserted blocks, context lines stay undecorated.
 local function render_hunk_inline(out, hunk, cell, changes, ctx)
-  local function emit(side, row, line_type, emph)
-    local c = cell(side, row, line_type, emph)
-    layout.content_line(out, c.text, c.spans, c.line_type, c.emph, ctx.cols)
+  local function emit(c, old_no, new_no)
+    layout.content_line(out, c, old_no, new_no, ctx.cols, ctx.num_w)
   end
 
-  local mod = 1
-  for _, change in ipairs(changes) do
-    for row = mod, change.new_start - 1 do
-      emit("new", row, "context", nil)
+  -- Context rows render from the new side, so their old-side number is not on
+  -- the cell: the old pointer walks in step with the new one between changes,
+  -- which is exactly the pairing the side-by-side layout draws.
+  local old_ptr, new_ptr = 1, 1
+  local old_base = hunk.old_start - 1
+  local function context_rows(count)
+    for _ = 1, count do
+      local c = cell("new", new_ptr, "context")
+      emit(c, old_base + old_ptr, c.lnum)
+      old_ptr, new_ptr = old_ptr + 1, new_ptr + 1
     end
+  end
+  for _, change in ipairs(changes) do
+    context_rows(change.new_start - new_ptr)
     for row = change.old_start, change.old_end - 1 do
-      emit("old", row, "minus", change.old_emph[row])
+      local c = cell("old", row, "minus", change.old_emph[row])
+      emit(c, c.lnum, nil)
     end
     for row = change.new_start, change.new_end - 1 do
-      emit("new", row, "plus", change.new_emph[row])
+      local c = cell("new", row, "plus", change.new_emph[row])
+      emit(c, nil, c.lnum)
     end
-    mod = change.new_end
+    old_ptr, new_ptr = change.old_end, change.new_end
   end
-  for row = mod, #hunk.frag_new do
-    emit("new", row, "context", nil)
-  end
+  context_rows(#hunk.frag_new - new_ptr + 1)
 end
 
 -- Side-by-side layout (codediff.nvim's default view): original left,
 -- modified right, absent lines shown as filler.
 local function render_hunk_split(out, hunk, cell, changes, ctx)
   local function row(left, right)
-    layout.split_line(out, left, right, ctx.cols)
+    layout.split_line(out, left, right, ctx.cols, ctx.num_w)
   end
 
   local old_ptr, new_ptr = 1, 1
@@ -215,6 +223,8 @@ local function render_hunk(out, file, hunk, sides, langs_by_side, ctx)
       spans = langs_by_side[side] and spans_for(file, hunk, sides, side, row) or nil,
       line_type = line_type,
       emph = emph,
+      -- Absolute line number of this row on its own side.
+      lnum = (side == "old" and hunk.old_start or hunk.new_start) + row - 1,
     }
   end
 
@@ -304,6 +314,7 @@ local function render_file(file, ctx)
     sides = compute_spans(file, langs_by_side, ctx)
   end
 
+  ctx.num_w = layout.number_width(file.hunks)
   for i, hunk in ipairs(file.hunks) do
     -- Blank separator so a header reads as belonging to the section below
     -- it, not the one above (the file's first header sticks to its notes;
@@ -365,6 +376,7 @@ function M.render(input, opts)
     budget = LIMITS.max_highlighted_lines,
     layout = opts.layout,
     hl_deadline = uv.hrtime() + LIMITS.max_highlight_ms * 1e6,
+    num_w = nil, -- line-number gutter digits, set per file
   }
   local out = {}
   for _, block in ipairs(blocks) do

@@ -431,28 +431,115 @@ local function emit_line(out, n, text, spans, line_type, emph_ranges, limit)
   return n, col, line_bg
 end
 
---- Append one inline content row to `out`, padded to the view width when tinted.
-function M.content_line(out, text, spans, line_type, emph_ranges, cols)
-  local n, col, line_bg = emit_line(out, #out, text, spans, line_type, emph_ranges, nil)
-  if line_bg and cols > col then
+-- Line-number gutter ---------------------------------------------------------
+
+-- Digits the gutter reserves per number, at least. Sized per file rather than
+-- per hunk so the text does not shift between hunks, and floored so the width
+-- also holds across the files a session moves between: nearly every source
+-- file is under a thousand lines (nvim's own number column shows three digits
+-- as well).
+local NUM_MIN_DIGITS = 3
+
+--- Gutter digits for a file: the widest line number any of its hunks reaches.
+function M.number_width(hunks)
+  local max = 0
+  for _, hunk in ipairs(hunks) do
+    max = math.max(max, hunk.old_start + hunk.old_count - 1, hunk.new_start + hunk.new_count - 1)
+  end
+  return math.max(#tostring(max), NUM_MIN_DIGITS)
+end
+
+-- Cells the gutter takes ahead of the text: "old new │" inline, "num │" per
+-- side-by-side cell.
+local function inline_gutter_width(num_w)
+  return 2 * num_w + 3
+end
+
+local function cell_gutter_width(num_w)
+  return num_w + 2
+end
+
+-- One format string per gutter width, so a row's numbers cost a single format
+-- call. %s right-aligns a number and leaves an absent one blank.
+local num_fmts = {}
+
+local function num_fmt(num_w)
+  local fmt = num_fmts[num_w]
+  if not fmt then
+    fmt = { pair = "%" .. num_w .. "s %" .. num_w .. "s ", single = "%" .. num_w .. "s " }
+    num_fmts[num_w] = fmt
+  end
+  return fmt
+end
+
+-- The number takes its side's color and the bar stays decoration-colored; both
+-- carry the row's background so a tinted row reads as one block from its
+-- first cell. Context rows and filler cells share the untinted style.
+local gutters = {}
+
+local function gutter_sgr(line_type)
+  local key = line_type or "context"
+  local g = gutters[key]
+  if not g then
+    local p = palette
+    local fg, bg = p.decoration, nil
+    if line_type == "minus" then
+      fg, bg = p.minus_num, p.minus_bg
+    elseif line_type == "plus" then
+      fg, bg = p.plus_num, p.plus_bg
+    end
+    g = { num = ansi.style({ fg = fg, bg = bg }), bar = ansi.style({ fg = p.decoration, bg = bg }) }
+    gutters[key] = g
+  end
+  return g
+end
+
+local function emit_gutter(out, n, nums, line_type)
+  local g = gutter_sgr(line_type)
+  out[n + 1] = g.num
+  out[n + 2] = nums
+  out[n + 3] = g.bar
+  out[n + 4] = "│"
+  return n + 4
+end
+
+--- Append one inline content row to `out`: both sides' line numbers, then the
+--- text, padded to the view width when tinted. A context row carries both
+--- numbers, a minus row only the old one and a plus row only the new one, so
+--- the column a number sits in tells which file it belongs to.
+--- cell: { text, spans, line_type, emph }
+function M.content_line(out, cell, old_no, new_no, cols, num_w)
+  local line_type = cell.line_type
+  local n = emit_gutter(out, #out, num_fmt(num_w).pair:format(old_no or "", new_no or ""), line_type)
+  local col, line_bg
+  n, col, line_bg = emit_line(out, n, cell.text, cell.spans, line_type, cell.emph, nil)
+  local text_w = cols - inline_gutter_width(num_w)
+  if line_bg and text_w > col then
     out[n + 1] = fill_sgr(line_bg)
-    out[n + 2] = string.rep(" ", cols - col)
+    out[n + 2] = string.rep(" ", text_w - col)
     n = n + 2
   end
   out[n + 1] = ansi.reset
   out[n + 2] = "\n"
 end
 
--- Append one side-by-side cell of exactly `width` display cells, truncating
--- overlong lines. cell: { text, spans, line_type, emph } or { filler = true }
--- (codediff renders absent lines as ╱ filler). Returns the new `out` index.
-local function render_cell(out, n, cell, width)
-  if not cell or cell.filler then
+-- Append one side-by-side cell of exactly `width` display cells: the side's
+-- line number, then the text, truncated when overlong. cell: { text, spans,
+-- line_type, emph, lnum } or { filler = true } (codediff renders absent lines
+-- as ╱ filler under a blank number). Returns the new `out` index.
+local function render_cell(out, n, cell, width, num_w)
+  local filler = not cell or cell.filler
+  local line_type = not filler and cell.line_type or nil
+  n = emit_gutter(out, n, num_fmt(num_w).single:format(not filler and cell.lnum or ""), line_type)
+  -- The gutter is never clipped: a cell too narrow for it overflows, which only
+  -- a view a dozen cells wide can bring about.
+  width = math.max(width - cell_gutter_width(num_w), 1)
+  if filler then
     out[n + 1] = filler_run(width)
     return n + 1
   end
   local col, line_bg
-  n, col, line_bg = emit_line(out, n, cell.text, cell.spans, cell.line_type, cell.emph, width)
+  n, col, line_bg = emit_line(out, n, cell.text, cell.spans, line_type, cell.emph, width)
   if col < width then
     out[n + 1] = fill_sgr(line_bg)
     out[n + 2] = string.rep(" ", width - col)
@@ -462,14 +549,14 @@ local function render_cell(out, n, cell, width)
 end
 
 --- Append one side-by-side row to `out`: original cell, separator, modified cell.
-function M.split_line(out, left, right, cols)
+function M.split_line(out, left, right, cols, num_w)
   local left_w = math.max(math.floor((cols - 1) / 2), 1)
   local right_w = math.max(cols - 1 - left_w, 1)
   bar = bar or ansi.styled({ fg = palette.decoration }, "│")
 
-  local n = render_cell(out, #out, left, left_w)
+  local n = render_cell(out, #out, left, left_w, num_w)
   out[n + 1] = bar
-  n = render_cell(out, n + 1, right, right_w)
+  n = render_cell(out, n + 1, right, right_w, num_w)
   out[n + 1] = ansi.reset
   out[n + 2] = "\n"
 end
