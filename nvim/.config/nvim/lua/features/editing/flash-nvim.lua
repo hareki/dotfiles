@@ -6,6 +6,9 @@ local flash = Defer.on_exported_call('flash')
 return {
   UI.catppuccin(function(palette)
     return {
+      FlashLabel = { fg = palette.red },
+      FlashMatch = { fg = palette.blue },
+      FlashCurrent = { fg = palette.yellow },
       FlashPromptIcon = { fg = palette.yellow },
     }
   end, 'flash.nvim'),
@@ -97,7 +100,7 @@ return {
       --- @type Flash.Config
       return {
         prompt = {
-          prefix = { { Conf.icons.tools.FLASH .. ' Flash', 'FlashPromptIcon' } },
+          prefix = { { Conf.icons.tools.FLASH .. ' Flash ', 'FlashPromptIcon' } },
         },
       }
     end,
