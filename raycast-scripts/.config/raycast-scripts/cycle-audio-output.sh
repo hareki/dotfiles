@@ -1,10 +1,15 @@
-#!/usr/bin/env bash
+#!/usr/bin/env -S LC_ALL=en_US.UTF-8 bash
 
 # @raycast.schemaVersion 1
 # @raycast.title Cycle Audio Output
 # @raycast.mode silent
 # @raycast.packageName Audio
 # @raycast.icon 🔈
+
+# Raycast launches scripts with LC_ALL set to an ICU-style tag (e.g.
+# "en-VN-u-ca-gregory") that libc doesn't recognize. bash 5 complains about
+# it at startup, before the script body runs, so the override has to live in
+# the shebang rather than in an `export` below.
 
 export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 
