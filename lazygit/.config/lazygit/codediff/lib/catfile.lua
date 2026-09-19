@@ -16,22 +16,22 @@ local M = {}
 local READ_TIMEOUT_MS = 5000
 
 --- Sizes and types only: "<oid> <type> <size>\n" or "<name> missing\n" per
---- input line, no payloads.
+--- input line, no payloads. Each record keeps its raw line as `header`: a
+--- payload response repeats it verbatim ahead of the bytes.
 local function parse_info(out, n)
-  local infos, headers = {}, {}
+  local infos = {}
   local i = 0
   for line in out:gmatch("([^\n]*)\n") do
     i = i + 1
     local kind, size = line:match("^%S+ (%S+) (%d+)$")
     if kind then
-      infos[i] = { type = kind, size = tonumber(size) }
-      headers[i] = line
+      infos[i] = { type = kind, size = tonumber(size), header = line }
     end
   end
   if i ~= n then
     return nil -- a line per object, or the stream is not what we think it is
   end
-  return infos, headers
+  return infos
 end
 
 -- ---------------------------------------------------------------- session ---
@@ -141,7 +141,7 @@ local function fetch_session(cwd, oids, max_bytes)
   if not out then
     return nil
   end
-  local infos, headers = parse_info(out, n)
+  local infos = parse_info(out, n)
   if not infos then
     return nil
   end
@@ -156,7 +156,7 @@ local function fetch_session(cwd, oids, max_bytes)
       wanted[#wanted + 1] = i
       commands[#commands + 1] = "contents " .. oids[i] .. "\n"
       -- git repeats the info line, then the bytes and a newline
-      expected = expected + #headers[i] + 1 + rec.size + 1
+      expected = expected + #rec.header + 1 + rec.size + 1
     end
   end
   if #wanted == 0 then
@@ -181,7 +181,7 @@ local function fetch_session(cwd, oids, max_bytes)
     -- Each record must open with the header `info` already reported. Anything
     -- else means the stream has desynced, and every record after it would be
     -- read out of the wrong bytes.
-    local header = headers[i]
+    local header = infos[i].header
     if out:sub(pos, pos + #header) ~= header .. "\n" then
       return nil
     end
@@ -219,7 +219,7 @@ local function fetch_oneshot(cwd, oids, max_bytes)
   if not out then
     return {}, {}
   end
-  local infos, headers = parse_info(out, #oids)
+  local infos = parse_info(out, #oids)
   if not infos then
     return {}, {}
   end
@@ -246,7 +246,7 @@ local function fetch_oneshot(cwd, oids, max_bytes)
   local blobs = {}
   local pos = 1
   for _, i in ipairs(wanted) do
-    local header = headers[i]
+    local header = infos[i].header
     if out:sub(pos, pos + #header) ~= header .. "\n" then
       break
     end
@@ -261,8 +261,8 @@ end
 
 --- Type and size of every object in `oids`, plus the contents of those that are
 --- blobs of at most `max_bytes`. Returns two lists parallel to `oids`:
----   infos[i] = { type, size }  nil when the object is missing or unreadable
----   blobs[i] = the bytes       nil when it was not one worth fetching
+---   infos[i] = { type, size, header }  nil when the object is missing or unreadable
+---   blobs[i] = the bytes               nil when it was not one worth fetching
 function M.fetch(cwd, oids, max_bytes)
   if #oids == 0 then
     return {}, {}
@@ -271,7 +271,7 @@ function M.fetch(cwd, oids, max_bytes)
     busy = true
     local ok, infos, blobs = pcall(fetch_session, cwd, oids, max_bytes)
     busy = false
-    if ok and infos then
+    if ok and infos and blobs then
       return infos, blobs
     end
     -- The session is only as trustworthy as its last answer.

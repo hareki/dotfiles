@@ -112,7 +112,12 @@ end
 function M.parse(lines)
   local blocks = {}
   local raw = nil
+  -- `state` already implies which of these two are set ("top": neither,
+  -- "hunk": both), but LuaLS cannot see that, so the branches below test them
+  -- alongside the state.
+  --- @type table?
   local file = nil
+  --- @type table?
   local hunk = nil
   local remaining_old, remaining_new = 0, 0
   -- states: "top" | "header" | "hunk" | "combined"
@@ -149,13 +154,13 @@ function M.parse(lines)
         raw = { kind = "raw", lines = {} }
       end
       raw.lines[#raw.lines + 1] = line
-    elseif state == "combined" then
+    elseif file and state == "combined" then
       if line:match("^Submodule ") or line:match("^commit %x") then
         consumed = false
       else
         file.raw_lines[#file.raw_lines + 1] = line
       end
-    elseif line:match("^@@ %-%d") and (state == "header" or state == "hunk") then
+    elseif file and line:match("^@@ %-%d") and (state == "header" or state == "hunk") then
       local os_, oc, ns, nc, heading = line:match("^@@ %-(%d+),?(%d*) %+(%d+),?(%d*) @@ ?(.*)$")
       if os_ then
         hunk = {
@@ -176,7 +181,7 @@ function M.parse(lines)
       if not parse_extended_header(file, line) then
         consumed = false
       end
-    elseif state == "hunk" then
+    elseif hunk and state == "hunk" then
       local origin = line:sub(1, 1)
       if line == "\\ No newline at end of file" then
         local prev = hunk.lines[#hunk.lines]

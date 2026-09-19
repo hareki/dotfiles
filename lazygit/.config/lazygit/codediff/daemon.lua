@@ -116,7 +116,7 @@ local function shutdown(code)
   os.exit(code or 0)
 end
 
-local poll = uv.new_timer()
+local poll = assert(uv.new_timer())
 poll:start(POLL_MS, POLL_MS, function()
   for pid in pairs(watched) do
     if not uv.kill(pid, 0) then
@@ -183,7 +183,9 @@ local function cache_put(key, out)
   cache_entries[key] = { out = out, stamp = cache_tick }
   cache_bytes = cache_bytes + #out
   while cache_count > CACHE_MAX or cache_bytes > CACHE_MAX_BYTES do
-    local oldest_key, oldest = nil, math.huge
+    -- Never left unset: the loop only runs with at least two entries cached.
+    local oldest_key --- @type string
+    local oldest = math.huge
     for k, e in pairs(cache_entries) do
       if e.stamp < oldest then
         oldest_key, oldest = k, e.stamp
@@ -217,7 +219,12 @@ end
 -- render instead of being followed and written through.
 local function write_output(path, data)
   pcall(uv.fs_unlink, path)
-  local ok_open, fd = pcall(uv.fs_open, path, "wx", 384) -- 0600
+  -- A closure rather than pcall(uv.fs_open, ...): passing the function itself
+  -- hides the argument count, so LuaLS cannot tell the sync overload (an fd)
+  -- from the async one (a request handle).
+  local ok_open, fd = pcall(function()
+    return uv.fs_open(path, "wx", 384) -- 0600
+  end)
   if not ok_open or not fd then
     return false
   end
@@ -373,7 +380,7 @@ local function on_connection(err)
   if err or not pipe_server then
     return
   end
-  local client = uv.new_pipe(false)
+  local client = assert(uv.new_pipe(false))
   local accepted = pcall(function()
     assert(pipe_server:accept(client))
   end)
@@ -429,7 +436,7 @@ end
 -- A bind that fails means another daemon holds the path (two clients can spawn
 -- one at the same moment). It is serving; this process keeps the RPC entry
 -- point alive for its own client and then idles out.
-local server = uv.new_pipe(false)
+local server = assert(uv.new_pipe(false))
 local bound = pcall(function()
   assert(server:bind(PIPE_PATH))
   assert(server:listen(64, on_connection))

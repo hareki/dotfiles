@@ -15,7 +15,7 @@ local handle = vim.uv.spawn(vim.v.progpath, {
   args = { "--clean", "--headless", "--listen", sock, "-c", "luafile " .. vim.fn.fnameescape(dir .. "/daemon.lua") },
   detached = true,
   stdio = { nil, nil, nil },
-})
+}, function() end)
 
 if handle then
   handle:unref()
