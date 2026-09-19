@@ -86,14 +86,83 @@ end
 --- @param mode string
 --- @param map table
 --- @return nil
-function M.restore_buf_keymap(buf, mode, map)
-  if not vim.api.nvim_buf_is_valid(buf) then
-    return
-  end
-
+local function restore_buf_keymap(buf, mode, map)
   vim.api.nvim_buf_call(buf, function()
     vim.fn.mapset(mode, false, map)
   end)
+end
+
+--- @class utils.common.KeymapLayer
+--- @field rhs string | function
+--- @field opts vim.keymap.set.Opts
+
+--- Popup overrides per buffer-local key, oldest first; `base` is the buffer's own
+--- mapping from before the first override (nil when the key was unmapped)
+--- @type table<string, { base: table?, layers: utils.common.KeymapLayer[] }>
+local override_stacks = {}
+
+--- Map keys on a buffer for as long as a popup lives. Overrides of the same key
+--- stack, so whatever order overlapping popups close in, releasing one keeps the
+--- newest remaining override active, or reinstates the buffer's own mapping once
+--- none remain
+--- @param buf integer
+--- @param maps { [1]: string | string[], [2]: string, [3]: string | function, [4]?: vim.keymap.set.Opts }[] Mode(s), lhs, rhs and opts of each override
+--- @return fun() release Undoes every override of this call; later calls are no-ops
+function M.override_buf_keymaps(buf, maps)
+  --- @type { key: string, mode: string, lhs: string, layer: utils.common.KeymapLayer }[]
+  local pushed = {}
+
+  for _, map in ipairs(maps) do
+    local modes, lhs, rhs, opts = map[1], map[2], map[3], map[4]
+    if type(modes) == 'string' then
+      modes = { modes }
+    end
+    local layer = { rhs = rhs, opts = vim.tbl_extend('force', opts or {}, { buffer = buf }) }
+
+    for _, mode in ipairs(modes) do
+      local key = string.format('%d %s %s', buf, mode, lhs)
+      override_stacks[key] = override_stacks[key]
+        or { base = M.get_buf_keymap(buf, mode, lhs), layers = {} }
+      table.insert(override_stacks[key].layers, layer)
+      vim.keymap.set(mode, lhs, rhs, layer.opts)
+      pushed[#pushed + 1] = { key = key, mode = mode, lhs = lhs, layer = layer }
+    end
+  end
+
+  local released = false
+  return function()
+    if released then
+      return
+    end
+    released = true
+
+    for _, entry in ipairs(pushed) do
+      local stack = override_stacks[entry.key]
+      local was_active = stack.layers[#stack.layers] == entry.layer
+      for index, layer in ipairs(stack.layers) do
+        if layer == entry.layer then
+          table.remove(stack.layers, index)
+          break
+        end
+      end
+
+      local top = stack.layers[#stack.layers]
+      if not top then
+        override_stacks[entry.key] = nil
+      end
+
+      -- A newer override still covering this one keeps its mapping active
+      if was_active and vim.api.nvim_buf_is_valid(buf) then
+        if top then
+          vim.keymap.set(entry.mode, entry.lhs, top.rhs, top.opts)
+        elseif stack.base then
+          restore_buf_keymap(buf, entry.mode, stack.base)
+        else
+          pcall(vim.keymap.del, entry.mode, entry.lhs, { buffer = buf })
+        end
+      end
+    end
+  end
 end
 
 return M

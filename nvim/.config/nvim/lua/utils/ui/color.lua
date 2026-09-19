@@ -38,16 +38,23 @@ function M.blend_hex(from, to, alpha)
   return string.format('#%02x%02x%02x', r, g, b)
 end
 
---- Clear search highlight and restore Snacks word highlights
---- The nvim-hlslens lens handler disables Snacks.words while search highlights are visible
---- (see `nvim-hlslens/utils.lua`'s `search_text_handler`), so a plain :nohlsearch would leave them off.
+--- Whether search matches are currently highlighted
+--- @return boolean
+function M.search_highlighted()
+  -- v:hlsearch alone reads 1 before any search when no shada was loaded
+  return vim.v.hlsearch == 1 and vim.fn.getreg('/') ~= ''
+end
+
+--- Clear search highlight and bring Snacks word highlights back right away
+--- Snacks.words hides references while search matches are highlighted (see its `filter`
+--- in `core/snacks-nvim/init.lua`) and would otherwise wait for the next cursor move.
 --- @return nil
 function M.nohlsearch()
+  -- With no search highlighted nothing was hidden, and update() would only clear
+  -- and re-request reference highlights that are already current
+  local was_highlighted = M.search_highlighted()
   vim.cmd.nohlsearch()
-  -- While Snacks.words is still on, update() would only clear and re-request
-  -- reference highlights that are already current
-  if not Snacks.words.enabled then
-    Snacks.words.enable()
+  if was_highlighted then
     Snacks.words.update()
   end
 end

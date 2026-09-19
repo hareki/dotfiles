@@ -196,13 +196,9 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
   -- Re-entering origin_win fires CursorMoved even though its cursor never moved
   local origin_pos = vim.api.nvim_win_get_cursor(origin_win)
 
-  -- The popup's <Tab>/<Esc> maps shadow any pre-existing buffer-local ones on
-  -- the origin buffer (e.g. nvim-tree's <Tab> preview); snapshot those so
-  -- close_popup can restore them instead of deleting them outright
-  local saved_maps = {}
-  for _, lhs in ipairs({ '<Tab>', '<Esc>' }) do
-    saved_maps[lhs] = common.get_buf_keymap(origin_buf, 'n', lhs)
-  end
+  -- Assigned once the origin buffer's <Tab>/<Esc> overrides are set below
+  --- @type fun()
+  local release_origin_maps
 
   local function close_popup()
     if closing then
@@ -216,11 +212,7 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
       pcall(vim.api.nvim_del_augroup_by_id, augroup)
       augroup = nil
     end
-    pcall(vim.keymap.del, 'n', '<Tab>', { buffer = origin_buf })
-    pcall(vim.keymap.del, 'n', '<Esc>', { buffer = origin_buf })
-    for _, map in pairs(saved_maps) do
-      common.restore_buf_keymap(origin_buf, 'n', map)
-    end
+    release_origin_maps()
     pcall(vim.keymap.del, 'n', '<Tab>', { buffer = buf })
     local ok = true
     if vim.api.nvim_win_is_valid(win) then
@@ -253,7 +245,7 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
     vim.schedule(function()
       local esc = vim.keycode('<Esc>')
       -- 'm' (remap) so the global <Esc> mapping (Clear Highlight) runs; the popup's
-      -- buffer-local <Esc> is already deleted by close_popup, so this cannot recurse
+      -- buffer-local <Esc> is already released by close_popup, so this cannot recurse
       vim.api.nvim_feedkeys(esc, 'm', false)
     end)
   end
@@ -308,16 +300,11 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
     end,
   })
 
-  vim.keymap.set('n', '<Tab>', focus_popup, {
-    buffer = origin_buf,
-    nowait = true,
-    desc = 'Focus Highlight Popup',
-  })
-
-  vim.keymap.set('n', '<Esc>', origin_escape, {
-    buffer = origin_buf,
-    nowait = true,
-    desc = 'Close Highlight Popup',
+  -- Overrides rather than plain maps: the origin buffer may have its own <Tab>/<Esc>
+  -- (e.g. nvim-tree's <Tab> preview) for close_popup to hand back
+  release_origin_maps = common.override_buf_keymaps(origin_buf, {
+    { 'n', '<Tab>', focus_popup, { nowait = true, desc = 'Focus Highlight Popup' } },
+    { 'n', '<Esc>', origin_escape, { nowait = true, desc = 'Close Highlight Popup' } },
   })
 
   vim.keymap.set('n', '<Tab>', focus_origin, {

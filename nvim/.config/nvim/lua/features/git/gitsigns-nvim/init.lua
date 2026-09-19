@@ -44,8 +44,11 @@ return {
         },
 
         diff_opts = {
-          -- Use native git diff instead of Neovim's xdiff to match VS Code's diff
-          internal = false,
+          -- Hunks differed from VS Code's because of the linematch:40 gitsigns inherits
+          -- from 'diffopt', not because of xdiff (git's own diff library), so diff
+          -- in-process without it instead of spawning `git diff` twice per update
+          internal = true,
+          linematch = false,
 
           ignore_whitespace = false,
           ignore_whitespace_change = false,

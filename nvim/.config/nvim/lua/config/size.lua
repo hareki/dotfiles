@@ -1,6 +1,5 @@
 --- @class config.size.Dimensions
 --- @field HEIGHT_OFFSET? number
---- @field WIDTH_OFFSET? number
 --- @field MIN_HEIGHT? number
 --- @field MIN_WIDTH? number
 --- @field HEIGHT number
@@ -72,13 +71,6 @@ M.side_panel = {
   },
   md = {
     WIDTH = 0.35,
-    HEIGHT = 1,
-    MIN_WIDTH = 40,
-    MIN_HEIGHT = 20,
-  },
-
-  lg = {
-    WIDTH = 0.5,
     HEIGHT = 1,
     MIN_WIDTH = 40,
     MIN_HEIGHT = 20,

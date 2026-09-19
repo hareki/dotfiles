@@ -7,21 +7,11 @@ local M = {}
 --- @field win integer
 --- @field buf integer
 --- @field placement snacks.image.Placement
---- @field source_buf integer
 --- @field augroup integer
---- @field previous_esc_map table?
+--- @field release_keymaps fun()
 
 --- @type core.snacks.utils.image.State?
 local hover = nil
-
-local HOVER_ESC_DESC = 'Close Hover Image'
-
---- @param buf integer
---- @return boolean
-local function is_hover_esc_map(buf)
-  local map = common.get_buf_keymap(buf, 'n', '<Esc>')
-  return map ~= nil and map.desc == HOVER_ESC_DESC
-end
 
 local function close()
   if not hover then
@@ -32,13 +22,7 @@ local function close()
   hover = nil
 
   pcall(vim.api.nvim_del_augroup_by_id, current.augroup)
-  if is_hover_esc_map(current.source_buf) then
-    if current.previous_esc_map then
-      pcall(common.restore_buf_keymap, current.source_buf, 'n', current.previous_esc_map)
-    else
-      pcall(vim.keymap.del, 'n', '<Esc>', { buffer = current.source_buf })
-    end
-  end
+  current.release_keymaps()
   pcall(function()
     current.placement:close()
   end)
@@ -110,14 +94,13 @@ end
 --- @param src string
 local function open(source_buf, src)
   -- A second hover can arrive through the async at_cursor callback before the
-  -- toggle guard sees the first; close it here, or the snapshot below would
-  -- capture our own hover <Esc> mapping as the one to "restore"
+  -- toggle guard sees the first; close it here, or replacing `hover` below
+  -- would orphan its window, placement and <Esc> override
   if hover then
     close()
   end
 
   local lg = UI.layout.popup('lg')
-  local previous_esc_map = common.get_buf_keymap(source_buf, 'n', '<Esc>')
 
   local scratch = vim.api.nvim_create_buf(false, true)
   vim.bo[scratch].bufhidden = 'wipe'
@@ -181,9 +164,10 @@ local function open(source_buf, src)
     win = -1, -- placeholder until on_update_pre opens the window
     buf = scratch,
     placement = placement,
-    source_buf = source_buf,
     augroup = augroup,
-    previous_esc_map = previous_esc_map,
+    release_keymaps = common.override_buf_keymaps(source_buf, {
+      { 'n', '<Esc>', close, { desc = 'Close Hover Image' } },
+    }),
   }
 
   vim.api.nvim_create_autocmd(
@@ -194,11 +178,6 @@ local function open(source_buf, src)
       callback = close,
     }
   )
-
-  vim.keymap.set('n', '<Esc>', close, {
-    buffer = source_buf,
-    desc = HOVER_ESC_DESC,
-  })
 end
 
 function M.hover_image()

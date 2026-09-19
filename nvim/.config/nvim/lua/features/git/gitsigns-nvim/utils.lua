@@ -1,3 +1,5 @@
+local common = require('utils.common')
+
 --- @class features.git.gitsigns.utils
 local M = {}
 
@@ -7,15 +9,6 @@ local M = {}
 --- @param source_buffer integer The buffer the popup was launched from
 --- @param popup_type string Gitsigns popup type ('blame' | 'hunk')
 function M.build_popup_navigation(source_buffer, popup_type)
-  local function source_map(mode, l, r, desc)
-    vim.keymap.set(mode, l, r, { buffer = source_buffer, desc = desc, silent = true })
-  end
-  local function source_unmap(mode, l)
-    pcall(function()
-      vim.keymap.del(mode, l, { buffer = source_buffer })
-    end)
-  end
-
   return function()
     local popup = require('gitsigns.popup')
     local popup_win_id = popup.is_open(popup_type)
@@ -36,20 +29,7 @@ function M.build_popup_navigation(source_buffer, popup_type)
       end
     end
 
-    vim.api.nvim_create_autocmd('WinClosed', {
-      pattern = tostring(popup_win_id),
-      once = true,
-      callback = function()
-        source_unmap('n', '<Esc>')
-        source_unmap('n', '<Tab>')
-      end,
-    })
-
-    source_map('n', '<Esc>', function()
-      close_popup()
-    end, 'Close Popup')
-
-    source_map('n', '<Tab>', function()
+    local function focus_popup()
       local current_win_id = vim.api.nvim_get_current_win()
 
       if not vim.api.nvim_win_is_valid(popup_win_id) then
@@ -66,14 +46,24 @@ function M.build_popup_navigation(source_buffer, popup_type)
 
       popup_map('n', '<Tab>', function()
         popup.ignore_cursor_moved = true
-        local common = require('utils.common')
         common.focus_win(current_win_id)
       end, 'Focus Original Window')
 
       if current_win_id ~= popup_win_id then
         popup.focus_open(popup_type)
       end
-    end, 'Focus Popup Window')
+    end
+
+    local release_source_maps = common.override_buf_keymaps(source_buffer, {
+      { 'n', '<Esc>', close_popup, { desc = 'Close Popup', silent = true } },
+      { 'n', '<Tab>', focus_popup, { desc = 'Focus Popup Window', silent = true } },
+    })
+
+    vim.api.nvim_create_autocmd('WinClosed', {
+      pattern = tostring(popup_win_id),
+      once = true,
+      callback = release_source_maps,
+    })
   end
 end
 

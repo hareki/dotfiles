@@ -39,19 +39,6 @@ M.on_index = function(require_path)
   })
 end
 
---- Require only when the module itself is called as a function
---- If you want to require an exported value from the module,
---- see instead `M.on_exported_call()`.
---- @param require_path string The module path to lazy-require
---- @return table proxy A callable proxy that defers require until invoked
-M.on_module_call = function(require_path)
-  return setmetatable({}, {
-    __call = function(_, ...)
-      return require(require_path)(...)
-    end,
-  })
-end
-
 --- Require when an exported method is called
 --- Creates a new function wrapper. Cannot be used to compare functions,
 --- set new values, etc. Only useful for deferring require until the function is called.

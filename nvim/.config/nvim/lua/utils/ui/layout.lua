@@ -58,11 +58,6 @@ local function resolve_dimensions(dimensions)
   local width = dimensions.WIDTH <= 1 and screen_w * dimensions.WIDTH or dimensions.WIDTH
   local height = dimensions.HEIGHT <= 1 and screen_h * dimensions.HEIGHT or dimensions.HEIGHT
 
-  local width_offset = dimensions.WIDTH_OFFSET
-  if width_offset then
-    width = math.max(width + width_offset, 1)
-  end
-
   local height_offset = dimensions.HEIGHT_OFFSET
   if height_offset then
     height = math.max(height + height_offset, 1)
@@ -82,7 +77,7 @@ local function resolve_dimensions(dimensions)
 end
 
 --- Compute width/height for a side panel or side preview size preset
---- @overload fun(category: 'side_panel', variant: 'sm'|'md'|'lg', with_border?: boolean): integer, integer
+--- @overload fun(category: 'side_panel', variant: 'sm'|'md', with_border?: boolean): integer, integer
 --- @overload fun(category: 'side_preview', variant: 'md', with_border?: boolean): integer, integer
 --- @param category 'side_panel' | 'side_preview' Size category in config.size
 --- @param variant string Variant key within the category

@@ -1,3 +1,38 @@
+local engine = require('utils.style-enforcers.engine')
+local eslint = require('utils.style-enforcers.eslint')
+local oxfmt = require('utils.style-enforcers.oxfmt')
+local oxlint = require('utils.style-enforcers.oxlint')
+
+local filetypes = Conf.filetypes
+
+-- Subset of oxfmt LSP's advertised filetypes that we want it to own.
+-- Excludes astro/mdx (oxfmt LSP doesn't support them) and toml (taplo owns it).
+-- Run before lint-fix steps so oxlint's on-disk fixAll sees formatted content.
+engine.register(
+  'oxfmt',
+  filetypes.merge(
+    filetypes.JS, -- js/ts(x), no astro
+    filetypes.CSS, -- css/scss/less
+    { 'html' },
+    { 'markdown' }, -- no mdx
+    filetypes.JSON, -- json/jsonc/json5
+    { 'yaml' }
+  ),
+  oxfmt.run,
+  { order = 10, client = 'oxfmt' }
+)
+
+-- The eslint server also attaches to htmlangular (upstream filetypes),
+-- so angular-eslint template fixes should run on save too
+engine.register(
+  'eslint',
+  filetypes.merge(filetypes.JS_ALL, filetypes.ANGULAR),
+  eslint.run,
+  { client = 'eslint' }
+)
+
+engine.register('oxlint', filetypes.JS_ALL, oxlint.run, { client = 'oxlint' })
+
 --- @class utils.style-enforcers
 local M = {}
 
@@ -98,7 +133,6 @@ function M.run(opts)
   end
 
   local conform = require('conform')
-  local engine = require('utils.style-enforcers.engine')
   local progress_utils = require('utils.progress')
 
   progress = progress_utils.create({
@@ -142,7 +176,7 @@ function M.run(opts)
       return
     end
 
-    local total = #engine.names_for_filetype(vim.bo[buf].filetype) + (formatted and 1 or 0)
+    local total = #engine.names_for_buf(buf) + (formatted and 1 or 0)
     if total == 0 then
       local write_ok, write_err = write()
       cleanup(write_ok, write_err)
@@ -154,7 +188,7 @@ function M.run(opts)
     local had_lint_error = false
 
     local ok, err = pcall(function()
-      engine.run_by_ft({
+      engine.run_for_buf({
         bufnr = buf,
         on_start = function(linter_name)
           if settled then

@@ -1,16 +1,5 @@
---- @alias utils.git.branch_formats 'id' | 'id_and_name' | 'id_and_author'
-
 --- @class utils.git
 local M = {}
-
-local branch_display_mode = 'id'
-
--- Task name truncation settings: when enabled, show first TASK_NAME_START_LENGTH chars
--- + '...' + last TASK_NAME_END_LENGTH chars
-local TRUNCATE_TASK_NAME = false
-local TASK_NAME_START_LENGTH = 20
-local TASK_NAME_END_LENGTH = 10
-local max_task_name_length = TASK_NAME_START_LENGTH + TASK_NAME_END_LENGTH
 
 -- A cache table to store the repository name and last known CWD.
 -- `name`, `last_cwd`, and `toplevel` are only written together (in
@@ -24,38 +13,16 @@ local repo_cache = {
   pending_cwd = nil,
 }
 
--- Single-slot memo: the statusline re-formats the same branch on every redraw,
--- and a mode change re-keys the slot on its own
-local last_format = { mode = nil, branch = nil, result = nil }
+-- Single-slot memo: the statusline re-formats the same branch on every redraw
+local last_format = { branch = nil, result = nil }
 
---- Set the branch display format and refresh the status line
---- Notifies the user of the format change.
---- @param format utils.git.branch_formats The format to use ('id', 'id_and_name', 'id_and_author')
---- @return nil
-function M.set_branch_name_format(format)
-  branch_display_mode = format
-
-  Notifier.info('Branch name format set to ' .. format)
-
-  if UI.statusline.enabled() then
-    UI.statusline.refresh()
-  end
-end
-
---- Format a branch name according to the current display mode
---- Extracts CU-ID and formats based on the selected mode (id, id_and_name, id_and_author).
+--- Shorten a ClickUp task branch to its CU-ID, which may lead (`CU-<id>_<task>`)
+--- or trail (`<task>_CU-<id>`); other branch names pass through unchanged
 --- @param branch_name string The original branch name to format
 --- @return string formatted The formatted branch name
 function M.format_branch_name(branch_name)
-  if last_format.mode == branch_display_mode and last_format.branch == branch_name then
+  if last_format.branch == branch_name then
     return last_format.result
-  end
-
-  local function memoize(result)
-    last_format.mode = branch_display_mode
-    last_format.branch = branch_name
-    last_format.result = result
-    return result
   end
 
   local prefix
@@ -67,42 +34,11 @@ function M.format_branch_name(branch_name)
     remaining, prefix = branch_name:match('^(.*)_(CU%-%w+)$')
   end
 
-  if not prefix or not remaining or remaining == '' then
-    return memoize(branch_name)
-  end
+  local result = (prefix and remaining ~= '') and prefix or branch_name
+  last_format.branch = branch_name
+  last_format.result = result
 
-  local task_name = remaining
-  local author_name
-
-  local possible_task, possible_author = remaining:match('^(.*)_(.+)$')
-  if possible_task and possible_task ~= '' and possible_author and possible_author ~= '' then
-    task_name = possible_task
-    author_name = possible_author
-  end
-
-  local result
-  if branch_display_mode == 'id' then
-    result = prefix
-  elseif branch_display_mode == 'id_and_name' then
-    local formatted_task_name = task_name
-    if TRUNCATE_TASK_NAME and #task_name > max_task_name_length then
-      -- Show start and end parts of the task name with ellipsis
-      formatted_task_name = task_name:sub(1, TASK_NAME_START_LENGTH)
-        .. '...'
-        .. task_name:sub(-TASK_NAME_END_LENGTH)
-    end
-    result = prefix .. '_' .. formatted_task_name
-  elseif branch_display_mode == 'id_and_author' then
-    if author_name then
-      result = prefix .. '_' .. author_name
-    else
-      result = prefix
-    end
-  else
-    result = ''
-  end
-
-  return memoize(result)
+  return result
 end
 
 --- Execute a git command asynchronously and pass trimmed output to a callback

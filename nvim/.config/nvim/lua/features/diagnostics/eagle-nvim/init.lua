@@ -54,31 +54,9 @@ return {
             })
           end
 
-          local function current_map(mode, lhs, rhs, desc)
-            vim.keymap.set(mode, lhs, rhs, {
-              buffer = current_buf,
-              desc = desc,
-            })
-          end
-
-          local function current_unmap(mode, lhs)
-            pcall(function()
-              vim.keymap.del(mode, lhs, { buffer = current_buf })
-            end)
-          end
-
           local function close_eagle()
             pcall(vim.api.nvim_win_close, eagle_win, true)
           end
-
-          vim.api.nvim_create_autocmd('WinClosed', {
-            pattern = tostring(eagle_win),
-            once = true,
-            callback = function()
-              current_unmap({ 'n', 'x' }, '<Esc>')
-              current_unmap({ 'n', 'x' }, '<Tab>')
-            end,
-          })
 
           eagle_map({ 'n', 'x' }, 'q', close_eagle, 'Close Eagle')
           eagle_map({ 'n', 'x' }, '<Esc>', close_eagle, 'Close Eagle')
@@ -89,11 +67,24 @@ return {
             common.focus_win(current_win)
           end, 'Focus Parent Window')
 
-          current_map({ 'n', 'x' }, '<Esc>', close_eagle, 'Close Eagle')
-          current_map({ 'n', 'x' }, '<Tab>', function()
-            eagle.ignore_next_cursor_move()
-            common.focus_win(eagle_win)
-          end, 'Focus Eagle Window')
+          local release_current_maps = common.override_buf_keymaps(current_buf, {
+            { { 'n', 'x' }, '<Esc>', close_eagle, { desc = 'Close Eagle' } },
+            {
+              { 'n', 'x' },
+              '<Tab>',
+              function()
+                eagle.ignore_next_cursor_move()
+                common.focus_win(eagle_win)
+              end,
+              { desc = 'Focus Eagle Window' },
+            },
+          })
+
+          vim.api.nvim_create_autocmd('WinClosed', {
+            pattern = tostring(eagle_win),
+            once = true,
+            callback = release_current_maps,
+          })
         end,
       }
     end,

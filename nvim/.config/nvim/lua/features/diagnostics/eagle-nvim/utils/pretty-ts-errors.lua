@@ -120,55 +120,100 @@ local function cache_get(key)
   end
 end
 
+--- @return { value: string, from_cli: boolean, hits: integer } entry
 local function cache_set(key, value, from_cli)
   if not M.state.cache[key] then
     M.state.cache_size = M.state.cache_size + 1
   end
-  M.state.cache[key] = { value = value, from_cli = from_cli, hits = 1 }
+  local entry = { value = value, from_cli = from_cli, hits = 1 }
+  M.state.cache[key] = entry
   maybe_evict_cache()
+
+  return entry
 end
 
-local function run_cli(input_object)
+--- @param result? vim.SystemCompleted
+--- @return string? markdown
+local function cli_markdown(result)
+  if result and result.code == 0 and result.stdout and #result.stdout > 0 then
+    return trim_trailing_whitespace(result.stdout)
+  end
+end
+
+--- Start the CLI on one input without waiting for it
+--- @param json_text string
+--- @return vim.SystemObj? handle nil when the spawn failed or the CLI is unavailable
+local function spawn_cli(json_text)
   if M.state.cli_unavailable then
     return nil
   end
 
-  local json_text = vim.json.encode(input_object)
-  local exe = M.state.executable_path
+  local cmd = { M.state.executable_path, '-i', json_text }
+  local ok, handle = pcall(vim.system, cmd, { text = true })
+  return ok and handle or nil
+end
 
-  -- vim.system throws on spawn failure: the CLI not being installed, but also
-  -- a JSON arg exceeding the OS arg limit, which the stdin form below handles.
-  -- So only latch cli_unavailable when the stdin form throws too.
-  local arg_ok, arg_result = pcall(function()
-    return vim.system({ exe, '-i', json_text }, { text = true }):wait()
-  end)
-  if
-    arg_ok
-    and arg_result
-    and arg_result.code == 0
-    and arg_result.stdout
-    and #arg_result.stdout > 0
-  then
-    return trim_trailing_whitespace(arg_result.stdout)
+--- Wait for a spawn_cli run, retrying through stdin when the argument form failed
+--- @param handle? vim.SystemObj
+--- @param json_text string
+--- @return string? markdown
+local function collect_cli(handle, json_text)
+  local markdown = handle and cli_markdown(handle:wait())
+  if markdown or M.state.cli_unavailable then
+    return markdown
   end
 
-  local stdin_ok, stdin_result = pcall(function()
-    return vim.system({ exe }, { text = true, stdin = json_text }):wait()
+  -- vim.system throws on spawn failure: the CLI not being installed, but also
+  -- a JSON arg exceeding the OS arg limit, which this stdin form handles.
+  -- So only latch cli_unavailable when the stdin form throws too.
+  local ok, result = pcall(function()
+    return vim.system({ M.state.executable_path }, { text = true, stdin = json_text }):wait()
   end)
-  if not stdin_ok then
+  if not ok then
     M.state.cli_unavailable = true
     return nil
   end
-  if
-    stdin_result
-    and stdin_result.code == 0
-    and stdin_result.stdout
-    and #stdin_result.stdout > 0
-  then
-    return trim_trailing_whitespace(stdin_result.stdout)
+
+  return cli_markdown(result)
+end
+
+-- Eagle formats a line's diagnostics one after another, and every cache miss
+-- blocks on a CLI spawn. So a miss spawns the CLI for all of the line's
+-- uncached diagnostics from the same source at once: the popup then waits
+-- about as long as the slowest spawn instead of their sum, and eagle's calls
+-- for the rest of the line hit the cache.
+--- @param diagnostic vim.Diagnostic The cache miss
+--- @return table<string, { value: string, from_cli: boolean, hits: integer }> entries By cache key
+local function format_line(diagnostic)
+  local jobs = {}
+
+  local function spawn(d)
+    local key = compute_cache_key(d)
+    if jobs[key] or M.state.cache[key] then
+      return
+    end
+
+    local json_text = vim.json.encode(build_cli_input(d))
+    jobs[key] = { message = d.message, json_text = json_text, handle = spawn_cli(json_text) }
   end
 
-  return nil
+  spawn(diagnostic)
+  if diagnostic.bufnr then
+    local source = get_source(diagnostic)
+    for _, d in ipairs(vim.diagnostic.get(diagnostic.bufnr, { lnum = diagnostic.lnum })) do
+      if get_source(d) == source then
+        spawn(d)
+      end
+    end
+  end
+
+  local entries = {}
+  for key, job in pairs(jobs) do
+    local markdown = collect_cli(job.handle, job.json_text)
+    entries[key] = cache_set(key, markdown or job.message, markdown ~= nil)
+  end
+
+  return entries
 end
 
 -- Strip the first line (the header with links) + a single blank line after it.
@@ -188,7 +233,7 @@ end
 
 --- Format a TypeScript diagnostic into pretty markdown using pretty-ts-errors-markdown CLI
 --- Caches CLI output (evicting the least-hit entry past the cap) to avoid
---- redundant CLI calls for repeated diagnostics.
+--- redundant CLI calls for repeated diagnostics, and formats a miss's whole line at once.
 --- @param diagnostic table The vim.Diagnostic object to format
 --- @param opts? { href?: boolean } Options (href: keep CLI header with links)
 --- @return string markdown The formatted markdown message
@@ -203,21 +248,12 @@ function M.format(diagnostic, opts)
   end
 
   local key = compute_cache_key(diagnostic)
-  local entry = cache_get(key)
-
-  local md, from_cli
-  if entry then
-    md, from_cli = entry.value, entry.from_cli
-  else
-    local cli_md = run_cli(build_cli_input(diagnostic))
-    from_cli = cli_md ~= nil
-    md = cli_md or diagnostic.message
-    cache_set(key, md, from_cli)
-  end
+  local entry = cache_get(key) or format_line(diagnostic)[key]
+  local md = entry.value
 
   -- Only the CLI's markdown carries a header line; stripping the raw-message
   -- fallback would delete the first line of the actual error text
-  if from_cli and not (opts and opts.href) then
+  if entry.from_cli and not (opts and opts.href) then
     md = strip_cli_header(md)
   end
 

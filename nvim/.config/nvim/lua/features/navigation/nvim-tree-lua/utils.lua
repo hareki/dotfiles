@@ -273,27 +273,22 @@ end
 --- @param path string The absolute path to format
 --- @return string formatted The formatted path with icons
 function M.format_root_label(path)
-  local home = vim.env.HOME
-  local formatted = path
   local home_icon = vim.trim(Conf.icons.file_tree.HOME)
   local separator = Conf.icons.file_tree.COLLAPSED .. ' '
+  -- Only shortens at a path boundary: /Users/foo2 is not under /Users/foo
+  local short = vim.fn.fnamemodify(path, ':~')
 
-  -- The prefix must end at a path boundary: /Users/foo2 is not under /Users/foo
-  local is_under_home = home
-    and vim.startswith(path, home)
-    and (path == home or path:sub(#home + 1, #home + 1) == '/')
+  if short == '~' then
+    -- If we're exactly at home, just show the icon
+    return home_icon .. ' '
+  end
 
-  if is_under_home then
-    if path == home then
-      -- If we're exactly at home, just show the icon
-      return home_icon .. ' '
-    end
-    formatted = home_icon .. ' ' .. separator .. path:sub(#home + 2) -- +2 to skip trailing slash
+  local formatted
+  if vim.startswith(short, '~/') then
+    formatted = home_icon .. ' ' .. separator .. short:sub(3)
   else
     -- If outside home, remove leading slash to avoid empty first component
-    if vim.startswith(path, '/') then
-      formatted = path:sub(2)
-    end
+    formatted = short:gsub('^/', '')
   end
 
   formatted = formatted:gsub('/', separator)

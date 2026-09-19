@@ -23,9 +23,9 @@ local SEVERITY_NAMES = {
 -- buffer back to back, and a per-buffer map would just accumulate entries that
 -- are never re-read.
 --- @class chrome.lualine.components.diagnostics.Cache
---- @field buf integer
---- @field counts { error: integer, warn: integer, info: integer, hint: integer } | nil
-local cache = { buf = -1, counts = nil }
+--- @field buf integer -1 while the slot is empty
+--- @field counts { error: integer, warn: integer, info: integer, hint: integer }
+local cache = { buf = -1, counts = { error = 0, warn = 0, info = 0, hint = 0 } }
 
 -- BufWipeout: wiped buffer numbers can be reused; drop the slot so a new buffer
 -- with the same number can't inherit stale counts
@@ -34,7 +34,6 @@ vim.api.nvim_create_autocmd({ 'DiagnosticChanged', 'BufWipeout' }, {
   callback = function(event)
     if event.buf == cache.buf then
       cache.buf = -1
-      cache.counts = nil
     end
   end,
 })
@@ -43,7 +42,7 @@ vim.api.nvim_create_autocmd({ 'DiagnosticChanged', 'BufWipeout' }, {
 --- @return { error: integer, warn: integer, info: integer, hint: integer }
 local function cached_counts()
   local bufnr = vim.api.nvim_get_current_buf()
-  if cache.buf == bufnr and cache.counts then
+  if cache.buf == bufnr then
     return cache.counts
   end
 

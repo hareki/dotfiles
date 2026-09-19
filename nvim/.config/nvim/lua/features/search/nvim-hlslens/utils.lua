@@ -65,7 +65,6 @@ function M.search_text_handler(render, position_list, nearest, index, relative_i
     chunks = UI.pill.virt_text(text, 'HlSearchLensPillInner', 'HlSearchLensPillOuter')
   end
 
-  Snacks.words.disable()
   render.setVirt(0, line_number - 1, column - 1, chunks, nearest)
 end
 

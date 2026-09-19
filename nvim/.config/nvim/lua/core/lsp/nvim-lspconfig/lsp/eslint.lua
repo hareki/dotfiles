@@ -35,15 +35,6 @@ return {
   },
 
   setup = function()
-    local engine = require('utils.style-enforcers.engine')
-    --- @module 'utils.style-enforcers.eslint'
-    local eslint = Defer.on_exported_call('utils.style-enforcers.eslint')
-
-    -- The eslint server also attaches to htmlangular (upstream filetypes),
-    -- so angular-eslint template fixes should run on save too
-    local filetypes = Conf.filetypes.merge(Conf.filetypes.JS_ALL, Conf.filetypes.ANGULAR)
-    engine.register_on_attach('eslint', filetypes, eslint.run)
-
     vim.api.nvim_create_user_command('EslintLog', function()
       -- Reconstruct log in correct order from circular buffer
       local lines = {}

@@ -44,7 +44,10 @@ return {
 
           if vim.bo.buftype == '' then
             local name = vim.api.nvim_buf_get_name(0)
-            ext = name:match('%.([^%.]+)$')
+            -- From the file name alone, so a dotted directory (`b.c/Makefile`) can't
+            -- pose as an extension; unlike fnamemodify(':e'), `.bashrc` still gives
+            -- `*.bashrc`, and that glob also lets rg search the hidden file
+            ext = vim.fs.basename(name):match('%.([^%.]+)$')
           end
 
           local geometry = preview_geometry()

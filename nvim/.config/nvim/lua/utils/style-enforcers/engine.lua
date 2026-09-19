@@ -12,6 +12,7 @@ local M = {}
 --- @field runner fun(opts: { bufnr: integer, on_done: fun(ok: boolean, err?: string) })
 --- @field order integer Smaller runs first
 --- @field seq integer Registration sequence, tiebreaker for a stable sort
+--- @field client? string LSP client the runner drives
 
 local DEFAULT_ORDER = 100
 
@@ -23,7 +24,7 @@ local seq = 0
 --- @param name string Unique enforcer name
 --- @param filetypes string[] List of filetypes this enforcer supports
 --- @param runner fun(opts: { bufnr: integer, on_done: fun(ok: boolean, err?: string) }) The enforcer function
---- @param opts? { order?: integer } `order` sets run position — smaller runs first (default 100). Use a lower value for a formatter step that must run ahead of lint-fix steps.
+--- @param opts? { order?: integer, client?: string } `order` sets run position: smaller runs first (default 100). Use a lower value for a formatter step that must run ahead of lint-fix steps. `client` limits the enforcer to buffers that LSP client is attached to, so projects that never start the server (or files outside its root) skip the step.
 --- @return nil
 function M.register(name, filetypes, runner, opts)
   seq = seq + 1
@@ -33,35 +34,18 @@ function M.register(name, filetypes, runner, opts)
     runner = runner,
     order = (opts and opts.order) or DEFAULT_ORDER,
     seq = seq,
+    client = opts and opts.client,
   }
 end
 
---- Register an LSP-backed enforcer once a client of its server first attaches,
---- so projects that never start that server don't get its step
---- @param name string LSP server name, doubling as the enforcer name
---- @param filetypes string[] List of filetypes this enforcer supports
---- @param runner fun(opts: { bufnr: integer, on_done: fun(ok: boolean, err?: string) }) The enforcer function
---- @param opts? { order?: integer } See M.register
---- @return nil
-function M.register_on_attach(name, filetypes, runner, opts)
-  local registered = false
-  -- Fires once per (client, buffer) attach; only the first one registers
-  Snacks.util.lsp.on({ name = name }, function()
-    if registered then
-      return
-    end
-
-    registered = true
-    M.register(name, filetypes, runner, opts)
-  end)
-end
-
---- Registered enforcers for a filetype, sorted by `order`, then registration order
---- @param ft string The filetype to look up
+--- Registered enforcers that apply to a buffer, sorted by `order`, then registration order
+--- @param bufnr integer
 --- @return utils.style-enforcers.Entry[]
-local function entries_for_filetype(ft)
+local function entries_for_buf(bufnr)
+  local ft = vim.bo[bufnr].filetype
   local matched = vim.tbl_filter(function(entry)
     return vim.list_contains(entry.filetypes, ft)
+      and (not entry.client or #vim.lsp.get_clients({ name = entry.client, bufnr = bufnr }) > 0)
   end, entries)
 
   table.sort(matched, function(a, b)
@@ -74,13 +58,13 @@ local function entries_for_filetype(ft)
   return matched
 end
 
---- Get registered enforcer names for a filetype (sorted by `order`, then registration order)
---- @param ft string The filetype to look up
---- @return string[] names List of enforcer names that support this filetype
-function M.names_for_filetype(ft)
+--- Get the names of the enforcers that apply to a buffer (sorted by `order`, then registration order)
+--- @param bufnr integer
+--- @return string[] names
+function M.names_for_buf(bufnr)
   return vim.tbl_map(function(entry)
     return entry.name
-  end, entries_for_filetype(ft))
+  end, entries_for_buf(bufnr))
 end
 
 --- Internal: run the matched enforcers sequentially
@@ -108,10 +92,10 @@ local function run_next(matched, opts, idx)
   })
 end
 
---- Auto-run all registered enforcers matching the buffer's filetype
+--- Run every registered enforcer that applies to the buffer
 --- @param opts utils.style-enforcers.RunOpts Options with bufnr, on_start, on_done callbacks
 --- @return nil
-function M.run_by_ft(opts)
+function M.run_for_buf(opts)
   local bufnr = opts.bufnr
   if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
     if opts.on_done then
@@ -120,7 +104,7 @@ function M.run_by_ft(opts)
     return
   end
 
-  local matched = entries_for_filetype(vim.bo[bufnr].filetype)
+  local matched = entries_for_buf(bufnr)
 
   if #matched == 0 and opts.on_done then
     opts.on_done('none', true) -- no enforcers, no error
