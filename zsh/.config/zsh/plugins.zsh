@@ -1,8 +1,10 @@
-export ZSH_EVALCACHE_DIR="$HOME/.cache/.zsh-evalcache"
-export ANTIDOTE_HOME="$HOME/.cache/antidote"
+ZSH_EVALCACHE_DIR="$HOME/.cache/.zsh-evalcache"
+ANTIDOTE_HOME="$HOME/.cache/antidote"
+# use-omz only skips its `$(antidote path ohmyzsh/ohmyzsh)` subshell (~15ms) when
+# $ZSH is already set, which otherwise only holds for shells that inherit it
+export ZSH="$ANTIDOTE_HOME/github.com/ohmyzsh/ohmyzsh"
 
-# Cache expensive `eval "$(cmd)"` output; invalidate by deleting the cache
-# file (`yay` and `build`).
+# Cache expensive `eval "$(cmd)"` output; invalidate with _evalcache_clear.
 #
 # Local replacement for mroth/evalcache without its per-call `echo | md5` fork:
 # the args alone are the cache key and filename.
@@ -31,8 +33,8 @@ _evalcache() {
     {
       if [[ ! -s $cache ]]; then
         # Build both files under dot-prefixed temp names and mv in: a fast-path
-        # shell can't read (or SIGBUS on) a half-written file, and `yay`/
-        # `build`'s `rm init-*` can't delete them mid-build. The two-arg
+        # shell can't read (or SIGBUS on) a half-written file, and
+        # _evalcache_clear's `rm init-*` can't delete them mid-build. The two-arg
         # zcompile records the source path, not the output name, so the
         # renamed .zwc stays valid.
         local tmp="${cache:h}/.${cache:t}.$$"
@@ -41,44 +43,57 @@ _evalcache() {
         zcompile "$tmp.zwc" "$cache" && mv -f "$tmp.zwc" "$cache.zwc"
       fi
     } always {
-      [[ -n $fd ]] && exec {fd}>&-
+      exec {fd}>&-
     }
   fi
   source "$cache"
 }
 
+# Updated tools may emit different `eval "$(tool init)"` output, so `yay` and
+# `build` drop the evalcaches and the next shell regenerates them
+_evalcache_clear() {
+  rm -f "$ZSH_EVALCACHE_DIR"/init-*(N)
+}
+
 # Update oh-my-zsh automatically without asking
 zstyle ':omz:update' mode auto  
 
-# Load multiple ssh agent identities
-zstyle ':omz:plugins:ssh-agent' identities id_ed25519_personal id_ed25519_zigvy
+# Load the personal ssh identity up front; ~/.ssh/config adds the others on first
+# use (AddKeysToAgent)
+zstyle ':omz:plugins:ssh-agent' identities id_ed25519_personal
 zstyle ':omz:plugins:ssh-agent' quiet yes
 
 zstyle ':antidote:bundle:*' zcompile 'yes'
 
-zstyle ':fzf-tab:*' fzf-flags --height=15 # Match atuin config inline_height
+# --height matches atuin's inline_height. The label lives here rather than in
+# FZF_DEFAULT_OPTS, which zoxide's `zi` and plain fzf read as well
+zstyle ':fzf-tab:*' fzf-flags --height=15 --border-label=' Completions '
 zstyle ':fzf-tab:*' use-fzf-default-opts yes
-
-# Force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
-zstyle ':completion:*' menu no
+# `fzf` on PATH is a mise shim (claudecode.nvim pins its own fzf) that spends ~90ms
+# falling back to Homebrew's outside that project, on every completion
+zstyle ':fzf-tab:*' fzf-command /opt/homebrew/bin/fzf
 
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-
-# Set the root name of the plugins files (.txt and .zsh) antidote will use.
-zsh_plugins="$HOME/.zplugins"
-bundled_zsh_plugins="${zsh_plugins}.bundled.zsh"
+# Wrap the widgets once, when the plugin loads, instead of re-binding all ~600 of
+# them on every precmd (~5ms). .zplugins loads it after every other plugin that
+# defines widgets, so nothing ends up unwrapped
+ZSH_AUTOSUGGEST_MANUAL_REBIND=1
 
 # Lazy-load antidote from its functions directory.
 fpath=(/opt/homebrew/opt/antidote/share/antidote/functions $fpath)
 autoload -Uz antidote
 
-# Generate a new static file whenever .zplugins is updated.
-if [[ ! ${bundled_zsh_plugins} -nt ${zsh_plugins} ]]; then
-  antidote bundle <${zsh_plugins} >|${bundled_zsh_plugins}
-fi
+# Regenerate the static bundle whenever .zplugins changes, then source it
+[[ ~/.zplugins.bundled.zsh -nt ~/.zplugins ]] || antidote bundle <~/.zplugins >|~/.zplugins.bundled.zsh
+source ~/.zplugins.bundled.zsh
 
-# Source your static plugins file.
-source ${bundled_zsh_plugins}
+# use-omz forks `scutil` for this in every shell that doesn't inherit it
+export SHORT_HOST
+
+# Force zsh not to show completion menu, which allows fzf-tab to capture the
+# unambiguous prefix. omz's lib/completion.zsh sets `menu select` under this more
+# specific pattern, which outranks ':completion:*', so match it after the bundle
+zstyle ':completion:*:*:*:*:*' menu no
 
 # omz URL-encodes $PWD (two subshell forks) on every prompt; cache the escape
 # sequence per $PWD but still emit it each prompt, so the terminal's recorded

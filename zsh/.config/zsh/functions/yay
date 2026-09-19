@@ -14,8 +14,6 @@ yay() {
     && ~/.tmux/plugins/tpm/bin/update_plugins all
 
   local ret=$?
-  # Updated tools may emit different `eval "$(tool init)"` output; drop the
-  # evalcaches so the next shell regenerates them
-  rm -f "$ZSH_EVALCACHE_DIR"/init-*(N)
+  _evalcache_clear
   return $ret
 }

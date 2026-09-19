@@ -1,24 +1,32 @@
-# Precompile zshrc (if necessary) before executing it
-if [[ ! -f ~/.zshrc.zwc || ~/.zshrc -nt ~/.zshrc.zwc ]]; then
+# Precompile zshrc (if necessary) before executing it; only interactive shells read it
+if [[ -o interactive && ( ! -f ~/.zshrc.zwc || ~/.zshrc -nt ~/.zshrc.zwc ) ]]; then
   zcompile ~/.zshrc
 fi
 
 export XDG_CONFIG_HOME="$HOME/.config"
 export EDITOR='nvim'
 export VISUAL='nvim'
+# eza's own default on macOS is ~/Library/Application Support; set here so the
+# eza alias below gets the theme in non-interactive shells too
+export EZA_CONFIG_DIR="$XDG_CONFIG_HOME/eza"
 
 # Use MacOS keychain to store secrets; skip when a parent shell already exported the value
 [[ -n $MERCURY_API_KEY ]] || export MERCURY_API_KEY=$(security find-generic-password -a "$USER" -s "MERCURY_API_KEY" -w)
 [[ -n $ANTHROPIC_API_KEY ]] || export ANTHROPIC_API_KEY=$(security find-generic-password -a "$USER" -s "ANTHROPIC_API_KEY" -w)
 
-# Aliases needed in non-interactive shells, others should go in to aliases.zsh for performance
+# Aliases needed in non-interactive shells, others should go into aliases.zsh for performance
 alias eza='eza --icons=always --color=always --no-user'
 alias fdt='fd --type dir --hidden --exclude .git'
 # Prevent fd from taking 100% CPU for long-running searches
 alias fd='gtimeout 5s fd'
 
-# Append commands to use in non-interactive shells
-# shim_paths is re-prepended in .zshrc after brew shellenv reorders PATH
-typeset -a shim_paths=(~/.local/bin/shims ~/.local/share/mise/shims)
+# PATH for every zsh, highest precedence first: same-name wrappers, tools that
+# `build` installs, mise, then Homebrew. In login shells /etc/zprofile's path_helper
+# runs after this file and moves the system dirs in front, and brew shellenv
+# prepends Homebrew, so .zshrc re-applies the list
+typeset -a user_path=(
+  ~/.local/bin/shims ~/.local/opt/bin ~/.local/share/mise/shims ~/.local/bin
+  /opt/homebrew/bin /opt/homebrew/sbin
+)
 typeset -U path
-path=($shim_paths ~/.local/bin $path)
+path=($user_path $path)

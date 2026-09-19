@@ -3,5 +3,7 @@ ohmyzsh/ohmyzsh path:lib
 ohmyzsh/ohmyzsh path:plugins/ssh-agent kind:defer
 romkatv/powerlevel10k
 
-zsh-users/zsh-autosuggestions kind:defer
+# autosuggestions goes last: with ZSH_AUTOSUGGEST_MANUAL_REBIND it wraps the widgets
+# that exist when it loads, and nothing afterwards
 Aloxaf/fzf-tab kind:defer
+zsh-users/zsh-autosuggestions kind:defer

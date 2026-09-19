@@ -31,8 +31,6 @@ osc52_copy() {
   printf '\e]52;c;%s\a' "$data"
 }
 
-is_local() { [[ -z "$SSH_TTY" ]]; }
-
 # One function serves several widgets: $WIDGET holds the name it was invoked as,
 # so `zle .$WIDGET` dispatches to the matching builtin
 vi_yank_osc52() { zle .$WIDGET; osc52_copy "$CUTBUFFER"; cursor_block }
@@ -40,9 +38,13 @@ vi_yank_osc52() { zle .$WIDGET; osc52_copy "$CUTBUFFER"; cursor_block }
 zle -N vi-yank vi_yank_osc52
 zle -N vi-yank-eol vi_yank_osc52
 zle -N vi-yank-whole-line vi_yank_osc52
+# Visual `x` deletes the selection and copies it the same way
+zle -N kill-region vi_yank_osc52
+bindkey -M visual 'x' kill-region
 
 vi_put_smart() {
-  if is_local; then
+  # Paste from the system clipboard locally; over SSH, from zle's own cut buffer
+  if [[ -z $SSH_TTY ]]; then
     local prev=$CUTBUFFER; CUTBUFFER="$(pbpaste)"; zle .$WIDGET; CUTBUFFER=$prev
   else
     zle .$WIDGET
@@ -53,24 +55,12 @@ vi_put_smart() {
 zle -N vi-put-after vi_put_smart
 zle -N vi-put-before vi_put_smart
 
-# Copy on visual `x` (delete selection + copy via OSC52)
-visual_x_copy() {
-  zle .kill-region || return 0
-  osc52_copy "$CUTBUFFER"   # uses the helper from the earlier setup
-
-  cursor_block
-}
-
-zle -N visual-x-copy visual_x_copy
-bindkey -M visual 'x' visual-x-copy
-
-# hjkl unused — arrow keys via keyboard layers
-bindkey -M visual 'h' vi-yank           # h = yank (uses osc52 override from above)
-bindkey -M visual 'k' vi-put-after      # k = put  (uses smart-paste override from above)
-
-# Same swap in normal mode: hh = yank whole line (zsh doubles the operator), k = put
-bindkey -M vicmd  'h' vi-yank           # h = yank operator; hh yanks the whole line (osc52 override)
-bindkey -M vicmd  'k' vi-put-after      # k = put  (uses smart-paste override from above)
+# hjkl are unused (arrow keys come from keyboard layers), so h = yank and k = put.
+# In normal mode `h` is the yank operator, so `hh` yanks the whole line
+bindkey -M visual 'h' vi-yank
+bindkey -M visual 'k' vi-put-after
+bindkey -M vicmd  'h' vi-yank
+bindkey -M vicmd  'k' vi-put-after
 
 # Shift+V selects the whole current line in Visual mode.
 # Native visual-line-mode leaves mark==cursor, so nothing highlights on a single-line buffer;

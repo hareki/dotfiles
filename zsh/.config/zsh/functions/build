@@ -3,6 +3,10 @@
 build() {
   local -a targets=(atuin eza television worktrunk lazygit tmux)
   local target
+  # mise shims every binary in the toolchains' own dirs (~/.cargo/bin, the versioned
+  # go bin), which costs ~50ms per call, and a go upgrade strands anything installed
+  # there. PATH puts this dir ahead of the mise shims instead
+  local -x CARGO_INSTALL_ROOT=~/.local/opt GOBIN=~/.local/opt/bin
 
   case "$1" in
     --list) print -l all $targets; return 0 ;;
@@ -17,11 +21,9 @@ build() {
         (cd $REPOS_DIR/$target && git pull && build $target) || print -P "%F{red}==> Failed to build $target%f" >&2
       done
       ;;
-    atuin)      cargo install --locked --path crates/atuin ;;
-    eza)        cargo install --locked --path . ;;
-    television) cargo install --locked --path . ;;
-    worktrunk)  cargo install --locked --path . ;;
-    lazygit)    go install ;;
+    atuin)                    cargo install --locked --path crates/atuin ;;
+    eza|television|worktrunk) cargo install --locked --path . ;;
+    lazygit)                  go install ;;
     tmux)
         # Installing explicitly marks them installed_on_request, so `brew
         # autoremove` won't reap deps of a binary brew can't see
@@ -40,8 +42,6 @@ build() {
   esac
 
   local ret=$?
-  # Updated tools may emit different `eval "$(tool init)"` output; drop the
-  # evalcaches so the next shell regenerates them
-  rm -f "$ZSH_EVALCACHE_DIR"/init-*(N)
+  _evalcache_clear
   return $ret
 }

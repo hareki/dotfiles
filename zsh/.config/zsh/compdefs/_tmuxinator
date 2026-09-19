@@ -2,7 +2,7 @@
 # https://raw.githubusercontent.com/tmuxinator/tmuxinator/master/completion/tmuxinator.zsh
 
 # Mirror tmuxinator's config lookup: $TMUXINATOR_CONFIG, XDG dir, legacy ~/.tmuxinator
-local -a config_dirs=(${TMUXINATOR_CONFIG:+$TMUXINATOR_CONFIG} ${XDG_CONFIG_HOME:-$HOME/.config}/tmuxinator ~/.tmuxinator)
+local -a config_dirs=($TMUXINATOR_CONFIG ${XDG_CONFIG_HOME:-$HOME/.config}/tmuxinator ~/.tmuxinator)
 local -aU projects=($^config_dirs/*.yml(N:t:r))
 
 if (( CURRENT == 2 )); then

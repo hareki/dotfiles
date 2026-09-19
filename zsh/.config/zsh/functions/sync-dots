@@ -5,7 +5,7 @@
 sync-dots () {
   local failed=0
   local -a dirs
-  local dir package_dir
+  local dir
 
   if [[ -z "$STOW_REPO" || ! -d "$STOW_REPO" ]]; then
     echo "STOW_REPO must be set to an existing directory." >&2
@@ -19,9 +19,7 @@ sync-dots () {
       return 0
       ;;
     all)
-      for package_dir in "$STOW_REPO"/*(/N); do
-        dirs+=("${package_dir:t}")
-      done
+      dirs=("$STOW_REPO"/*(/N:t))
       ;;
     *)
       dirs=("$@")

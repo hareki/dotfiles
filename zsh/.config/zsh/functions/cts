@@ -23,8 +23,7 @@ cts() {
 
   # `git ls-files -v` prefixes the path with a status letter:
   #   H = normal tracked file, S = skip-worktree already set.
-  local flag
-  flag=$(git -C "$STOW_REPO" ls-files -v -- "$file" | cut -c1)
+  local flag=${"$(git -C "$STOW_REPO" ls-files -v -- "$file")"[1]}
 
   if [[ -z "$flag" ]]; then
     print -P "%F{red}cts: '%F{blue}$file%F{red}' is not tracked in $STOW_REPO%f" >&2

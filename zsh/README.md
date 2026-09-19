@@ -2,7 +2,7 @@
 
 ![image](./assets/docs/demo.png)
 
-Feature-packed zsh setup with ~90ms startup. Optimized via static plugin bundling, eval caching, bytecode compilation, and function autoloading.
+Feature-packed zsh setup with ~45ms startup. Optimized via static plugin bundling, eval caching, bytecode compilation, and function autoloading.
 
 ## Core Ideas
 
@@ -29,12 +29,13 @@ Feature-packed zsh setup with ~90ms startup. Optimized via static plugin bundlin
 .zshrc                              # Interactive: prompt, plugins, modules
 .zplugins                           # Antidote plugin manifest
 .config/zsh/
-├── aliases.zsh                     # Shell aliases (lg, tree, .., ..., etc.)
+├── aliases.zsh                     # Shell aliases (lg, tree, ..., etc.)
 ├── plugins.zsh                     # Antidote setup + plugin options
-├── options.zsh                     # Env vars, history, fzf theme/layout
+├── options.zsh                     # Env vars, fzf theme/layout
 ├── evals.zsh                       # Tool init: zoxide, atuin, wt, zsh-patina
-├── keymaps.zsh                     # Key bindings (Alt+F → atuin, etc.)
+├── keymaps.zsh                     # Key bindings (Alt+F => atuin, etc.)
 ├── vi-mode.zsh                     # Vi mode + OSC52 yank/paste
+├── tty-guard.zsh                   # Self-heal for a tty re-cooked under zle
 ├── compdefs/                       # Custom completions, `#compdef`-tagged (one per command)
 └── functions/                      # Autoloaded utility functions (one per file)
 ```

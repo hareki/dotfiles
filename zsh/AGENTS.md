@@ -10,10 +10,10 @@ This is a zsh dotfiles configuration targeting macOS with Homebrew. Files are de
 
 ```
 .zshenv  (all shells)
-  => zcompile .zshrc if stale
-  => XDG_CONFIG_HOME, EDITOR, VISUAL, API keys (from macOS keychain; skipped when inherited from a parent shell)
+  => zcompile .zshrc if stale (interactive shells only)
+  => XDG_CONFIG_HOME, EDITOR, VISUAL, EZA_CONFIG_DIR, API keys (from macOS keychain; skipped when inherited from a parent shell)
   => aliases needed in non-interactive shells (eza, fdt, gtimeout-wrapped fd)
-  => PATH: typeset -U, then shim_paths (~/.local/bin/shims, mise shims) + ~/.local/bin
+  => PATH: typeset -U, then user_path prepended (~/.local/bin/shims, ~/.local/opt/bin, mise shims, ~/.local/bin, Homebrew)
 
 .zshrc  (interactive shells)
   => emit beam cursor (override Neovim :terminal block cursor)
@@ -22,7 +22,7 @@ This is a zsh dotfiles configuration targeting macOS with Homebrew. Files are de
   => ~/.p10k.zsh (prompt config)
   => plugins.zsh (Antidote plugin manager, local _evalcache)
   => brew shellenv (via evalcache)
-  => re-prepend shim_paths (brew shellenv runs path_helper, which reorders PATH)
+  => re-apply user_path (brew shellenv prepends Homebrew; in login shells /etc/zprofile's path_helper moved the system dirs in front)
   => config modules in order: aliases, vi-mode, keymaps, options, evals, tty-guard
   => autoload functions from .config/zsh/functions/
   => put .config/zsh/compdefs/ on fpath (compinit picks up their `#compdef` tags)
@@ -30,7 +30,7 @@ This is a zsh dotfiles configuration targeting macOS with Homebrew. Files are de
 
 The sourcing order of config modules matters: later files depend on earlier ones (e.g., keymaps overrides vi-mode bindings, evals runs tool init that needs PATH set up earlier).
 
-- `options.zsh` holds interactive-only env vars (history, `REPOS_DIR`/`STOW_REPO`, eza/tealdeer dirs, `DYLD_FALLBACK_LIBRARY_PATH`, `PROMPT_EOL_MARK`) and the Catppuccin `FZF_DEFAULT_OPTS` / `_ZO_FZF_OPTS`.
+- `options.zsh` holds interactive-only settings (`REPOS_DIR`/`STOW_REPO`, `PROMPT_EOL_MARK`) and the Catppuccin `FZF_DEFAULT_OPTS` / `_ZO_FZF_OPTS`. History settings come from omz's `lib/history.zsh`.
 - `evals.zsh` runs tool init via `_evalcache`: zoxide, atuin, and `wt` (worktrunk); zsh-patina (syntax highlighter) is a plain `eval` because evalcache is unreliable for it.
 - `tty-guard.zsh` is a `sched`-driven self-heal for the tty being put back into cooked mode while zle is reading the line (Node.js restores its startup termios on exit, even from a background process group): one `stty -g` per idle 2s tick, an empty `zle -M` to force `zsetterm` when icanon/echo are set.
 
@@ -40,8 +40,12 @@ Plugins are declared in `.zplugins` and managed by **Antidote**. Antidote static
 
 ### Performance Patterns
 
-- **evalcache**: A small local `_evalcache` in `plugins.zsh` wraps expensive `eval "$(command)"` calls (brew shellenv, zoxide, atuin, wt); output cached and zcompiled in `~/.cache/.zsh-evalcache/`, invalidated by deleting the cache file.
-- **mise**: not activated at runtime — it runs purely via shims prepended to `PATH` in `.zshenv`.
+- **evalcache**: A small local `_evalcache` in `plugins.zsh` wraps expensive `eval "$(command)"` calls (brew shellenv, zoxide, atuin, wt); output cached and zcompiled in `~/.cache/.zsh-evalcache/`, invalidated by `_evalcache_clear` (`yay` and `build` call it after updating tools).
+- **mise**: not activated at runtime; it runs purely via shims prepended to `PATH` in `.zshenv`. A shim costs ~50ms per call (~90ms for a tool installed in mise but inactive in the current directory, e.g. claudecode.nvim's pinned fzf/neovim outside that project), so hot paths bypass it:
+  - `build` installs into `~/.local/opt/bin` (`CARGO_INSTALL_ROOT`/`GOBIN`), which `user_path` puts ahead of the mise shims. Left in the toolchains' own dirs (`~/.cargo/bin`, mise's versioned go bin), atuin would pay the shim cost at every startup and before every command.
+  - fzf-tab runs `/opt/homebrew/bin/fzf` directly (`fzf-command` zstyle).
+- **use-omz startup forks**: `plugins.zsh` presets `$ZSH` (otherwise a `$(antidote path ...)` subshell, ~15ms) and exports `SHORT_HOST` so child shells skip use-omz's `scutil` fork.
+- **zsh-autosuggestions**: `ZSH_AUTOSUGGEST_MANUAL_REBIND` wraps the widgets once, when the plugin loads, instead of re-binding ~600 of them every precmd. `.zplugins` must therefore load it after every other widget-defining plugin (fzf-tab), since zsh-defer runs the precmd hooks after each deferred plugin.
 - **zcompile**: `.zshrc` is precompiled to bytecode in `.zshenv`. Manual recompile: `compz` alias.
 - **Autoload**: Functions in `.config/zsh/functions/` are registered via `autoload -Uz` and only loaded on first call.
 - **Antidote zcompile**: All bundled plugins are zcompiled (`zstyle ':antidote:bundle:*' zcompile 'yes'`).
@@ -55,7 +59,7 @@ profile               # Profile zsh startup time
 compz                 # Recompile .zshrc to bytecode
 sync-dots zsh         # Deploy zsh config via stow
 yay                   # Update all package managers (brew, antidote, mise, tpm)
-build <target>        # Build a local tool from source (atuin, eza, lazygit, television, tmux, worktrunk)
+build <target>        # Build a local tool from source into ~/.local/opt/bin (atuin, eza, lazygit, television, worktrunk; tmux goes to /usr/local)
 cts                   # Toggle git skip-worktree on claude-code settings.json (model/effort churn)
 ff                    # fastfetch with buffered output
 ```
@@ -69,7 +73,7 @@ ff                    # fastfetch with buffered output
   - Goes **stale**, since the file count is unchanged: renaming a compdef file, or editing its `#compdef` line. The old command keeps resolving to a function file that no longer exists. Same for same-count renames in third-party `fpath` dirs (homebrew site-functions, `$ZSH_CACHE_DIR/completions`).
   - Fix: `rm $ZSH_COMPDUMP $ZSH_COMPDUMP.zwc`, then start a new shell.
 - Aliases for non-interactive shells go in `.zshenv`; all others go in `.config/zsh/aliases.zsh`.
-- Interactive env vars / history / fzf options go in `.config/zsh/options.zsh`. Tool init (`zoxide`, `atuin`, `wt`, `zsh-patina`) goes in `.config/zsh/evals.zsh`.
-- Plugin configuration (zstyles, env vars) goes in `.config/zsh/plugins.zsh`, before the bundle is sourced. Overrides that wrap a plugin function (e.g. `omz_termsupport_cwd`) go after it, since the original must already exist to be copied.
+- Interactive env vars / history overrides / fzf options go in `.config/zsh/options.zsh`. Tool init (`zoxide`, `atuin`, `wt`, `zsh-patina`) goes in `.config/zsh/evals.zsh`.
+- Plugin configuration (zstyles, env vars) goes in `.config/zsh/plugins.zsh`, before the bundle is sourced. Overrides of what the bundle itself sets go after it: wrappers of a plugin function (e.g. `omz_termsupport_cwd`, since the original must already exist to be copied) and zstyles omz sets under a more specific pattern (e.g. its `':completion:*:*:*:*:*' menu select`, which outranks any `':completion:*'` style).
 - Color theme is **Catppuccin Mocha** throughout (fzf, zsh-patina syntax highlighting, eza, etc.).
 - Paths assume Homebrew at `/opt/homebrew/`.

@@ -19,21 +19,19 @@ __zsh_config_dir=$XDG_CONFIG_HOME/zsh
 source $__zsh_config_dir/plugins.zsh
 _evalcache /opt/homebrew/bin/brew shellenv
 
-# Restore shims precedence so same-name wrappers win over Homebrew binaries
-path=($shim_paths $path)
+# Re-apply .zshenv's PATH order: brew shellenv prepends Homebrew, and login
+# shells ran /etc/zprofile's path_helper, which moved the system dirs in front
+path=($user_path $path)
 
 # Load configuration files, order matters
 for cfg in aliases vi-mode keymaps options evals tty-guard; do
   source $__zsh_config_dir/$cfg.zsh
 done
 
-# Autoload util functions when needed
-functions_dir=$__zsh_config_dir/functions
-fpath=($functions_dir $fpath)
-autoload -Uz $functions_dir/*(.N:t)
-
-# Custom completions, picked up by compinit via their `#compdef` tag
-fpath=($__zsh_config_dir/compdefs $fpath)
+# Autoload util functions when needed; compinit picks up the custom completions
+# in compdefs/ via their `#compdef` tag
+fpath=($__zsh_config_dir/{compdefs,functions} $fpath)
+autoload -Uz $__zsh_config_dir/functions/*(.N:t)
 
 if [[ -n "$ZSH_DEBUGRC" ]]; then
   zprof

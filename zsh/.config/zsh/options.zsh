@@ -1,24 +1,13 @@
 # [[ Settings ENV variables that are not needed outside interactive shells ]]
-
-export HISTFILE=~/.zsh_history
-export HISTSIZE=10000
-export SAVEHIST=10000
-setopt appendhistory sharehistory
+# History settings come from omz's lib/history.zsh
 
 export REPOS_DIR="$HOME/Repositories/personal"
 export STOW_REPO="$REPOS_DIR/dotfiles"
-export TEALDEER_CONFIG_DIR="$XDG_CONFIG_HOME/tealdeer"
-export EZA_CONFIG_DIR="$XDG_CONFIG_HOME/eza"
-unset EZA_COLORS LS_COLORS # Centralize eza theme config
+unset EZA_COLORS LS_COLORS # Centralize eza theme config (EZA_CONFIG_DIR, set in .zshenv)
 
-# Make sure ImageMagick work properly in image.nvim
-# Tied unique array keeps re-sourcing in nested shells from growing the list
-typeset -TUx DYLD_FALLBACK_LIBRARY_PATH dyld_fallback_library_path
-dyld_fallback_library_path=(/opt/homebrew/lib $dyld_fallback_library_path)
-
-# Prevent the dollar sign at the start when restoring sessions with tmux-resurrect
+# Don't mark output that lacks a trailing newline with a highlighted %
 # https://unix.stackexchange.com/questions/167582/why-zsh-ends-a-line-with-a-highlighted-percent-symbol
-export PROMPT_EOL_MARK=''
+PROMPT_EOL_MARK=''
 
 # FZF Catppuccin Mocha color
 export FZF_DEFAULT_OPTS=" \
@@ -31,7 +20,6 @@ export FZF_DEFAULT_OPTS=" \
 --bind page-up:preview-half-page-up \
 --bind page-down:preview-half-page-down \
 --bind esc:abort \
---border-label ' Completions ' \
 --multi"
 
 # Zoxide specific options
