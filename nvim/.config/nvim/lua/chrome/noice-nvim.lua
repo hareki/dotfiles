@@ -1,5 +1,3 @@
-local dropbar_timer
-
 return {
   UI.catppuccin(function(palette)
     return {
@@ -145,37 +143,6 @@ return {
               end,
             },
             opts = {}, -- No view: this route never displays, it only mutates the message
-          },
-
-          -- Refresh dropbar when LSP progress completes
-          {
-            filter = {
-              event = 'lsp',
-              kind = 'progress',
-              cond = function(message)
-                local progress = message.opts.progress or {}
-                if progress.kind == 'end' then
-                  if not dropbar_timer then
-                    dropbar_timer = vim.uv.new_timer()
-                  end
-
-                  if dropbar_timer then
-                    dropbar_timer:stop()
-                    dropbar_timer:start(
-                      100,
-                      0,
-                      vim.schedule_wrap(function()
-                        local dropbar_bar = require('dropbar.utils.bar')
-                        dropbar_bar.exec('update')
-                      end)
-                    )
-                  end
-                end
-
-                return false -- Don't match the condition for "opts"
-              end,
-            },
-            opts = {}, -- Don't do anything, just use this as a hook to refresh dropbar
           },
         },
       }

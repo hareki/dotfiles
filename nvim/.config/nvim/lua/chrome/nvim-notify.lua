@@ -78,19 +78,14 @@ return {
 
     opts = function()
       local title_key = 'notify_title_with_hl'
-      local max_size = Conf.size.inline_popup.MAX_HEIGHT
 
       return {
         stages = 'static',
         timeout = 2000,
         merge_duplicates = true,
 
-        max_height = function()
-          return math.floor(vim.o.lines * max_size)
-        end,
-        max_width = function()
-          return math.floor(vim.o.columns * max_size)
-        end,
+        max_height = UI.layout.inline_max_height,
+        max_width = UI.layout.inline_max_width,
 
         on_open = function(win)
           local buf = vim.api.nvim_win_get_buf(win)
@@ -117,12 +112,10 @@ return {
 
           -- Set title on duplicate notifications
           for _, win in ipairs(vim.fn.win_findbuf(bufnr)) do
-            if vim.api.nvim_win_is_valid(win) then
-              vim.api.nvim_win_set_config(win, {
-                title = title_with_hl,
-                title_pos = 'center',
-              })
-            end
+            vim.api.nvim_win_set_config(win, {
+              title = title_with_hl,
+              title_pos = 'center',
+            })
           end
 
           -- Set notification content; body coloring comes from the window's

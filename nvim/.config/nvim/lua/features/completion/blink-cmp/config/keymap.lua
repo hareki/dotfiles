@@ -80,8 +80,7 @@ M.cmdline = {
     -- https://github.com/neovim/neovim/issues/21585
     function()
       -- Feed <C-c> to cancel the command line instead
-      local keys = vim.api.nvim_replace_termcodes('<C-c>', true, false, true)
-      vim.api.nvim_feedkeys(keys, 'n', false)
+      vim.api.nvim_feedkeys(vim.keycode('<C-c>'), 'n', false)
 
       return true
     end,

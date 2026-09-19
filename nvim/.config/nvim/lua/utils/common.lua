@@ -64,18 +64,36 @@ function M.focus_win(win)
   return true
 end
 
---- Count the number of string keys in a table (ignores numeric keys)
---- @param t table The table to count string keys in
---- @return integer count The number of keys with type 'string'
-function M.count_string_keys(t)
-  local n = 0
-  for k in pairs(t) do
-    if type(k) == 'string' then
-      n = n + 1
-    end
+--- Snapshot a buffer's own mapping, in the maparg() form restore_buf_keymap reinstates
+--- @param buf integer
+--- @param mode string
+--- @param lhs string
+--- @return table | nil map nil when the buffer is invalid or has no buffer-local mapping for lhs
+function M.get_buf_keymap(buf, mode, lhs)
+  if not vim.api.nvim_buf_is_valid(buf) then
+    return nil
   end
 
-  return n
+  return vim.api.nvim_buf_call(buf, function()
+    local map = vim.fn.maparg(lhs, mode, false, true)
+    return map.buffer == 1 and map or nil
+  end)
+end
+
+--- Reinstate a mapping captured by get_buf_keymap; mapset() keeps its Lua
+--- callback, desc and flags intact
+--- @param buf integer
+--- @param mode string
+--- @param map table
+--- @return nil
+function M.restore_buf_keymap(buf, mode, map)
+  if not vim.api.nvim_buf_is_valid(buf) then
+    return
+  end
+
+  vim.api.nvim_buf_call(buf, function()
+    vim.fn.mapset(mode, false, map)
+  end)
 end
 
 return M

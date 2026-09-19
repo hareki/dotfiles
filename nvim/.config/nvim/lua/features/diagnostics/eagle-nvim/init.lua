@@ -9,8 +9,6 @@ return {
     'hareki/eagle.nvim',
     cmd = { 'EagleWin', 'EagleWinLineDiagnostic' },
     opts = function()
-      local max_size = Conf.size.inline_popup.MAX_HEIGHT
-
       return {
         order = 3, -- LSP info comes first
         show_headers = false,
@@ -19,12 +17,8 @@ return {
 
         window = {
           border = 'rounded',
-          max_height = function()
-            return math.floor(vim.o.lines * max_size)
-          end,
-          max_width = function()
-            return math.floor(vim.o.columns * max_size)
-          end,
+          max_height = UI.layout.inline_max_height,
+          max_width = UI.layout.inline_max_width,
         },
 
         source_formatters = {

@@ -18,8 +18,7 @@ function M.keymap_format(item, _picker, width)
     lhs = 15,
     mode = 1,
   }
-  local common = require('utils.common')
-  local col_count = common.count_string_keys(col_width)
+  local col_count = vim.tbl_count(col_width)
 
   local desc_width = width
     - col_width.icon
@@ -75,8 +74,7 @@ function M.buffer_format(item, picker)
     })
   end
 
-  local bufnr = item.buf or item.bufnr or (item.item and item.item.bufnr)
-  if bufnr and vim.bo[bufnr].modified then
+  if item.buf and vim.bo[item.buf].modified then
     ret[#ret + 1] = { Conf.icons.file_status.MODIFIED, 'ModifiedIndicator' }
   end
 

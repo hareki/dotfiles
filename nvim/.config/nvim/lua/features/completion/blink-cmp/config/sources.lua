@@ -3,9 +3,9 @@ local M = {}
 
 local utils = require('features.completion.blink-cmp.utils')
 
-local history = utils.register_kind('History')
-local spell = utils.register_kind('Spell')
-local render_markdown = utils.register_kind('RenderMD')
+local history = utils.custom_kind('History')
+local spell = utils.custom_kind('Spell')
+local render_markdown = utils.custom_kind('RenderMD')
 
 local extra_words_path = vim.fn.stdpath('config') .. '/lua/features/completion/blink-cmp/words'
 local word_paths = {
@@ -99,7 +99,6 @@ M.default = {
     },
 
     cmdline = {
-      min_keyword_length = utils.cmdline_min_keyword_length(0),
       max_items = 9,
     },
 
@@ -108,7 +107,6 @@ M.default = {
       name = 'cmdline_history',
       module = 'blink.compat.source',
       max_items = 9,
-      min_keyword_length = utils.cmdline_min_keyword_length(0),
       transform_items = history.transform_items,
     },
 

@@ -5,11 +5,12 @@
 local function preview_geometry()
   local preview_cols, preview_rows = UI.layout.side_size('side_preview', 'md')
   local panel_cols, _ = UI.layout.side_size('side_panel', 'md')
+  local _, row = UI.layout.center(preview_cols, preview_rows)
 
   return {
     window_creation_command = panel_cols .. 'vsplit',
     preview_window = {
-      row = math.floor((vim.o.lines - preview_rows) / 2) - 1,
+      row = row,
       col = -preview_cols - 3,
       title = Conf.picker.PREVIEW_TITLE,
       title_pos = 'center',
@@ -52,7 +53,7 @@ return {
             windowCreationCommand = geometry.window_creation_command,
             previewWindow = geometry.preview_window,
             prefills = {
-              filesFilter = ext and ext ~= '' and '*.' .. ext or nil,
+              filesFilter = ext and '*.' .. ext or nil,
             },
           })
         end,

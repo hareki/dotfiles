@@ -29,24 +29,4 @@ function M.on_load(name, fn)
   end
 end
 
---- Get a plugin spec from lazy.nvim by name
---- @param name string The plugin name
---- @return table | nil plugin The plugin spec or nil if not found
-function M.get_plugin(name)
-  local lazy_config = require('lazy.core.config')
-  return lazy_config.spec.plugins[name]
-end
-
---- Get the resolved opts for a lazy.nvim plugin
---- @param name string The plugin name
---- @return table opts The merged options table (empty table if plugin not found)
-function M.opts(name)
-  local plugin = M.get_plugin(name)
-  if not plugin then
-    return {}
-  end
-  local lazy_plugin = require('lazy.core.plugin')
-  return lazy_plugin.values(plugin, 'opts', false)
-end
-
 return M

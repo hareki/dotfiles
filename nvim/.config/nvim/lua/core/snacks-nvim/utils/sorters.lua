@@ -8,19 +8,14 @@ local M = {}
 function M.buffer_sort(a, b)
   -- Safely get modified state with pcall to handle fast event context
   local function get_modified(bufnr)
-    if not bufnr then
-      return false
-    end
     local ok, modified = pcall(function()
       return vim.bo[bufnr].modified
     end)
     return ok and modified or false
   end
 
-  local a_bufnr = a.buf or a.bufnr or (a.item and a.item.bufnr)
-  local b_bufnr = b.buf or b.bufnr or (b.item and b.item.bufnr)
-  local a_modified = get_modified(a_bufnr)
-  local b_modified = get_modified(b_bufnr)
+  local a_modified = get_modified(a.buf)
+  local b_modified = get_modified(b.buf)
 
   -- Modified buffers first
   if a_modified ~= b_modified then

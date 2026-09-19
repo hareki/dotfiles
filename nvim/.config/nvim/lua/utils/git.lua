@@ -105,32 +105,6 @@ function M.format_branch_name(branch_name)
   return memoize(result)
 end
 
---- Execute a git command synchronously and return trimmed output
---- @param cmd string The git command to execute (without 'git' prefix)
---- @param cwd string | nil The directory to run the command in (default: current)
---- @return string | nil output Trimmed stdout, or nil on error
-function M.exec_cmd(cmd, cwd)
-  local args = vim.split(cmd, '%s+')
-  local git_cmd = { 'git' }
-
-  if cwd then
-    vim.list_extend(git_cmd, { '-C', cwd })
-  end
-
-  vim.list_extend(git_cmd, args)
-
-  local result = vim.system(git_cmd, { text = true }):wait()
-
-  if result.code == 0 and result.stdout and result.stdout ~= '' then
-    -- Trim whitespace and newlines
-    local trimmed = result.stdout:gsub('%s+$', ''):gsub('^%s+', '')
-
-    return trimmed
-  end
-
-  return nil
-end
-
 --- Execute a git command asynchronously and pass trimmed output to a callback
 --- The callback is dispatched via `vim.schedule`, so it always runs on the
 --- main loop and may safely touch vim APIs and module state.
@@ -151,8 +125,7 @@ function M.exec_cmd_async(cmd, cwd, cb)
   vim.system(git_cmd, { text = true }, function(result)
     vim.schedule(function()
       if result.code == 0 and result.stdout and result.stdout ~= '' then
-        local trimmed = result.stdout:gsub('%s+$', ''):gsub('^%s+', '')
-        cb(trimmed)
+        cb(vim.trim(result.stdout))
       else
         cb(nil)
       end
@@ -173,25 +146,6 @@ local function repo_name_from_url(url)
   url = url:gsub('%.git$', '')
 
   return url:match('([^/]+)$')
-end
-
---- Get the repository name from the git remote origin URL
---- Strips .git suffix and extracts the last path component.
---- @return string | nil name The repository name, or nil if not found
-function M.get_repo_name_from_remote()
-  return repo_name_from_url(M.exec_cmd('config --get remote.origin.url'))
-end
-
---- Check if a directory is a bare Git repository
---- @param path string The directory path to check
---- @return boolean is_bare True if the directory is a bare repository
-function M.is_bare_repo(path)
-  if not path then
-    return false
-  end
-  local result = M.exec_cmd('rev-parse --is-bare-repository', path)
-
-  return result == 'true'
 end
 
 --- Extract the repository name from a filesystem path
@@ -273,7 +227,7 @@ local function resolve_repo_name(cwd)
           end
         end
 
-        finish(M.get_repo_name_from_path(cwd or '') or 'Unknown', toplevel)
+        finish(M.get_repo_name_from_path(cwd) or 'Unknown', toplevel)
       end
 
       -- Step 2: Determine if the parent of the top-level directory is a bare
@@ -339,73 +293,6 @@ function M.get_repo_name()
   end)
 
   return placeholder
-end
-
---- Get the commit hash of the last commit affecting the current cursor line
---- Uses git log -L to find the commit that last modified this line.
---- @return string | nil hash The commit hash, or nil if not found or not in a git repo
-function M.get_current_line_commit()
-  --- @type integer
-  local line = vim.api.nvim_win_get_cursor(0)[1]
-
-  --- @type string
-  local file = vim.api.nvim_buf_get_name(0)
-
-  --- @type string | nil
-  local root = Snacks.git.get_root()
-  if not root then
-    Notifier.error('Not inside a Git repository')
-    return nil
-  end
-
-  local path_utils = require('utils.path')
-  local relative_file = path_utils.get_relative_path(file, root)
-
-  --- @type string[]
-  local cmd = {
-    'git',
-    '-C',
-    root,
-    'log',
-    '-n',
-    '1',
-    '-L',
-    string.format('%d,%d:%s', line, line, relative_file),
-  }
-
-  local res = vim.system(cmd, { text = true }):wait()
-  if not res or res.code ~= 0 then
-    Notifier.error('Git command failed. Ensure the file is tracked and has sufficient history.')
-    return nil
-  end
-
-  local output = vim.split((res.stdout or ''):gsub('\n$', ''), '\n')
-
-  --- @type string | nil
-  local current_commit = nil
-  for _, out_line in ipairs(output) do
-    current_commit = out_line:match('^commit%s+([0-9a-f]+)')
-    if current_commit then
-      break
-    end
-  end
-
-  return current_commit
-end
-
---- Open CodeDiff to compare a commit with its parent
---- If no commit is provided, shows current staged/unstaged changes.
---- @param commit? string The commit hash or reference to compare
---- @return nil
-function M.diff_parent(commit)
-  if not commit or commit == '' then
-    -- No commit provided, show the current changes (both staged and unstaged) compared with the last commit
-    vim.cmd.CodeDiff()
-  else
-    -- Compare the commit against its parent. codediff takes two positional
-    -- revisions (it does not parse two-dot ranges), so pass commit~1 and commit.
-    vim.cmd.CodeDiff({ args = { commit .. '~1', commit } })
-  end
 end
 
 return M

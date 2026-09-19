@@ -12,6 +12,10 @@ return {
 
       GitConflictIncomingLabel = { bg = extension.conflict_incoming_label, fg = palette.text },
       GitConflictIncoming = { bg = extension.conflict_incoming },
+
+      -- Targets of the conflict window's 'winhighlight' redirect (see config)
+      GitConflictDocumentHighlight = { bg = extension.surface15 },
+      GitConflictBlame = { fg = palette.subtext0 },
     }
   end),
 
@@ -19,12 +23,13 @@ return {
     'hareki/git-conflict.nvim',
     event = { 'BufReadPost', 'BufNewFile' },
     opts = function()
-      local utils = require('features.git.git-conflict-nvim.utils')
+      local codediff_utils = require('features.git.codediff-nvim.utils')
       return {
         default_mappings = false,
         default_commands = false,
+        -- Stay dormant in codediff tabs, which have their own 3-way merge UI
         cond = function()
-          return not utils.in_codediff_tab()
+          return not codediff_utils.is_codediff_tab(vim.api.nvim_get_current_tabpage())
         end,
       }
     end,
@@ -33,10 +38,8 @@ return {
       local plugin = require('git-conflict')
       plugin.setup(opts)
 
-      local color = UI.catppuccin.get_palette('ext')
       local utils = require('features.git.git-conflict-nvim.utils')
       local package_utils = require('utils.package')
-      local palette = UI.catppuccin.get_palette()
       local group = vim.api.nvim_create_augroup('git.git-conflict.keymaps', { clear = true })
 
       -- Debounce window for the cursor-in-conflict scan. The scan walks up to
@@ -51,8 +54,6 @@ return {
       -- namespace set, winhighlight redirects in OTHER plugins (e.g.
       -- nvim-tree's picker remapping StatusLine -> NvimTreeWindowPicker)
       -- fail to fall back to global definitions and render with defaults.
-      vim.api.nvim_set_hl(0, 'GitConflictDocumentHighlight', { bg = color.surface15 })
-      vim.api.nvim_set_hl(0, 'GitConflictBlame', { fg = palette.subtext0 })
       local conflict_winhl = table.concat({
         'DocumentHighlight:GitConflictDocumentHighlight',
         'GitSignsCurrentLineBlame:GitConflictBlame',
@@ -67,7 +68,7 @@ return {
         { lhs = ']x', rhs = '<Plug>(git-conflict-next-conflict)', desc = 'Next Conflict' },
       }
 
-      --- @type table<integer, { autocmd_id: integer, in_conflict: boolean, timer: uv.uv_timer_t? }>
+      --- @type table<integer, { autocmd_id: integer, timer: uv.uv_timer_t? }>
       local buf_state = {}
 
       local function cleanup_buf(bufnr)
@@ -77,12 +78,7 @@ return {
         end
         pcall(vim.api.nvim_del_autocmd, state.autocmd_id)
 
-        if state.timer then
-          state.timer:stop()
-          if not state.timer:is_closing() then
-            state.timer:close()
-          end
-        end
+        Snacks.util.stop(state.timer)
         buf_state[bufnr] = nil
       end
 
@@ -118,13 +114,10 @@ return {
             if vim.api.nvim_get_current_buf() ~= bufnr then
               return
             end
-            local current = buf_state[bufnr]
-            if not current then
+            if not buf_state[bufnr] then
               return
             end
-            local in_conflict = utils.cursor_in_conflict()
-            current.in_conflict = in_conflict
-            apply_window_winhl(vim.api.nvim_get_current_win(), in_conflict)
+            apply_window_winhl(vim.api.nvim_get_current_win(), utils.cursor_in_conflict())
           end)
         )
       end
@@ -205,16 +198,13 @@ return {
                   return
                 end
 
-                local in_conflict = utils.cursor_in_conflict()
-                state.in_conflict = in_conflict
-                apply_window_winhl(vim.api.nvim_get_current_win(), in_conflict)
+                apply_window_winhl(vim.api.nvim_get_current_win(), utils.cursor_in_conflict())
               end,
             }
           )
 
           buf_state[bufnr] = {
             autocmd_id = autocmd_id,
-            in_conflict = false,
           }
         end,
       })
@@ -233,33 +223,31 @@ return {
         pattern = 'GitConflictResolved',
         callback = function(event)
           local bufnr = event.data.buf
+          cleanup_buf(bufnr)
 
-          if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
-            for _, map in ipairs(keymaps) do
-              pcall(vim.keymap.del, 'n', map.lhs, { buffer = bufnr })
-            end
+          if not vim.api.nvim_buf_is_valid(bufnr) then
+            return
           end
 
-          if bufnr then
-            cleanup_buf(bufnr)
+          for _, map in ipairs(keymaps) do
+            pcall(vim.keymap.del, 'n', map.lhs, { buffer = bufnr })
           end
 
-          if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
-            -- Resolved fires on every parse (with default_mappings = false the
-            -- fork's mappings flag is never set), so only undo what Detected did
-            local was_conflicted = vim.b[bufnr].git_conflict
-            vim.b[bufnr].git_conflict = nil
+          -- Resolved fires on every parse (with default_mappings = false the
+          -- fork's mappings flag is never set), so only undo what Detected did
+          local was_conflicted = vim.b[bufnr].git_conflict
+          vim.b[bufnr].git_conflict = nil
+          if not was_conflicted then
+            return
+          end
 
-            if was_conflicted then
-              if package_utils.is_loaded('nvim-colorizer.lua') then
-                colorizer.attach_to_buffer(bufnr)
-              end
-              vim.diagnostic.enable(true, { bufnr = bufnr })
+          if package_utils.is_loaded('nvim-colorizer.lua') then
+            colorizer.attach_to_buffer(bufnr)
+          end
+          vim.diagnostic.enable(true, { bufnr = bufnr })
 
-              for _, win in ipairs(vim.fn.win_findbuf(bufnr)) do
-                vim.wo[win].winhighlight = ''
-              end
-            end
+          for _, win in ipairs(vim.fn.win_findbuf(bufnr)) do
+            vim.wo[win].winhighlight = ''
           end
         end,
       })

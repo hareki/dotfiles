@@ -6,6 +6,23 @@ local selected = {}
 -- tabpage -> winsaveview() of the modified pane (the working file)
 local views = {}
 
+--- Whether the tabpage hosts a codediff diff/merge session
+--- @param tabpage integer
+--- @return boolean
+function M.is_codediff_tab(tabpage)
+  -- codediff is lazy (cmd = 'CodeDiff'); requiring its module before it loads
+  -- would force-load the whole plugin from every caller (statusline redraws,
+  -- git-conflict scans). When it isn't loaded there are no sessions, so bail
+  -- without touching it.
+  local package_utils = require('utils.package')
+  if not package_utils.is_loaded('codediff.nvim') then
+    return false
+  end
+
+  local lifecycle = require('codediff.ui.lifecycle')
+  return lifecycle.get_session(tabpage) ~= nil
+end
+
 --- Save the modified pane's view; it maps 1:1 to the working file's lines.
 --- @param tabpage integer
 --- @return table | nil view winsaveview() result, or nil if the pane is gone
@@ -58,8 +75,8 @@ function M.restore_focus(args)
 
   -- git_root is immutable per session; modified_path is not reliably absolute,
   -- so resolve against git_root from the still-alive session.
-  local ok, lifecycle = pcall(require, 'codediff.ui.lifecycle')
-  local ctx = ok and lifecycle.get_git_context(tabpage)
+  local lifecycle = require('codediff.ui.lifecycle')
+  local ctx = lifecycle.get_git_context(tabpage)
   local git_root = ctx and ctx.git_root
   if not git_root then
     return

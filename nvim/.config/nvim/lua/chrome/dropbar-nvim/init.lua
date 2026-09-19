@@ -56,6 +56,31 @@ return {
     opts = function()
       local dropbar_utils = require('chrome.dropbar-nvim.utils')
 
+      -- Static title bars for plugin UI buffers, by filetype
+      local titles = {
+        NvimTree = {
+          icon = Conf.icons.tools.TREE,
+          icon_hl = 'DropBarIconGreen',
+
+          name = ' File Tree',
+          name_hl = 'DropBarKindFileBar',
+        },
+        ['codediff-history'] = {
+          icon = Conf.icons.cmp_kinds.History .. ' ',
+          icon_hl = 'DropBarIconPurple',
+
+          name = 'Diff History',
+          name_hl = 'DropBarKindFileBar',
+        },
+        ['codediff-explorer'] = {
+          icon = Conf.icons.git.DIFF .. ' ',
+          icon_hl = 'DropBarIconYellow',
+
+          name = 'Diff Explorer',
+          name_hl = 'DropBarKindFileBar',
+        },
+      }
+
       return {
         menu = {
           preview = false,
@@ -94,34 +119,9 @@ return {
 
             local sources = require('dropbar.sources')
 
-            if vim.bo[buf].filetype == 'NvimTree' then
-              return dropbar_utils.title_symbol({
-                icon = Conf.icons.tools.TREE,
-                icon_hl = 'DropBarIconGreen',
-
-                name = ' File Tree',
-                name_hl = 'DropBarKindFileBar',
-              })
-            end
-
-            if vim.bo[buf].filetype == 'codediff-history' then
-              return dropbar_utils.title_symbol({
-                icon = Conf.icons.cmp_kinds.History .. ' ',
-                icon_hl = 'DropBarIconPurple',
-
-                name = 'Diff History',
-                name_hl = 'DropBarKindFileBar',
-              })
-            end
-
-            if vim.bo[buf].filetype == 'codediff-explorer' then
-              return dropbar_utils.title_symbol({
-                icon = Conf.icons.git.DIFF .. ' ',
-                icon_hl = 'DropBarIconYellow',
-
-                name = 'Diff Explorer',
-                name_hl = 'DropBarKindFileBar',
-              })
+            local title = titles[vim.bo[buf].filetype]
+            if title then
+              return dropbar_utils.title_symbol(title)
             end
 
             if vim.bo[buf].filetype == 'markdown' then
@@ -133,18 +133,12 @@ return {
 
             local path_item_limit = 5
             local lsp_item_limit = 6
-            local utils = require('dropbar.utils')
 
             local custom_path = {
               get_symbols = function(b, w, cursor)
                 local syms = sources.path.get_symbols(b, w, cursor)
-                local start_idx = math.max(1, #syms - path_item_limit + 1)
-                local sliced = {}
-                if start_idx <= #syms then
-                  for i = start_idx, #syms do
-                    sliced[#sliced + 1] = syms[i]
-                  end
-                end
+                --- @type dropbar_symbol_t[]
+                local sliced = vim.list_slice(syms, math.max(1, #syms - path_item_limit + 1))
                 if #sliced > 0 then
                   -- Set a different highlight group for the last item (the file name) to avoid affecting other places
                   local last = sliced[#sliced]
@@ -156,24 +150,15 @@ return {
               end,
             }
 
-            local lsp_sources = utils.source.fallback({
-              sources.lsp,
-            })
-            local default_lsp_get_symbols = lsp_sources.get_symbols
-
-            lsp_sources.get_symbols = function(...)
-              local symbols = default_lsp_get_symbols(...)
-              local limited = {}
-              local max_i = math.min(#symbols, lsp_item_limit)
-              for i = 1, max_i do
-                limited[i] = symbols[i]
-              end
-              return limited
-            end
+            local custom_lsp = {
+              get_symbols = function(b, w, cursor)
+                return vim.list_slice(sources.lsp.get_symbols(b, w, cursor), 1, lsp_item_limit)
+              end,
+            }
 
             return {
               custom_path,
-              lsp_sources,
+              custom_lsp,
             }
           end,
         },

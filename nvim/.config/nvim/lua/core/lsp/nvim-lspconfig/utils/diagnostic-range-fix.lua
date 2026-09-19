@@ -57,9 +57,7 @@ local function fix_diagnostic_range(line, diagnostic)
     diagnostic.end_lnum = fixed.end_line
   end
 
-  local lsp_range = diagnostic.user_data
-    and diagnostic.user_data.lsp
-    and diagnostic.user_data.lsp.range
+  local lsp_range = vim.tbl_get(diagnostic, 'user_data', 'lsp', 'range')
 
   -- Fix LSP range if present
   if lsp_range then

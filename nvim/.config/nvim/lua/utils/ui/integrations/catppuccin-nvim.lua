@@ -1,3 +1,5 @@
+local color = require('utils.ui.color')
+
 --- @alias utils.ui.catppuccin.Palette { rosewater: string, flamingo: string, pink: string, mauve: string, red: string, maroon: string, peach: string, yellow: string, green: string, teal: string, sky: string, sapphire: string, blue: string, lavender: string, text: string, subtext1: string, subtext0: string, overlay2: string, overlay1: string, overlay0: string, surface2: string, surface1: string, surface0: string, base: string, mantle: string, crust: string }
 
 --- @class utils.ui.catppuccin.Ext
@@ -52,9 +54,7 @@ end
 --- Apply a register's highlights directly, bypassing catppuccin's custom_highlights pipeline
 --- @param register utils.ui.catppuccin.Register
 local function apply(register)
-  for group, hl in pairs(resolve(register)) do
-    vim.api.nvim_set_hl(0, group, hl)
-  end
+  color.highlights(resolve(register))
 end
 
 --- Registers already applied via nvim_set_hl (their plugin loaded)

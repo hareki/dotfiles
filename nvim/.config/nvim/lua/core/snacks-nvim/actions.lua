@@ -16,22 +16,30 @@ function M.toggle_preview(picker)
   end
 end
 
---- Create a scroll action that moves the list by half a page
+--- Move the list by half a page
+--- @param picker snacks.Picker
 --- @param direction 'up' | 'down' The scroll direction
---- @return fun(picker: snacks.Picker): nil action The scroll action function
-function M.scroll_half_page(direction)
-  return function(picker)
-    local list_win = picker.layout.opts.wins.list.win
-    if list_win == nil then
-      error("Can't scroll picker list: no list window found")
-    end
-
-    local h = vim.api.nvim_win_get_height(list_win)
-    local row = vim.api.nvim_win_get_cursor(list_win)[1]
-    local target_row = row + (math.max(1, math.floor(h / 2))) * (direction == 'up' and -1 or 1)
-    local idx = picker.list:row2idx(target_row)
-    picker.list:_move(idx, true, true)
+local function scroll_half_page(picker, direction)
+  local list_win = picker.layout.opts.wins.list.win
+  if list_win == nil then
+    error("Can't scroll picker list: no list window found")
   end
+
+  local h = vim.api.nvim_win_get_height(list_win)
+  local row = vim.api.nvim_win_get_cursor(list_win)[1]
+  local target_row = row + (math.max(1, math.floor(h / 2))) * (direction == 'up' and -1 or 1)
+  local idx = picker.list:row2idx(target_row)
+  picker.list:_move(idx, true, true)
+end
+
+--- @param picker snacks.Picker
+function M.list_half_page_down(picker)
+  scroll_half_page(picker, 'down')
+end
+
+--- @param picker snacks.Picker
+function M.list_half_page_up(picker)
+  scroll_half_page(picker, 'up')
 end
 
 --- Toggle focus between the picker input and preview window
@@ -61,28 +69,31 @@ function M.toggle_preview_focus(picker)
 end
 
 --- Send picker results to Trouble for persistent viewing
---- Handles todo_comments source specially by opening Trouble's todo view.
 --- @param picker snacks.Picker The picker instance
 --- @return nil
 function M.snacks_to_trouble(picker)
-  if picker.opts.source == 'todo_comments' then
-    local todo_args = { 'todo', 'toggle' }
-    local keywords = picker
-      --- @module "todo-comments"
-      .opts --[[@as snacks.picker.todo.Config]]
-      .keywords
+  local trouble_sources = require('trouble.sources.snacks')
+  trouble_sources.open(picker)
+end
 
-    if keywords and #keywords > 0 then
-      local tags = table.concat(keywords, ',')
-      vim.list_extend(todo_args, { 'filter', '=', '{tag = {' .. tags .. '}}' })
-    end
+--- The todo_comments source's snacks_to_trouble: opens Trouble's own todo view,
+--- filtered to the picker's keywords
+--- @param picker snacks.Picker The picker instance
+--- @return nil
+function M.todo_to_trouble(picker)
+  local todo_args = { 'todo', 'toggle' }
+  local keywords = picker
+    --- @module "todo-comments"
+    .opts --[[@as snacks.picker.todo.Config]]
+    .keywords
 
-    picker:close()
-    vim.cmd.Trouble({ args = todo_args })
-  else
-    local trouble_sources = require('trouble.sources.snacks')
-    trouble_sources.open(picker)
+  if keywords and #keywords > 0 then
+    local tags = table.concat(keywords, ',')
+    vim.list_extend(todo_args, { 'filter', '=', '{tag = {' .. tags .. '}}' })
   end
+
+  picker:close()
+  vim.cmd.Trouble({ args = todo_args })
 end
 
 return M

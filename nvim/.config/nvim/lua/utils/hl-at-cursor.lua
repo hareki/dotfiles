@@ -1,3 +1,4 @@
+local common = require('utils.common')
 local render_markdown_evict = require('utils.render-markdown-evict')
 
 --- @class utils.hl-at-cursor
@@ -7,31 +8,6 @@ local M = {}
 -- time: a second one would otherwise fight the first over the origin buffer's
 -- <Tab>/<Esc> keymaps and orphan the earlier float
 local close_active_popup
-
-local function uniq(list)
-  local seen, out = {}, {}
-  for _, v in ipairs(list) do
-    if not seen[v] then
-      seen[v] = true
-      table.insert(out, v)
-    end
-  end
-
-  return out
-end
-
-local function uniq_ts(entries)
-  local seen, out = {}, {}
-  for _, e in ipairs(entries) do
-    local key = (e[1] or '') .. Conf.icons.misc.ARROW .. (e[2] or '')
-    if not seen[key] then
-      seen[key] = true
-      table.insert(out, e)
-    end
-  end
-
-  return out
-end
 
 --- Walk highlight links to find the terminal group name.
 local function resolve_link(name)
@@ -71,20 +47,13 @@ end
 --- @param col0 integer
 local function collect_treesitter(bufnr, row0, col0)
   local pairs_out = {}
-  if not (vim.treesitter and vim.treesitter.get_captures_at_pos) then
-    return pairs_out
-  end
-
   local ok, caps = pcall(vim.treesitter.get_captures_at_pos, bufnr, row0, col0)
-  if not ok or type(caps) ~= 'table' then
+  if not ok then
     return pairs_out
   end
 
   for _, c in ipairs(caps) do
-    local cap = c.capture or c
-    if type(cap) == 'string' then
-      table.insert(pairs_out, { cap, resolve_link(cap) or cap })
-    end
+    table.insert(pairs_out, { c.capture, resolve_link(c.capture) })
   end
   return pairs_out
 end
@@ -144,7 +113,9 @@ local function build_lines(syntax_groups, ts_pairs, extmark_entries, match_group
   local function emit(title, items, kind)
     table.insert(lines, '**' .. title .. '**')
     if kind == 'ts' then
-      local list = uniq_ts(items)
+      local list = vim.list.unique(items, function(e)
+        return e[1] .. '\0' .. e[2]
+      end)
       if #list == 0 then
         table.insert(lines, 'none')
       else
@@ -153,7 +124,7 @@ local function build_lines(syntax_groups, ts_pairs, extmark_entries, match_group
         end
       end
     else
-      local list = uniq(items)
+      local list = vim.list.unique(items)
       if #list == 0 then
         table.insert(lines, 'none')
       else
@@ -221,27 +192,16 @@ end
 --- Wire popup lifecycle: keymaps, autocmds, focus toggling, cleanup.
 local function attach_lifecycle(buf, win, origin_buf, origin_win)
   local closing = false
-  local ignore_cursor_close = false
   local augroup
+  -- Re-entering origin_win fires CursorMoved even though its cursor never moved
+  local origin_pos = vim.api.nvim_win_get_cursor(origin_win)
 
   -- The popup's <Tab>/<Esc> maps shadow any pre-existing buffer-local ones on
   -- the origin buffer (e.g. nvim-tree's <Tab> preview); snapshot those so
   -- close_popup can restore them instead of deleting them outright
   local saved_maps = {}
-  vim.api.nvim_buf_call(origin_buf, function()
-    for _, lhs in ipairs({ '<Tab>', '<Esc>' }) do
-      local map = vim.fn.maparg(lhs, 'n', false, true)
-      if map.buffer == 1 then
-        saved_maps[lhs] = map
-      end
-    end
-  end)
-
-  local function with_cursor_ignore()
-    ignore_cursor_close = true
-    vim.defer_fn(function()
-      ignore_cursor_close = false
-    end, 20)
+  for _, lhs in ipairs({ '<Tab>', '<Esc>' }) do
+    saved_maps[lhs] = common.get_buf_keymap(origin_buf, 'n', lhs)
   end
 
   local function close_popup()
@@ -258,12 +218,8 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
     end
     pcall(vim.keymap.del, 'n', '<Tab>', { buffer = origin_buf })
     pcall(vim.keymap.del, 'n', '<Esc>', { buffer = origin_buf })
-    if vim.api.nvim_buf_is_valid(origin_buf) then
-      vim.api.nvim_buf_call(origin_buf, function()
-        for _, map in pairs(saved_maps) do
-          vim.fn.mapset('n', false, map)
-        end
-      end)
+    for _, map in pairs(saved_maps) do
+      common.restore_buf_keymap(origin_buf, 'n', map)
     end
     pcall(vim.keymap.del, 'n', '<Tab>', { buffer = buf })
     local ok = true
@@ -281,7 +237,6 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
     if not vim.api.nvim_win_is_valid(win) then
       return
     end
-    with_cursor_ignore()
     vim.api.nvim_set_current_win(win)
   end
 
@@ -290,15 +245,13 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
       close_popup()
       return
     end
-    with_cursor_ignore()
     vim.api.nvim_set_current_win(origin_win)
   end
 
   local function origin_escape()
-    with_cursor_ignore()
     close_popup()
     vim.schedule(function()
-      local esc = vim.api.nvim_replace_termcodes('<Esc>', true, false, true)
+      local esc = vim.keycode('<Esc>')
       -- 'm' (remap) so the global <Esc> mapping (Clear Highlight) runs; the popup's
       -- buffer-local <Esc> is already deleted by close_popup, so this cannot recurse
       vim.api.nvim_feedkeys(esc, 'm', false)
@@ -311,13 +264,13 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
     group = augroup,
     buffer = origin_buf,
     callback = function()
-      if ignore_cursor_close then
-        return
-      end
       if not vim.api.nvim_win_is_valid(win) then
         return
       end
       if vim.api.nvim_get_current_win() ~= origin_win then
+        return
+      end
+      if vim.deep_equal(vim.api.nvim_win_get_cursor(origin_win), origin_pos) then
         return
       end
       close_popup()

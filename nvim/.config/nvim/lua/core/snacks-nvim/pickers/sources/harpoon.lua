@@ -2,9 +2,8 @@
 local M = {}
 
 --- Show the harpoon picker with items from the harpoon list
---- @param user_opts table | nil Optional picker configuration overrides
 --- @return snacks.Picker | nil picker The picker instance, or nil if list is empty
-M.show = function(user_opts)
+M.show = function()
   local harpoon = require('harpoon')
   local formatters = require('core.snacks-nvim.utils.formatters')
 
@@ -35,7 +34,6 @@ M.show = function(user_opts)
           idx = harpoon_idx,
           file = filepath,
           buf = valid_buf and bufnr or nil,
-          bufnr = valid_buf and bufnr or nil,
           name = vim.fs.basename(filepath),
           buftype = valid_buf and vim.bo[bufnr].buftype or '',
           filetype = valid_buf and vim.bo[bufnr].filetype or '',
@@ -57,8 +55,7 @@ M.show = function(user_opts)
   local function harpoon_format(item, picker)
     local ret = {} --- @type snacks.picker.Highlight[]
     local max_harpoon_idx = harpoon:list():length()
-    local harpoon_idx = item.harpoon_idx or item.idx
-    local idx_str = tostring(harpoon_idx)
+    local idx_str = tostring(item.harpoon_idx)
     idx_str = (' '):rep(#tostring(max_harpoon_idx) - #idx_str) .. idx_str
     ret[#ret + 1] = { idx_str .. '.', 'SnacksPickerIdx' }
     ret[#ret + 1] = { ' ' }
@@ -72,13 +69,8 @@ M.show = function(user_opts)
     return
   end
 
-  local opts = vim.tbl_deep_extend('force', {
-    title = 'Pinned Files',
-    items = items,
-    source = 'harpoon',
-    format = harpoon_format,
-  }, user_opts or {})
-
+  -- The statusline refresh after a removal comes from the REMOVE extension that
+  -- the harpoon spec registers, which list:remove_at() emits
   local function remove_harpoon_item(picker)
     local selection = picker:selected({ fallback = true })
     if not selection or not selection[1] then
@@ -89,10 +81,7 @@ M.show = function(user_opts)
       local list = harpoon:list()
       local indices_to_remove = {}
       for _, item in ipairs(selection) do
-        local harpoon_idx = item.harpoon_idx or item.idx
-        if harpoon_idx then
-          table.insert(indices_to_remove, harpoon_idx)
-        end
+        table.insert(indices_to_remove, item.harpoon_idx)
       end
 
       table.sort(indices_to_remove, function(a, b)
@@ -104,26 +93,26 @@ M.show = function(user_opts)
       end
     end)
 
-    local refreshed = build_harpoon_items()
-
-    picker.opts.items = refreshed
+    picker.opts.items = build_harpoon_items()
     picker:refresh()
-
-    local harpoon_component = require('chrome.lualine-nvim.components.harpoon')
-    harpoon_component.invalidate()
-    UI.statusline.refresh()
   end
 
-  opts.actions = opts.actions or {}
-  opts.actions.remove_harpoon_item = remove_harpoon_item
-
-  opts.win = opts.win or {}
-  opts.win.input = opts.win.input or {}
-  opts.win.input.keys = opts.win.input.keys or {}
-  opts.win.input.keys['x'] =
-    { 'remove_harpoon_item', mode = { 'n' }, desc = 'Remove from Pin List' }
-
-  return Snacks.picker(opts)
+  return Snacks.picker({
+    title = 'Pinned Files',
+    items = items,
+    source = 'harpoon',
+    format = harpoon_format,
+    actions = {
+      remove_harpoon_item = remove_harpoon_item,
+    },
+    win = {
+      input = {
+        keys = {
+          ['x'] = { 'remove_harpoon_item', mode = { 'n' }, desc = 'Remove from Pin List' },
+        },
+      },
+    },
+  })
 end
 
 return M

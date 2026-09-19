@@ -1,24 +1,25 @@
 local del = vim.keymap.del
 local map = vim.keymap.set
 
+--- @module 'utils.style-enforcers'
+local style_enforcers = Defer.on_exported_call('utils.style-enforcers')
+
+local function open_line_diagnostics()
+  vim.cmd.EagleWinLineDiagnostic()
+end
+
 local function diagnostic_goto(next, severity)
   local count = next and 1 or -1
   severity = severity and vim.diagnostic.severity[severity] or nil
 
   return function()
-    vim.diagnostic.jump({ severity = severity, float = false, count = count })
-    vim.schedule(function()
-      vim.cmd.EagleWinLineDiagnostic()
-    end)
+    -- on_jump runs scheduled, and only once the jump succeeded
+    vim.diagnostic.jump({ severity = severity, count = count, on_jump = open_line_diagnostics })
   end
 end
 
-local function load_style_enforcers()
-  return require('utils.style-enforcers')
-end
-
 local function scroll_center(motion)
-  local keys = vim.api.nvim_replace_termcodes(motion, true, false, true)
+  local keys = vim.keycode(motion)
   return function()
     -- 'x' executes synchronously so the cursor position is updated before we
     -- decide whether centering is safe; mode (incl. visual) is preserved.
@@ -79,12 +80,12 @@ map('n', '<C-L>', function()
 end, { desc = 'Redraw and Clear Search Highlight' })
 
 map({ 'n', 'i' }, '<A-s>', function()
-  load_style_enforcers().run()
+  style_enforcers.run()
 end, { desc = 'Format and Save' })
 
 map('n', '<leader>F', function()
   -- Still partially save the file when linter is oxlint, see `lua/utils/style-enforcers/oxlint.lua`
-  load_style_enforcers().run({
+  style_enforcers.run({
     save = false,
   })
 end, { desc = 'Format' })
@@ -93,7 +94,7 @@ end, { desc = 'Format' })
 -- Test the keymap Neovim will receive with
 -- :echo keytrans(getcharstr())
 map({ 'n', 'i' }, '<F40>', function()
-  load_style_enforcers().run_all()
+  style_enforcers.run_all()
 end, { desc = 'Format and Save All' })
 
 -- Mapped to Cmd+Shift+W in ghostty config
@@ -156,11 +157,12 @@ map('n', ']B', '<cmd>blast<cr>', { desc = 'Last Buffer' })
 map('n', '[b', '<cmd>bprevious<cr>', { desc = 'Previous Buffer' })
 map('n', '[B', '<cmd>brewind<cr>', { desc = 'First Buffer' })
 
-map({ 'i', 'x', 'n', 's' }, '<A-r>', function()
-  -- Detach LSP clients first so they release the stale buffer, reload the file
-  -- from disk, then start fresh clients against the reloaded contents.
-  vim.cmd.edit({ bang = true })
-end, { desc = 'Reload Current Buffer', silent = true })
+map(
+  { 'i', 'x', 'n', 's' },
+  '<A-r>',
+  '<cmd>edit!<cr>',
+  { desc = 'Reload Current Buffer', silent = true }
+)
 
 map({ 'i', 'x', 'n', 's' }, '<A-w>', function()
   Snacks.bufdelete()

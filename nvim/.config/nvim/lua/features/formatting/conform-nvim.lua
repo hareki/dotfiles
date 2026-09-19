@@ -1,50 +1,34 @@
 return {
   'stevearc/conform.nvim',
   opts = function()
-    local use_prettier = Project.formatter == 'prettier'
+    local opts = {
+      formatters_by_ft = {
+        lua = { 'stylua' },
+        toml = { 'taplo' },
 
-    local formatter_groups = {
-      stylua = {
-        filetypes = { 'lua' },
-        config = { 'stylua' },
-      },
-      taplo = {
-        filetypes = { 'toml' },
-        config = { 'taplo' },
+        -- prettier parses handlebars with Ember's glimmer parser, which rejects the
+        -- Express flavor (blocks inside attributes) and rewrites HTML attribute
+        -- quotes per `singleQuote`; vscode-html-language-server handles it instead
+        -- (see the format settings in core/lsp/nvim-lspconfig/lsp/html.lua)
+        handlebars = { lsp_format = 'fallback' },
       },
     }
 
     -- oxfmt already runs as an LSP server
-    if use_prettier then
-      formatter_groups.prettier = {
-        config = { 'prettier', stop_after_first = true },
-        filetypes = Conf.filetypes.merge(
-          Conf.filetypes.JS_ALL,
-          Conf.filetypes.CSS,
-          { 'html' },
-          Conf.filetypes.ANGULAR,
-          Conf.filetypes.MARKDOWN,
-          Conf.filetypes.JSON,
-          { 'yaml' }
-        ),
-      }
-    end
-
-    local formatters_by_ft = {}
-    for _, group in pairs(formatter_groups) do
-      for _, ft in ipairs(group.filetypes) do
-        formatters_by_ft[ft] = group.config
+    if Project.formatter == 'prettier' then
+      local prettier_filetypes = Conf.filetypes.merge(
+        Conf.filetypes.JS_ALL,
+        Conf.filetypes.CSS,
+        { 'html' },
+        Conf.filetypes.ANGULAR,
+        Conf.filetypes.MARKDOWN,
+        Conf.filetypes.JSON,
+        { 'yaml' }
+      )
+      for _, ft in ipairs(prettier_filetypes) do
+        opts.formatters_by_ft[ft] = { 'prettier' }
       end
-    end
 
-    -- prettier parses handlebars with Ember's glimmer parser, which rejects the
-    -- Express flavor (blocks inside attributes) and rewrites HTML attribute
-    -- quotes per `singleQuote`; vscode-html-language-server handles it instead
-    -- (see the format settings in core/lsp/nvim-lspconfig/lsp/html.lua)
-    formatters_by_ft.handlebars = { lsp_format = 'fallback' }
-
-    local opts = { formatters_by_ft = formatters_by_ft }
-    if use_prettier then
       -- prettier infers the angular parser only for *.component.html; Angular 20
       -- style templates (app.html) would fall back to the html parser, which
       -- mangles @if/@for control flow blocks
@@ -52,6 +36,7 @@ return {
         prettier = { options = { ft_parsers = { htmlangular = 'angular' } } },
       }
     end
+
     return opts
   end,
 }

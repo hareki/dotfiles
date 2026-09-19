@@ -66,7 +66,7 @@ return {
     vim.keymap.set('x', '.', function()
       if last_obj then
         vim.api.nvim_feedkeys(
-          vim.api.nvim_replace_termcodes(last_obj, true, false, true), -- translate <Esc>, <CR> …
+          vim.keycode(last_obj), -- translate <Esc>, <CR> …
           'x',
           false -- not literally; integrate with typeahead
         )
@@ -80,7 +80,7 @@ return {
 
     package_utils.on_load('which-key.nvim', function()
       vim.schedule(function()
-        utils.whichkey(opts)
+        utils.whichkey()
       end)
     end)
   end,

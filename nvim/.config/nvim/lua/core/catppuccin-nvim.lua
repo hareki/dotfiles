@@ -13,6 +13,8 @@ return {
     return {
       transparent_background = true,
       default_integrations = false,
+      -- Skip the startup scan of every installed plugin; the integrations below are explicit
+      auto_integrations = false,
 
       custom_highlights = {
         -- Native context menu
@@ -111,6 +113,10 @@ return {
           enabled = true,
           style = 'bordered',
         },
+        dropbar = { enabled = true }, -- color_mode = false comes from catppuccin's defaults
+        flash = true,
+        harpoon = true,
+        ufo = true,
       },
     }
   end,

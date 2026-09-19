@@ -6,20 +6,12 @@ local render_markdown_evict = require('utils.render-markdown-evict')
 --- @class utils.notifier
 local M = {}
 
---- @alias utils.notifier.NotifierOpts { level?: number, title?: string, once?: boolean, id?:string, on_open?: fun(), default_hl?: string, height_offset?: integer }
+--- @alias utils.notifier.NotifierOpts { level?: number, title?: string, default_hl?: string, height_offset?: integer }
 
 --- @alias utils.notifier.MessageTuple { [1]: string, [2]?: string }
 --- @alias utils.notifier.MessageChunk string | utils.notifier.MessageTuple
 --- @alias utils.notifier.Message string | string[] | utils.notifier.MessageChunk[]
 
--- Per-id notification state. Only populated when opts.id is set, since only
--- id'd notifications are ever replaced. nvim-notify re-renders a replaced
--- notification without re-firing on_open, so the replacement's closures never
--- see the window: the surviving FileType autocmd and on_close reach the current
--- highlighter/buffer through this table instead. Notifications without an id
--- rely on the on_close closure alone.
---- @type table<string, { handle: any, autocmd_id: integer?, apply_highlight: fun(win: integer), buf: integer? }>
-local notif_state = {}
 local highlight_ns = vim.api.nvim_create_namespace('trouble_notify_hl')
 
 local function apply_win_opts(win)
@@ -27,12 +19,6 @@ local function apply_win_opts(win)
   w.conceallevel = 3
   w.concealcursor = 'n'
   w.spell = false
-end
-
---- @param handle any
---- @return boolean
-local function is_notify_record(handle)
-  return type(handle) == 'table' and type(handle.id) == 'number'
 end
 
 --- Return true if tbl looks like a chunk list: { 'txt', { 'txt', 'hl' }, … }.
@@ -126,12 +112,11 @@ end
 --- Core notification function with rich highlighting and markdown support
 --- Supports both plain strings and tuple lists for custom highlight groups.
 --- @param msg string | table Plain message or tuple list like {{text, hl}, ...}
---- @param opts table? Notification options (level, title, once, id, on_open, default_hl)
---- @return any handle The notification handle for replacement/tracking
+--- @param opts utils.notifier.NotifierOpts? Notification options (level, title, default_hl, height_offset)
+--- @return any handle The notification record
 function M.notify(msg, opts)
   opts = opts or {}
   local is_markdown = not is_chunk_list(msg)
-  local supports_state_tracking = not opts.once
 
   -- Prepare the message/handler depending on the input shape
   local apply_highlight
@@ -155,14 +140,12 @@ function M.notify(msg, opts)
     msg, apply_highlight = normalize_message(msg, opts)
   end
 
-  -- Allow callers to chain their own callback
-  local user_on_open = opts.on_open
   -- Local autocmd_id closes over both on_open and on_close
   local autocmd_id
   -- Buffer of the open notification window, for render-markdown eviction
   local notif_buf
 
-  local function merged_on_open(win)
+  local function on_open(win)
     local buf = vim.api.nvim_win_get_buf(win)
     notif_buf = buf
 
@@ -174,28 +157,12 @@ function M.notify(msg, opts)
     }, {
       buffer = buf,
       callback = function()
-        if not vim.api.nvim_win_is_valid(win) then
-          return
+        if vim.api.nvim_win_is_valid(win) then
+          apply_highlight(win)
         end
-
-        -- A replace re-render must use the replacement's highlighter, which
-        -- only lives in notif_state (this closure predates it)
-        local current = opts.id and notif_state[opts.id]
-        local highlight = current and current.apply_highlight or apply_highlight
-        highlight(win)
       end,
       desc = 'Reapply Notifier Highlighting for Duplicate Messages',
     })
-
-    -- Track autocmd/buffer in shared state for the replace path (id'd notifications only)
-    if opts.id and notif_state[opts.id] then
-      notif_state[opts.id].autocmd_id = autocmd_id
-      notif_state[opts.id].buf = buf
-    end
-
-    if user_on_open then
-      user_on_open(win)
-    end
 
     if opts.height_offset then
       local h = vim.api.nvim_win_get_height(win)
@@ -204,70 +171,30 @@ function M.notify(msg, opts)
   end
 
   local function on_close()
-    -- A replaced notification never ran merged_on_open, so its autocmd_id and
-    -- notif_buf locals are nil; fall back to the values inherited through state
-    local state = opts.id and notif_state[opts.id]
-
-    local active_autocmd = autocmd_id or (state and state.autocmd_id)
-    if active_autocmd then
-      pcall(vim.api.nvim_del_autocmd, active_autocmd)
+    if autocmd_id then
+      pcall(vim.api.nvim_del_autocmd, autocmd_id)
       autocmd_id = nil
     end
 
     -- Each notification gets a fresh buffer; without eviction its
     -- render-markdown entries would outlive it for the whole session
-    local buf = notif_buf or (state and state.buf)
-    if is_markdown and buf then
-      render_markdown_evict.evict(buf)
+    if is_markdown and notif_buf then
+      render_markdown_evict.evict(notif_buf)
       notif_buf = nil
     end
-
-    if opts.id then
-      notif_state[opts.id] = nil
-    end
   end
 
-  -- When replacing a still-open notification, nvim-notify re-renders its buffer
-  -- without re-firing on_open, so the previous notification's FileType autocmd is
-  -- the only hook left: keep it alive and swap in this call's highlighter before
-  -- vim.notify, whose re-render may fire FileType synchronously
-  local replace_handle, inherited
-  if supports_state_tracking and opts.id and notif_state[opts.id] then
-    local prev = notif_state[opts.id]
-    if is_notify_record(prev.handle) then
-      replace_handle = prev.handle
-      prev.apply_highlight = apply_highlight
-      inherited = prev
-    elseif prev.autocmd_id then
-      pcall(vim.api.nvim_del_autocmd, prev.autocmd_id)
-    end
-  end
-
-  local ret = vim[opts.once and 'notify_once' or 'notify'](msg, opts.level, {
-    replace = replace_handle,
+  return vim.notify(msg, opts.level, {
     title = opts.title or 'Notifier',
-    on_open = merged_on_open,
+    on_open = on_open,
     on_close = on_close,
   })
-
-  if supports_state_tracking and opts.id and is_notify_record(ret) then
-    notif_state[opts.id] = {
-      handle = ret,
-      autocmd_id = autocmd_id or (inherited and inherited.autocmd_id),
-      apply_highlight = apply_highlight,
-      buf = notif_buf or (inherited and inherited.buf),
-    }
-  elseif opts.id then
-    notif_state[opts.id] = nil
-  end
-
-  return ret
 end
 
 --- Display an info-level notification with optional custom highlights
 --- @param msg utils.notifier.Message String, string array, or tuple list for rich formatting
---- @param opts? utils.notifier.NotifierOpts Notification options (title, id, on_open, etc.)
---- @return any handle The notification handle for replacement/tracking
+--- @param opts? utils.notifier.NotifierOpts Notification options (title, height_offset, etc.)
+--- @return any handle The notification record
 function M.info(msg, opts)
   return M.notify(
     msg,
@@ -281,8 +208,8 @@ end
 
 --- Display a warning-level notification with optional custom highlights
 --- @param msg utils.notifier.Message String, string array, or tuple list for rich formatting
---- @param opts? utils.notifier.NotifierOpts Notification options (title, id, on_open, etc.)
---- @return any handle The notification handle for replacement/tracking
+--- @param opts? utils.notifier.NotifierOpts Notification options (title, height_offset, etc.)
+--- @return any handle The notification record
 function M.warn(msg, opts)
   return M.notify(
     msg,
@@ -296,8 +223,8 @@ end
 
 --- Display an error-level notification with optional custom highlights
 --- @param msg utils.notifier.Message String, string array, or tuple list for rich formatting
---- @param opts? utils.notifier.NotifierOpts Notification options (title, id, on_open, etc.)
---- @return any handle The notification handle for replacement/tracking
+--- @param opts? utils.notifier.NotifierOpts Notification options (title, height_offset, etc.)
+--- @return any handle The notification record
 function M.error(msg, opts)
   return M.notify(
     msg,

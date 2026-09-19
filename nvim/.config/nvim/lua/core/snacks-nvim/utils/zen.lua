@@ -1,3 +1,5 @@
+local common = require('utils.common')
+
 --- @class core.snacks.utils.zen
 local M = {}
 
@@ -9,18 +11,6 @@ M.state = {
   mapped = {},
 }
 
---- @param buf integer
---- @return boolean
-local function has_own_q(buf)
-  for _, keymap in ipairs(vim.api.nvim_buf_get_keymap(buf, 'n')) do
-    if keymap.lhs == 'q' then
-      return true
-    end
-  end
-
-  return false
-end
-
 --- Map `q` to close the popup on the buffer it currently shows. Snacks applies
 --- its own `win.keys` with `buffer = win.buf` and never unmaps them, and the zen
 --- window displays the real buffer, so a `keys = { q = 'close' }` entry would
@@ -31,7 +21,7 @@ local function map_close(win)
   local buf = win.buf
   -- Leave buffers that already spend `q` themselves (help, quickfix) alone
   -- rather than clobbering a mapping we would then have to restore
-  if not buf or M.state.mapped[buf] or has_own_q(buf) then
+  if not buf or M.state.mapped[buf] or common.get_buf_keymap(buf, 'n', 'q') then
     return
   end
 

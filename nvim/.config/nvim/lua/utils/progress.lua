@@ -78,6 +78,12 @@ function ProgressHandle:_queue_or_send(kind, title, percentage)
   end
 end
 
+--- @private
+function ProgressHandle:_close_timer()
+  Snacks.util.stop(self._timer)
+  self._timer = nil
+end
+
 -- [[ Public helpers ]]
 --- Start the progress notification (sends 'begin' kind)
 --- @param title? string The progress title to display
@@ -100,11 +106,7 @@ end
 --- @param title? string Final title to display
 --- @return nil
 function ProgressHandle:finish(title)
-  if self._timer then
-    pcall(self._timer.stop, self._timer)
-    pcall(self._timer.close, self._timer)
-    self._timer = nil
-  end
+  self:_close_timer()
   self:_queue_or_send('end', title, nil) -- Percentage is not sent for the `end` kind
   -- The timer is gone, so nothing will ever flush the pending cache again;
   -- clear the flag so a reused handle sends straight to Noice instead of
@@ -149,17 +151,9 @@ function M.create(opts)
   end
   handle._timer = timer
 
-  local function close_timer()
-    if handle._timer then
-      pcall(handle._timer.stop, handle._timer)
-      pcall(handle._timer.close, handle._timer)
-      handle._timer = nil
-    end
-  end
-
   timer:start(pending_ms, 0, function()
     vim.schedule(function()
-      close_timer()
+      ProgressHandle._close_timer(handle)
       handle._pending = false
 
       -- 'end' cached during the pending window means abort: show nothing.

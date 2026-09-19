@@ -2,26 +2,18 @@
 local M = {
   misc = {
     ARROW = '',
-    DOTS = '󰇘',
     TAB = '',
-    LOCATION = '',
     NEOVIM = '',
     MACRO = ' ',
     TAILWIND_COLOR = '',
     PACKAGE_ACTIVE = '󰪥',
     PACKAGE_INACTIVE = '󰄰',
-    PENDING_KEYS = '󰌌',
     PILL_LEFT = '',
     PILL_RIGHT = '',
     QUOTE_BAR = '▌',
   },
   ft = {
-    OCTO = '',
     TYPESCRIPT = '',
-  },
-  input = {
-    PROMPT_PREFIX = '  ',
-    SELECTION_CARET = ' ',
   },
   diagnostics = {
     ERROR = ' ',

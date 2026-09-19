@@ -207,49 +207,23 @@ local PART_GETTERS = {
   { 'global_conflict', get_global_conflict },
 }
 
---- Default options for buffer status component
-local default_options = {
-  colored = true,
+--- Palette color of each status part
+local PART_COLORS = {
+  current_unsaved = 'yellow',
+  global_unsaved = 'red',
+  current_conflict = 'yellow',
+  global_conflict = 'red',
 }
-
---- Apply default colors from palette
---- @param opts table
-local function apply_default_colors(opts)
-  local palette = UI.catppuccin.get_palette()
-
-  local default_status_color = {
-    current_unsaved = { fg = palette.yellow },
-    global_unsaved = { fg = palette.red },
-    current_conflict = { fg = palette.yellow },
-    global_conflict = { fg = palette.red },
-  }
-
-  opts.status_color = vim.tbl_deep_extend('keep', opts.status_color or {}, default_status_color)
-end
 
 --- Initialize the component
 --- @param options table
 function M:init(options)
   M.super.init(self, options)
-  apply_default_colors(self.options)
-  self.options = vim.tbl_deep_extend('keep', self.options or {}, default_options)
 
-  if self.options.colored then
-    self.highlight_groups = {
-      current_unsaved = self:create_hl(
-        self.options.status_color.current_unsaved,
-        'current_unsaved'
-      ),
-      global_unsaved = self:create_hl(self.options.status_color.global_unsaved, 'global_unsaved'),
-      current_conflict = self:create_hl(
-        self.options.status_color.current_conflict,
-        'current_conflict'
-      ),
-      global_conflict = self:create_hl(
-        self.options.status_color.global_conflict,
-        'global_conflict'
-      ),
-    }
+  local palette = UI.catppuccin.get_palette()
+  self.highlight_groups = {}
+  for part, color in pairs(PART_COLORS) do
+    self.highlight_groups[part] = self:create_hl({ fg = palette[color] }, part)
   end
 end
 
@@ -257,18 +231,13 @@ end
 --- @return string
 function M:update_status()
   local result = {}
-  local colored = self.options.colored
 
   for _, part in ipairs(PART_GETTERS) do
     local text = part[2]()
     if text ~= '' then
-      if colored then
-        -- format_hl re-resolves the mode suffix (an nvim_get_mode call) per
-        -- group, so only pay it for parts that are actually shown
-        result[#result + 1] = self:format_hl(self.highlight_groups[part[1]]) .. text
-      else
-        result[#result + 1] = text
-      end
+      -- format_hl re-resolves the mode suffix (an nvim_get_mode call) per
+      -- group, so only pay it for parts that are actually shown
+      result[#result + 1] = self:format_hl(self.highlight_groups[part[1]]) .. text
     end
   end
 

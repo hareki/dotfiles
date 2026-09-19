@@ -210,17 +210,11 @@ aucmd('CmdwinEnter', {
 aucmd('VimLeavePre', {
   group = augroup('close-codediff-tabs-on-exit'),
   callback = function()
-    -- codediff is lazy; if it never loaded there are no diff tabs to close.
-    local package_utils = require('utils.package')
-    if not package_utils.is_loaded('codediff.nvim') then
-      return
-    end
-
-    local lifecycle = require('codediff.ui.lifecycle')
+    local codediff_utils = require('features.git.codediff-nvim.utils')
     local codediff_tabs = {}
 
     for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
-      if lifecycle.get_session(tab) then
+      if codediff_utils.is_codediff_tab(tab) then
         table.insert(codediff_tabs, tab)
       end
     end

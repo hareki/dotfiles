@@ -36,19 +36,33 @@ function M.register(name, filetypes, runner, opts)
   }
 end
 
---- Get registered enforcer names for a filetype (sorted by `order`, then registration order)
---- @param ft string The filetype to look up
---- @return string[] names List of enforcer names that support this filetype
-function M.names_for_filetype(ft)
-  local matched = {}
-  for _, entry in ipairs(entries) do
-    for _, filetype in ipairs(entry.filetypes) do
-      if filetype == ft then
-        matched[#matched + 1] = entry
-        break
-      end
+--- Register an LSP-backed enforcer once a client of its server first attaches,
+--- so projects that never start that server don't get its step
+--- @param name string LSP server name, doubling as the enforcer name
+--- @param filetypes string[] List of filetypes this enforcer supports
+--- @param runner fun(opts: { bufnr: integer, on_done: fun(ok: boolean, err?: string) }) The enforcer function
+--- @param opts? { order?: integer } See M.register
+--- @return nil
+function M.register_on_attach(name, filetypes, runner, opts)
+  local registered = false
+  -- Fires once per (client, buffer) attach; only the first one registers
+  Snacks.util.lsp.on({ name = name }, function()
+    if registered then
+      return
     end
-  end
+
+    registered = true
+    M.register(name, filetypes, runner, opts)
+  end)
+end
+
+--- Registered enforcers for a filetype, sorted by `order`, then registration order
+--- @param ft string The filetype to look up
+--- @return utils.style-enforcers.Entry[]
+local function entries_for_filetype(ft)
+  local matched = vim.tbl_filter(function(entry)
+    return vim.list_contains(entry.filetypes, ft)
+  end, entries)
 
   table.sort(matched, function(a, b)
     if a.order ~= b.order then
@@ -57,57 +71,41 @@ function M.names_for_filetype(ft)
     return a.seq < b.seq
   end)
 
-  local out = {}
-  for _, entry in ipairs(matched) do
-    out[#out + 1] = entry.name
-  end
-  return out
+  return matched
 end
 
---- Internal: run names sequentially
-local function run_next(names, opts, idx)
-  idx = idx or 1
-  local name = names[idx]
-  if not name then
+--- Get registered enforcer names for a filetype (sorted by `order`, then registration order)
+--- @param ft string The filetype to look up
+--- @return string[] names List of enforcer names that support this filetype
+function M.names_for_filetype(ft)
+  return vim.tbl_map(function(entry)
+    return entry.name
+  end, entries_for_filetype(ft))
+end
+
+--- Internal: run the matched enforcers sequentially
+--- @param matched utils.style-enforcers.Entry[]
+--- @param opts utils.style-enforcers.RunOpts
+--- @param idx integer
+local function run_next(matched, opts, idx)
+  local entry = matched[idx]
+  if not entry then
     return
   end
 
-  -- Find entry
-  local runner
-  for _, e in ipairs(entries) do
-    if e.name == name then
-      runner = e.runner
-      break
-    end
-  end
-
-  if not runner then
-    if opts.on_done then
-      opts.on_done(name, false, 'not registered')
-    end
-    return run_next(names, opts, idx + 1)
-  end
-
   if opts.on_start then
-    opts.on_start(name, idx, #names)
+    opts.on_start(entry.name, idx, #matched)
   end
 
-  local function done(ok, err)
-    if opts.on_done then
-      opts.on_done(name, ok, err)
-    end
-    run_next(names, opts, idx + 1)
-  end
-
-  runner({ bufnr = opts.bufnr, on_done = done })
-end
-
---- Run a list of enforcers sequentially on a buffer
---- @param names string[] List of enforcer names to run
---- @param opts utils.style-enforcers.RunOpts Options with bufnr, on_start, on_done callbacks
---- @return nil
-function M.run(names, opts)
-  run_next(names, opts, 1)
+  entry.runner({
+    bufnr = opts.bufnr,
+    on_done = function(ok, err)
+      if opts.on_done then
+        opts.on_done(entry.name, ok, err)
+      end
+      run_next(matched, opts, idx + 1)
+    end,
+  })
 end
 
 --- Auto-run all registered enforcers matching the buffer's filetype
@@ -122,15 +120,14 @@ function M.run_by_ft(opts)
     return
   end
 
-  local ft = vim.bo[bufnr].filetype
-  local names = M.names_for_filetype(ft)
+  local matched = entries_for_filetype(vim.bo[bufnr].filetype)
 
-  if #names == 0 and opts.on_done then
+  if #matched == 0 and opts.on_done then
     opts.on_done('none', true) -- no enforcers, no error
     return
   end
 
-  M.run(names, opts)
+  run_next(matched, opts, 1)
 end
 
 return M

@@ -49,18 +49,9 @@ return {
               return
             end
 
-            -- Check if new_item already exists at another index
-            local old_index = nil
-            local length = list:length()
-            for index = 1, length do
-              if index ~= current_index then
-                local existing_item = list:get(index)
-                if existing_item and existing_item.value == new_item.value then
-                  old_index = index
-                  break
-                end
-              end
-            end
+            -- Check if new_item already exists at another index (the early
+            -- return above rules out current_index)
+            local _, old_index = list:get_by_value(new_item.value)
 
             -- Replace the item at slot i with new_item. If new_item exists in another slot, it is removed from that slot first.
             list:replace_at(current_index, new_item)

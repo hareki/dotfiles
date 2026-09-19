@@ -44,7 +44,6 @@ function M.clean_up()
     return
   end
 
-  vim.api.nvim_clear_autocmds({ group = M.state.preview_watcher })
   vim.api.nvim_del_augroup_by_id(M.state.preview_watcher)
   M.state.preview_watcher = nil
 end
@@ -138,6 +137,23 @@ function M.switch_position(position)
   nvimtree.setup(M.state.opts)
 end
 
+--- Float geometry of the tree for the current size preset: its width and
+--- position, with the height halved to leave room for the preview below
+--- ('collapse') or filling the whole popup ('expand')
+--- @param action 'expand' | 'collapse'
+--- @return utils.ui.layout.WinConfig
+function M.float_geometry(action)
+  local size = UI.layout.popup(M.compute_size())
+
+  return {
+    width = size.width,
+    -- Minus 1 for the space between the two windows
+    height = action == 'collapse' and math.floor(size.height / 2) - 1 or size.height,
+    col = size.col,
+    row = size.row,
+  }
+end
+
 --- Toggle the tree window height between half and full in float mode, and
 --- re-apply width / position to match the current size preset (so the popup
 --- can grow/shrink in width when the preview is toggled on/off).
@@ -154,27 +170,8 @@ function M.toggle_tree_height(action)
     return
   end
 
-  local size = UI.layout.popup(M.compute_size())
-  local window_h = math.floor(size.height / 2)
-  local half_height = window_h - 1 -- Minus 1 for the space between the two windows
-
-  -- Have to add one extra row if the total height is an odd number to fill out the entire popup size
-  local offset = size.height % 2 == 0 and 0 or 1
-  local full_height = window_h * 2 + offset
-
   local cfg = vim.api.nvim_win_get_config(tree_win)
-
-  cfg.width = size.width
-  cfg.col = size.col
-  cfg.row = size.row
-
-  if action == 'collapse' then
-    cfg.height = half_height
-  else
-    cfg.height = full_height
-  end
-
-  vim.api.nvim_win_set_config(tree_win, cfg)
+  vim.api.nvim_win_set_config(tree_win, vim.tbl_extend('force', cfg, M.float_geometry(action)))
 end
 
 --- Re-apply the tree geometry against the current screen dimensions, so the
@@ -214,21 +211,14 @@ function M.toggle_preview(force_state)
     next_open = force_state
   end
 
-  local toggle_height = M.state.position == 'float'
-
   -- Flip the preview flag BEFORE resizing so M.compute_size() reflects the
   -- target state and toggle_tree_height applies the correct size preset.
+  M.state.preview_on_focus = next_open
+  M.toggle_tree_height(next_open and 'collapse' or 'expand')
+
   if next_open then
-    M.state.preview_on_focus = true
-    if toggle_height then
-      M.toggle_tree_height('collapse')
-    end
     M.watch()
   else
-    M.state.preview_on_focus = false
-    if toggle_height then
-      M.toggle_tree_height('expand')
-    end
     M.unwatch()
   end
 end
@@ -264,30 +254,18 @@ function M.open(opts)
   api.tree.open()
 end
 
---- Get the buffer number of the preview window
---- @return number | nil bufnr The preview buffer number, or nil if not open
-function M.preview_buf()
-  return manager.instance and manager.instance.preview_buf
-end
-
---- Get the window handle of the preview window
---- @return number | nil winid The preview window ID, or nil if not open
-function M.preview_win()
-  return manager.instance and manager.instance.preview_win
-end
-
 --- Toggle mark on current node and move to next line
 --- @return nil
 function M.mark_and_next()
   api.marks.toggle()
-  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Down>', true, false, true), 'n', false)
+  vim.api.nvim_feedkeys(vim.keycode('<Down>'), 'n', false)
 end
 
 --- Toggle mark on current node and move to previous line
 --- @return nil
 function M.mark_and_prev()
   api.marks.toggle()
-  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Up>', true, false, true), 'n', false)
+  vim.api.nvim_feedkeys(vim.keycode('<Up>'), 'n', false)
 end
 
 --- Format the root folder label with icons and path separators

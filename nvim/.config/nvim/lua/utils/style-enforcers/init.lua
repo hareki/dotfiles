@@ -60,14 +60,8 @@ function M.run(opts)
   -- Set timeout to auto-cleanup if something goes wrong
   local timeout_timer = vim.uv.new_timer()
   local function close_timeout_timer()
-    local timer = timeout_timer
-    if not timer then
-      return
-    end
-
+    Snacks.util.stop(timeout_timer)
     timeout_timer = nil
-    pcall(timer.stop, timer)
-    pcall(timer.close, timer)
   end
 
   -- Single completion point: fires on_done and releases the lock exactly once,
@@ -265,11 +259,19 @@ function M.run_all(debug)
     return
   end
 
+  -- Skip buffers that are already being formatted
+  local to_run = vim.tbl_filter(function(buf)
+    return not running_bufs[buf]
+  end, all_buffers)
+
+  if #to_run == 0 then
+    Notifier.warn('All buffers are already being formatted', { title = 'Style Enforcer' })
+    return
+  end
+
   -- Track successes and failures by path (relative to cwd)
   local success_paths = {}
   local error_paths = {}
-  local pending_count = 0
-  local skipped_count = 0
 
   -- Helper to get a nice display path
   local function buf_display_path(bufnr)
@@ -277,17 +279,11 @@ function M.run_all(debug)
     if name == '' then
       return '[No Name]'
     end
-    local cwd = vim.uv.cwd()
-    local rel = cwd and vim.fs.relpath(cwd, name) or nil
-    return rel or name
+    local path_utils = require('utils.path')
+    return path_utils.get_relative_path(name, vim.uv.cwd() or vim.fn.getcwd())
   end
 
   local function show_results()
-    -- If nothing was actually started (everything was already running), do nothing
-    if #success_paths == 0 and #error_paths == 0 then
-      return
-    end
-
     local mini_icons = require('mini.icons')
 
     -- Helper to get icon and its highlight group for a file path
@@ -309,13 +305,16 @@ function M.run_all(debug)
     local chunks = {}
     local has_error = #error_paths > 0
 
-    -- Happy / mixed case: successes first
-    if #success_paths > 0 then
-      table.insert(chunks, { 'Success:\n', 'DiagnosticSignOk' })
-      for index, path in ipairs(success_paths) do
+    --- @param header string
+    --- @param header_hl string
+    --- @param paths string[]
+    --- @param ends_message boolean Whether no section follows this one
+    local function add_section(header, header_hl, paths, ends_message)
+      table.insert(chunks, { header, header_hl })
+      for index, path in ipairs(paths) do
         local icon, icon_hl = get_icon_with_hl(path)
         local dir, file = split_path(path)
-        local is_last = index == #success_paths and not has_error
+        local is_last = ends_message and index == #paths
 
         table.insert(chunks, { '  ' .. icon .. ' ', icon_hl })
         if dir ~= '' then
@@ -325,48 +324,28 @@ function M.run_all(debug)
       end
     end
 
-    -- Failures
-    if #error_paths > 0 then
+    -- Happy / mixed case: successes first
+    if #success_paths > 0 then
+      add_section('Success:\n', 'DiagnosticSignOk', success_paths, not has_error)
+    end
+
+    -- Failures, which also turn the summary into a warning
+    if has_error then
       if #success_paths > 0 then
         table.insert(chunks, { '\n', 'Normal' }) -- blank line between sections
       end
 
-      table.insert(chunks, { 'Error:\n', 'Error' })
-      for index, path in ipairs(error_paths) do
-        local icon, icon_hl = get_icon_with_hl(path)
-        local dir, file = split_path(path)
-        local is_last = index == #error_paths
-
-        table.insert(chunks, { '  ' .. icon .. ' ', icon_hl })
-        if dir ~= '' then
-          table.insert(chunks, { dir, 'SnacksPickerDir' })
-        end
-        table.insert(chunks, { file .. (is_last and '' or '\n'), 'SnacksPickerFile' })
-      end
-    end
-
-    -- Choose warn/info depending on whether there were failures
-    if #error_paths > 0 then
+      add_section('Error:\n', 'Error', error_paths, true)
       Notifier.warn(chunks, { title = 'Style Enforcer' })
     else
       Notifier.info(chunks, { title = 'Style Enforcer' })
     end
   end
 
-  local to_run = {}
-  for _, buf in ipairs(all_buffers) do
-    -- Skip if already running on this buffer
-    if running_bufs[buf] then
-      skipped_count = skipped_count + 1
-    else
-      table.insert(to_run, buf)
-    end
-  end
-
   -- Preset the counter before dispatching: a buffer with no formatter and no
   -- linter completes synchronously inside M.run, so a live-incremented counter
   -- would transiently hit zero mid-loop and fire a premature partial summary.
-  pending_count = #to_run
+  local pending_count = #to_run
 
   for _, buf in ipairs(to_run) do
     local display_path = buf_display_path(buf)
@@ -387,11 +366,6 @@ function M.run_all(debug)
         end
       end,
     })
-  end
-
-  -- If all buffers were skipped (already running), show nothing
-  if #to_run == 0 and skipped_count > 0 then
-    Notifier.warn('All buffers are already being formatted', { title = 'Style Enforcer' })
   end
 end
 

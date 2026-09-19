@@ -44,13 +44,10 @@ local DEFAULTS = {
 }
 
 --- Create lualine components with consistent styling
---- @param opts { type: 'primary-left' | 'primary-right' | 'secondary-left' | 'secondary-right', comp: string | function, color: string, icon: string, margin?: {left: number, right: number}, padding?: {left: number, right: number}, palette?: table, [string]: any }
+--- @param opts { type: 'primary-left' | 'primary-right' | 'secondary-left' | 'secondary-right', comp: string | function, color: string, icon: string, margin?: {left: number, right: number}, padding?: {left: number, right: number}, [string]: any }
 --- @return table[] components Array of lualine components (main + margins for primary types)
 function M.create_styling_wrapper(opts)
-  local palette = opts.palette
-  if not palette then
-    palette = UI.catppuccin.get_palette()
-  end
+  local palette = UI.catppuccin.get_palette()
 
   local style, _side = opts.type:match('^(%w+)-(%w+)$')
   local is_primary = style == 'primary'
@@ -62,7 +59,6 @@ function M.create_styling_wrapper(opts)
     icon = true,
     margin = true,
     padding = true,
-    palette = true,
   }
 
   local extra = {}

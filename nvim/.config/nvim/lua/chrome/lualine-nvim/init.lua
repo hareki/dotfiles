@@ -50,10 +50,7 @@ return {
     local palette = UI.catppuccin.get_palette()
 
     local lualine_utils = require('chrome.lualine-nvim.utils')
-    local create_wrapper = function(opts)
-      opts.palette = palette
-      return lualine_utils.create_styling_wrapper(opts)
-    end
+    local create_wrapper = lualine_utils.create_styling_wrapper
     local flatten = lualine_utils.flatten_section
     local separator = lualine_utils.separator
 
@@ -66,36 +63,6 @@ return {
     for _, section in ipairs({ 'normal', 'insert', 'visual', 'replace', 'inactive' }) do
       theme_reset[section] = { a = color_reset, b = color_reset, c = color_reset }
     end
-
-    local lualine_z_components = {
-      create_wrapper({
-        comp = snacks_image.get,
-        type = 'secondary-right',
-        color = 'green',
-        cond = snacks_image.cond,
-      }),
-      create_wrapper({
-        comp = 'diagnostics',
-        type = 'secondary-right',
-        symbols = diagnostics.symbols,
-        sections = diagnostics.sections,
-        sources = diagnostics.sources,
-      }),
-      create_wrapper({
-        comp = tab.get,
-        type = 'primary-right',
-        color = 'green',
-        icon = tab.icon,
-        cond = tab.cond,
-      }),
-      create_wrapper({
-        comp = repo_name.get,
-        type = 'primary-right',
-        color = 'blue',
-        icon = repo_name.icon,
-        margin = { left = 0, right = 0 },
-      }),
-    }
 
     return {
       options = {
@@ -163,7 +130,38 @@ return {
         lualine_x = {},
         lualine_y = {},
 
-        lualine_z = flatten(unpack(lualine_z_components)),
+        lualine_z = flatten(
+          create_wrapper({
+            comp = snacks_image.get,
+            type = 'secondary-right',
+            color = 'green',
+            cond = snacks_image.cond,
+          }),
+
+          create_wrapper({
+            comp = 'diagnostics',
+            type = 'secondary-right',
+            symbols = diagnostics.symbols,
+            sections = diagnostics.sections,
+            sources = diagnostics.sources,
+          }),
+
+          create_wrapper({
+            comp = tab.get,
+            type = 'primary-right',
+            color = 'green',
+            icon = tab.icon,
+            cond = tab.cond,
+          }),
+
+          create_wrapper({
+            comp = repo_name.get,
+            type = 'primary-right',
+            color = 'blue',
+            icon = repo_name.icon,
+            margin = { left = 0, right = 0 },
+          })
+        ),
       },
     }
   end,

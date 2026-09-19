@@ -181,25 +181,18 @@ return {
     end,
 
     opts = function()
-      local popup_config = UI.layout.popup
       -- Function-valued geometry: snacks resolves these when a window opens,
       -- so popups stay sized/centered after terminal resizes instead of
       -- keeping the startup screen's cell counts
       local popup_fn = UI.layout.popup_fn
-      local config = {
-        input = popup_fn('input'),
-        full = popup_fn('full'),
-        sm = popup_fn('sm', true),
-        lg_border = popup_fn('lg', true),
-        lg = popup_fn('lg'),
-        vertical_md = popup_fn('vertical_md'),
-      }
-      local select_width = config.sm.width
+      local sm = popup_fn('sm', true)
+      local lg_border = popup_fn('lg', true)
+      local select_width = sm.width
 
       local layouts = require('core.snacks-nvim.pickers.layouts')
       local layout_opts = {
-        width = config.lg_border.width,
-        height = config.lg_border.height,
+        width = lg_border.width,
+        height = lg_border.height,
         preview_title = Conf.picker.PREVIEW_TITLE,
       }
 
@@ -210,15 +203,6 @@ return {
       local formatters = Defer.on_exported_call('core.snacks-nvim.utils.formatters')
       local sorters = Defer.on_exported_call('core.snacks-nvim.utils.sorters')
       local actions = Defer.on_exported_call('core.snacks-nvim.actions')
-      local defer_scroll_half_page = function(direction)
-        local scroll_half_page
-        return function(...)
-          if not scroll_half_page then
-            scroll_half_page = actions.scroll_half_page(direction)
-          end
-          return scroll_half_page(...)
-        end
-      end
 
       return {
         words = { enabled = true },
@@ -243,7 +227,7 @@ return {
           doc = {
             inline = true,
             -- Static number: snacks.image does no callable resolution here
-            max_width = popup_config('full').width,
+            max_width = UI.layout.popup('full').width,
             max_height = 15,
             excluded_filetypes = Conf.filetypes.merge(Conf.filetypes.JS_ALL, Conf.filetypes.CSS),
           },
@@ -260,8 +244,8 @@ return {
           prompt = Conf.picker.PROMPT_PREFIX,
 
           actions = {
-            list_half_page_down = defer_scroll_half_page('down'),
-            list_half_page_up = defer_scroll_half_page('up'),
+            list_half_page_down = actions.list_half_page_down,
+            list_half_page_up = actions.list_half_page_up,
             toggle_preview_focus = actions.toggle_preview_focus,
             toggle_preview = actions.toggle_preview,
             snacks_to_trouble = actions.snacks_to_trouble,
@@ -361,13 +345,13 @@ return {
 
               layout = {
                 preview = false,
-                layout = {
-                  backdrop = false,
-                  height = config.sm.height,
-                  width = config.sm.width,
-                  col = config.sm.col,
-                  row = config.sm.row,
-                },
+                layout = vim.tbl_extend('force', sm, { backdrop = false }),
+              },
+            },
+
+            todo_comments = {
+              actions = {
+                snacks_to_trouble = actions.todo_to_trouble,
               },
             },
           },
@@ -378,38 +362,20 @@ return {
             -- Slightly higher than satellite.nvim scrollbar (51)
             zindex = 52,
           },
-          input = {
-            height = config.input.height,
-            width = config.input.width,
-            col = config.input.col,
-            row = config.input.row,
-          },
-          scratch = {
-            height = config.lg.height,
-            width = config.lg.width,
-            col = config.lg.col,
-            row = config.lg.row,
-          },
-          terminal = {
+          input = popup_fn('input'),
+          scratch = popup_fn('lg'),
+          terminal = vim.tbl_extend('force', popup_fn('lg'), {
             title = ' Terminal ',
             title_pos = 'center',
             border = 'rounded',
-            height = config.lg.height,
-            width = config.lg.width,
-            col = config.lg.col,
-            row = config.lg.row,
-          },
-          lazygit = {
+          }),
+          lazygit = vim.tbl_extend('force', popup_fn('full'), {
             backdrop = false,
             border = 'rounded',
             title = ' Git Client ',
             title_pos = 'center',
-            height = config.full.height,
-            width = config.full.width,
-            col = config.full.col,
-            row = config.full.row,
-          },
-          zen = {
+          }),
+          zen = vim.tbl_extend('force', popup_fn('vertical_md'), {
             -- transparent = false makes snacks drop winblend entirely, so the
             -- backdrop is an opaque window (painted in the Normal background, or
             -- in nothing under our transparent colorscheme) and the window behind
@@ -423,11 +389,7 @@ return {
             -- window (its default; it only bumps to parent + 1 over a float, hence the 51 above).
             -- 50 clears them while staying under styles.float (52) so pickers from zen stay on top
             zindex = 50,
-            height = config.vertical_md.height,
-            width = config.vertical_md.width,
-            col = config.vertical_md.col,
-            row = config.vertical_md.row,
-          },
+          }),
         },
       }
     end,

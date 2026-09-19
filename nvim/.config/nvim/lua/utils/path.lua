@@ -29,32 +29,4 @@ function M.get_relative_path(file, root)
   return rel or normalized_file
 end
 
---- @class utils.path.HasDirOptions
---- @field dir_name string     The directory name to search for (required).
---- @field path? string        The file system path to search (optional).
-
---- Check if a directory name exists in the given path components
---- Useful for detecting if we're inside a specific project type (e.g., 'node_modules').
---- @param opts utils.path.HasDirOptions Options with dir_name (required) and path (optional)
---- @return boolean found True if the directory name is found in the path
-function M.has_dir(opts)
-  local dir_name = opts.dir_name
-  local path = opts.path
-  if not path or path == '' then
-    path = vim.api.nvim_buf_get_name(0)
-    if path ~= '' then
-      path = vim.fs.dirname(path)
-    end
-    if not path or path == '' then
-      path = vim.uv.cwd() or ''
-    end
-  end
-  for dir in string.gmatch(path, '[^/]+') do
-    if dir == dir_name then
-      return true
-    end
-  end
-  return false
-end
-
 return M

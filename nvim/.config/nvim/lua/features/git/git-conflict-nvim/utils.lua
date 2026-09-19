@@ -4,28 +4,9 @@ local M = {}
 -- Maximum number of lines to search backward/forward for conflict markers
 local CONFLICT_SEARCH_RANGE = 500
 
---- Check if the current tab is a codediff diff/merge tab. codediff tracks a
---- lifecycle session per diff tabpage; git-conflict should stay dormant there
---- since codediff has its own 3-way merge UI.
---- @return boolean in_codediff True if the current tabpage has a codediff session
-function M.in_codediff_tab()
-  -- codediff is lazy (cmd = 'CodeDiff'); requiring its module before it loads
-  -- would force-load the plugin on every git-conflict scan. When it isn't
-  -- loaded there are no sessions, so bail without touching it.
-  local package_utils = require('utils.package')
-  if not package_utils.is_loaded('codediff.nvim') then
-    return false
-  end
-
-  local lifecycle = require('codediff.ui.lifecycle')
-  return lifecycle.get_session(vim.api.nvim_get_current_tabpage()) ~= nil
-end
-
 --- Detect if cursor is currently inside a git conflict block
---- Searches for conflict markers and determines which region the cursor is in.
 --- Uses a single bulk line fetch instead of per-line API calls for performance.
 --- @return boolean in_conflict True if cursor is in a conflict block
---- @return string | nil region 'current', 'incoming', 'ancestor', 'current_separator', 'ancestor_separator', 'separator', or 'incoming_separator'
 function M.cursor_in_conflict()
   local bufnr = vim.api.nvim_get_current_buf()
   local cursor = vim.api.nvim_win_get_cursor(0)
@@ -56,26 +37,23 @@ function M.cursor_in_conflict()
 
     -- Early exit if we hit another conflict end marker (but not the current line)
     if i ~= line and line_text:match('^>>>>>>>') then
-      return false, nil
+      return false
     end
   end
 
   if not start_line then
-    return false, nil
+    return false
   end
 
-  -- From the start, find conflict markers (limit forward search)
+  -- From the start, find the separator and end markers (limit forward search)
   local middle_line = nil
-  local ancestor_line = nil
   local end_line = nil
   local max_search = math.min(line_count - 1, start_line + CONFLICT_SEARCH_RANGE)
 
   for i = start_line + 1, max_search do
     local line_text = get_line(i)
 
-    if not ancestor_line and line_text:match('^|||||||') then
-      ancestor_line = i
-    elseif not middle_line and line_text:match('^=======') then
+    if not middle_line and line_text:match('^=======') then
       middle_line = i
     elseif line_text:match('^>>>>>>>') then
       end_line = i
@@ -84,35 +62,7 @@ function M.cursor_in_conflict()
   end
 
   -- Validate conflict block structure and cursor position
-  if not end_line or not middle_line or line > end_line then
-    return false, nil
-  end
-
-  -- Determine region (optimized branching)
-  if line == start_line then
-    return true, 'current_separator'
-  elseif line == middle_line then
-    return true, 'separator'
-  elseif line == end_line then
-    return true, 'incoming_separator'
-  elseif ancestor_line then
-    if line == ancestor_line then
-      return true, 'ancestor_separator'
-    elseif line < ancestor_line then
-      return true, 'current'
-    elseif line < middle_line then
-      return true, 'ancestor'
-    else
-      return true, 'incoming'
-    end
-  else
-    -- No ancestor (2-way merge)
-    if line < middle_line then
-      return true, 'current'
-    else
-      return true, 'incoming'
-    end
-  end
+  return middle_line ~= nil and end_line ~= nil and line <= end_line
 end
 
 --- Whether the buffer still contains a conflict start marker. A cheap

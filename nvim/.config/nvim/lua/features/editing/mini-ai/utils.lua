@@ -25,9 +25,8 @@ function M.buffer(ai_type)
 end
 
 --- Register all mini.ai textobjects with which-key for discoverability
---- @param opts table Options with mappings (around, inside, around_next, etc.)
 --- @return nil
-function M.whichkey(opts)
+function M.whichkey()
   local objects = {
     { ' ', desc = 'Whitespace' },
     { '"', desc = '" String' },
@@ -61,17 +60,16 @@ function M.whichkey(opts)
   --- @type wk.Spec[]
   local ret = { mode = { 'o', 'x' } }
   --- @type table<string, string>
-  local mappings = vim.tbl_extend('force', {}, {
+  local mappings = {
     Around = 'a',
     Inside = 'i',
     ['Around Next'] = 'an',
     ['Inside Next'] = 'in',
     ['Around Last'] = 'al',
     ['Inside Last'] = 'il',
-  }, opts.mappings or {})
+  }
 
   for name, prefix in pairs(mappings) do
-    name = name:gsub('^around_', ''):gsub('^inside_', '')
     ret[#ret + 1] = { prefix, group = name }
     for _, obj in ipairs(objects) do
       local desc = obj.desc

@@ -99,8 +99,10 @@ Never hardcode dimensions; size floats through `UI.layout` (`utils/ui/layout.lua
 - `UI.layout.popup_fn(size, with_border)`: the same with function-valued fields, resolved at window-open time so popups stay sized and centered after terminal resizes. Use it when the consumer accepts callables (Snacks does for `width`/`height`/`col`/`row`, but not `max_width`/`max_height`, so leave those unset)
 - `UI.layout.side_size(category, variant, with_border)`: side panels (`side_panel`: `sm`/`md`/`lg`) and side previews (`side_preview`: `md`)
 - `UI.layout.telescope(size)`: Telescope `layout_config`
+- `UI.layout.center(width, height)`: the `col`/`row` that center a window of any size, for floats sized outside the presets (e.g. a side preview's `row`)
+- `UI.layout.inline_max_height` / `UI.layout.inline_max_width`: resize-safe caps for inline popups; pass the functions themselves
 
-**Gotcha**: Telescope always needs `with_border=true` (`UI.layout.telescope` passes it); nvim-tree always needs `false`; Snacks varies by variant: `false` for `input`, `full`, `lg`, `vertical_md` and `true` for the bordered `sm` / `lg_border`. Exception: content-sized, cursor-anchored tooltips (e.g. `utils/hl-at-cursor.lua`) size themselves from their content, since `UI.layout` only produces centered preset-sized popups; inline popups (gitsigns, eagle, nvim-notify) cap their height with `Conf.size.inline_popup.MAX_HEIGHT`.
+**Gotcha**: Telescope always needs `with_border=true` (`UI.layout.telescope` passes it); nvim-tree always needs `false`; Snacks varies by variant: `false` for `input`, `full`, `lg`, `vertical_md` and `true` for the bordered `sm` / `lg_border`. Exception: content-sized, cursor-anchored tooltips (e.g. `utils/hl-at-cursor.lua`) size themselves from their content, since `UI.layout` only produces centered preset-sized popups; inline popups (gitsigns, eagle, nvim-notify) cap their size with `UI.layout.inline_max_height` / `inline_max_width`.
 
 ## LSP Setup
 
@@ -108,7 +110,7 @@ Uses Neovim 0.12+ native `vim.lsp.enable()` / `vim.lsp.config()` (not `lspconfig
 
 The enabled servers are the `servers` list in `nvim-lspconfig/init.lua`: `Project.linter` picks `eslint` or `oxlint`, and `oxfmt` is added when `Project.formatter` is `'oxfmt'`. `load_all()` and `vim.lsp.enable(servers)` run in a 75 ms `vim.defer_fn` so the buffer renders first. A server needs a `lsp/{server}.lua` file only to override nvim-lspconfig's defaults (`marksman`, `taplo`, `css_variables`, `stylua` and `astro` run on the defaults).
 
-Server-specific `LspAttach` autocmds use an early-return guard on client name (see `lsp/eslint.lua`, `lsp/vtsls.lua`). `Snacks.util.lsp.on({ name = '<server>' }, fn)` already fires once per matching client, so call it at the top level of `setup()`, never inside an `LspAttach` callback, which leaks watchers.
+Server-specific `LspAttach` autocmds use an early-return guard on client name (see `lsp/vtsls.lua`). `Snacks.util.lsp.on({ name = '<server>' }, fn)` already fires once per matching (client, buffer) attach, so call it at the top level of `setup()` (as the style-enforcer engine's `register_on_attach` does), never inside an `LspAttach` callback, which leaks watchers.
 
 **Gotcha**: nvim-lspconfig uses `event='VeryLazy'` instead of `LazyFile` to avoid directory file-type detection issues.
 

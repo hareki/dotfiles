@@ -1,3 +1,5 @@
+local common = require('utils.common')
+
 --- @class core.snacks.utils.image
 local M = {}
 
@@ -15,60 +17,10 @@ local hover = nil
 local HOVER_ESC_DESC = 'Close Hover Image'
 
 --- @param buf integer
---- @return table?
-local function get_buffer_esc_map(buf)
-  if not vim.api.nvim_buf_is_valid(buf) then
-    return nil
-  end
-
-  return vim.api.nvim_buf_call(buf, function()
-    local map = vim.fn.maparg('<Esc>', 'n', false, true)
-    if type(map) ~= 'table' or vim.tbl_isempty(map) or map.buffer ~= 1 then
-      return nil
-    end
-    return map
-  end)
-end
-
---- @param buf integer
---- @param map table
-local function restore_buffer_esc_map(buf, map)
-  if not vim.api.nvim_buf_is_valid(buf) then
-    return
-  end
-
-  local opts = {
-    buffer = buf,
-    desc = map.desc,
-    expr = map.expr == 1,
-    nowait = map.nowait == 1,
-    replace_keycodes = map.replace_keycodes == 1,
-    script = map.script == 1,
-    silent = map.silent == 1,
-  }
-
-  if map.noremap == 0 then
-    opts.remap = true
-  end
-
-  if type(map.callback) == 'function' then
-    vim.keymap.set('n', '<Esc>', map.callback, opts)
-    return
-  end
-
-  if map.rhs then
-    vim.keymap.set('n', '<Esc>', map.rhs, opts)
-  end
-end
-
---- @param buf integer
 --- @return boolean
 local function is_hover_esc_map(buf)
-  local map = get_buffer_esc_map(buf)
-  if not map then
-    return false
-  end
-  return map.desc == HOVER_ESC_DESC
+  local map = common.get_buf_keymap(buf, 'n', '<Esc>')
+  return map ~= nil and map.desc == HOVER_ESC_DESC
 end
 
 local function close()
@@ -82,7 +34,7 @@ local function close()
   pcall(vim.api.nvim_del_augroup_by_id, current.augroup)
   if is_hover_esc_map(current.source_buf) then
     if current.previous_esc_map then
-      pcall(restore_buffer_esc_map, current.source_buf, current.previous_esc_map)
+      pcall(common.restore_buf_keymap, current.source_buf, 'n', current.previous_esc_map)
     else
       pcall(vim.keymap.del, 'n', '<Esc>', { buffer = current.source_buf })
     end
@@ -145,18 +97,10 @@ local function build_hover_src(original_src, ext, content)
     fd:write(content)
     fd:close()
   else
-    local in_fd = io.open(original_src or '', 'rb')
-    if not in_fd then
+    --- @cast original_src string
+    if not vim.uv.fs_copyfile(original_src, out) then
       return nil
     end
-    local data = in_fd:read('*a')
-    in_fd:close()
-    local out_fd = io.open(out, 'wb')
-    if not out_fd then
-      return nil
-    end
-    out_fd:write(data)
-    out_fd:close()
   end
 
   return out
@@ -166,14 +110,14 @@ end
 --- @param src string
 local function open(source_buf, src)
   -- A second hover can arrive through the async at_cursor callback before the
-  -- toggle guard sees the first; close it here, or get_buffer_esc_map below
-  -- would capture our own hover <Esc> mapping as the one to "restore"
+  -- toggle guard sees the first; close it here, or the snapshot below would
+  -- capture our own hover <Esc> mapping as the one to "restore"
   if hover then
     close()
   end
 
   local lg = UI.layout.popup('lg')
-  local previous_esc_map = get_buffer_esc_map(source_buf)
+  local previous_esc_map = common.get_buf_keymap(source_buf, 'n', '<Esc>')
 
   local scratch = vim.api.nvim_create_buf(false, true)
   vim.bo[scratch].bufhidden = 'wipe'
@@ -209,16 +153,16 @@ local function open(source_buf, src)
       vim.api.nvim_buf_clear_namespace(scratch, -1, 0, -1)
 
       local loc = self:state().loc
-      local screen_w, screen_h = UI.layout.screen_size()
       local w = loc.width + 2
       local h = loc.height + 2
+      local col, row = UI.layout.center(w, h)
 
       local win = vim.api.nvim_open_win(scratch, false, {
         relative = 'editor',
         width = w,
         height = h,
-        col = math.floor((screen_w - w) / 2) - 1,
-        row = math.floor((screen_h - h) / 2) - 1,
+        col = col,
+        row = row,
         border = 'rounded',
         style = 'minimal',
         focusable = false,

@@ -30,6 +30,18 @@ function M.screen_size()
   return screen_w, screen_h
 end
 
+--- Top-left cell that centers a window of the given size on the screen
+--- @param width integer Window width in columns, border excluded
+--- @param height integer Window height in rows, border excluded
+--- @return integer col
+--- @return integer row
+function M.center(width, height)
+  local screen_w, screen_h = M.screen_size()
+
+  -- Minus 1 to account for the border
+  return math.floor((screen_w - width) / 2) - 1, math.floor((screen_h - height) / 2) - 1
+end
+
 local computed_input_size = {
   height = 1,
   width = 60,
@@ -69,24 +81,6 @@ local function resolve_dimensions(dimensions)
   return math.floor(width), math.floor(height)
 end
 
---- Compute actual dimensions from a size configuration
---- @param size config.size.Dimensions | 'input' Size config or 'input' preset
---- @param with_border? boolean Whether to add 2 for border (default false)
---- @return integer width Width in columns
---- @return integer height Height in rows
-function M.compute_size(size, with_border)
-  local width_in_cols, height_in_rows
-
-  if size == 'input' then
-    width_in_cols = computed_input_size.width
-    height_in_rows = computed_input_size.height
-  else
-    width_in_cols, height_in_rows = resolve_dimensions(size --[[@as config.size.Dimensions]])
-  end
-
-  return width_in_cols + (with_border and 2 or 0), height_in_rows + (with_border and 2 or 0)
-end
-
 --- Compute width/height for a side panel or side preview size preset
 --- @overload fun(category: 'side_panel', variant: 'sm'|'md'|'lg', with_border?: boolean): integer, integer
 --- @overload fun(category: 'side_preview', variant: 'md', with_border?: boolean): integer, integer
@@ -96,7 +90,25 @@ end
 --- @return integer width Width in columns
 --- @return integer height Height in rows
 function M.side_size(category, variant, with_border)
-  return M.compute_size(Conf.size[category][variant], with_border)
+  local width, height = resolve_dimensions(Conf.size[category][variant])
+  local border = with_border and 2 or 0
+
+  return width + border, height + border
+end
+
+--- Height cap for inline popups (gitsigns, eagle, nvim-notify); pass the
+--- function itself so the cap follows terminal resizes
+--- @return integer max_height Height in rows
+function M.inline_max_height()
+  local _, screen_h = M.screen_size()
+  return math.floor(screen_h * Conf.size.inline_popup.MAX_HEIGHT)
+end
+
+--- Width counterpart of M.inline_max_height
+--- @return integer max_width Width in columns
+function M.inline_max_width()
+  local screen_w = M.screen_size()
+  return math.floor(screen_w * Conf.size.inline_popup.MAX_WIDTH)
 end
 
 --- @class utils.ui.layout.WinConfig
@@ -110,7 +122,6 @@ end
 --- @param with_border boolean | nil Whether to add 2 for border (default false)
 --- @return utils.ui.layout.WinConfig config Window config with width, height, col, row
 function M.popup(size, with_border)
-  local screen_w, screen_h = M.screen_size()
   local window_w, window_h
 
   if size == 'input' then
@@ -120,9 +131,7 @@ function M.popup(size, with_border)
     window_w, window_h = resolve_dimensions(Conf.size.popup[size])
   end
 
-  -- Minus 1 to account for the border
-  local col = math.floor((screen_w - window_w) / 2) - 1
-  local row = math.floor((screen_h - window_h) / 2) - 1
+  local col, row = M.center(window_w, window_h)
 
   return {
     -- Some plugins like telescope takes the border into account for the size when rendering the popup

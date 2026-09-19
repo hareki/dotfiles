@@ -31,7 +31,7 @@ function M.build_popup_navigation(source_buffer, popup_type)
     end
 
     local function close_popup()
-      if popup_win_id and vim.api.nvim_win_is_valid(popup_win_id) then
+      if vim.api.nvim_win_is_valid(popup_win_id) then
         vim.api.nvim_win_close(popup_win_id, true)
       end
     end
@@ -52,7 +52,7 @@ function M.build_popup_navigation(source_buffer, popup_type)
     source_map('n', '<Tab>', function()
       local current_win_id = vim.api.nvim_get_current_win()
 
-      if not popup_win_id or not vim.api.nvim_win_is_valid(popup_win_id) then
+      if not vim.api.nvim_win_is_valid(popup_win_id) then
         return
       end
 

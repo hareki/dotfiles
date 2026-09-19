@@ -82,7 +82,8 @@ return {
             if state.position == 'float' then
               return tree_cfg.height + 1
             end
-            return math.floor((vim.o.lines - size.height) / 2) - 1
+            local _, row = UI.layout.center(size.width, size.height)
+            return row
           end,
         },
 
@@ -246,22 +247,12 @@ return {
             enable = state.position == 'float',
             quit_on_focus_loss = true,
             open_win_config = function()
-              local size = UI.layout.popup(tree.compute_size())
-              local window_w = size.width
-              local window_h = math.floor(size.height / 2)
-              local col = size.col
-              local row = size.row
-
-              return {
+              return vim.tbl_extend('force', tree.float_geometry('collapse'), {
                 title = string.format(' %s ', ui_name),
                 title_pos = 'center',
                 border = 'rounded',
                 relative = 'editor',
-                row = row,
-                col = col,
-                width = window_w,
-                height = window_h - 1, -- Minus 1 for the space between the two windows
-              }
+              })
             end,
           },
         },
@@ -376,19 +367,13 @@ return {
         end,
       })
 
-      local prev = { new_name = '', old_name = '' } -- Prevents duplicate events
-      vim.api.nvim_create_autocmd('User', {
-        pattern = 'NvimTreeSetup',
-        callback = function()
-          local events = api.events
-          events.subscribe(events.Event.NodeRenamed, function(data)
-            if prev.new_name ~= data.new_name or prev.old_name ~= data.old_name then
-              prev = data
-              Snacks.rename.on_rename_file(data.old_name, data.new_name)
-            end
-          end)
-        end,
-      })
+      -- Subscribed once here rather than on User NvimTreeSetup: switch_position()
+      -- re-runs setup(), which re-fires that event while earlier subscriptions
+      -- persist, so every switch would stack another handler
+      local events = api.events
+      events.subscribe(events.Event.NodeRenamed, function(data)
+        Snacks.rename.on_rename_file(data.old_name, data.new_name)
+      end)
 
       local nvim_tree = require('nvim-tree')
       nvim_tree.setup(opts)

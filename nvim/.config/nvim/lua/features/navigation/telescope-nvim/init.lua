@@ -7,6 +7,7 @@ return {
       TelescopeMultiIcon = { fg = palette.blue },
       TelescopeSelectionCaret = { fg = palette.blue },
       TelescopeSelection = { link = 'ListCursorLine' },
+      TelescopeMultiSelection = {},
     }
   end, 'telescope.nvim'),
 
@@ -174,8 +175,6 @@ return {
       for _, ext in ipairs({ 'fzf' }) do
         telescope.load_extension(ext)
       end
-
-      vim.api.nvim_set_hl(0, 'TelescopeMultiSelection', {})
     end,
   },
 }

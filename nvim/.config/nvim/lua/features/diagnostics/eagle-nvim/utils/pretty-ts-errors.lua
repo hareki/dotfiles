@@ -21,20 +21,21 @@ local function trim_trailing_whitespace(text)
   return (text or ''):gsub('%s*$', '')
 end
 
-local function is_typescript_diagnostic(diagnostic)
-  local source = diagnostic.source
-  if not source and diagnostic.user_data and diagnostic.user_data.lsp then
-    source = diagnostic.user_data.lsp.source
-  end
+--- Read a field of the raw LSP diagnostic that Neovim keeps under user_data.lsp
+local function lsp_field(diagnostic, key)
+  return vim.tbl_get(diagnostic, 'user_data', 'lsp', key)
+end
 
-  return M.state.supported_sources[source] or type(diagnostic.code) == 'number'
+local function get_source(diagnostic)
+  return diagnostic.source or lsp_field(diagnostic, 'source')
+end
+
+local function is_typescript_diagnostic(diagnostic)
+  return M.state.supported_sources[get_source(diagnostic)] or type(diagnostic.code) == 'number'
 end
 
 local function normalize_range(diagnostic)
-  local range = diagnostic.range
-  if not range and diagnostic.user_data and diagnostic.user_data.lsp then
-    range = diagnostic.user_data.lsp.range
-  end
+  local range = diagnostic.range or lsp_field(diagnostic, 'range')
   if range and range.start and range['end'] then
     return {
       start = { line = range.start.line or 0, character = range.start.character or 0 },
@@ -56,32 +57,26 @@ local function get_code(diagnostic)
   if diagnostic.code ~= nil then
     return diagnostic.code
   end
-  if diagnostic.user_data and diagnostic.user_data.lsp and diagnostic.user_data.lsp.code ~= nil then
-    return diagnostic.user_data.lsp.code
-  end
 
-  return nil
+  return lsp_field(diagnostic, 'code')
 end
 
 local function get_severity(diagnostic)
-  return diagnostic.severity
-    or (diagnostic.user_data and diagnostic.user_data.lsp and diagnostic.user_data.lsp.severity)
-    or 1
+  return diagnostic.severity or lsp_field(diagnostic, 'severity') or 1
 end
 
 local function build_cli_input(diagnostic)
+  local related = diagnostic.relatedInformation
+    or diagnostic.related
+    or lsp_field(diagnostic, 'relatedInformation')
+
   return {
     range = normalize_range(diagnostic),
     message = diagnostic.message or '',
     code = get_code(diagnostic),
     severity = get_severity(diagnostic),
-    source = diagnostic.source
-      or (diagnostic.user_data and diagnostic.user_data.lsp and diagnostic.user_data.lsp.source)
-      or 'tsserver',
-    relatedInformation = diagnostic.relatedInformation
-      or diagnostic.related
-      or (diagnostic.user_data and diagnostic.user_data.lsp and diagnostic.user_data.lsp.relatedInformation)
-      or {},
+    source = get_source(diagnostic) or 'tsserver',
+    relatedInformation = related or {},
   }
 end
 
@@ -92,9 +87,7 @@ end
 -- ~200ms CLI spawn.
 local function compute_cache_key(diagnostic)
   local parts = {
-    diagnostic.source
-      or (diagnostic.user_data and diagnostic.user_data.lsp and diagnostic.user_data.lsp.source)
-      or '',
+    get_source(diagnostic) or '',
     tostring(get_code(diagnostic) or ''),
     tostring(get_severity(diagnostic)),
     diagnostic.message or '',

@@ -1,3 +1,41 @@
+local ensure_installed = {
+  'bash',
+  'c',
+  'diff',
+  'html',
+  'javascript',
+  'jsdoc',
+  'json',
+  'lua',
+  'luadoc',
+  'luap',
+  'markdown',
+  'markdown_inline',
+  'printf',
+  'python',
+  'query',
+  'regex',
+  'toml',
+  'tsx',
+  'typescript',
+  'vim',
+  'vimdoc',
+  'xml',
+  'yaml',
+  'css',
+  'scss',
+  'styled',
+  'zsh',
+  'gitcommit',
+  'astro',
+  'mermaid',
+  'angular',
+  'rust',
+  'go',
+  'ghostty',
+  'glimmer',
+}
+
 return {
   'nvim-treesitter/nvim-treesitter',
   branch = 'main',
@@ -47,53 +85,13 @@ return {
     })
 
     vim.api.nvim_create_user_command('TSInstallAll', function()
-      local lazy_config = require('lazy.core.config')
-      local spec = lazy_config.plugins['nvim-treesitter']
-      local opts = type(spec.opts) == 'table' and spec.opts or {}
       local treesitter = require('nvim-treesitter')
-
-      treesitter.install(opts.ensure_installed)
+      treesitter.install(ensure_installed)
     end, {})
   end,
 
   opts = {
-    ensure_installed = {
-      'bash',
-      'c',
-      'diff',
-      'html',
-      'javascript',
-      'jsdoc',
-      'json',
-      'lua',
-      'luadoc',
-      'luap',
-      'markdown',
-      'markdown_inline',
-      'printf',
-      'python',
-      'query',
-      'regex',
-      'toml',
-      'tsx',
-      'typescript',
-      'vim',
-      'vimdoc',
-      'xml',
-      'yaml',
-      'css',
-      'scss',
-      'styled',
-      'zsh',
-      'gitcommit',
-      'astro',
-      'mermaid',
-      'angular',
-      'rust',
-      'go',
-      'ghostty',
-      'glimmer',
-    },
+    ensure_installed = ensure_installed,
   },
 
   config = function(_, opts)
@@ -106,7 +104,7 @@ return {
 
     local missing = vim.tbl_filter(function(lang)
       return not installed[lang]
-    end, opts.ensure_installed or {})
+    end, opts.ensure_installed)
 
     if #missing > 0 then
       treesitter.install(missing, { summary = true })

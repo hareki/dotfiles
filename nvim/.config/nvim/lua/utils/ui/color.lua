@@ -44,8 +44,12 @@ end
 --- @return nil
 function M.nohlsearch()
   vim.cmd.nohlsearch()
-  Snacks.words.enable()
-  Snacks.words.update()
+  -- While Snacks.words is still on, update() would only clear and re-request
+  -- reference highlights that are already current
+  if not Snacks.words.enabled then
+    Snacks.words.enable()
+    Snacks.words.update()
+  end
 end
 
 return M

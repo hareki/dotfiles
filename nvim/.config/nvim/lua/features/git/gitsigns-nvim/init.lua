@@ -38,9 +38,7 @@ return {
           virt_text_priority = 999,
         },
 
-        get_popup_max_height = function()
-          return math.floor(vim.o.lines * Conf.size.inline_popup.MAX_HEIGHT)
-        end,
+        get_popup_max_height = UI.layout.inline_max_height,
         preview_config = {
           border = 'rounded',
         },
