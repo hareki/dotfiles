@@ -10,10 +10,9 @@ local function empty_func()
 end
 
 --- Create an empty component (1 margin unit)
---- @param palette table Color palette
 --- @param cond function | nil Condition function (synced with main component)
 --- @return table component Empty lualine component
-local function create_empty_comp(palette, cond)
+local function create_empty_comp(cond)
   return {
     empty_func,
     color = { fg = 'none', bg = 'none' },
@@ -25,13 +24,12 @@ end
 
 --- Create margin components (empty_comp repeated n times)
 --- @param count number Number of margin units
---- @param palette table Color palette
 --- @param cond function | nil Condition function
 --- @return table[] components Array of empty components
-local function create_margins(count, palette, cond)
+local function create_margins(count, cond)
   local margins = {}
   for _ = 1, count do
-    table.insert(margins, create_empty_comp(palette, cond))
+    table.insert(margins, create_empty_comp(cond))
   end
 
   return margins
@@ -98,8 +96,8 @@ function M.create_styling_wrapper(opts)
 
   local margin = opts.margin or defaults.margin
   local cond = opts.cond
-  local left_margins = create_margins(margin.left, palette, cond)
-  local right_margins = create_margins(margin.right, palette, cond)
+  local left_margins = create_margins(margin.left, cond)
+  local right_margins = create_margins(margin.right, cond)
 
   local result = {}
   vim.list_extend(result, left_margins)

@@ -28,7 +28,9 @@ aucmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
         then
           -- `silent!` on top of `pcall`: a file that no longer exists (branch
           -- switch, agent deletion) *reports* E211 instead of raising it
-          pcall(vim.cmd, 'silent! checktime ' .. bufnr)
+          pcall(function()
+            vim.cmd('silent! checktime ' .. bufnr)
+          end)
         end
       end
     end)
