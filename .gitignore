@@ -1,2 +1,4 @@
 .DS_Store
 **/.codegraph/
+# claude.ai skills auto-synced by Claude Code
+agents/.agents/skills/synced/
