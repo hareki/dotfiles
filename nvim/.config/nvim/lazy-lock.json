@@ -42,7 +42,7 @@
   "nvim-spider": { "branch": "main", "commit": "38f74f733734566bec3b23a9dcf968a5a5559cd6" },
   "nvim-tree-preview.lua": { "branch": "main", "commit": "5cdc8ea71ed54a30661e94fa939ed5c9dad59ada" },
   "nvim-tree.lua": { "branch": "master", "commit": "77bd8d1c17cf8cfdd0f293162e7c0ec4f19f4425" },
-  "nvim-treesitter": { "branch": "main", "commit": "9a168f6357ed21c3a636e1727bc7d382abc451b8" },
+  "nvim-treesitter": { "branch": "main", "commit": "f603a2f4da48728f80257fb5fbb90145fd1dc173" },
   "nvim-treesitter-textobjects": { "branch": "main", "commit": "5c7b0263797dfd1bd6202f2b219f3b53a80b2187" },
   "nvim-ts-context-commentstring": { "branch": "main", "commit": "6141a40173c6efa98242dc951ed4b6f892c97027" },
   "nvim-ufo": { "branch": "main", "commit": "ab3eb124062422d276fae49e0dd63b3ad1062cfc" },
@@ -62,6 +62,5 @@
   "vim-tmux-navigator": { "branch": "master", "commit": "e41c431a0c7b7388ae7ba341f01a0d217eb3a432" },
   "visimatch.nvim": { "branch": "main", "commit": "824af03253f803189dcded80a3ebf3107d0a3b32" },
   "which-key.nvim": { "branch": "main", "commit": "1a88b2430275b2ceed69c602bb3f64c765f0da12" },
-  "workspace-diagnostics.nvim": { "branch": "main", "commit": "a35321d8401878cc9558e357acfd0da58b582739" },
   "yanky.nvim": { "branch": "main", "commit": "106d251d2dbf4f695e81da343a46d546a46dac0f" }
 }
