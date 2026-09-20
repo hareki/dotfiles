@@ -21,9 +21,9 @@ local READ_TIMEOUT_MS = 5000
 local function parse_info(out, n)
   local infos = {}
   local i = 0
-  for line in out:gmatch("([^\n]*)\n") do
+  for line in out:gmatch('([^\n]*)\n') do
     i = i + 1
-    local kind, size = line:match("^%S+ (%S+) (%d+)$")
+    local kind, size = line:match('^%S+ (%S+) (%d+)$')
     if kind then
       infos[i] = { type = kind, size = tonumber(size), header = line }
     end
@@ -38,7 +38,7 @@ end
 --- (long-lived) daemon's memory: never a gitlink's commit object, never an
 --- oversized blob.
 local function is_wanted_blob(rec, max_bytes)
-  return rec ~= nil and rec.type == "blob" and rec.size <= max_bytes
+  return rec ~= nil and rec.type == 'blob' and rec.size <= max_bytes
 end
 
 --- Blobs out of a "<oid> <type> <size>\n<bytes>\n" stream, keyed by their index
@@ -52,7 +52,7 @@ local function parse_blobs(out, infos, wanted)
   local pos = 1
   for _, i in ipairs(wanted) do
     local header = infos[i].header
-    if out:sub(pos, pos + #header) ~= header .. "\n" then
+    if out:sub(pos, pos + #header) ~= header .. '\n' then
       return blobs, false
     end
     pos = pos + #header + 1
@@ -94,7 +94,7 @@ local function ensure(cwd)
 
   local s = { cwd = cwd, dead = false }
   reset(s, false)
-  local ok, proc = pcall(vim.system, { "git", "cat-file", "--batch-command", "--buffer" }, {
+  local ok, proc = pcall(vim.system, { 'git', 'cat-file', '--batch-command', '--buffer' }, {
     cwd = cwd,
     stdin = true,
     stderr = false,
@@ -108,7 +108,7 @@ local function ensure(cwd)
       if s.counting then
         local pos = 1
         while true do
-          local nl = data:find("\n", pos, true)
+          local nl = data:find('\n', pos, true)
           if not nl then
             break
           end
@@ -129,7 +129,7 @@ local function ensure(cwd)
 end
 
 local function send(s, commands)
-  commands[#commands + 1] = "flush\n"
+  commands[#commands + 1] = 'flush\n'
   local ok = pcall(function()
     s.proc:write(table.concat(commands))
   end)
@@ -157,7 +157,7 @@ local function fetch_session(cwd, oids, max_bytes)
 
   local commands = {}
   for i = 1, n do
-    commands[i] = "info " .. oids[i] .. "\n"
+    commands[i] = 'info ' .. oids[i] .. '\n'
   end
   reset(s, true)
   if not send(s, commands) then
@@ -181,7 +181,7 @@ local function fetch_session(cwd, oids, max_bytes)
     local rec = infos[i]
     if is_wanted_blob(rec, max_bytes) then
       wanted[#wanted + 1] = i
-      commands[#commands + 1] = "contents " .. oids[i] .. "\n"
+      commands[#commands + 1] = 'contents ' .. oids[i] .. '\n'
       -- git repeats the info line, then the bytes and a newline
       expected = expected + #rec.header + 1 + rec.size + 1
     end
@@ -216,7 +216,7 @@ end
 local function git_batch(args, oids, cwd)
   local ok, proc = pcall(vim.system, args, {
     cwd = cwd,
-    stdin = table.concat(oids, "\n") .. "\n",
+    stdin = table.concat(oids, '\n') .. '\n',
     text = false,
   })
   if not ok then
@@ -234,7 +234,7 @@ local function git_batch(args, oids, cwd)
 end
 
 local function fetch_oneshot(cwd, oids, max_bytes)
-  local out = git_batch({ "git", "cat-file", "--batch-check" }, oids, cwd)
+  local out = git_batch({ 'git', 'cat-file', '--batch-check' }, oids, cwd)
   if not out then
     return {}, {}
   end
@@ -255,7 +255,7 @@ local function fetch_oneshot(cwd, oids, max_bytes)
     return infos, {}
   end
 
-  out = git_batch({ "git", "cat-file", "--batch" }, hashes, cwd)
+  out = git_batch({ 'git', 'cat-file', '--batch' }, hashes, cwd)
   if not out then
     return infos, {}
   end

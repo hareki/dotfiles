@@ -24,7 +24,7 @@ local function utf16_col_to_byte_col(line, utf16_col)
   if not line or utf16_col <= 1 then
     return utf16_col
   end
-  local ok, byte_idx = pcall(vim.str_byteindex, line, "utf-16", utf16_col - 1, true)
+  local ok, byte_idx = pcall(vim.str_byteindex, line, 'utf-16', utf16_col - 1, true)
   if ok then
     return byte_idx + 1
   end
@@ -56,7 +56,7 @@ local function side_char_ranges(inner_changes, side, lines)
         local e -- 1-based inclusive end byte
         if row == r.end_line then
           e = utf16_col_to_byte_col(text, r.end_col) - 1
-          if side == "original" then
+          if side == 'original' then
             -- Widen an empty tail marker to a whole character, not a single
             -- byte: a range ending mid-sequence makes the renderer cut the
             -- character in two and emit an SGR escape between its bytes.
@@ -92,14 +92,14 @@ end
 --- old_emph/new_emph, or nil when the engine is unavailable or timed out
 --- (the caller then falls back to the patch's own line runs).
 function M.compute(frag_old, frag_new)
-  local diff = lazy_require("codediff.core.diff")
+  local diff = lazy_require('codediff.core.diff')
   if not diff then
     return nil
   end
   local ok, result = pcall(diff.compute_diff, frag_old, frag_new, {
     max_computation_time_ms = 1000,
   })
-  if not ok or type(result) ~= "table" or result.hit_timeout then
+  if not ok or type(result) ~= 'table' or result.hit_timeout then
     return nil
   end
 
@@ -110,8 +110,8 @@ function M.compute(frag_old, frag_new)
       old_end = change.original.end_line,
       new_start = change.modified.start_line,
       new_end = change.modified.end_line,
-      old_emph = side_char_ranges(change.inner_changes, "original", frag_old),
-      new_emph = side_char_ranges(change.inner_changes, "modified", frag_new),
+      old_emph = side_char_ranges(change.inner_changes, 'original', frag_old),
+      new_emph = side_char_ranges(change.inner_changes, 'modified', frag_new),
     }
   end
   return changes
@@ -127,14 +127,14 @@ function M.patch_changes(hunk)
   local changes = {}
   local i, old_row, new_row = 1, 0, 0
   while i <= #lines do
-    if lines[i].origin == " " then
+    if lines[i].origin == ' ' then
       old_row, new_row, i = old_row + 1, new_row + 1, i + 1
     else
       local minus_n, plus_n = 0, 0
-      while i <= #lines and lines[i].origin == "-" do
+      while i <= #lines and lines[i].origin == '-' do
         minus_n, i = minus_n + 1, i + 1
       end
-      while i <= #lines and lines[i].origin == "+" do
+      while i <= #lines and lines[i].origin == '+' do
         plus_n, i = plus_n + 1, i + 1
       end
       changes[#changes + 1] = {

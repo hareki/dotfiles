@@ -1,11 +1,11 @@
-local ansi = require("lib.ansi")
-local theme = require("lib.theme")
-local util = require("lib.util")
+local ansi = require('lib.ansi')
+local theme = require('lib.theme')
+local util = require('lib.util')
 
 local M = {}
 
 local TAB_WIDTH = 4
-local FILLER_CHAR = "╱" -- codediff's diff.filler_text default
+local FILLER_CHAR = '╱' -- codediff's diff.filler_text default
 
 local palette = theme.palette
 
@@ -15,7 +15,7 @@ local is_plain_ascii = util.is_plain_ascii
 
 -- The side-by-side separator. palette.decoration is a literal that
 -- load_diff_colors() does not overwrite, so this run is fixed for the process.
-local BAR = ansi.styled({ fg = palette.decoration }, "│")
+local BAR = ansi.styled({ fg = palette.decoration }, '│')
 
 -- Split into grapheme clusters with their display widths.
 --
@@ -50,7 +50,7 @@ local function clip_to_width(s, limit)
   -- side-by-side diff is clipped to its cell, and a source line whose one
   -- non-ASCII byte sits past the cell edge is then answered without walking a
   -- single cluster. An all-ASCII string is that case with nothing after it.
-  local nonascii = s:find("[^\32-\126]")
+  local nonascii = s:find('[^\32-\126]')
   local bulk = nonascii and math.max(nonascii - 2, 0) or limit
   if bulk >= limit then
     local clipped = s:sub(1, math.max(limit, 0))
@@ -87,10 +87,10 @@ local function clip_left_to_width(s, limit)
     return s, w
   end
   if limit < 2 then
-    return "", 0
+    return '', 0
   end
   if is_plain_ascii(s) then
-    return "…" .. s:sub(#s - limit + 2), limit
+    return '…' .. s:sub(#s - limit + 2), limit
   end
   local units = clusters(s)
   if not units then
@@ -106,7 +106,7 @@ local function clip_left_to_width(s, limit)
     table.insert(out, 1, unit.text)
     w = w + unit.w
   end
-  return "…" .. table.concat(out), w + 1
+  return '…' .. table.concat(out), w + 1
 end
 
 -- Collapse the bytes that would break a row out of a single line. A tab is
@@ -115,7 +115,7 @@ end
 -- a newline in a path survives unquoting. Collapsing beats expanding here: this
 -- text is metadata, not source that needs its indentation.
 local function one_line(s)
-  return (s:gsub("[\t\r\n]", " "))
+  return (s:gsub('[\t\r\n]', ' '))
 end
 
 --- Delta-style boxed hunk header: path, new-side start line and the section
@@ -125,29 +125,29 @@ function M.hunk_header(path, hunk, cols)
   -- A pure-deletion hunk has new_count == 0 and a new_start pointing at the
   -- line *before* it (0 for a whole-file delete), so anchor on the old side.
   local num = tostring(hunk.new_count > 0 and hunk.new_start or hunk.old_start)
-  local path_plain = one_line(path or "")
-  local heading = hunk.heading and (": " .. one_line(hunk.heading)) or ""
-  local plain = path_plain .. ":" .. num .. heading
+  local path_plain = one_line(path or '')
+  local heading = hunk.heading and (': ' .. one_line(hunk.heading)) or ''
+  local plain = path_plain .. ':' .. num .. heading
   local width = math.min(util.display_width(plain) + 2, math.max(cols - 1, 1))
 
   -- Everything must fit inside the rule with at least one pad cell before the
   -- bar, or the box breaks apart. The line number is never dropped: the path
   -- loses its head first, then the section heading its tail.
   local budget = math.max(width - 1, 1)
-  local num_w = util.display_width(":" .. num)
+  local num_w = util.display_width(':' .. num)
   local path_text, path_w = clip_left_to_width(path_plain, math.max(budget - num_w, 0))
   -- Under three cells nothing but the heading's own ": " prefix survives, which
   -- just reads as a stray colon; drop the heading entirely instead.
   local heading_budget = math.max(budget - path_w - num_w, 0)
-  local heading_text, heading_w = "", 0
+  local heading_text, heading_w = '', 0
   if heading_budget >= 3 then
     heading_text, heading_w = clip_to_width(heading, heading_budget)
   end
   local used = path_w + num_w + heading_w
 
-  local rule = ansi.styled({ fg = p.decoration }, string.rep("─", width))
+  local rule = ansi.styled({ fg = p.decoration }, string.rep('─', width))
   local header = ansi.styled({ fg = p.default_fg, bold = true }, path_text)
-    .. ansi.styled({ fg = p.decoration }, ":")
+    .. ansi.styled({ fg = p.decoration }, ':')
     .. ansi.styled({ fg = p.hunk_num, bold = true }, num)
     .. ansi.styled({ fg = p.default_fg }, heading_text)
 
@@ -155,9 +155,13 @@ function M.hunk_header(path, hunk, cols)
   -- column, so the pad is exactly the leftover width (no -1).
   local pad = width - used
   return table.concat({
-    rule .. "┐" .. ansi.reset .. "\n",
-    header .. string.rep(" ", math.max(pad, 1)) .. ansi.styled({ fg = p.decoration }, "│") .. ansi.reset .. "\n",
-    rule .. "┘" .. ansi.reset .. "\n",
+    rule .. '┐' .. ansi.reset .. '\n',
+    header
+      .. string.rep(' ', math.max(pad, 1))
+      .. ansi.styled({ fg = p.decoration }, '│')
+      .. ansi.reset
+      .. '\n',
+    rule .. '┘' .. ansi.reset .. '\n',
   })
 end
 
@@ -176,7 +180,7 @@ end
 -- matters because the daemon serves requests for up to an hour. Weak keys so an
 -- attrs table theme.attrs ever stopped handing out takes its styles with it.
 local NO_ATTRS = {}
-local styles = setmetatable({}, { __mode = "k" })
+local styles = setmetatable({}, { __mode = 'k' })
 
 local function segment_sgr(attrs, bg)
   local key = attrs or NO_ATTRS
@@ -302,7 +306,11 @@ local function segment_winners(spans, boundaries, nb, stop_col)
       if span.e1 > a then
         kept = kept + 1
         active[kept] = span
-        if not best or span.prio > best.prio or (span.prio == best.prio and span.order > best.order) then
+        if
+          not best
+          or span.prio > best.prio
+          or (span.prio == best.prio and span.order > best.order)
+        then
           best = span
         end
       end
@@ -329,9 +337,9 @@ end
 local function emit_line(out, n, text, spans, line_type, emph_ranges, limit)
   local p = palette
   local line_bg, emph_bg
-  if line_type == "minus" then
+  if line_type == 'minus' then
     line_bg, emph_bg = p.minus_bg, p.minus_emph_bg
-  elseif line_type == "plus" then
+  elseif line_type == 'plus' then
     line_bg, emph_bg = p.plus_bg, p.plus_emph_bg
   end
 
@@ -370,7 +378,10 @@ local function emit_line(out, n, text, spans, line_type, emph_ranges, limit)
   -- It also makes a byte offset a display column, which is what lets a clipped
   -- row stop resolving spans at the cut.
   local simple = is_plain_ascii(text)
-  local winners = nb > 2 and n_spans > 0 and segment_winners(spans, boundaries, nb, simple and limit) or nil
+  local winners = nb > 2
+      and n_spans > 0
+      and segment_winners(spans, boundaries, nb, simple and limit)
+    or nil
 
   local next_emph = 1
   local col = 0
@@ -472,7 +483,7 @@ local num_fmts = {}
 local function num_fmt(num_w)
   local fmt = num_fmts[num_w]
   if not fmt then
-    fmt = { pair = "%" .. num_w .. "s %" .. num_w .. "s ", single = "%" .. num_w .. "s " }
+    fmt = { pair = '%' .. num_w .. 's %' .. num_w .. 's ', single = '%' .. num_w .. 's ' }
     num_fmts[num_w] = fmt
   end
   return fmt
@@ -484,14 +495,14 @@ end
 local gutters = {}
 
 local function gutter_sgr(line_type)
-  local key = line_type or "context"
+  local key = line_type or 'context'
   local g = gutters[key]
   if not g then
     local p = palette
     local fg, bg = p.decoration, nil
-    if line_type == "minus" then
+    if line_type == 'minus' then
       fg, bg = p.minus_num, p.minus_bg
-    elseif line_type == "plus" then
+    elseif line_type == 'plus' then
       fg, bg = p.plus_num, p.plus_bg
     end
     g = { num = ansi.style({ fg = fg, bg = bg }), bar = ansi.style({ fg = p.decoration, bg = bg }) }
@@ -505,7 +516,7 @@ local function emit_gutter(out, n, nums, line_type)
   out[n + 1] = g.num
   out[n + 2] = nums
   out[n + 3] = g.bar
-  out[n + 4] = "│"
+  out[n + 4] = '│'
   return n + 4
 end
 
@@ -516,17 +527,18 @@ end
 --- cell: { text, spans, line_type, emph }
 function M.content_line(out, cell, old_no, new_no, cols, num_w)
   local line_type = cell.line_type
-  local n = emit_gutter(out, #out, num_fmt(num_w).pair:format(old_no or "", new_no or ""), line_type)
+  local n =
+    emit_gutter(out, #out, num_fmt(num_w).pair:format(old_no or '', new_no or ''), line_type)
   local col, line_bg
   n, col, line_bg = emit_line(out, n, cell.text, cell.spans, line_type, cell.emph, nil)
   local text_w = cols - inline_gutter_width(num_w)
   if line_bg and text_w > col then
     out[n + 1] = fill_sgr(line_bg)
-    out[n + 2] = string.rep(" ", text_w - col)
+    out[n + 2] = string.rep(' ', text_w - col)
     n = n + 2
   end
   out[n + 1] = ansi.reset
-  out[n + 2] = "\n"
+  out[n + 2] = '\n'
 end
 
 -- Append one side-by-side cell of exactly `width` display cells: the side's
@@ -536,7 +548,7 @@ end
 local function render_cell(out, n, cell, width, num_w)
   local filler = not cell or cell.filler
   local line_type = not filler and cell.line_type or nil
-  n = emit_gutter(out, n, num_fmt(num_w).single:format(not filler and cell.lnum or ""), line_type)
+  n = emit_gutter(out, n, num_fmt(num_w).single:format(not filler and cell.lnum or ''), line_type)
   -- The gutter is never clipped: a cell too narrow for it overflows, which only
   -- a view a dozen cells wide can bring about.
   width = math.max(width - cell_gutter_width(num_w), 1)
@@ -548,7 +560,7 @@ local function render_cell(out, n, cell, width, num_w)
   n, col, line_bg = emit_line(out, n, cell.text, cell.spans, line_type, cell.emph, width)
   if col < width then
     out[n + 1] = fill_sgr(line_bg)
-    out[n + 2] = string.rep(" ", width - col)
+    out[n + 2] = string.rep(' ', width - col)
     n = n + 2
   end
   return n
@@ -563,7 +575,7 @@ function M.split_line(out, left, right, cols, num_w)
   out[n + 1] = BAR
   n = render_cell(out, n + 1, right, right_w, num_w)
   out[n + 1] = ansi.reset
-  out[n + 2] = "\n"
+  out[n + 2] = '\n'
 end
 
 return M

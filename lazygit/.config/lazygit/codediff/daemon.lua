@@ -14,15 +14,15 @@
 -- nvim binary, to the renderer's own sources or to anything bootstrap loads
 -- (parsers, plugins, filetype rules) recycles the daemon on the next request.
 
-local script = arg and arg[0] or debug.getinfo(1, "S").source:sub(2)
-local dir = vim.fn.fnamemodify(script, ":p:h")
-package.path = dir .. "/?.lua;" .. package.path
+local script = arg and arg[0] or debug.getinfo(1, 'S').source:sub(2)
+local dir = vim.fn.fnamemodify(script, ':p:h')
+package.path = dir .. '/?.lua;' .. package.path
 
 local uv = vim.uv
 
 -- The spawning render task's pty goes away right after we start; SIGHUP from
 -- that teardown must not kill the daemon.
-uv.new_signal():start("sighup", function() end)
+uv.new_signal():start('sighup', function() end)
 
 -- Bootstrap owns the list of paths a render loads from, so the staleness check
 -- reads that list rather than re-deriving it: a dependency added there cannot
@@ -30,7 +30,7 @@ uv.new_signal():start("sighup", function() end)
 -- because an error raised before the lifetime guards are armed would strand an
 -- nvim holding the RPC socket forever; scripts_mtime() covers bootstrap.lua
 -- itself either way, so an editing mistake there still recycles the daemon.
-local ok_paths, bootstrap = pcall(require, "lib.bootstrap")
+local ok_paths, bootstrap = pcall(require, 'lib.bootstrap')
 local paths = ok_paths and bootstrap.paths or {}
 local WATCHED_PATHS = {
   paths.parsers,
@@ -41,8 +41,8 @@ local WATCHED_PATHS = {
 
 -- Derived the same way client.sh derives it, rather than from v:servername, so
 -- an nvim that failed to bind its own RPC socket still serves the fast path.
-local TMP = ((vim.env.TMPDIR or "/tmp"):gsub("/+$", ""))
-local PIPE_PATH = string.format("%s/lazygit-codediff-%s.pipe", TMP, vim.env.USER or "u")
+local TMP = ((vim.env.TMPDIR or '/tmp'):gsub('/+$', ''))
+local PIPE_PATH = string.format('%s/lazygit-codediff-%s.pipe', TMP, vim.env.USER or 'u')
 local IDLE_WITH_OWNER_MS = 60 * 60 * 1000
 local IDLE_NO_OWNER_MS = 5 * 60 * 1000
 -- Owners are registered on demand (a client walks its process tree only when
@@ -71,10 +71,10 @@ end
 -- the daemon on the next request instead of serving stale code.
 local function scripts_mtime()
   local latest = 0
-  for _, d in ipairs({ dir, dir .. "/lib" }) do
+  for _, d in ipairs({ dir, dir .. '/lib' }) do
     for name, kind in vim.fs.dir(d) do
-      if kind == "file" then
-        latest = math.max(latest, mtime_of(d .. "/" .. name))
+      if kind == 'file' then
+        latest = math.max(latest, mtime_of(d .. '/' .. name))
       end
     end
   end
@@ -89,7 +89,7 @@ local function fingerprint()
   for _, path in ipairs(WATCHED_PATHS) do
     parts[#parts + 1] = mtime_of(path)
   end
-  return table.concat(parts, ":")
+  return table.concat(parts, ':')
 end
 
 local generation = fingerprint()
@@ -101,14 +101,14 @@ local owner_declined = -OWNER_ASK_INTERVAL_MS
 
 -- Captured on the main loop: vim.v is not accessible from timer callbacks.
 local socket_path = vim.v.servername
-local socket_ino = (socket_path ~= "" and uv.fs_stat(socket_path) or {}).ino
+local socket_ino = (socket_path ~= '' and uv.fs_stat(socket_path) or {}).ino
 local pipe_ino = nil
 
 -- os.exit skips nvim's own socket cleanup, so unlink here -- but only while the
 -- path is still *ours*: both are shared by every daemon, and a successor may
 -- already have bound its own at the same name.
 local function unlink_own(path, ino)
-  if path and path ~= "" and ino then
+  if path and path ~= '' and ino then
     local st = uv.fs_stat(path)
     if st and st.ino == ino then
       pcall(os.remove, path)
@@ -145,7 +145,7 @@ end)
 -- while every subsequent render spawns another one.
 local ok_boot, core = pcall(function()
   bootstrap.setup()
-  return require("lib.core")
+  return require('lib.core')
 end)
 if not ok_boot then
   shutdown(1)
@@ -229,7 +229,7 @@ local function write_output(path, data)
   -- hides the argument count, so LuaLS cannot tell the sync overload (an fd)
   -- from the async one (a request handle).
   local ok_open, fd = pcall(function()
-    return uv.fs_open(path, "wx", 384) -- 0600
+    return uv.fs_open(path, 'wx', 384) -- 0600
   end)
   if not ok_open or not fd then
     return false
@@ -239,7 +239,7 @@ local function write_output(path, data)
     while off < #data do
       local written = uv.fs_write(fd, data:sub(off + 1), off)
       if not written or written <= 0 then
-        error("short write")
+        error('short write')
       end
       off = off + written
     end
@@ -258,14 +258,14 @@ local function render_request(infile, outfile, cwd, cols, layout)
 
   local stale = fingerprint() ~= generation
 
-  local f = io.open(infile, "rb")
+  local f = io.open(infile, 'rb')
   if not f then
-    return "err:input"
+    return 'err:input'
   end
-  local input = f:read("*a") or ""
+  local input = f:read('*a') or ''
   f:close()
 
-  local key = table.concat({ vim.fn.sha256(input), cwd, tostring(cols), tostring(layout) }, "\0")
+  local key = table.concat({ vim.fn.sha256(input), cwd, tostring(cols), tostring(layout) }, '\0')
   local rendered = not stale and cache_get(key) or nil
   if not rendered then
     local ok, result, cacheable = pcall(core.render, input, {
@@ -280,7 +280,7 @@ local function render_request(infile, outfile, cwd, cols, layout)
   end
 
   if not write_output(outfile, rendered) then
-    return "err:output"
+    return 'err:output'
   end
 
   if stale then
@@ -288,7 +288,7 @@ local function render_request(infile, outfile, cwd, cols, layout)
     -- fresh parsers / nvim runtime.
     vim.defer_fn(shutdown, 50)
   end
-  return "ok"
+  return 'ok'
 end
 
 _G.CODEDIFF = {}
@@ -326,7 +326,7 @@ local function reply(client, message)
   if client:is_closing() then
     return
   end
-  client:write(message .. "\n", function()
+  client:write(message .. '\n', function()
     client:shutdown(function()
       if not client:is_closing() then
         client:close()
@@ -336,32 +336,33 @@ local function reply(client, message)
 end
 
 local function dispatch(request)
-  if request == "ping" then
-    return "pong"
+  if request == 'ping' then
+    return 'pong'
   end
-  local pid = tonumber(request:match("^owner\t(%d+)$"))
+  local pid = tonumber(request:match('^owner\t(%d+)$'))
   if pid then
     if pid > 0 then
       watch_owner(pid)
     else
       owner_declined = uv.now()
     end
-    return "ok"
+    return 'ok'
   end
-  local infile, outfile, cols, layout, cwd = request:match("^render\t([^\t]*)\t([^\t]*)\t([^\t]*)\t([^\t]*)\t(.*)$")
+  local infile, outfile, cols, layout, cwd =
+    request:match('^render\t([^\t]*)\t([^\t]*)\t([^\t]*)\t([^\t]*)\t(.*)$')
   if not infile then
-    return "err:request"
+    return 'err:request'
   end
   local status = render_request(infile, outfile, cwd, cols, layout)
-  if status == "ok" and want_owner() then
-    return "ok:owner"
+  if status == 'ok' and want_owner() then
+    return 'ok:owner'
   end
   return status
 end
 
 local function run(request, client)
   local ok, status = pcall(dispatch, request)
-  reply(client, ok and status or "err:internal")
+  reply(client, ok and status or 'err:internal')
 end
 
 -- One render at a time. `vim.wait` inside the git object session pumps the
@@ -408,9 +409,9 @@ local function on_connection(err)
     elseif chunk then
       chunks[#chunks + 1] = chunk
       bytes = bytes + #chunk
-      if chunk:find("\n", 1, true) then
+      if chunk:find('\n', 1, true) then
         local buf = table.concat(chunks)
-        request = buf:sub(1, buf:find("\n", 1, true) - 1)
+        request = buf:sub(1, buf:find('\n', 1, true) - 1)
       elseif bytes > MAX_REQUEST_BYTES then
         done = true
         client:close()

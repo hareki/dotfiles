@@ -2,28 +2,28 @@ local M = {}
 
 local done = false
 
-local data = vim.fn.stdpath("data")
-local config = vim.fn.stdpath("config")
+local data = vim.fn.stdpath('data')
+local config = vim.fn.stdpath('config')
 
 --- Every path setup() loads from, in one table, so the daemon can fingerprint
 --- what a render depends on instead of re-deriving the same paths: a dependency
 --- added here cannot be one the staleness check forgot.
 M.paths = {
-  site = vim.fs.joinpath(data, "site"),
-  parsers = vim.fs.joinpath(data, "site/parser"),
-  treesitter = vim.fs.joinpath(data, "lazy/nvim-treesitter"),
-  catppuccin = vim.fs.joinpath(data, "lazy/catppuccin"),
-  codediff = vim.fs.joinpath(data, "lazy/codediff.nvim"),
+  site = vim.fs.joinpath(data, 'site'),
+  parsers = vim.fs.joinpath(data, 'site/parser'),
+  treesitter = vim.fs.joinpath(data, 'lazy/nvim-treesitter'),
+  catppuccin = vim.fs.joinpath(data, 'lazy/catppuccin'),
+  codediff = vim.fs.joinpath(data, 'lazy/codediff.nvim'),
   -- Bumped whenever codediff.nvim (and its native diff library) updates.
-  codediff_version = vim.fs.joinpath(data, "lazy/codediff.nvim/VERSION"),
+  codediff_version = vim.fs.joinpath(data, 'lazy/codediff.nvim/VERSION'),
   -- The editor's filetype-rules module that setup() sources below: its
   -- detection rules and ft => language aliases shape every render, so an edit
   -- must recycle the daemon like any renderer source.
-  filetype_rules = vim.fs.joinpath(config, "lua/config/filetypes/init.lua"),
+  filetype_rules = vim.fs.joinpath(config, 'lua/config/filetypes/init.lua'),
   -- Rewritten by every lazy update, so one stat covers the plugins above
   -- changing under a running daemon: an update that only rewrites existing
   -- files leaves their directory mtimes untouched.
-  plugin_lock = vim.fs.joinpath(config, "lazy-lock.json"),
+  plugin_lock = vim.fs.joinpath(config, 'lazy-lock.json'),
 }
 
 --- Minimal environment for treesitter-quality highlighting without loading the
@@ -41,7 +41,7 @@ function M.setup()
   -- would otherwise shadow nvim-treesitter's.
   vim.opt.runtimepath:prepend(M.paths.site)
   vim.opt.runtimepath:append(M.paths.treesitter)
-  vim.opt.runtimepath:append(M.paths.treesitter .. "/runtime")
+  vim.opt.runtimepath:append(M.paths.treesitter .. '/runtime')
   vim.opt.runtimepath:append(M.paths.catppuccin)
   vim.opt.runtimepath:append(M.paths.codediff)
 
@@ -50,33 +50,33 @@ function M.setup()
   -- Mirror the subset of the editor's catppuccin setup that affects the groups
   -- this renderer reads (Diff* backgrounds, @capture colors), so lazygit shows
   -- the same colors nvim does.
-  require("catppuccin").setup({
+  require('catppuccin').setup({
     transparent_background = true,
     default_integrations = false,
     custom_highlights = function(palette)
       return {
-        ["@string.special.path"] = { fg = palette.text },
-        ["@markup.quote"] = { fg = palette.text },
-        ["@markup.italic"] = { fg = palette.flamingo, italic = true },
-        ["@markup.strong"] = { fg = palette.flamingo, bold = true },
+        ['@string.special.path'] = { fg = palette.text },
+        ['@markup.quote'] = { fg = palette.text },
+        ['@markup.italic'] = { fg = palette.flamingo, italic = true },
+        ['@markup.strong'] = { fg = palette.flamingo, bold = true },
       }
     end,
   })
-  vim.cmd.colorscheme("catppuccin-mocha")
+  vim.cmd.colorscheme('catppuccin-mocha')
 
   -- requiring codediff.core.diff may auto-download the native library when it
   -- thinks it is outdated; the render daemon must never touch the network.
-  vim.env.VSCODE_DIFF_NO_AUTO_INSTALL = "1"
+  vim.env.VSCODE_DIFF_NO_AUTO_INSTALL = '1'
   -- Defines CodeDiffLine*/CodeDiffChar* from the active colorscheme, which
   -- theme.load_diff_colors() then reads back.
-  require("codediff.ui.highlights").setup()
-  require("lib.theme").load_diff_colors()
+  require('codediff.ui.highlights').setup()
+  require('lib.theme').load_diff_colors()
 
   -- Plugin files are not auto-sourced in --clean headless mode. These two are
   -- required: filetypes.lua registers ft=>lang aliases (typescriptreact=>tsx,
   -- sh=>bash, ...), query_predicates.lua defines the custom predicates that
   -- nvim-treesitter's query files use.
-  vim.cmd("runtime! plugin/filetypes.lua plugin/query_predicates.lua")
+  vim.cmd('runtime! plugin/filetypes.lua plugin/query_predicates.lua')
 
   -- The editor's own vim.filetype.add() rules and its filetype => treesitter
   -- language aliases (mdx, handlebars, htmlangular) live in the user config,
@@ -90,7 +90,7 @@ function M.setup()
   -- Keep EPIPE as a write error instead of a fatal signal so the emitter can
   -- exit cleanly when lazygit kills the render task mid-stream.
   pcall(function()
-    vim.uv.new_signal():start("sigpipe", function() end)
+    vim.uv.new_signal():start('sigpipe', function() end)
   end)
 end
 
