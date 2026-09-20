@@ -100,10 +100,20 @@ local function compute_spans(file, langs_by_side, ctx)
   -- deadline that has not passed. Stating that once keeps the four call sites
   -- below from restating it in three slightly different spellings.
   local function spans(lines, lang, ranges)
-    if not lang or #ranges == 0 or hl_expired(ctx) then
+    if not lang or #ranges == 0 then
       return nil
     end
-    return highlight.line_spans(table.concat(lines, '\n'), lang, ranges, ctx.hl_deadline)
+    if hl_expired(ctx) then
+      ctx.hl_degraded = true
+      return nil
+    end
+    local rows = highlight.line_spans(table.concat(lines, '\n'), lang, ranges, ctx.hl_deadline)
+    -- line_spans stops collecting once the deadline passes, so a deadline that
+    -- ran out during the call may have cost this side some of its rows.
+    if hl_expired(ctx) then
+      ctx.hl_degraded = true
+    end
+    return rows
   end
 
   if file.content_mode == 'full' then
@@ -293,9 +303,12 @@ local function render_file(file, ctx)
 
   -- Budget: once the global highlighting budget is spent, the remaining files
   -- render with tints only. Oversized sections were already classified plain
-  -- by blob.acquire, which owns content_mode.
+  -- by blob.acquire, which owns content_mode. The wall-clock deadline is not
+  -- consulted here but where spans are extracted (compute_spans), which is the
+  -- one place that can tell a file the deadline cost its highlighting from one
+  -- that never had a language to highlight.
   local langs_by_side = {}
-  if file.content_mode ~= 'plain' and ctx.budget > 0 and not hl_expired(ctx) then
+  if file.content_mode ~= 'plain' and ctx.budget > 0 then
     local full = file.content_mode == 'full'
     langs_by_side.new = langs.lang_for(
       display_path,
@@ -370,13 +383,16 @@ end
 --- and false when the wall-clock highlight deadline degraded the output --
 --- caching would replay a transiently slow first render (cold parsers, query
 --- compilation) as tint-only for the daemon's lifetime, while a warm re-render
---- may finish well inside the budget.
+--- may finish well inside the budget. "Degraded" is recorded where a span
+--- extraction was actually skipped or cut short, not read off the clock at the
+--- end: a render that highlighted everything and then spent its time emitting
+--- rows is exactly the expensive one the cache exists for.
 function M.render(input, opts)
   if #input > LIMITS.max_input_bytes then
     return input, false
   end
 
-  input = ansi.strip(input)
+  input = ansi.strip_git_colors(input)
   local lines = util.split_lines(input)
   local blocks = diffparse.parse(lines)
 
@@ -398,6 +414,7 @@ function M.render(input, opts)
     budget = LIMITS.max_highlighted_lines,
     split = opts.layout == 'side-by-side',
     hl_deadline = uv.hrtime() + LIMITS.max_highlight_ms * 1e6,
+    hl_degraded = false, -- set once the deadline costs any row its spans
     num_w = nil, -- line-number gutter digits, set per file
   }
   local out = {}
@@ -416,7 +433,7 @@ function M.render(input, opts)
       out[#out + 1] = chunk
     end
   end
-  return table.concat(out), not worktree_dep and not hl_expired(ctx)
+  return table.concat(out), not worktree_dep and not ctx.hl_degraded
 end
 
 return M

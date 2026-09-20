@@ -42,7 +42,9 @@ end
 function M.render_raw(lines, cols)
   local p = theme.palette
   local out = {}
-  for _, line in ipairs(lines) do
+  for _, raw in ipairs(lines) do
+    -- A commit message or a submodule log is content like any diff row is.
+    local line = util.caret_controls(raw)
     local hash, decorations = line:match('^commit (%x+)%s*(.*)$')
     -- "Author: ...", "Date: ..." and friends: the label keeps the colon, the
     -- rest keeps the whitespace that separated them.
@@ -81,8 +83,10 @@ end
 --- Combined (merge) diffs are shown with simple prefix tinting only.
 function M.render_combined(file)
   local p = theme.palette
-  local out = { ansi.line({ fg = p.default_fg, bold = true }, file.new_path or 'merge diff') }
-  for _, line in ipairs(file.raw_lines) do
+  local title = util.caret_controls(file.new_path or 'merge diff')
+  local out = { ansi.line({ fg = p.default_fg, bold = true }, title) }
+  for _, raw in ipairs(file.raw_lines) do
+    local line = util.caret_controls(raw)
     local prefix = line:sub(1, 2)
     if line:match('^@@@') then
       out[#out + 1] = ansi.line({ fg = p.hunk_num, bold = true }, line)

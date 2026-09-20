@@ -5,9 +5,9 @@
 -- Renders arrive over a plain line protocol on a unix socket -- see the pipe
 -- section at the bottom.
 --
--- Lifetime: exits when every lazygit process that ever used it is gone (polled
--- every few seconds), so quitting lazygit (or the nvim :terminal hosting it)
--- leaves no orphaned daemon. Idle timeouts back that up, and a change to the
+-- Lifetime: exits when every lazygit process registered as its owner is gone
+-- (polled every few seconds), so quitting lazygit (or the nvim :terminal hosting
+-- it) leaves no orphaned daemon. Idle timeouts back that up, and a change to the
 -- nvim binary, to the renderer's own sources or to anything bootstrap loads
 -- (parsers, plugins, filetype rules) recycles the daemon on the next request.
 
@@ -46,9 +46,11 @@ local IDLE_NO_OWNER_MS = 5 * 60 * 1000
 -- quitting lazygit still reaps the daemon within seconds, while a session whose
 -- owner has not been registered yet keeps it alive by rendering at all.
 local ORPHANED_GRACE_MS = 10 * 1000
--- An answer that asks for the owner costs the client a process tree walk, so a
--- client that answered that it found none (a manual pipe into the renderer, a
--- lazygit reached through some wrapper) is not asked again for this long.
+-- An answer that asks for the owner costs the client a process tree walk, so
+-- this long passes between two of them. A client that found none (a manual pipe
+-- into the renderer, a lazygit reached through some wrapper) would find none
+-- again, and one that named a live owner is only asked again for the sake of a
+-- second lazygit (see want_owner).
 local OWNER_ASK_INTERVAL_MS = 30 * 1000
 local POLL_MS = 3000
 
@@ -92,6 +94,9 @@ local generation = fingerprint()
 local watched = {}
 local saw_owner = false
 local last_request = uv.now()
+-- When a client last answered the owner question at all, and when one last
+-- answered that it found none.
+local owner_answered = -OWNER_ASK_INTERVAL_MS
 local owner_declined = -OWNER_ASK_INTERVAL_MS
 
 local pipe_ino = nil
@@ -205,12 +210,23 @@ local function watch_owner(pid)
   end
 end
 
--- Whether this answer should ask the client for an owner pid. The throttle
--- starts from a client's *answer*, not from the ask: a client that lazygit
--- terminated between its render and its answer must not leave the daemon
--- unowned for the whole interval, so the next render simply asks again.
+-- Whether this answer should ask the client for an owner pid. A request says
+-- nothing about which lazygit sent it, so a second lazygit sharing the daemon
+-- looks exactly like the one already watched: asking again once per interval is
+-- what registers it, where asking only while watching nobody let the first
+-- owner's exit take the daemon down under a session still using it. Inside the
+-- interval the only thing worth a walk is an owner that has died since, which
+-- is an empty watch list that a client's "found none" does not explain.
+--
+-- The throttle starts from a client's *answer*, not from the ask: a client that
+-- lazygit terminated between its render and its answer must not leave the
+-- daemon unowned for the whole interval, so the next render simply asks again.
 local function want_owner()
-  return next(watched) == nil and uv.now() - owner_declined >= OWNER_ASK_INTERVAL_MS
+  local now = uv.now()
+  if now - owner_answered >= OWNER_ASK_INTERVAL_MS then
+    return true
+  end
+  return next(watched) == nil and now - owner_declined >= OWNER_ASK_INTERVAL_MS
 end
 
 -- The output path is derived from the client's mktemp'd input path rather than
@@ -275,8 +291,20 @@ local function render_request(infile, outfile, cwd, cols, layout)
     end
   end
 
+  -- A client that lazygit killed mid-render has already run its cleanup, and
+  -- nobody is left to remove an output written after that. The client unlinks
+  -- its input before its output, so an input that is still there once the
+  -- output is on disk means that cleanup is still to come and takes the
+  -- output with it; one that is gone means the output is ours to remove.
+  if not uv.fs_stat(infile) then
+    return 'err:input'
+  end
   if not write_output(outfile, rendered) then
     return 'err:output'
+  end
+  if not uv.fs_stat(infile) then
+    pcall(uv.fs_unlink, outfile)
+    return 'err:input'
   end
 
   if stale then
@@ -326,10 +354,11 @@ local function dispatch(request)
   end
   local pid = tonumber(request:match('^owner\t(%d+)$'))
   if pid then
+    owner_answered = uv.now()
     if pid > 0 then
       watch_owner(pid)
     else
-      owner_declined = uv.now()
+      owner_declined = owner_answered
     end
     return 'ok'
   end

@@ -1,0 +1,20 @@
+diff --git a/term.lua b/term.lua
+index 13090e1..8374298 100644
+--- a/term.lua
++++ b/term.lua
+@@ -1,11 +1,12 @@
+ local M = {}
+ 
+--- red: [31mtext[0m
+-local clear = "[K"
++-- green: [32mtext[0m
++local clear = "[2K"
+ local page = "ab"
++local mixed = "xy"
+ 
+ function M.run()
+-  return clear .. page
++  return clear .. page .. mixed
+ end
+ 
+ return M

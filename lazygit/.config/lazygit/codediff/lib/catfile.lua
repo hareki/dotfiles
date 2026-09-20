@@ -14,6 +14,9 @@
 local M = {}
 
 local READ_TIMEOUT_MS = 5000
+--- The bound every git call a render makes is held to; lib.blob's own call
+--- uses it rather than restating the number.
+M.TIMEOUT_MS = READ_TIMEOUT_MS
 
 --- Sizes and types only: "<oid> <type> <size>\n" or "<name> missing\n" per
 --- input line, no payloads. Each record keeps its raw line as `header`: a

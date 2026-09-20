@@ -39,14 +39,25 @@ end
 
 M.reset = ESC .. '[0m'
 
---- Strip SGR sequences from text. Git is asked for uncolored output, so this
---- almost never has anything to do; the find keeps a pattern scan off the whole
---- input for that case.
-function M.strip(s)
+local SGR = ESC .. '%[[%d;]*m'
+
+--- Strip the SGR sequences of a diff that git colored. Git is asked for
+--- uncolored output, so this almost never has anything to do; the find keeps a
+--- pattern scan off the whole input for that case.
+---
+--- An escape in uncolored output is file content, and has to survive: dropping
+--- it shows a line the file does not have, and fails the comparison against the
+--- blob that full-content highlighting rests on. Position tells the two apart.
+--- Git colors a line from its first byte, while content always sits behind an
+--- origin column or an indent, so only colored output starts a line with one.
+function M.strip_git_colors(s)
   if not s:find(ESC, 1, true) then
     return s
   end
-  return (s:gsub(ESC .. '%[[%d;]*m', ''))
+  if not (s:find('^' .. SGR) or s:find('\n' .. SGR)) then
+    return s
+  end
+  return (s:gsub(SGR, ''))
 end
 
 --- `text` prefixed with its SGR sequence.

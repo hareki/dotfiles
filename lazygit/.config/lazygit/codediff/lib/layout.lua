@@ -13,10 +13,6 @@ local palette = theme.palette
 -- point is to stay cheaper than measuring the row.
 local is_plain_ascii = util.is_plain_ascii
 
--- The side-by-side separator. palette.decoration is a literal that
--- load_diff_colors() does not overwrite, so this run is fixed for the process.
-local BAR = ansi.styled({ fg = palette.decoration }, '│')
-
 -- Widths are measured per grapheme cluster, never per codepoint: a lone
 -- combining mark measures one cell but contributes nothing to the character it
 -- attaches to, so summing standalone widths overstates decomposed text (macOS
@@ -102,9 +98,11 @@ end
 -- measured relative to column 0, so a header's pieces only add up if none of
 -- them contains one; git keeps interior tabs in a section heading, and a tab or
 -- a newline in a path survives unquoting. Collapsing beats expanding here: this
--- text is metadata, not source that needs its indentation.
+-- text is metadata, not source that needs its indentation. Any other control
+-- byte (a heading is a line of the file, and unquoting restores whatever a path
+-- holds) is spelled out like it is in a content row.
 local function one_line(s)
-  return (s:gsub('[\t\r\n]', ' '))
+  return util.caret_controls((s:gsub('[\t\r\n]', ' ')))
 end
 
 --- Delta-style boxed hunk header: path, the line the hunk starts at and the
@@ -365,6 +363,9 @@ local function emit_line(out, n, text, spans, line_type, emph_ranges, limit)
   -- It also makes a byte offset a display column, which is what lets a clipped
   -- row stop resolving spans at the cut.
   local simple = is_plain_ascii(text)
+  -- A control byte already rules `simple` out, so only the measured path below
+  -- ever meets one, and only a row that holds one pays for spelling it out.
+  local carets = not simple and util.has_control(text)
   local winners = nb > 2
       and n_spans > 0
       and segment_winners(spans, boundaries, nb, simple and limit)
@@ -401,7 +402,9 @@ local function emit_line(out, n, text, spans, line_type, emph_ranges, limit)
       if simple then
         expanded, next_col = seg, col + (b - a)
       else
-        expanded, next_col = util.expand_tabs(seg, TAB_WIDTH, col)
+        -- Controls first, so what is measured and clipped is what is shown.
+        local shown = carets and util.caret_controls(seg) or seg
+        expanded, next_col = util.expand_tabs(shown, TAB_WIDTH, col)
       end
       local truncated = false
       if limit and next_col > limit then
@@ -555,8 +558,12 @@ function M.split_line(out, left, right, cols, num_w)
   local right_w = math.max(cols - 1 - left_w, 1)
 
   local n = render_cell(out, #out, left, left_w, num_w)
-  out[n + 1] = BAR
-  n = render_cell(out, n + 1, right, right_w, num_w)
+  -- The separator is an untinted gutter bar, so it takes that memoized style
+  -- rather than one built at require time: load_diff_colors() rewrites
+  -- palette.decoration, and a style captured before it ran would be stale.
+  out[n + 1] = gutter_sgr(nil).bar
+  out[n + 2] = '│'
+  n = render_cell(out, n + 2, right, right_w, num_w)
   out[n + 1] = ansi.reset
   out[n + 2] = '\n'
 end

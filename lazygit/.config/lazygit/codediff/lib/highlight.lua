@@ -112,9 +112,12 @@ function M.line_spans(content, lang, row_ranges, deadline)
                 local meta = metadata[id]
                 local prio = tonumber(metadata.priority or (meta and meta.priority)) or default_prio
                 local sr, sc, er, ec
-                local meta_range = meta and meta.range
-                if meta_range then
-                  sr, sc, er, ec = meta_range[1], meta_range[2], meta_range[3], meta_range[4]
+                if meta and (meta.range or meta.offset) then
+                  -- A directive moved the capture: #trim! leaves a range,
+                  -- #offset! only the offsets (nvim 0.12), and get_range is
+                  -- what the highlighter itself resolves either with. Range6.
+                  local r = vim.treesitter.get_range(node, content, meta)
+                  sr, sc, er, ec = r[1], r[2], r[4], r[5]
                 else
                   sr, sc, er, ec = node:range()
                 end

@@ -44,6 +44,33 @@ function M.first_non_ascii(s)
   return s:find(NON_ASCII)
 end
 
+-- Everything below a space except the tab, plus DEL. A tab is left alone
+-- because its width depends on the column it starts at, which is the caller's
+-- to resolve (expand_tabs).
+local CONTROL = '[%z\1-\8\10-\31\127]'
+local CARETS = { ['\127'] = '^?' }
+for byte = 0, 31 do
+  CARETS[string.char(byte)] = '^' .. string.char(byte + 64)
+end
+
+--- True when caret_controls would rewrite `s`. A row is cut into segments
+--- before it is shown, and asking once per row keeps the scan out of that loop.
+function M.has_control(s)
+  return s:find(CONTROL) ~= nil
+end
+
+--- Control bytes spelled out in caret notation (^[ for ESC, ^L for a form
+--- feed), which is how nvim shows them and the two cells display_width measures
+--- them as. Content reaches the view as text, never as instructions: a raw
+--- escape would restyle or erase the row it sits in, and a raw CR would
+--- overwrite it.
+function M.caret_controls(s)
+  if not s:find(CONTROL) then
+    return s
+  end
+  return (s:gsub(CONTROL, CARETS))
+end
+
 --- Display width of a plain string; safe on invalid UTF-8.
 --- Printable ASCII never has to cross into vimscript.
 function M.display_width(s)

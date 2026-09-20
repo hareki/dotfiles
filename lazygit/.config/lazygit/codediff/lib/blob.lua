@@ -3,29 +3,34 @@ local util = require('lib.util')
 
 local M = {}
 
--- Mirrors catfile's READ_TIMEOUT_MS: a hung git (dead network mount, stuck
--- fsmonitor) must fail this render, not wedge the daemon indefinitely.
-local GIT_TIMEOUT_MS = 5000
-
 -- Resolved lazily: only the worktree-side fallback below needs it, and a commit
 -- diff (the whole commits panel) never reaches that. Memoized because the
--- daemon outlives the request and a cwd's repo root cannot change.
+-- daemon outlives the request and a cwd's repo root cannot change -- which
+-- holds for an answer git gave (a root, or "not a repository"), not for a git
+-- that failed to start or hung: remembering that would leave the cwd without
+-- worktree content for as long as the daemon keeps rendering in it.
 local root_cache = { cwd = nil, root = nil }
+
+-- vim.system's wait() reports a process it had to kill on timeout as this code.
+local TIMED_OUT = 124
 
 local function worktree_root(cwd)
   if root_cache.cwd ~= cwd then
-    local root
     local ok, proc = pcall(
       vim.system,
       { 'git', 'rev-parse', '--show-toplevel' },
       { cwd = cwd, text = true }
     )
-    if ok then
-      local res = proc:wait(GIT_TIMEOUT_MS)
-      if res.code == 0 and res.stdout then
-        root = vim.trim(res.stdout)
-      end
+    if not ok then
+      return nil
     end
+    -- The same bound as the object reads: a hung git (dead network mount,
+    -- stuck fsmonitor) must fail this render, not wedge the daemon.
+    local res = proc:wait(catfile.TIMEOUT_MS)
+    if res.code == TIMED_OUT then
+      return nil
+    end
+    local root = res.code == 0 and res.stdout and vim.trim(res.stdout) or nil
     root_cache = { cwd = cwd, root = root }
   end
   return root_cache.root

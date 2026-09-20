@@ -37,11 +37,12 @@ for a in "$@"; do
   esac
 done
 
-# The daemon ties its lifetime to the lazygit process that owns this render, but
-# one live owner is all it needs: it asks for one (an `ok:owner` answer) only
-# while it is watching none, which is once per lazygit session rather than once
-# per render. One ps per level: it reports the parent and the command name
-# together, and shell word-splitting separates them.
+# The daemon ties its lifetime to the lazygit processes that own its renders. It
+# cannot tell their requests apart, so it asks for the owner (an `ok:owner`
+# answer) while it is watching none and otherwise once per interval, which is
+# what registers a second lazygit -- rarely either way, never once per render.
+# One ps per level: it reports the parent and the command name together, and
+# shell word-splitting separates them.
 OWNER=""
 find_owner() {
   pid=$$
@@ -73,7 +74,7 @@ request_pipe() {
 # Deliberately after the rendered bytes are on their way out: registering an
 # owner costs a process tree walk, and nothing about this render depends on it.
 # lazygit terminates the render task (SIGTERM, then the pty's SIGHUP) as soon as
-# the selection moves on, and the answer to a once-per-session question must not
+# the selection moves on, and the answer to a question asked this rarely must not
 # be lost to that: the walk takes ~15ms, ignoring both for that long is harmless,
 # and answering `0` (nothing found) is what stops the daemon asking again.
 register_owner() {
