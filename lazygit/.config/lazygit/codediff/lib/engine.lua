@@ -15,17 +15,18 @@ local function lazy_require(name)
 end
 
 -- Mirrors codediff's utf16_col_to_byte_col (ui/inline.lua): engine columns are
--- 1-based UTF-16 code units, end-exclusive.
+-- 1-based UTF-16 code units, end-exclusive. codediff reaches the conversion
+-- through its own pre-0.11 compat shim; on the versions this renderer targets
+-- (vim.hl.priorities in lib/highlight.lua is already 0.11+) that shim is
+-- exactly this builtin, so call it rather than a private module of another
+-- plugin. pcall: strict indexing rejects a column past the end of the line.
 local function utf16_col_to_byte_col(line, utf16_col)
   if not line or utf16_col <= 1 then
     return utf16_col
   end
-  local compat = lazy_require("codediff.core.compat")
-  if compat then
-    local ok, byte_idx = pcall(compat.str_byteindex_utf16, line, utf16_col - 1)
-    if ok then
-      return byte_idx + 1
-    end
+  local ok, byte_idx = pcall(vim.str_byteindex, line, "utf-16", utf16_col - 1, true)
+  if ok then
+    return byte_idx + 1
   end
   return utf16_col
 end

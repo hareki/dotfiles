@@ -52,7 +52,7 @@ function M.render_raw(lines, cols)
       out[#out + 1] = rendered .. ansi.reset .. "\n"
       local rule_width = math.min(util.display_width(line), math.max((cols or 80) - 1, 1))
       out[#out + 1] = ansi.line({ fg = p.decoration }, string.rep("─", rule_width))
-    elseif line:match("^%u[%w]*:%s") and not line:match("^%s") then
+    elseif line:match("^%u[%w]*:%s") then
       local label, rest = line:match("^([%u][%w]*:)(.*)$")
       out[#out + 1] = styled({ fg = p.decoration }, label) .. styled({ fg = p.default_fg }, rest) .. ansi.reset .. "\n"
     elseif line:match("^%s.+%s|%s") then

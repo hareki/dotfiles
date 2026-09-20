@@ -105,19 +105,25 @@ request_rpc() {
     2>/dev/null) && [ "$res" = "ok" ]
 }
 
+# Emit the render and exit if either transport answers; returns so the caller
+# can fall further down the ladder if neither did.
+#
 # The -S tests keep a cold start from paying for a connection attempt to a
 # socket that is not there -- for the RPC client that alone is a full nvim
 # startup, spent only to rediscover there is nothing to connect to.
-if [ -S "$PIPE" ] && request_pipe; then
-  cat "$OUT"
-  register_owner
-  exit 0
-fi
+serve() {
+  if [ -S "$PIPE" ] && request_pipe; then
+    cat "$OUT"
+    register_owner
+    exit 0
+  fi
+  if [ -S "$SOCK" ] && request_rpc; then
+    cat "$OUT"
+    exit 0
+  fi
+}
 
-if [ -S "$SOCK" ] && request_rpc; then
-  cat "$OUT"
-  exit 0
-fi
+serve
 
 # The render failed. Everything from here down is a cold path, and only these
 # paths need the script's own directory.
@@ -144,15 +150,7 @@ if [ -z "$reply" ] && [ -z "$res" ]; then
       sleep 0.05
       i=$((i + 1))
     done
-    if request_pipe; then
-      cat "$OUT"
-      register_owner
-      exit 0
-    fi
-    if request_rpc; then
-      cat "$OUT"
-      exit 0
-    fi
+    serve
   fi
 fi
 

@@ -49,23 +49,16 @@ local function read_worktree_file(root, path, limits)
   return content
 end
 
+-- An all-zero oid: the side has no object in the database (an unstaged or
+-- untracked file), so there is nothing to ask for.
+local function is_zero_hash(hex)
+  return hex == nil or hex:match("^0+$") ~= nil
+end
+
 local function to_lines(content)
   local lines = util.split_lines(content)
   for j = 1, #lines do
     lines[j] = util.strip_cr(lines[j])
-  end
-  return lines
-end
-
---- Reconstruct one side of a hunk from the diff itself (used when blobs are
---- unavailable). Returns the lines and the row offset the hunk starts at.
-function M.hunk_fragment(hunk, side)
-  local lines = {}
-  local want_minus = side == "old"
-  for _, l in ipairs(hunk.lines) do
-    if l.origin == " " or (want_minus and l.origin == "-") or (not want_minus and l.origin == "+") then
-      lines[#lines + 1] = l.text
-    end
   end
   return lines
 end
@@ -88,11 +81,11 @@ function M.acquire(files, cwd, limits, fragment_only)
       file.content_mode = "fragment"
       file.need_old = not file.is_new
       file.need_new = not file.is_deleted
-      if file.need_old and not util.is_zero_hash(file.old_hex) then
+      if file.need_old and not is_zero_hash(file.old_hex) then
         requests[#requests + 1] = file.old_hex
         slots[#slots + 1] = { file = file, side = "old" }
       end
-      if file.need_new and not util.is_zero_hash(file.new_hex) then
+      if file.need_new and not is_zero_hash(file.new_hex) then
         requests[#requests + 1] = file.new_hex
         slots[#slots + 1] = { file = file, side = "new" }
       end
