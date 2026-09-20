@@ -11,17 +11,17 @@ local function which_key(config)
   local rules = config.rules
   local triggers = config.triggers
 
-  -- Normalize: single spec { '<leader>a', group = '...' } → list of specs
+  -- Normalize: single spec { '<leader>a', group = '...' } => list of specs
   if specs and type(specs[1]) == 'string' then
     specs = { specs }
   end
 
-  -- Normalize: single rule { pattern = '...' } → list of rules
+  -- Normalize: single rule { pattern = '...' } => list of rules
   if rules and (rules.pattern or rules.plugin) then
     rules = { rules }
   end
 
-  -- Normalize: single trigger { 'l', mode = { 'n', 'x' } } → list of triggers
+  -- Normalize: single trigger { 'l', mode = { 'n', 'x' } } => list of triggers
   if triggers and type(triggers[1]) == 'string' then
     triggers = { triggers }
   end

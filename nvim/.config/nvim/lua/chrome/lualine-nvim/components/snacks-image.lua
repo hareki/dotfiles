@@ -14,7 +14,15 @@ local lang_has_images_query = {}
 local function has_images_query(lang)
   local has = lang_has_images_query[lang]
   if has == nil then
-    has = vim.treesitter.query.get(lang, 'images') ~= nil
+    -- query.get throws when snacks ships an `images` query for a language whose
+    -- parser isn't installed (vue, svelte, typst, ...); that would break every redraw.
+    -- That answer stays unpinned, since the parser can still be installed mid-session
+    local ok, query = pcall(vim.treesitter.query.get, lang, 'images')
+    if not ok then
+      return false
+    end
+
+    has = query ~= nil
     lang_has_images_query[lang] = has
   end
   return has

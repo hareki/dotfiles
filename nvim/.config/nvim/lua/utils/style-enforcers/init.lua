@@ -205,20 +205,32 @@ function M.run(opts)
         on_done = function(linter_name, linter_ok, lint_error)
           if not linter_ok and lint_error then
             had_lint_error = true
-            local msg = debug and string.format('Linter %s error: %s', linter_name, lint_error)
-              or string.format('Linter used: %s', linter_name)
 
-            Notifier.warn(msg, {
-              title = 'Linting Failed',
-            })
+            if lint_error == engine.BUFFER_CHANGED then
+              Notifier.warn(
+                string.format('Buffer changed while `%s` was running, skipped', linter_name),
+                { title = 'Style Enforcer' }
+              )
+            else
+              local msg = debug and string.format('Linter %s error: %s', linter_name, lint_error)
+                or string.format('Linter used: %s', linter_name)
+
+              Notifier.warn(msg, {
+                title = 'Linting Failed',
+              })
+            end
           end
 
           done_count = done_count + (linter_name == 'none' and 0 or 1)
-          if done_count == total and not settled then
-            local write_ok, write_err = write()
-            progress:finish()
-            cleanup(write_ok and not had_lint_error, write_err)
+        end,
+        on_complete = function()
+          if settled then
+            return
           end
+
+          local write_ok, write_err = write()
+          progress:finish()
+          cleanup(write_ok and not had_lint_error, write_err)
         end,
       })
     end)

@@ -60,11 +60,11 @@ function M.evict_closed_tabs()
   end
 end
 
---- Open the last-focused file in the initial tab and restore its scroll position,
---- so quitting feels like simply turning codediff off (CodeDiffClose handler).
---- @param args { data: { tabpage: integer } }
-function M.restore_focus(args)
-  local tabpage = args.data.tabpage
+--- Consume the remembered state of a codediff tab
+--- @param tabpage integer
+--- @return string | nil path Absolute path of the file last focused in the tab
+--- @return table | nil view winsaveview() result to restore on it
+local function take_focus_target(tabpage)
   local rel = selected[tabpage]
   local view = modified_view(tabpage) or views[tabpage]
   selected[tabpage] = nil
@@ -82,15 +82,40 @@ function M.restore_focus(args)
     return
   end
 
-  local abs = git_root .. '/' .. rel
-  vim.schedule(function()
-    if vim.fn.filereadable(abs) == 1 then
-      vim.cmd.edit(vim.fn.fnameescape(abs))
-      if view then
-        vim.fn.winrestview(view)
-      end
+  return git_root .. '/' .. rel, view
+end
+
+--- @param path string
+--- @param view table | nil
+local function open_focus_target(path, view)
+  if vim.fn.filereadable(path) == 1 then
+    vim.cmd.edit(vim.fn.fnameescape(path))
+    if view then
+      vim.fn.winrestview(view)
     end
-  end)
+  end
+end
+
+--- Open the last-focused file in the initial tab and restore its scroll position,
+--- so quitting feels like simply turning codediff off (CodeDiffClose handler).
+--- @param args { data: { tabpage: integer } }
+function M.restore_focus(args)
+  local path, view = take_focus_target(args.data.tabpage)
+  if path then
+    vim.schedule(function()
+      open_focus_target(path, view)
+    end)
+  end
+end
+
+--- Synchronous restore_focus into the current window, for the exit path: a scheduled
+--- edit would land after the session has been saved.
+--- @param tabpage integer
+function M.restore_focus_now(tabpage)
+  local path, view = take_focus_target(tabpage)
+  if path then
+    open_focus_target(path, view)
+  end
 end
 
 return M

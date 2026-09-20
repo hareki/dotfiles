@@ -10,7 +10,7 @@ return {
       SatelliteDiagnosticInfo = { link = 'DiagnosticSignInfo' },
       SatelliteDiagnosticHint = { link = 'DiagnosticSignHint' },
     }
-  end),
+  end, 'satellite.nvim'),
 
   {
     'hareki/satellite.nvim',

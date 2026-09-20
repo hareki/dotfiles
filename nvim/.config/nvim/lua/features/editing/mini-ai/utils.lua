@@ -52,7 +52,7 @@ function M.whichkey()
     { 't', desc = 'Tag' },
     { 'u', desc = 'Use/Call' },
     { 'w', desc = 'Subword (camelCase/snake_case)' },
-    { 'W', desc = 'WORD (snake_case chunk)' },
+    { 'W', desc = 'WORD (snake_case Chunk)' },
     { '{', desc = '{} Block' },
     { '}', desc = '{} Block with Whitespace' },
   }

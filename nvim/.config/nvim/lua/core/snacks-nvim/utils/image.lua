@@ -121,7 +121,7 @@ local function open(source_buf, src)
     max_height = lg.height - 2,
     -- Defer window creation until snacks reports the rendered image's actual
     -- cell dims. Opening the window upfront would briefly show the full `lg`
-    -- frame and then snap to the smaller image size — visible flash.
+    -- frame and then snap to the smaller image size: a visible flash.
     on_update_pre = function(self)
       if not hover then
         return

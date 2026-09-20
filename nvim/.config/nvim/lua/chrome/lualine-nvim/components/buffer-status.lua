@@ -79,8 +79,8 @@ local function get_current_unsaved()
   local name = vim.api.nvim_buf_get_name(bufnr) or ''
 
   -- Empty filetype is ambiguous: ignore true scratch/UI buffers (nofile,
-  -- prompt), but allow readonly content like codediff:// diff views — which
-  -- clear their filetype to avoid LSP attach — to still report the lock icon.
+  -- prompt), but allow readonly content like codediff:// diff views (which
+  -- clear their filetype to avoid LSP attach) to still report the lock icon.
   -- Terminals are always 'modifiable = false' and would show a misleading
   -- padlock, so they are ignored regardless of filetype
   local is_ignored

@@ -37,23 +37,46 @@ aucmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
   end,
 })
 
--- Resize splits if window got resized
+-- Resize splits if window got resized. Neovim refits a background tabpage to the
+-- new screen size only when it's next entered, so those are equalized on TabEnter
+-- (which fires after the refit). Visiting them from here would fire Win/BufEnter in
+-- each one and retarget focus trackers (e.g. lazygit's last editing window)
+local resize_group = augroup('resize-splits')
+--- @type table<integer, true>
+local tabpages_to_equalize = {}
+
 aucmd({ 'VimResized' }, {
-  group = augroup('resize-splits'),
+  group = resize_group,
   callback = function()
-    -- Switching tabpages is forbidden (E11) while the cmdline window is open
+    -- Every background tabpage is re-marked below, so starting over loses nothing
+    -- and drops the handles of tabpages closed while still pending
+    tabpages_to_equalize = {}
+
+    local current_tabpage = vim.api.nvim_get_current_tabpage()
+    for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
+      if tabpage ~= current_tabpage then
+        tabpages_to_equalize[tabpage] = true
+      end
+    end
+
+    -- Leave the layout alone while the cmdline window is open: equalizing would
+    -- stretch it from its 'cmdwinheight' to an even share of the screen
     if vim.fn.win_gettype() == 'command' then
       return
     end
 
-    local current_tab = vim.api.nvim_get_current_tabpage()
+    vim.cmd.wincmd({ args = { '=' } })
+  end,
+})
 
-    for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
-      vim.api.nvim_set_current_tabpage(tabpage)
+aucmd('TabEnter', {
+  group = resize_group,
+  callback = function()
+    local tabpage = vim.api.nvim_get_current_tabpage()
+    if tabpages_to_equalize[tabpage] then
+      tabpages_to_equalize[tabpage] = nil
       vim.cmd.wincmd({ args = { '=' } })
     end
-
-    vim.api.nvim_set_current_tabpage(current_tab)
   end,
 })
 
@@ -165,11 +188,54 @@ aucmd({ 'FileType' }, {
   end,
 })
 
+local markdown_group = augroup('markdown-defaults')
+-- Headings as matched by the runtime ftplugin's section jumps
+local markdown_heading = [[\%(^#\{1,5\}\s\+\S\|^\S.*\n^[=-]\+$\)]]
+
 aucmd('FileType', {
-  group = augroup('markdown-defaults'),
+  group = markdown_group,
   pattern = { 'markdown' },
-  callback = function()
-    vim.wo.wrap = true
+  callback = function(event)
+    -- The runtime ftplugin's visual-mode section jumps, whose own maps are disabled
+    -- (see g.no_markdown_maps in config/options.lua)
+    vim.keymap.set(
+      'x',
+      ']]',
+      string.format("<cmd>call search('%s', 'sW')<cr>", markdown_heading),
+      { buffer = event.buf, desc = 'Jump to Next Section' }
+    )
+    vim.keymap.set(
+      'x',
+      '[[',
+      string.format("<cmd>call search('%s', 'bsW')<cr>", markdown_heading),
+      { buffer = event.buf, desc = 'Jump to Previous Section' }
+    )
+
+    local function set_window_options()
+      -- Local only: vim.wo also sets the window's global value, which every buffer
+      -- opened in (or split from) this window afterwards would inherit
+      vim.opt_local.wrap = true
+    end
+
+    if vim.fn.win_gettype() ~= 'autocmd' then
+      set_window_options()
+      return
+    end
+
+    -- A buffer loaded while hidden (e.g. an LSP bufload()) gets its FileType, and a
+    -- first BufWinEnter, in the temporary autocmd window. FileType won't fire again
+    -- once it's displayed for real, so wait for the BufWinEnter of that window
+    vim.api.nvim_clear_autocmds({ group = markdown_group, buffer = event.buf })
+    aucmd('BufWinEnter', {
+      group = markdown_group,
+      buffer = event.buf,
+      callback = function()
+        if vim.fn.win_gettype() ~= 'autocmd' then
+          set_window_options()
+          return true -- Done, delete this autocmd
+        end
+      end,
+    })
   end,
 })
 
@@ -221,8 +287,16 @@ aucmd('VimLeavePre', {
 
     for _, tab in ipairs(codediff_tabs) do
       if vim.api.nvim_tabpage_is_valid(tab) then
-        pcall(vim.api.nvim_set_current_tabpage, tab)
-        vim.cmd.tabclose({ mods = { silent = true } })
+        -- The last tabpage can't be closed (E784); replace it with the file last focused
+        -- in codediff. A blank tab would be saved over the cwd session as an empty layout
+        if #vim.api.nvim_list_tabpages() == 1 then
+          vim.cmd.tabnew()
+          codediff_utils.restore_focus_now(tab)
+        end
+        -- Without the switch, tabclose would close whichever tabpage is current instead
+        if pcall(vim.api.nvim_set_current_tabpage, tab) then
+          vim.cmd.tabclose({ mods = { silent = true } })
+        end
       end
     end
   end,

@@ -90,12 +90,15 @@ return {
           })
         end, 'Code Actions')
 
-        map('n', ']]', function()
-          Snacks.words.jump(vim.v.count1)
-        end, 'Next Reference')
-        map('n', '[[', function()
-          Snacks.words.jump(-vim.v.count1)
-        end, 'Previous Reference')
+        -- Markdown keeps the runtime ftplugin's ]] / [[ section jumps
+        if vim.bo[args.buf].filetype ~= 'markdown' then
+          map('n', ']]', function()
+            Snacks.words.jump(vim.v.count1)
+          end, 'Next Reference')
+          map('n', '[[', function()
+            Snacks.words.jump(-vim.v.count1)
+          end, 'Previous Reference')
+        end
       end,
     })
 

@@ -80,7 +80,7 @@ local function build_cli_input(diagnostic)
   }
 end
 
--- Key only over the fields that change the CLI's output — verified empirically:
+-- Key only over the fields that change the CLI's output, verified empirically:
 -- identical input with different ranges or relatedInformation produces identical
 -- markdown, while severity changes the header icon. Keying on range would turn
 -- every line shift above the error into a miss, and each miss is a synchronous
@@ -243,7 +243,7 @@ function M.format(diagnostic, opts)
   end
 
   if not is_typescript_diagnostic(diagnostic) then
-    -- Not a TS diagnostic — just return the original message.
+    -- Not a TS diagnostic, just return the original message.
     return diagnostic.message
   end
 

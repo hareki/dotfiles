@@ -1,10 +1,15 @@
 --- @class utils.style-enforcers.RunOpts
 --- @field bufnr integer
 --- @field on_start fun(name: string, idx: integer, total: integer) | nil
---- @field on_done  fun(name: string, ok: boolean, err?: string) | nil
+--- @field on_done  fun(name: string, ok: boolean, err?: string) | nil Called after each enforcer
+--- @field on_complete fun() | nil Called once when the run ends: after the last enforcer, or the first failed one
 
 --- @class utils.style-enforcers.engine
 local M = {}
+
+--- Error a runner reports when the buffer was edited while its request was in flight,
+--- so the result no longer applies to it
+M.BUFFER_CHANGED = 'buffer changed while running'
 
 --- @class utils.style-enforcers.Entry
 --- @field name string
@@ -74,6 +79,9 @@ end
 local function run_next(matched, opts, idx)
   local entry = matched[idx]
   if not entry then
+    if opts.on_complete then
+      opts.on_complete()
+    end
     return
   end
 
@@ -87,19 +95,30 @@ local function run_next(matched, opts, idx)
       if opts.on_done then
         opts.on_done(entry.name, ok, err)
       end
-      run_next(matched, opts, idx + 1)
+
+      -- A failed enforcer ends the run, the way a failed format step ends the pipeline
+      -- (init.lua). After BUFFER_CHANGED in particular, whoever is editing the buffer
+      -- would race the remaining enforcers the same way
+      if ok then
+        run_next(matched, opts, idx + 1)
+      elseif opts.on_complete then
+        opts.on_complete()
+      end
     end,
   })
 end
 
 --- Run every registered enforcer that applies to the buffer
---- @param opts utils.style-enforcers.RunOpts Options with bufnr, on_start, on_done callbacks
+--- @param opts utils.style-enforcers.RunOpts Options with bufnr, on_start, on_done, on_complete callbacks
 --- @return nil
 function M.run_for_buf(opts)
   local bufnr = opts.bufnr
   if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
     if opts.on_done then
       opts.on_done('none', false, 'invalid buffer')
+    end
+    if opts.on_complete then
+      opts.on_complete()
     end
     return
   end
@@ -108,7 +127,6 @@ function M.run_for_buf(opts)
 
   if #matched == 0 and opts.on_done then
     opts.on_done('none', true) -- no enforcers, no error
-    return
   end
 
   run_next(matched, opts, 1)

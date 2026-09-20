@@ -1,3 +1,5 @@
+local engine = require('utils.style-enforcers.engine')
+
 --- @class utils.style-enforcers.oxfmt
 local M = {}
 
@@ -17,10 +19,21 @@ function M.run(opts)
   -- which is not necessarily the target buffer (run_all formats in background)
   local params = vim.api.nvim_buf_call(bufnr, vim.lsp.util.make_formatting_params)
   params.textDocument = { uri = vim.uri_from_bufnr(bufnr) }
+  local changedtick = vim.api.nvim_buf_get_changedtick(bufnr)
 
   oxfmt:request('textDocument/formatting', params, function(err, result)
     if err then
       return opts.on_done(false, err.message)
+    end
+
+    -- The edits carry no document version: applied after an edit made while the
+    -- request was in flight (e.g. typing on after <A-s> in insert mode), they would
+    -- land at shifted positions and corrupt the text, so discard them instead
+    if
+      not vim.api.nvim_buf_is_valid(bufnr)
+      or vim.api.nvim_buf_get_changedtick(bufnr) ~= changedtick
+    then
+      return opts.on_done(false, engine.BUFFER_CHANGED)
     end
 
     if result then

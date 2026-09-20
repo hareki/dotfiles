@@ -86,26 +86,62 @@ return {
         desc = 'Next Yanky Entry',
       },
 
-      -- Trimmed, No indent/trailing
-      { 'yy', '^yg_', desc = 'Yank Line Trimmed' },
-      { 'hh', '^"+yg_', desc = 'Yank Line Trimmed to System Clipboard' },
+      -- Trimmed, No indent/trailing. With a count, these fall back to native linewise
+      -- semantics like dd below; the pending count and `"x` prefix carry over to the
+      -- returned keys, so 3yy still yanks 3 lines
+      {
+        'yy',
+        function()
+          if vim.v.count1 > 1 then
+            return 'yy'
+          end
+
+          -- The leading `^` motion would swallow a `"x` prefix, so re-apply it to the yank
+          return '^"' .. vim.v.register .. 'yg_'
+        end,
+        expr = true,
+        desc = 'Yank Line Trimmed',
+      },
+      {
+        'hh',
+        function()
+          return vim.v.count1 > 1 and '"+yy' or '^"+yg_'
+        end,
+        expr = true,
+        desc = 'Yank Line Trimmed to System Clipboard',
+      },
 
       -- Op-pending 'h' = trimmed current line (first non-blank to last non-blank).
       -- This makes 'hh' work regardless of typing speed: even if the 150ms timeoutlen
       -- fires and 'h' (operator) + 'h' (motion) executes, the result is identical.
-      -- Uses ':' not <cmd> — op-pending visual text objects require command-mode path.
-      { 'h', ':<C-u>normal! ^vg_<CR>', mode = 'o', desc = 'Trimmed Line' },
+      -- Uses ':' not <cmd>: op-pending visual text objects require command-mode path.
+      {
+        'h',
+        function()
+          -- `_` is the linewise [count]-lines motion, matching the counted hh
+          return vim.v.count1 > 1 and '_' or ':<C-u>normal! ^vg_<CR>'
+        end,
+        mode = 'o',
+        expr = true,
+        desc = 'Trimmed Line',
+      },
       {
         'dd',
         function()
+          -- :normal! starts with a fresh operator state, so the `"x` prefix typed
+          -- before this mapping (e.g. `"_dd`) must be passed through explicitly.
+          -- Except the default register: unlike no prefix at all, an explicit `""` also
+          -- overwrites register 0 (which P puts from) and skips the small delete register
+          local register = vim.v.register == '"' and '' or '"' .. vim.v.register
+
           -- Trimming only makes sense for a single line; with a count, fall
           -- back to native linewise semantics so 3dd still deletes 3 lines
           if vim.v.count1 > 1 then
-            vim.cmd.normal({ args = { vim.v.count1 .. 'dd' }, bang = true })
+            vim.cmd.normal({ args = { register .. vim.v.count1 .. 'dd' }, bang = true })
             return
           end
 
-          vim.cmd.normal({ args = { [[^dg_]] }, bang = true }) -- Delete from first nonblank to last nonblank
+          vim.cmd.normal({ args = { '^' .. register .. 'dg_' }, bang = true }) -- Delete from first nonblank to last nonblank
           vim.cmd.normal({ args = { [["_dd]] }, bang = true }) -- Remove remaining indent + newline (blackhole)
         end,
         desc = 'Delete Line Trimmed',

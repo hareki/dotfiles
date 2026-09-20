@@ -24,7 +24,7 @@ return {
       highlights[group] = highlights[group] or { fg = palette.text }
     end
     return highlights
-  end),
+  end, 'dropbar.nvim'),
 
   UI.which_key({
     rules = { plugin = 'dropbar.nvim', icon = Conf.icons.tools.BREADCRUMB, color = 'purple' },
@@ -182,7 +182,8 @@ return {
       -- Clear the placeholder before dropbar's own per-window enable check
       -- runs, otherwise it reads back as already-claimed and never attaches
       vim.opt.winbar = ''
-      require('dropbar').setup(opts)
+      local dropbar = require('dropbar')
+      dropbar.setup(opts)
     end,
   },
 }
