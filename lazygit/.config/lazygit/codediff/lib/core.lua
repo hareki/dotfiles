@@ -1,11 +1,11 @@
-local blob = require("lib.blob")
-local diffparse = require("lib.diffparse")
-local engine = require("lib.engine")
-local highlight = require("lib.highlight")
-local langs = require("lib.langs")
-local layout = require("lib.layout")
-local passthrough = require("lib.passthrough")
-local util = require("lib.util")
+local blob = require('lib.blob')
+local diffparse = require('lib.diffparse')
+local engine = require('lib.engine')
+local highlight = require('lib.highlight')
+local langs = require('lib.langs')
+local layout = require('lib.layout')
+local passthrough = require('lib.passthrough')
+local util = require('lib.util')
 
 local M = {}
 
@@ -57,7 +57,7 @@ local function needed_ranges(hunks, side, pad)
   local ranges = {}
   for _, hunk in ipairs(hunks) do
     local start_row, count
-    if side == "old" then
+    if side == 'old' then
       start_row, count = hunk.old_start - 1, hunk.old_count
     else
       start_row, count = hunk.new_start - 1, hunk.new_count
@@ -84,7 +84,11 @@ local function push_minus_ranges(ranges, hunk, pad, base, max_row)
   for _, change in ipairs(hunk.changes) do
     if change.old_end > change.old_start then
       local e = base + change.old_end - 1 + pad
-      push_range(ranges, math.max(0, base + change.old_start - pad), max_row and math.min(e, max_row) or e)
+      push_range(
+        ranges,
+        math.max(0, base + change.old_start - pad),
+        max_row and math.min(e, max_row) or e
+      )
     end
   end
 end
@@ -98,7 +102,7 @@ end
 local function compute_spans(file, langs_by_side, ctx)
   local pad = LIMITS.context_pad_rows
   local minus_only = not ctx.split
-  if file.content_mode == "full" then
+  if file.content_mode == 'full' then
     local sides = {}
     if file.need_old and langs_by_side.old and not hl_expired(ctx) then
       local ranges
@@ -108,15 +112,25 @@ local function compute_spans(file, langs_by_side, ctx)
           push_minus_ranges(ranges, hunk, pad, hunk.old_start - 2)
         end
       else
-        ranges = needed_ranges(file.hunks, "old", pad)
+        ranges = needed_ranges(file.hunks, 'old', pad)
       end
       if #ranges > 0 then
-        sides.old = highlight.line_spans(table.concat(file.old_lines, "\n"), langs_by_side.old, ranges, ctx.hl_deadline)
+        sides.old = highlight.line_spans(
+          table.concat(file.old_lines, '\n'),
+          langs_by_side.old,
+          ranges,
+          ctx.hl_deadline
+        )
       end
     end
     if file.need_new and langs_by_side.new and not hl_expired(ctx) then
-      local ranges = needed_ranges(file.hunks, "new", pad)
-      sides.new = highlight.line_spans(table.concat(file.new_lines, "\n"), langs_by_side.new, ranges, ctx.hl_deadline)
+      local ranges = needed_ranges(file.hunks, 'new', pad)
+      sides.new = highlight.line_spans(
+        table.concat(file.new_lines, '\n'),
+        langs_by_side.new,
+        ranges,
+        ctx.hl_deadline
+      )
     end
     return sides
   end
@@ -132,11 +146,21 @@ local function compute_spans(file, langs_by_side, ctx)
         ranges = { { 0, max_row } }
       end
       if #ranges > 0 then
-        hunk.frag_old_spans = highlight.line_spans(table.concat(hunk.frag_old, "\n"), langs_by_side.old, ranges, ctx.hl_deadline)
+        hunk.frag_old_spans = highlight.line_spans(
+          table.concat(hunk.frag_old, '\n'),
+          langs_by_side.old,
+          ranges,
+          ctx.hl_deadline
+        )
       end
     end
     if langs_by_side.new and not hl_expired(ctx) then
-      hunk.frag_new_spans = highlight.line_spans(table.concat(hunk.frag_new, "\n"), langs_by_side.new, { { 0, math.max(#hunk.frag_new - 1, 0) } }, ctx.hl_deadline)
+      hunk.frag_new_spans = highlight.line_spans(
+        table.concat(hunk.frag_new, '\n'),
+        langs_by_side.new,
+        { { 0, math.max(#hunk.frag_new - 1, 0) } },
+        ctx.hl_deadline
+      )
     end
   end
   return nil
@@ -146,8 +170,8 @@ end
 -- highlighting is off for the file. `text` and `lnum` are the row's own text
 -- and absolute line number, both already derived by the cell being built.
 local function spans_for(file, hunk, sides, side, row, text, lnum)
-  if file.content_mode == "full" then
-    local src_lines = side == "old" and file.old_lines or file.new_lines
+  if file.content_mode == 'full' then
+    local src_lines = side == 'old' and file.old_lines or file.new_lines
     -- Sanity guard: if the acquired content disagrees with the diff
     -- (reversed diffs, odd hashes), render the diff's own text unstyled.
     if src_lines and src_lines[lnum] == text then
@@ -156,7 +180,7 @@ local function spans_for(file, hunk, sides, side, row, text, lnum)
     end
     return nil
   end
-  local frag_spans = side == "old" and hunk.frag_old_spans or hunk.frag_new_spans
+  local frag_spans = side == 'old' and hunk.frag_old_spans or hunk.frag_new_spans
   return frag_spans and frag_spans[row - 1]
 end
 
@@ -174,7 +198,7 @@ local function render_hunk_inline(out, hunk, cell, ctx)
   local old_base = hunk.old_start - 1
   local function context_rows(count)
     for _ = 1, count do
-      local c = cell("new", new_ptr, "context")
+      local c = cell('new', new_ptr, 'context')
       emit(c, old_base + old_ptr, c.lnum)
       old_ptr, new_ptr = old_ptr + 1, new_ptr + 1
     end
@@ -182,11 +206,11 @@ local function render_hunk_inline(out, hunk, cell, ctx)
   for _, change in ipairs(hunk.changes) do
     context_rows(change.new_start - new_ptr)
     for row = change.old_start, change.old_end - 1 do
-      local c = cell("old", row, "minus", change.old_emph[row])
+      local c = cell('old', row, 'minus', change.old_emph[row])
       emit(c, c.lnum, nil)
     end
     for row = change.new_start, change.new_end - 1 do
-      local c = cell("new", row, "plus", change.new_emph[row])
+      local c = cell('new', row, 'plus', change.new_emph[row])
       emit(c, nil, c.lnum)
     end
     old_ptr, new_ptr = change.old_end, change.new_end
@@ -204,7 +228,7 @@ local function render_hunk_split(out, hunk, cell, ctx)
   local old_ptr, new_ptr = 1, 1
   local function context_rows(count)
     for _ = 1, count do
-      row(cell("old", old_ptr, "context"), cell("new", new_ptr, "context"))
+      row(cell('old', old_ptr, 'context'), cell('new', new_ptr, 'context'))
       old_ptr, new_ptr = old_ptr + 1, new_ptr + 1
     end
   end
@@ -214,10 +238,10 @@ local function render_hunk_split(out, hunk, cell, ctx)
     local new_n = change.new_end - change.new_start
     for k = 0, math.max(old_n, new_n) - 1 do
       local left = k < old_n
-          and cell("old", change.old_start + k, "minus", change.old_emph[change.old_start + k])
+          and cell('old', change.old_start + k, 'minus', change.old_emph[change.old_start + k])
         or { filler = true }
       local right = k < new_n
-          and cell("new", change.new_start + k, "plus", change.new_emph[change.new_start + k])
+          and cell('new', change.new_start + k, 'plus', change.new_emph[change.new_start + k])
         or { filler = true }
       row(left, right)
     end
@@ -228,12 +252,12 @@ end
 
 local function render_hunk(out, file, hunk, sides, langs_by_side, ctx)
   local function cell(side, row, line_type, emph)
-    local frag = side == "old" and hunk.frag_old or hunk.frag_new
+    local frag = side == 'old' and hunk.frag_old or hunk.frag_new
     local text = frag[row]
     -- Absolute line number of this row on its own side.
-    local lnum = (side == "old" and hunk.old_start or hunk.new_start) + row - 1
+    local lnum = (side == 'old' and hunk.old_start or hunk.new_start) + row - 1
     return {
-      text = text or "",
+      text = text or '',
       spans = langs_by_side[side] and spans_for(file, hunk, sides, side, row, text, lnum) or nil,
       line_type = line_type,
       emph = emph,
@@ -251,7 +275,7 @@ local function render_hunk(out, file, hunk, sides, langs_by_side, ctx)
   -- lines, so a single trailing note keeps it attached to the right hunk.
   for _, hline in ipairs(hunk.lines) do
     if hline.no_newline then
-      out[#out + 1] = layout.note_row("\\ no newline at end of file")
+      out[#out + 1] = layout.note_row('\\ no newline at end of file')
       break
     end
   end
@@ -265,21 +289,23 @@ local function render_file(file, ctx)
   local out = {}
   -- A deleted file has no new side at all, so this falls through to the old
   -- path without needing to know that (see parse_extended_header).
-  local display_path = file.new_path or file.old_path or "?"
+  local display_path = file.new_path or file.old_path or '?'
 
   if file.renamed_from and file.renamed_to then
-    out[#out + 1] = layout.note_row("renamed: " .. file.renamed_from .. " => " .. file.renamed_to)
+    out[#out + 1] = layout.note_row('renamed: ' .. file.renamed_from .. ' => ' .. file.renamed_to)
   end
   if file.old_mode and file.new_mode and not file.is_new and not file.is_deleted then
-    out[#out + 1] = layout.note_row("mode changed: " .. file.old_mode .. " => " .. file.new_mode)
+    out[#out + 1] = layout.note_row('mode changed: ' .. file.old_mode .. ' => ' .. file.new_mode)
   end
   if file.is_binary then
-    out[#out + 1] = layout.note_row("binary: " .. display_path)
+    out[#out + 1] = layout.note_row('binary: ' .. display_path)
     return table.concat(out)
   end
   if #file.hunks == 0 then
     if #out == 0 and (file.is_new or file.is_deleted) then
-      out[#out + 1] = layout.note_row((file.is_new and "new empty file: " or "deleted empty file: ") .. display_path)
+      out[#out + 1] = layout.note_row(
+        (file.is_new and 'new empty file: ' or 'deleted empty file: ') .. display_path
+      )
     end
     return table.concat(out)
   end
@@ -288,12 +314,15 @@ local function render_file(file, ctx)
   -- highlighting budget is spent the remaining files do too.
   local total_lines = hunk_line_total(file)
   if total_lines > LIMITS.max_file_section_lines then
-    file.content_mode = "plain"
+    file.content_mode = 'plain'
   end
   local langs_by_side = {}
-  if file.content_mode ~= "plain" and ctx.budget > 0 and not hl_expired(ctx) then
-    local full = file.content_mode == "full"
-    langs_by_side.new = langs.lang_for(display_path, full and (file.need_new and file.new_lines or file.old_lines) or nil)
+  if file.content_mode ~= 'plain' and ctx.budget > 0 and not hl_expired(ctx) then
+    local full = file.content_mode == 'full'
+    langs_by_side.new = langs.lang_for(
+      display_path,
+      full and (file.need_new and file.new_lines or file.old_lines) or nil
+    )
     -- A rename may change the extension, and then the old side is a different
     -- language entirely (script.sh => script.py).
     local old_path = file.old_path or display_path
@@ -308,9 +337,10 @@ local function render_file(file, ctx)
   -- Changes are computed before span extraction so the old-side ranges can
   -- follow the rows the engine actually emits (see push_minus_ranges).
   for _, hunk in ipairs(file.hunks) do
-    hunk.frag_old = diffparse.hunk_fragment(hunk, "old")
-    hunk.frag_new = diffparse.hunk_fragment(hunk, "new")
-    local changes = file.content_mode ~= "plain" and engine.compute(hunk.frag_old, hunk.frag_new) or nil
+    hunk.frag_old = diffparse.hunk_fragment(hunk, 'old')
+    hunk.frag_new = diffparse.hunk_fragment(hunk, 'new')
+    local changes = file.content_mode ~= 'plain' and engine.compute(hunk.frag_old, hunk.frag_new)
+      or nil
     if not changes or #changes == 0 then
       -- No engine, or it sees no difference at all (a CRLF-only change:
       -- fragments are CR-stripped); the patch's own runs are the only truthful
@@ -332,7 +362,7 @@ local function render_file(file, ctx)
     -- it, not the one above (the file's first header sticks to its notes;
     -- the file-level separator is added by M.render).
     if i > 1 then
-      out[#out + 1] = "\n"
+      out[#out + 1] = '\n'
     end
     out[#out + 1] = layout.hunk_header(display_path, hunk, ctx.cols)
     render_hunk(out, file, hunk, sides, langs_by_side, ctx)
@@ -364,19 +394,19 @@ function M.render(input, opts)
 
   -- Git is asked for uncolored output, so the strip almost never has anything
   -- to do; the find keeps a pattern scan off the whole input for that case.
-  if input:find("\27", 1, true) then
-    input = input:gsub("\27%[[%d;]*m", "")
+  if input:find('\27', 1, true) then
+    input = input:gsub('\27%[[%d;]*m', '')
   end
   local lines = util.split_lines(input)
   local blocks = diffparse.parse(lines)
 
   local files = {}
   for _, block in ipairs(blocks) do
-    if block.kind == "file" then
+    if block.kind == 'file' then
       files[#files + 1] = block
     end
   end
-  local looks_like_git = #files > 0 or (lines[1] and lines[1]:match("^commit %x+"))
+  local looks_like_git = #files > 0 or (lines[1] and lines[1]:match('^commit %x+'))
   if not looks_like_git then
     return input, false
   end
@@ -386,22 +416,22 @@ function M.render(input, opts)
   local ctx = {
     cols = opts.cols or 120,
     budget = LIMITS.max_highlighted_lines,
-    split = opts.layout == "side-by-side",
+    split = opts.layout == 'side-by-side',
     hl_deadline = uv.hrtime() + LIMITS.max_highlight_ms * 1e6,
     num_w = nil, -- line-number gutter digits, set per file
   }
   local out = {}
   for _, block in ipairs(blocks) do
     local chunk
-    if block.kind == "raw" then
+    if block.kind == 'raw' then
       chunk = passthrough.render_raw(block.lines, ctx.cols)
     else
       chunk = render_file(block, ctx)
     end
     if #chunk > 0 then
       -- Blank separator between sections; raw blocks keep git's own spacing.
-      if block.kind == "file" and #out > 0 then
-        out[#out + 1] = "\n"
+      if block.kind == 'file' and #out > 0 then
+        out[#out + 1] = '\n'
       end
       out[#out + 1] = chunk
     end

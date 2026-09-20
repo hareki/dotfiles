@@ -1,5 +1,5 @@
-local catfile = require("lib.catfile")
-local util = require("lib.util")
+local catfile = require('lib.catfile')
+local util = require('lib.util')
 
 local M = {}
 
@@ -15,7 +15,11 @@ local root_cache = { cwd = nil, root = nil }
 local function worktree_root(cwd)
   if root_cache.cwd ~= cwd then
     local root
-    local ok, proc = pcall(vim.system, { "git", "rev-parse", "--show-toplevel" }, { cwd = cwd, text = true })
+    local ok, proc = pcall(
+      vim.system,
+      { 'git', 'rev-parse', '--show-toplevel' },
+      { cwd = cwd, text = true }
+    )
     if ok then
       local res = proc:wait(GIT_TIMEOUT_MS)
       if res.code == 0 and res.stdout then
@@ -28,12 +32,12 @@ local function worktree_root(cwd)
 end
 
 local function read_worktree_file(root, path, limits)
-  local f = io.open(root .. "/" .. path, "rb")
+  local f = io.open(root .. '/' .. path, 'rb')
   if not f then
     return nil
   end
-  local size = f:seek("end")
-  f:seek("set")
+  local size = f:seek('end')
+  f:seek('set')
   if size > limits.max_blob_bytes then
     f:close()
     return nil, true -- oversized
@@ -44,7 +48,7 @@ local function read_worktree_file(root, path, limits)
     f:close()
     return nil
   end
-  local content = f:read("*a")
+  local content = f:read('*a')
   f:close()
   return content
 end
@@ -52,7 +56,7 @@ end
 -- An all-zero oid: the side has no object in the database (an unstaged or
 -- untracked file), so there is nothing to ask for.
 local function is_zero_hash(hex)
-  return hex == nil or hex:match("^0+$") ~= nil
+  return hex == nil or hex:match('^0+$') ~= nil
 end
 
 local function to_lines(content)
@@ -75,19 +79,19 @@ function M.acquire(files, cwd, limits, fragment_only)
   local requests = {} -- flat list of hashes for one batched cat-file call
   local slots = {} -- parallel list of {file, side}
   for _, file in ipairs(files) do
-    file.content_mode = "plain"
+    file.content_mode = 'plain'
     local eligible = not (file.is_combined or file.is_binary) and #file.hunks > 0
     if eligible then
-      file.content_mode = "fragment"
+      file.content_mode = 'fragment'
       file.need_old = not file.is_new
       file.need_new = not file.is_deleted
       if file.need_old and not is_zero_hash(file.old_hex) then
         requests[#requests + 1] = file.old_hex
-        slots[#slots + 1] = { file = file, side = "old" }
+        slots[#slots + 1] = { file = file, side = 'old' }
       end
       if file.need_new and not is_zero_hash(file.new_hex) then
         requests[#requests + 1] = file.new_hex
-        slots[#slots + 1] = { file = file, side = "new" }
+        slots[#slots + 1] = { file = file, side = 'new' }
       end
     end
   end
@@ -103,18 +107,18 @@ function M.acquire(files, cwd, limits, fragment_only)
   local infos, blobs = catfile.fetch(cwd, requests, limits.max_highlight_blob_bytes)
   for i, slot in ipairs(slots) do
     local rec = infos[i]
-    if rec and rec.type == "blob" and rec.size > limits.max_blob_bytes then
-      slot.file[slot.side .. "_oversized"] = true
-    elseif rec and rec.type == "blob" and rec.size > limits.max_highlight_blob_bytes then
+    if rec and rec.type == 'blob' and rec.size > limits.max_blob_bytes then
+      slot.file[slot.side .. '_oversized'] = true
+    elseif rec and rec.type == 'blob' and rec.size > limits.max_highlight_blob_bytes then
       slot.file.hl_skip = true
     elseif blobs[i] then
-      slot.file[slot.side .. "_content"] = blobs[i]
+      slot.file[slot.side .. '_content'] = blobs[i]
     end
   end
 
   local worktree_dep = false
   for _, file in ipairs(files) do
-    if file.content_mode == "fragment" then
+    if file.content_mode == 'fragment' then
       -- Worktree-side fallback: unstaged/untracked diffs have zero or
       -- odb-missing hashes on the new side; the file on disk is that side.
       -- Not taken for a blob skipped by the highlight cap or the blob cap:
@@ -140,13 +144,15 @@ function M.acquire(files, cwd, limits, fragment_only)
       -- input caps rather than the blob size. Only a file whose every needed
       -- side is oversized drops to plain, so a huge blob on one side cannot
       -- disable the engine and highlighting for the other, fully visible side.
-      if (not file.need_old or file.old_oversized) and (not file.need_new or file.new_oversized) then
-        file.content_mode = "plain"
+      if
+        (not file.need_old or file.old_oversized) and (not file.need_new or file.new_oversized)
+      then
+        file.content_mode = 'plain'
       else
         local have_old = not file.need_old or file.old_content ~= nil
         local have_new = not file.need_new or file.new_content ~= nil
         if have_old and have_new then
-          file.content_mode = "full"
+          file.content_mode = 'full'
           file.old_lines = file.old_content and to_lines(file.old_content) or {}
           file.new_lines = file.new_content and to_lines(file.new_content) or {}
         end

@@ -22,8 +22,8 @@ function M.lang_for(path, content_lines)
   -- the line itself would pin it in this never-evicted cache for the daemon's
   -- lifetime, and a first line can be the whole file (a minified bundle, up to
   -- max_blob_bytes); the detectors only ever look at its head anyway.
-  local sample = (content_lines and content_lines[1]) or ""
-  local key = path .. "\0" .. #sample .. "\0" .. sample:sub(1, 256)
+  local sample = (content_lines and content_lines[1]) or ''
+  local key = path .. '\0' .. #sample .. '\0' .. sample:sub(1, 256)
   local hit = cache[key]
   if hit ~= nil then
     return hit or nil
@@ -40,9 +40,9 @@ function M.lang_for(path, content_lines)
   end
 
   local lang = parser_available(vim.treesitter.language.get_lang(ft) or ft)
-  if not lang and ft:find(".", 1, true) then
+  if not lang and ft:find('.', 1, true) then
     -- Dotted filetypes like "yaml.ansible": fall back to the base filetype.
-    local base = ft:match("^([^.]+)")
+    local base = ft:match('^([^.]+)')
     lang = parser_available(vim.treesitter.language.get_lang(base) or base)
   end
 

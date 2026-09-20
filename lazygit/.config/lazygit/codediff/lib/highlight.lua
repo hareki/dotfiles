@@ -3,7 +3,7 @@ local M = {}
 -- Captures that style nothing on their own; `_`-prefixed ones are a query's
 -- private scratch names.
 local SKIP = { spell = true, nospell = true, conceal = true }
-local UNDERSCORE = string.byte("_")
+local UNDERSCORE = string.byte('_')
 
 --- Extract per-row highlight spans from a source string, mirroring
 --- vim.treesitter.highlighter semantics: injected trees are walked after their
@@ -53,7 +53,7 @@ function M.line_spans(content, lang, row_ranges, deadline)
     -- window, and a node captured under the same name by two patterns comes
     -- back once per pattern; both would otherwise land in the row twice, and
     -- the later copy would outrank whatever legitimately won the tie between.
-    local key = span_lang .. "\0" .. name .. "\0" .. sr .. ":" .. sc .. ":" .. er .. ":" .. ec
+    local key = span_lang .. '\0' .. name .. '\0' .. sr .. ':' .. sc .. ':' .. er .. ':' .. ec
     if seen[key] then
       return
     end
@@ -69,7 +69,8 @@ function M.line_spans(content, lang, row_ranges, deadline)
             row = {}
             rows[r] = row
           end
-          row[#row + 1] = { s1 = s1, e1 = e1, capture = name, lang = span_lang, prio = prio, order = order }
+          row[#row + 1] =
+            { s1 = s1, e1 = e1, capture = name, lang = span_lang, prio = prio, order = order }
         end
       end
     end
@@ -90,7 +91,7 @@ function M.line_spans(content, lang, row_ranges, deadline)
       return
     end
     local tree_lang = langtree:lang()
-    local query_ok, query = pcall(vim.treesitter.query.get, tree_lang, "highlights")
+    local query_ok, query = pcall(vim.treesitter.query.get, tree_lang, 'highlights')
     if query_ok and query then
       local captures = query.captures
       for _, tree in pairs(langtree:trees()) do

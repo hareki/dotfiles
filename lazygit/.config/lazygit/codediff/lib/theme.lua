@@ -34,10 +34,10 @@ end
 --- codediff.nvim's highlights.setup() has derived them from the colorscheme.
 function M.load_diff_colors()
   local map = {
-    minus_bg = "CodeDiffLineDelete",
-    minus_emph_bg = "CodeDiffCharDelete",
-    plus_bg = "CodeDiffLineInsert",
-    plus_emph_bg = "CodeDiffCharInsert",
+    minus_bg = 'CodeDiffLineDelete',
+    minus_emph_bg = 'CodeDiffCharDelete',
+    plus_bg = 'CodeDiffLineInsert',
+    plus_emph_bg = 'CodeDiffCharInsert',
   }
   for key, group in pairs(map) do
     local hl = get_hl(group)
@@ -45,7 +45,7 @@ function M.load_diff_colors()
       M.palette[key] = hl.bg
     end
   end
-  local filler = get_hl("CodeDiffFiller")
+  local filler = get_hl('CodeDiffFiller')
   if filler and filler.fg then
     M.palette.filler_fg = filler.fg
   end
@@ -74,7 +74,7 @@ function M.attrs(capture, lang)
     return hit or nil
   end
 
-  local hl = get_hl("@" .. capture .. "." .. lang)
+  local hl = get_hl('@' .. capture .. '.' .. lang)
   local attrs = nil
   if hl and (hl.fg or hl.bold or hl.italic or hl.underline) then
     attrs = { fg = hl.fg, bold = hl.bold, italic = hl.italic, underline = hl.underline }
