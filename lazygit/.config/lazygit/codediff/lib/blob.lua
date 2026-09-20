@@ -68,8 +68,8 @@ local function to_lines(content)
 end
 
 --- Attach full old/new file contents to each file block where possible.
---- Sets file.content_mode = "full" | "fragment" | "plain", and
---- file.old_lines / file.new_lines in full mode.
+--- Sets file.content_mode = "full" | "fragment" | "plain", file.hunk_lines,
+--- and file.old_lines / file.new_lines in full mode.
 --- With `fragment_only`, files are classified but no git lookup is performed,
 --- so a render stays reproducible outside the repo it was captured from.
 --- Returns true when any file consulted the worktree, i.e. the render depends
@@ -80,7 +80,19 @@ function M.acquire(files, cwd, limits, fragment_only)
   local slots = {} -- parallel list of {file, side}
   for _, file in ipairs(files) do
     file.content_mode = 'plain'
-    local eligible = not (file.is_combined or file.is_binary) and #file.hunks > 0
+    -- Rows this file's hunks show: the section cap below, and the caller's
+    -- highlighting budget, both spend it.
+    local hunk_lines = 0
+    for _, hunk in ipairs(file.hunks) do
+      hunk_lines = hunk_lines + #hunk.lines
+    end
+    file.hunk_lines = hunk_lines
+    -- An oversized section renders with tints only. Classifying it here rather
+    -- than after the fact keeps it from paying for a batched cat-file fetch, a
+    -- size check and a line split whose result nothing then reads.
+    local eligible = not (file.is_combined or file.is_binary)
+      and #file.hunks > 0
+      and hunk_lines <= limits.max_file_section_lines
     if eligible then
       file.content_mode = 'fragment'
       file.need_old = not file.is_new

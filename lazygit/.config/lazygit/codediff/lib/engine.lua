@@ -2,16 +2,17 @@ local M = {}
 
 -- codediff.nvim is required lazily and behind pcall: a missing or broken
 -- plugin must degrade to the patch's own line runs, never break the render.
-local loaded = {}
+-- nil: not tried yet, false: unavailable. require memoizes successful loads
+-- itself; the false is what keeps a broken plugin from being re-pcall'd once
+-- per hunk for the daemon's lifetime.
+local diff_engine = nil
 
-local function lazy_require(name)
-  local mod = loaded[name]
-  if mod == nil then
-    local ok, result = pcall(require, name)
-    mod = ok and result or false
-    loaded[name] = mod
+local function diff_module()
+  if diff_engine == nil then
+    local ok, mod = pcall(require, 'codediff.core.diff')
+    diff_engine = ok and mod or false
   end
-  return mod or nil
+  return diff_engine or nil
 end
 
 -- Mirrors codediff's utf16_col_to_byte_col (ui/inline.lua): engine columns are
@@ -38,6 +39,10 @@ local function char_last_byte(line, i)
   end
   local ok, off = pcall(vim.str_utf_end, line, i)
   return ok and (i + off) or i
+end
+
+local function by_start(a, b)
+  return a.s < b.s
 end
 
 -- Split one side of the char-level inner changes into per-row byte ranges:
@@ -79,9 +84,7 @@ local function side_char_ranges(inner_changes, side, lines)
     end
   end
   for _, ranges in pairs(rows) do
-    table.sort(ranges, function(a, b)
-      return a.s < b.s
-    end)
+    table.sort(ranges, by_start)
   end
   return rows
 end
@@ -92,7 +95,7 @@ end
 --- old_emph/new_emph, or nil when the engine is unavailable or timed out
 --- (the caller then falls back to the patch's own line runs).
 function M.compute(frag_old, frag_new)
-  local diff = lazy_require('codediff.core.diff')
+  local diff = diff_module()
   if not diff then
     return nil
   end

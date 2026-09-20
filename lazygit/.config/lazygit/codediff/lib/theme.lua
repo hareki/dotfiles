@@ -1,10 +1,13 @@
 local M = {}
 
 -- Chrome colors (headers, notes, --stat, commit metadata) mirror the delta
--- catppuccin-mocha theme from ~/.gitconfig. The four diff backgrounds are
--- placeholders overwritten by load_diff_colors() with the CodeDiff* groups so
--- lazygit shows exactly what codediff.nvim shows in the editor; syntax colors
--- come from catppuccin at runtime.
+-- catppuccin-mocha theme from ~/.gitconfig. Every value here is a placeholder
+-- that load_diff_colors() overwrites from the live colorscheme -- the chrome
+-- entries from catppuccin's own palette, the four diff backgrounds from the
+-- CodeDiff* groups -- so lazygit shows exactly what codediff.nvim shows in the
+-- editor; syntax colors come from catppuccin at runtime. The literals are the
+-- values that resolution produces today, and stand in only for a render that
+-- reaches this module without bootstrap having run.
 M.palette = {
   default_fg = 0xcdd6f4,
   decoration = 0x6c7086,
@@ -30,9 +33,39 @@ local function get_hl(group)
   return nil
 end
 
---- Copy the diff backgrounds out of the CodeDiff* groups. Must run after
---- codediff.nvim's highlights.setup() has derived them from the colorscheme.
+-- The catppuccin color each chrome entry is a copy of. catppuccin is loaded in
+-- this process already (bootstrap puts it on the rtp and calls its setup), so
+-- the palette is read back rather than transcribed a second time: a flavour
+-- change in bootstrap then carries here on its own.
+local CHROME = {
+  default_fg = 'text',
+  decoration = 'overlay0',
+  minus_num = 'red',
+  plus_num = 'green',
+  hunk_num = 'subtext0',
+  commit_hash = 'yellow',
+  decorations_fg = 'blue',
+  stat_count = 'subtext0',
+}
+
+--- Copy the chrome colors out of catppuccin's palette and the diff backgrounds
+--- out of the CodeDiff* groups. Must run after codediff.nvim's
+--- highlights.setup() has derived them from the colorscheme.
 function M.load_diff_colors()
+  local ok, pal = pcall(function()
+    return require('catppuccin.palettes').get_palette()
+  end)
+  if ok and type(pal) == 'table' then
+    for key, name in pairs(CHROME) do
+      -- The palette hands back "#rrggbb"; the renderer works in packed ints.
+      local hex = pal[name]
+      local rgb = type(hex) == 'string' and tonumber(hex:sub(2), 16) or nil
+      if rgb then
+        M.palette[key] = rgb
+      end
+    end
+  end
+
   local map = {
     minus_bg = 'CodeDiffLineDelete',
     minus_emph_bg = 'CodeDiffCharDelete',

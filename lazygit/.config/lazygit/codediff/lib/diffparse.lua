@@ -78,7 +78,7 @@ local function new_file(diff_line)
     hunks = {},
     raw_lines = {}, -- combined-diff body kept verbatim
   }
-  if diff_line:match('^diff %-%-git ') then
+  if vim.startswith(diff_line, 'diff --git ') then
     -- Whether this file's paths carry the a/ b/ (or mnemonic) prefixes: the
     -- diff line is the one place the form shows, and the ---/+++ headers of
     -- the same file always use the same setting. Only source prefixes can
@@ -99,36 +99,57 @@ local function new_file(diff_line)
   return file
 end
 
+-- "<header> <mode>" lines: the mode to capture, the field it fills, and the
+-- flag it raises. Capturing answers both "is this the line" and "what is in
+-- it", so neither prefix has to be spelled twice.
+local MODE_HEADERS = {
+  { '^old mode (%d+)', 'old_mode' },
+  { '^new mode (%d+)', 'new_mode' },
+  { '^new file mode (%d+)', 'new_mode', 'is_new' },
+  { '^deleted file mode (%d+)', 'old_mode', 'is_deleted' },
+}
+
+-- "<header> <path>" lines: the path to capture, the field it fills, and the
+-- path field it also becomes. `copy from` deliberately has no second field: a
+-- copy leaves the source file alone, so it is not this diff's old side.
+local PATH_HEADERS = {
+  { '^rename from (.*)$', 'renamed_from', 'old_path' },
+  { '^rename to (.*)$', 'renamed_to', 'new_path' },
+  { '^copy from (.*)$', 'renamed_from' },
+  { '^copy to (.*)$', 'renamed_to', 'new_path' },
+}
+
 -- Returns true when the line was consumed as an extended header.
 local function parse_extended_header(file, line)
-  if line:match('^old mode %d') then
-    file.old_mode = line:match('^old mode (%d+)')
-  elseif line:match('^new mode %d') then
-    file.new_mode = line:match('^new mode (%d+)')
-  elseif line:match('^new file mode %d') then
-    file.is_new = true
-    file.new_mode = line:match('^new file mode (%d+)')
-  elseif line:match('^deleted file mode %d') then
-    file.is_deleted = true
-    file.old_mode = line:match('^deleted file mode (%d+)')
-  elseif line:match('^similarity index %d+%%$') or line:match('^dissimilarity index %d+%%$') then
+  for _, header in ipairs(MODE_HEADERS) do
+    local mode = line:match(header[1])
+    if mode then
+      file[header[2]] = mode
+      if header[3] then
+        file[header[3]] = true
+      end
+      return true
+    end
+  end
+  for _, header in ipairs(PATH_HEADERS) do
+    local path = line:match(header[1])
+    if path then
+      path = unquote_c_string(path)
+      file[header[2]] = path
+      if header[3] then
+        file[header[3]] = path
+      end
+      return true
+    end
+  end
+
+  if line:match('^similarity index %d+%%$') or line:match('^dissimilarity index %d+%%$') then
     -- consumed, nothing to record
-  elseif line:match('^rename from ') then
-    file.renamed_from = unquote_c_string(line:sub(#'rename from ' + 1))
-    file.old_path = file.renamed_from
-  elseif line:match('^rename to ') then
-    file.renamed_to = unquote_c_string(line:sub(#'rename to ' + 1))
-    file.new_path = file.renamed_to
-  elseif line:match('^copy from ') then
-    file.renamed_from = unquote_c_string(line:sub(#'copy from ' + 1))
-  elseif line:match('^copy to ') then
-    file.renamed_to = unquote_c_string(line:sub(#'copy to ' + 1))
-    file.new_path = file.renamed_to
   elseif line:match('^index %x+%.%.%x+') then
     file.old_hex, file.new_hex = line:match('^index (%x+)%.%.(%x+)')
-  elseif line:match('^Binary files ') or line:match('^GIT binary patch') then
+  elseif vim.startswith(line, 'Binary files ') or vim.startswith(line, 'GIT binary patch') then
     file.is_binary = true
-  elseif line:match('^%-%-%- ') then
+  elseif vim.startswith(line, '--- ') then
     -- Authoritative for this side, including the nil that /dev/null resolves
     -- to: the header is the diff's own answer for the side, where the path
     -- pair new_file() reads off the diff line is only a guess (it mis-splits a
@@ -136,7 +157,7 @@ local function parse_extended_header(file, line)
     -- refuted it is what forced consumers to ask whether the file was new or
     -- deleted before they could trust either path.
     file.old_path = strip_path_prefix(line:sub(5), file.prefixed)
-  elseif line:match('^%+%+%+ ') then
+  elseif vim.startswith(line, '+++ ') then
     file.new_path = strip_path_prefix(line:sub(5), file.prefixed)
   else
     return false
@@ -201,9 +222,9 @@ function M.parse(lines)
     local consumed = true
 
     if
-      line:match('^diff %-%-git ')
-      or line:match('^diff %-%-cc ')
-      or line:match('^diff %-%-combined ')
+      vim.startswith(line, 'diff --git ')
+      or vim.startswith(line, 'diff --cc ')
+      or vim.startswith(line, 'diff --combined ')
     then
       flush_file()
       flush_raw()
@@ -215,7 +236,7 @@ function M.parse(lines)
       end
       raw.lines[#raw.lines + 1] = line
     elseif file and state == 'combined' then
-      if line:match('^Submodule ') or line:match('^commit %x') then
+      if vim.startswith(line, 'Submodule ') or line:match('^commit %x') then
         consumed = false
       else
         file.raw_lines[#file.raw_lines + 1] = line

@@ -41,6 +41,24 @@ local function is_wanted_blob(rec, max_bytes)
   return rec ~= nil and rec.type == 'blob' and rec.size <= max_bytes
 end
 
+--- The blobs worth fetching, as indices into `infos`, their oids, and the exact
+--- byte count git's payload stream runs to for them. Shared by both fetch
+--- paths: they must agree on what counts as fetchable, or the fallback renders
+--- differently from the fast path.
+local function select_wanted(infos, oids, max_bytes)
+  local wanted, hashes, expected = {}, {}, 0
+  for i = 1, #oids do
+    local rec = infos[i]
+    if is_wanted_blob(rec, max_bytes) then
+      wanted[#wanted + 1] = i
+      hashes[#hashes + 1] = oids[i]
+      -- git repeats the info line, then the bytes and a newline
+      expected = expected + #rec.header + 1 + rec.size + 1
+    end
+  end
+  return wanted, hashes, expected
+end
+
 --- Blobs out of a "<oid> <type> <size>\n<bytes>\n" stream, keyed by their index
 --- in `infos` and read in `wanted` order. Each record must open with the header
 --- `info` already reported: anything else means the stream has desynced, and
@@ -106,15 +124,7 @@ local function ensure(cwd)
       s.buf[#s.buf + 1] = data
       s.bytes = s.bytes + #data
       if s.counting then
-        local pos = 1
-        while true do
-          local nl = data:find('\n', pos, true)
-          if not nl then
-            break
-          end
-          s.lines = s.lines + 1
-          pos = nl + 1
-        end
+        s.lines = s.lines + select(2, data:gsub('\n', ''))
       end
     end,
   }, function()
@@ -175,16 +185,10 @@ local function fetch_session(cwd, oids, max_bytes)
   end
 
   -- Only now, knowing the sizes, is anything asked for.
-  local wanted, expected = {}, 0
+  local wanted, hashes, expected = select_wanted(infos, oids, max_bytes)
   commands = {}
-  for i = 1, n do
-    local rec = infos[i]
-    if is_wanted_blob(rec, max_bytes) then
-      wanted[#wanted + 1] = i
-      commands[#commands + 1] = 'contents ' .. oids[i] .. '\n'
-      -- git repeats the info line, then the bytes and a newline
-      expected = expected + #rec.header + 1 + rec.size + 1
-    end
+  for i = 1, #hashes do
+    commands[i] = 'contents ' .. hashes[i] .. '\n'
   end
   if #wanted == 0 then
     reset(s, false)
@@ -243,14 +247,7 @@ local function fetch_oneshot(cwd, oids, max_bytes)
     return {}, {}
   end
 
-  local wanted = {}
-  local hashes = {}
-  for i = 1, #oids do
-    if is_wanted_blob(infos[i], max_bytes) then
-      wanted[#wanted + 1] = i
-      hashes[#hashes + 1] = oids[i]
-    end
-  end
+  local wanted, hashes = select_wanted(infos, oids, max_bytes)
   if #hashes == 0 then
     return infos, {}
   end

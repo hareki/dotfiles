@@ -26,12 +26,22 @@ function M.strip_cr(line)
   return line
 end
 
---- True when every byte is printable ASCII, i.e. exactly one display cell each,
---- so a byte count is a display width and clipping by cells is clipping by
---- bytes. Control bytes are excluded deliberately: strdisplaywidth measures
---- them as their two-cell ^X form, which the byte count would not match.
+-- Printable ASCII is exactly one display cell per byte, so a byte count is a
+-- display width and clipping by cells is clipping by bytes. Control bytes are
+-- excluded deliberately: strdisplaywidth measures them as their two-cell ^X
+-- form, which the byte count would not match.
+local NON_ASCII = '[^\32-\126]'
+
+--- True when every byte is printable ASCII (see NON_ASCII).
 function M.is_plain_ascii(s)
-  return not s:find('[^\32-\126]')
+  return not s:find(NON_ASCII)
+end
+
+--- Byte index of the first non-printable-ASCII byte, or nil when there is none.
+--- The same predicate as is_plain_ascii, for callers that need to know where
+--- the bulk-addressable prefix ends rather than only whether there is one.
+function M.first_non_ascii(s)
+  return s:find(NON_ASCII)
 end
 
 --- Display width of a plain string; safe on invalid UTF-8.

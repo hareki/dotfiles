@@ -44,6 +44,9 @@ function M.render_raw(lines, cols)
   local out = {}
   for _, line in ipairs(lines) do
     local hash, decorations = line:match('^commit (%x+)%s*(.*)$')
+    -- "Author: ...", "Date: ..." and friends: the label keeps the colon, the
+    -- rest keeps the whitespace that separated them.
+    local label, rest = line:match('^(%u%w*:)(%s.*)$')
     if hash then
       local rendered = styled({ fg = p.default_fg }, 'commit ')
         .. styled({ fg = p.commit_hash, bold = true }, hash)
@@ -51,10 +54,9 @@ function M.render_raw(lines, cols)
         rendered = rendered .. ' ' .. styled({ fg = p.decorations_fg }, decorations)
       end
       out[#out + 1] = rendered .. ansi.reset .. '\n'
-      local rule_width = math.min(util.display_width(line), math.max((cols or 80) - 1, 1))
+      local rule_width = math.min(util.display_width(line), math.max(cols - 1, 1))
       out[#out + 1] = ansi.line({ fg = p.decoration }, string.rep('─', rule_width))
-    elseif line:match('^%u[%w]*:%s') then
-      local label, rest = line:match('^([%u][%w]*:)(.*)$')
+    elseif label then
       out[#out + 1] = styled({ fg = p.decoration }, label)
         .. styled({ fg = p.default_fg }, rest)
         .. ansi.reset
@@ -63,11 +65,11 @@ function M.render_raw(lines, cols)
       out[#out + 1] = render_stat_line(line, p) or ansi.line({ fg = p.default_fg }, line)
     elseif line:match('^ %d+ files? changed') then
       out[#out + 1] = ansi.line({ fg = p.decoration }, line)
-    elseif line:match('^Submodule ') then
+    elseif vim.startswith(line, 'Submodule ') then
       out[#out + 1] = ansi.line({ fg = p.default_fg, bold = true }, line)
-    elseif line:match('^  > ') then
+    elseif vim.startswith(line, '  > ') then
       out[#out + 1] = ansi.line({ fg = p.plus_num }, line)
-    elseif line:match('^  < ') then
+    elseif vim.startswith(line, '  < ') then
       out[#out + 1] = ansi.line({ fg = p.minus_num }, line)
     else
       out[#out + 1] = ansi.line({ fg = p.default_fg }, line)
@@ -84,9 +86,9 @@ function M.render_combined(file)
     local prefix = line:sub(1, 2)
     if line:match('^@@@') then
       out[#out + 1] = ansi.line({ fg = p.hunk_num, bold = true }, line)
-    elseif prefix:find('+', 1, true) and not line:match('^%+%+%+ ') then
+    elseif prefix:find('+', 1, true) and not vim.startswith(line, '+++ ') then
       out[#out + 1] = ansi.line({ fg = p.default_fg, bg = p.plus_bg }, line)
-    elseif prefix:find('-', 1, true) and not line:match('^%-%-%- ') then
+    elseif prefix:find('-', 1, true) and not vim.startswith(line, '--- ') then
       out[#out + 1] = ansi.line({ fg = p.default_fg, bg = p.minus_bg }, line)
     else
       out[#out + 1] = ansi.line({ fg = p.default_fg }, line)

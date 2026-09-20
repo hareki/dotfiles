@@ -5,9 +5,10 @@ local done = false
 local data = vim.fn.stdpath('data')
 local config = vim.fn.stdpath('config')
 
---- Every path setup() loads from, in one table, so the daemon can fingerprint
---- what a render depends on instead of re-deriving the same paths: a dependency
---- added here cannot be one the staleness check forgot.
+--- Every path a render depends on, in one table: the ones setup() loads from,
+--- plus the artifacts whose change has to recycle a running daemon. daemon.lua
+--- fingerprints this whole table rather than a hand-picked subset of it, so a
+--- dependency added here cannot be one the staleness check forgot.
 M.paths = {
   site = vim.fs.joinpath(data, 'site'),
   parsers = vim.fs.joinpath(data, 'site/parser'),

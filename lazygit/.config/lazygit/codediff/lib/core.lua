@@ -1,3 +1,4 @@
+local ansi = require('lib.ansi')
 local blob = require('lib.blob')
 local diffparse = require('lib.diffparse')
 local engine = require('lib.engine')
@@ -30,14 +31,6 @@ local uv = vim.uv
 
 local function hl_expired(ctx)
   return uv.hrtime() > ctx.hl_deadline
-end
-
-local function hunk_line_total(file)
-  local total = 0
-  for _, hunk in ipairs(file.hunks) do
-    total = total + #hunk.lines
-  end
-  return total
 end
 
 -- Merge a padded 0-based row range into the tail of `ranges` (they are built
@@ -102,9 +95,20 @@ end
 local function compute_spans(file, langs_by_side, ctx)
   local pad = LIMITS.context_pad_rows
   local minus_only = not ctx.split
+
+  -- Extraction needs a language, at least one row to spend it on, and a
+  -- deadline that has not passed. Stating that once keeps the four call sites
+  -- below from restating it in three slightly different spellings.
+  local function spans(lines, lang, ranges)
+    if not lang or #ranges == 0 or hl_expired(ctx) then
+      return nil
+    end
+    return highlight.line_spans(table.concat(lines, '\n'), lang, ranges, ctx.hl_deadline)
+  end
+
   if file.content_mode == 'full' then
     local sides = {}
-    if file.need_old and langs_by_side.old and not hl_expired(ctx) then
+    if file.need_old and langs_by_side.old then
       local ranges
       if minus_only then
         ranges = {}
@@ -114,29 +118,16 @@ local function compute_spans(file, langs_by_side, ctx)
       else
         ranges = needed_ranges(file.hunks, 'old', pad)
       end
-      if #ranges > 0 then
-        sides.old = highlight.line_spans(
-          table.concat(file.old_lines, '\n'),
-          langs_by_side.old,
-          ranges,
-          ctx.hl_deadline
-        )
-      end
+      sides.old = spans(file.old_lines, langs_by_side.old, ranges)
     end
-    if file.need_new and langs_by_side.new and not hl_expired(ctx) then
-      local ranges = needed_ranges(file.hunks, 'new', pad)
-      sides.new = highlight.line_spans(
-        table.concat(file.new_lines, '\n'),
-        langs_by_side.new,
-        ranges,
-        ctx.hl_deadline
-      )
+    if file.need_new and langs_by_side.new then
+      sides.new = spans(file.new_lines, langs_by_side.new, needed_ranges(file.hunks, 'new', pad))
     end
     return sides
   end
 
   for _, hunk in ipairs(file.hunks) do
-    if langs_by_side.old and not hl_expired(ctx) then
+    if langs_by_side.old then
       local max_row = math.max(#hunk.frag_old - 1, 0)
       local ranges
       if minus_only then
@@ -145,23 +136,10 @@ local function compute_spans(file, langs_by_side, ctx)
       else
         ranges = { { 0, max_row } }
       end
-      if #ranges > 0 then
-        hunk.frag_old_spans = highlight.line_spans(
-          table.concat(hunk.frag_old, '\n'),
-          langs_by_side.old,
-          ranges,
-          ctx.hl_deadline
-        )
-      end
+      hunk.frag_old_spans = spans(hunk.frag_old, langs_by_side.old, ranges)
     end
-    if langs_by_side.new and not hl_expired(ctx) then
-      hunk.frag_new_spans = highlight.line_spans(
-        table.concat(hunk.frag_new, '\n'),
-        langs_by_side.new,
-        { { 0, math.max(#hunk.frag_new - 1, 0) } },
-        ctx.hl_deadline
-      )
-    end
+    hunk.frag_new_spans =
+      spans(hunk.frag_new, langs_by_side.new, { { 0, math.max(#hunk.frag_new - 1, 0) } })
   end
   return nil
 end
@@ -184,6 +162,26 @@ local function spans_for(file, hunk, sides, side, row, text, lnum)
   return frag_spans and frag_spans[row - 1]
 end
 
+-- Walk a hunk's rows in order, handing each run to the layout that draws it.
+-- Between changes the two sides' pointers advance in step, which is both the
+-- pairing the side-by-side layout draws and the numbering the inline layout
+-- prints -- so the bookkeeping lives here rather than once per layout.
+local function walk_hunk(hunk, emit_context, emit_change)
+  local old_ptr, new_ptr = 1, 1
+  local function context_rows(count)
+    for _ = 1, count do
+      emit_context(old_ptr, new_ptr)
+      old_ptr, new_ptr = old_ptr + 1, new_ptr + 1
+    end
+  end
+  for _, change in ipairs(hunk.changes) do
+    context_rows(change.new_start - new_ptr)
+    emit_change(change)
+    old_ptr, new_ptr = change.old_end, change.new_end
+  end
+  context_rows(#hunk.frag_new - new_ptr + 1)
+end
+
 -- Inline layout (codediff.nvim's inline view): deleted blocks render above
 -- their inserted blocks, context lines stay undecorated.
 local function render_hunk_inline(out, hunk, cell, ctx)
@@ -192,19 +190,12 @@ local function render_hunk_inline(out, hunk, cell, ctx)
   end
 
   -- Context rows render from the new side, so their old-side number is not on
-  -- the cell: the old pointer walks in step with the new one between changes,
-  -- which is exactly the pairing the side-by-side layout draws.
-  local old_ptr, new_ptr = 1, 1
+  -- the cell and comes from the walker's old pointer instead.
   local old_base = hunk.old_start - 1
-  local function context_rows(count)
-    for _ = 1, count do
-      local c = cell('new', new_ptr, 'context')
-      emit(c, old_base + old_ptr, c.lnum)
-      old_ptr, new_ptr = old_ptr + 1, new_ptr + 1
-    end
-  end
-  for _, change in ipairs(hunk.changes) do
-    context_rows(change.new_start - new_ptr)
+  walk_hunk(hunk, function(old_row, new_row)
+    local c = cell('new', new_row, 'context')
+    emit(c, old_base + old_row, c.lnum)
+  end, function(change)
     for row = change.old_start, change.old_end - 1 do
       local c = cell('old', row, 'minus', change.old_emph[row])
       emit(c, c.lnum, nil)
@@ -213,9 +204,7 @@ local function render_hunk_inline(out, hunk, cell, ctx)
       local c = cell('new', row, 'plus', change.new_emph[row])
       emit(c, nil, c.lnum)
     end
-    old_ptr, new_ptr = change.old_end, change.new_end
-  end
-  context_rows(#hunk.frag_new - new_ptr + 1)
+  end)
 end
 
 -- Side-by-side layout (codediff.nvim's default view): original left,
@@ -225,15 +214,9 @@ local function render_hunk_split(out, hunk, cell, ctx)
     layout.split_line(out, left, right, ctx.cols, ctx.num_w)
   end
 
-  local old_ptr, new_ptr = 1, 1
-  local function context_rows(count)
-    for _ = 1, count do
-      row(cell('old', old_ptr, 'context'), cell('new', new_ptr, 'context'))
-      old_ptr, new_ptr = old_ptr + 1, new_ptr + 1
-    end
-  end
-  for _, change in ipairs(hunk.changes) do
-    context_rows(change.new_start - new_ptr)
+  walk_hunk(hunk, function(old_row, new_row)
+    row(cell('old', old_row, 'context'), cell('new', new_row, 'context'))
+  end, function(change)
     local old_n = change.old_end - change.old_start
     local new_n = change.new_end - change.new_start
     for k = 0, math.max(old_n, new_n) - 1 do
@@ -245,9 +228,7 @@ local function render_hunk_split(out, hunk, cell, ctx)
         or { filler = true }
       row(left, right)
     end
-    old_ptr, new_ptr = change.old_end, change.new_end
-  end
-  context_rows(#hunk.frag_new - new_ptr + 1)
+  end)
 end
 
 local function render_hunk(out, file, hunk, sides, langs_by_side, ctx)
@@ -310,12 +291,9 @@ local function render_file(file, ctx)
     return table.concat(out)
   end
 
-  -- Budgets: oversized sections render with tints only, and once the global
-  -- highlighting budget is spent the remaining files do too.
-  local total_lines = hunk_line_total(file)
-  if total_lines > LIMITS.max_file_section_lines then
-    file.content_mode = 'plain'
-  end
+  -- Budget: once the global highlighting budget is spent, the remaining files
+  -- render with tints only. Oversized sections were already classified plain
+  -- by blob.acquire, which owns content_mode.
   local langs_by_side = {}
   if file.content_mode ~= 'plain' and ctx.budget > 0 and not hl_expired(ctx) then
     local full = file.content_mode == 'full'
@@ -336,9 +314,12 @@ local function render_file(file, ctx)
   -- Both the engine and the fallback renderer consume the per-hunk fragments.
   -- Changes are computed before span extraction so the old-side ranges can
   -- follow the rows the engine actually emits (see push_minus_ranges).
+  local max_lnum = 0
   for _, hunk in ipairs(file.hunks) do
     hunk.frag_old = diffparse.hunk_fragment(hunk, 'old')
     hunk.frag_new = diffparse.hunk_fragment(hunk, 'new')
+    local last = math.max(hunk.old_start + hunk.old_count, hunk.new_start + hunk.new_count) - 1
+    max_lnum = math.max(max_lnum, last)
     local changes = file.content_mode ~= 'plain' and engine.compute(hunk.frag_old, hunk.frag_new)
       or nil
     if not changes or #changes == 0 then
@@ -352,11 +333,11 @@ local function render_file(file, ctx)
 
   local sides = nil
   if langs_by_side.old or langs_by_side.new then
-    ctx.budget = ctx.budget - total_lines
+    ctx.budget = ctx.budget - file.hunk_lines
     sides = compute_spans(file, langs_by_side, ctx)
   end
 
-  ctx.num_w = layout.number_width(file.hunks)
+  ctx.num_w = layout.number_width(max_lnum)
   for i, hunk in ipairs(file.hunks) do
     -- Blank separator so a header reads as belonging to the section below
     -- it, not the one above (the file's first header sticks to its notes;
@@ -364,7 +345,10 @@ local function render_file(file, ctx)
     if i > 1 then
       out[#out + 1] = '\n'
     end
-    out[#out + 1] = layout.hunk_header(display_path, hunk, ctx.cols)
+    -- A pure-deletion hunk has new_count == 0 and a new_start pointing at the
+    -- line *before* it (0 for a whole-file delete), so anchor on the old side.
+    local start_lnum = hunk.new_count > 0 and hunk.new_start or hunk.old_start
+    out[#out + 1] = layout.hunk_header(display_path, start_lnum, hunk.heading, ctx.cols)
     render_hunk(out, file, hunk, sides, langs_by_side, ctx)
     hunk.frag_old, hunk.frag_new, hunk.changes = nil, nil, nil
     hunk.frag_old_spans, hunk.frag_new_spans = nil, nil
@@ -392,11 +376,7 @@ function M.render(input, opts)
     return input, false
   end
 
-  -- Git is asked for uncolored output, so the strip almost never has anything
-  -- to do; the find keeps a pattern scan off the whole input for that case.
-  if input:find('\27', 1, true) then
-    input = input:gsub('\27%[[%d;]*m', '')
-  end
+  input = ansi.strip(input)
   local lines = util.split_lines(input)
   local blocks = diffparse.parse(lines)
 

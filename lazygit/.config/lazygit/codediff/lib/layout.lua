@@ -17,26 +17,13 @@ local is_plain_ascii = util.is_plain_ascii
 -- load_diff_colors() does not overwrite, so this run is fixed for the process.
 local BAR = ansi.styled({ fg = palette.decoration }, '│')
 
--- Split into grapheme clusters with their display widths.
+-- Widths are measured per grapheme cluster, never per codepoint: a lone
+-- combining mark measures one cell but contributes nothing to the character it
+-- attaches to, so summing standalone widths overstates decomposed text (macOS
+-- stores filenames NFD) and the caller's layout arithmetic breaks apart.
+-- strcharpart's skipcc argument yields a base character together with its
+-- composing marks, and both clip functions below walk in those terms.
 --
--- Widths are measured per cluster, never per codepoint: a lone combining mark
--- measures one cell but contributes nothing to the character it attaches to, so
--- summing standalone widths overstates decomposed text (macOS stores filenames
--- NFD) and the caller's layout arithmetic breaks apart. strcharpart's skipcc
--- argument yields a base character together with its composing marks.
-local function clusters(s)
-  local ok, count = pcall(vim.fn.strchars, s, 1)
-  if not ok then
-    return nil
-  end
-  local units = {}
-  for i = 0, count - 1 do
-    local text = vim.fn.strcharpart(s, i, 1, 1)
-    units[#units + 1] = { text = text, w = util.display_width(text) }
-  end
-  return units
-end
-
 -- Clip a string to at most `limit` display cells (UTF-8 aware). Returns the
 -- clipped string and its display width.
 local function clip_to_width(s, limit)
@@ -50,7 +37,7 @@ local function clip_to_width(s, limit)
   -- side-by-side diff is clipped to its cell, and a source line whose one
   -- non-ASCII byte sits past the cell edge is then answered without walking a
   -- single cluster. An all-ASCII string is that case with nothing after it.
-  local nonascii = s:find('[^\32-\126]')
+  local nonascii = util.first_non_ascii(s)
   local bulk = nonascii and math.max(nonascii - 2, 0) or limit
   if bulk >= limit then
     local clipped = s:sub(1, math.max(limit, 0))
@@ -62,9 +49,9 @@ local function clip_to_width(s, limit)
     local clipped = s:sub(1, limit)
     return clipped, util.display_width(clipped)
   end
-  -- Cluster by cluster from there, on the same terms as clusters() above (see
-  -- its note on skipcc and composing marks), but only as far as the limit: what
-  -- gets clipped away never has to be measured.
+  -- Cluster by cluster from there (see the note on skipcc and composing marks
+  -- above), but only as far as the limit: what gets clipped away never has to
+  -- be measured.
   local out = { s:sub(1, bulk) }
   w = bulk
   for i = bulk, count - 1 do
@@ -92,19 +79,21 @@ local function clip_left_to_width(s, limit)
   if is_plain_ascii(s) then
     return '…' .. s:sub(#s - limit + 2), limit
   end
-  local units = clusters(s)
-  if not units then
+  local ok, count = pcall(vim.fn.strchars, s, 1)
+  if not ok then
     return clip_to_width(s, limit)
   end
+  -- Backwards from the tail, measuring only what survives the elision.
   local out = {}
   w = 0
-  for i = #units, 1, -1 do
-    local unit = units[i]
-    if w + unit.w > limit - 1 then
+  for i = count - 1, 0, -1 do
+    local text = vim.fn.strcharpart(s, i, 1, 1)
+    local cw = util.display_width(text)
+    if w + cw > limit - 1 then
       break
     end
-    table.insert(out, 1, unit.text)
-    w = w + unit.w
+    table.insert(out, 1, text)
+    w = w + cw
   end
   return '…' .. table.concat(out), w + 1
 end
@@ -118,15 +107,13 @@ local function one_line(s)
   return (s:gsub('[\t\r\n]', ' '))
 end
 
---- Delta-style boxed hunk header: path, new-side start line and the section
---- heading, framed by decoration-colored rules.
-function M.hunk_header(path, hunk, cols)
+--- Delta-style boxed hunk header: path, the line the hunk starts at and the
+--- section heading, framed by decoration-colored rules.
+function M.hunk_header(path, lnum, section, cols)
   local p = palette
-  -- A pure-deletion hunk has new_count == 0 and a new_start pointing at the
-  -- line *before* it (0 for a whole-file delete), so anchor on the old side.
-  local num = tostring(hunk.new_count > 0 and hunk.new_start or hunk.old_start)
+  local num = tostring(lnum)
   local path_plain = one_line(path or '')
-  local heading = hunk.heading and (': ' .. one_line(hunk.heading)) or ''
+  local heading = section and (': ' .. one_line(section)) or ''
   local plain = path_plain .. ':' .. num .. heading
   local width = math.min(util.display_width(plain) + 2, math.max(cols - 1, 1))
 
@@ -457,13 +444,9 @@ end
 -- as well).
 local NUM_MIN_DIGITS = 3
 
---- Gutter digits for a file: the widest line number any of its hunks reaches.
-function M.number_width(hunks)
-  local max = 0
-  for _, hunk in ipairs(hunks) do
-    max = math.max(max, hunk.old_start + hunk.old_count - 1, hunk.new_start + hunk.new_count - 1)
-  end
-  return math.max(#tostring(max), NUM_MIN_DIGITS)
+--- Gutter digits for a file, given the widest line number it reaches.
+function M.number_width(max_lnum)
+  return math.max(#tostring(max_lnum), NUM_MIN_DIGITS)
 end
 
 -- Cells the gutter takes ahead of the text: "old new │" inline, "num │" per

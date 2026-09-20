@@ -39,6 +39,16 @@ end
 
 M.reset = ESC .. '[0m'
 
+--- Strip SGR sequences from text. Git is asked for uncolored output, so this
+--- almost never has anything to do; the find keeps a pattern scan off the whole
+--- input for that case.
+function M.strip(s)
+  if not s:find(ESC, 1, true) then
+    return s
+  end
+  return (s:gsub(ESC .. '%[[%d;]*m', ''))
+end
+
 --- `text` prefixed with its SGR sequence.
 function M.styled(attrs, text)
   return M.style(attrs) .. text

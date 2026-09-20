@@ -1,12 +1,9 @@
 -- Persistent render daemon, started by client.sh as:
---   nvim --clean --headless --listen <sock> -c "luafile daemon.lua"
+--   nvim --clean --headless -c "luafile daemon.lua"
 -- (-l would exit after running the script; -c keeps the server alive.)
 --
--- Two transports serve the same render:
---   * a plain line protocol on <sock-without-.sock>.pipe, which is what every
---     render actually uses -- see the pipe section at the bottom;
---   * v:lua.CODEDIFF.render(...) over nvim's own RPC socket, the fallback for a
---     machine whose client.sh cannot reach the first one.
+-- Renders arrive over a plain line protocol on a unix socket -- see the pipe
+-- section at the bottom.
 --
 -- Lifetime: exits when every lazygit process that ever used it is gone (polled
 -- every few seconds), so quitting lazygit (or the nvim :terminal hosting it)
@@ -24,25 +21,23 @@ local uv = vim.uv
 -- that teardown must not kill the daemon.
 uv.new_signal():start('sighup', function() end)
 
--- Bootstrap owns the list of paths a render loads from, so the staleness check
--- reads that list rather than re-deriving it: a dependency added there cannot
--- be one the fingerprint forgot. Guarded like the bootstrap call further down,
--- because an error raised before the lifetime guards are armed would strand an
--- nvim holding the RPC socket forever; scripts_mtime() covers bootstrap.lua
--- itself either way, so an editing mistake there still recycles the daemon.
+-- Bootstrap owns the list of paths a render depends on, so the staleness check
+-- reads that list rather than re-deriving it, and reads *all* of it: a
+-- dependency added there cannot be one the fingerprint forgot. Sorted because
+-- pairs order is not stable, and the fingerprint is compared against itself.
+-- Guarded like the bootstrap call further down, because an error raised before
+-- the lifetime guards are armed would strand an nvim holding the socket
+-- forever; scripts_mtime() covers bootstrap.lua itself either way, so an
+-- editing mistake there still recycles the daemon.
 local ok_paths, bootstrap = pcall(require, 'lib.bootstrap')
 local paths = ok_paths and bootstrap.paths or {}
-local WATCHED_PATHS = {
-  paths.parsers,
-  paths.codediff_version,
-  paths.filetype_rules,
-  paths.plugin_lock,
-}
+local WATCHED_PATHS = vim.tbl_values(paths)
+table.sort(WATCHED_PATHS)
 
--- Derived the same way client.sh derives it, rather than from v:servername, so
--- an nvim that failed to bind its own RPC socket still serves the fast path.
-local TMP = ((vim.env.TMPDIR or '/tmp'):gsub('/+$', ''))
-local PIPE_PATH = string.format('%s/lazygit-codediff-%s.pipe', TMP, vim.env.USER or 'u')
+-- Derived the same way client.sh derives it: this is the only name either side
+-- knows the socket by.
+local PIPE_NAME = 'lazygit-codediff-' .. (vim.env.USER or 'u') .. '.pipe'
+local PIPE_PATH = vim.fs.joinpath(vim.env.TMPDIR or '/tmp', PIPE_NAME)
 local IDLE_WITH_OWNER_MS = 60 * 60 * 1000
 local IDLE_NO_OWNER_MS = 5 * 60 * 1000
 -- Owners are registered on demand (a client walks its process tree only when
@@ -99,13 +94,10 @@ local saw_owner = false
 local last_request = uv.now()
 local owner_declined = -OWNER_ASK_INTERVAL_MS
 
--- Captured on the main loop: vim.v is not accessible from timer callbacks.
-local socket_path = vim.v.servername
-local socket_ino = (socket_path ~= '' and uv.fs_stat(socket_path) or {}).ino
 local pipe_ino = nil
 
 -- os.exit skips nvim's own socket cleanup, so unlink here -- but only while the
--- path is still *ours*: both are shared by every daemon, and a successor may
+-- path is still *ours*: it is shared by every daemon, and a successor may
 -- already have bound its own at the same name.
 local function unlink_own(path, ino)
   if path and path ~= '' and ino then
@@ -117,7 +109,6 @@ local function unlink_own(path, ino)
 end
 
 local function shutdown(code)
-  unlink_own(socket_path, socket_ino)
   unlink_own(PIPE_PATH, pipe_ino)
   os.exit(code or 0)
 end
@@ -140,9 +131,9 @@ end)
 
 -- Bootstrapping happens only after the lifetime guards above are armed, and
 -- behind a pcall: an error here (broken renderer source, a plugin dir being
--- updated underneath us) would otherwise abort the -c luafile with the RPC
--- socket still bound, leaving a daemon that answers nothing and never exits
--- while every subsequent render spawns another one.
+-- updated underneath us) would otherwise abort the -c luafile, leaving a daemon
+-- that answers nothing and never exits while every subsequent render spawns
+-- another one.
 local ok_boot, core = pcall(function()
   bootstrap.setup()
   return require('lib.core')
@@ -158,7 +149,11 @@ end
 -- the worktree are not cached, since the file on disk can change under an
 -- unchanged diff. A daemon recycle (parser/plugin/source updates) drops the
 -- cache with the process.
-local CACHE_MAX = 8
+-- Sized so the byte ceiling below stays the binding constraint rather than this
+-- count: a single file's diff renders to well under a megabyte, so 32 MB is
+-- room for dozens, and a commit-sized render still leaves room for twenty.
+-- Eviction is an O(n) scan, trivial at this size.
+local CACHE_MAX = 24
 -- Rendered ANSI runs ~5-8x its input (tinted rows pad out to the full width),
 -- so a handful of large-commit renders can pin tens of MB for the daemon's
 -- lifetime; the byte ceiling bounds memory where the entry count cannot.
@@ -237,7 +232,8 @@ local function write_output(path, data)
   local ok_write = pcall(function()
     local off = 0
     while off < #data do
-      local written = uv.fs_write(fd, data:sub(off + 1), off)
+      -- sub() on the first pass would re-intern the whole render.
+      local written = uv.fs_write(fd, off == 0 and data or data:sub(off + 1), off)
       if not written or written <= 0 then
         error('short write')
       end
@@ -270,7 +266,7 @@ local function render_request(infile, outfile, cwd, cols, layout)
   if not rendered then
     local ok, result, cacheable = pcall(core.render, input, {
       cwd = cwd,
-      cols = tonumber(cols) or 120,
+      cols = cols,
       layout = layout,
     })
     rendered = ok and result or input
@@ -291,22 +287,11 @@ local function render_request(infile, outfile, cwd, cols, layout)
   return 'ok'
 end
 
-_G.CODEDIFF = {}
-
---- RPC entry point, kept for clients that cannot reach the pipe below. Unlike
---- the pipe protocol it is handed the owner pid on every render: an
---- `nvim --remote-expr` client has already paid far more than a process tree
---- walk costs by the time it connects.
-function _G.CODEDIFF.render(infile, outfile, cwd, cols, owner_pid, layout)
-  watch_owner(tonumber(owner_pid))
-  return render_request(infile, outfile, cwd, cols, layout)
-end
-
 -- -------------------------------------------------------------------- pipe ---
 -- lazygit starts a fresh client process for every diff it draws, so whatever
 -- that client costs to start is paid on every keypress that moves the
--- selection. An `nvim --remote-expr` client is ~36ms of startup before it says
--- a word; `nc -U` round-trips a line here in ~4ms, which is what keeps the
+-- selection. An `nvim --remote-expr` client would be ~36ms of startup before it
+-- said a word; `nc -U` round-trips a line here in ~4ms, which is what keeps the
 -- transport cheaper than the render it asks for.
 --
 -- One request per connection, one line, tab separated, answered with one line:
@@ -353,32 +338,31 @@ local function dispatch(request)
   if not infile then
     return 'err:request'
   end
-  local status = render_request(infile, outfile, cwd, cols, layout)
+  -- The wire carries every field as a string; convert once here rather than at
+  -- each use, so the cache key and the render see the same typed value.
+  local status = render_request(infile, outfile, cwd, tonumber(cols), layout)
   if status == 'ok' and want_owner() then
     return 'ok:owner'
   end
   return status
 end
 
-local function run(request, client)
-  local ok, status = pcall(dispatch, request)
-  reply(client, ok and status or 'err:internal')
-end
-
 -- One render at a time. `vim.wait` inside the git object session pumps the
 -- event loop, so a second client's request arrives *during* a render: queueing
 -- it keeps two renders from interleaving on one Lua stack (and two voices off
--- the one `git cat-file` pipe).
+-- the one `git cat-file` pipe). The fresh request is enqueued like any other
+-- rather than run ahead of the loop -- when `rendering` is false the queue is
+-- empty, so it is served first either way.
 local function submit(request, client)
+  queue[#queue + 1] = { request = request, client = client }
   if rendering then
-    queue[#queue + 1] = { request = request, client = client }
     return
   end
   rendering = true
-  run(request, client)
   while queue[1] do
     local job = table.remove(queue, 1)
-    run(job.request, job.client)
+    local ok, status = pcall(dispatch, job.request)
+    reply(job.client, ok and status or 'err:internal')
   end
   rendering = false
 end
@@ -397,15 +381,17 @@ local function on_connection(err)
   end
 
   local chunks, bytes, done = {}, 0, false
+  local function abort()
+    done = true
+    client:close()
+  end
   client:read_start(function(read_err, chunk)
     if done then
       return
     end
     local request = nil
     if read_err then
-      done = true
-      client:close()
-      return
+      return abort()
     elseif chunk then
       chunks[#chunks + 1] = chunk
       bytes = bytes + #chunk
@@ -413,18 +399,14 @@ local function on_connection(err)
         local buf = table.concat(chunks)
         request = buf:sub(1, buf:find('\n', 1, true) - 1)
       elseif bytes > MAX_REQUEST_BYTES then
-        done = true
-        client:close()
-        return
+        return abort()
       end
     else
       -- nc half-closes its write side as soon as its own stdin ends, so EOF is
       -- the other end of a request that arrived without its newline.
       request = bytes > 0 and table.concat(chunks) or nil
       if not request then
-        done = true
-        client:close()
-        return
+        return abort()
       end
     end
     if request then
@@ -441,16 +423,17 @@ local function on_connection(err)
 end
 
 -- A bind that fails means another daemon holds the path (two clients can spawn
--- one at the same moment). It is serving; this process keeps the RPC entry
--- point alive for its own client and then idles out.
+-- one at the same moment). That one is serving, and this process has no
+-- transport of its own left to fall back on, so it exits rather than lingering
+-- as a daemon that answers nothing.
 local server = assert(uv.new_pipe(false))
 local bound = pcall(function()
   assert(server:bind(PIPE_PATH))
   assert(server:listen(64, on_connection))
 end)
-if bound then
-  pipe_server = server
-  pipe_ino = (uv.fs_stat(PIPE_PATH) or {}).ino
-else
+if not bound then
   pcall(server.close, server)
+  os.exit(0)
 end
+pipe_server = server
+pipe_ino = (uv.fs_stat(PIPE_PATH) or {}).ino
