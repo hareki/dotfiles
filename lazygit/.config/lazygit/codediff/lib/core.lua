@@ -51,6 +51,22 @@ local function push_range(ranges, s, e)
   end
 end
 
+--- Merge the row ranges a file's hunks need on one side, with padding rows so
+--- constructs straddling hunk edges are captured. 0-based inclusive ranges.
+local function needed_ranges(hunks, side, pad)
+  local ranges = {}
+  for _, hunk in ipairs(hunks) do
+    local start_row, count
+    if side == "old" then
+      start_row, count = hunk.old_start - 1, hunk.old_count
+    else
+      start_row, count = hunk.new_start - 1, hunk.new_count
+    end
+    push_range(ranges, math.max(0, start_row - pad), start_row + math.max(count, 1) - 1 + pad)
+  end
+  return ranges
+end
+
 -- The inline layout renders context rows from the new side, so old-side spans
 -- are only ever consulted for minus rows: restricting extraction to them makes
 -- the old side's cost scale with the deletions rather than with everything the
@@ -61,30 +77,16 @@ end
 -- as minus, and a row emitted outside the extracted ranges renders tinted but
 -- unstyled.
 --
--- Absolute old-file rows of every change's old side, padded and merged
--- (full mode).
-local function minus_row_ranges(hunks, pad)
-  local ranges = {}
-  for _, hunk in ipairs(hunks) do
-    local base = hunk.old_start - 2 -- 1-based fragment row => 0-based file row
-    for _, change in ipairs(hunk.changes) do
-      if change.old_end > change.old_start then
-        push_range(ranges, math.max(0, base + change.old_start - pad), base + change.old_end - 1 + pad)
-      end
-    end
-  end
-  return ranges
-end
-
--- The same rows in one hunk's frag_old coordinates (fragment mode).
-local function minus_frag_ranges(hunk, pad, max_row)
-  local ranges = {}
+-- `base` rebases a 1-based fragment row onto whatever is being highlighted: the
+-- whole old file in full mode (hunk.old_start - 2), or the hunk's own fragment
+-- in fragment mode (-1), where `max_row` also clamps to its last row.
+local function push_minus_ranges(ranges, hunk, pad, base, max_row)
   for _, change in ipairs(hunk.changes) do
     if change.old_end > change.old_start then
-      push_range(ranges, math.max(0, change.old_start - 1 - pad), math.min(change.old_end - 2 + pad, max_row))
+      local e = base + change.old_end - 1 + pad
+      push_range(ranges, math.max(0, base + change.old_start - pad), max_row and math.min(e, max_row) or e)
     end
   end
-  return ranges
 end
 
 -- Compute treesitter spans for one side. In fragment mode the "file" is the
@@ -95,17 +97,25 @@ end
 -- render from the old side, which the inline layout never does.
 local function compute_spans(file, langs_by_side, ctx)
   local pad = LIMITS.context_pad_rows
-  local minus_only = ctx.layout ~= "side-by-side"
+  local minus_only = not ctx.split
   if file.content_mode == "full" then
     local sides = {}
     if file.need_old and langs_by_side.old and not hl_expired(ctx) then
-      local ranges = minus_only and minus_row_ranges(file.hunks, pad) or highlight.needed_ranges(file.hunks, "old", pad)
+      local ranges
+      if minus_only then
+        ranges = {}
+        for _, hunk in ipairs(file.hunks) do
+          push_minus_ranges(ranges, hunk, pad, hunk.old_start - 2)
+        end
+      else
+        ranges = needed_ranges(file.hunks, "old", pad)
+      end
       if #ranges > 0 then
         sides.old = highlight.line_spans(table.concat(file.old_lines, "\n"), langs_by_side.old, ranges, ctx.hl_deadline)
       end
     end
     if file.need_new and langs_by_side.new and not hl_expired(ctx) then
-      local ranges = highlight.needed_ranges(file.hunks, "new", pad)
+      local ranges = needed_ranges(file.hunks, "new", pad)
       sides.new = highlight.line_spans(table.concat(file.new_lines, "\n"), langs_by_side.new, ranges, ctx.hl_deadline)
     end
     return sides
@@ -114,7 +124,13 @@ local function compute_spans(file, langs_by_side, ctx)
   for _, hunk in ipairs(file.hunks) do
     if langs_by_side.old and not hl_expired(ctx) then
       local max_row = math.max(#hunk.frag_old - 1, 0)
-      local ranges = minus_only and minus_frag_ranges(hunk, pad, max_row) or { { 0, max_row } }
+      local ranges
+      if minus_only then
+        ranges = {}
+        push_minus_ranges(ranges, hunk, pad, -1, max_row)
+      else
+        ranges = { { 0, max_row } }
+      end
       if #ranges > 0 then
         hunk.frag_old_spans = highlight.line_spans(table.concat(hunk.frag_old, "\n"), langs_by_side.old, ranges, ctx.hl_deadline)
       end
@@ -127,18 +143,16 @@ local function compute_spans(file, langs_by_side, ctx)
 end
 
 -- Treesitter spans for fragment row `row` (1-based) on `side`, or nil when
--- highlighting is off for the file.
-local function spans_for(file, hunk, sides, side, row)
-  local frag = side == "old" and hunk.frag_old or hunk.frag_new
-  local text = frag[row]
+-- highlighting is off for the file. `text` and `lnum` are the row's own text
+-- and absolute line number, both already derived by the cell being built.
+local function spans_for(file, hunk, sides, side, row, text, lnum)
   if file.content_mode == "full" then
-    local abs = (side == "old" and hunk.old_start or hunk.new_start) + row - 1
     local src_lines = side == "old" and file.old_lines or file.new_lines
-    local src_spans = sides and sides[side]
     -- Sanity guard: if the acquired content disagrees with the diff
     -- (reversed diffs, odd hashes), render the diff's own text unstyled.
-    if src_lines and src_lines[abs] == text then
-      return src_spans and src_spans[abs - 1]
+    if src_lines and src_lines[lnum] == text then
+      local src_spans = sides and sides[side]
+      return src_spans and src_spans[lnum - 1]
     end
     return nil
   end
@@ -148,7 +162,7 @@ end
 
 -- Inline layout (codediff.nvim's inline view): deleted blocks render above
 -- their inserted blocks, context lines stay undecorated.
-local function render_hunk_inline(out, hunk, cell, changes, ctx)
+local function render_hunk_inline(out, hunk, cell, ctx)
   local function emit(c, old_no, new_no)
     layout.content_line(out, c, old_no, new_no, ctx.cols, ctx.num_w)
   end
@@ -165,7 +179,7 @@ local function render_hunk_inline(out, hunk, cell, changes, ctx)
       old_ptr, new_ptr = old_ptr + 1, new_ptr + 1
     end
   end
-  for _, change in ipairs(changes) do
+  for _, change in ipairs(hunk.changes) do
     context_rows(change.new_start - new_ptr)
     for row = change.old_start, change.old_end - 1 do
       local c = cell("old", row, "minus", change.old_emph[row])
@@ -182,7 +196,7 @@ end
 
 -- Side-by-side layout (codediff.nvim's default view): original left,
 -- modified right, absent lines shown as filler.
-local function render_hunk_split(out, hunk, cell, changes, ctx)
+local function render_hunk_split(out, hunk, cell, ctx)
   local function row(left, right)
     layout.split_line(out, left, right, ctx.cols, ctx.num_w)
   end
@@ -194,9 +208,8 @@ local function render_hunk_split(out, hunk, cell, changes, ctx)
       old_ptr, new_ptr = old_ptr + 1, new_ptr + 1
     end
   end
-  for _, change in ipairs(changes) do
+  for _, change in ipairs(hunk.changes) do
     context_rows(change.new_start - new_ptr)
-    old_ptr = change.old_start -- stay aligned if the side gaps ever differ
     local old_n = change.old_end - change.old_start
     local new_n = change.new_end - change.new_start
     for k = 0, math.max(old_n, new_n) - 1 do
@@ -214,24 +227,24 @@ local function render_hunk_split(out, hunk, cell, changes, ctx)
 end
 
 local function render_hunk(out, file, hunk, sides, langs_by_side, ctx)
-  local changes = hunk.changes
-
   local function cell(side, row, line_type, emph)
     local frag = side == "old" and hunk.frag_old or hunk.frag_new
+    local text = frag[row]
+    -- Absolute line number of this row on its own side.
+    local lnum = (side == "old" and hunk.old_start or hunk.new_start) + row - 1
     return {
-      text = frag[row] or "",
-      spans = langs_by_side[side] and spans_for(file, hunk, sides, side, row) or nil,
+      text = text or "",
+      spans = langs_by_side[side] and spans_for(file, hunk, sides, side, row, text, lnum) or nil,
       line_type = line_type,
       emph = emph,
-      -- Absolute line number of this row on its own side.
-      lnum = (side == "old" and hunk.old_start or hunk.new_start) + row - 1,
+      lnum = lnum,
     }
   end
 
-  if ctx.layout == "side-by-side" then
-    render_hunk_split(out, hunk, cell, changes, ctx)
+  if ctx.split then
+    render_hunk_split(out, hunk, cell, ctx)
   else
-    render_hunk_inline(out, hunk, cell, changes, ctx)
+    render_hunk_inline(out, hunk, cell, ctx)
   end
 
   -- The flag only ever marks the EOF line of a side; the engine may reorder
@@ -250,10 +263,9 @@ local function render_file(file, ctx)
   end
 
   local out = {}
-  -- A deleted file's +++ header is /dev/null, so its new_path can only be the
-  -- diff-line guess, which mis-splits a path containing " b/"; prefer the old
-  -- path, which the --- header corrects whenever one exists.
-  local display_path = file.is_deleted and file.old_path or file.new_path or file.old_path or "?"
+  -- A deleted file has no new side at all, so this falls through to the old
+  -- path without needing to know that (see parse_extended_header).
+  local display_path = file.new_path or file.old_path or "?"
 
   if file.renamed_from and file.renamed_to then
     out[#out + 1] = layout.note_row("renamed: " .. file.renamed_from .. " => " .. file.renamed_to)
@@ -294,10 +306,10 @@ local function render_file(file, ctx)
 
   -- Both the engine and the fallback renderer consume the per-hunk fragments.
   -- Changes are computed before span extraction so the old-side ranges can
-  -- follow the rows the engine actually emits (see minus_row_ranges).
+  -- follow the rows the engine actually emits (see push_minus_ranges).
   for _, hunk in ipairs(file.hunks) do
-    hunk.frag_old = blob.hunk_fragment(hunk, "old")
-    hunk.frag_new = blob.hunk_fragment(hunk, "new")
+    hunk.frag_old = diffparse.hunk_fragment(hunk, "old")
+    hunk.frag_new = diffparse.hunk_fragment(hunk, "new")
     local changes = file.content_mode ~= "plain" and engine.compute(hunk.frag_old, hunk.frag_new) or nil
     if not changes or #changes == 0 then
       -- No engine, or it sees no difference at all (a CRLF-only change:
@@ -374,7 +386,7 @@ function M.render(input, opts)
   local ctx = {
     cols = opts.cols or 120,
     budget = LIMITS.max_highlighted_lines,
-    layout = opts.layout,
+    split = opts.layout == "side-by-side",
     hl_deadline = uv.hrtime() + LIMITS.max_highlight_ms * 1e6,
     num_w = nil, -- line-number gutter digits, set per file
   }

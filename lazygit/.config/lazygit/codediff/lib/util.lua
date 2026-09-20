@@ -26,50 +26,18 @@ function M.strip_cr(line)
   return line
 end
 
---- Unquote a git C-style quoted path ("a\"b", "\303\251" octal escapes, etc).
---- Returns the input unchanged when it is not quoted.
-function M.unquote_c_string(s)
-  if s:sub(1, 1) ~= '"' or s:sub(-1) ~= '"' then
-    return s
-  end
-  local inner = s:sub(2, -2)
-  local out = {}
-  local i = 1
-  while i <= #inner do
-    local c = inner:sub(i, i)
-    if c == "\\" then
-      local nxt = inner:sub(i + 1, i + 1)
-      local oct = inner:match("^([0-7][0-7][0-7])", i + 1)
-      if oct then
-        out[#out + 1] = string.char(tonumber(oct, 8))
-        i = i + 4
-      elseif nxt == "n" then
-        out[#out + 1] = "\n"
-        i = i + 2
-      elseif nxt == "t" then
-        out[#out + 1] = "\t"
-        i = i + 2
-      elseif nxt == "r" then
-        out[#out + 1] = "\r"
-        i = i + 2
-      else
-        out[#out + 1] = nxt
-        i = i + 2
-      end
-    else
-      out[#out + 1] = c
-      i = i + 1
-    end
-  end
-  return table.concat(out)
+--- True when every byte is printable ASCII, i.e. exactly one display cell each,
+--- so a byte count is a display width and clipping by cells is clipping by
+--- bytes. Control bytes are excluded deliberately: strdisplaywidth measures
+--- them as their two-cell ^X form, which the byte count would not match.
+function M.is_plain_ascii(s)
+  return not s:find("[^\32-\126]")
 end
 
 --- Display width of a plain string; safe on invalid UTF-8.
---- Printable ASCII is one cell per byte, so the common case never has to cross
---- into vimscript. Control bytes are excluded deliberately: strdisplaywidth
---- measures them as their two-cell ^X form, which the byte count would not match.
+--- Printable ASCII never has to cross into vimscript.
 function M.display_width(s)
-  if not s:find("[^\32-\126]") then
+  if M.is_plain_ascii(s) then
     return #s
   end
   local ok, w = pcall(vim.fn.strdisplaywidth, s)
@@ -105,10 +73,6 @@ function M.expand_tabs(s, tab_width, start_col)
     pos = tab + 1
   end
   return table.concat(out), col
-end
-
-function M.is_zero_hash(hex)
-  return hex == nil or hex:match("^0+$") ~= nil
 end
 
 return M

@@ -9,12 +9,13 @@ local FILLER_CHAR = "╱" -- codediff's diff.filler_text default
 
 local palette = theme.palette
 
--- True when every byte is printable ASCII, i.e. exactly one display cell each,
--- so clipping by cells is clipping by bytes. Control bytes are excluded: they
--- measure as their two-cell ^X form.
-local function is_plain_ascii(s)
-  return not s:find("[^\32-\126]")
-end
+-- Upvalue binding: this is called per rendered row, and the predicate's whole
+-- point is to stay cheaper than measuring the row.
+local is_plain_ascii = util.is_plain_ascii
+
+-- The side-by-side separator. palette.decoration is a literal that
+-- load_diff_colors() does not overwrite, so this run is fixed for the process.
+local BAR = ansi.styled({ fg = palette.decoration }, "│")
 
 -- Split into grapheme clusters with their display widths.
 --
@@ -43,18 +44,14 @@ local function clip_to_width(s, limit)
   if w <= limit then
     return s, w
   end
-  if is_plain_ascii(s) then
-    local clipped = s:sub(1, math.max(limit, 0))
-    return clipped, #clipped
-  end
-
   -- Printable ASCII is one cluster of one cell per byte, and a composing mark
   -- can only attach to the byte immediately before the first non-ASCII one, so
   -- everything ahead of that byte is taken (or cut) in bulk. Every row of a
   -- side-by-side diff is clipped to its cell, and a source line whose one
   -- non-ASCII byte sits past the cell edge is then answered without walking a
-  -- single cluster.
-  local bulk = math.max(s:find("[^\32-\126]") - 2, 0)
+  -- single cluster. An all-ASCII string is that case with nothing after it.
+  local nonascii = s:find("[^\32-\126]")
+  local bulk = nonascii and math.max(nonascii - 2, 0) or limit
   if bulk >= limit then
     local clipped = s:sub(1, math.max(limit, 0))
     return clipped, #clipped
@@ -207,7 +204,6 @@ end
 -- the side-by-side separator and the filler cells (whose whole rendered run is
 -- fixed by its width).
 local fills = {}
-local bar = nil
 
 local function fill_sgr(bg)
   local key = bg or false
@@ -256,6 +252,14 @@ local function sort_by_start(spans)
   end
 end
 
+-- Reused across rows rather than allocated per row: this runs once for every
+-- row that has spans, and both tables are fully written before they are read
+-- (`winners` at every boundary the sweep visits, `active` only as far as
+-- n_active). The exception is the stop_col break below, which would otherwise
+-- leave the tail of a longer previous row's winners readable, so it clears the
+-- boundaries it is not going to write.
+local scratch_winners, scratch_active = {}, {}
+
 -- Winner per segment, resolved by a left-to-right sweep over the spans sorted
 -- by start. Every span edge is also a segment boundary, so a span that is
 -- still open at a segment's start covers the whole segment; the active set is
@@ -276,12 +280,14 @@ end
 -- be resolved for text nobody sees.
 local function segment_winners(spans, boundaries, nb, stop_col)
   local n_spans = #spans
-  local winners = {}
-  local active = {}
+  local winners, active = scratch_winners, scratch_active
   local n_active, next_span = 0, 1
   for bi = 1, nb - 1 do
     local a = boundaries[bi]
     if stop_col and a > stop_col then
+      for k = bi, nb - 1 do
+        winners[k] = nil
+      end
       break
     end
     while next_span <= n_spans and spans[next_span].s1 <= a do
@@ -363,7 +369,7 @@ local function emit_line(out, n, text, spans, line_type, emph_ranges, limit)
   -- from it needs neither tab expansion nor a width measurement per segment.
   -- It also makes a byte offset a display column, which is what lets a clipped
   -- row stop resolving spans at the cut.
-  local simple = not text:find("[^\32-\126]")
+  local simple = is_plain_ascii(text)
   local winners = nb > 2 and n_spans > 0 and segment_winners(spans, boundaries, nb, simple and limit) or nil
 
   local next_emph = 1
@@ -552,10 +558,9 @@ end
 function M.split_line(out, left, right, cols, num_w)
   local left_w = math.max(math.floor((cols - 1) / 2), 1)
   local right_w = math.max(cols - 1 - left_w, 1)
-  bar = bar or ansi.styled({ fg = palette.decoration }, "│")
 
   local n = render_cell(out, #out, left, left_w, num_w)
-  out[n + 1] = bar
+  out[n + 1] = BAR
   n = render_cell(out, n + 1, right, right_w, num_w)
   out[n + 1] = ansi.reset
   out[n + 2] = "\n"

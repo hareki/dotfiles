@@ -11,8 +11,8 @@
 -- Lifetime: exits when every lazygit process that ever used it is gone (polled
 -- every few seconds), so quitting lazygit (or the nvim :terminal hosting it)
 -- leaves no orphaned daemon. Idle timeouts back that up, and a change to the
--- nvim binary, installed parsers or codediff.nvim recycles the daemon on the
--- next request.
+-- nvim binary, to the renderer's own sources or to anything bootstrap loads
+-- (parsers, plugins, filetype rules) recycles the daemon on the next request.
 
 local script = arg and arg[0] or debug.getinfo(1, "S").source:sub(2)
 local dir = vim.fn.fnamemodify(script, ":p:h")
@@ -24,13 +24,21 @@ local uv = vim.uv
 -- that teardown must not kill the daemon.
 uv.new_signal():start("sighup", function() end)
 
-local PARSER_DIR = vim.fs.normalize("~/.local/share/nvim/site/parser")
--- VERSION changes whenever the plugin (and its native diff library) updates.
-local CODEDIFF_VERSION = vim.fs.normalize("~/.local/share/nvim/lazy/codediff.nvim/VERSION")
--- The editor's filetype-rules module that bootstrap sources into the daemon:
--- its detection rules and ft => language aliases shape every render, so an
--- edit must recycle the daemon like any renderer source.
-local FILETYPE_RULES = vim.fs.joinpath(vim.fn.stdpath("config"), "lua/config/filetypes/init.lua")
+-- Bootstrap owns the list of paths a render loads from, so the staleness check
+-- reads that list rather than re-deriving it: a dependency added there cannot
+-- be one the fingerprint forgot. Guarded like the bootstrap call further down,
+-- because an error raised before the lifetime guards are armed would strand an
+-- nvim holding the RPC socket forever; scripts_mtime() covers bootstrap.lua
+-- itself either way, so an editing mistake there still recycles the daemon.
+local ok_paths, bootstrap = pcall(require, "lib.bootstrap")
+local paths = ok_paths and bootstrap.paths or {}
+local WATCHED_PATHS = {
+  paths.parsers,
+  paths.codediff_version,
+  paths.filetype_rules,
+  paths.plugin_lock,
+}
+
 -- Derived the same way client.sh derives it, rather than from v:servername, so
 -- an nvim that failed to bind its own RPC socket still serves the fast path.
 local TMP = ((vim.env.TMPDIR or "/tmp"):gsub("/+$", ""))
@@ -77,13 +85,11 @@ end
 -- inputs once means a new one cannot be added to the snapshot but missed in the
 -- comparison, which would silently never trigger a reload.
 local function fingerprint()
-  return table.concat({
-    mtime_of(vim.v.progpath),
-    mtime_of(PARSER_DIR),
-    mtime_of(CODEDIFF_VERSION),
-    mtime_of(FILETYPE_RULES),
-    scripts_mtime(),
-  }, ":")
+  local parts = { mtime_of(vim.v.progpath), scripts_mtime() }
+  for _, path in ipairs(WATCHED_PATHS) do
+    parts[#parts + 1] = mtime_of(path)
+  end
+  return table.concat(parts, ":")
 end
 
 local generation = fingerprint()
@@ -138,7 +144,7 @@ end)
 -- socket still bound, leaving a daemon that answers nothing and never exits
 -- while every subsequent render spawns another one.
 local ok_boot, core = pcall(function()
-  require("lib.bootstrap").setup()
+  bootstrap.setup()
   return require("lib.core")
 end)
 if not ok_boot then

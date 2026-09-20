@@ -2,6 +2,44 @@ local util = require("lib.util")
 
 local M = {}
 
+-- Unquote a git C-style quoted path ("a\"b", "\303\251" octal escapes, etc).
+-- Returns the input unchanged when it is not quoted.
+local function unquote_c_string(s)
+  if s:sub(1, 1) ~= '"' or s:sub(-1) ~= '"' then
+    return s
+  end
+  local inner = s:sub(2, -2)
+  local out = {}
+  local i = 1
+  while i <= #inner do
+    local c = inner:sub(i, i)
+    if c == "\\" then
+      local nxt = inner:sub(i + 1, i + 1)
+      local oct = inner:match("^([0-7][0-7][0-7])", i + 1)
+      if oct then
+        out[#out + 1] = string.char(tonumber(oct, 8))
+        i = i + 4
+      elseif nxt == "n" then
+        out[#out + 1] = "\n"
+        i = i + 2
+      elseif nxt == "t" then
+        out[#out + 1] = "\t"
+        i = i + 2
+      elseif nxt == "r" then
+        out[#out + 1] = "\r"
+        i = i + 2
+      else
+        out[#out + 1] = nxt
+        i = i + 2
+      end
+    else
+      out[#out + 1] = c
+      i = i + 1
+    end
+  end
+  return table.concat(out)
+end
+
 local function strip_path_prefix(path, prefixed)
   -- git appends a TAB (and diff(1) a TAB plus a timestamp) after the name
   -- whenever it contains a space. A real tab in a path is always C-quoted, so
@@ -10,7 +48,7 @@ local function strip_path_prefix(path, prefixed)
   if path == "/dev/null" then
     return nil
   end
-  path = util.unquote_c_string(path)
+  path = unquote_c_string(path)
   -- With diff.noPrefix (or empty src/dst prefixes) the headers carry bare
   -- paths, and stripping would eat the first segment of a file genuinely under
   -- a top-level a/, b/, w/ ... directory.
@@ -56,7 +94,7 @@ local function new_file(diff_line)
   else
     file.is_combined = true
     local p = diff_line:match("^diff %-%-c%S* (.+)$")
-    file.new_path = p and util.unquote_c_string(p) or nil
+    file.new_path = p and unquote_c_string(p) or nil
   end
   return file
 end
@@ -76,34 +114,48 @@ local function parse_extended_header(file, line)
   elseif line:match("^similarity index %d+%%$") or line:match("^dissimilarity index %d+%%$") then
     -- consumed, nothing to record
   elseif line:match("^rename from ") then
-    file.renamed_from = util.unquote_c_string(line:sub(#"rename from " + 1))
+    file.renamed_from = unquote_c_string(line:sub(#"rename from " + 1))
     file.old_path = file.renamed_from
   elseif line:match("^rename to ") then
-    file.renamed_to = util.unquote_c_string(line:sub(#"rename to " + 1))
+    file.renamed_to = unquote_c_string(line:sub(#"rename to " + 1))
     file.new_path = file.renamed_to
   elseif line:match("^copy from ") then
-    file.renamed_from = util.unquote_c_string(line:sub(#"copy from " + 1))
+    file.renamed_from = unquote_c_string(line:sub(#"copy from " + 1))
   elseif line:match("^copy to ") then
-    file.renamed_to = util.unquote_c_string(line:sub(#"copy to " + 1))
+    file.renamed_to = unquote_c_string(line:sub(#"copy to " + 1))
     file.new_path = file.renamed_to
   elseif line:match("^index %x+%.%.%x+") then
     file.old_hex, file.new_hex = line:match("^index (%x+)%.%.(%x+)")
   elseif line:match("^Binary files ") or line:match("^GIT binary patch") then
     file.is_binary = true
   elseif line:match("^%-%-%- ") then
-    local p = strip_path_prefix(line:sub(5), file.prefixed)
-    if p then
-      file.old_path = p
-    end
+    -- Authoritative for this side, including the nil that /dev/null resolves
+    -- to: the header is the diff's own answer for the side, where the path
+    -- pair new_file() reads off the diff line is only a guess (it mis-splits a
+    -- name containing " b/"). Letting that guess survive a header which
+    -- refuted it is what forced consumers to ask whether the file was new or
+    -- deleted before they could trust either path.
+    file.old_path = strip_path_prefix(line:sub(5), file.prefixed)
   elseif line:match("^%+%+%+ ") then
-    local p = strip_path_prefix(line:sub(5), file.prefixed)
-    if p then
-      file.new_path = p
-    end
+    file.new_path = strip_path_prefix(line:sub(5), file.prefixed)
   else
     return false
   end
   return true
+end
+
+--- Reconstruct one side of a hunk from the patch itself: the lines that side
+--- shows, in order. Both the diff engine and the fallback renderer consume
+--- these per-hunk fragments.
+function M.hunk_fragment(hunk, side)
+  local lines = {}
+  local want_minus = side == "old"
+  for _, l in ipairs(hunk.lines) do
+    if l.origin == " " or (want_minus and l.origin == "-") or (not want_minus and l.origin == "+") then
+      lines[#lines + 1] = l.text
+    end
+  end
+  return lines
 end
 
 --- Parse raw `git diff` / `git show` output into an ordered list of blocks:

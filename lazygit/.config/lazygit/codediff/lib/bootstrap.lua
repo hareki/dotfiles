@@ -2,6 +2,30 @@ local M = {}
 
 local done = false
 
+local data = vim.fn.stdpath("data")
+local config = vim.fn.stdpath("config")
+
+--- Every path setup() loads from, in one table, so the daemon can fingerprint
+--- what a render depends on instead of re-deriving the same paths: a dependency
+--- added here cannot be one the staleness check forgot.
+M.paths = {
+  site = vim.fs.joinpath(data, "site"),
+  parsers = vim.fs.joinpath(data, "site/parser"),
+  treesitter = vim.fs.joinpath(data, "lazy/nvim-treesitter"),
+  catppuccin = vim.fs.joinpath(data, "lazy/catppuccin"),
+  codediff = vim.fs.joinpath(data, "lazy/codediff.nvim"),
+  -- Bumped whenever codediff.nvim (and its native diff library) updates.
+  codediff_version = vim.fs.joinpath(data, "lazy/codediff.nvim/VERSION"),
+  -- The editor's filetype-rules module that setup() sources below: its
+  -- detection rules and ft => language aliases shape every render, so an edit
+  -- must recycle the daemon like any renderer source.
+  filetype_rules = vim.fs.joinpath(config, "lua/config/filetypes/init.lua"),
+  -- Rewritten by every lazy update, so one stat covers the plugins above
+  -- changing under a running daemon: an update that only rewrites existing
+  -- files leaves their directory mtimes untouched.
+  plugin_lock = vim.fs.joinpath(config, "lazy-lock.json"),
+}
+
 --- Minimal environment for treesitter-quality highlighting without loading the
 --- user's full nvim config: parsers + queries from the site dir, catppuccin for
 --- @capture colors, codediff.nvim for the diff engine + highlight groups, and
@@ -15,12 +39,11 @@ function M.setup()
   -- site must be PREPENDED: query.get() takes the first highlights.scm in rtp
   -- order, and $VIMRUNTIME ships older queries for lua/vim/markdown/c that
   -- would otherwise shadow nvim-treesitter's.
-  local ts_dir = vim.fs.normalize("~/.local/share/nvim/lazy/nvim-treesitter")
-  vim.opt.runtimepath:prepend(vim.fs.normalize("~/.local/share/nvim/site"))
-  vim.opt.runtimepath:append(ts_dir)
-  vim.opt.runtimepath:append(ts_dir .. "/runtime")
-  vim.opt.runtimepath:append(vim.fs.normalize("~/.local/share/nvim/lazy/catppuccin"))
-  vim.opt.runtimepath:append(vim.fs.normalize("~/.local/share/nvim/lazy/codediff.nvim"))
+  vim.opt.runtimepath:prepend(M.paths.site)
+  vim.opt.runtimepath:append(M.paths.treesitter)
+  vim.opt.runtimepath:append(M.paths.treesitter .. "/runtime")
+  vim.opt.runtimepath:append(M.paths.catppuccin)
+  vim.opt.runtimepath:append(M.paths.codediff)
 
   vim.o.termguicolors = true
 
@@ -62,7 +85,7 @@ function M.setup()
   -- unhighlighted. Sourcing the one module that owns both keeps them from
   -- drifting out of sync; guarded because a render must never fail over
   -- filetype detection alone.
-  pcall(dofile, vim.fs.joinpath(vim.fn.stdpath("config"), "lua/config/filetypes/init.lua"))
+  pcall(dofile, M.paths.filetype_rules)
 
   -- Keep EPIPE as a write error instead of a fatal signal so the emitter can
   -- exit cleanly when lazygit kills the render task mid-stream.

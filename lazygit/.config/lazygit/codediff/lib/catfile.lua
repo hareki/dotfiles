@@ -34,6 +34,34 @@ local function parse_info(out, n)
   return infos
 end
 
+--- Whether an object is a blob small enough to be worth streaming into the
+--- (long-lived) daemon's memory: never a gitlink's commit object, never an
+--- oversized blob.
+local function is_wanted_blob(rec, max_bytes)
+  return rec ~= nil and rec.type == "blob" and rec.size <= max_bytes
+end
+
+--- Blobs out of a "<oid> <type> <size>\n<bytes>\n" stream, keyed by their index
+--- in `infos` and read in `wanted` order. Each record must open with the header
+--- `info` already reported: anything else means the stream has desynced, and
+--- every record after it would be read out of the wrong bytes, so collection
+--- stops there. Returns the blobs plus whether the whole stream framed as
+--- promised, leaving the desync policy to the caller.
+local function parse_blobs(out, infos, wanted)
+  local blobs = {}
+  local pos = 1
+  for _, i in ipairs(wanted) do
+    local header = infos[i].header
+    if out:sub(pos, pos + #header) ~= header .. "\n" then
+      return blobs, false
+    end
+    pos = pos + #header + 1
+    blobs[i] = out:sub(pos, pos + infos[i].size - 1)
+    pos = pos + infos[i].size + 1
+  end
+  return blobs, true
+end
+
 -- ---------------------------------------------------------------- session ---
 
 local session = nil
@@ -146,13 +174,12 @@ local function fetch_session(cwd, oids, max_bytes)
     return nil
   end
 
-  -- Only now, knowing the sizes, is anything streamed into the (long-lived)
-  -- daemon's memory: never a gitlink's commit object, never an oversized blob.
+  -- Only now, knowing the sizes, is anything asked for.
   local wanted, expected = {}, 0
   commands = {}
   for i = 1, n do
     local rec = infos[i]
-    if rec and rec.type == "blob" and rec.size <= max_bytes then
+    if is_wanted_blob(rec, max_bytes) then
       wanted[#wanted + 1] = i
       commands[#commands + 1] = "contents " .. oids[i] .. "\n"
       -- git repeats the info line, then the bytes and a newline
@@ -175,19 +202,11 @@ local function fetch_session(cwd, oids, max_bytes)
     return nil
   end
 
-  local blobs = {}
-  local pos = 1
-  for _, i in ipairs(wanted) do
-    -- Each record must open with the header `info` already reported. Anything
-    -- else means the stream has desynced, and every record after it would be
-    -- read out of the wrong bytes.
-    local header = infos[i].header
-    if out:sub(pos, pos + #header) ~= header .. "\n" then
-      return nil
-    end
-    pos = pos + #header + 1
-    blobs[i] = out:sub(pos, pos + infos[i].size - 1)
-    pos = pos + infos[i].size + 1
+  -- A desync retires the session rather than being served partially: the
+  -- one-shot fallback below can still answer this render correctly.
+  local blobs, framed = parse_blobs(out, infos, wanted)
+  if not framed then
+    return nil
   end
   return infos, blobs
 end
@@ -227,8 +246,7 @@ local function fetch_oneshot(cwd, oids, max_bytes)
   local wanted = {}
   local hashes = {}
   for i = 1, #oids do
-    local rec = infos[i]
-    if rec and rec.type == "blob" and rec.size <= max_bytes then
+    if is_wanted_blob(infos[i], max_bytes) then
       wanted[#wanted + 1] = i
       hashes[#hashes + 1] = oids[i]
     end
@@ -242,18 +260,9 @@ local function fetch_oneshot(cwd, oids, max_bytes)
     return infos, {}
   end
 
-  -- Records arrive in input order: "<oid> <type> <size>\n<bytes>\n".
-  local blobs = {}
-  local pos = 1
-  for _, i in ipairs(wanted) do
-    local header = infos[i].header
-    if out:sub(pos, pos + #header) ~= header .. "\n" then
-      break
-    end
-    pos = pos + #header + 1
-    blobs[i] = out:sub(pos, pos + infos[i].size - 1)
-    pos = pos + infos[i].size + 1
-  end
+  -- Records arrive in input order. There is nothing left to fall back to here,
+  -- so a desync keeps whatever framed correctly ahead of it.
+  local blobs = parse_blobs(out, infos, wanted)
   return infos, blobs
 end
 
