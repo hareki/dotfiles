@@ -1,6 +1,9 @@
-# Precompile zshrc (if necessary) before executing it; only interactive shells read it
+# Precompile zshrc (if necessary) before executing it; only interactive shells read it.
+# Compiled under a per-shell name and moved in, like _evalcache: shells that start
+# together (tmuxinator) collide on zcompile's create of a shared .zwc, and a shell
+# sourcing a half-written one can crash
 if [[ -o interactive && ( ! -f ~/.zshrc.zwc || ~/.zshrc -nt ~/.zshrc.zwc ) ]]; then
-  zcompile ~/.zshrc
+  zcompile ~/.zshrc.$$.zwc ~/.zshrc && mv -f ~/.zshrc.$$.zwc ~/.zshrc.zwc
 fi
 
 export XDG_CONFIG_HOME="$HOME/.config"
@@ -22,8 +25,8 @@ alias fd='gtimeout 5s fd'
 
 # PATH for every zsh, highest precedence first: same-name wrappers, tools that
 # `build` installs, mise, then Homebrew. In login shells /etc/zprofile's path_helper
-# runs after this file and moves the system dirs in front, and brew shellenv
-# prepends Homebrew, so .zshrc re-applies the list
+# runs after this file and moves the system dirs in front, so .zprofile re-applies
+# the list; brew shellenv prepends Homebrew, so .zshrc does too
 typeset -a user_path=(
   ~/.local/bin/shims ~/.local/opt/bin ~/.local/share/mise/shims ~/.local/bin
   /opt/homebrew/bin /opt/homebrew/sbin

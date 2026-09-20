@@ -26,6 +26,7 @@ Feature-packed zsh setup with ~45ms startup. Optimized via static plugin bundlin
 
 ```
 .zshenv                             # Non-interactive: XDG, secrets (keychain), PATH, mise shims
+.zprofile                           # Login: re-apply the PATH order after path_helper
 .zshrc                              # Interactive: prompt, plugins, modules
 .zplugins                           # Antidote plugin manifest
 .config/zsh/

@@ -12,19 +12,22 @@ cursor_block() { echo -ne '\e[1 q'; }
 cursor_beam()  { echo -ne '\e[5 q'; }
 
 # https://gist.github.com/LukeSmithxyz/e62f26e55ea8b0ed41a65912fbebbe52
-zle-keymap-select() {
+_cursor_keymap_select() {
   if [[ $KEYMAP == vicmd ]]; then
     cursor_block
   elif [[ $KEYMAP == (main|viins|'') ]]; then
     cursor_beam
   fi
 }
-zle -N zle-keymap-select
+_cursor_line_init() { cursor_beam }
 
-zle-line-init() {
-  cursor_beam
-}
-zle -N zle-line-init
+# Hooks, not `zle -N zle-line-init`: that would replace omz's zle-line-init
+# (`echoti smkx`), and omz binds Home/End only to the application-mode sequences
+# from terminfo, so without smkx they fall apart into vi commands outside tmux.
+# The `_` prefix keeps zsh-autosuggestions from wrapping the hook widgets
+autoload -Uz add-zle-hook-widget
+add-zle-hook-widget keymap-select _cursor_keymap_select
+add-zle-hook-widget line-init _cursor_line_init
 
 osc52_copy() {
   local data; data=$(printf %s "$1" | base64)
@@ -32,8 +35,10 @@ osc52_copy() {
 }
 
 # One function serves several widgets: $WIDGET holds the name it was invoked as,
-# so `zle .$WIDGET` dispatches to the matching builtin
-vi_yank_osc52() { zle .$WIDGET; osc52_copy "$CUTBUFFER"; cursor_block }
+# so `zle .$WIDGET` dispatches to the matching builtin. A cancelled yank (`h` then
+# Esc) fails and leaves CUTBUFFER alone; copying then would overwrite whatever the
+# system clipboard has picked up since with the previous yank
+vi_yank_osc52() { zle .$WIDGET && osc52_copy "$CUTBUFFER"; cursor_block }
 
 zle -N vi-yank vi_yank_osc52
 zle -N vi-yank-eol vi_yank_osc52

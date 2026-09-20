@@ -15,6 +15,9 @@ This is a zsh dotfiles configuration targeting macOS with Homebrew. Files are de
   => aliases needed in non-interactive shells (eza, fdt, gtimeout-wrapped fd)
   => PATH: typeset -U, then user_path prepended (~/.local/bin/shims, ~/.local/opt/bin, mise shims, ~/.local/bin, Homebrew)
 
+.zprofile  (login shells, right after /etc/zprofile)
+  => re-apply user_path (path_helper moved the system dirs in front; covers non-interactive `zsh -lc` too)
+
 .zshrc  (interactive shells)
   => emit beam cursor (override Neovim :terminal block cursor)
   => load p10k instant prompt cache
@@ -22,7 +25,7 @@ This is a zsh dotfiles configuration targeting macOS with Homebrew. Files are de
   => ~/.p10k.zsh (prompt config)
   => plugins.zsh (Antidote plugin manager, local _evalcache)
   => brew shellenv (via evalcache)
-  => re-apply user_path (brew shellenv prepends Homebrew; in login shells /etc/zprofile's path_helper moved the system dirs in front)
+  => re-apply user_path (brew shellenv prepends Homebrew)
   => config modules in order: aliases, vi-mode, keymaps, options, evals, tty-guard
   => autoload functions from .config/zsh/functions/
   => put .config/zsh/compdefs/ on fpath (compinit picks up their `#compdef` tags)

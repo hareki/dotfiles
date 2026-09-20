@@ -1,19 +1,28 @@
 #!/bin/zsh
 
 yay() {
-  print-header "Updating Homebrew" \
-    && brew update && brew upgrade -y && brew autoremove \
-    && print-header "Updating Antidote" \
-    && antidote update \
-    && print-header "Updating Mise" \
-    && mise install \
-    && mise upgrade \
-    && print-header "Updating TPM" \
-    && ~/.tmux/plugins/tpm/bin/clean_plugins \
-    && ~/.tmux/plugins/tpm/bin/install_plugins \
-    && ~/.tmux/plugins/tpm/bin/update_plugins all
+  # The updaters are independent: one failing (a single brew cask is enough to fail
+  # `brew upgrade`) must not skip the rest, so failures are collected and reported last
+  local -a failed
 
-  local ret=$?
+  print-header "Updating Homebrew"
+  brew update && brew upgrade -y && brew autoremove || failed+=(Homebrew)
+
+  print-header "Updating Antidote"
+  antidote update || failed+=(Antidote)
+
+  print-header "Updating Mise"
+  mise install && mise upgrade || failed+=(Mise)
+
+  print-header "Updating TPM"
+  ~/.tmux/plugins/tpm/bin/clean_plugins \
+    && ~/.tmux/plugins/tpm/bin/install_plugins \
+    && ~/.tmux/plugins/tpm/bin/update_plugins all || failed+=(TPM)
+
   _evalcache_clear
-  return $ret
+
+  if (( $#failed )); then
+    print -P "\n%F{red}==> Failed to update: ${(j:, :)failed}%f" >&2
+    return 1
+  fi
 }

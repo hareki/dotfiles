@@ -83,8 +83,14 @@ ZSH_AUTOSUGGEST_MANUAL_REBIND=1
 fpath=(/opt/homebrew/opt/antidote/share/antidote/functions $fpath)
 autoload -Uz antidote
 
-# Regenerate the static bundle whenever .zplugins changes, then source it
-[[ ~/.zplugins.bundled.zsh -nt ~/.zplugins ]] || antidote bundle <~/.zplugins >|~/.zplugins.bundled.zsh
+# Regenerate the static bundle whenever .zplugins changes, then source it. Built
+# under a temp name and moved in only on success: a failed clone makes antidote
+# emit an empty bundle, which would count as fresh and never be retried
+if [[ ! ~/.zplugins.bundled.zsh -nt ~/.zplugins ]]; then
+  antidote bundle <~/.zplugins >|~/.zplugins.bundled.zsh.$$ \
+    && mv -f ~/.zplugins.bundled.zsh.$$ ~/.zplugins.bundled.zsh \
+    || rm -f ~/.zplugins.bundled.zsh.$$
+fi
 source ~/.zplugins.bundled.zsh
 
 # use-omz forks `scutil` for this in every shell that doesn't inherit it
@@ -97,12 +103,15 @@ zstyle ':completion:*:*:*:*:*' menu no
 
 # omz URL-encodes $PWD (two subshell forks) on every prompt; cache the escape
 # sequence per $PWD but still emit it each prompt, so the terminal's recorded
-# cwd survives `reset` and tmux reattach
-functions -c omz_termsupport_cwd _omz_termsupport_cwd_orig
-omz_termsupport_cwd() {
-  if [[ $PWD != $_termsupport_cwd_last ]]; then
-    typeset -g _termsupport_cwd_last=$PWD
-    typeset -g _termsupport_cwd_seq=$(_omz_termsupport_cwd_orig)
-  fi
-  printf '%s' "$_termsupport_cwd_seq"
-}
+# cwd survives `reset` and tmux reattach. omz neither defines nor hooks the
+# function over SSH or in a terminal without OSC 7, so there's nothing to wrap
+if (( $+functions[omz_termsupport_cwd] )); then
+  functions -c omz_termsupport_cwd _omz_termsupport_cwd_orig
+  omz_termsupport_cwd() {
+    if [[ $PWD != $_termsupport_cwd_last ]]; then
+      typeset -g _termsupport_cwd_last=$PWD
+      typeset -g _termsupport_cwd_seq=$(_omz_termsupport_cwd_orig)
+    fi
+    printf '%s' "$_termsupport_cwd_seq"
+  }
+fi

@@ -19,8 +19,8 @@ __zsh_config_dir=$XDG_CONFIG_HOME/zsh
 source $__zsh_config_dir/plugins.zsh
 _evalcache /opt/homebrew/bin/brew shellenv
 
-# Re-apply .zshenv's PATH order: brew shellenv prepends Homebrew, and login
-# shells ran /etc/zprofile's path_helper, which moved the system dirs in front
+# Re-apply .zshenv's PATH order: brew shellenv prepends Homebrew (.zprofile has
+# already undone /etc/zprofile's path_helper in login shells)
 path=($user_path $path)
 
 # Load configuration files, order matters

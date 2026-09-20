@@ -3,10 +3,10 @@
 local -a targets=(
   '--help:Show usage info'
   '--list:Print target names'
-  'all:Build every target'
+  "all:Pull and build every target under ${(D)REPOS_DIR}"
 )
 local t
 for t in ${(f)"$(build --list)"}; do
-  [[ $t == all ]] || targets+=("$t:Build $t from $REPOS_DIR/$t")
+  [[ $t == all ]] || targets+=("$t:Build the $t checkout in the current directory")
 done
 _describe 'build targets' targets

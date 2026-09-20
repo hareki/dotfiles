@@ -2,7 +2,7 @@
 
 build() {
   local -a targets=(atuin eza television worktrunk lazygit tmux)
-  local target
+  local target failed=0
   # mise shims every binary in the toolchains' own dirs (~/.cargo/bin, the versioned
   # go bin), which costs ~50ms per call, and a go upgrade strands anything installed
   # there. PATH puts this dir ahead of the mise shims instead
@@ -18,8 +18,9 @@ build() {
     all)
       for target in $targets; do
         print-header "Building $target"
-        (cd $REPOS_DIR/$target && git pull && build $target) || print -P "%F{red}==> Failed to build $target%f" >&2
+        (cd $REPOS_DIR/$target && git pull && build $target) || { print -P "%F{red}==> Failed to build $target%f" >&2; failed=1; }
       done
+      (( ! failed ))
       ;;
     atuin)                    cargo install --locked --path crates/atuin ;;
     eza|television|worktrunk) cargo install --locked --path . ;;
