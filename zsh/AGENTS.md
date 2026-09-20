@@ -53,7 +53,7 @@ Plugins are declared in `.zplugins` and managed by **Antidote**. Antidote static
 - **Autoload**: Functions in `.config/zsh/functions/` are registered via `autoload -Uz` and only loaded on first call.
 - **Antidote zcompile**: All bundled plugins are zcompiled (`zstyle ':antidote:bundle:*' zcompile 'yes'`).
 - **OSC 7 cwd reporting**: omz's `omz_termsupport_cwd` forks two subshells per prompt to URL-encode `$PWD`; a wrapper at the end of `plugins.zsh` caches the escape sequence until `$PWD` changes and re-emits the cached one each prompt (still every prompt, so the terminal's recorded cwd survives `reset` and tmux reattach).
-- **compinit**: `use-omz` defers `compinit` to the first `precmd`, which is why `.zshrc` can still add to `fpath`. Its `$ZSH_COMPDUMP` cache holds only the `command => function` map, and is rebuilt when `fpath` changes or when the *number* of `_*` files in `fpath` changes. A full rebuild costs ~120ms, so it is deliberately not forced on every compdef edit. See the stale-dump note under Conventions.
+- **compinit**: `use-omz` defers `compinit` to the first `precmd`, which is why `.zshrc` can still add to `fpath`. Its `$ZSH_COMPDUMP` cache holds only the `command => function` map, and is rebuilt when `fpath` changes or when the _number_ of `_*` files in `fpath` changes. A full rebuild costs ~120ms, so it is deliberately not forced on every compdef edit. See the stale-dump note under Conventions.
 
 ## Common Commands
 
@@ -70,8 +70,8 @@ ff                    # fastfetch with buffered output
 ## Conventions
 
 - New utility functions go in `.config/zsh/functions/` as standalone files (one function per file, filename = function name, no `.zsh` extension, since `autoload` looks the file up by function name). They are autoloaded automatically.
-- All custom completions go in `.config/zsh/compdefs/`, one file per command named `_<command>` (e.g. `_build`, `_tv`) whose first line is `#compdef <command>`. This covers both the autoloaded functions above and external commands. The file body *is* the completion function, so it needs no wrapper and no trailing `compdef` call. The directory is on `fpath`, so compinit registers the tag and autoloads the body on first use.
-- **Stale completion dump.** `$ZSH_COMPDUMP` caches only the `command => function` mapping, and `compinit` regenerates it only when the *number* of `_*` files in `fpath` changes. So:
+- All custom completions go in `.config/zsh/compdefs/`, one file per command named `_<command>` (e.g. `_build`, `_tv`) whose first line is `#compdef <command>`. This covers both the autoloaded functions above and external commands. The file body _is_ the completion function, so it needs no wrapper and no trailing `compdef` call. The directory is on `fpath`, so compinit registers the tag and autoloads the body on first use.
+- **Stale completion dump.** `$ZSH_COMPDUMP` caches only the `command => function` mapping, and `compinit` regenerates it only when the _number_ of `_*` files in `fpath` changes. So:
   - Picked up on the next shell, no action needed: editing a compdef's body (bodies are autoloaded from `fpath` at completion time, never cached), adding a compdef, deleting one.
   - Goes **stale**, since the file count is unchanged: renaming a compdef file, or editing its `#compdef` line. The old command keeps resolving to a function file that no longer exists. Same for same-count renames in third-party `fpath` dirs (homebrew site-functions, `$ZSH_CACHE_DIR/completions`).
   - Fix: `rm $ZSH_COMPDUMP $ZSH_COMPDUMP.zwc`, then start a new shell.

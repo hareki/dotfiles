@@ -5,7 +5,7 @@ Catppuccin Mocha-themed terminal config with heavy keybinding remaps for seamles
 ## Core Ideas
 
 - Catppuccin Mocha theme with hidden macOS title bar
-- Font: [Maple Mono NF](https://github.com/subframe7536/maple-font) (SemiBold, 20.5pt) with ligatures
+- Font: [Maple Mono NF](https://github.com/subframe7536/maple-font) (SemiBold, 18.5pt) with ligatures
 - `Cmd` key remapped extensively to send escape sequences for tmux, Neovim, and zsh integration
 - Shell integration: zsh with `no-cursor` (avoids conflicts with zsh vi-mode)
 - Copy-on-select enabled
@@ -15,6 +15,6 @@ Catppuccin Mocha-themed terminal config with heavy keybinding remaps for seamles
 ```
 .config/ghostty/
 ├── config                      # Main config: theme, font, shell, keybindings
-└── shaders/
-    └── cursor_trail.glsl       # Optional cursor trail effect (disabled by default)
+└── background-images/
+    └── stack-blur-50-top-cropped-planet_with_sunrise.png
 ```

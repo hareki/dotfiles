@@ -14,13 +14,11 @@ Feature-packed zsh setup with ~45ms startup. Optimized via static plugin bundlin
 
 ## Plugins
 
-| Plugin                                                                  | Purpose                           | Loading           |
-| ----------------------------------------------------------------------- | --------------------------------- | ----------------- |
-| [powerlevel10k](https://github.com/romkatv/powerlevel10k)               | Prompt theme                      | eager             |
-| [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions) | History-based command suggestions | deferred          |
-| zsh-patina (Homebrew binary)                                            | Real-time syntax highlighting     | eager             |
-| [fzf-tab](https://github.com/Aloxaf/fzf-tab)                            | Fuzzy tab completion              | deferred          |
-| ohmyzsh ssh-agent                                                       | Auto-load SSH keys                | deferred          |
+- **[powerlevel10k](https://github.com/romkatv/powerlevel10k)**: Prompt theme (eager)
+- **[zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)**: History-based command suggestions (deferred)
+- **zsh-patina (Homebrew binary)**: Real-time syntax highlighting (eager)
+- **[fzf-tab](https://github.com/Aloxaf/fzf-tab)**: Fuzzy tab completion (deferred)
+- **ohmyzsh ssh-agent**: Auto-load SSH keys (deferred)
 
 ## Config Structure
 

@@ -11,21 +11,21 @@
 - **[Neovim](https://neovim.io/) 0.12+**: native `vim.lsp.enable()` API
 - **[Git](https://git-scm.com/)**: required by gitsigns.nvim, lazygit, blink-ripgrep (gitgrep backend)
 - **[Nerd Font](https://www.nerdfonts.com/)**: all icons are Nerd Font glyphs (mini.icons, lualine, which-key, nvim-tree, etc.)
-- **[ripgrep](https://github.com/BurntSushi/ripgrep)**: file search and grep for Snacks picker, Telescope, blink-ripgrep
+- **[ripgrep](https://github.com/BurntSushi/ripgrep)**: file search and grep for Snacks picker and Telescope
 - **[fd](https://github.com/sharkdp/fd)**: fallback file finder for Telescope (after ripgrep)
-- **[delta](https://github.com/dandavison/delta)**: diff previews in tiny-code-action.nvim and Telescope undo
+- **[delta](https://github.com/dandavison/delta)**: diff previews in tiny-code-action.nvim
 - **[jq](https://jqlang.github.io/jq/)** (optional): JSON sorting code action in jsonls
 - **[lazygit](https://github.com/jesseduffield/lazygit)**: terminal UI for Git, opened through Snacks (`<A-g>`)
 - **[ImageMagick](https://imagemagick.org/)**: `magick` CLI for image rendering in Snacks (`image`)
 - **[Ghostty](https://ghostty.org/)**: terminal with kitty graphics protocol support, for Snacks (`image`)
 - **C compiler + make**: builds nvim-treesitter parsers and telescope-fzf-native
 - **[Go](https://go.dev/)**: build step for cursortab.nvim (`cd server && go build`)
-- **[Node.js](https://nodejs.org/) + npm**: mise installs the Node-based LSP servers (vtsls, eslint-lsp, etc.), and the vtsls LSP config runs `npm root -g`
+- **[Node.js](https://nodejs.org/) + npm**: mise installs the Node-based LSP servers (vtsls, eslint-lsp, etc.), which the vtsls and angularls configs resolve from mise's install dirs
 
 ### Subscriptions & API Keys
 
 - **`ANTHROPIC_API_KEY` env var**: Claude-generated commit messages in ai-commit-msg.nvim
-- **`MERCURY_API_KEY` env var**: SweepAPI token for next-edit predictions in cursortab.nvim
+- **`MERCURY_API_KEY` env var**: Inception Labs Mercury token for next-edit predictions in cursortab.nvim and AI completion items in minuet-ai.nvim
 - **[Claude Code](https://claude.ai/download) CLI + subscription**: Claude terminal in claudecode.nvim, toggled with `<A-a>`
 
 ## Core Ideas
@@ -44,7 +44,7 @@
 - `size.lua`: popup dimensions (`sm`, `md`, `lg`, `vertical_sm`, `vertical_md`, `full`)
 - `icons.lua`: all icons (diagnostics, git, file status, LSP kinds)
 - `globals.lua`: 6 project globals (`Defer`, `Notifier`, `Conf`, `UI`, `Project`, plus `Snacks` set by snacks.nvim)
-- `cmp.lua`: completion tuning constants in `Conf.cmp` (AI item cap/timeout, ripgrep min keyword length)
+- `completion.lua`: completion tuning constants in `Conf.cmp` (AI item cap/timeout, ripgrep min keyword length)
 - `picker.lua`: shared picker UI constants
 - `keymap-registry.lua`: centralized keymap `desc` overrides
 
@@ -75,7 +75,7 @@ nvim-tree-lua/
 
 ## Forks (author = hareki)
 
-- 19 minimal-diff forks; updated via [wei/pull](https://github.com/wei/pull)
+- 22 minimal-diff forks; updated via [wei/pull](https://github.com/wei/pull)
 - Features toggleable — disabling custom bits reverts to upstream behavior
 - Enable unified UX by exposing layout hooks, focus toggles, preview coordination, UI tweaks and more.
 

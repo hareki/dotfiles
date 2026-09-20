@@ -14,12 +14,10 @@
 
 ## Plugins
 
-| Plugin                                                                         | Purpose                                 |
-| ------------------------------------------------------------------------------ | --------------------------------------- |
-| [TPM](https://github.com/tmux-plugins/tpm)                                     | Plugin manager                          |
-| [tmux-yank](https://github.com/tmux-plugins/tmux-yank)                         | System clipboard integration            |
-| [tmux-catppuccin](https://github.com/catppuccin/tmux) (fork)                   | Catppuccin Mocha status bar and theming |
-| [vim-tmux-navigator](https://github.com/christoomey/vim-tmux-navigator)        | Seamless Neovim ↔ tmux pane navigation  |
+- **[TPM](https://github.com/tmux-plugins/tpm)**: Plugin manager
+- **[tmux-yank](https://github.com/tmux-plugins/tmux-yank)**: System clipboard integration
+- **[tmux-catppuccin](https://github.com/catppuccin/tmux)** (fork): Catppuccin Mocha status bar and theming
+- **[vim-tmux-navigator](https://github.com/christoomey/vim-tmux-navigator)**: Seamless Neovim ↔ tmux pane navigation
 
 ## Config Structure
 
