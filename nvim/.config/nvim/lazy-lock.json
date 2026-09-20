@@ -19,7 +19,7 @@
   "flash.nvim": { "branch": "main", "commit": "5f0f270fdc7c5b0c21d903ee85b9cb06f2ac636a" },
   "garbage-day.nvim": { "branch": "main", "commit": "a76b9d01b8832822a7240b21976042c20384ccd9" },
   "git-conflict.nvim": { "branch": "main", "commit": "4827a307b623327c2fff0f539a569fc5c9b4d2f7" },
-  "gitsigns.nvim": { "branch": "main", "commit": "665f4090369ca38b46d3334b34b215466e5a1904" },
+  "gitsigns.nvim": { "branch": "main", "commit": "8bfa0f8a8d19324febf2a40676059c93c3d6587c" },
   "grug-far.nvim": { "branch": "main", "commit": "cf55a1423d858592ca83f632cb8d8f2adfea121f" },
   "guess-indent.nvim": { "branch": "main", "commit": "84a4987ff36798c2fc1169cbaff67960aed9776f" },
   "harpoon": { "branch": "harpoon2", "commit": "87b1a3506211538f460786c23f98ec63ad9af4e5" },

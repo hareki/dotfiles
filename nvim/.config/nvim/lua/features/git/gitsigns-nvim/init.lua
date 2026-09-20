@@ -1,5 +1,5 @@
 return {
-  UI.catppuccin(function(_, sub_palette)
+  UI.catppuccin(function(_, sub_palette, ext)
     return {
       GitSignsStagedAdd = { fg = sub_palette.green },
       GitSignsStagedUntracked = { link = 'GitSignsStagedAdd' },
@@ -9,6 +9,12 @@ return {
 
       GitSignsStagedDelete = { fg = sub_palette.red },
       GitSignsStagedTopDelete = { link = 'GitSignsStagedDelete' },
+
+      GitSignsDeletePreview = { link = 'DiffDelete' },
+      GitSignsDeleteInline = { bg = ext.diff_delete_word },
+      GitSignsAddPreview = { link = 'DiffAdd' },
+      GitSignsAddInline = { bg = ext.diff_add_word },
+      GitSignsChangeInline = { link = 'GitSignsAddInline' },
     }
   end, 'gitsigns.nvim'),
 
@@ -123,12 +129,6 @@ return {
           map('n', '<leader>hB', function()
             gs.blame()
           end, 'Blame Buffer')
-
-          map('n', '<leader>hd', gs.diffthis, 'Diff This')
-          map('n', '<leader>hD', function()
-            gs.diffthis('~')
-          end, 'Diff This ~')
-          map({ 'o', 'x' }, 'ih', '<cmd>Gitsigns select_hunk<cr>', 'Select Hunk')
 
           map('n', '<leader>hb', function()
             gs.blame_line({ full = true }, build_popup_navigation(buffer, 'blame'))
