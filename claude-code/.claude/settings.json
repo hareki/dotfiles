@@ -59,26 +59,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/hooks/allow-sleep.sh"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/prevent-sleep.sh"
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
             "command": "bash ~/.claude/hooks/prevent-sleep.sh"
           }
         ]
@@ -89,21 +69,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/hooks/allow-sleep.sh"
+            "command": "bash ~/.claude/hooks/prevent-sleep.sh"
           },
           {
             "type": "command",
             "command": "bash ~/.claude/hooks/bell.sh"
-          }
-        ]
-      }
-    ],
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/allow-sleep.sh"
           }
         ]
       }
