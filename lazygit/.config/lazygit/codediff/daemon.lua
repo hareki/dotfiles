@@ -34,10 +34,15 @@ local paths = ok_paths and bootstrap.paths or {}
 local WATCHED_PATHS = vim.tbl_values(paths)
 table.sort(WATCHED_PATHS)
 
--- Derived the same way client.sh derives it: this is the only name either side
--- knows the socket by.
-local PIPE_NAME = 'lazygit-codediff-' .. (vim.env.USER or 'u') .. '.pipe'
-local PIPE_PATH = vim.fs.joinpath(vim.env.TMPDIR or '/tmp', PIPE_NAME)
+-- The client owns the socket name and hands it down through the spawner's
+-- environment. Deriving it a second time here would be the same cross-process
+-- invariant spelled in two languages, kept in step by hand; without the handoff
+-- there is nothing to serve, so this exits rather than guessing at a path no
+-- client would be listening to.
+local PIPE_PATH = vim.env.CODEDIFF_PIPE
+if not PIPE_PATH or PIPE_PATH == '' then
+  os.exit(1)
+end
 local IDLE_WITH_OWNER_MS = 60 * 60 * 1000
 local IDLE_NO_OWNER_MS = 5 * 60 * 1000
 -- Owners are registered on demand (a client walks its process tree only when
@@ -104,17 +109,11 @@ local pipe_ino = nil
 -- os.exit skips nvim's own socket cleanup, so unlink here -- but only while the
 -- path is still *ours*: it is shared by every daemon, and a successor may
 -- already have bound its own at the same name.
-local function unlink_own(path, ino)
-  if path and path ~= '' and ino then
-    local st = uv.fs_stat(path)
-    if st and st.ino == ino then
-      pcall(os.remove, path)
-    end
-  end
-end
-
 local function shutdown(code)
-  unlink_own(PIPE_PATH, pipe_ino)
+  local st = pipe_ino and uv.fs_stat(PIPE_PATH)
+  if st and st.ino == pipe_ino then
+    pcall(os.remove, PIPE_PATH)
+  end
   os.exit(code or 0)
 end
 
@@ -200,13 +199,6 @@ local function cache_put(key, out)
     cache_bytes = cache_bytes - #cache_entries[oldest_key].out
     cache_entries[oldest_key] = nil
     cache_count = cache_count - 1
-  end
-end
-
-local function watch_owner(pid)
-  if pid and pid > 0 then
-    watched[pid] = true
-    saw_owner = true
   end
 end
 
@@ -325,13 +317,12 @@ end
 -- One request per connection, one line, tab separated, answered with one line:
 --   render\t<in>\t<out>\t<cols>\t<layout>\t<cwd>  =>  ok | ok:owner | err:<why>
 --   owner\t<pid>  (0: the client found none)      =>  ok
---   ping                                          =>  pong
 -- cwd comes last because it is the only field that can legitimately contain a
 -- tab, so it simply takes the rest of the line.
 
 local MAX_REQUEST_BYTES = 8 * 1024
 
-local pipe_server = nil
+local pipe_server = assert(uv.new_pipe(false))
 local rendering = false
 local queue = {}
 
@@ -349,14 +340,12 @@ local function reply(client, message)
 end
 
 local function dispatch(request)
-  if request == 'ping' then
-    return 'pong'
-  end
   local pid = tonumber(request:match('^owner\t(%d+)$'))
   if pid then
     owner_answered = uv.now()
     if pid > 0 then
-      watch_owner(pid)
+      watched[pid] = true
+      saw_owner = true
     else
       owner_declined = owner_answered
     end
@@ -397,7 +386,7 @@ local function submit(request, client)
 end
 
 local function on_connection(err)
-  if err or not pipe_server then
+  if err then
     return
   end
   local client = assert(uv.new_pipe(false))
@@ -455,14 +444,12 @@ end
 -- one at the same moment). That one is serving, and this process has no
 -- transport of its own left to fall back on, so it exits rather than lingering
 -- as a daemon that answers nothing.
-local server = assert(uv.new_pipe(false))
 local bound = pcall(function()
-  assert(server:bind(PIPE_PATH))
-  assert(server:listen(64, on_connection))
+  assert(pipe_server:bind(PIPE_PATH))
+  assert(pipe_server:listen(64, on_connection))
 end)
 if not bound then
-  pcall(server.close, server)
+  pcall(pipe_server.close, pipe_server)
   os.exit(0)
 end
-pipe_server = server
 pipe_ino = (uv.fs_stat(PIPE_PATH) or {}).ino

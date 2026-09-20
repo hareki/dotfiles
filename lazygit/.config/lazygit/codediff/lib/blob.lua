@@ -6,34 +6,47 @@ local M = {}
 -- Resolved lazily: only the worktree-side fallback below needs it, and a commit
 -- diff (the whole commits panel) never reaches that. Memoized because the
 -- daemon outlives the request and a cwd's repo root cannot change -- which
--- holds for an answer git gave (a root, or "not a repository"), not for a git
--- that failed to start or hung: remembering that would leave the cwd without
--- worktree content for as long as the daemon keeps rendering in it.
-local root_cache = { cwd = nil, root = nil }
+-- holds for an answer git gave (a root, or "not a repository", recorded as
+-- `false`), not for a git that failed to start or hung: remembering that would
+-- leave the cwd without worktree content for as long as the daemon keeps
+-- rendering in it.
+--
+-- Keyed by cwd rather than held in one slot, because the daemon is shared by
+-- every lazygit the user has open (daemon.lua watches several owners): two of
+-- them in different repos would alternate a single slot and pay `git rev-parse`
+-- on every render. Cleared wholesale at a cap, like the other caches here.
+local ROOT_CACHE_MAX = 8
+local roots, n_roots = {}, 0
 
 -- vim.system's wait() reports a process it had to kill on timeout as this code.
 local TIMED_OUT = 124
 
 local function worktree_root(cwd)
-  if root_cache.cwd ~= cwd then
-    local ok, proc = pcall(
-      vim.system,
-      { 'git', 'rev-parse', '--show-toplevel' },
-      { cwd = cwd, text = true }
-    )
-    if not ok then
-      return nil
-    end
-    -- The same bound as the object reads: a hung git (dead network mount,
-    -- stuck fsmonitor) must fail this render, not wedge the daemon.
-    local res = proc:wait(catfile.TIMEOUT_MS)
-    if res.code == TIMED_OUT then
-      return nil
-    end
-    local root = res.code == 0 and res.stdout and vim.trim(res.stdout) or nil
-    root_cache = { cwd = cwd, root = root }
+  local hit = roots[cwd]
+  if hit ~= nil then
+    return hit or nil
   end
-  return root_cache.root
+  local ok, proc = pcall(
+    vim.system,
+    { 'git', 'rev-parse', '--show-toplevel' },
+    { cwd = cwd, text = true }
+  )
+  if not ok then
+    return nil
+  end
+  -- The same bound as the object reads: a hung git (dead network mount,
+  -- stuck fsmonitor) must fail this render, not wedge the daemon.
+  local res = proc:wait(catfile.TIMEOUT_MS)
+  if res.code == TIMED_OUT then
+    return nil
+  end
+  local root = res.code == 0 and res.stdout and vim.trim(res.stdout) or nil
+  if n_roots >= ROOT_CACHE_MAX then
+    roots, n_roots = {}, 0
+  end
+  roots[cwd] = root or false
+  n_roots = n_roots + 1
+  return root
 end
 
 local function read_worktree_file(root, path, limits)
@@ -64,12 +77,29 @@ local function is_zero_hash(hex)
   return hex == nil or hex:match('^0+$') ~= nil
 end
 
-local function to_lines(content)
-  local lines = util.split_lines(content)
-  for j = 1, #lines do
-    lines[j] = util.strip_cr(lines[j])
+--- Does the acquired content actually hold the lines the patch says it does?
+--- Walks each hunk's rows against the side they were taken from, which is the
+--- mapping full-content highlighting relies on: a diff row is styled from the
+--- parsed line at the same number.
+local function agrees_with_patch(file, old_lines, new_lines)
+  for _, hunk in ipairs(file.hunks) do
+    local old_row, new_row = hunk.old_start, hunk.new_start
+    for _, l in ipairs(hunk.lines) do
+      if l.origin ~= '+' then
+        if file.need_old and old_lines[old_row] ~= l.text then
+          return false
+        end
+        old_row = old_row + 1
+      end
+      if l.origin ~= '-' then
+        if file.need_new and new_lines[new_row] ~= l.text then
+          return false
+        end
+        new_row = new_row + 1
+      end
+    end
   end
-  return lines
+  return true
 end
 
 --- Attach full old/new file contents to each file block where possible.
@@ -124,12 +154,20 @@ function M.acquire(files, cwd, limits, fragment_only)
   local infos, blobs = catfile.fetch(cwd, requests, limits.max_highlight_blob_bytes)
   for i, slot in ipairs(slots) do
     local rec = infos[i]
-    if rec and rec.type == 'blob' and rec.size > limits.max_blob_bytes then
-      slot.file[slot.side .. '_oversized'] = true
-    elseif rec and rec.type == 'blob' and rec.size > limits.max_highlight_blob_bytes then
-      slot.file.hl_skip = true
-    elseif blobs[i] then
-      slot.file[slot.side .. '_content'] = blobs[i]
+    if rec and rec.type == 'blob' then
+      if rec.size > limits.max_blob_bytes then
+        slot.file[slot.side .. '_oversized'] = true
+      elseif blobs[i] then
+        slot.file[slot.side .. '_content'] = blobs[i]
+      else
+        -- catfile was handed the highlight cap and answers with the blobs it
+        -- judged worth reading, so a real object missing from that answer is
+        -- one it declined (too large) or could not frame. Reading its verdict
+        -- rather than re-deriving it from the size keeps the cap on one side of
+        -- the module boundary, and lands an unframed blob on the cautious
+        -- branch: the hash is real, so the worktree file below is not it.
+        slot.file.hl_skip = true
+      end
     end
   end
 
@@ -169,9 +207,20 @@ function M.acquire(files, cwd, limits, fragment_only)
         local have_old = not file.need_old or file.old_content ~= nil
         local have_new = not file.need_new or file.new_content ~= nil
         if have_old and have_new then
-          file.content_mode = 'full'
-          file.old_lines = file.old_content and to_lines(file.old_content) or {}
-          file.new_lines = file.new_content and to_lines(file.new_content) or {}
+          local old_lines = file.old_content and util.split_lines(file.old_content) or {}
+          local new_lines = file.new_content and util.split_lines(file.new_content) or {}
+          -- Only content that matches the patch can carry full-file
+          -- highlighting. A worktree file edited since lazygit produced the
+          -- diff, a reversed diff or an odd hash would otherwise style rows
+          -- from text the file does not hold. Asking here, where the bytes'
+          -- provenance is known, leaves a file that disagrees in fragment mode
+          -- -- still highlighted, from its own hunks -- where asking per
+          -- rendered row could only drop that row's spans, and so left the
+          -- whole file tint-only.
+          if agrees_with_patch(file, old_lines, new_lines) then
+            file.content_mode = 'full'
+            file.old_lines, file.new_lines = old_lines, new_lines
+          end
         end
       end
     end

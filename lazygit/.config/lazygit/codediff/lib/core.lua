@@ -155,18 +155,14 @@ local function compute_spans(file, langs_by_side, ctx)
 end
 
 -- Treesitter spans for fragment row `row` (1-based) on `side`, or nil when
--- highlighting is off for the file. `text` and `lnum` are the row's own text
--- and absolute line number, both already derived by the cell being built.
-local function spans_for(file, hunk, sides, side, row, text, lnum)
+-- highlighting is off for the file. `lnum` is the row's absolute line number,
+-- already derived by the cell being built. Full mode means blob.acquire found
+-- the content and the patch to agree, so a row maps onto its parsed line here
+-- without the question being re-asked per row.
+local function spans_for(file, hunk, sides, side, row, lnum)
   if file.content_mode == 'full' then
-    local src_lines = side == 'old' and file.old_lines or file.new_lines
-    -- Sanity guard: if the acquired content disagrees with the diff
-    -- (reversed diffs, odd hashes), render the diff's own text unstyled.
-    if src_lines and src_lines[lnum] == text then
-      local src_spans = sides and sides[side]
-      return src_spans and src_spans[lnum - 1]
-    end
-    return nil
+    local src_spans = sides and sides[side]
+    return src_spans and src_spans[lnum - 1]
   end
   local frag_spans = side == 'old' and hunk.frag_old_spans or hunk.frag_new_spans
   return frag_spans and frag_spans[row - 1]
@@ -249,7 +245,7 @@ local function render_hunk(out, file, hunk, sides, langs_by_side, ctx)
     local lnum = (side == 'old' and hunk.old_start or hunk.new_start) + row - 1
     return {
       text = text or '',
-      spans = langs_by_side[side] and spans_for(file, hunk, sides, side, row, text, lnum) or nil,
+      spans = langs_by_side[side] and spans_for(file, hunk, sides, side, row, lnum) or nil,
       line_type = line_type,
       emph = emph,
       lnum = lnum,
@@ -402,7 +398,7 @@ function M.render(input, opts)
       files[#files + 1] = block
     end
   end
-  local looks_like_git = #files > 0 or (lines[1] and lines[1]:match('^commit %x+'))
+  local looks_like_git = #files > 0 or (lines[1] ~= nil and diffparse.is_commit_line(lines[1]))
   if not looks_like_git then
     return input, false
   end

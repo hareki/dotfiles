@@ -17,6 +17,8 @@
 set -Cu
 
 # $TMPDIR is trailing-slash-terminated on macOS but bare on most other systems.
+# This is the one place the socket name is derived: the daemon is handed the
+# result through CODEDIFF_PIPE at spawn time rather than rebuilding it in Lua.
 TMP="${TMPDIR:-/tmp}"
 TMP="${TMP%/}"
 PIPE="$TMP/lazygit-codediff-${USER:-u}.pipe"
@@ -115,7 +117,7 @@ if [ -z "$reply" ]; then
   # A failed spawn (uv.spawn returned nothing; the spawner exits 1) can never
   # produce a socket: skip the wait loop and the doomed request, so a broken
   # nvim binary or fork pressure costs nothing extra on every render.
-  if nvim --clean -l "$DIR/spawn_daemon.lua" >/dev/null 2>&1; then
+  if CODEDIFF_PIPE="$PIPE" nvim --clean -l "$DIR/spawn_daemon.lua" >/dev/null 2>&1; then
     # The pipe is bound once the daemon has bootstrapped its parsers, so its
     # arrival is also the signal that a render will be answered rather than
     # queued behind a second of startup.

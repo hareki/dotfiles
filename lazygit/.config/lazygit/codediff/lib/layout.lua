@@ -110,7 +110,7 @@ end
 function M.hunk_header(path, lnum, section, cols)
   local p = palette
   local num = tostring(lnum)
-  local path_plain = one_line(path or '')
+  local path_plain = one_line(path)
   local heading = section and (': ' .. one_line(section)) or ''
   local plain = path_plain .. ':' .. num .. heading
   local width = math.min(util.display_width(plain) + 2, math.max(cols - 1, 1))
@@ -452,16 +452,6 @@ function M.number_width(max_lnum)
   return math.max(#tostring(max_lnum), NUM_MIN_DIGITS)
 end
 
--- Cells the gutter takes ahead of the text: "old new │" inline, "num │" per
--- side-by-side cell.
-local function inline_gutter_width(num_w)
-  return 2 * num_w + 3
-end
-
-local function cell_gutter_width(num_w)
-  return num_w + 2
-end
-
 -- One format string per gutter width, so a row's numbers cost a single format
 -- call. %s right-aligns a number and leaves an absent one blank.
 local num_fmts = {}
@@ -497,13 +487,18 @@ local function gutter_sgr(line_type)
   return g
 end
 
+-- Returns the new `out` index and the cells the gutter took ahead of the text.
+-- Reporting what was written rather than re-deriving it from num_w keeps the
+-- width in one place: the numbers are ASCII (a byte is a cell) and the bar is
+-- one cell, and a number wider than the gutter reserved widens both together
+-- instead of silently mis-padding the row.
 local function emit_gutter(out, n, nums, line_type)
   local g = gutter_sgr(line_type)
   out[n + 1] = g.num
   out[n + 2] = nums
   out[n + 3] = g.bar
   out[n + 4] = '│'
-  return n + 4
+  return n + 4, #nums + 1
 end
 
 --- Append one inline content row to `out`: both sides' line numbers, then the
@@ -513,11 +508,11 @@ end
 --- cell: { text, spans, line_type, emph }
 function M.content_line(out, cell, old_no, new_no, cols, num_w)
   local line_type = cell.line_type
-  local n =
+  local n, gutter_w =
     emit_gutter(out, #out, num_fmt(num_w).pair:format(old_no or '', new_no or ''), line_type)
   local col, line_bg
   n, col, line_bg = emit_line(out, n, cell.text, cell.spans, line_type, cell.emph, nil)
-  local text_w = cols - inline_gutter_width(num_w)
+  local text_w = cols - gutter_w
   if line_bg and text_w > col then
     out[n + 1] = fill_sgr(line_bg)
     out[n + 2] = string.rep(' ', text_w - col)
@@ -532,12 +527,14 @@ end
 -- line_type, emph, lnum } or { filler = true } (codediff renders absent lines
 -- as ╱ filler under a blank number). Returns the new `out` index.
 local function render_cell(out, n, cell, width, num_w)
-  local filler = not cell or cell.filler
+  local filler = cell.filler
   local line_type = not filler and cell.line_type or nil
-  n = emit_gutter(out, n, num_fmt(num_w).single:format(not filler and cell.lnum or ''), line_type)
+  local gutter_w
+  n, gutter_w =
+    emit_gutter(out, n, num_fmt(num_w).single:format(not filler and cell.lnum or ''), line_type)
   -- The gutter is never clipped: a cell too narrow for it overflows, which only
   -- a view a dozen cells wide can bring about.
-  width = math.max(width - cell_gutter_width(num_w), 1)
+  width = math.max(width - gutter_w, 1)
   if filler then
     out[n + 1] = filler_run(width)
     return n + 1

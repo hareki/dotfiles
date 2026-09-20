@@ -1,6 +1,22 @@
 local M = {}
 
-local cache = {}
+-- Capped and cleared wholesale rather than evicted one entry at a time -- the
+-- shape lib/layout.lua already uses for its filler runs. The daemon serves for
+-- up to an hour and every distinct path (see the key below) adds an entry, so
+-- browsing a monorepo's history would otherwise only ever grow this. A few
+-- hundred covers the files a session moves between; past that a render pays one
+-- vim.filetype.match again, which is what the entry cost to make.
+local CACHE_MAX = 512
+local cache, n_cached = {}, 0
+
+local function remember(key, lang)
+  if n_cached >= CACHE_MAX then
+    cache, n_cached = {}, 0
+  end
+  cache[key] = lang
+  n_cached = n_cached + 1
+  return lang or nil
+end
 
 local function parser_available(lang)
   local ok = pcall(vim.treesitter.language.add, lang)
@@ -34,8 +50,7 @@ function M.lang_for(path, content_lines)
     -- Retry without contents: some filetype matchers error on odd content.
     ok, ft = pcall(vim.filetype.match, { filename = path })
     if not ok or not ft then
-      cache[key] = false
-      return nil
+      return remember(key, false)
     end
   end
 
@@ -46,8 +61,7 @@ function M.lang_for(path, content_lines)
     lang = parser_available(vim.treesitter.language.get_lang(base) or base)
   end
 
-  cache[key] = lang or false
-  return lang
+  return remember(key, lang or false)
 end
 
 return M

@@ -1,5 +1,3 @@
-local util = require('lib.util')
-
 local M = {}
 
 -- Unquote a git C-style quoted path ("a\"b", "\303\251" octal escapes, etc).
@@ -76,7 +74,6 @@ local function new_file(diff_line)
     renamed_from = nil,
     renamed_to = nil,
     hunks = {},
-    raw_lines = {}, -- combined-diff body kept verbatim
   }
   if vim.startswith(diff_line, 'diff --git ') then
     -- Whether this file's paths carry the a/ b/ (or mnemonic) prefixes: the
@@ -93,6 +90,7 @@ local function new_file(diff_line)
     end
   else
     file.is_combined = true
+    file.raw_lines = {} -- combined-diff body kept verbatim
     local p = diff_line:match('^diff %-%-c%S* (.+)$')
     file.new_path = p and unquote_c_string(p) or nil
   end
@@ -183,6 +181,14 @@ function M.hunk_fragment(hunk, side)
   return lines
 end
 
+--- True for the "commit <hash>" line that opens a `git show`. Exported because
+--- the combined-diff body below ends at one and core.render reads it to tell
+--- git output from arbitrary text: git's line grammar is this module's to know,
+--- not something each consumer keeps its own copy of the pattern for.
+function M.is_commit_line(line)
+  return line:match('^commit %x') ~= nil
+end
+
 --- Parse raw `git diff` / `git show` output into an ordered list of blocks:
 --- { kind = "raw", lines }  preamble, commit header/message, --stat, submodules
 --- { kind = "file", ... }   one per "diff --git/--cc/--combined" section
@@ -218,7 +224,7 @@ function M.parse(lines)
 
   local i = 1
   while i <= #lines do
-    local line = util.strip_cr(lines[i])
+    local line = lines[i]
     local consumed = true
 
     if
@@ -236,7 +242,7 @@ function M.parse(lines)
       end
       raw.lines[#raw.lines + 1] = line
     elseif file and state == 'combined' then
-      if vim.startswith(line, 'Submodule ') or line:match('^commit %x') then
+      if vim.startswith(line, 'Submodule ') or M.is_commit_line(line) then
         consumed = false
       else
         file.raw_lines[#file.raw_lines + 1] = line

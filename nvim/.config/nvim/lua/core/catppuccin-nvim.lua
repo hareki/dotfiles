@@ -10,7 +10,7 @@ return {
     local substitute_fg = palette.red
     local substitute_bg = UI.color.blend_hex(palette.mantle, substitute_fg)
 
-    return {
+    local opts = {
       transparent_background = true,
       default_integrations = false,
       -- Skip the startup scan of every installed plugin; the integrations below are explicit
@@ -55,11 +55,6 @@ return {
         TabLineFill = {
           bg = 'none',
         },
-
-        ['@string.special.path'] = { fg = palette.text },
-        ['@markup.quote'] = { fg = palette.text },
-        ['@markup.italic'] = { fg = palette.flamingo, italic = true },
-        ['@markup.strong'] = { fg = palette.flamingo, bold = true },
 
         ModifiedIndicator = { fg = palette.yellow },
         SnippetTabStop = { bg = color.snippet_tab_stop },
@@ -119,6 +114,16 @@ return {
         ufo = true,
       },
     }
+
+    -- Merged in rather than written above because the lazygit codediff renderer
+    -- loads the same module headlessly: these four decide what a highlighted
+    -- diff row looks like, and a second copy here is what would let the two
+    -- drift apart. See the module's own header.
+    for group, hl in pairs(require('config.treesitter-highlights')(palette)) do
+      opts.custom_highlights[group] = hl
+    end
+
+    return opts
   end,
 
   config = function(_, opts)

@@ -18,7 +18,6 @@ local handle = vim.uv.spawn(vim.v.progpath, {
     'luafile ' .. vim.fn.fnameescape(dir .. '/daemon.lua'),
   },
   detached = true,
-  stdio = { nil, nil, nil },
 }, function() end)
 
 if handle then

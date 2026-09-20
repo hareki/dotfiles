@@ -21,6 +21,10 @@ M.paths = {
   -- detection rules and ft => language aliases shape every render, so an edit
   -- must recycle the daemon like any renderer source.
   filetype_rules = vim.fs.joinpath(config, 'lua/config/filetypes/init.lua'),
+  -- The editor's treesitter @capture overrides, which setup() hands to
+  -- catppuccin below: they decide what a highlighted diff row looks like, so an
+  -- edit must recycle the daemon like any renderer source.
+  capture_highlights = vim.fs.joinpath(config, 'lua/config/treesitter-highlights.lua'),
   -- Rewritten by every lazy update, so one stat covers the plugins above
   -- changing under a running daemon: an update that only rewrites existing
   -- files leaves their directory mtimes untouched.
@@ -50,18 +54,15 @@ function M.setup()
 
   -- Mirror the subset of the editor's catppuccin setup that affects the groups
   -- this renderer reads (Diff* backgrounds, @capture colors), so lazygit shows
-  -- the same colors nvim does.
+  -- the same colors nvim does. The @capture overrides are loaded from the
+  -- module the editor's own colorscheme spec requires rather than transcribed,
+  -- which is what keeps the two from drifting; guarded like the filetype rules
+  -- below, because a render must never fail over four colors.
+  local ok_captures, capture_highlights = pcall(dofile, M.paths.capture_highlights)
   require('catppuccin').setup({
     transparent_background = true,
     default_integrations = false,
-    custom_highlights = function(palette)
-      return {
-        ['@string.special.path'] = { fg = palette.text },
-        ['@markup.quote'] = { fg = palette.text },
-        ['@markup.italic'] = { fg = palette.flamingo, italic = true },
-        ['@markup.strong'] = { fg = palette.flamingo, bold = true },
-      }
-    end,
+    custom_highlights = ok_captures and capture_highlights or nil,
   })
   vim.cmd.colorscheme('catppuccin-mocha')
 

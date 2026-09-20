@@ -13,7 +13,7 @@ local UNDERSCORE = string.byte('_')
 --- lang:       treesitter language (parser must be loadable)
 --- row_ranges: sorted, merged list of {start_row, end_row} (0-based, inclusive)
 ---             restricting extraction to the rows the diff actually shows
---- deadline:   optional vim.uv.hrtime() value; collection stops between query
+--- deadline:   vim.uv.hrtime() value; collection stops between query
 ---             windows once it passes, returning whatever was gathered so far
 ---             (those rows still render highlighted, the rest fall back to
 ---             tints), so one pathological file cannot stall the whole render
@@ -31,7 +31,7 @@ function M.line_spans(content, lang, row_ranges, deadline)
   -- rows outside it are never queried, and injection discovery over them is the
   -- single most expensive part of highlighting a large file.
   local first, last = row_ranges[1], row_ranges[#row_ranges]
-  local parse_ok = pcall(parser.parse, parser, first and { first[1], last[2] + 1 } or true)
+  local parse_ok = pcall(parser.parse, parser, { first[1], last[2] + 1 })
   if not parse_ok then
     return nil
   end
@@ -80,7 +80,7 @@ function M.line_spans(content, lang, row_ranges, deadline)
   -- nothing next to a window's worth of captures.
   local expired = false
   local function past_deadline()
-    if not expired and deadline and vim.uv.hrtime() > deadline then
+    if not expired and vim.uv.hrtime() > deadline then
       expired = true
     end
     return expired

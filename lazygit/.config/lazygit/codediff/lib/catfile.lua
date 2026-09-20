@@ -37,29 +37,23 @@ local function parse_info(out, n)
   return infos
 end
 
---- Whether an object is a blob small enough to be worth streaming into the
---- (long-lived) daemon's memory: never a gitlink's commit object, never an
---- oversized blob.
-local function is_wanted_blob(rec, max_bytes)
-  return rec ~= nil and rec.type == 'blob' and rec.size <= max_bytes
-end
-
---- The blobs worth fetching, as indices into `infos`, their oids, and the exact
---- byte count git's payload stream runs to for them. Shared by both fetch
---- paths: they must agree on what counts as fetchable, or the fallback renders
---- differently from the fast path.
+--- The blobs worth streaming into the (long-lived) daemon's memory -- never a
+--- gitlink's commit object, never an oversized blob -- as indices into `infos`,
+--- plus the exact byte count git's payload stream runs to for them. Shared by
+--- both fetch paths: they must agree on what counts as fetchable, or the
+--- fallback renders differently from the fast path. The index is enough for
+--- either caller to recover the oid it has to ask for.
 local function select_wanted(infos, oids, max_bytes)
-  local wanted, hashes, expected = {}, {}, 0
+  local wanted, expected = {}, 0
   for i = 1, #oids do
     local rec = infos[i]
-    if is_wanted_blob(rec, max_bytes) then
+    if rec and rec.type == 'blob' and rec.size <= max_bytes then
       wanted[#wanted + 1] = i
-      hashes[#hashes + 1] = oids[i]
       -- git repeats the info line, then the bytes and a newline
       expected = expected + #rec.header + 1 + rec.size + 1
     end
   end
-  return wanted, hashes, expected
+  return wanted, expected
 end
 
 --- Blobs out of a "<oid> <type> <size>\n<bytes>\n" stream, keyed by their index
@@ -85,19 +79,28 @@ end
 
 -- ---------------------------------------------------------------- session ---
 
-local session = nil
+-- One live `git cat-file` per repo being served, most recently used first. A
+-- single slot was enough while a daemon meant one lazygit, but it is shared by
+-- every lazygit the user has open (daemon.lua watches several owners), and two
+-- of them in different repos would alternate that slot and respawn git on every
+-- render -- the ~8ms of startup this session exists to stop paying. Past the
+-- cap the least recently used one is retired.
+local SESSION_MAX = 2
+local sessions = {}
 -- vim.wait pumps the event loop, so a second render can arrive mid-request.
 -- It gets the one-shot path rather than a second voice on the same pipe.
 local busy = false
 
-local function retire()
-  local s = session
-  session = nil
-  if s then
-    pcall(function()
-      s.proc:kill(9)
-    end)
+local function retire(s)
+  for i, held in ipairs(sessions) do
+    if held == s then
+      table.remove(sessions, i)
+      break
+    end
   end
+  pcall(function()
+    s.proc:kill(9)
+  end)
 end
 
 -- Drop the previous phase's bytes before asking for the next. Counting lines is
@@ -108,10 +111,17 @@ local function reset(s, count_lines)
 end
 
 local function ensure(cwd)
-  if session and session.cwd == cwd and not session.dead then
-    return session
+  for i, held in ipairs(sessions) do
+    if held.cwd == cwd then
+      if not held.dead then
+        table.remove(sessions, i)
+        table.insert(sessions, 1, held)
+        return held
+      end
+      retire(held)
+      break
+    end
   end
-  retire()
 
   local s = { cwd = cwd, dead = false }
   reset(s, false)
@@ -137,7 +147,10 @@ local function ensure(cwd)
     return nil
   end
   s.proc = proc
-  session = s
+  table.insert(sessions, 1, s)
+  while #sessions > SESSION_MAX do
+    retire(sessions[#sessions])
+  end
   return s
 end
 
@@ -161,11 +174,7 @@ local function await(s, ready)
   return table.concat(s.buf)
 end
 
-local function fetch_session(cwd, oids, max_bytes)
-  local s = ensure(cwd)
-  if not s then
-    return nil
-  end
+local function fetch_session(s, oids, max_bytes)
   local n = #oids
 
   local commands = {}
@@ -188,16 +197,15 @@ local function fetch_session(cwd, oids, max_bytes)
   end
 
   -- Only now, knowing the sizes, is anything asked for.
-  local wanted, hashes, expected = select_wanted(infos, oids, max_bytes)
-  commands = {}
-  for i = 1, #hashes do
-    commands[i] = 'contents ' .. hashes[i] .. '\n'
-  end
+  local wanted, expected = select_wanted(infos, oids, max_bytes)
+  reset(s, false)
   if #wanted == 0 then
-    reset(s, false)
     return infos, {}
   end
-  reset(s, false)
+  commands = {}
+  for k = 1, #wanted do
+    commands[k] = 'contents ' .. oids[wanted[k]] .. '\n'
+  end
   if not send(s, commands) then
     return nil
   end
@@ -250,11 +258,17 @@ local function fetch_oneshot(cwd, oids, max_bytes)
     return {}, {}
   end
 
-  local wanted, hashes = select_wanted(infos, oids, max_bytes)
-  if #hashes == 0 then
+  local wanted = select_wanted(infos, oids, max_bytes)
+  if #wanted == 0 then
     return infos, {}
   end
 
+  -- The one caller that needs oid strings rather than indices: git_batch feeds
+  -- them to `cat-file --batch` on stdin.
+  local hashes = {}
+  for k = 1, #wanted do
+    hashes[k] = oids[wanted[k]]
+  end
   out = git_batch({ 'git', 'cat-file', '--batch' }, hashes, cwd)
   if not out then
     return infos, {}
@@ -277,14 +291,17 @@ function M.fetch(cwd, oids, max_bytes)
     return {}, {}
   end
   if not busy then
-    busy = true
-    local ok, infos, blobs = pcall(fetch_session, cwd, oids, max_bytes)
-    busy = false
-    if ok and infos and blobs then
-      return infos, blobs
+    local s = ensure(cwd)
+    if s then
+      busy = true
+      local ok, infos, blobs = pcall(fetch_session, s, oids, max_bytes)
+      busy = false
+      if ok and infos and blobs then
+        return infos, blobs
+      end
+      -- The session is only as trustworthy as its last answer.
+      retire(s)
     end
-    -- The session is only as trustworthy as its last answer.
-    retire()
   end
   return fetch_oneshot(cwd, oids, max_bytes)
 end

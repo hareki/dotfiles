@@ -1,29 +1,26 @@
 local M = {}
 
---- Split text into lines. A trailing newline does not produce an empty last line.
+--- Split text into renderer lines: a trailing newline does not produce an empty
+--- last line, and a CRLF's carriage return is not part of the line's text.
+--- Normalizing here rather than in each caller is what keeps the patch text and
+--- the blob text comparable -- full-content highlighting rests on a diff row and
+--- the file row it names being byte for byte the same.
 function M.split_lines(text)
   local lines = {}
   local pos = 1
-  while true do
+  while pos <= #text do
     local nl = text:find('\n', pos, true)
+    local stop = (nl or #text + 1) - 1
+    if stop >= pos and text:byte(stop) == 13 then
+      stop = stop - 1
+    end
+    lines[#lines + 1] = text:sub(pos, stop)
     if not nl then
-      if pos <= #text then
-        lines[#lines + 1] = text:sub(pos)
-      end
       break
     end
-    lines[#lines + 1] = text:sub(pos, nl - 1)
     pos = nl + 1
   end
   return lines
-end
-
---- Strip a trailing carriage return (CRLF input).
-function M.strip_cr(line)
-  if line:sub(-1) == '\r' then
-    return line:sub(1, -2)
-  end
-  return line
 end
 
 -- Printable ASCII is exactly one display cell per byte, so a byte count is a
