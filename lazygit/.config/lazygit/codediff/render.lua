@@ -11,7 +11,7 @@ local ok, rendered = pcall(function()
   require('lib.bootstrap').setup()
   return require('lib.core').render(input, {
     cwd = vim.fn.getcwd(),
-    cols = tonumber(vim.env.LAZYGIT_COLUMNS) or 120,
+    cols = tonumber(vim.env.COLUMNS) or 120,
     layout = vim.env.CODEDIFF_LAYOUT,
     force_fragment = vim.env.CODEDIFF_FORCE_FRAGMENT == '1',
   })

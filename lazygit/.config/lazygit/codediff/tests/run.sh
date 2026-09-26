@@ -22,7 +22,7 @@ for diff_file in "$DIR"/fixtures/*.diff; do
     else
       golden="${diff_file%.diff}.split.out"
     fi
-    actual=$(CODEDIFF_FORCE_FRAGMENT=1 CODEDIFF_LAYOUT="$layout" LAZYGIT_COLUMNS=100 nvim --clean -l "$RENDER" <"$diff_file" 2>/dev/null)
+    actual=$(CODEDIFF_FORCE_FRAGMENT=1 CODEDIFF_LAYOUT="$layout" COLUMNS=100 nvim --clean -l "$RENDER" <"$diff_file" 2>/dev/null)
     # render.lua never fails: a renderer error degrades to the raw diff (and a
     # dead nvim to nothing), either of which --update would otherwise record as
     # the new golden. Every real render carries SGR escapes; those carry none.

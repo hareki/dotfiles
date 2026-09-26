@@ -28,7 +28,7 @@ OUT="$IN.out"
 trap 'rm -f "$IN" "$OUT"' EXIT
 
 cat >|"$IN"
-COLS="${LAZYGIT_COLUMNS:-120}"
+COLS="${COLUMNS:-120}"
 
 # Optional --layout=<inline|side-by-side> from the diffRenderers command
 # string; anything unrecognized renders inline.

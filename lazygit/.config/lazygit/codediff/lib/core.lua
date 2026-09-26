@@ -371,7 +371,7 @@ end
 --- the raw diff, and appending it behind a half-written render would show the
 --- same hunks twice. opts:
 ---   cwd    repo directory for blob lookups
----   cols   target width (LAZYGIT_COLUMNS)
+---   cols   target width (COLUMNS)
 ---   layout "side-by-side" for the split view; anything else renders inline
 ---   force_fragment  skip git blob lookups (repo-independent fixtures)
 --- Returns the document plus a cacheable flag: false when the render read the
