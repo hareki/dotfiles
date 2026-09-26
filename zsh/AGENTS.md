@@ -11,9 +11,9 @@ This is a zsh dotfiles configuration targeting macOS with Homebrew. Files are de
 ```
 .zshenv  (all shells)
   => zcompile .zshrc if stale (interactive shells only)
-  => XDG_CONFIG_HOME, EDITOR, VISUAL, EZA_CONFIG_DIR, API keys (from macOS keychain; skipped when inherited from a parent shell)
+  => XDG_CONFIG_HOME, EDITOR, VISUAL, EZA_CONFIG_DIR, CLOUDSDK_PYTHON, API keys (from macOS keychain; skipped when inherited from a parent shell)
   => aliases needed in non-interactive shells (eza, fdt, gtimeout-wrapped fd)
-  => PATH: typeset -U, then user_path prepended (~/.local/bin/shims, ~/.local/opt/bin, mise shims, ~/.local/bin, Homebrew)
+  => PATH: typeset -U, then user_path prepended (~/.local/bin/shims, ~/.local/opt/bin, mise shims, ~/.local/bin, Homebrew, then the gcloud SDK bin for `gcloud components` binaries)
 
 .zprofile  (login shells, right after /etc/zprofile)
   => re-apply user_path (path_helper moved the system dirs in front; covers non-interactive `zsh -lc` too)
@@ -47,6 +47,8 @@ Plugins are declared in `.zplugins` and managed by **Antidote**. Antidote static
 - **mise**: not activated at runtime; it runs purely via shims prepended to `PATH` in `.zshenv`. A shim costs ~50ms per call (~90ms for a tool installed in mise but inactive in the current directory, e.g. claudecode.nvim's pinned fzf/neovim outside that project), so hot paths bypass it:
   - `build` installs into `~/.local/opt/bin` (`CARGO_INSTALL_ROOT`/`GOBIN`), which `user_path` puts ahead of the mise shims. Left in the toolchains' own dirs (`~/.cargo/bin`, mise's versioned go bin), atuin would pay the shim cost at every startup and before every command.
   - fzf-tab runs `/opt/homebrew/bin/fzf` directly (`fzf-command` zstyle).
+  - `CLOUDSDK_PYTHON` points gcloud/bq/gsutil at the gcloud-cli cask's python@3.14. Unset, the SDK's wrapper probes for a python and then runs it, both through the shims: ~185ms => ~60ms per TAB. Bump it with the cask's python dependency (a stale path fails the `-x` check and falls back to the probe).
+- **gcloud completion**: the SDK's bash-style `completion.zsh.inc`, which its installer sources from `.zshrc` (~3ms), is sourced by `compdefs/_gcloud` on the first TAB instead. Its `complete` calls re-register gcloud/gsutil/bq with `_bash_complete`, so later TABs skip `_gcloud`. `_bash_complete` runs the SDK's functions in a `$(compgen ...)` subshell, so bq's `bq_COMMANDS` cache never survives and every `bq` TAB re-runs `bq help` (~0.4s). Homebrew's `site-functions/_google_cloud_sdk` lacks a `#compdef` line, so compinit ignores it.
 - **use-omz startup forks**: `plugins.zsh` presets `$ZSH` (otherwise a `$(antidote path ...)` subshell, ~15ms) and exports `SHORT_HOST` so child shells skip use-omz's `scutil` fork.
 - **zsh-autosuggestions**: `ZSH_AUTOSUGGEST_MANUAL_REBIND` wraps the widgets once, when the plugin loads, instead of re-binding ~600 of them every precmd. `.zplugins` must therefore load it after every other widget-defining plugin (fzf-tab), since zsh-defer runs the precmd hooks after each deferred plugin.
 - **zcompile**: `.zshrc` is precompiled to bytecode in `.zshenv`. Manual recompile: `compz` alias.
@@ -70,7 +72,7 @@ ff                    # fastfetch with buffered output
 ## Conventions
 
 - New utility functions go in `.config/zsh/functions/` as standalone files (one function per file, filename = function name, no `.zsh` extension, since `autoload` looks the file up by function name). They are autoloaded automatically.
-- All custom completions go in `.config/zsh/compdefs/`, one file per command named `_<command>` (e.g. `_build`, `_tv`) whose first line is `#compdef <command>`. This covers both the autoloaded functions above and external commands. The file body _is_ the completion function, so it needs no wrapper and no trailing `compdef` call. The directory is on `fpath`, so compinit registers the tag and autoloads the body on first use.
+- All custom completions go in `.config/zsh/compdefs/`, one file per command named `_<command>` (e.g. `_build`, `_tv`) whose first line is `#compdef <command>`. This covers both the autoloaded functions above and external commands. The file body _is_ the completion function, so it needs no wrapper and no trailing `compdef` call. The directory is on `fpath`, so compinit registers the tag and autoloads the body on first use. A command family may share one file, and a vendor script meant for `.zshrc` gets a compdef that sources it on first use (both: `_gcloud`).
 - **Stale completion dump.** `$ZSH_COMPDUMP` caches only the `command => function` mapping, and `compinit` regenerates it only when the _number_ of `_*` files in `fpath` changes. So:
   - Picked up on the next shell, no action needed: editing a compdef's body (bodies are autoloaded from `fpath` at completion time, never cached), adding a compdef, deleting one.
   - Goes **stale**, since the file count is unchanged: renaming a compdef file, or editing its `#compdef` line. The old command keeps resolving to a function file that no longer exists. Same for same-count renames in third-party `fpath` dirs (homebrew site-functions, `$ZSH_CACHE_DIR/completions`).

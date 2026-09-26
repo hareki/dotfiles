@@ -1,0 +1,9 @@
+#compdef gcloud gsutil bq
+
+# The SDK ships bash completions (via bashcompinit) meant to be sourced from .zshrc.
+# Source them on the first TAB instead: their `complete` calls re-register these
+# commands with _bash_complete, so later TABs never come back here. The guard stops
+# a command upstream no longer registers from recursing into this file forever
+source /opt/homebrew/share/google-cloud-sdk/completion.zsh.inc \
+  && [[ $_comps[$service] != _gcloud ]] \
+  && eval $_comps[$service]

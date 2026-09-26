@@ -12,6 +12,12 @@ export VISUAL='nvim'
 # eza's own default on macOS is ~/Library/Application Support; set here so the
 # eza alias below gets the theme in non-interactive shells too
 export EZA_CONFIG_DIR="$XDG_CONFIG_HOME/eza"
+# Without it, every gcloud/bq/gsutil call (and TAB) first spawns python3.14,
+# python3.13, ... through the mise shims to find a supported version (~125ms).
+# This is the interpreter the gcloud-cli cask installs with; bump it along with
+# the cask's python dependency (a stale path falls back to that probe)
+[[ -x /opt/homebrew/opt/python@3.14/libexec/bin/python ]] \
+  && export CLOUDSDK_PYTHON=/opt/homebrew/opt/python@3.14/libexec/bin/python
 
 # Use MacOS keychain to store secrets; skip when a parent shell already exported the value
 [[ -n $MERCURY_API_KEY ]] || export MERCURY_API_KEY=$(security find-generic-password -a "$USER" -s "MERCURY_API_KEY" -w)
@@ -24,12 +30,13 @@ alias fdt='fd --type dir --hidden --exclude .git'
 alias fd='gtimeout 5s fd'
 
 # PATH for every zsh, highest precedence first: same-name wrappers, tools that
-# `build` installs, mise, then Homebrew. In login shells /etc/zprofile's path_helper
-# runs after this file and moves the system dirs in front, so .zprofile re-applies
-# the list; brew shellenv prepends Homebrew, so .zshrc does too
+# `build` installs, mise, Homebrew, then `gcloud components install` binaries
+# (Homebrew links only the SDK's core commands). In login shells /etc/zprofile's
+# path_helper runs after this file and moves the system dirs in front, so .zprofile
+# re-applies the list; brew shellenv prepends Homebrew, so .zshrc does too
 typeset -a user_path=(
   ~/.local/bin/shims ~/.local/opt/bin ~/.local/share/mise/shims ~/.local/bin
-  /opt/homebrew/bin /opt/homebrew/sbin
+  /opt/homebrew/bin /opt/homebrew/sbin /opt/homebrew/share/google-cloud-sdk/bin
 )
 typeset -U path
 path=($user_path $path)

@@ -35,6 +35,6 @@ Feature-packed zsh setup with ~45ms startup. Optimized via static plugin bundlin
 ├── keymaps.zsh                     # Key bindings (Alt+F => atuin, etc.)
 ├── vi-mode.zsh                     # Vi mode + OSC52 yank/paste
 ├── tty-guard.zsh                   # Self-heal for a tty re-cooked under zle
-├── compdefs/                       # Custom completions, `#compdef`-tagged (one per command)
+├── compdefs/                       # Custom completions, `#compdef`-tagged (one per command family)
 └── functions/                      # Autoloaded utility functions (one per file)
 ```
