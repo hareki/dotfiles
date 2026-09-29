@@ -23,19 +23,17 @@ gui:
   cursorStyle: 'blinkingBar'
   scrollHeight: 6
   scrollOffMargin: 6
-  authorColors:
-    '*': '#b4befe'
   nerdFontsVersion: '3'
   spinner:
     frames:
-      - '󰄰'
-      - '󰪞'
-      - '󰪟'
-      - '󰪠'
-      - '󰪢'
-      - '󰪣'
-      - '󰪤'
-      - '󰪥'
+      - "\U000F0130"
+      - "\U000F0A9E"
+      - "\U000F0A9F"
+      - "\U000F0AA0"
+      - "\U000F0AA2"
+      - "\U000F0AA3"
+      - "\U000F0AA4"
+      - "\U000F0AA5"
   # https://github.com/catppuccin/lazygit
   theme:
     activeBorderColor:
@@ -57,6 +55,8 @@ gui:
       - '#cdd6f4'
     searchingActiveBorderColor:
       - '#f9e2af'
+    authorColors:
+      '*': '#b4befe'
 git:
   diffRenderers:
     - name: codediff
