@@ -158,7 +158,10 @@ return {
       end
 
       local noice = require('noice')
+      local utils = require('chrome.noice-nvim.utils')
+
       noice.setup(opts)
+      utils.cap_progress_lifetime()
     end,
   },
 }
