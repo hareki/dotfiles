@@ -67,7 +67,7 @@ if opts.profile then
   diffparse.parse = timed('parse', diffparse.parse)
   blob.acquire = timed('blob', blob.acquire)
   highlight.line_spans = timed('treesitter', highlight.line_spans)
-  engine.compute = timed('diff-engine', engine.compute)
+  engine.changes = timed('diff-engine', engine.changes)
   layout.content_line = timed('emit', layout.content_line)
   layout.split_line = timed('emit', layout.split_line)
   layout.hunk_header = timed('emit', layout.hunk_header)

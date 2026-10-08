@@ -1,0 +1,13 @@
+diff --git a/slider.lua b/slider.lua
+index 277670d..56be23f 100644
+--- a/slider.lua
++++ b/slider.lua
+@@ -1,8 +1,5 @@
+ local M = {}
+ 
+--- first
+-local first = 1
+-
+ -- second
+ local second = 2
+ 

@@ -49,10 +49,11 @@ end
 -- { [row] = { {s, e}, ... } } with 1-based cols, e exclusive: the shape
 -- layout.content_line takes for emphasis. Follows codediff's own per-side
 -- semantics (ui/inline.lua): the original side widens an empty tail on the
--- end line to one byte, the modified side drops it.
-local function side_char_ranges(inner_changes, side, lines)
+-- end line to one byte, the modified side drops it. `lines` are the rows the
+-- engine was given, and `offset` places them in the hunk fragment.
+local function side_char_ranges(inner_changes, side, lines, offset)
   local rows = {}
-  for _, inner in ipairs(inner_changes or {}) do
+  for _, inner in ipairs(inner_changes) do
     local r = inner[side]
     if r and not (r.start_line == r.end_line and r.start_col == r.end_col) then
       for row = r.start_line, math.min(r.end_line, #lines) do
@@ -73,10 +74,10 @@ local function side_char_ranges(inner_changes, side, lines)
         s = math.max(1, math.min(s, #text + 1))
         e = math.min(e, #text)
         if e >= s then
-          local row_ranges = rows[row]
+          local row_ranges = rows[row + offset]
           if not row_ranges then
             row_ranges = {}
-            rows[row] = row_ranges
+            rows[row + offset] = row_ranges
           end
           row_ranges[#row_ranges + 1] = { s = s, e = e + 1 }
         end
@@ -89,43 +90,45 @@ local function side_char_ranges(inner_changes, side, lines)
   return rows
 end
 
---- Diff two hunk fragments with codediff's vscode-diff engine. Returns an
---- ordered list of { old_start, old_end, new_start, new_end } line changes
---- (1-based, end exclusive, fragment-relative) with per-row char emphasis in
---- old_emph/new_emph, or nil when the engine is unavailable or timed out
---- (the caller then falls back to the patch's own line runs).
-function M.compute(frag_old, frag_new)
+-- Fill in a change's char emphasis by running codediff's vscode-diff engine
+-- over the change's own rows. Left without any when the engine is unavailable
+-- or timed out, or sees no difference at all (a CRLF-only change: fragments
+-- are CR-stripped): the rows are still drawn as changed, just without words
+-- picked out.
+local function emphasize(change, frag_old, frag_new)
   local diff = diff_module()
   if not diff then
-    return nil
+    return
   end
-  local ok, result = pcall(diff.compute_diff, frag_old, frag_new, {
+  local old_rows = vim.list_slice(frag_old, change.old_start, change.old_end - 1)
+  local new_rows = vim.list_slice(frag_new, change.new_start, change.new_end - 1)
+  local ok, result = pcall(diff.compute_diff, old_rows, new_rows, {
     max_computation_time_ms = 1000,
   })
   if not ok or type(result) ~= 'table' or result.hit_timeout then
-    return nil
+    return
   end
 
-  local changes = {}
-  for _, change in ipairs(result.changes or {}) do
-    changes[#changes + 1] = {
-      old_start = change.original.start_line,
-      old_end = change.original.end_line,
-      new_start = change.modified.start_line,
-      new_end = change.modified.end_line,
-      old_emph = side_char_ranges(change.inner_changes, 'original', frag_old),
-      new_emph = side_char_ranges(change.inner_changes, 'modified', frag_new),
-    }
+  local inner_changes = {}
+  for _, line_change in ipairs(result.changes or {}) do
+    vim.list_extend(inner_changes, line_change.inner_changes or {})
   end
-  return changes
+  change.old_emph = side_char_ranges(inner_changes, 'original', old_rows, change.old_start - 1)
+  change.new_emph = side_char_ranges(inner_changes, 'modified', new_rows, change.new_start - 1)
 end
 
---- The same change list derived from the patch's own line runs: each minus run
---- pairs with the plus run that follows it. Used when the engine is unavailable
---- (plugin missing, timeout, oversized file) or when it reports no difference at
---- all (a CRLF-only change: fragments are CR-stripped), so every renderer gets
---- one shape to consume instead of its own fallback path.
-function M.patch_changes(hunk)
+--- A hunk's line changes as the patch has them: each minus run paired with the
+--- plus run that follows it, as an ordered list of { old_start, old_end,
+--- new_start, new_end } (1-based, end exclusive, fragment-relative) with
+--- per-row char emphasis in old_emph/new_emph.
+---
+--- The rows come from the patch rather than from the engine because they are
+--- what lazygit stages: the engine is free to slide a change along lines that
+--- read the same (a blank line or a brace on either end of a deleted block),
+--- and a row drawn as changed would then not be the line that staging it
+--- stages. The engine still picks out the changed words, within each run,
+--- unless `with_emphasis` is unset (plain mode: an oversized file).
+function M.changes(hunk, frag_old, frag_new, with_emphasis)
   local lines = hunk.lines
   local changes = {}
   local i, old_row, new_row = 1, 0, 0
@@ -140,7 +143,7 @@ function M.patch_changes(hunk)
       while i <= #lines and lines[i].origin == '+' do
         plus_n, i = plus_n + 1, i + 1
       end
-      changes[#changes + 1] = {
+      local change = {
         old_start = old_row + 1,
         old_end = old_row + 1 + minus_n,
         new_start = new_row + 1,
@@ -148,6 +151,11 @@ function M.patch_changes(hunk)
         old_emph = {},
         new_emph = {},
       }
+      -- A run with only one side has nothing to compare its words against.
+      if with_emphasis and minus_n > 0 and plus_n > 0 then
+        emphasize(change, frag_old, frag_new)
+      end
+      changes[#changes + 1] = change
       old_row, new_row = old_row + minus_n, new_row + plus_n
     end
   end

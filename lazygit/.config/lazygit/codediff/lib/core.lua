@@ -65,10 +65,8 @@ end
 -- the old side's cost scale with the deletions rather than with everything the
 -- hunks show, and a pure-addition file skips its old side entirely.
 --
--- Ranges come from the engine's own change rows (hunk.changes), not the patch's
--- minus runs: the engine may realign a deletion to a row the patch never marked
--- as minus, and a row emitted outside the extracted ranges renders tinted but
--- unstyled.
+-- Ranges come from the change rows the layouts draw (hunk.changes): a row
+-- emitted outside the extracted ranges renders tinted but unstyled.
 --
 -- `base` rebases a 1-based fragment row onto whatever is being highlighted: the
 -- whole old file in full mode (hunk.old_start - 2), or the hunk's own fragment
@@ -258,8 +256,9 @@ local function render_hunk(out, file, hunk, sides, langs_by_side, ctx)
     render_hunk_inline(out, hunk, cell, ctx)
   end
 
-  -- The flag only ever marks the EOF line of a side; the engine may reorder
-  -- lines, so a single trailing note keeps it attached to the right hunk.
+  -- The flag only ever marks the EOF line of a side, which is always among the
+  -- hunk's last rows, so a single trailing note keeps it attached to the right
+  -- hunk.
   for _, hline in ipairs(hunk.lines) do
     if hline.no_newline then
       out[#out + 1] = layout.note_row('\\ no newline at end of file')
@@ -320,24 +319,15 @@ local function render_file(file, ctx)
     end
   end
 
-  -- Both the engine and the fallback renderer consume the per-hunk fragments.
   -- Changes are computed before span extraction so the old-side ranges can
-  -- follow the rows the engine actually emits (see push_minus_ranges).
+  -- follow the minus rows (see push_minus_ranges).
   local max_lnum = 0
   for _, hunk in ipairs(file.hunks) do
     hunk.frag_old = diffparse.hunk_fragment(hunk, 'old')
     hunk.frag_new = diffparse.hunk_fragment(hunk, 'new')
     local last = math.max(hunk.old_start + hunk.old_count, hunk.new_start + hunk.new_count) - 1
     max_lnum = math.max(max_lnum, last)
-    local changes = file.content_mode ~= 'plain' and engine.compute(hunk.frag_old, hunk.frag_new)
-      or nil
-    if not changes or #changes == 0 then
-      -- No engine, or it sees no difference at all (a CRLF-only change:
-      -- fragments are CR-stripped); the patch's own runs are the only truthful
-      -- rendering.
-      changes = engine.patch_changes(hunk)
-    end
-    hunk.changes = changes
+    hunk.changes = engine.changes(hunk, hunk.frag_old, hunk.frag_new, file.content_mode ~= 'plain')
   end
 
   local sides = nil
