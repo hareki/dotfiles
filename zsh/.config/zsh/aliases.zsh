@@ -14,3 +14,6 @@ alias eze="nvim ~/.zshenv"
 
 alias tree="eza --tree"
 alias submodule-update="git submodule update --init --recursive --remote"
+
+alias gh-p="gh auth switch --hostname github.com --user hareki"
+alias gh-t="gh auth switch --hostname github.com --user harvey-tonomo"
