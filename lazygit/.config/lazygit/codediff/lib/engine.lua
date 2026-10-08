@@ -1,10 +1,10 @@
 local M = {}
 
 -- codediff.nvim is required lazily and behind pcall: a missing or broken
--- plugin must degrade to the patch's own line runs, never break the render.
--- nil: not tried yet, false: unavailable. require memoizes successful loads
--- itself; the false is what keeps a broken plugin from being re-pcall'd once
--- per hunk for the daemon's lifetime.
+-- plugin must only cost the changed words their emphasis, never break the
+-- render. nil: not tried yet, false: unavailable. require memoizes successful
+-- loads itself; the false is what keeps a broken plugin from being re-pcall'd
+-- once per change for the daemon's lifetime.
 local diff_engine = nil
 
 local function diff_module()
@@ -91,17 +91,15 @@ local function side_char_ranges(inner_changes, side, lines, offset)
 end
 
 -- Fill in a change's char emphasis by running codediff's vscode-diff engine
--- over the change's own rows. Left without any when the engine is unavailable
--- or timed out, or sees no difference at all (a CRLF-only change: fragments
--- are CR-stripped): the rows are still drawn as changed, just without words
--- picked out.
-local function emphasize(change, frag_old, frag_new)
+-- over the change's own rows, `old_rows` and `new_rows`. Left without any when
+-- the engine is unavailable or timed out, or sees no difference at all (a
+-- CRLF-only change: the rows are CR-stripped): they are still drawn as changed,
+-- just without words picked out.
+local function emphasize(change, old_rows, new_rows)
   local diff = diff_module()
   if not diff then
     return
   end
-  local old_rows = vim.list_slice(frag_old, change.old_start, change.old_end - 1)
-  local new_rows = vim.list_slice(frag_new, change.new_start, change.new_end - 1)
   local ok, result = pcall(diff.compute_diff, old_rows, new_rows, {
     max_computation_time_ms = 1000,
   })
@@ -128,7 +126,7 @@ end
 --- and a row drawn as changed would then not be the line that staging it
 --- stages. The engine still picks out the changed words, within each run,
 --- unless `with_emphasis` is unset (plain mode: an oversized file).
-function M.changes(hunk, frag_old, frag_new, with_emphasis)
+function M.changes(hunk, with_emphasis)
   local lines = hunk.lines
   local changes = {}
   local i, old_row, new_row = 1, 0, 0
@@ -136,13 +134,14 @@ function M.changes(hunk, frag_old, frag_new, with_emphasis)
     if lines[i].origin == ' ' then
       old_row, new_row, i = old_row + 1, new_row + 1, i + 1
     else
-      local minus_n, plus_n = 0, 0
+      local old_rows, new_rows = {}, {}
       while i <= #lines and lines[i].origin == '-' do
-        minus_n, i = minus_n + 1, i + 1
+        old_rows[#old_rows + 1], i = lines[i].text, i + 1
       end
       while i <= #lines and lines[i].origin == '+' do
-        plus_n, i = plus_n + 1, i + 1
+        new_rows[#new_rows + 1], i = lines[i].text, i + 1
       end
+      local minus_n, plus_n = #old_rows, #new_rows
       local change = {
         old_start = old_row + 1,
         old_end = old_row + 1 + minus_n,
@@ -153,7 +152,7 @@ function M.changes(hunk, frag_old, frag_new, with_emphasis)
       }
       -- A run with only one side has nothing to compare its words against.
       if with_emphasis and minus_n > 0 and plus_n > 0 then
-        emphasize(change, frag_old, frag_new)
+        emphasize(change, old_rows, new_rows)
       end
       changes[#changes + 1] = change
       old_row, new_row = old_row + minus_n, new_row + plus_n

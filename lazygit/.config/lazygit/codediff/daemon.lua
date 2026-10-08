@@ -255,9 +255,20 @@ local function write_output(path, data)
   return ok_write
 end
 
---- Render `infile` to `outfile`, returning the status line a client reads
---- ("ok" or "err:<reason>").
-local function render_request(infile, outfile, cwd, cols, layout, metadata)
+-- The cache key for rendering `input` with `opts`. Every option core.render is
+-- handed takes part, so an option added later cannot be left out of the key and
+-- have a render made for other options served in its place.
+local function cache_key(input, opts)
+  local parts = { vim.fn.sha256(input) }
+  for name, value in vim.spairs(opts) do
+    parts[#parts + 1] = name .. '=' .. tostring(value)
+  end
+  return table.concat(parts, '\0')
+end
+
+--- Render `infile` to `outfile` with core.render `opts`, returning the status
+--- line a client reads ("ok" or "err:<reason>").
+local function render_request(infile, outfile, opts)
   last_request = uv.now()
 
   local stale = fingerprint() ~= generation
@@ -269,18 +280,10 @@ local function render_request(infile, outfile, cwd, cols, layout, metadata)
   local input = f:read('*a') or ''
   f:close()
 
-  local key = table.concat(
-    { vim.fn.sha256(input), cwd, tostring(cols), tostring(layout), tostring(metadata) },
-    '\0'
-  )
+  local key = cache_key(input, opts)
   local rendered = not stale and cache_get(key) or nil
   if not rendered then
-    local ok, result, cacheable = pcall(core.render, input, {
-      cwd = cwd,
-      cols = cols,
-      layout = layout,
-      metadata = metadata,
-    })
+    local ok, result, cacheable = pcall(core.render, input, opts)
     rendered = ok and result or input
     if ok and cacheable then
       cache_put(key, rendered)
@@ -364,7 +367,12 @@ local function dispatch(request)
   end
   -- The wire carries every field as a string; convert once here rather than at
   -- each use, so the cache key and the render see the same typed value.
-  local status = render_request(infile, outfile, cwd, tonumber(cols), layout, metadata == '1')
+  local status = render_request(infile, outfile, {
+    cwd = cwd,
+    cols = tonumber(cols),
+    layout = layout,
+    metadata = metadata == '1',
+  })
   if status == 'ok' and want_owner() then
     return 'ok:owner'
   end

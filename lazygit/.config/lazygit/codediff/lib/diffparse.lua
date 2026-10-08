@@ -164,8 +164,8 @@ local function parse_extended_header(file, line)
 end
 
 --- Reconstruct one side of a hunk from the patch itself: the lines that side
---- shows, in order. Both the diff engine and the fallback renderer consume
---- these per-hunk fragments.
+--- shows, in order. The layouts draw their rows from these per-hunk fragments,
+--- and fragment mode highlights them in place of the blobs.
 function M.hunk_fragment(hunk, side)
   local lines = {}
   local want_minus = side == 'old'

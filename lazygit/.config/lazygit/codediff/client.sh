@@ -20,17 +20,18 @@ set -Cu
 # versions it understands, and decides whether it can act on what we render by
 # looking for a version-only record ahead of everything else (it runs us once
 # on empty input to ask). So the handshake goes out first, whichever path below
-# ends up rendering: every one of them either puts a record ahead of each row
-# (lib/osc1717.lua) or passes the diff through as git wrote it, which lazygit
-# reads as a diff when it finds no records.
+# ends up rendering: every one of them either puts a record ahead of the rows
+# lazygit can place (lib/osc1717.lua) or passes the diff through as git wrote
+# it, which lazygit reads as a diff when it finds no records. The rows left
+# without one (a combined diff, a path holding a control byte) are just rows it
+# can't act on.
 META=0
-old_ifs=$IFS
-IFS=', '
-for version in ${OSC1717:-}; do
-  [ "$version" = V1 ] && META=1
-done
-IFS=$old_ifs
-[ "$META" = 1 ] && printf '\033]1717;1\007'
+case ",${OSC1717:-}," in
+  *[,\ ]V1[,\ ]*)
+    META=1
+    printf '\033]1717;1\007'
+    ;;
+esac
 
 # $TMPDIR is trailing-slash-terminated on macOS but bare on most other systems.
 # This is the one place the socket name is derived: the daemon is handed the

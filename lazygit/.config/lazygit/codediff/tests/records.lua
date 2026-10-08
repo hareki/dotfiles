@@ -98,24 +98,23 @@ for _, name in ipairs(fixtures) do
     local actual = rendered_records(render(true))
     -- A side-by-side row pairs a deletion with an addition, so only the inline
     -- layout keeps the patch's order.
+    local want = expected
     if layout == 'side-by-side' then
       table.sort(actual)
-      expected = vim.deepcopy(expected)
-      table.sort(expected)
+      want = vim.deepcopy(expected)
+      table.sort(want)
     end
-    if vim.deep_equal(actual, expected) then
-      report(true, name, layout .. ' records')
-    else
-      report(
-        false,
-        name,
-        layout .. ' records',
-        ('\n  expected %s\n  actual   %s'):format(
-          table.concat(expected, ' '),
+    local ok = vim.deep_equal(actual, want)
+    report(
+      ok,
+      name,
+      layout .. ' records',
+      not ok
+        and ('\n  expected %s\n  actual   %s'):format(
+          table.concat(want, ' '),
           table.concat(actual, ' ')
         )
-      )
-    end
+    )
 
     if render(false):find('\27]1717', 1, true) then
       report(false, name, layout .. ' without records', ': records found')

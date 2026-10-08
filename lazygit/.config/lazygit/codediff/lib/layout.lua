@@ -141,11 +141,9 @@ function M.hunk_header(path, lnum, section, cols, record)
   -- The corners sit after `width` rule cells; the bar must land in the same
   -- column, so the pad is exactly the leftover width (no -1).
   local pad = width - used
-  if record then
-    header = record .. header
-  end
   return table.concat({
     rule .. '┐' .. ansi.reset .. '\n',
+    record or '',
     header
       .. string.rep(' ', math.max(pad, 1))
       .. ansi.styled({ fg = p.decoration }, '│')
