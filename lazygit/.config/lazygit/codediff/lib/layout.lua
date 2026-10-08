@@ -106,8 +106,10 @@ local function one_line(s)
 end
 
 --- Delta-style boxed hunk header: path, the line the hunk starts at and the
---- section heading, framed by decoration-colored rules.
-function M.hunk_header(path, lnum, section, cols)
+--- section heading, framed by decoration-colored rules. `record` (an OSC 1717
+--- record, may be nil) goes on the row that names the hunk; the rules around
+--- it are decoration.
+function M.hunk_header(path, lnum, section, cols, record)
   local p = palette
   local num = tostring(lnum)
   local path_plain = one_line(path)
@@ -139,6 +141,9 @@ function M.hunk_header(path, lnum, section, cols)
   -- The corners sit after `width` rule cells; the bar must land in the same
   -- column, so the pad is exactly the leftover width (no -1).
   local pad = width - used
+  if record then
+    header = record .. header
+  end
   return table.concat({
     rule .. '┐' .. ansi.reset .. '\n',
     header
@@ -150,9 +155,10 @@ function M.hunk_header(path, lnum, section, cols)
   })
 end
 
---- One-off informational rows (rename, mode change, binary, no-newline).
-function M.note_row(text)
-  return ansi.line({ fg = palette.decoration, italic = true }, one_line(text))
+--- One-off informational rows (rename, mode change, binary, no-newline), with
+--- an OSC 1717 `record` ahead of the row when given.
+function M.note_row(text, record)
+  return (record or '') .. ansi.line({ fg = palette.decoration, italic = true }, one_line(text))
 end
 
 -- ansi.style costs two string.format calls and a concat, and a render emits one
@@ -505,9 +511,13 @@ end
 --- text, padded to the view width when tinted. A context row carries both
 --- numbers, a minus row only the old one and a plus row only the new one, so
 --- the column a number sits in tells which file it belongs to.
---- cell: { text, spans, line_type, emph }
+--- cell: { text, spans, line_type, emph, record }, where `record` is the OSC
+--- 1717 record that leads the row (may be nil).
 function M.content_line(out, cell, old_no, new_no, cols, num_w)
   local line_type = cell.line_type
+  if cell.record then
+    out[#out + 1] = cell.record
+  end
   local n, gutter_w =
     emit_gutter(out, #out, num_fmt(num_w).pair:format(old_no or '', new_no or ''), line_type)
   local col, line_bg
@@ -524,10 +534,15 @@ end
 
 -- Append one side-by-side cell of exactly `width` display cells: the side's
 -- line number, then the text, truncated when overlong. cell: { text, spans,
--- line_type, emph, lnum } or { filler = true } (codediff renders absent lines
--- as ╱ filler under a blank number). Returns the new `out` index.
+-- line_type, emph, lnum, record } or { filler = true } (codediff renders absent
+-- lines as ╱ filler under a blank number). `record`, the OSC 1717 record for
+-- the side (may be nil), leads the cell. Returns the new `out` index.
 local function render_cell(out, n, cell, width, num_w)
   local filler = cell.filler
+  if cell.record then
+    n = n + 1
+    out[n] = cell.record
+  end
   local line_type = not filler and cell.line_type or nil
   local gutter_w
   n, gutter_w =

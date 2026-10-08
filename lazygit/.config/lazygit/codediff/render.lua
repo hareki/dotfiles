@@ -13,6 +13,7 @@ local ok, rendered = pcall(function()
     cwd = vim.fn.getcwd(),
     cols = tonumber(vim.env.COLUMNS) or 120,
     layout = vim.env.CODEDIFF_LAYOUT,
+    metadata = vim.env.CODEDIFF_METADATA == '1',
     force_fragment = vim.env.CODEDIFF_FORCE_FRAGMENT == '1',
   })
 end)

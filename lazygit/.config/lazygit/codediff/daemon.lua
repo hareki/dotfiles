@@ -257,7 +257,7 @@ end
 
 --- Render `infile` to `outfile`, returning the status line a client reads
 --- ("ok" or "err:<reason>").
-local function render_request(infile, outfile, cwd, cols, layout)
+local function render_request(infile, outfile, cwd, cols, layout, metadata)
   last_request = uv.now()
 
   local stale = fingerprint() ~= generation
@@ -269,13 +269,17 @@ local function render_request(infile, outfile, cwd, cols, layout)
   local input = f:read('*a') or ''
   f:close()
 
-  local key = table.concat({ vim.fn.sha256(input), cwd, tostring(cols), tostring(layout) }, '\0')
+  local key = table.concat(
+    { vim.fn.sha256(input), cwd, tostring(cols), tostring(layout), tostring(metadata) },
+    '\0'
+  )
   local rendered = not stale and cache_get(key) or nil
   if not rendered then
     local ok, result, cacheable = pcall(core.render, input, {
       cwd = cwd,
       cols = cols,
       layout = layout,
+      metadata = metadata,
     })
     rendered = ok and result or input
     if ok and cacheable then
@@ -315,8 +319,10 @@ end
 -- transport cheaper than the render it asks for.
 --
 -- One request per connection, one line, tab separated, answered with one line:
---   render\t<in>\t<out>\t<cols>\t<layout>\t<cwd>  =>  ok | ok:owner | err:<why>
+--   render\t<in>\t<out>\t<cols>\t<layout>\t<metadata>\t<cwd>
+--                                    =>  ok | ok:owner | err:<why>
 --   owner\t<pid>  (0: the client found none)      =>  ok
+-- <metadata> is 1 when the render is to carry OSC 1717 records, 0 otherwise.
 -- cwd comes last because it is the only field that can legitimately contain a
 -- tab, so it simply takes the rest of the line.
 
@@ -351,14 +357,14 @@ local function dispatch(request)
     end
     return 'ok'
   end
-  local infile, outfile, cols, layout, cwd =
-    request:match('^render\t([^\t]*)\t([^\t]*)\t([^\t]*)\t([^\t]*)\t(.*)$')
+  local infile, outfile, cols, layout, metadata, cwd =
+    request:match('^render\t([^\t]*)\t([^\t]*)\t([^\t]*)\t([^\t]*)\t([01])\t(.*)$')
   if not infile then
     return 'err:request'
   end
   -- The wire carries every field as a string; convert once here rather than at
   -- each use, so the cache key and the render see the same typed value.
-  local status = render_request(infile, outfile, cwd, tonumber(cols), layout)
+  local status = render_request(infile, outfile, cwd, tonumber(cols), layout, metadata == '1')
   if status == 'ok' and want_owner() then
     return 'ok:owner'
   end

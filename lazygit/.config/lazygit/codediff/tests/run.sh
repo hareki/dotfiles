@@ -5,7 +5,9 @@
 #   tests/run.sh --update  regenerate the golden .out files
 #
 # Renders use CODEDIFF_FORCE_FRAGMENT=1 (no git blob lookups) and a fixed width
-# so fixtures are reproducible outside the repos they were captured from.
+# so fixtures are reproducible outside the repos they were captured from. The
+# OSC 1717 records lazygit asks for are checked separately, against the
+# fixtures' own patches (see records.lua).
 set -u
 
 DIR=$(cd "$(dirname "$0")" && pwd)
@@ -48,5 +50,7 @@ for diff_file in "$DIR"/fixtures/*.diff; do
     fi
   done
 done
+
+nvim --clean -l "$DIR/records.lua" 2>/dev/null || fail=1
 
 exit $fail

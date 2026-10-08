@@ -16,6 +16,22 @@
 # where the target is a file we already own.
 set -Cu
 
+# lazygit offers its OSC 1717 diff-line protocol through $OSC1717, naming the
+# versions it understands, and decides whether it can act on what we render by
+# looking for a version-only record ahead of everything else (it runs us once
+# on empty input to ask). So the handshake goes out first, whichever path below
+# ends up rendering: every one of them either puts a record ahead of each row
+# (lib/osc1717.lua) or passes the diff through as git wrote it, which lazygit
+# reads as a diff when it finds no records.
+META=0
+old_ifs=$IFS
+IFS=', '
+for version in ${OSC1717:-}; do
+  [ "$version" = V1 ] && META=1
+done
+IFS=$old_ifs
+[ "$META" = 1 ] && printf '\033]1717;1\007'
+
 # $TMPDIR is trailing-slash-terminated on macOS but bare on most other systems.
 # This is the one place the socket name is derived: the daemon is handed the
 # result through CODEDIFF_PIPE at spawn time rather than rebuilding it in Lua.
@@ -66,7 +82,7 @@ find_owner() {
 # can legitimately contain a tab.
 reply=""
 request_pipe() {
-  reply=$(printf 'render\t%s\t%s\t%s\t%s\t%s\n' "$IN" "$OUT" "$COLS" "$LAYOUT" "$PWD" | nc -U "$PIPE" 2>/dev/null)
+  reply=$(printf 'render\t%s\t%s\t%s\t%s\t%s\t%s\n' "$IN" "$OUT" "$COLS" "$LAYOUT" "$META" "$PWD" | nc -U "$PIPE" 2>/dev/null)
   case "$reply" in
     ok | ok:owner) return 0 ;;
     *) return 1 ;;
@@ -134,7 +150,7 @@ fi
 # crash, OOM, a signal) with part of the render already on stdout: appending the
 # raw diff to a half-written one would show the hunks twice.
 rm -f "$OUT"
-if CODEDIFF_LAYOUT="$LAYOUT" nvim --clean -l "$DIR/render.lua" <"$IN" >"$OUT" 2>/dev/null; then
+if CODEDIFF_LAYOUT="$LAYOUT" CODEDIFF_METADATA="$META" nvim --clean -l "$DIR/render.lua" <"$IN" >"$OUT" 2>/dev/null; then
   cat "$OUT"
 else
   cat "$IN"

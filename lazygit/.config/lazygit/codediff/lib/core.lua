@@ -5,6 +5,7 @@ local engine = require('lib.engine')
 local highlight = require('lib.highlight')
 local langs = require('lib.langs')
 local layout = require('lib.layout')
+local osc1717 = require('lib.osc1717')
 local passthrough = require('lib.passthrough')
 local util = require('lib.util')
 
@@ -188,24 +189,29 @@ end
 
 -- Inline layout (codediff.nvim's inline view): deleted blocks render above
 -- their inserted blocks, context lines stay undecorated.
-local function render_hunk_inline(out, hunk, cell, ctx)
+local function render_hunk_inline(out, hunk, cell, ctx, record)
   local function emit(c, old_no, new_no)
     layout.content_line(out, c, old_no, new_no, ctx.cols, ctx.num_w)
   end
 
   -- Context rows render from the new side, so their old-side number is not on
   -- the cell and comes from the walker's old pointer instead.
-  local old_base = hunk.old_start - 1
+  local old_base, new_base = hunk.old_start - 1, hunk.new_start - 1
   walk_hunk(hunk, function(old_row, new_row)
     local c = cell('new', new_row, 'context')
+    c.record = record('c', c.lnum)
     emit(c, old_base + old_row, c.lnum)
   end, function(change)
+    -- Every deletion of a change sits at the new-file line its additions start at.
+    local at = new_base + change.new_start
     for row = change.old_start, change.old_end - 1 do
       local c = cell('old', row, 'minus', change.old_emph[row])
+      c.record = record('d', at, c.lnum)
       emit(c, c.lnum, nil)
     end
     for row = change.new_start, change.new_end - 1 do
       local c = cell('new', row, 'plus', change.new_emph[row])
+      c.record = record('a', c.lnum)
       emit(c, nil, c.lnum)
     end
   end)
@@ -213,29 +219,39 @@ end
 
 -- Side-by-side layout (codediff.nvim's default view): original left,
 -- modified right, absent lines shown as filler.
-local function render_hunk_split(out, hunk, cell, ctx)
+local function render_hunk_split(out, hunk, cell, ctx, record)
   local function row(left, right)
     layout.split_line(out, left, right, ctx.cols, ctx.num_w)
   end
 
+  local new_base = hunk.new_start - 1
   walk_hunk(hunk, function(old_row, new_row)
-    row(cell('old', old_row, 'context'), cell('new', new_row, 'context'))
+    local left, right = cell('old', old_row, 'context'), cell('new', new_row, 'context')
+    -- Both sides show the one context line, which is numbered in the new file.
+    left.record = record('c', right.lnum)
+    right.record = left.record
+    row(left, right)
   end, function(change)
+    local at = new_base + change.new_start
     local old_n = change.old_end - change.old_start
     local new_n = change.new_end - change.new_start
     for k = 0, math.max(old_n, new_n) - 1 do
-      local left = k < old_n
-          and cell('old', change.old_start + k, 'minus', change.old_emph[change.old_start + k])
-        or { filler = true }
-      local right = k < new_n
-          and cell('new', change.new_start + k, 'plus', change.new_emph[change.new_start + k])
-        or { filler = true }
+      local left = { filler = true }
+      if k < old_n then
+        left = cell('old', change.old_start + k, 'minus', change.old_emph[change.old_start + k])
+        left.record = record('d', at, left.lnum)
+      end
+      local right = { filler = true }
+      if k < new_n then
+        right = cell('new', change.new_start + k, 'plus', change.new_emph[change.new_start + k])
+        right.record = record('a', right.lnum)
+      end
       row(left, right)
     end
   end)
 end
 
-local function render_hunk(out, file, hunk, sides, langs_by_side, ctx)
+local function render_hunk(out, file, hunk, sides, langs_by_side, ctx, record)
   local function cell(side, row, line_type, emph)
     local frag = side == 'old' and hunk.frag_old or hunk.frag_new
     local text = frag[row]
@@ -251,9 +267,9 @@ local function render_hunk(out, file, hunk, sides, langs_by_side, ctx)
   end
 
   if ctx.split then
-    render_hunk_split(out, hunk, cell, ctx)
+    render_hunk_split(out, hunk, cell, ctx, record)
   else
-    render_hunk_inline(out, hunk, cell, ctx)
+    render_hunk_inline(out, hunk, cell, ctx, record)
   end
 
   -- The flag only ever marks the EOF line of a side, which is always among the
@@ -277,20 +293,33 @@ local function render_file(file, ctx)
   -- path without needing to know that (see parse_extended_header).
   local display_path = file.new_path or file.old_path or '?'
 
+  -- The OSC 1717 record for a row of this file, or nil when the render wasn't
+  -- asked for records. They name the file by the path git's patch has for it,
+  -- which is how lazygit finds the line again.
+  local patch_path = file.new_path or file.old_path
+  local record_path = ctx.metadata and patch_path and osc1717.usable_path(patch_path)
+  local function record(kind, new_line, old_line)
+    return record_path and osc1717.record(kind, new_line, old_line, record_path) or nil
+  end
+
+  -- The notes stand in for the file header git's patch opens with.
   if file.renamed_from and file.renamed_to then
-    out[#out + 1] = layout.note_row('renamed: ' .. file.renamed_from .. ' => ' .. file.renamed_to)
+    out[#out + 1] =
+      layout.note_row('renamed: ' .. file.renamed_from .. ' => ' .. file.renamed_to, record('f'))
   end
   if file.old_mode and file.new_mode and not file.is_new and not file.is_deleted then
-    out[#out + 1] = layout.note_row('mode changed: ' .. file.old_mode .. ' => ' .. file.new_mode)
+    out[#out + 1] =
+      layout.note_row('mode changed: ' .. file.old_mode .. ' => ' .. file.new_mode, record('f'))
   end
   if file.is_binary then
-    out[#out + 1] = layout.note_row('binary: ' .. display_path)
+    out[#out + 1] = layout.note_row('binary: ' .. display_path, record('f'))
     return table.concat(out)
   end
   if #file.hunks == 0 then
     if #out == 0 and (file.is_new or file.is_deleted) then
       out[#out + 1] = layout.note_row(
-        (file.is_new and 'new empty file: ' or 'deleted empty file: ') .. display_path
+        (file.is_new and 'new empty file: ' or 'deleted empty file: ') .. display_path,
+        record('f')
       )
     end
     return table.concat(out)
@@ -347,8 +376,16 @@ local function render_file(file, ctx)
     -- A pure-deletion hunk has new_count == 0 and a new_start pointing at the
     -- line *before* it (0 for a whole-file delete), so anchor on the old side.
     local start_lnum = hunk.new_count > 0 and hunk.new_start or hunk.old_start
-    out[#out + 1] = layout.hunk_header(display_path, start_lnum, hunk.heading, ctx.cols)
-    render_hunk(out, file, hunk, sides, langs_by_side, ctx)
+    -- The record carries git's own @@ +number even so: lazygit numbers a hunk
+    -- header by its new side.
+    out[#out + 1] = layout.hunk_header(
+      display_path,
+      start_lnum,
+      hunk.heading,
+      ctx.cols,
+      record('h', hunk.new_start)
+    )
+    render_hunk(out, file, hunk, sides, langs_by_side, ctx, record)
     hunk.frag_old, hunk.frag_new, hunk.changes = nil, nil, nil
     hunk.frag_old_spans, hunk.frag_new_spans = nil, nil
   end
@@ -364,6 +401,8 @@ end
 ---   cols   target width (COLUMNS)
 ---   layout "side-by-side" for the split view; anything else renders inline
 ---   force_fragment  skip git blob lookups (repo-independent fixtures)
+---   metadata  put an OSC 1717 record ahead of each row lazygit can act on
+---             (see lib/osc1717.lua)
 --- Returns the document plus a cacheable flag: false when the render read the
 --- worktree (an unstaged diff), whose files can change under an unchanged diff,
 --- and false when the wall-clock highlight deadline degraded the output --
@@ -399,6 +438,7 @@ function M.render(input, opts)
     cols = opts.cols or 120,
     budget = LIMITS.max_highlighted_lines,
     split = opts.layout == 'side-by-side',
+    metadata = opts.metadata or false,
     hl_deadline = uv.hrtime() + LIMITS.max_highlight_ms * 1e6,
     hl_degraded = false, -- set once the deadline costs any row its spans
     num_w = nil, -- line-number gutter digits, set per file
