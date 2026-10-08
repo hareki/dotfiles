@@ -1,0 +1,5 @@
+#compdef sync-forks
+
+_arguments \
+  '(-j --jobs)'{-j+,--jobs=}'[Sync <n> forks at a time (default 10)]:number of jobs' \
+  '(- *)--help[Show usage info]'

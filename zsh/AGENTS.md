@@ -64,6 +64,7 @@ Plugins are declared in `.zplugins` and managed by **Antidote**. Antidote static
 profile               # Profile zsh startup time
 compz                 # Recompile .zshrc to bytecode
 sync-dots zsh         # Deploy zsh config via stow
+sync-forks [-j <n>]   # Merge upstream into every hareki fork's default branch, n forks at a time (default 10), report conflicts
 yay                   # Update all package managers (brew, antidote, mise, tpm)
 build <target>        # Build a local tool from source into ~/.local/opt/bin (atuin, eza, lazygit, television, worktrunk; tmux goes to /usr/local)
 cts                   # Toggle git skip-worktree on claude-code settings.json (model/effort churn)

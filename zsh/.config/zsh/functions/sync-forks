@@ -1,0 +1,99 @@
+#!/bin/zsh
+
+# Stand-in for the wei/pull GitHub app: merges upstream into each fork's default
+# branch through the API behind GitHub's "Sync fork" button. A conflicting merge
+# leaves the fork untouched, so those are only reported
+sync-forks() {
+  local owner=hareki
+  # Fork names (not upstream ones) whose drift is accepted, so they are skipped instead of synced
+  local -a ignored=(eagle.nvim mason-registry maple-font)
+  local -a opt_jobs=(-j 10) opt_help forks conflicted failed
+  local jobs list name branch upstream result state detail msg fifo slots
+
+  zparseopts -D -F -K -- j:=opt_jobs -jobs:=opt_jobs -help=opt_help || return 1
+  # zparseopts keeps the "=" of --jobs=N
+  jobs=${opt_jobs[-1]#=}
+  # Leftover arguments are rejected: `sync-forks <fork>` would otherwise sync every fork
+  if (( $#opt_help || $# )) || [[ $jobs != <1-> ]]; then
+    print "Usage: sync-forks [-j|--jobs <n>]"
+    print "Merge upstream into every fork of $owner, <n> forks at a time (default 10)"
+    return $(( ! $#opt_help ))
+  fi
+
+  # Scoped to this call instead of `gh auth switch`, which would flip the active
+  # account under every other shell while this runs
+  local -x GH_TOKEN
+  GH_TOKEN=$(gh auth token --user $owner) || return 1
+
+  # Archived forks are filtered here, since --no-archived moves the listing onto
+  # the slower search API (~1s)
+  list=$(gh repo list $owner --fork --limit 1000 --json name,defaultBranchRef,parent,isArchived \
+    --jq '.[] | select(.isArchived | not) | .name, .defaultBranchRef.name, "\(.parent.owner.login)/\(.parent.name)"') || return 1
+  # gh prints a null field (an empty fork has no default branch) as an empty line, which
+  # unquoted (f) would drop, shifting every later name/branch/upstream triple
+  [[ -n $list ]] && forks=("${(@f)list}")
+  # The slots are pre-filled before anything reads them, and print blocks once they
+  # exceed the FIFO's buffer (8KB on macOS), so they are capped at the fork count
+  (( jobs > $#forks / 3 )) && jobs=$(( $#forks / 3 ))
+
+  print-header "Syncing forks of $owner"
+  # A FIFO pre-filled with one line per slot: each sync takes a line to start and
+  # puts it back when done, so a slow merge never stalls the free slots (zargs -P
+  # runs fixed batches, and zsh's wait has no -n). The subshell owns the FIFO's fd,
+  # so nothing is left open in this shell, even on Ctrl-C
+  {
+    fifo=$(mktemp -u) && mkfifo $fifo && exec {slots}<>$fifo || exit 1
+    rm $fifo
+    repeat $jobs print -u $slots
+
+    for name branch upstream in "${forks[@]}"; do
+      if (( $ignored[(Ie)$name] )); then
+        print -r -- $name ignored
+        continue
+      fi
+
+      read -u $slots
+      {
+        result=$(gh api -X POST repos/$owner/$name/merge-upstream -f branch=$branch --jq .merge_type 2>&1)
+        # On errors gh prints the raw body without a trailing newline, so its own
+        # "gh: <message> (HTTP <code>)" line ends up glued to the end of it
+        case $?,$result in
+          0,none)         print -r -- $name none ;;
+          0,*)            print -r -- $name synced "$upstream:$branch ($result)" ;;
+          *'(HTTP 409)'*) print -r -- $name conflict $upstream:$branch ;;
+          *)              print -r -- $name failed ${${result##*gh: }%%$'\n'*} ;;
+        esac
+        print -u $slots
+      } &
+    done
+    wait
+  } | while read -r name state detail; do
+    # The syncs run in subshells, so they report one line each and the tallying
+    # happens here, since zsh runs a pipeline's last command in the current shell
+    case $state in
+      ignored)  msg="%F{yellow}ignored%f" ;;
+      none)     msg="up to date" ;;
+      synced)   msg="%F{green}synced%f with" ;;
+      conflict) msg="%F{red}merge conflict%f with"; conflicted+=($name) ;;
+      *)        msg="%F{red}failed%f,"; failed+=("$name: $detail") ;;
+    esac
+    msg="%F{blue}$name%f: $msg"
+    # Only the fixed text goes through prompt expansion: $detail carries branch names
+    # and API messages, and PROMPT_SUBST would run any $(...) in them. An empty
+    # $detail drops out as an argument, so no trailing space
+    print -r -- ${(%)msg} $detail
+  done
+  (( pipestatus[1] )) && return 1
+
+  {
+    if (( $#conflicted )); then
+      print -P "\n%F{red}==> Merge conflicts, resolve them or add the fork to the ignore list:%f"
+      print -l "  https://github.com/$owner/"$^conflicted
+    fi
+    if (( $#failed )); then
+      print -P "\n%F{red}==> Failed to sync:%f"
+      print -rl -- "  "$^failed
+    fi
+  } >&2
+  (( ! $#conflicted && ! $#failed ))
+}
