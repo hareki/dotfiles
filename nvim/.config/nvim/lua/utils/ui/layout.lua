@@ -91,6 +91,16 @@ function M.side_size(category, variant, with_border)
   return width + border, height + border
 end
 
+--- Geometry of the side preview float, docked left of the side panel it's relative to:
+--- vertically centered, with a 3-column gap that fits its border
+--- @return { width: integer, height: integer, row: integer, col: integer } geometry
+function M.side_preview()
+  local width, height = M.side_size('side_preview', 'md')
+  local _, row = M.center(width, height)
+
+  return { width = width, height = height, row = row, col = -width - 3 }
+end
+
 --- Height cap for inline popups (gitsigns, eagle, nvim-notify); pass the
 --- function itself so the cap follows terminal resizes
 --- @return integer max_height Height in rows
@@ -118,12 +128,13 @@ end
 --- @return utils.ui.layout.WinConfig config Window config with width, height, col, row
 function M.popup(size, with_border)
   local window_w, window_h
+  local preset = Conf.size.popup[size] -- nil for 'input'
 
   if size == 'input' then
     window_w = computed_input_size.width
     window_h = computed_input_size.height
   else
-    window_w, window_h = resolve_dimensions(Conf.size.popup[size])
+    window_w, window_h = resolve_dimensions(preset)
   end
 
   local col, row = M.center(window_w, window_h)
@@ -134,7 +145,7 @@ function M.popup(size, with_border)
     width = window_w + (with_border and 2 or 0),
     height = window_h + (with_border and 2 or 0),
     col = col,
-    row = row - (size == 'full' and 1 or 0), -- Off center by one row for full screen to cover the winbar
+    row = row + (preset and preset.ROW_OFFSET or 0),
   }
 end
 

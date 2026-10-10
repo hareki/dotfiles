@@ -7,10 +7,6 @@ local filtered_descriptions = {
   'autopairs map key', -- nvim-autopairs
 }
 
-local function is_ds_store(path)
-  return type(path) == 'string' and path:match('%.DS_Store$') ~= nil
-end
-
 --- Query spec descriptions from which-key mappings
 --- @param lhs string The left-hand side (key binding) to search for (required)
 --- @param mode string The mode to search for (required)
@@ -31,17 +27,6 @@ local function query_spec_desc(lhs, mode, buffer)
   end
 
   return nil
-end
-
---- Transform function for file picker to filter out .DS_Store files
---- @param item snacks.picker.Item The picker item to transform
---- @return snacks.picker.Item | false item The item or false to filter out
-function M.files_transform(item)
-  if is_ds_store(item.file) then
-    return false
-  end
-
-  return item
 end
 
 --- Transform function for keymap picker to enrich with which-key descriptions

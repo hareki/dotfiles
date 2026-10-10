@@ -24,16 +24,7 @@ return {
 
     opts = function()
       local actions = require('telescope.actions')
-      local builtin = require('telescope.builtin')
       local utils = require('features.navigation.telescope-nvim.utils')
-
-      -- Unify the preview title for all pickers
-      local default_picker_configs = {}
-      for picker_name, _ in pairs(builtin) do
-        default_picker_configs[picker_name] = {
-          preview_title = Conf.picker.TELESCOPE_PREVIEW_TITLE,
-        }
-      end
 
       utils.install_vertical_layout()
       utils.setup_previewer_autocmd()
@@ -116,54 +107,6 @@ return {
             },
           },
         },
-
-        pickers = vim.tbl_deep_extend('force', default_picker_configs, {
-          lsp_definitions = {
-            mappings = {
-              n = {
-                ['<c-t>'] = utils.trouble_open('lsp_definitions'),
-              },
-              i = {
-                ['<c-t>'] = utils.trouble_open('lsp_definitions'),
-              },
-            },
-          },
-          lsp_references = {
-            mappings = {
-              n = {
-                ['<c-t>'] = utils.trouble_open('lsp_references'),
-              },
-              i = {
-                ['<c-t>'] = utils.trouble_open('lsp_references'),
-              },
-            },
-          },
-
-          find_files = {
-            find_command = utils.find_command,
-            hidden = true,
-          },
-
-          diagnostics = {
-            mappings = {
-              n = {
-                ['<c-t>'] = utils.trouble_open('diagnostics'),
-              },
-              i = {
-                ['<c-t>'] = utils.trouble_open('diagnostics'),
-              },
-            },
-          },
-          buffers = {
-            select_current = true,
-            -- https://github.com/nvim-telescope/telescope.nvim/issues/1145#issuecomment-903161099
-            mappings = {
-              n = {
-                ['x'] = actions.delete_buffer,
-              },
-            },
-          },
-        }),
       }
     end,
 
@@ -171,9 +114,7 @@ return {
       local telescope = require('telescope')
 
       telescope.setup(opts)
-      for _, ext in ipairs({ 'fzf' }) do
-        telescope.load_extension(ext)
-      end
+      telescope.load_extension('fzf')
     end,
   },
 }

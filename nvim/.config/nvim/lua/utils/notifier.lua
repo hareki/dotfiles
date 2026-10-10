@@ -1,8 +1,6 @@
 -- trouble.nvim notifier with supported custom highlight groups
 -- https://github.com/folke/trouble.nvim/blob/main/lua/trouble/util.lua
 
-local render_markdown_evict = require('utils.render-markdown-evict')
-
 --- @class utils.notifier
 local M = {}
 
@@ -142,12 +140,9 @@ function M.notify(msg, opts)
 
   -- Local autocmd_id closes over both on_open and on_close
   local autocmd_id
-  -- Buffer of the open notification window, for render-markdown eviction
-  local notif_buf
 
   local function on_open(win)
     local buf = vim.api.nvim_win_get_buf(win)
-    notif_buf = buf
 
     apply_highlight(win)
 
@@ -175,13 +170,6 @@ function M.notify(msg, opts)
       pcall(vim.api.nvim_del_autocmd, autocmd_id)
       autocmd_id = nil
     end
-
-    -- Each notification gets a fresh buffer; without eviction its
-    -- render-markdown entries would outlive it for the whole session
-    if is_markdown and notif_buf then
-      render_markdown_evict.evict(notif_buf)
-      notif_buf = nil
-    end
   end
 
   return vim.notify(msg, opts.level, {
@@ -191,19 +179,25 @@ function M.notify(msg, opts)
   })
 end
 
+--- Notify at a level, with its body highlight unless opts overrides it
+--- @param level integer
+--- @param default_hl string
+--- @param msg utils.notifier.Message
+--- @param opts? utils.notifier.NotifierOpts
+--- @return any handle The notification record
+local function notify_at(level, default_hl, msg, opts)
+  return M.notify(
+    msg,
+    vim.tbl_extend('force', { level = level, default_hl = default_hl }, opts or {})
+  )
+end
+
 --- Display an info-level notification with optional custom highlights
 --- @param msg utils.notifier.Message String, string array, or tuple list for rich formatting
 --- @param opts? utils.notifier.NotifierOpts Notification options (title, height_offset, etc.)
 --- @return any handle The notification record
 function M.info(msg, opts)
-  return M.notify(
-    msg,
-    vim.tbl_extend(
-      'force',
-      { level = vim.log.levels.INFO, default_hl = 'NotifyINFOBody' },
-      opts or {}
-    )
-  )
+  return notify_at(vim.log.levels.INFO, 'NotifyINFOBody', msg, opts)
 end
 
 --- Display a warning-level notification with optional custom highlights
@@ -211,14 +205,7 @@ end
 --- @param opts? utils.notifier.NotifierOpts Notification options (title, height_offset, etc.)
 --- @return any handle The notification record
 function M.warn(msg, opts)
-  return M.notify(
-    msg,
-    vim.tbl_extend(
-      'force',
-      { level = vim.log.levels.WARN, default_hl = 'NotifyWARNBody' },
-      opts or {}
-    )
-  )
+  return notify_at(vim.log.levels.WARN, 'NotifyWARNBody', msg, opts)
 end
 
 --- Display an error-level notification with optional custom highlights
@@ -226,14 +213,7 @@ end
 --- @param opts? utils.notifier.NotifierOpts Notification options (title, height_offset, etc.)
 --- @return any handle The notification record
 function M.error(msg, opts)
-  return M.notify(
-    msg,
-    vim.tbl_extend(
-      'force',
-      { level = vim.log.levels.ERROR, default_hl = 'NotifyERRORBody' },
-      opts or {}
-    )
-  )
+  return notify_at(vim.log.levels.ERROR, 'NotifyERRORBody', msg, opts)
 end
 
 --- Display a debug notification with vim.inspect output in a code block

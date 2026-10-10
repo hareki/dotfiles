@@ -196,9 +196,7 @@ return {
         preview_title = Conf.picker.PREVIEW_TITLE,
       }
 
-      -- Wrapping this with Defer.on_exported_call will result in `nvim_create_augroup must not be called in a fast event context` error
-      local transformers = require('core.snacks-nvim.utils.transformers')
-
+      local transformers = Defer.on_exported_call('core.snacks-nvim.utils.transformers')
       local zen = Defer.on_exported_call('core.snacks-nvim.utils.zen')
       local formatters = Defer.on_exported_call('core.snacks-nvim.utils.formatters')
       local sorters = Defer.on_exported_call('core.snacks-nvim.utils.sorters')
@@ -216,7 +214,7 @@ return {
           end,
         },
         bigfile = { enabled = true },
-        input = { enabled = true, start_in_insert = true },
+        input = { enabled = true },
         lazygit = { enabled = true, configure = false },
         scratch = { enabled = true },
         rename = { enabled = true },
@@ -282,8 +280,6 @@ return {
                 ['<Tab>'] = { 'toggle_preview_focus', mode = { 'i', 'n' } },
 
                 ['<C-t>'] = { 'snacks_to_trouble', mode = { 'i', 'n' } },
-                ['<C-Down>'] = { 'history_forward', mode = { 'i', 'n' } },
-                ['<C-Up>'] = { 'history_back', mode = { 'i', 'n' } },
 
                 ['<C-c>'] = { 'cancel', mode = { 'i', 'n' } },
                 ['<C-p>'] = { 'select_and_prev', mode = { 'i', 'n' } },
@@ -295,7 +291,7 @@ return {
             },
           },
 
-          layout = { cycle = true, preset = 'preview_below' }, -- Default layout
+          layout = { preset = 'preview_below' }, -- Default layout
           layouts = {
             preview_below = layouts.preview_below(layout_opts),
             preview_right = layouts.preview_right(layout_opts),
@@ -328,8 +324,8 @@ return {
             },
 
             files = {
-              transform = transformers.files_transform,
               hidden = true,
+              exclude = { '.DS_Store' },
             },
 
             highlights = {

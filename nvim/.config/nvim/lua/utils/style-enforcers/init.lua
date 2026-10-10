@@ -143,25 +143,12 @@ function M.run(opts)
     bufnr = buf,
   })
 
-  -- Returns ok, err instead of throwing: an unwritable buffer (E32 no-name,
-  -- E45 readonly) would otherwise escape the async pipeline and leak the lock.
   local function write()
     if not save then
       return true
     end
 
-    if not vim.api.nvim_buf_is_valid(buf) then
-      return true
-    end
-
-    if not vim.bo[buf].modified then
-      return true
-    end
-
-    local ok, err = pcall(vim.api.nvim_buf_call, buf, function()
-      vim.cmd.write()
-    end)
-
+    local ok, err = engine.write(buf)
     if not ok then
       Notifier.error('Write failed: ' .. tostring(err), { title = 'Style Enforcer' })
     end
@@ -176,30 +163,25 @@ function M.run(opts)
       return
     end
 
-    local total = #engine.names_for_buf(buf) + (formatted and 1 or 0)
-    if total == 0 then
-      local write_ok, write_err = write()
-      cleanup(write_ok, write_err)
-      return
-    end
-
-    local done_count = formatted and 1 or 0
-    local percentage = 100 / total
+    -- The format step, when it ran, counts as one finished step of the progress
+    local done_offset = formatted and 1 or 0
     local had_lint_error = false
 
     local ok, err = pcall(function()
       engine.run_for_buf({
         bufnr = buf,
-        on_start = function(linter_name)
+        on_start = function(linter_name, idx, total)
           if settled then
             return
           end
 
           local label = 'Linting (' .. linter_name .. ')'
-          if done_count == 0 then
+          -- A failed enforcer ends the run, so every one before idx has finished
+          local done = done_offset + idx - 1
+          if done == 0 then
             progress:start(label)
           else
-            progress:report(label, percentage * done_count)
+            progress:report(label, 100 * done / (done_offset + total))
           end
         end,
         on_done = function(linter_name, linter_ok, lint_error)
@@ -220,8 +202,6 @@ function M.run(opts)
               })
             end
           end
-
-          done_count = done_count + (linter_name == 'none' and 0 or 1)
         end,
         on_complete = function()
           if settled then
@@ -326,7 +306,7 @@ function M.run_all(debug)
       return '[No Name]'
     end
     local path_utils = require('utils.path')
-    return path_utils.get_relative_path(name, vim.uv.cwd() or vim.fn.getcwd())
+    return path_utils.get_relative_path(name)
   end
 
   local function show_results()

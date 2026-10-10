@@ -13,9 +13,7 @@ return {
       filetypes = filetypes,
       options = {
         parsers = {
-          css = true,
-          css_fn = true,
-          hex = { enable = true },
+          css = true, -- Preset: names, hex, rgb, hsl, oklch, css_var (narrowed below)
           css_var = { enable = false },
           names = { enable = false },
         },

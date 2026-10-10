@@ -6,16 +6,10 @@ local M = {}
 --- @param b snacks.picker.Item Second item to compare
 --- @return boolean less True if a should come before b
 function M.buffer_sort(a, b)
-  -- Safely get modified state with pcall to handle fast event context
-  local function get_modified(bufnr)
-    local ok, modified = pcall(function()
-      return vim.bo[bufnr].modified
-    end)
-    return ok and modified or false
-  end
-
-  local a_modified = get_modified(a.buf)
-  local b_modified = get_modified(b.buf)
+  -- The matcher sorts from snacks' async loop, a fast event context where vim.bo raises
+  -- E5560; the buffers finder's getbufinfo() snapshot is safe to read there
+  local a_modified = a.info.changed == 1
+  local b_modified = b.info.changed == 1
 
   -- Modified buffers first
   if a_modified ~= b_modified then

@@ -63,15 +63,6 @@ local function entries_for_buf(bufnr)
   return matched
 end
 
---- Get the names of the enforcers that apply to a buffer (sorted by `order`, then registration order)
---- @param bufnr integer
---- @return string[] names
-function M.names_for_buf(bufnr)
-  return vim.tbl_map(function(entry)
-    return entry.name
-  end, entries_for_buf(bufnr))
-end
-
 --- Internal: run the matched enforcers sequentially
 --- @param matched utils.style-enforcers.Entry[]
 --- @param opts utils.style-enforcers.RunOpts
@@ -112,24 +103,22 @@ end
 --- @param opts utils.style-enforcers.RunOpts Options with bufnr, on_start, on_done, on_complete callbacks
 --- @return nil
 function M.run_for_buf(opts)
-  local bufnr = opts.bufnr
-  if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
-    if opts.on_done then
-      opts.on_done('none', false, 'invalid buffer')
-    end
-    if opts.on_complete then
-      opts.on_complete()
-    end
-    return
+  run_next(entries_for_buf(opts.bufnr), opts, 1)
+end
+
+--- Write the buffer to disk if it has unsaved changes
+--- Returns ok, err instead of throwing: an unwritable buffer (E32 no name, E45 readonly,
+--- E212 missing dir) would otherwise escape the async pipeline, e.g. from inside an
+--- enforcer's LSP response callback, and leak the buffer lock.
+--- @param bufnr integer
+--- @return boolean ok
+--- @return string? err
+function M.write(bufnr)
+  if not vim.api.nvim_buf_is_valid(bufnr) then
+    return true
   end
 
-  local matched = entries_for_buf(bufnr)
-
-  if #matched == 0 and opts.on_done then
-    opts.on_done('none', true) -- no enforcers, no error
-  end
-
-  run_next(matched, opts, 1)
+  return pcall(vim.api.nvim_buf_call, bufnr, vim.cmd.update)
 end
 
 return M

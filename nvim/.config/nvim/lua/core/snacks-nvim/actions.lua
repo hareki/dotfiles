@@ -16,30 +16,23 @@ function M.toggle_preview(picker)
   end
 end
 
---- Move the list by half a page
+--- Move the list cursor by half a page
 --- @param picker snacks.Picker
---- @param direction 'up' | 'down' The scroll direction
-local function scroll_half_page(picker, direction)
-  local list_win = picker.layout.opts.wins.list.win
-  if list_win == nil then
-    error("Can't scroll picker list: no list window found")
-  end
-
-  local h = vim.api.nvim_win_get_height(list_win)
-  local row = vim.api.nvim_win_get_cursor(list_win)[1]
-  local target_row = row + (math.max(1, math.floor(h / 2))) * (direction == 'up' and -1 or 1)
-  local idx = picker.list:row2idx(target_row)
-  picker.list:_move(idx, true, true)
+--- @param direction 1 | -1 Down or up, flipped by the list itself for reversed layouts
+local function move_half_page(picker, direction)
+  -- state.height follows window resizes, unlike the state.scroll snacks samples once on show
+  local half = math.max(1, math.floor(picker.list.state.height / 2))
+  picker.list:move(direction * half)
 end
 
 --- @param picker snacks.Picker
 function M.list_half_page_down(picker)
-  scroll_half_page(picker, 'down')
+  move_half_page(picker, 1)
 end
 
 --- @param picker snacks.Picker
 function M.list_half_page_up(picker)
-  scroll_half_page(picker, 'up')
+  move_half_page(picker, -1)
 end
 
 --- Toggle focus between the picker input and preview window

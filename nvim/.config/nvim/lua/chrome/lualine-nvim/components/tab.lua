@@ -1,28 +1,11 @@
 --- @class chrome.lualine.components.tab
 local M = {}
 
--- Ordered detectors that override the default `tab` prefix for special,
--- plugin-created tab pages. First match wins.
-local detectors = {
-  function(tabpage)
-    local codediff_utils = require('features.git.codediff-nvim.utils')
-    if codediff_utils.is_codediff_tab(tabpage) then
-      return 'codediff'
-    end
-  end,
-}
-
 --- @return string label e.g. "tab-2" or "codediff-2"
 function M.get()
-  local tabpage = vim.api.nvim_get_current_tabpage()
-  local prefix = 'tab'
-  for _, detect in ipairs(detectors) do
-    local result = detect(tabpage)
-    if result then
-      prefix = result
-      break
-    end
-  end
+  local codediff_utils = require('features.git.codediff-nvim.utils')
+  local prefix = codediff_utils.is_codediff_tab(vim.api.nvim_get_current_tabpage()) and 'codediff'
+    or 'tab'
 
   return prefix .. '-' .. vim.fn.tabpagenr()
 end

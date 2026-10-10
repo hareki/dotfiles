@@ -55,8 +55,11 @@ M.show = function()
   local function harpoon_format(item, picker)
     local ret = {} --- @type snacks.picker.Highlight[]
     local max_harpoon_idx = harpoon:list():length()
-    local idx_str = tostring(item.harpoon_idx)
-    idx_str = (' '):rep(#tostring(max_harpoon_idx) - #idx_str) .. idx_str
+    local idx_str = Snacks.picker.util.align(
+      tostring(item.harpoon_idx),
+      #tostring(max_harpoon_idx),
+      { align = 'right' }
+    )
     ret[#ret + 1] = { idx_str .. '.', 'SnacksPickerIdx' }
     ret[#ret + 1] = { ' ' }
     vim.list_extend(ret, formatters.buffer_format(item, picker))

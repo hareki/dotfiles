@@ -115,18 +115,11 @@ aucmd('FileType', {
   pattern = {
     'PlenaryTestPopup',
     'checkhealth',
-    'dbout',
     'gitsigns-blame',
     'grug-far',
     'help',
-    'lspinfo',
-    'neotest-output',
-    'neotest-output-panel',
-    'neotest-summary',
     'notify',
     'qf',
-    'startuptime',
-    'tsplayground',
     'eslint-log',
   },
   callback = function(event)
@@ -137,19 +130,6 @@ aucmd('FileType', {
     end, {
       buffer = event.buf,
       desc = 'Quit Buffer',
-    })
-  end,
-})
-
--- Restore native <CR> (jump to entry) in quickfix/loclist windows, which the
--- global 'Insert Newline After Cursor' <CR> map would otherwise shadow
-aucmd('FileType', {
-  group = augroup('qf-native-enter'),
-  pattern = { 'qf' },
-  callback = function(event)
-    vim.keymap.set('n', '<CR>', '<CR>', {
-      buffer = event.buf,
-      desc = 'Jump to Entry',
     })
   end,
 })
@@ -176,15 +156,6 @@ aucmd('FileType', {
   pattern = { 'man' },
   callback = function(event)
     vim.bo[event.buf].buflisted = false
-  end,
-})
-
--- Fix conceallevel for json files
-aucmd({ 'FileType' }, {
-  group = augroup('json-conceal'),
-  pattern = Conf.filetypes.JSON,
-  callback = function()
-    vim.opt_local.conceallevel = 0
   end,
 })
 
@@ -311,28 +282,6 @@ aucmd('InsertEnter', {
         UI.color.nohlsearch()
       end)
     end
-  end,
-})
-
-local SNIPPET_STOP_DELAY_MS = 20
-
--- Stop snippet session in Normal mode
-aucmd('ModeChanged', {
-  group = augroup('stop-snippet-on-normal-mode'),
-  pattern = '[is]:n', -- Stricter: only exact 'i' or 's' to 'n'
-  callback = function()
-    -- Defer the stop to avoid interfering with blink.cmp juggling between modes internally
-    vim.defer_fn(function()
-      local mode = vim.api.nvim_get_mode().mode
-      -- Are we still in normal-like mode after a short delay?
-      if mode:sub(1, 1) ~= 'n' then
-        return
-      end
-
-      if vim.snippet.active() then
-        vim.snippet.stop()
-      end
-    end, SNIPPET_STOP_DELAY_MS)
   end,
 })
 

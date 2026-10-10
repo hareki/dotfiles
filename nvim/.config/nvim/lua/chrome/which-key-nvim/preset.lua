@@ -1,5 +1,6 @@
 -- https://github.com/folke/which-key.nvim/blob/370ec46f710e058c9c1646273e6b225acf47cbed/lua/which-key/plugins/presets.lua#L1
 -- With letter case converted to CMOS 18th Edition
+--- @class chrome.which-key.preset
 local M = {}
 
 M.operators = {

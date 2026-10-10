@@ -27,10 +27,8 @@ opt.number = true
 opt.relativenumber = true
 opt.numberwidth = 1
 
-opt.list = false -- Hide whitespace characters
 opt.termguicolors = true -- True color support
 opt.updatetime = 300 -- Decrease update time
-opt.pumblend = 0 -- Fully opaque popupmenu
 opt.pumheight = 15 -- Maximum number of entries in a popup
 opt.pumborder = 'rounded' -- Rounded border around the popup menu (right-click + native completion)
 opt.wrap = false -- Disable line wrapping
@@ -38,14 +36,13 @@ opt.mouse = 'a' -- Enable mouse mode
 opt.showmode = false -- Don't show the mode, since it's already in the status line
 opt.breakindent = true
 opt.swapfile = false -- Don't use swapfiles
-opt.inccommand = 'nosplit' -- Preview substitutions live, as you type!
 opt.cursorline = true -- Show which line your cursor is on
 opt.scrolloff = 6 -- Minimal number of screen lines to keep above and below the cursor.
 opt.statuscolumn = '%l%s'
 opt.signcolumn = 'yes:1' -- Always show the signcolumn, otherwise it would shift the text each time
 opt.wildmode = 'longest:full,full' -- Command-line completion mode
 opt.winminwidth = 5 -- Minimum window width
-opt.laststatus = vim.env.NVIM_NO_STATUSLINE == nil and 3 or 0 -- 3 = Global status line
+opt.laststatus = UI.statusline.enabled() and 3 or 0 -- 3 = Global status line
 opt.shiftwidth = 2 -- Number of spaces to use for each step of (auto)indent
 opt.tabstop = 2 -- Number of spaces tabs count for
 opt.softtabstop = 2 -- Number of spaces tabs count for while performing editing operations

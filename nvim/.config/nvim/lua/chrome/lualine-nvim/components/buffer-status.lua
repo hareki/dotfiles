@@ -199,20 +199,12 @@ local function get_global_conflict()
   return result
 end
 
---- Status parts in display order, paired with their highlight-group key
-local PART_GETTERS = {
-  { 'current_unsaved', get_current_unsaved },
-  { 'global_unsaved', get_global_unsaved },
-  { 'current_conflict', get_current_conflict },
-  { 'global_conflict', get_global_conflict },
-}
-
---- Palette color of each status part
-local PART_COLORS = {
-  current_unsaved = 'yellow',
-  global_unsaved = 'red',
-  current_conflict = 'yellow',
-  global_conflict = 'red',
+--- Status parts in display order: highlight-group key, getter and palette color
+local PARTS = {
+  { 'current_unsaved', get_current_unsaved, 'yellow' },
+  { 'global_unsaved', get_global_unsaved, 'red' },
+  { 'current_conflict', get_current_conflict, 'yellow' },
+  { 'global_conflict', get_global_conflict, 'red' },
 }
 
 --- Initialize the component
@@ -222,8 +214,8 @@ function M:init(options)
 
   local palette = UI.catppuccin.get_palette()
   self.highlight_groups = {}
-  for part, color in pairs(PART_COLORS) do
-    self.highlight_groups[part] = self:create_hl({ fg = palette[color] }, part)
+  for _, part in ipairs(PARTS) do
+    self.highlight_groups[part[1]] = self:create_hl({ fg = palette[part[3]] }, part[1])
   end
 end
 
@@ -232,7 +224,7 @@ end
 function M:update_status()
   local result = {}
 
-  for _, part in ipairs(PART_GETTERS) do
+  for _, part in ipairs(PARTS) do
     local text = part[2]()
     if text ~= '' then
       -- format_hl re-resolves the mode suffix (an nvim_get_mode call) per

@@ -150,15 +150,11 @@ return {
 
     opts = function()
       return {
-        ring = { storage = 'shada' },
         highlight = {
-          on_yank = true,
-          on_put = true,
           timer = 300,
         },
         system_clipboard = {
           sync_with_ring = false,
-          clipboard_register = nil,
         },
       }
     end,

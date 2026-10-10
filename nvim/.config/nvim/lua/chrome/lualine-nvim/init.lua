@@ -3,9 +3,7 @@ local stdin_session = false
 return {
   'nvim-lualine/lualine.nvim',
 
-  enabled = function()
-    return UI.statusline.enabled()
-  end,
+  enabled = UI.statusline.enabled,
 
   event = 'VeryLazy',
 

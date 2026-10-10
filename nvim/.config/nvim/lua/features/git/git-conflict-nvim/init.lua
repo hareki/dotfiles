@@ -128,6 +128,12 @@ return {
         callback = function(event)
           local bufnr = event.data.buf
 
+          -- Detected fires on every parse of a conflicted buffer, and buf_state is only
+          -- set up below, after the keymaps and flag, so everything is already in place
+          if buf_state[bufnr] then
+            return
+          end
+
           for _, map in ipairs(keymaps) do
             vim.keymap.set('n', map.lhs, map.rhs, {
               desc = 'Git Conflict: ' .. map.desc,
@@ -136,10 +142,6 @@ return {
           end
 
           vim.b[bufnr].git_conflict = true
-
-          if buf_state[bufnr] then
-            return
-          end
 
           if package_utils.is_loaded('nvim-colorizer.lua') then
             colorizer.detach_from_buffer(bufnr)
@@ -225,20 +227,15 @@ return {
           local bufnr = event.data.buf
           cleanup_buf(bufnr)
 
-          if not vim.api.nvim_buf_is_valid(bufnr) then
+          -- Resolved fires on every parse (with default_mappings = false the
+          -- fork's mappings flag is never set), so only undo what Detected did
+          if not vim.api.nvim_buf_is_valid(bufnr) or not vim.b[bufnr].git_conflict then
             return
           end
+          vim.b[bufnr].git_conflict = nil
 
           for _, map in ipairs(keymaps) do
             pcall(vim.keymap.del, 'n', map.lhs, { buffer = bufnr })
-          end
-
-          -- Resolved fires on every parse (with default_mappings = false the
-          -- fork's mappings flag is never set), so only undo what Detected did
-          local was_conflicted = vim.b[bufnr].git_conflict
-          vim.b[bufnr].git_conflict = nil
-          if not was_conflicted then
-            return
           end
 
           if package_utils.is_loaded('nvim-colorizer.lua') then

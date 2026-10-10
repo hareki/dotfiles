@@ -1,13 +1,9 @@
--- Use circular buffer to avoid O(n) table.remove operation
-local store, max = {}, 200
-local store_index = 0 -- Current write position
-local store_count = 0 -- Number of entries written
+-- Ring buffer: the oldest line drops out once full, in O(1)
+local log = vim.ringbuf(200)
 
 --- @param line string
 local function push(line)
-  store_index = (store_index % max) + 1
-  store[store_index] = line:gsub('\n', ' ')
-  store_count = store_count + 1
+  log:push((line:gsub('\n', ' ')))
 end
 
 return {
@@ -27,7 +23,7 @@ return {
       end,
 
       ['window/logMessage'] = function(err, params, ctx, cfg)
-        local lvl = ({ 'Error', 'Warn', 'Info', 'Log' })[params.type] or tostring(params.type)
+        local lvl = vim.lsp.protocol.MessageType[params.type] or tostring(params.type)
         push(string.format('%s [%s] %s', os.date('%Y-%m-%d %H:%M:%S'), lvl, params.message))
         return vim.lsp.handlers['window/logMessage'](err, params, ctx, cfg)
       end,
@@ -36,22 +32,13 @@ return {
 
   setup = function()
     vim.api.nvim_create_user_command('EslintLog', function()
-      -- Reconstruct log in correct order from circular buffer
+      -- Iterating a ringbuf pops it, oldest first, so push the lines back for the next :EslintLog
       local lines = {}
-      local actual_count = math.min(store_count, max)
-
-      if store_count <= max then
-        -- Haven't wrapped around yet, store is in order
-        for i = 1, actual_count do
-          lines[i] = store[i]
-        end
-      else
-        -- Wrapped around, need to reconstruct order
-        local start_idx = (store_index % max) + 1
-        for i = 1, max do
-          local idx = ((start_idx + i - 2) % max) + 1
-          lines[i] = store[idx]
-        end
+      for line in log do
+        lines[#lines + 1] = line
+      end
+      for _, line in ipairs(lines) do
+        log:push(line)
       end
 
       local buf = vim.api.nvim_create_buf(false, true)

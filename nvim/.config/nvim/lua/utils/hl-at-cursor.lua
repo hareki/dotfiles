@@ -1,5 +1,4 @@
 local common = require('utils.common')
-local render_markdown_evict = require('utils.render-markdown-evict')
 
 --- @class utils.hl-at-cursor
 local M = {}
@@ -8,93 +7,6 @@ local M = {}
 -- time: a second one would otherwise fight the first over the origin buffer's
 -- <Tab>/<Esc> keymaps and orphan the earlier float
 local close_active_popup
-
---- Walk highlight links to find the terminal group name.
-local function resolve_link(name)
-  local seen, last = {}, name
-  while name and not seen[name] do
-    seen[name] = true
-    local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = name, link = true })
-    if not ok or not hl then
-      break
-    end
-    if hl.link and hl.link ~= '' then
-      last, name = hl.link, hl.link
-    else
-      break
-    end
-  end
-
-  return last
-end
-
---- @param row0 integer
---- @param col0 integer
-local function collect_syntax(row0, col0)
-  local groups = {}
-  for _, id in ipairs(vim.fn.synstack(row0 + 1, col0 + 1)) do
-    local trans = vim.fn.synIDtrans(id)
-    local name = vim.fn.synIDattr(trans, 'name')
-    if name and name ~= '' then
-      table.insert(groups, name)
-    end
-  end
-  return groups
-end
-
---- @param bufnr integer
---- @param row0 integer
---- @param col0 integer
-local function collect_treesitter(bufnr, row0, col0)
-  local pairs_out = {}
-  local ok, caps = pcall(vim.treesitter.get_captures_at_pos, bufnr, row0, col0)
-  if not ok then
-    return pairs_out
-  end
-
-  for _, c in ipairs(caps) do
-    table.insert(pairs_out, { c.capture, resolve_link(c.capture) })
-  end
-  return pairs_out
-end
-
---- @param bufnr integer
---- @param row0 integer
---- @param col0 integer
-local function collect_extmarks(bufnr, row0, col0)
-  local function cursor_in_range(srow, scol, d)
-    local erow = d.end_row or srow
-    local ecol = d.end_col or (d.hl_eol and math.huge or scol)
-    if row0 > srow or (row0 == srow and col0 >= scol) then
-      if row0 < erow or (row0 == erow and col0 < ecol) or (d.hl_eol and row0 == srow) then
-        return true
-      end
-    end
-    return false
-  end
-
-  local entries = {}
-  for ns_name, ns_id in pairs(vim.api.nvim_get_namespaces()) do
-    local marks = vim.api.nvim_buf_get_extmarks(
-      bufnr,
-      ns_id,
-      { row0, 0 },
-      { row0, -1 },
-      -- overlap: also return marks that start on earlier lines but span row0
-      { details = true, overlap = true }
-    )
-    for _, m in ipairs(marks) do
-      local _, srow, scol, d = m[1], m[2], m[3], m[4]
-      if d and d.hl_group and cursor_in_range(srow, scol, d) then
-        table.insert(
-          entries,
-          string.format('%s (ns:%s prio:%s)', d.hl_group, ns_name, d.priority or 0)
-        )
-      end
-    end
-  end
-  return entries
-end
 
 local function collect_matches()
   local groups = {}
@@ -218,9 +130,6 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
     if vim.api.nvim_win_is_valid(win) then
       ok = pcall(vim.api.nvim_win_close, win, true)
     end
-    -- The popup buffer (bufhidden=wipe) is gone with the window, but its
-    -- render-markdown entries are not; evict them or they leak per popup
-    render_markdown_evict.evict(buf)
     closing = false
     return ok
   end
@@ -335,20 +244,30 @@ function M.show()
     close_active_popup()
   end
 
-  local bufnr = 0
-  local pos = vim.api.nvim_win_get_cursor(0)
-  local row0, col0 = pos[1] - 1, pos[2]
   local origin_win = vim.api.nvim_get_current_win()
   local origin_buf = vim.api.nvim_win_get_buf(origin_win)
+  -- The current buffer at the cursor, with every group resolved through its links
+  local items = vim.inspect_pos()
 
   local lines = build_lines(
-    collect_syntax(row0, col0),
-    collect_treesitter(bufnr, row0, col0),
-    collect_extmarks(bufnr, row0, col0),
+    vim.tbl_map(function(syntax)
+      return syntax.hl_group_link
+    end, items.syntax),
+    vim.tbl_map(function(capture)
+      return { capture.capture, capture.hl_group_link }
+    end, items.treesitter),
+    vim.tbl_map(function(extmark)
+      return string.format(
+        '%s (ns:%s prio:%s)',
+        extmark.opts.hl_group,
+        extmark.ns,
+        extmark.opts.priority or 0
+      )
+    end, vim.list_extend(items.semantic_tokens, items.extmarks)),
     collect_matches()
   )
 
-  local buf, win = open_popup(lines, row0, col0)
+  local buf, win = open_popup(lines, items.row, items.col)
   attach_lifecycle(buf, win, origin_buf, origin_win)
 end
 

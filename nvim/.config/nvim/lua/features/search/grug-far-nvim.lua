@@ -3,19 +3,18 @@
 -- calling this per open keeps the panel and preview sized for the current
 -- screen; the static opts below only cover direct :GrugFar invocations
 local function preview_geometry()
-  local preview_cols, preview_rows = UI.layout.side_size('side_preview', 'md')
+  local preview = UI.layout.side_preview()
   local panel_cols, _ = UI.layout.side_size('side_panel', 'md')
-  local _, row = UI.layout.center(preview_cols, preview_rows)
 
   return {
     window_creation_command = panel_cols .. 'vsplit',
     preview_window = {
-      row = row,
-      col = -preview_cols - 3,
+      row = preview.row,
+      col = preview.col,
       title = Conf.picker.PREVIEW_TITLE,
       title_pos = 'center',
-      width = preview_cols,
-      height = preview_rows,
+      width = preview.width,
+      height = preview.height,
     },
   }
 end

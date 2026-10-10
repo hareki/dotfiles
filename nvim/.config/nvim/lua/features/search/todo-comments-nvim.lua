@@ -53,7 +53,6 @@ return {
       },
       highlight = {
         multiline = false,
-        before = '',
         keyword = 'wide_bg',
         after = '',
       },

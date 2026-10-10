@@ -6,8 +6,20 @@ local image_icon = Conf.icons.editor.IMAGE .. ' '
 -- vim.treesitter.query.get is memoized, but in a GC-weak cache: after any
 -- collection the next lookup re-scans the runtimepath (and recompiles the
 -- query), which is too slow for a per-redraw path. Pin the answer here.
---- @type table<string, boolean>
+--- @type table<string, boolean | 'no-parser'>
 local lang_has_images_query = {}
+
+-- A parser installed mid-session takes effect on the next FileType (`:edit`), so
+-- that is when a language's missing-parser answer gets looked up again
+vim.api.nvim_create_autocmd('FileType', {
+  group = vim.api.nvim_create_augroup('chrome.lualine.snacks-image', { clear = true }),
+  callback = function(args)
+    local lang = vim.treesitter.language.get_lang(args.match)
+    if lang and lang_has_images_query[lang] == 'no-parser' then
+      lang_has_images_query[lang] = nil
+    end
+  end,
+})
 
 --- @param lang string
 --- @return boolean
@@ -15,17 +27,12 @@ local function has_images_query(lang)
   local has = lang_has_images_query[lang]
   if has == nil then
     -- query.get throws when snacks ships an `images` query for a language whose
-    -- parser isn't installed (vue, svelte, typst, ...); that would break every redraw.
-    -- That answer stays unpinned, since the parser can still be installed mid-session
+    -- parser isn't installed (vue, svelte, typst, ...); that would break every redraw
     local ok, query = pcall(vim.treesitter.query.get, lang, 'images')
-    if not ok then
-      return false
-    end
-
-    has = query ~= nil
+    has = ok and query ~= nil or (not ok and 'no-parser')
     lang_has_images_query[lang] = has
   end
-  return has
+  return has == true
 end
 
 --- @class chrome.lualine.components.snacks-image.Cache

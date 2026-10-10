@@ -49,8 +49,7 @@ local DEFAULTS = {
 function M.create_styling_wrapper(opts)
   local palette = UI.catppuccin.get_palette()
 
-  local style, _side = opts.type:match('^(%w+)-(%w+)$')
-  local is_primary = style == 'primary'
+  local is_primary = vim.startswith(opts.type, 'primary')
   local defaults = DEFAULTS[opts.type]
   local known_keys = {
     type = true,

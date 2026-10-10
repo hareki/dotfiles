@@ -1,3 +1,4 @@
+--- @class features.navigation.telescope.utils
 local M = {}
 
 --- @module 'telescope.actions'
@@ -5,20 +6,6 @@ local actions = Defer.on_exported_call('telescope.actions')
 
 --- @module 'telescope.state'
 local state = Defer.on_exported_call('telescope.state')
-
-function M.find_command()
-  if 1 == vim.fn.executable('rg') then
-    return { 'rg', '--files', '--color', 'never', '-g', '!.git' }
-  elseif 1 == vim.fn.executable('fd') then
-    return { 'fd', '--type', 'f', '--color', 'never', '-E', '.git' }
-  elseif 1 == vim.fn.executable('fdfind') then
-    return { 'fdfind', '--type', 'f', '--color', 'never', '-E', '.git' }
-  elseif 1 == vim.fn.executable('find') and vim.fn.has('win32') == 0 then
-    return { 'find', '.', '-type', 'f' }
-  elseif 1 == vim.fn.executable('where') then
-    return { 'where', '/r', '.', '*' }
-  end
-end
 
 -- Heavily modify the "vertical" strategy, the point is to merge prompt and results windows
 -- In general, this layout mimics the "dropdown" theme, but take the "previewer" panel into account of the height layout
@@ -169,15 +156,6 @@ function M.telescope_to_trouble(prompt_bufnr)
 
   local trouble_sources = require('trouble.sources.telescope')
   trouble_sources.open(prompt_bufnr)
-end
-
---- @param source string
-function M.trouble_open(source)
-  return function(bufnr)
-    actions.close(bufnr)
-    local trouble = require('trouble')
-    trouble.open(source)
-  end
 end
 
 return M

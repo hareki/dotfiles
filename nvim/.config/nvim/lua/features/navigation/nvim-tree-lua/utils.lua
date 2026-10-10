@@ -37,40 +37,16 @@ function M.compute_size()
   return 'vertical_sm'
 end
 
---- Clean up the preview watcher autocmd group
---- @return nil
-function M.clean_up()
-  if M.state.preview_watcher == nil then
-    return
-  end
-
-  vim.api.nvim_del_augroup_by_id(M.state.preview_watcher)
-  M.state.preview_watcher = nil
-end
-
 --- Close the nvim-tree and preview windows, cleaning up watchers
 --- @return nil
 function M.close_all()
-  M.clean_up()
+  if M.state.preview_watcher then
+    vim.api.nvim_del_augroup_by_id(M.state.preview_watcher)
+    M.state.preview_watcher = nil
+  end
 
   preview.unwatch()
   api.tree.close()
-end
-
---- Start watching for cursor movement to update preview
---- @return nil
-function M.watch()
-  if not preview.is_open() then
-    preview.watch()
-    M.state.preview_on_focus = true
-  end
-end
-
---- Stop watching cursor movement for preview updates
---- @return nil
-function M.unwatch()
-  preview.unwatch()
-  M.state.preview_on_focus = false
 end
 
 --- Create a node action function for file/folder interaction
@@ -216,10 +192,10 @@ function M.toggle_preview(force_state)
   M.state.preview_on_focus = next_open
   M.toggle_tree_height(next_open and 'collapse' or 'expand')
 
-  if next_open then
-    M.watch()
-  else
-    M.unwatch()
+  if not next_open then
+    preview.unwatch()
+  elseif not preview.is_open() then
+    preview.watch()
   end
 end
 

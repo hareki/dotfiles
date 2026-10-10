@@ -44,12 +44,30 @@ return {
   event = { 'BufReadPost', 'BufNewFile' },
 
   init = function()
+    -- Languages with no parser, recorded only from plugin UI buffers (pickers, panels), whose
+    -- filetypes never get one: each failed lookup re-scans the whole runtimepath
+    --- @type table<string, true>
+    local no_parser = {}
+
     vim.api.nvim_create_autocmd('FileType', {
       group = vim.api.nvim_create_augroup('core.nvim-treesitter.start', { clear = true }),
       pattern = '*',
       callback = function(args)
-        local buf = args.buf
-        pcall(vim.treesitter.start, buf)
+        local lang = vim.treesitter.language.get_lang(args.match)
+        -- File buffers always look the parser up, so one installed mid-session starts on :edit
+        local is_ui = vim.bo[args.buf].buftype ~= ''
+        if not lang or (is_ui and no_parser[lang]) then
+          return
+        end
+
+        if not vim.treesitter.language.add(lang) then
+          if is_ui then
+            no_parser[lang] = true
+          end
+          return
+        end
+
+        pcall(vim.treesitter.start, args.buf, lang)
       end,
     })
 
@@ -89,11 +107,7 @@ return {
     end, {})
   end,
 
-  opts = {
-    ensure_installed = ensure_installed,
-  },
-
-  config = function(_, opts)
+  config = function()
     local treesitter = require('nvim-treesitter')
 
     local installed = {}
@@ -103,7 +117,7 @@ return {
 
     local missing = vim.tbl_filter(function(lang)
       return not installed[lang]
-    end, opts.ensure_installed)
+    end, ensure_installed)
 
     if #missing > 0 then
       treesitter.install(missing, { summary = true })

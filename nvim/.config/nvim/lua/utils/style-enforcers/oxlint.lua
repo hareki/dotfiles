@@ -1,3 +1,5 @@
+local engine = require('utils.style-enforcers.engine')
+
 --- @class utils.style-enforcers.oxlint
 local M = {}
 
@@ -17,16 +19,9 @@ function M.run(opts)
   -- The buffer has just been formatted in memory but not yet saved, so disk is one
   -- step behind and the fix lands at wrong positions, corrupting the file. Flush the
   -- formatted buffer to disk first so oxc fixes against matching content.
-  -- pcall: this runner can execute inside the previous enforcer's LSP response
-  -- callback, outside the pipeline's pcall; an unwritable buffer (E45 readonly,
-  -- E212 missing dir) would otherwise escape and leak the buffer lock
-  if vim.api.nvim_buf_is_valid(bufnr) and vim.bo[bufnr].modified then
-    local ok, err = pcall(vim.api.nvim_buf_call, bufnr, function()
-      vim.cmd.write()
-    end)
-    if not ok then
-      return opts.on_done(false, 'write before oxc.fixAll failed: ' .. tostring(err))
-    end
+  local ok, err = engine.write(bufnr)
+  if not ok then
+    return opts.on_done(false, 'write before oxc.fixAll failed: ' .. tostring(err))
   end
 
   local params = {

@@ -3,7 +3,6 @@ local M = {}
 
 M.default = {
   accept = { auto_brackets = { enabled = false } },
-  ghost_text = { enabled = false },
   -- https://github.com/saghen/blink.cmp/blob/main/doc/configuration/reference.md#completion-trigger
   trigger = {
     prefetch_on_insert = false,
@@ -19,18 +18,16 @@ M.default = {
   },
   list = {
     selection = {
-      preselect = true,
       auto_insert = false,
     },
   },
   documentation = {
     auto_show = true,
     auto_show_delay_ms = 200,
-    window = { border = 'rounded', scrollbar = true },
+    window = { border = 'rounded' },
   },
   menu = {
     border = 'rounded',
-    scrollbar = true,
     max_height = 15,
     draw = {
       padding = { 1, 0 }, -- For some reason it already has 1 padding on the right
@@ -55,7 +52,6 @@ M.cmdline = {
   ghost_text = { enabled = false },
   list = {
     selection = {
-      preselect = true,
       auto_insert = false,
     },
   },

@@ -7,14 +7,6 @@ M.state = {
   max_cache_entries = 512,
   cache = {}, -- key -> { value, from_cli, hits }
   cache_size = 0,
-  supported_sources = {
-    ts = true, -- What vtsls actually reports as diagnostic.source
-    tsserver = true,
-    typescript = true,
-    ['typescript-tools'] = true,
-    vtsls = true,
-    ['typescript-language-server'] = true,
-  },
 }
 
 local function trim_trailing_whitespace(text)
@@ -26,57 +18,15 @@ local function lsp_field(diagnostic, key)
   return vim.tbl_get(diagnostic, 'user_data', 'lsp', key)
 end
 
-local function get_source(diagnostic)
-  return diagnostic.source or lsp_field(diagnostic, 'source')
-end
-
-local function is_typescript_diagnostic(diagnostic)
-  return M.state.supported_sources[get_source(diagnostic)] or type(diagnostic.code) == 'number'
-end
-
-local function normalize_range(diagnostic)
-  local range = diagnostic.range or lsp_field(diagnostic, 'range')
-  if range and range.start and range['end'] then
-    return {
-      start = { line = range.start.line or 0, character = range.start.character or 0 },
-      ['end'] = { line = range['end'].line or 0, character = range['end'].character or 0 },
-    }
-  end
-  local sl = diagnostic.lnum or 0
-  local sc = diagnostic.col or 0
-  local el = diagnostic.end_lnum or sl
-  local ec = diagnostic.end_col or (sc + 1)
-
-  return {
-    start = { line = sl, character = sc },
-    ['end'] = { line = el, character = ec },
-  }
-end
-
-local function get_code(diagnostic)
-  if diagnostic.code ~= nil then
-    return diagnostic.code
-  end
-
-  return lsp_field(diagnostic, 'code')
-end
-
-local function get_severity(diagnostic)
-  return diagnostic.severity or lsp_field(diagnostic, 'severity') or 1
-end
-
+--- @param diagnostic vim.Diagnostic
 local function build_cli_input(diagnostic)
-  local related = diagnostic.relatedInformation
-    or diagnostic.related
-    or lsp_field(diagnostic, 'relatedInformation')
-
   return {
-    range = normalize_range(diagnostic),
-    message = diagnostic.message or '',
-    code = get_code(diagnostic),
-    severity = get_severity(diagnostic),
-    source = get_source(diagnostic) or 'tsserver',
-    relatedInformation = related or {},
+    range = lsp_field(diagnostic, 'range'),
+    message = diagnostic.message,
+    code = diagnostic.code,
+    severity = diagnostic.severity,
+    source = diagnostic.source,
+    relatedInformation = lsp_field(diagnostic, 'relatedInformation') or {},
   }
 end
 
@@ -87,10 +37,10 @@ end
 -- ~200ms CLI spawn.
 local function compute_cache_key(diagnostic)
   local parts = {
-    get_source(diagnostic) or '',
-    tostring(get_code(diagnostic) or ''),
-    tostring(get_severity(diagnostic)),
-    diagnostic.message or '',
+    diagnostic.source,
+    tostring(diagnostic.code or ''),
+    tostring(diagnostic.severity),
+    diagnostic.message,
   }
 
   return table.concat(parts, '\31')
@@ -199,9 +149,8 @@ local function format_line(diagnostic)
 
   spawn(diagnostic)
   if diagnostic.bufnr then
-    local source = get_source(diagnostic)
     for _, d in ipairs(vim.diagnostic.get(diagnostic.bufnr, { lnum = diagnostic.lnum })) do
-      if get_source(d) == source then
+      if d.source == diagnostic.source then
         spawn(d)
       end
     end
@@ -234,19 +183,11 @@ end
 --- Format a TypeScript diagnostic into pretty markdown using pretty-ts-errors-markdown CLI
 --- Caches CLI output (evicting the least-hit entry past the cap) to avoid
 --- redundant CLI calls for repeated diagnostics, and formats a miss's whole line at once.
---- @param diagnostic table The vim.Diagnostic object to format
+--- Eagle only calls this for the `ts` source it is registered under (eagle-nvim/init.lua).
+--- @param diagnostic vim.Diagnostic The diagnostic to format
 --- @param opts? { href?: boolean } Options (href: keep CLI header with links)
 --- @return string markdown The formatted markdown message
 function M.format(diagnostic, opts)
-  if type(diagnostic) ~= 'table' or not diagnostic.message then
-    return ''
-  end
-
-  if not is_typescript_diagnostic(diagnostic) then
-    -- Not a TS diagnostic, just return the original message.
-    return diagnostic.message
-  end
-
   local key = compute_cache_key(diagnostic)
   local entry = cache_get(key) or format_line(diagnostic)[key]
   local md = entry.value

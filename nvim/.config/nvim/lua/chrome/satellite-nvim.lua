@@ -19,7 +19,6 @@ return {
     event = 'VeryLazy',
     opts = function()
       return {
-        current_only = false,
         floating = true,
         winblend = 0,
         excluded_filetypes = {

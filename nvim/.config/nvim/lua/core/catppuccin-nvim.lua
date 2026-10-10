@@ -12,7 +12,6 @@ return {
 
     local opts = {
       transparent_background = true,
-      default_integrations = false,
       -- Skip the startup scan of every installed plugin; the integrations below are explicit
       auto_integrations = false,
 
@@ -20,7 +19,6 @@ return {
         -- Native context menu
         Pmenu = { bg = 'none', fg = palette.text },
         PmenuSel = { bg = palette.surface0, style = {} },
-        PmenuBorder = { bg = 'none', fg = palette.blue },
 
         Substitute = { bg = substitute_bg, fg = substitute_fg },
         WinSeparator = { fg = palette.overlay0 },
@@ -52,9 +50,6 @@ return {
           bg = 'none',
           fg = palette.surface1,
         },
-        TabLineFill = {
-          bg = 'none',
-        },
 
         ModifiedIndicator = { fg = palette.yellow },
         SnippetTabStop = { bg = color.snippet_tab_stop },
@@ -73,22 +68,12 @@ return {
         WarningMsg = { fg = palette.text, style = {} },
       },
       lsp_styles = {
-        virtual_text = {
-          errors = { 'italic' },
-          hints = { 'italic' },
-          warnings = { 'italic' },
-          information = { 'italic' },
-          ok = { 'italic' },
-        },
         underlines = {
           errors = { 'undercurl' },
           hints = { 'undercurl' },
           warnings = { 'undercurl' },
           information = { 'undercurl' },
           ok = { 'undercurl' },
-        },
-        inlay_hints = {
-          background = true,
         },
       },
       integrations = {
@@ -104,11 +89,8 @@ return {
         snacks = true,
         telescope = true,
         which_key = true,
-        blink_cmp = {
-          enabled = true,
-          style = 'bordered',
-        },
-        dropbar = { enabled = true }, -- color_mode = false comes from catppuccin's defaults
+        blink_cmp = true,
+        dropbar = true, -- color_mode = false comes from catppuccin's defaults
         flash = true,
         harpoon = true,
         ufo = true,
@@ -119,7 +101,8 @@ return {
     -- loads the same module headlessly: these four decide what a highlighted
     -- diff row looks like, and a second copy here is what would let the two
     -- drift apart. See the module's own header.
-    for group, hl in pairs(require('config.treesitter-highlights')(palette)) do
+    local treesitter_highlights = require('config.treesitter-highlights')
+    for group, hl in pairs(treesitter_highlights(palette)) do
       opts.custom_highlights[group] = hl
     end
 

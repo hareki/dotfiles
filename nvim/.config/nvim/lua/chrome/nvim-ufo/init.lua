@@ -19,10 +19,8 @@ return {
     init = function()
       local opt = vim.opt
 
-      opt.foldcolumn = '0'
       opt.foldlevel = 99
       opt.foldlevelstart = 99
-      opt.foldenable = true
     end,
 
     keys = {
@@ -35,32 +33,15 @@ return {
             return
           end
 
-          vim.schedule(function()
-            if not vim.api.nvim_win_is_valid(preview_win_id) then
-              return
-            end
-
-            local preview_buf = vim.api.nvim_win_get_buf(preview_win_id)
-            local function clear_mapping()
-              pcall(vim.keymap.del, 'n', '<Esc>', { buffer = preview_buf })
-            end
-
-            clear_mapping()
-
-            vim.keymap.set('n', '<Esc>', function()
-              clear_mapping()
-              local ufo_preview = require('ufo.preview')
-              ufo_preview.close()
-            end, { buffer = preview_buf, desc = 'Close Fold Preview' })
-
-            -- No BufWipeout twin: ufo reuses one bufhidden=hide preview buffer,
-            -- so a once-autocmd on it would never fire and pile up per peek
-            vim.api.nvim_create_autocmd('WinClosed', {
-              pattern = tostring(preview_win_id),
-              once = true,
-              callback = clear_mapping,
-            })
-          end)
+          -- The float is up by now, and ufo shows only its own reused preview buffer in it,
+          -- so the map can stay on that buffer between peeks
+          vim.keymap.set('n', '<Esc>', function()
+            local ufo_preview = require('ufo.preview')
+            ufo_preview.close()
+          end, {
+            buffer = vim.api.nvim_win_get_buf(preview_win_id),
+            desc = 'Close Fold Preview',
+          })
         end,
         desc = 'Peek Folded Lines',
       },

@@ -20,11 +20,11 @@ end
 --- Get a file path relative to the given root directory
 --- Normalizes both paths before computing the relative path.
 --- @param file string The absolute file path
---- @param root string The root directory path
+--- @param root? string The root directory path (default: the cwd)
 --- @return string relative The relative path, or normalized absolute if not relative
 function M.get_relative_path(file, root)
   local normalized_file = vim.fs.normalize(file)
-  local normalized_root = vim.fs.normalize(root)
+  local normalized_root = vim.fs.normalize(root or vim.uv.cwd() or vim.fn.getcwd())
   local rel = vim.fs.relpath(normalized_root, normalized_file)
   return rel or normalized_file
 end

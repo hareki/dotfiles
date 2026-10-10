@@ -165,4 +165,66 @@ function M.override_buf_keymaps(buf, maps)
   end
 end
 
+--- @class utils.common.LinkPopupOpts
+--- @field name string Popup name for the keymap descriptions
+--- @field modes? string | string[] Modes to map (default 'n')
+--- @field focus_popup? fun() Focus the popup instead of the default autocmd-free switch
+--- @field before_focus? fun(target: 'popup' | 'source') Runs before either focus switch, e.g. so the plugin ignores the CursorMoved it causes
+
+--- Link a popup to the window it was opened from (the current one): <Tab> toggles focus
+--- between the two, and <Esc> closes the popup from either side, as does q inside it.
+--- The source buffer's overrides are released once the popup closes
+--- @param popup_win integer
+--- @param opts utils.common.LinkPopupOpts
+--- @return nil
+function M.link_popup(popup_win, opts)
+  local modes = opts.modes or 'n'
+  local source_win = vim.api.nvim_get_current_win()
+  local popup_buf = vim.api.nvim_win_get_buf(popup_win)
+  local close_desc = 'Close ' .. opts.name
+
+  local function close()
+    pcall(vim.api.nvim_win_close, popup_win, true)
+  end
+
+  --- @param target 'popup' | 'source'
+  local function focus(target)
+    if opts.before_focus then
+      opts.before_focus(target)
+    end
+
+    if target == 'source' then
+      M.focus_win(source_win)
+    elseif opts.focus_popup then
+      opts.focus_popup()
+    else
+      M.focus_win(popup_win)
+    end
+  end
+
+  vim.keymap.set(modes, 'q', close, { buffer = popup_buf, desc = close_desc })
+  vim.keymap.set(modes, '<Esc>', close, { buffer = popup_buf, desc = close_desc })
+  vim.keymap.set(modes, '<Tab>', function()
+    focus('source')
+  end, { buffer = popup_buf, desc = 'Focus Source Window' })
+
+  local release_source_maps = M.override_buf_keymaps(vim.api.nvim_win_get_buf(source_win), {
+    { modes, '<Esc>', close, { desc = close_desc } },
+    {
+      modes,
+      '<Tab>',
+      function()
+        focus('popup')
+      end,
+      { desc = string.format('Focus %s Window', opts.name) },
+    },
+  })
+
+  vim.api.nvim_create_autocmd('WinClosed', {
+    pattern = tostring(popup_win),
+    once = true,
+    callback = release_source_maps,
+  })
+end
+
 return M

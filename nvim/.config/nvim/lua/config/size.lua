@@ -1,11 +1,12 @@
 --- @class config.size.Dimensions
 --- @field HEIGHT_OFFSET? number
+--- @field ROW_OFFSET? number Rows to shift the centered popup by
 --- @field MIN_HEIGHT? number
 --- @field MIN_WIDTH? number
 --- @field HEIGHT number
 --- @field WIDTH number
 
---- @alias config.size.PopupPreset 'full' | 'lg' | 'vertical_md' | 'vertical_sm' | 'md' | 'sm'
+--- @alias config.size.PopupPreset 'full' | 'lg' | 'vertical_md' | 'vertical_sm' | 'sm'
 
 --- @class config.size
 local M = {}
@@ -15,6 +16,7 @@ M.popup = {
     WIDTH = 1,
     HEIGHT = 1,
     HEIGHT_OFFSET = -3, -- 2 for the top/bottom borders, 1 for the winbar, we cover the statusline
+    ROW_OFFSET = -1, -- Off center by one row to cover the winbar
   },
 
   lg = {
@@ -36,13 +38,6 @@ M.popup = {
     HEIGHT = 0.8,
     MIN_WIDTH = 65,
     MIN_HEIGHT = 15,
-  },
-
-  md = {
-    WIDTH = 0.65,
-    HEIGHT = 0.65,
-    MIN_WIDTH = 85,
-    MIN_HEIGHT = 12,
   },
 
   sm = {

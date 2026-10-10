@@ -1,15 +1,6 @@
 --- @class utils.ui.color
 local M = {}
 
---- Set multiple highlight groups at once
---- @param custom_highlights table<string, vim.api.keyset.highlight> Map of group names to styles
---- @return nil
-function M.highlights(custom_highlights)
-  for group, style in pairs(custom_highlights) do
-    vim.api.nvim_set_hl(0, group, style)
-  end
-end
-
 --- Convert hex color to RGB components
 --- @param hex string Hex color
 --- @return integer r Red component (0-255)

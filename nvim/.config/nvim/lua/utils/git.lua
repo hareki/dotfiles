@@ -119,9 +119,7 @@ local function resolve_repo_name(cwd)
       repo_cache.pending_cwd = nil
     end
 
-    if UI.statusline.enabled() then
-      UI.statusline.refresh()
-    end
+    UI.statusline.refresh()
   end
 
   M.exec_cmd_async('rev-parse --show-toplevel', nil, function(toplevel)

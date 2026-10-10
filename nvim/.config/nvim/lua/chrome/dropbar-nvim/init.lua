@@ -1,6 +1,7 @@
 return {
+  -- The other DropBarKind* groups come from catppuccin's dropbar integration (core/catppuccin-nvim.lua)
   UI.catppuccin(function(palette)
-    local highlights = {
+    return {
       DropBarIconGreen = { fg = palette.green },
       DropBarIconPurple = { fg = palette.mauve },
       DropBarIconYellow = { fg = palette.yellow },
@@ -10,20 +11,12 @@ return {
       DropBarKindFileBar = { fg = palette.blue, bold = true },
       DropBarKindFileBarNC = { link = 'DropBarKindFileBar' },
 
-      DropBarIconUIIndicator = { fg = palette.blue, bg = nil },
-      DropBarIconUISeparator = { fg = palette.overlay1 },
+      DropBarIconUIIndicator = { fg = palette.blue },
 
       DropBarMenuHoverEntry = { link = 'ListCursorLine' },
       DropBarMenuCurrentContext = { link = 'ListCursorLine' },
       DropBarMenuHoverIcon = { link = 'DropBarMenuIcon' }, -- Disable reversing color when hovering
     }
-
-    local dropbar_utils = require('chrome.dropbar-nvim.utils')
-    for _, kind in ipairs(dropbar_utils.KIND_SUFFIXES) do
-      local group = 'DropBarKind' .. kind
-      highlights[group] = highlights[group] or { fg = palette.text }
-    end
-    return highlights
   end, 'dropbar.nvim'),
 
   UI.which_key({
@@ -105,11 +98,9 @@ return {
         },
 
         -- https://github.com/Bekaboo/dropbar.nvim?tab=readme-ov-file#bar
-        -- Intercept and limit the lsp items to avoid too deeply nested items
         bar = {
           enable = dropbar_utils.enable,
           truncate = false,
-          hover = true,
           sources = function(buf, win)
             -- Some ft/bt can slip through the enable check because their ft/bt are set later (E.g. grug-far)
             if dropbar_utils.is_ignored_filetype(buf) or dropbar_utils.is_ignored_buftype(buf) then
@@ -124,47 +115,32 @@ return {
               return dropbar_utils.title_symbol(title)
             end
 
-            if vim.bo[buf].filetype == 'markdown' then
-              return {
-                sources.path,
-                sources.markdown,
-              }
-            end
-
-            local path_item_limit = 5
-            local lsp_item_limit = 6
-
             local custom_path = {
               get_symbols = function(b, w, cursor)
-                local syms = sources.path.get_symbols(b, w, cursor)
                 --- @type dropbar_symbol_t[]
-                local sliced = vim.list_slice(syms, math.max(1, #syms - path_item_limit + 1))
-                if #sliced > 0 then
+                local syms = sources.path.get_symbols(b, w, cursor)
+                if #syms > 0 then
                   -- Set a different highlight group for the last item (the file name) to avoid affecting other places
-                  local last = sliced[#sliced]
+                  local last = syms[#syms]
                   local hl = (w == vim.api.nvim_get_current_win()) and 'DropBarKindFileBar'
                     or 'DropBarKindFileBarNC'
                   last.name_hl = hl
                 end
-                return sliced
-              end,
-            }
-
-            local custom_lsp = {
-              get_symbols = function(b, w, cursor)
-                return vim.list_slice(sources.lsp.get_symbols(b, w, cursor), 1, lsp_item_limit)
+                return syms
               end,
             }
 
             return {
               custom_path,
-              custom_lsp,
+              vim.bo[buf].filetype == 'markdown' and sources.markdown or sources.lsp,
             }
           end,
         },
 
         sources = {
           path = {
+            -- The path is walked up from the file, so this keeps its innermost segments
+            max_depth = 5,
             relative_to = function()
               local path_utils = require('utils.path')
               return path_utils.get_initial_path()
@@ -173,6 +149,9 @@ return {
             filter = function(name)
               return name ~= '.DS_Store'
             end,
+          },
+          lsp = {
+            max_depth = 6, -- Limit the lsp items to avoid too deeply nested items
           },
         },
       }

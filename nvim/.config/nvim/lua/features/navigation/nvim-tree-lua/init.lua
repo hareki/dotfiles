@@ -68,22 +68,21 @@ return {
         },
 
         win_position = {
-          col = function(_, size)
+          col = function()
             if state.position == 'float' then
               return -1
             end
 
-            return -size.width - 3
+            return UI.layout.side_preview().col
           end,
 
-          row = function(tree_win, size)
-            local tree_cfg = vim.api.nvim_win_get_config(tree_win)
-
+          row = function(tree_win)
             if state.position == 'float' then
+              local tree_cfg = vim.api.nvim_win_get_config(tree_win)
               return tree_cfg.height + 1
             end
-            local _, row = UI.layout.center(size.width, size.height)
-            return row
+
+            return UI.layout.side_preview().row
           end,
         },
 
@@ -102,11 +101,11 @@ return {
             }
           end
 
-          local preview_cols, preview_rows = UI.layout.side_size('side_preview', 'md')
+          local preview = UI.layout.side_preview()
 
           return {
-            width = preview_cols,
-            height = preview_rows,
+            width = preview.width,
+            height = preview.height,
           }
         end,
       }
@@ -168,26 +167,14 @@ return {
           },
         },
         filters = {
-          enable = true,
           git_ignored = false,
           custom = { '^\\.DS_Store$' },
         },
         git = {
-          enable = true,
           show_on_dirs = false,
-          show_on_open_dirs = true,
-          disable_for_dirs = {},
-          timeout = 400,
         },
         diagnostics = {
           enable = true,
-          show_on_dirs = false,
-          show_on_open_dirs = true,
-          debounce_delay = 500,
-          severity = {
-            min = vim.diagnostic.severity.HINT,
-            max = vim.diagnostic.severity.ERROR,
-          },
           icons = {
             error = Conf.icons.diagnostics.ERROR,
             warning = Conf.icons.diagnostics.WARN,
@@ -197,9 +184,7 @@ return {
         },
         renderer = {
           root_folder_label = tree.format_root_label,
-          indent_width = 2,
           special_files = {},
-          highlight_diagnostics = 'none',
           icons = {
             show = {
               folder_arrow = false,
@@ -232,8 +217,6 @@ return {
         },
 
         view = {
-          number = false,
-          relativenumber = false,
           signcolumn = 'no',
           statuscolumn = ' ',
           side = 'right',
@@ -245,7 +228,6 @@ return {
 
           float = {
             enable = state.position == 'float',
-            quit_on_focus_loss = true,
             open_win_config = function()
               return vim.tbl_extend('force', tree.float_geometry('collapse'), {
                 title = string.format(' %s ', ui_name),

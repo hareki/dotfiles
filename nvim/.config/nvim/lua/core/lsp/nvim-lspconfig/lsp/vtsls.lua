@@ -1,17 +1,5 @@
 local ts_config = {
   updateImportsOnFileMove = { enabled = 'always' },
-  suggest = {
-    completeFunctionCalls = false,
-  },
-  inlayHints = {
-    enumMemberValues = { enabled = false },
-    functionLikeReturnTypes = { enabled = false },
-    -- Unlike its boolean siblings, this key is an enum: 'none' | 'literals' | 'all'
-    parameterNames = { enabled = 'none' },
-    parameterTypes = { enabled = false },
-    propertyDeclarationTypes = { enabled = false },
-    variableTypes = { enabled = false },
-  },
 }
 
 return {

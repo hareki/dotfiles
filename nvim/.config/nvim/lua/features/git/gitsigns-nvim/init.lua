@@ -33,14 +33,10 @@ return {
       local build_popup_navigation = utils.build_popup_navigation
 
       return {
-        numhl = false,
-        signcolumn = true,
-
         current_line_blame = true,
         current_line_blame_formatter = '<author>, <author_time:%R> - <summary>',
         current_line_blame_opts = {
           delay = 300,
-          virt_text = true,
           virt_text_priority = 999,
         },
 
@@ -131,12 +127,12 @@ return {
           end, 'Blame Buffer')
 
           map('n', '<leader>hb', function()
-            gs.blame_line({ full = true }, build_popup_navigation(buffer, 'blame'))
+            gs.blame_line({ full = true }, build_popup_navigation('blame'))
           end, 'Blame Line')
 
           map('n', '<leader>hp', function()
             gs.preview_hunk()
-            vim.schedule(build_popup_navigation(buffer, 'hunk'))
+            vim.schedule(build_popup_navigation('hunk'))
           end, 'Preview Hunk')
         end,
       }

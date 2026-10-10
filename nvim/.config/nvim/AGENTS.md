@@ -53,7 +53,7 @@ Six globals available everywhere (five set in `globals.lua`, one by its plugin).
 
 - `Defer` (`utils.lazy-require`): `Defer.on_index(path)` defers the `require` until the first field access, `Defer.on_exported_call(path)` until the first call of an exported function
 - `Notifier` (lazy proxy => `utils.notifier`): `Notifier.info('msg')`, `Notifier.warn('msg', { title = 'T' })`, `Notifier.error()`
-- `Conf` (`config`; `config/init.lua` assembles the `config.*` tables): `Conf.icons` (never hardcode icons), `Conf.filetypes` (`JS`, `JSX`, `CSS`, `MARKDOWN`, …), `Conf.priority` (`CORE=1000`, `CHROME=900`, `FEATURE=800`), `Conf.picker`, `Conf.size`, `Conf.cmp` (from `config/completion.lua`)
+- `Conf` (`config`; `config/init.lua` assembles the `config.*` tables): `Conf.icons` (never hardcode icons), `Conf.filetypes` (`JS`, `JSX`, `CSS`, `MARKDOWN`, …), `Conf.priority` (`CORE=1000`, `CHROME=900`), `Conf.picker`, `Conf.size`, `Conf.cmp` (from `config/completion.lua`)
 - `UI` (`utils.ui`, direct require):
   - Spec registration: `UI.catppuccin(fn, plugin_name?)`, `UI.which_key(spec)`
   - Helpers: `UI.layout.popup()` / `UI.layout.popup_fn()` / `UI.layout.side_size()`, `UI.color.blend_hex()`, `UI.pill.virt_text()`, `UI.cursorline.set_cursorline()`
@@ -95,9 +95,10 @@ For plugins with state or large configs: `init.lua` (specs) + `utils.lua` (helpe
 
 Never hardcode dimensions; size floats through `UI.layout` (`utils/ui/layout.lua`). `with_border=true` adds 2 cells per dimension for consumers whose size includes the border.
 
-- `UI.layout.popup(size, with_border)`: centered window config for a `Conf.size.popup` preset (`full`, `lg`, `vertical_md`, `vertical_sm`, `md`, `sm`) or `'input'`
+- `UI.layout.popup(size, with_border)`: centered window config for a `Conf.size.popup` preset (`full`, `lg`, `vertical_md`, `vertical_sm`, `sm`) or `'input'`
 - `UI.layout.popup_fn(size, with_border)`: the same with function-valued fields, resolved at window-open time so popups stay sized and centered after terminal resizes. Use it when the consumer accepts callables (Snacks does for `width`/`height`/`col`/`row`, but not `max_width`/`max_height`, so leave those unset)
 - `UI.layout.side_size(category, variant, with_border)`: side panels (`side_panel`: `sm`/`md`) and side previews (`side_preview`: `md`)
+- `UI.layout.side_preview()`: the side preview's `width`/`height`/`row`/`col`, vertically centered and docked left of the side panel it's relative to (grug-far, nvim-tree)
 - `UI.layout.telescope(size)`: Telescope `layout_config`
 - `UI.layout.center(width, height)`: the `col`/`row` that center a window of any size, for floats sized outside the presets (e.g. a side preview's `row`)
 - `UI.layout.inline_max_height` / `UI.layout.inline_max_width`: resize-safe caps for inline popups; pass the functions themselves

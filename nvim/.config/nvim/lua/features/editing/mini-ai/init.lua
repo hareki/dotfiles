@@ -75,13 +75,7 @@ return {
 
     mini_ai.setup(opts)
 
-    local package_utils = require('utils.package')
     local utils = require('features.editing.mini-ai.utils')
-
-    package_utils.on_load('which-key.nvim', function()
-      vim.schedule(function()
-        utils.whichkey()
-      end)
-    end)
+    utils.whichkey()
   end,
 }

@@ -18,7 +18,6 @@ return {
     priority = Conf.priority.CHROME,
 
     opts = function()
-      local popup = UI.layout.popup('md')
       local trouble_ignored_parsers = { 'text' }
 
       return {
@@ -38,9 +37,6 @@ return {
           view_search = false,
         },
         presets = {
-          bottom_search = false,
-          command_palette = false,
-          inc_rename = false,
           lsp_doc_border = true,
           long_message_to_split = true,
         },
@@ -49,8 +45,6 @@ return {
             zindex = 999, -- Ensure cmdline popup is always on top
           },
           confirm = {
-            backend = 'popup',
-            relative = 'editor',
             timeout = false,
             position = {
               row = '50%',
@@ -58,8 +52,6 @@ return {
             },
             win_options = {
               winhighlight = {
-                Normal = 'NoiceConfirm',
-                FloatBorder = 'NoiceConfirmBorder',
                 FloatTitle = 'WarningMsg',
                 Question = 'Normal',
                 MoreMsg = 'Normal',
@@ -74,19 +66,9 @@ return {
 
           signature = {
             enabled = false,
-            --- @type NoiceViewOptions
-            opts = {
-              border = 'rounded',
-              size = {
-                width = popup.width,
-                height = popup.height,
-              },
-            },
           },
           override = {
             ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
-            ['vim.lsp.util.stylize_markdown'] = true,
-            ['cmp.entry.get_documentation'] = true,
           },
         },
         routes = {

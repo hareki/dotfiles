@@ -35,7 +35,6 @@ return {
       local appearance = require('features.completion.blink-cmp.config.appearance')
 
       return {
-        fuzzy = { implementation = 'prefer_rust_with_warning' },
         signature = { enabled = true, window = { border = 'rounded' } },
         appearance = appearance.default,
 
@@ -44,8 +43,6 @@ return {
         keymap = keymap.default,
 
         cmdline = {
-          enabled = true,
-
           sources = sources.cmdline,
           completion = completion.cmdline,
           keymap = keymap.cmdline,

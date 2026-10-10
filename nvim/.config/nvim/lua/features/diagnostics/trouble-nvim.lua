@@ -1,6 +1,22 @@
 --- @module 'trouble'
 local trouble = Defer.on_exported_call('trouble')
 
+--- Jump to the next/previous item of the open trouble view, else of the quickfix list
+--- @param direction 'next' | 'prev'
+local function jump(direction)
+  return function()
+    if trouble.is_open() then
+      --- @diagnostic disable-next-line: missing-parameter, missing-fields
+      trouble[direction]({ jump = true })
+    else
+      local ok, err = pcall(vim.cmd[direction == 'next' and 'cnext' or 'cprev'])
+      if not ok then
+        Notifier.error(err)
+      end
+    end
+  end
+end
+
 return {
   UI.catppuccin(function()
     return {
@@ -14,37 +30,8 @@ return {
     'hareki/trouble.nvim',
     cmd = { 'Trouble' },
     keys = {
-      {
-        '[q',
-        function()
-          if trouble.is_open() then
-            --- @diagnostic disable-next-line: missing-parameter, missing-fields
-            trouble.prev({ jump = true })
-          else
-            local ok, err = pcall(vim.cmd.cprev)
-            if not ok then
-              Notifier.error(err)
-            end
-          end
-        end,
-        desc = 'Previous Trouble/Quickfix Item',
-      },
-
-      {
-        ']q',
-        function()
-          if trouble.is_open() then
-            --- @diagnostic disable-next-line: missing-parameter, missing-fields
-            trouble.next({ jump = true })
-          else
-            local ok, err = pcall(vim.cmd.cnext)
-            if not ok then
-              Notifier.error(err)
-            end
-          end
-        end,
-        desc = 'Next Trouble/Quickfix Item',
-      },
+      { '[q', jump('prev'), desc = 'Previous Trouble/Quickfix Item' },
+      { ']q', jump('next'), desc = 'Next Trouble/Quickfix Item' },
     },
 
     opts = function()
@@ -69,9 +56,7 @@ return {
         common.focus_win(preview.win)
 
         map('n', '<Tab>', function()
-          if vim.api.nvim_win_is_valid(trouble_win) then
-            common.focus_win(trouble_win)
-          end
+          common.focus_win(trouble_win)
         end, 'Focus Trouble Window')
 
         map('n', '<CR>', function()
@@ -83,9 +68,7 @@ return {
         end, 'Jump to Item')
 
         map('n', 'q', function()
-          if vim.api.nvim_win_is_valid(trouble_win) then
-            common.focus_win(trouble_win)
-          end
+          common.focus_win(trouble_win)
           if vim.api.nvim_win_is_valid(preview.win) then
             vim.api.nvim_win_close(preview.win, true)
           end

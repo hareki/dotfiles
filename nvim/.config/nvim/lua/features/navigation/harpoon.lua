@@ -31,13 +31,10 @@ return {
             local old_item = list:get(current_index)
 
             local new_filepath = vim.api.nvim_buf_get_name(0)
-            local new_relpath =
-              path_utils.get_relative_path(new_filepath, vim.uv.cwd() or vim.fn.getcwd())
+            local new_relpath = path_utils.get_relative_path(new_filepath)
 
             local old_filepath = old_item and old_item.value or nil
-            local old_relpath = old_filepath
-                and path_utils.get_relative_path(old_filepath, vim.uv.cwd() or vim.fn.getcwd())
-              or nil
+            local old_relpath = old_filepath and path_utils.get_relative_path(old_filepath) or nil
 
             if old_item and old_item.value == new_item.value then
               Notifier.warn({
@@ -58,35 +55,32 @@ return {
 
             local item_exists_elsewhere = old_index ~= nil
             local slot_has_different_item = old_relpath ~= nil and old_relpath ~= new_relpath
-            local hl_title = (item_exists_elsewhere or slot_has_different_item)
-                and 'NotifyWARNTitle'
-              or 'NotifyINFOTitle'
 
             if item_exists_elsewhere then
               Notifier.warn({
                 { 'Moved ', 'Normal' },
-                { new_relpath, hl_title },
+                { new_relpath, 'NotifyWARNTitle' },
                 { '\nfrom slot ', 'Normal' },
-                { tostring(old_index), hl_title },
+                { tostring(old_index), 'NotifyWARNTitle' },
                 { ' to ', 'Normal' },
-                { tostring(current_index), hl_title },
+                { tostring(current_index), 'NotifyWARNTitle' },
               }, { title = 'Pin' })
             elseif slot_has_different_item then
               Notifier.warn({
                 { 'Replaced ', 'Normal' },
-                { old_relpath, hl_title },
+                { old_relpath, 'NotifyWARNTitle' },
                 { '\nwith ', 'Normal' },
-                { new_relpath, hl_title },
+                { new_relpath, 'NotifyWARNTitle' },
                 { '\nfor slot ', 'Normal' },
-                { tostring(current_index), hl_title },
+                { tostring(current_index), 'NotifyWARNTitle' },
               }, { title = 'Pin' })
             else
               -- Slot was empty, new file added
               Notifier.info({
                 { 'Added ', 'Normal' },
-                { new_relpath, hl_title },
+                { new_relpath, 'NotifyINFOTitle' },
                 { '\ninto slot ', 'Normal' },
-                { tostring(current_index), hl_title },
+                { tostring(current_index), 'NotifyINFOTitle' },
               }, { title = 'Pin' })
             end
           end,
