@@ -8,7 +8,7 @@ sync-forks() {
   local owner=hareki
   # Fork names (not upstream ones) whose drift is accepted, so they are skipped instead of synced
   local -a ignored=(eagle.nvim mason-registry maple-font)
-  local -a opt_jobs=(-j 10) opt_help forks merged conflicted failed unpulled
+  local -a opt_jobs=(-j 10) opt_help forks merged conflicted failed unpulled move
   local jobs list name branch upstream result state detail msg fifo slots dir ref tracking pulled
 
   zparseopts -D -F -K -- j:=opt_jobs -jobs:=opt_jobs -help=opt_help || return 1
@@ -78,20 +78,21 @@ sync-forks() {
             :
           elif ! git -C $dir merge-base --is-ancestor $ref $tracking; then
             pulled="$name unpulled diverged from origin/$branch"
-          elif [[ $(git -C $dir symbolic-ref -q HEAD) == $ref ]]; then
-            if [[ -n $(git -C $dir status --porcelain -uno) ]]; then
-              pulled="$name unpulled local changes"
-            elif result=$(git -C $dir merge -q --ff-only $tracking 2>&1); then
+          # Not checked out here, so only the ref has to move. Git refuses that while
+          # another worktree has the branch checked out or is rebasing it
+          elif [[ $(git -C $dir symbolic-ref -q HEAD) != $ref ]]; then
+            move=(fetch -q . $tracking:$ref)
+          elif [[ -n $(git -C $dir status --porcelain -uno) ]]; then
+            pulled="$name unpulled local changes"
+          else
+            move=(merge -q --ff-only $tracking)
+          fi
+          if (( $#move )); then
+            if result=$(git -C $dir $move 2>&1); then
               pulled="$name pulled $branch in ${(D)dir}"
             else
               pulled="$name unpulled ${result%%$'\n'*}"
             fi
-          # Not checked out here, so only the ref has to move. Git refuses that while
-          # another worktree has the branch checked out or is rebasing it
-          elif result=$(git -C $dir fetch -q . $tracking:$ref 2>&1); then
-            pulled="$name pulled $branch in ${(D)dir}"
-          else
-            pulled="$name unpulled ${result%%$'\n'*}"
           fi
         fi
         # A single print, so another fork's report can't land between these two lines

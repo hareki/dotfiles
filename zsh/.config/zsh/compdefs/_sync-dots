@@ -2,12 +2,13 @@
 
 local -a items=(
   '--help:Show usage info'
+  '--list:Print package names'
   'all:Sync every package directory in $STOW_REPO'
 )
 local d
 
-# Get package directories under $STOW_REPO and feed them into completion
-for d in "$STOW_REPO"/*(/N:t); do
+# Package directories under $STOW_REPO, minus the ones `sync-dots all` skips
+for d in ${(f)"$(sync-dots --list)"}; do
   items+=("$d:Sync $d configs")
 done
 

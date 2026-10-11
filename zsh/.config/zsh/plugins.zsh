@@ -3,6 +3,10 @@ ANTIDOTE_HOME="$HOME/.cache/antidote"
 # use-omz only skips its `$(antidote path ohmyzsh/ohmyzsh)` subshell (~15ms) when
 # $ZSH is already set, which otherwise only holds for shells that inherit it
 export ZSH="$ANTIDOTE_HOME/github.com/ohmyzsh/ohmyzsh"
+# p10k forks `who -m` (~2.5ms) in every shell on a new tty (tmux panes, nvim
+# terminals), looking for an SSH login whose SSH_* vars were lost (su on a remote
+# host); without those vars, settle it as local up front
+[[ -n $SSH_CLIENT$SSH_TTY$SSH_CONNECTION ]] || export P9K_SSH=0 _P9K_SSH_TTY=$TTY
 
 # Cache expensive `eval "$(cmd)"` output; invalidate with _evalcache_clear.
 #
@@ -56,7 +60,7 @@ _evalcache_clear() {
 }
 
 # Update oh-my-zsh automatically without asking
-zstyle ':omz:update' mode auto  
+zstyle ':omz:update' mode auto
 
 # Load the personal ssh identity up front; ~/.ssh/config adds the others on first
 # use (AddKeysToAgent)
@@ -95,6 +99,20 @@ source ~/.zplugins.bundled.zsh
 
 # use-omz forks `scutil` for this in every shell that doesn't inherit it
 export SHORT_HOST
+
+# use-omz also drops the completion dump whenever omz's git HEAD moves, forking
+# `git rev-parse` (~9ms) at every shell's first prompt. No omz dir on fpath holds
+# `_*` files, so only an fpath change can stale the dump
+has-zcompdump-expired() {
+  [[ -r $ZSH_CACHE_DIR/zcompdump-metadata.zsh ]] && source $ZSH_CACHE_DIR/zcompdump-metadata.zsh
+  [[ "$fpath" != "$ZSH_COMPDUMP_FPATH" ]] || return 1
+  typeset -ga ZSH_COMPDUMP_FPATH=($fpath)
+  typeset -p ZSH_COMPDUMP_FPATH >| $ZSH_CACHE_DIR/zcompdump-metadata.zsh
+}
+
+# omz's lib/theme-and-appearance.zsh exports LS_COLORS, which eza would apply on top
+# of its theme.yml (EZA_CONFIG_DIR, set in .zshenv)
+unset LS_COLORS
 
 # Force zsh not to show completion menu, which allows fzf-tab to capture the
 # unambiguous prefix. omz's lib/completion.zsh sets `menu select` under this more

@@ -4,22 +4,27 @@
 # root-anchored patterns in stow/.stow-global-ignore
 sync-dots () {
   local failed=0
-  local -a dirs
+  local -a dirs packages
   local dir
+  # App settings exports that are imported by hand, not stowed into $HOME
+  local -a ignored=(better-mouse simple-translate zen-browser)
 
-  if [[ -z "$STOW_REPO" || ! -d "$STOW_REPO" ]]; then
+  if [[ ! -d "$STOW_REPO" ]]; then
     echo "STOW_REPO must be set to an existing directory." >&2
     return 1
   fi
+  packages=("$STOW_REPO"/*(/N:t))
+  packages=(${packages:|ignored})
 
   case "$1" in
+    --list) print -l $packages; return 0 ;;
     --help|"")
       print "Usage: sync-dots <dir>..."
       print "       sync-dots all   # sync every package directory in \$STOW_REPO"
       return 0
       ;;
     all)
-      dirs=("$STOW_REPO"/*(/N:t))
+      dirs=($packages)
       ;;
     *)
       dirs=("$@")

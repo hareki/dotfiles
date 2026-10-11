@@ -3,11 +3,16 @@
 
 export REPOS_DIR="$HOME/Repositories/personal"
 export STOW_REPO="$REPOS_DIR/dotfiles"
-unset EZA_COLORS LS_COLORS # Centralize eza theme config (EZA_CONFIG_DIR, set in .zshenv)
 
 # Don't mark output that lacks a trailing newline with a highlighted %
 # https://unix.stackexchange.com/questions/167582/why-zsh-ends-a-line-with-a-highlighted-percent-symbol
 PROMPT_EOL_MARK=''
+
+# The two settings of the skipped /etc/zshrc that nothing overrides later: combining
+# accents render in place (macOS file names are NFD), and `log` runs /usr/bin/log
+# instead of zsh's builtin
+setopt combining_chars
+disable log
 
 # FZF Catppuccin Mocha color
 export FZF_DEFAULT_OPTS=" \

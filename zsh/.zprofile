@@ -2,3 +2,6 @@
 # PATH order. Re-applied here rather than only in .zshrc, so non-interactive login
 # shells (`zsh -lc`) keep the order as well
 path=($user_path $path)
+
+# Skip /etc/zshrc now that /etc/zprofile has run (see .zshenv)
+unsetopt global_rcs

@@ -1,5 +1,5 @@
 #compdef tv
 
-# Get list of files in cable directory and strip extensions
-local -a files=("$XDG_CONFIG_HOME"/television/cable/*(.N:t:r))
-_describe 'television cables' files
+# Channels as tv lists them: the cable dir plus the ones built into tv (~4ms)
+local -a channels=(${(f)"$(tv list-channels)"})
+_describe 'television channels' channels

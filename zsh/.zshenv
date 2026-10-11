@@ -23,11 +23,10 @@ export EZA_CONFIG_DIR="$XDG_CONFIG_HOME/eza"
 [[ -n $MERCURY_API_KEY ]] || export MERCURY_API_KEY=$(security find-generic-password -a "$USER" -s "MERCURY_API_KEY" -w)
 [[ -n $ANTHROPIC_API_KEY ]] || export ANTHROPIC_API_KEY=$(security find-generic-password -a "$USER" -s "ANTHROPIC_API_KEY" -w)
 
-# Aliases needed in non-interactive shells, others should go into aliases.zsh for performance
+# Aliases needed in non-interactive shells (television runs its cable commands
+# through `$SHELL -c`), others should go into aliases.zsh for performance
 alias eza='eza --icons=always --color=always --no-user'
 alias fdt='fd --type dir --hidden --exclude .git'
-# Prevent fd from taking 100% CPU for long-running searches
-alias fd='gtimeout 5s fd'
 
 # PATH for every zsh, highest precedence first: same-name wrappers, tools that
 # `build` installs, mise, Homebrew, then `gcloud components install` binaries
@@ -40,3 +39,8 @@ typeset -a user_path=(
 )
 typeset -U path
 path=($user_path $path)
+
+# Skip /etc/zshrc, which forks `locale` in every interactive shell; options.zsh keeps
+# the two settings of it that nothing overrides later. Login shells still need
+# /etc/zprofile's path_helper, so .zprofile turns the global files off after it
+[[ -o login ]] || unsetopt global_rcs

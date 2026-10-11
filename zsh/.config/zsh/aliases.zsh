@@ -3,7 +3,6 @@
 alias ...="cd ../.."
 alias ....="cd ../../.."
 
-alias compz="zcompile ~/.zshrc"
 alias cl="clear"
 alias cc="claude"
 alias nv="nvim"

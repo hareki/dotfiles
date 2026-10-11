@@ -7,6 +7,6 @@ local -a targets=(
 )
 local t
 for t in ${(f)"$(build --list)"}; do
-  [[ $t == all ]] || targets+=("$t:Build the $t checkout in the current directory")
+  targets+=("$t:Build the $t checkout in the current directory")
 done
 _describe 'build targets' targets

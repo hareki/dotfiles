@@ -16,7 +16,7 @@
 cts() {
   local file="claude-code/.claude/settings.json"
 
-  if [[ -z "$STOW_REPO" || ! -d "$STOW_REPO" ]]; then
+  if [[ ! -d "$STOW_REPO" ]]; then
     echo "STOW_REPO must be set to an existing directory." >&2
     return 1
   fi

@@ -2,7 +2,7 @@
 
 ![image](./assets/docs/demo.png)
 
-Feature-packed zsh setup with ~45ms startup. Optimized via static plugin bundling, eval caching, bytecode compilation, and function autoloading.
+Feature-packed zsh setup with ~55ms to the first usable prompt (~30ms for `zsh -i -c exit`). Optimized via static plugin bundling, eval caching, bytecode compilation, and function autoloading.
 
 ## Core Ideas
 
@@ -23,8 +23,8 @@ Feature-packed zsh setup with ~45ms startup. Optimized via static plugin bundlin
 ## Config Structure
 
 ```
-.zshenv                             # Non-interactive: XDG, secrets (keychain), PATH, mise shims
-.zprofile                           # Login: re-apply the PATH order after path_helper
+.zshenv                             # All shells: XDG, secrets (keychain), PATH, mise shims
+.zprofile                           # Login: re-apply the PATH order after path_helper, skip /etc/zshrc
 .zshrc                              # Interactive: prompt, plugins, modules
 .zplugins                           # Antidote plugin manifest
 .config/zsh/
