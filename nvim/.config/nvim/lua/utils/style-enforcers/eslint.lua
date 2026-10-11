@@ -3,15 +3,10 @@ local M = {}
 
 --- Run eslint auto-fix on a buffer via LSP
 --- Executes eslint.applyAllFixes command through the eslint language server.
---- @param opts { bufnr: integer, on_done: fun(ok: boolean, err?: string) }
+--- @param opts { bufnr: integer, client: vim.lsp.Client, on_done: fun(ok: boolean, err?: string) }
 --- @return nil
 function M.run(opts)
   local bufnr = opts.bufnr
-  local eslint = vim.lsp.get_clients({ name = 'eslint', bufnr = bufnr })[1]
-  if not eslint then
-    return opts.on_done(false, 'eslint client missing')
-  end
-
   local params = {
     command = 'eslint.applyAllFixes',
     arguments = {
@@ -22,7 +17,7 @@ function M.run(opts)
     },
   }
 
-  eslint:request('workspace/executeCommand', params, function(err)
+  opts.client:request('workspace/executeCommand', params, function(err)
     if err then
       return opts.on_done(false, err.message)
     end

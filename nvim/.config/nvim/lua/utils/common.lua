@@ -170,6 +170,7 @@ end
 --- @field modes? string | string[] Modes to map (default 'n')
 --- @field focus_popup? fun() Focus the popup instead of the default autocmd-free switch
 --- @field before_focus? fun(target: 'popup' | 'source') Runs before either focus switch, e.g. so the plugin ignores the CursorMoved it causes
+--- @field esc_passthrough? boolean Have the source window's <Esc> also do what it does without the popup (e.g. the global Clear Highlight)
 
 --- Link a popup to the window it was opened from (the current one): <Tab> toggles focus
 --- between the two, and <Esc> closes the popup from either side, as does q inside it.
@@ -178,8 +179,13 @@ end
 --- @param opts utils.common.LinkPopupOpts
 --- @return nil
 function M.link_popup(popup_win, opts)
-  local modes = opts.modes or 'n'
   local source_win = vim.api.nvim_get_current_win()
+  -- Already linked when it opened: gitsigns focuses an open popup rather than opening another
+  if popup_win == source_win then
+    return
+  end
+
+  local modes = opts.modes or 'n'
   local popup_buf = vim.api.nvim_win_get_buf(popup_win)
   local close_desc = 'Close ' .. opts.name
 
@@ -202,28 +208,67 @@ function M.link_popup(popup_win, opts)
     end
   end
 
-  vim.keymap.set(modes, 'q', close, { buffer = popup_buf, desc = close_desc })
-  vim.keymap.set(modes, '<Esc>', close, { buffer = popup_buf, desc = close_desc })
-  vim.keymap.set(modes, '<Tab>', function()
-    focus('source')
-  end, { buffer = popup_buf, desc = 'Focus Source Window' })
+  --- @param lhs string
+  --- @param rhs function
+  --- @param desc string
+  local function map_popup(lhs, rhs, desc)
+    vim.keymap.set(modes, lhs, rhs, { buffer = popup_buf, nowait = true, desc = desc })
+  end
 
-  local release_source_maps = M.override_buf_keymaps(vim.api.nvim_win_get_buf(source_win), {
-    { modes, '<Esc>', close, { desc = close_desc } },
+  map_popup('q', close, close_desc)
+  map_popup('<Esc>', close, close_desc)
+  map_popup('<Tab>', function()
+    focus('source')
+  end, 'Focus Source Window')
+
+  local group = vim.api.nvim_create_augroup('utils.common.link-popup-' .. popup_win, {
+    clear = true,
+  })
+  local release_source_maps
+
+  local function release()
+    pcall(vim.api.nvim_del_augroup_by_id, group)
+    release_source_maps()
+  end
+
+  release_source_maps = M.override_buf_keymaps(vim.api.nvim_win_get_buf(source_win), {
+    {
+      modes,
+      '<Esc>',
+      function()
+        close()
+        if opts.esc_passthrough then
+          -- Released first, so the replayed key reaches what the override covered
+          release()
+          vim.api.nvim_feedkeys(vim.keycode('<Esc>'), 'm', false)
+        end
+      end,
+      { desc = close_desc, nowait = true },
+    },
     {
       modes,
       '<Tab>',
       function()
         focus('popup')
       end,
-      { desc = string.format('Focus %s Window', opts.name) },
+      { desc = string.format('Focus %s Window', opts.name), nowait = true },
     },
   })
 
   vim.api.nvim_create_autocmd('WinClosed', {
+    group = group,
     pattern = tostring(popup_win),
-    once = true,
-    callback = release_source_maps,
+    callback = release,
+  })
+  -- A popup closed inside a non-nested autocmd (eagle closes on CmdlineEnter) fires no
+  -- WinClosed, so also check whenever Nvim is about to wait for input
+  vim.api.nvim_create_autocmd('SafeState', {
+    group = group,
+    callback = function()
+      if not vim.api.nvim_win_is_valid(popup_win) then
+        release()
+      end
+    end,
   })
 end
 

@@ -49,36 +49,13 @@ return {
         mode = { 'n', 'x' },
         desc = prefix .. 'Repeat Char Motion Reversed',
       },
-      {
-        's',
-        mode = { 'n', 'x', 'o' },
-        function()
-          flash.jump()
-        end,
-        desc = prefix .. 'Jump',
-      },
-      {
-        'S',
-        mode = { 'n', 'o', 'x' },
-        function()
-          flash.treesitter()
-        end,
-        desc = prefix .. 'Treesitter',
-      },
-      {
-        'r',
-        mode = 'o',
-        function()
-          flash.remote()
-        end,
-        desc = prefix .. 'Remote',
-      },
+      { 's', flash.jump, mode = { 'n', 'x', 'o' }, desc = prefix .. 'Jump' },
+      { 'S', flash.treesitter, mode = { 'n', 'o', 'x' }, desc = prefix .. 'Treesitter' },
+      { 'r', flash.remote, mode = 'o', desc = prefix .. 'Remote' },
       {
         'R',
+        flash.treesitter_search,
         mode = { 'o', 'x' },
-        function()
-          flash.treesitter_search()
-        end,
         desc = prefix .. 'Treesitter Search',
       },
       -- Simulate nvim-treesitter incremental selection

@@ -61,7 +61,7 @@ return {
         LazySpecial = { fg = palette.blue },
         LazyProgressDone = { fg = palette.blue },
 
-        -- Custom highlight group, shared across dropbar.nvim, snacks.nvim and nvim-telescope
+        -- Custom highlight group, shared across dropbar.nvim and snacks.nvim
         ListCursorLine = { bg = palette.surface0 },
 
         ErrorMsg = { fg = palette.text, style = {} },
@@ -87,7 +87,6 @@ return {
         noice = true,
         notify = true,
         snacks = true,
-        telescope = true,
         which_key = true,
         blink_cmp = true,
         dropbar = true, -- color_mode = false comes from catppuccin's defaults

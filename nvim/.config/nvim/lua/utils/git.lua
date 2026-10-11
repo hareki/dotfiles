@@ -99,12 +99,17 @@ end
 --- name/toplevel pairing stays consistent even when a chain is abandoned.
 --- @param cwd string The cwd this chain resolves for
 local function resolve_repo_name(cwd)
+  --- Mark this chain done, unless a chain for a newer cwd has taken over the slot
+  local function release_pending()
+    if repo_cache.pending_cwd == cwd then
+      repo_cache.pending_cwd = nil
+    end
+  end
+
   -- A cwd that changed and changed back compares equal, which is correct
   local function superseded()
     if vim.uv.cwd() ~= cwd then
-      if repo_cache.pending_cwd == cwd then
-        repo_cache.pending_cwd = nil
-      end
+      release_pending()
       return true
     end
 
@@ -115,9 +120,7 @@ local function resolve_repo_name(cwd)
     repo_cache.name = name
     repo_cache.last_cwd = cwd
     repo_cache.toplevel = toplevel
-    if repo_cache.pending_cwd == cwd then
-      repo_cache.pending_cwd = nil
-    end
+    release_pending()
 
     UI.statusline.refresh()
   end
@@ -133,9 +136,7 @@ local function resolve_repo_name(cwd)
     -- visited directory.
     if repo_cache.name and toplevel and repo_cache.toplevel == toplevel then
       repo_cache.last_cwd = cwd
-      if repo_cache.pending_cwd == cwd then
-        repo_cache.pending_cwd = nil
-      end
+      release_pending()
       return
     end
 

@@ -19,8 +19,6 @@ return {
     },
 
     opts = function()
-      local preview_cols = UI.layout.side_size('side_panel', 'sm')
-
       return {
         diff = {
           navigation_message = false,
@@ -35,7 +33,7 @@ return {
           indent_markers = false,
           auto_open_on_cursor = true,
           position = 'right',
-          width = preview_cols,
+          width = UI.layout.side_size('side_panel', 'sm'),
           view_mode = 'tree',
 
           icons = {
@@ -70,11 +68,6 @@ return {
         group = group,
         pattern = 'CodeDiffClose',
         callback = codediff_utils.restore_focus,
-      })
-
-      vim.api.nvim_create_autocmd('TabClosed', {
-        group = vim.api.nvim_create_augroup('git.codediff.state-eviction', { clear = true }),
-        callback = codediff_utils.evict_closed_tabs,
       })
 
       local codediff = require('codediff')

@@ -1,9 +1,6 @@
 return {
   'rachartier/tiny-code-action.nvim',
   event = 'LspAttach',
-  dependencies = {
-    'hareki/snacks.nvim',
-  },
 
   opts = function()
     return {

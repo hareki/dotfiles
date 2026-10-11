@@ -24,21 +24,15 @@ return {
           '<leader>H' .. current_index,
           function()
             local harpoon = require('harpoon')
-            local path_utils = require('utils.path')
             local list = harpoon:list()
 
+            -- Item values are already relative to the cwd (absolute outside of it)
             local new_item = list.config.create_list_item(list.config)
             local old_item = list:get(current_index)
 
-            local new_filepath = vim.api.nvim_buf_get_name(0)
-            local new_relpath = path_utils.get_relative_path(new_filepath)
-
-            local old_filepath = old_item and old_item.value or nil
-            local old_relpath = old_filepath and path_utils.get_relative_path(old_filepath) or nil
-
             if old_item and old_item.value == new_item.value then
               Notifier.warn({
-                { new_relpath, 'NotifyWARNTitle' },
+                { new_item.value, 'NotifyWARNTitle' },
                 { '\nis already in slot ', 'Normal' },
                 { tostring(current_index), 'NotifyWARNTitle' },
               }, { title = 'Pin' })
@@ -53,24 +47,22 @@ return {
             -- Replace the item at slot i with new_item. If new_item exists in another slot, it is removed from that slot first.
             list:replace_at(current_index, new_item)
 
-            local item_exists_elsewhere = old_index ~= nil
-            local slot_has_different_item = old_relpath ~= nil and old_relpath ~= new_relpath
-
-            if item_exists_elsewhere then
+            if old_index then
               Notifier.warn({
                 { 'Moved ', 'Normal' },
-                { new_relpath, 'NotifyWARNTitle' },
+                { new_item.value, 'NotifyWARNTitle' },
                 { '\nfrom slot ', 'Normal' },
                 { tostring(old_index), 'NotifyWARNTitle' },
                 { ' to ', 'Normal' },
                 { tostring(current_index), 'NotifyWARNTitle' },
               }, { title = 'Pin' })
-            elseif slot_has_different_item then
+            elseif old_item then
+              -- The early return above rules out the same item
               Notifier.warn({
                 { 'Replaced ', 'Normal' },
-                { old_relpath, 'NotifyWARNTitle' },
+                { old_item.value, 'NotifyWARNTitle' },
                 { '\nwith ', 'Normal' },
-                { new_relpath, 'NotifyWARNTitle' },
+                { new_item.value, 'NotifyWARNTitle' },
                 { '\nfor slot ', 'Normal' },
                 { tostring(current_index), 'NotifyWARNTitle' },
               }, { title = 'Pin' })
@@ -78,7 +70,7 @@ return {
               -- Slot was empty, new file added
               Notifier.info({
                 { 'Added ', 'Normal' },
-                { new_relpath, 'NotifyINFOTitle' },
+                { new_item.value, 'NotifyINFOTitle' },
                 { '\ninto slot ', 'Normal' },
                 { tostring(current_index), 'NotifyINFOTitle' },
               }, { title = 'Pin' })

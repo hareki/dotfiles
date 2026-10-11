@@ -18,24 +18,9 @@ M.default = {
     'fallback',
   },
 
-  ['<PageUp>'] = {
-    function(cmp)
-      if cmp.is_documentation_visible() then
-        cmp.scroll_documentation_up(4)
-      end
-
-      return true
-    end,
-  },
-  ['<PageDown>'] = {
-    function(cmp)
-      if cmp.is_documentation_visible() then
-        cmp.scroll_documentation_down(4)
-      end
-
-      return true
-    end,
-  },
+  -- No 'fallback': unless the documentation is open, the keys do nothing in insert mode
+  ['<PageUp>'] = { 'scroll_documentation_up' },
+  ['<PageDown>'] = { 'scroll_documentation_down' },
   ['<Space>'] = {
     function(cmp)
       -- Force reset the completion context when typing too fast

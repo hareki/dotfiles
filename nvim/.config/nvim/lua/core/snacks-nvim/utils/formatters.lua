@@ -4,10 +4,9 @@ local M = {}
 --- Format function for keymap picker (icon, description, buffer, lhs, mode)
 --- Removes rhs and file columns from default format.
 --- @param item snacks.picker.Item The picker item
---- @param _picker snacks.Picker The picker instance
 --- @param width integer Available width for formatting
 --- @return snacks.picker.Highlight[] highlights Array of highlight segments
-function M.keymap_format(item, _picker, width)
+function M.keymap_format(item, width)
   local ret = {} --- @type snacks.picker.Highlight[]
   --- @type wk.Keymap
   local k = item.item
@@ -74,7 +73,9 @@ function M.buffer_format(item, picker)
     })
   end
 
-  if item.buf and vim.bo[item.buf].modified then
+  -- Formatted per visible row on every list render: getbufvar reads a hidden buffer's option
+  -- in place (~0.2us), where vim.bo switches into the autocmd window (~10us)
+  if item.buf and vim.fn.getbufvar(item.buf, '&modified') == 1 then
     ret[#ret + 1] = { Conf.icons.file_status.MODIFIED, 'ModifiedIndicator' }
   end
 

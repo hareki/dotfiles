@@ -117,17 +117,22 @@ end
 --- position, with the height halved to leave room for the preview below
 --- ('collapse') or filling the whole popup ('expand')
 --- @param action 'expand' | 'collapse'
---- @return utils.ui.layout.WinConfig
+--- @return utils.ui.layout.WinConfig tree
+--- @return integer preview_height Height of the preview below the collapsed tree
 function M.float_geometry(action)
   local size = UI.layout.popup(M.compute_size())
+  -- Minus 1 for the space between the two windows
+  local collapsed_height = math.floor(size.height / 2) - 1
+  -- What the collapsed tree leaves, minus the 2 border rows between the windows
+  local preview_height = size.height - collapsed_height - 2
 
   return {
     width = size.width,
-    -- Minus 1 for the space between the two windows
-    height = action == 'collapse' and math.floor(size.height / 2) - 1 or size.height,
+    height = action == 'collapse' and collapsed_height or size.height,
     col = size.col,
     row = size.row,
-  }
+  },
+    preview_height
 end
 
 --- Toggle the tree window height between half and full in float mode, and
@@ -147,7 +152,8 @@ function M.toggle_tree_height(action)
   end
 
   local cfg = vim.api.nvim_win_get_config(tree_win)
-  vim.api.nvim_win_set_config(tree_win, vim.tbl_extend('force', cfg, M.float_geometry(action)))
+  local geometry = M.float_geometry(action)
+  vim.api.nvim_win_set_config(tree_win, vim.tbl_extend('force', cfg, geometry))
 end
 
 --- Re-apply the tree geometry against the current screen dimensions, so the
@@ -210,23 +216,22 @@ function M.toggle_focus()
   manager.instance:toggle_focus()
 end
 
---- @class features.navigation.nvim-tree.utils.OpenParams
---- @field switching boolean | nil
-
---- Open nvim-tree with optional switching behavior
---- Resets to float position if not switching and tree is not visible.
---- @param opts features.navigation.nvim-tree.utils.OpenParams | nil Options with switching flag
+--- Open nvim-tree, back in the float position unless the side tree is already visible
 --- @return nil
-function M.open(opts)
-  local switching = opts and opts.switching or false
-
-  -- Reset the position back to 'float' when opening the tree
-  if not switching and M.state.position ~= 'float' and not api.tree.is_visible() then
+function M.open()
+  if M.state.position ~= 'float' and not api.tree.is_visible() then
     M.switch_position('float')
   end
 
   -- The preview watcher augroup is created in on_attach (see the nvim-tree spec),
   -- which reruns per open since the tree buffer is bufhidden=wipe.
+  api.tree.open()
+end
+
+--- Reopen the tree as a side panel
+--- @return nil
+function M.switch_to_side()
+  M.switch_position('side')
   api.tree.open()
 end
 

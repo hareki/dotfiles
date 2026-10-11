@@ -6,25 +6,12 @@ local todo_comments = Defer.on_exported_call('todo-comments')
 
 return {
   'folke/todo-comments.nvim',
-  cmd = { 'TodoTrouble', 'TodoTelescope' },
+  cmd = 'TodoTrouble',
   event = 'VeryLazy',
-  dependencies = { 'hareki/snacks.nvim' },
 
   keys = {
-    {
-      ']t',
-      function()
-        todo_comments.jump_next()
-      end,
-      desc = 'Next Todo Comment',
-    },
-    {
-      '[t',
-      function()
-        todo_comments.jump_prev()
-      end,
-      desc = 'Previous Todo Comment',
-    },
+    { ']t', todo_comments.jump_next, desc = 'Next Todo Comment' },
+    { '[t', todo_comments.jump_prev, desc = 'Previous Todo Comment' },
     {
       '<leader>ft',
       function()

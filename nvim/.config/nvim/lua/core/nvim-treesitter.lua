@@ -51,7 +51,6 @@ return {
 
     vim.api.nvim_create_autocmd('FileType', {
       group = vim.api.nvim_create_augroup('core.nvim-treesitter.start', { clear = true }),
-      pattern = '*',
       callback = function(args)
         local lang = vim.treesitter.language.get_lang(args.match)
         -- File buffers always look the parser up, so one installed mid-session starts on :edit
@@ -124,12 +123,8 @@ return {
     end
 
     -- https://morizbuesing.com/blog/mdx-support-in-nvchad/
+    -- (handlebars => glimmer and htmlangular => angular come from the plugin's own
+    -- plugin/filetypes.lua, sourced before this config runs)
     vim.treesitter.language.register('markdown', 'mdx')
-
-    -- The handlebars grammar is provided by the glimmer parser
-    vim.treesitter.language.register('glimmer', 'handlebars')
-
-    -- The angular grammar drives Angular component templates (htmlangular)
-    vim.treesitter.language.register('angular', 'htmlangular')
   end,
 }

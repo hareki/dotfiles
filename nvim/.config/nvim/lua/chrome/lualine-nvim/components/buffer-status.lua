@@ -5,14 +5,15 @@ local unmerged_icon = Conf.icons.git.UNMERGED .. ' '
 --- @class chrome.lualine.components.buffer-status : lualine.component
 local M = component:extend()
 
+-- getbufvar rather than vim.bo for other buffers: vim.bo reads a hidden buffer's option by
+-- switching into the autocmd window (~10us per read, against ~0.2us). Booleans come back as 0/1
+local getbufvar = vim.fn.getbufvar
+
 local IGNORE_FILETYPES = {
   NvimTree = true,
   lazy = true,
-  TelescopePrompt = true,
-  TelescopeResults = true,
-  Trouble = true,
+  trouble = true,
   help = true,
-  lspinfo = true,
   checkhealth = true,
 }
 --- @class chrome.lualine.components.buffer-status.Cache
@@ -101,15 +102,9 @@ local function get_current_unsaved()
   local out = {}
 
   if name == '' then
-    if status.UNNAMED ~= '' then
-      out[#out + 1] = status.UNNAMED
-    end
-  else
-    if bo.buftype == '' then
-      if not vim.uv.fs_stat(name) and status.NEW ~= '' then
-        out[#out + 1] = status.NEW
-      end
-    end
+    out[#out + 1] = status.UNNAMED
+  elseif bo.buftype == '' and not vim.uv.fs_stat(name) then
+    out[#out + 1] = status.NEW
   end
 
   local is_readonly = (bo.readonly or not bo.modifiable or bo.buftype == 'nowrite')
@@ -131,38 +126,43 @@ local function get_current_unsaved()
   return result
 end
 
---- Get global modified flag (count of other modified buffers)
---- @return string
-local function get_global_unsaved()
-  if cache.global_unsaved ~= nil then
-    return cache.global_unsaved
-  end
-
+--- Count the loaded buffers, other than the current one, that match the predicate
+--- @param predicate fun(bufnr: integer): boolean
+--- @return integer
+local function count_other_loaded(predicate)
   local current_bufnr = vim.api.nvim_get_current_buf()
   local count = 0
 
   for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-    if bufnr ~= current_bufnr and vim.api.nvim_buf_is_loaded(bufnr) then
-      local bo = vim.bo[bufnr]
-
-      if
-        vim.api.nvim_buf_get_name(bufnr) ~= ''
-        and not bo.readonly
-        and bo.buftype == ''
-        and bo.modified
-        and bo.modifiable
-        and not IGNORE_FILETYPES[bo.filetype]
-      then
-        count = count + 1
-      end
+    if bufnr ~= current_bufnr and vim.api.nvim_buf_is_loaded(bufnr) and predicate(bufnr) then
+      count = count + 1
     end
   end
 
-  local status = Conf.icons.file_status
-  local result = count > 0 and status.MODIFIED .. count .. '  ' or ''
-  cache.global_unsaved = result
+  return count
+end
 
-  return result
+--- Whether a buffer holds unsaved changes to a writable file
+--- @param bufnr integer
+--- @return boolean
+local function is_unsaved(bufnr)
+  return getbufvar(bufnr, '&modified') == 1
+    and getbufvar(bufnr, '&buftype') == ''
+    and getbufvar(bufnr, '&readonly') == 0
+    and getbufvar(bufnr, '&modifiable') == 1
+    and vim.api.nvim_buf_get_name(bufnr) ~= ''
+    and not IGNORE_FILETYPES[getbufvar(bufnr, '&filetype')]
+end
+
+--- Get global modified flag (count of other modified buffers)
+--- @return string
+local function get_global_unsaved()
+  if cache.global_unsaved == nil then
+    local count = count_other_loaded(is_unsaved)
+    cache.global_unsaved = count > 0 and Conf.icons.file_status.MODIFIED .. count .. '  ' or ''
+  end
+
+  return cache.global_unsaved
 end
 
 --- Get conflict flag for the current buffer
@@ -178,25 +178,14 @@ end
 --- Get global conflict flag (count of other conflicted buffers)
 --- @return string
 local function get_global_conflict()
-  if cache.global_conflict ~= nil then
-    return cache.global_conflict
+  if cache.global_conflict == nil then
+    local count = count_other_loaded(function(bufnr)
+      return vim.b[bufnr].git_conflict == true
+    end)
+    cache.global_conflict = count > 0 and unmerged_icon .. count .. ' ' or ''
   end
 
-  local current_bufnr = vim.api.nvim_get_current_buf()
-  local count = 0
-
-  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-    if bufnr ~= current_bufnr and vim.api.nvim_buf_is_loaded(bufnr) then
-      if vim.b[bufnr].git_conflict then
-        count = count + 1
-      end
-    end
-  end
-
-  local result = count > 0 and unmerged_icon .. count .. ' ' or ''
-  cache.global_conflict = result
-
-  return result
+  return cache.global_conflict
 end
 
 --- Status parts in display order: highlight-group key, getter and palette color

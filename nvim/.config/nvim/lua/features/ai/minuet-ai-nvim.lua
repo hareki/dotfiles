@@ -23,7 +23,6 @@ return {
             model = 'mercury-edit-2',
             end_point = 'https://api.inceptionlabs.ai/v1/fim/completions',
             api_key = Conf.cmp.AI_MERCURY_KEY,
-            stream = true,
           },
         },
       }

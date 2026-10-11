@@ -40,12 +40,12 @@ return {
         {
           '<leader><leader>',
           function()
-            local state = require('core.snacks-nvim.utils.state')
+            local actions = require('core.snacks-nvim.actions')
 
             Snacks.picker.files({
               layout = {
                 --- @diagnostic disable-next-line: assign-type-mismatch Wrong type from snacks
-                preview = state.get('files', 'preview'),
+                preview = actions.preview_shown.files,
               },
             })
           end,
@@ -232,7 +232,6 @@ return {
           },
           -- Inline images are inserted as virtual lines, and virtual lines are tricky to scroll, so better keep it short
           doc = {
-            inline = true,
             -- Static number: snacks.image does no callable resolution here
             max_width = UI.layout.popup('full').width,
             max_height = 15,
@@ -247,7 +246,6 @@ return {
               unselected = Conf.icons.file_tree.UNSELECTED,
             },
           },
-          ui_select = true,
           prompt = Conf.picker.PROMPT_PREFIX,
 
           actions = {
@@ -344,8 +342,8 @@ return {
 
             keymaps = {
               transform = transformers.keymap_transform,
-              format = function(item, picker)
-                return formatters.keymap_format(item, picker, select_width())
+              format = function(item)
+                return formatters.keymap_format(item, select_width())
               end,
 
               layout = {

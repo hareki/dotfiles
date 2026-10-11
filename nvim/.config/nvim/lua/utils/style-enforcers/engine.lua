@@ -11,10 +11,12 @@ local M = {}
 --- so the result no longer applies to it
 M.BUFFER_CHANGED = 'buffer changed while running'
 
+--- @alias utils.style-enforcers.Runner fun(opts: { bufnr: integer, client?: vim.lsp.Client, on_done: fun(ok: boolean, err?: string) })
+
 --- @class utils.style-enforcers.Entry
 --- @field name string
 --- @field filetypes string[]
---- @field runner fun(opts: { bufnr: integer, on_done: fun(ok: boolean, err?: string) })
+--- @field runner utils.style-enforcers.Runner Gets the entry's LSP client, when it names one
 --- @field order integer Smaller runs first
 --- @field seq integer Registration sequence, tiebreaker for a stable sort
 --- @field client? string LSP client the runner drives
@@ -28,7 +30,7 @@ local seq = 0
 --- Register a enforcer with its supported filetypes
 --- @param name string Unique enforcer name
 --- @param filetypes string[] List of filetypes this enforcer supports
---- @param runner fun(opts: { bufnr: integer, on_done: fun(ok: boolean, err?: string) }) The enforcer function
+--- @param runner utils.style-enforcers.Runner The enforcer function
 --- @param opts? { order?: integer, client?: string } `order` sets run position: smaller runs first (default 100). Use a lower value for a formatter step that must run ahead of lint-fix steps. `client` limits the enforcer to buffers that LSP client is attached to, so projects that never start the server (or files outside its root) skip the step.
 --- @return nil
 function M.register(name, filetypes, runner, opts)
@@ -80,23 +82,32 @@ local function run_next(matched, opts, idx)
     opts.on_start(entry.name, idx, #matched)
   end
 
-  entry.runner({
-    bufnr = opts.bufnr,
-    on_done = function(ok, err)
-      if opts.on_done then
-        opts.on_done(entry.name, ok, err)
-      end
+  --- @param ok boolean
+  --- @param err? string
+  local function on_done(ok, err)
+    if opts.on_done then
+      opts.on_done(entry.name, ok, err)
+    end
 
-      -- A failed enforcer ends the run, the way a failed format step ends the pipeline
-      -- (init.lua). After BUFFER_CHANGED in particular, whoever is editing the buffer
-      -- would race the remaining enforcers the same way
-      if ok then
-        run_next(matched, opts, idx + 1)
-      elseif opts.on_complete then
-        opts.on_complete()
-      end
-    end,
-  })
+    -- A failed enforcer ends the run, the way a failed format step ends the pipeline
+    -- (init.lua). After BUFFER_CHANGED in particular, whoever is editing the buffer
+    -- would race the remaining enforcers the same way
+    if ok then
+      run_next(matched, opts, idx + 1)
+    elseif opts.on_complete then
+      opts.on_complete()
+    end
+  end
+
+  -- Looked up again rather than kept from the match: it may have detached while the
+  -- earlier enforcers ran
+  local client = entry.client
+    and vim.lsp.get_clients({ name = entry.client, bufnr = opts.bufnr })[1]
+  if entry.client and not client then
+    return on_done(false, entry.client .. ' client missing')
+  end
+
+  entry.runner({ bufnr = opts.bufnr, client = client, on_done = on_done })
 end
 
 --- Run every registered enforcer that applies to the buffer

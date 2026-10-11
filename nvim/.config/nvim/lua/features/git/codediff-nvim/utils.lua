@@ -47,19 +47,6 @@ function M.capture_view()
   views[tabpage] = modified_view(tabpage) or views[tabpage]
 end
 
---- Drop state for tabpages that no longer exist: a codediff tab closed via
---- :tabclose (rather than CodeDiffClose) never reaches restore_focus, which is
---- what normally evicts these entries (TabClosed handler).
-function M.evict_closed_tabs()
-  for _, state in ipairs({ selected, views }) do
-    for tabpage in pairs(state) do
-      if not vim.api.nvim_tabpage_is_valid(tabpage) then
-        state[tabpage] = nil
-      end
-    end
-  end
-end
-
 --- Consume the remembered state of a codediff tab
 --- @param tabpage integer
 --- @return string | nil path Absolute path of the file last focused in the tab
@@ -115,6 +102,26 @@ function M.restore_focus_now(tabpage)
   local path, view = take_focus_target(tabpage)
   if path then
     open_focus_target(path, view)
+  end
+end
+
+--- Close every codediff tab, for the exit path: a session saved with one restores it as an
+--- empty layout
+--- @return nil
+function M.close_tabs()
+  for _, tab in ipairs(vim.tbl_filter(M.is_codediff_tab, vim.api.nvim_list_tabpages())) do
+    if vim.api.nvim_tabpage_is_valid(tab) then
+      -- The last tabpage can't be closed (E784); replace it with the file last focused
+      -- in codediff. A blank tab would be saved over the cwd session as an empty layout
+      if #vim.api.nvim_list_tabpages() == 1 then
+        vim.cmd.tabnew()
+        M.restore_focus_now(tab)
+      end
+      -- Without the switch, tabclose would close whichever tabpage is current instead
+      if pcall(vim.api.nvim_set_current_tabpage, tab) then
+        vim.cmd.tabclose({ mods = { silent = true } })
+      end
+    end
   end
 end
 

@@ -32,11 +32,10 @@ return {
       local completion = require('features.completion.blink-cmp.config.completion')
       local keymap = require('features.completion.blink-cmp.config.keymap')
       local sources = require('features.completion.blink-cmp.config.sources')
-      local appearance = require('features.completion.blink-cmp.config.appearance')
 
       return {
         signature = { enabled = true, window = { border = 'rounded' } },
-        appearance = appearance.default,
+        appearance = { kind_icons = Conf.icons.cmp_kinds },
 
         sources = sources.default,
         completion = completion.default,

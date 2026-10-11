@@ -61,34 +61,10 @@ return {
         end,
         desc = prefix .. 'Put Plain Text Below',
       },
-      {
-        '[g',
-        function()
-          debugprint_ops.jump_prev_debug_print()
-        end,
-        desc = prefix .. 'Previous Print',
-      },
-      {
-        ']g',
-        function()
-          debugprint_ops.jump_next_debug_print()
-        end,
-        desc = prefix .. 'Next Print',
-      },
-      {
-        '[G',
-        function()
-          debugprint_ops.jump_first_debug_print()
-        end,
-        desc = prefix .. 'First Print',
-      },
-      {
-        ']G',
-        function()
-          debugprint_ops.jump_last_debug_print()
-        end,
-        desc = prefix .. 'Last Print',
-      },
+      { '[g', debugprint_ops.jump_prev_debug_print, desc = prefix .. 'Previous Print' },
+      { ']g', debugprint_ops.jump_next_debug_print, desc = prefix .. 'Next Print' },
+      { '[G', debugprint_ops.jump_first_debug_print, desc = prefix .. 'First Print' },
+      { ']G', debugprint_ops.jump_last_debug_print, desc = prefix .. 'Last Print' },
     },
 
     opts = function()

@@ -11,14 +11,14 @@
 - **[Neovim](https://neovim.io/) 0.12+**: native `vim.lsp.enable()` API
 - **[Git](https://git-scm.com/)**: required by gitsigns.nvim, lazygit, blink-ripgrep (gitgrep backend)
 - **[Nerd Font](https://www.nerdfonts.com/)**: all icons are Nerd Font glyphs (mini.icons, lualine, which-key, nvim-tree, etc.)
-- **[ripgrep](https://github.com/BurntSushi/ripgrep)**: file search and grep for Snacks picker and Telescope
-- **[fd](https://github.com/sharkdp/fd)**: fallback file finder for Telescope (after ripgrep)
+- **[ripgrep](https://github.com/BurntSushi/ripgrep)**: grep for Snacks picker, and its file finder when fd is missing
+- **[fd](https://github.com/sharkdp/fd)**: file finder for Snacks picker
 - **[delta](https://github.com/dandavison/delta)**: diff previews in tiny-code-action.nvim
 - **[jq](https://jqlang.github.io/jq/)** (optional): JSON sorting code action in jsonls
 - **[lazygit](https://github.com/jesseduffield/lazygit)**: terminal UI for Git, opened through Snacks (`<A-g>`)
 - **[ImageMagick](https://imagemagick.org/)**: `magick` CLI for image rendering in Snacks (`image`)
 - **[Ghostty](https://ghostty.org/)**: terminal with kitty graphics protocol support, for Snacks (`image`)
-- **C compiler + make**: builds nvim-treesitter parsers and telescope-fzf-native
+- **C compiler**: builds nvim-treesitter parsers
 - **[Go](https://go.dev/)**: build step for cursortab.nvim (`cd server && go build`)
 - **[Node.js](https://nodejs.org/) + npm**: mise installs the Node-based LSP servers (vtsls, eslint-lsp, etc.), which the vtsls and angularls configs resolve from mise's install dirs
 
@@ -33,7 +33,7 @@
 - One plugin per file under `lua/{core,chrome,features}/`
 - On-demand loading via keymaps or `VeryLazy` event
 - Startup: ~38ms (no session or blank file) / ~80ms (opening file or directory with session) via `:Lazy profile`
-- Unified floating layout across Snacks picker, Telescope, floating nvim-tree
+- Unified floating layout across Snacks picker and floating nvim-tree
 - **Tab** = toggle focus (list↔preview, float↔main); **`<C-t>`** = toggle side-panel mode
 
 ## Architecture

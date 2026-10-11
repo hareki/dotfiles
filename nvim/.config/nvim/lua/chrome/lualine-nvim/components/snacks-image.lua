@@ -35,19 +35,41 @@ local function has_images_query(lang)
   return has == true
 end
 
+-- The images found in one buffer state. Cursor moves only test the cursor against them;
+-- the treesitter query reruns when the buffer or its text changes
 --- @class chrome.lualine.components.snacks-image.Cache
 --- @field buf integer
 --- @field tick integer
---- @field row integer
---- @field col integer
---- @field has_image boolean
+--- @field images snacks.image.match[] | nil nil while the query is in flight
 local cache = {
   buf = -1,
   tick = -1,
-  row = -1,
-  col = -1,
-  has_image = false,
+  images = nil,
 }
+
+--- Whether an image covers the cursor, tested the way Snacks.image.doc.at_cursor does
+--- @param images snacks.image.match[]
+--- @param cursor integer[] (1,0)-indexed row and column
+--- @return boolean
+local function image_at(images, cursor)
+  for _, image in ipairs(images) do
+    local range = image.range
+    if
+      range
+      and (
+        (
+          range[1] == range[3]
+          and cursor[1] == range[1]
+          and cursor[2] >= range[2]
+          and cursor[2] <= range[4]
+        ) or (range[1] ~= range[3] and cursor[1] >= range[1] and cursor[1] <= range[3])
+      )
+    then
+      return true
+    end
+  end
+  return false
+end
 
 --- @param buf integer
 --- @return boolean
@@ -71,44 +93,37 @@ function M.cond()
   end
 
   -- Skip buffers whose language has no snacks `images` query (json, yaml, help, ...):
-  -- nothing can match there, so don't pay the per-cursor-move treesitter work below.
+  -- nothing can match there, so don't pay the treesitter work below.
   local lang = vim.treesitter.language.get_lang(ft)
   if not lang or not has_images_query(lang) then
     return false
   end
 
   local tick = vim.api.nvim_buf_get_changedtick(buf)
-  local cursor = vim.api.nvim_win_get_cursor(0)
-  local row, col = cursor[1], cursor[2]
+  if cache.buf ~= buf or cache.tick ~= tick then
+    cache.buf = buf
+    cache.tick = tick
+    cache.images = nil
 
-  if cache.buf == buf and cache.tick == tick and cache.row == row and cache.col == col then
-    return cache.has_image
+    -- `find` parses asynchronously on nvim 0.11.4+, so no image shows until it lands;
+    -- refresh the statusline then if one turns out to cover the cursor
+    Snacks.image.doc.find(buf, function(images)
+      -- The buffer may have changed during the async gap; this result is for an older state
+      if cache.buf ~= buf or cache.tick ~= tick then
+        return
+      end
+
+      cache.images = images
+      if
+        vim.api.nvim_get_current_buf() == buf
+        and image_at(images, vim.api.nvim_win_get_cursor(0))
+      then
+        UI.statusline.refresh()
+      end
+    end)
   end
 
-  cache.buf = buf
-  cache.tick = tick
-  cache.row = row
-  cache.col = col
-  -- Reset eagerly so a stale `true` is never displayed after the cursor leaves
-  -- an image. `at_cursor` parses asynchronously on nvim 0.11.4+, so the callback
-  -- fires after this redraw; refresh the statusline once the real answer lands.
-  cache.has_image = false
-
-  Snacks.image.doc.at_cursor(function(src)
-    -- The cursor may have moved during the async gap; don't attribute this
-    -- result to a newer position
-    if cache.buf ~= buf or cache.tick ~= tick or cache.row ~= row or cache.col ~= col then
-      return
-    end
-
-    local has_image = src ~= nil
-    if has_image ~= cache.has_image then
-      cache.has_image = has_image
-      UI.statusline.refresh()
-    end
-  end)
-
-  return cache.has_image
+  return cache.images ~= nil and image_at(cache.images, vim.api.nvim_win_get_cursor(0))
 end
 
 --- @return string

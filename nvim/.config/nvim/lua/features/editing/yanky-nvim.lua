@@ -29,9 +29,6 @@ return {
 
   {
     'hareki/yanky.nvim',
-    dependencies = {
-      'hareki/snacks.nvim', -- Let yanky self register with snacks
-    },
     keys = {
       {
         '<leader>fy',

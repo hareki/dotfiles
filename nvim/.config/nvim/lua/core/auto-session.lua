@@ -10,41 +10,15 @@ return {
     init = function()
       vim.opt.sessionoptions = 'buffers,curdir,folds'
 
-      -- Open snacks files picker when Neovim starts on a directory
-      vim.api.nvim_create_autocmd('VimEnter', {
-        once = true,
-        callback = function(data)
-          vim.schedule(function()
-            local stat = vim.uv.fs_stat(data.file)
-            local is_directory = stat and stat.type == 'directory'
-            local has_session = vim.v.this_session ~= ''
-
-            if not is_directory or has_session then
-              return
-            end
-
-            -- Set cwd to that dir
-            vim.cmd.cd({ args = { data.file } })
-
-            -- AutoSession disables autosave when argv cwd mismatches; flip it back after cd
-            local auto_session_config = require('auto-session.config')
-            if auto_session_config.auto_save == false then
-              auto_session_config.auto_save = true
-            end
-
-            local buf = vim.api.nvim_get_current_buf()
-
-            -- Leftover buffer from opening a directory (netrw)
-            vim.bo[buf].buflisted = false
-            vim.bo[buf].bufhidden = 'wipe'
-            vim.opt_local.number = false
-            vim.opt_local.relativenumber = false
-
-            vim.schedule(function()
-              local api = require('nvim-tree.api')
-              api.tree.open()
-            end)
-          end)
+      -- Registered here, ahead of the VimLeavePre auto-session sets up when it loads, so the
+      -- codediff tabs are gone before its exit save inspects the windows and buffers
+      vim.api.nvim_create_autocmd('VimLeavePre', {
+        group = vim.api.nvim_create_augroup('core.auto-session.close-codediff-tabs', {
+          clear = true,
+        }),
+        callback = function()
+          local codediff_utils = require('features.git.codediff-nvim.utils')
+          codediff_utils.close_tabs()
         end,
       })
     end,
@@ -66,6 +40,34 @@ return {
       --- @type AutoSession.Config
       return {
         suppressed_dirs = { '~/', '~/Downloads', '/' },
+        no_restore_cmds = {
+          --- @param is_startup boolean?
+          function(is_startup)
+            -- Started on a directory that has no session yet: adopt it as the cwd
+            local dir = vim.api.nvim_buf_get_name(0)
+            if not is_startup or vim.fn.isdirectory(dir) == 0 then
+              return
+            end
+
+            vim.cmd.cd({ args = { dir } })
+
+            -- AutoSession turns autosave off when the directory argument isn't the cwd yet
+            local auto_session_config = require('auto-session.config')
+            auto_session_config.auto_save = true
+
+            -- Leftover buffer from opening a directory
+            local buf = vim.api.nvim_get_current_buf()
+            vim.bo[buf].buflisted = false
+            vim.bo[buf].bufhidden = 'wipe'
+            vim.opt_local.number = false
+            vim.opt_local.relativenumber = false
+
+            vim.schedule(function()
+              local api = require('nvim-tree.api')
+              api.tree.open()
+            end)
+          end,
+        },
         pre_save_cmds = {
           function()
             -- Only preserve visible buffers (buffers that are attached to windows, in any tabpage);
@@ -75,13 +77,6 @@ return {
                 return not vim.bo[buf].modified and #vim.fn.win_findbuf(buf) == 0
               end,
             })
-          end,
-        },
-        post_restore_cmds = {
-          function()
-            vim.schedule(function()
-              pcall(vim.cmd.ColorizerAttachToBuffer)
-            end)
           end,
         },
 

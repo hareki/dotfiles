@@ -27,9 +27,7 @@ local SEVERITY_NAMES = {
 --- @field counts { error: integer, warn: integer, info: integer, hint: integer }
 local cache = { buf = -1, counts = { error = 0, warn = 0, info = 0, hint = 0 } }
 
--- BufWipeout: wiped buffer numbers can be reused; drop the slot so a new buffer
--- with the same number can't inherit stale counts
-vim.api.nvim_create_autocmd({ 'DiagnosticChanged', 'BufWipeout' }, {
+vim.api.nvim_create_autocmd('DiagnosticChanged', {
   group = vim.api.nvim_create_augroup('chrome.lualine.diagnostics-cache', { clear = true }),
   callback = function(event)
     if event.buf == cache.buf then

@@ -91,13 +91,7 @@ function M.run(opts)
 
   local progress
   local settled = false
-
-  -- Set timeout to auto-cleanup if something goes wrong
-  local timeout_timer = vim.uv.new_timer()
-  local function close_timeout_timer()
-    Snacks.util.stop(timeout_timer)
-    timeout_timer = nil
-  end
+  local timeout_timer
 
   -- Single completion point: fires on_done and releases the lock exactly once,
   -- so a pipeline callback landing after the timeout can't double-report or
@@ -110,27 +104,22 @@ function M.run(opts)
     end
     settled = true
 
-    close_timeout_timer()
+    Snacks.util.stop(timeout_timer)
     running_bufs[buf] = nil
     finish(ok, err)
   end
 
-  if timeout_timer then
-    timeout_timer:start(TIMEOUT_MS, 0, function()
-      vim.schedule(function()
-        if settled then
-          return
-        end
-        if progress then
-          progress:finish()
-        end
-        Notifier.warn('Formatting/linting timed out', { title = 'Style Enforcer' })
-        cleanup(false, 'Timed out')
-      end)
-    end)
-  else
-    Notifier.warn('Failed to create timeout timer', { title = 'Style Enforcer' })
-  end
+  -- Auto-cleanup if something goes wrong
+  timeout_timer = vim.defer_fn(function()
+    if settled then
+      return
+    end
+    if progress then
+      progress:finish()
+    end
+    Notifier.warn('Formatting/linting timed out', { title = 'Style Enforcer' })
+    cleanup(false, 'Timed out')
+  end, TIMEOUT_MS)
 
   local conform = require('conform')
   local progress_utils = require('utils.progress')
@@ -224,12 +213,6 @@ function M.run(opts)
     end
   end
 
-  -- Recheck buffer validity before formatting (could have been deleted during setup)
-  if not vim.api.nvim_buf_is_valid(buf) then
-    cleanup(false, 'Buffer became invalid')
-    return
-  end
-
   local formatters, uses_lsp = conform.list_formatters_to_run(buf)
   local should_format = (formatters and #formatters > 0) or uses_lsp
 
@@ -273,12 +256,9 @@ end
 --- @param debug boolean | nil Enable verbose error messages
 --- @return nil
 function M.run_all(debug)
-  local all_buffers = {}
-  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].buflisted and vim.bo[buf].modified then
-      table.insert(all_buffers, buf)
-    end
-  end
+  local all_buffers = vim.tbl_map(function(info)
+    return info.bufnr
+  end, vim.fn.getbufinfo({ buflisted = 1, bufmodified = 1 }))
 
   if #all_buffers == 0 then
     Notifier.warn('No buffers to format', { title = 'Style Enforcer' })

@@ -32,7 +32,6 @@ return {
           return ctx.mode == 'o' and DELAY_O or DELAY
         end,
         win = {
-          no_overlap = true,
           padding = { 0, 4 },
         },
         plugins = {

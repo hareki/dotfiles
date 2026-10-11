@@ -125,8 +125,7 @@ function M.create(opts)
   local pending_ms = opts.pending_ms or 0
   local token = opts.token or ('token:' .. vim.uv.hrtime())
   local client_name = opts.client_name or 'progress'
-  local client_id = opts.client_id
-    or get_valid_client_id(opts.bufnr or vim.api.nvim_get_current_buf())
+  local client_id = opts.client_id or get_valid_client_id(opts.bufnr)
 
   --- @type utils.progress.Handle
   local handle = setmetatable({
@@ -140,28 +139,17 @@ function M.create(opts)
     _timer = nil,
   }, ProgressHandle)
 
-  if pending_ms == 0 then
-    return handle
-  end
-
-  local timer = vim.uv.new_timer()
-  if not timer then
-    handle._pending = false
-    return handle
-  end
-  handle._timer = timer
-
-  timer:start(pending_ms, 0, function()
-    vim.schedule(function()
-      ProgressHandle._close_timer(handle)
+  if pending_ms > 0 then
+    handle._timer = vim.defer_fn(function()
+      handle._timer = nil
       handle._pending = false
 
       -- 'end' cached during the pending window means abort: show nothing.
       if handle._cached_kind and handle._cached_kind ~= 'end' then
         ProgressHandle._send(handle, handle._cached_kind, handle._cached_title, handle._cached_perc)
       end
-    end)
-  end)
+    end, pending_ms)
+  end
 
   return handle
 end

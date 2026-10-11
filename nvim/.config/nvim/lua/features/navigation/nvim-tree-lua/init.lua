@@ -33,7 +33,6 @@ return {
     'hareki/nvim-tree-preview.lua',
     dependencies = {
       'nvim-lua/plenary.nvim',
-      'hareki/snacks.nvim',
     },
 
     opts = function()
@@ -51,10 +50,7 @@ return {
         keymaps = {
           ['q'] = tree.close_all,
           ['<Tab>'] = tree.toggle_focus,
-          ['<C-t>'] = function()
-            tree.switch_position('side')
-            tree.open({ switching = true })
-          end,
+          ['<C-t>'] = tree.switch_to_side,
           ['B'] = function()
             api.tree.focus()
             tree.toggle_preview()
@@ -86,18 +82,12 @@ return {
           end,
         },
 
-        calculate_win_size = function(tree_win)
-          local tree_cfg = vim.api.nvim_win_get_config(tree_win)
-          local size = UI.layout.popup(tree.compute_size())
-
-          -- We need to fill the missing row if the total height is an odd number
-          -- (we can't have equal height for both windows)
-          local height_offset = size.height % 2 == 0 and 0 or 1
-
+        calculate_win_size = function()
           if state.position == 'float' then
+            local geometry, preview_height = tree.float_geometry('collapse')
             return {
-              width = tree_cfg.width,
-              height = tree_cfg.height + height_offset,
+              width = geometry.width,
+              height = preview_height,
             }
           end
 
@@ -132,7 +122,6 @@ return {
           tree.open()
         end,
         desc = ui_name,
-        remap = true,
       },
     },
 
@@ -246,20 +235,14 @@ return {
               vim.keymap.set(mode, key, rhs, {
                 desc = 'File Tree: ' .. desc,
                 buffer = tree_bufnr,
-                noremap = true,
                 nowait = true,
               })
             end
           end
 
-          map('n', '<C-t>', function()
-            tree.switch_position('side')
-            tree.open({ switching = true })
-          end, 'Switch to Side')
+          map('n', '<C-t>', tree.switch_to_side, 'Switch to Side')
 
-          map('n', '<Tab>', function()
-            tree.toggle_focus()
-          end, 'Toggle Preview Focus')
+          map('n', '<Tab>', tree.toggle_focus, 'Toggle Preview Focus')
 
           map('n', 'q', tree.close_all, 'Close')
           map('n', 'B', tree.toggle_preview, 'Toggle Preview')
@@ -320,7 +303,7 @@ return {
           -- (re)create the watcher group here so the autocmd's lifetime matches the
           -- buffer that registers it. Creating it in tree.open() instead would leak
           -- an ungrouped autocmd when the tree is opened via api.tree.open() directly
-          -- (e.g. auto-session's VimEnter), and lose the autocmd when tree.open()
+          -- (e.g. auto-session's no-restore hook), and lose the autocmd when tree.open()
           -- clears the group while the buffer survives.
           state.preview_watcher =
             vim.api.nvim_create_augroup('navigation.nvim-tree.preview', { clear = true })

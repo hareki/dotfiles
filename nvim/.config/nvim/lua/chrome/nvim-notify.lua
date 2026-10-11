@@ -35,42 +35,9 @@ return {
       {
         '<leader>un',
         function()
-          local telescope = require('telescope')
-          local telescope_notify = telescope.extensions.notify.notify
-          local preview_title = Conf.picker.TELESCOPE_PREVIEW_TITLE
-          local telescope_previewers = require('telescope.previewers')
-          local new_buffer_previewer = telescope_previewers.new_buffer_previewer
-
-          -- May use `:Telescope noice` as well
-          telescope_notify({
-            prompt_title = 'Notifications',
-            results_title = '',
-            preview_title = preview_title,
-            previewer = new_buffer_previewer({
-              define_preview = function(self, entry, status)
-                local notification = entry.value
-                local max_width = vim.api.nvim_win_get_config(status.preview_win).width or 1
-                local buf = self.state.bufnr
-
-                notify.open(notification, {
-                  buffer = buf,
-                  max_width = max_width,
-                })
-
-                vim.schedule(function()
-                  vim.wo[status.preview_win].wrap = true
-                  vim.bo[buf].filetype = 'markdown'
-                  local render_markdown = require('render-markdown')
-                  render_markdown.render({
-                    buf = buf,
-                    config = {
-                      render_modes = true,
-                    },
-                  })
-                end)
-              end,
-            }),
-          })
+          -- May use `Snacks.picker.noice()` as well
+          local notify_picker = require('core.snacks-nvim.pickers.sources.notify')
+          notify_picker.show()
         end,
         desc = prefix .. 'Show History',
       },

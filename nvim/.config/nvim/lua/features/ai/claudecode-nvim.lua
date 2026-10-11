@@ -9,7 +9,6 @@ return {
   {
     'hareki/claudecode.nvim',
     cmd = 'ClaudeCode',
-    dependencies = { 'hareki/snacks.nvim' },
     keys = {
       {
         '<A-a>',

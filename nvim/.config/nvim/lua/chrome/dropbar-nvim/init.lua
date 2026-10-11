@@ -103,7 +103,7 @@ return {
           truncate = false,
           sources = function(buf, win)
             -- Some ft/bt can slip through the enable check because their ft/bt are set later (E.g. grug-far)
-            if dropbar_utils.is_ignored_filetype(buf) or dropbar_utils.is_ignored_buftype(buf) then
+            if dropbar_utils.is_ignored(buf) then
               vim.wo[win].winbar = ''
               return {}
             end

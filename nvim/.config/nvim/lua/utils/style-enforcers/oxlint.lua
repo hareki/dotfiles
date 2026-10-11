@@ -5,14 +5,10 @@ local M = {}
 
 --- Run oxlint auto-fix on a buffer via LSP
 --- Executes oxc.fixAll command through the oxlint language server.
---- @param opts { bufnr: integer, on_done: fun(ok: boolean, err?: string) }
+--- @param opts { bufnr: integer, client: vim.lsp.Client, on_done: fun(ok: boolean, err?: string) }
 --- @return nil
 function M.run(opts)
   local bufnr = opts.bufnr
-  local oxlint = vim.lsp.get_clients({ name = 'oxlint', bufnr = bufnr })[1]
-  if not oxlint then
-    return opts.on_done(false, 'oxlint client missing')
-  end
 
   -- HACK: oxc.fixAll lints the file ON DISK (read_to_string), not the in-memory buffer,
   -- and returns an unversioned WorkspaceEdit that Neovim cannot reject as stale.
@@ -33,7 +29,7 @@ function M.run(opts)
     },
   }
 
-  oxlint:request('workspace/executeCommand', params, function(err)
+  opts.client:request('workspace/executeCommand', params, function(err)
     if err then
       return opts.on_done(false, err.message)
     end

@@ -1,18 +1,20 @@
 --- @class core.snacks.actions
 local M = {}
 
-local state = require('core.snacks-nvim.utils.state')
+--- Whether the preview is shown, for the sources that keep it across openings (their
+--- keymaps open them with it); add a source here to have toggle_preview remember it
+--- @type table<string, boolean>
+M.preview_shown = { files = true }
 
---- Wrap default toggle_preview to persist state for managed pickers
+--- Wrap default toggle_preview to remember the choice for the sources in M.preview_shown
 --- @module 'snacks'
 --- @param picker snacks.Picker
 function M.toggle_preview(picker)
   picker:toggle('preview')
 
   local source = picker.opts.source
-  if source and state.managed(source) then
-    local current = state.get(source, 'preview')
-    state.set(source, 'preview', not current)
+  if source and M.preview_shown[source] ~= nil then
+    M.preview_shown[source] = not M.preview_shown[source]
   end
 end
 

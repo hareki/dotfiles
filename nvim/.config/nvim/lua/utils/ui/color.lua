@@ -6,7 +6,7 @@ local M = {}
 --- @return integer r Red component (0-255)
 --- @return integer g Green component (0-255)
 --- @return integer b Blue component (0-255)
-function M.hex_to_rgb(hex)
+local function hex_to_rgb(hex)
   hex = hex:gsub('#', '')
   return tonumber(hex:sub(1, 2), 16), tonumber(hex:sub(3, 4), 16), tonumber(hex:sub(5, 6), 16)
 end
@@ -19,8 +19,8 @@ end
 function M.blend_hex(from, to, alpha)
   alpha = alpha or 0.28
 
-  local from_r, from_g, from_b = M.hex_to_rgb(from)
-  local to_r, to_g, to_b = M.hex_to_rgb(to)
+  local from_r, from_g, from_b = hex_to_rgb(from)
+  local to_r, to_g, to_b = hex_to_rgb(to)
 
   local r = math.floor(from_r * (1 - alpha) + to_r * alpha)
   local g = math.floor(from_g * (1 - alpha) + to_g * alpha)

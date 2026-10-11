@@ -1,7 +1,9 @@
 --- @class core.lsp.nvim-lspconfig.utils.diagnostic-range-fix
---- HACK: Some servers emit zero-width or out-of-bounds diagnostics whose end_col is 0
---- and end_lnum is start_lnum+1, which makes them invisible. This module rewrites
---- those ranges so they underline at least one character on the original line.
+--- HACK: Some servers emit diagnostics whose range ends at column 0 of the next line.
+--- Nvim draws them on their own line, but its line-scoped lookups also return them for
+--- the next one (`vim.diagnostic.get({ lnum })` matches up to end_lnum), so eagle's line
+--- popup would show them there. This module ends those ranges on their own line,
+--- underlining at least one character.
 local M = {}
 
 --- Fix zero-width or out-of-bounds diagnostics to underline at least one character

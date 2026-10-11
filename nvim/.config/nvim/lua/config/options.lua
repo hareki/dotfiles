@@ -6,10 +6,6 @@ local g = vim.g
 g.mapleader = ' '
 g.maplocalleader = ' '
 
--- Disable netrw
-g.loaded_netrw = 1
-g.loaded_netrwPlugin = 1
-
 -- Disable built-in language providers
 g.loaded_node_provider = 0
 g.loaded_ruby_provider = 0
@@ -47,17 +43,14 @@ opt.shiftwidth = 2 -- Number of spaces to use for each step of (auto)indent
 opt.tabstop = 2 -- Number of spaces tabs count for
 opt.softtabstop = 2 -- Number of spaces tabs count for while performing editing operations
 opt.expandtab = true -- Use spaces instead of tabs
-opt.autoread = true -- Automatically read file changes from disk (e.g. edits made by claudecode.nvim)
 opt.showtabline = 0 -- Always hide the tabline
 opt.linebreak = true -- Wrap words, not characters (mid-word wrapping) when wrap mode is on
 
 -- Use typos-lsp for spell checking, datword for suggestions
-opt.spell = false
 opt.spelllang = {}
 
 -- Prevent changing cwd when navigating to files outside of cwd (e.g going to definition)
 opt.viewoptions:remove('curdir')
-opt.autochdir = false
 
 -- Diagonal hatch fill for deleted/filler lines in diff views (e.g. codediff)
 opt.fillchars:append({ diff = Conf.icons.fillchars.DIFF, eob = ' ', lastline = '.' })

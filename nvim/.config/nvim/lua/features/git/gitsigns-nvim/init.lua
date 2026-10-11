@@ -32,6 +32,14 @@ return {
       local utils = require('features.git.gitsigns-nvim.utils')
       local build_popup_navigation = utils.build_popup_navigation
 
+      local signs_staged = {
+        add = { text = hunk },
+        change = { text = hunk },
+        delete = { text = hunk_delete },
+        topdelete = { text = hunk_delete },
+        changedelete = { text = hunk },
+      }
+
       return {
         current_line_blame = true,
         current_line_blame_formatter = '<author>, <author_time:%R> - <summary>',
@@ -58,22 +66,8 @@ return {
           ignore_blank_lines = false,
         },
 
-        signs = {
-          add = { text = hunk },
-          change = { text = hunk },
-          delete = { text = hunk_delete },
-          topdelete = { text = hunk_delete },
-          changedelete = { text = hunk },
-          untracked = { text = hunk },
-        },
-
-        signs_staged = {
-          add = { text = hunk },
-          change = { text = hunk },
-          delete = { text = hunk_delete },
-          topdelete = { text = hunk_delete },
-          changedelete = { text = hunk },
-        },
+        signs = vim.tbl_extend('force', signs_staged, { untracked = { text = hunk } }),
+        signs_staged = signs_staged,
 
         on_attach = function(buffer)
           local nav_opts = { target = 'all', navigation_message = false }
@@ -131,8 +125,9 @@ return {
           end, 'Blame Line')
 
           map('n', '<leader>hp', function()
+            -- The popup exists once preview_hunk returns
             gs.preview_hunk()
-            vim.schedule(build_popup_navigation('hunk'))
+            build_popup_navigation('hunk')()
           end, 'Preview Hunk')
         end,
       }

@@ -71,9 +71,7 @@ map('n', '<Esc>', function()
   vim.snippet.stop()
 end, { desc = 'Clear Highlight' })
 
-map({ 'n', 'i' }, '<A-s>', function()
-  style_enforcers.run()
-end, { desc = 'Format and Save' })
+map({ 'n', 'i' }, '<A-s>', style_enforcers.run, { desc = 'Format and Save' })
 
 map('n', '<leader>F', function()
   -- Still partially save the file when linter is oxlint, see `lua/utils/style-enforcers/oxlint.lua`
@@ -85,9 +83,7 @@ end, { desc = 'Format' })
 -- Mapped from Cmd+Shift+S in ghostty config
 -- Test the keymap Neovim will receive with
 -- :echo keytrans(getcharstr())
-map({ 'n', 'i' }, '<F40>', function()
-  style_enforcers.run_all()
-end, { desc = 'Format and Save All' })
+map({ 'n', 'i' }, '<F40>', style_enforcers.run_all, { desc = 'Format and Save All' })
 
 -- Mapped to Cmd+Shift+W in ghostty config
 -- Test the keymap Neovim will receive with
@@ -114,17 +110,15 @@ map('n', '<leader>?h', '<cmd>HlAtCursor<cr>', {
 map('v', '<', '<gv', { desc = 'Indent Left' })
 map('v', '>', '>gv', { desc = 'Indent Right' })
 
--- Better up/down
--- Uses normal! (bypasses user mappings) since 'j'/'k' might be remapped for other purposes
+-- Better up/down: display lines unless a count above 1 is given (the typed count applies to
+-- the returned keys). They run unmapped, since 'j'/'k' might be remapped for other purposes
 map({ 'n', 'x' }, '<Down>', function()
-  local motion = vim.v.count1 == 1 and 'gj' or (vim.v.count1 .. 'j')
-  vim.cmd.normal({ args = { motion }, bang = true })
-end, { desc = 'Down', silent = true })
+  return vim.v.count1 == 1 and 'gj' or 'j'
+end, { expr = true, desc = 'Down', silent = true })
 
 map({ 'n', 'x' }, '<Up>', function()
-  local motion = vim.v.count1 == 1 and 'gk' or (vim.v.count1 .. 'k')
-  vim.cmd.normal({ args = { motion }, bang = true })
-end, { desc = 'Up', silent = true })
+  return vim.v.count1 == 1 and 'gk' or 'k'
+end, { expr = true, desc = 'Up', silent = true })
 
 map('n', 'yow', '<cmd>setlocal wrap!<cr>', { desc = 'Toggle Line Wrap' })
 

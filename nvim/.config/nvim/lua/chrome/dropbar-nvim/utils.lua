@@ -2,20 +2,12 @@
 local M = {}
 
 local IGNORED_FILETYPES = { help = true, trouble = true, ['grug-far'] = true }
-local IGNORED_BUFTYPES = { terminal = true }
 
---- Check if buffer has an ignored filetype
+--- Check if the buffer never gets a dropbar: an ignored filetype, or a terminal
 --- @param buf integer Buffer number
 --- @return boolean
-function M.is_ignored_filetype(buf)
-  return IGNORED_FILETYPES[vim.bo[buf].filetype] == true
-end
-
---- Check if buffer has an ignored buftype
---- @param buf integer Buffer number
---- @return boolean
-function M.is_ignored_buftype(buf)
-  return IGNORED_BUFTYPES[vim.bo[buf].buftype] == true
+function M.is_ignored(buf)
+  return IGNORED_FILETYPES[vim.bo[buf].filetype] == true or vim.bo[buf].buftype == 'terminal'
 end
 
 --- Determine if dropbar should be enabled for a buffer/window
@@ -25,7 +17,6 @@ end
 --- @param _ table | nil Additional info (unused)
 --- @return boolean enabled True if dropbar should be enabled
 function M.enable(buf, win, _)
-  buf = (buf == 0 or buf == nil) and vim.api.nvim_get_current_buf() or buf
   if
     not vim.api.nvim_buf_is_valid(buf)
     or not vim.api.nvim_win_is_valid(win)
@@ -33,8 +24,7 @@ function M.enable(buf, win, _)
     -- hosts a real buffer and earns a breadcrumb like any split
     or (vim.fn.win_gettype(win) ~= '' and not vim.w[win].snacks_main)
     or vim.wo[win].winbar ~= ''
-    or M.is_ignored_filetype(buf)
-    or M.is_ignored_buftype(buf)
+    or M.is_ignored(buf)
   then
     return false
   end

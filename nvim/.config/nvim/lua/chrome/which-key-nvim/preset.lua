@@ -200,11 +200,9 @@ M.g = {
   { 'gN', desc = 'Search Backwards and Select' },
   { 'gT', desc = 'Go to Previous Tab Page' },
   { 'gf', desc = 'Go to File Under Cursor' },
-  { 'gi', desc = 'Hover Image' },
   { 'gn', desc = 'Search Forwards and Select' },
   { 'gt', desc = 'Go to Next Tab Page' },
   { 'gv', desc = 'Last Visual Selection' },
-  { 'gx', desc = 'Open File with System App' },
 }
 
 function M.setup()

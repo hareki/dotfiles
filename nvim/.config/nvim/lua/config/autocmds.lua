@@ -18,12 +18,12 @@ aucmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
     -- Deferring to the event loop restores that guarantee.
     vim.schedule(function()
       for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-        local bo = vim.bo[bufnr]
-
+        -- getbufvar rather than vim.bo, which reads a hidden buffer's option by switching
+        -- into the autocmd window (~10us per read, against ~0.2us)
         if
           vim.api.nvim_buf_is_loaded(bufnr)
-          and bo.buftype == ''
-          and not bo.modified
+          and vim.fn.getbufvar(bufnr, '&buftype') == ''
+          and vim.fn.getbufvar(bufnr, '&modified') == 0
           and vim.api.nvim_buf_get_name(bufnr) ~= ''
         then
           -- `silent!` on top of `pcall`: a file that no longer exists (branch
@@ -144,7 +144,6 @@ aucmd('FileType', {
 -- Stop starting auto comment insertion on new lines
 aucmd('FileType', {
   group = augroup('stop-auto-comment'),
-  pattern = '*',
   callback = function()
     vim.opt_local.formatoptions:remove({ 'c', 'r', 'o' })
   end,
@@ -240,36 +239,6 @@ aucmd('CmdwinEnter', {
       buffer = buf,
       desc = 'Execute Command',
     })
-  end,
-})
-
--- Close all codediff tabs on exit so that auto-session doesn't save them
-aucmd('VimLeavePre', {
-  group = augroup('close-codediff-tabs-on-exit'),
-  callback = function()
-    local codediff_utils = require('features.git.codediff-nvim.utils')
-    local codediff_tabs = {}
-
-    for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
-      if codediff_utils.is_codediff_tab(tab) then
-        table.insert(codediff_tabs, tab)
-      end
-    end
-
-    for _, tab in ipairs(codediff_tabs) do
-      if vim.api.nvim_tabpage_is_valid(tab) then
-        -- The last tabpage can't be closed (E784); replace it with the file last focused
-        -- in codediff. A blank tab would be saved over the cwd session as an empty layout
-        if #vim.api.nvim_list_tabpages() == 1 then
-          vim.cmd.tabnew()
-          codediff_utils.restore_focus_now(tab)
-        end
-        -- Without the switch, tabclose would close whichever tabpage is current instead
-        if pcall(vim.api.nvim_set_current_tabpage, tab) then
-          vim.cmd.tabclose({ mods = { silent = true } })
-        end
-      end
-    end
   end,
 })
 

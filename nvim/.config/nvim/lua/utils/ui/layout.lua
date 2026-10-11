@@ -5,41 +5,14 @@ local M = {}
 --- in config.size and so is not a key of that table
 --- @alias utils.ui.layout.PopupSize config.size.PopupPreset | 'input'
 
---- Generate telescope layout configuration for a given size preset
---- @param size config.size.PopupPreset Size preset name
---- @return table layout Layout config with size hint, height, and width functions
-function M.telescope(size)
-  return {
-    size = size, -- Hint to calculate the position
-    height = function()
-      return M.popup(size, true).height
-    end,
-    width = function()
-      return M.popup(size, true).width
-    end,
-  }
-end
-
---- Get the current screen dimensions in columns and rows
---- @return integer screen_w Screen width in columns
---- @return integer screen_h Screen height in rows
-function M.screen_size()
-  local screen_w = vim.o.columns
-  local screen_h = vim.o.lines
-
-  return screen_w, screen_h
-end
-
 --- Top-left cell that centers a window of the given size on the screen
 --- @param width integer Window width in columns, border excluded
 --- @param height integer Window height in rows, border excluded
 --- @return integer col
 --- @return integer row
 function M.center(width, height)
-  local screen_w, screen_h = M.screen_size()
-
   -- Minus 1 to account for the border
-  return math.floor((screen_w - width) / 2) - 1, math.floor((screen_h - height) / 2) - 1
+  return math.floor((vim.o.columns - width) / 2) - 1, math.floor((vim.o.lines - height) / 2) - 1
 end
 
 local computed_input_size = {
@@ -53,10 +26,8 @@ local computed_input_size = {
 --- @return integer width Width in columns
 --- @return integer height Height in rows
 local function resolve_dimensions(dimensions)
-  local screen_w, screen_h = M.screen_size()
-
-  local width = dimensions.WIDTH <= 1 and screen_w * dimensions.WIDTH or dimensions.WIDTH
-  local height = dimensions.HEIGHT <= 1 and screen_h * dimensions.HEIGHT or dimensions.HEIGHT
+  local width = dimensions.WIDTH <= 1 and vim.o.columns * dimensions.WIDTH or dimensions.WIDTH
+  local height = dimensions.HEIGHT <= 1 and vim.o.lines * dimensions.HEIGHT or dimensions.HEIGHT
 
   local height_offset = dimensions.HEIGHT_OFFSET
   if height_offset then
@@ -105,15 +76,13 @@ end
 --- function itself so the cap follows terminal resizes
 --- @return integer max_height Height in rows
 function M.inline_max_height()
-  local _, screen_h = M.screen_size()
-  return math.floor(screen_h * Conf.size.inline_popup.MAX_HEIGHT)
+  return math.floor(vim.o.lines * Conf.size.inline_popup.MAX_HEIGHT)
 end
 
 --- Width counterpart of M.inline_max_height
 --- @return integer max_width Width in columns
 function M.inline_max_width()
-  local screen_w = M.screen_size()
-  return math.floor(screen_w * Conf.size.inline_popup.MAX_WIDTH)
+  return math.floor(vim.o.columns * Conf.size.inline_popup.MAX_WIDTH)
 end
 
 --- @class utils.ui.layout.WinConfig
@@ -140,8 +109,8 @@ function M.popup(size, with_border)
   local col, row = M.center(window_w, window_h)
 
   return {
-    -- Some plugins like telescope takes the border into account for the size when rendering the popup
-    -- In that case, we should add 2 to the width and height to maintain the same size with the others that do not
+    -- Some consumers (e.g. bordered snacks windows) count the border in the size they render;
+    -- add 2 to the width and height for them to match the size of the others that do not
     width = window_w + (with_border and 2 or 0),
     height = window_h + (with_border and 2 or 0),
     col = col,

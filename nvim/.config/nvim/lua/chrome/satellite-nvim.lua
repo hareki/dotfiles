@@ -23,7 +23,6 @@ return {
         winblend = 0,
         excluded_filetypes = {
           'snacks_picker_list',
-          'TelescopeResults',
           'blink-cmp-menu',
           'blink-cmp-documentation',
         },

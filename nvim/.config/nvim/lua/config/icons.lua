@@ -60,7 +60,7 @@ local M = {
   },
   -- Unlike every other group, these leaf keys stay PascalCase instead of
   -- CONSTANT_CASE: they are consumed as-is as blink-cmp `kind_icons` keys
-  -- (see features/completion/blink-cmp/config/appearance.lua) and must match
+  -- (see features/completion/blink-cmp/init.lua) and must match
   -- the LSP CompletionItemKind names (Array, Boolean, Class, ...) verbatim.
   cmp_kinds = {
     -- lspkind.nvim codicon preset
@@ -172,16 +172,6 @@ local M = {
     CYCLE = '',
     SCROLL_UP = '󱕑 ',
     SCROLL_DOWN = '󱕐 ',
-  },
-  -- Telescope borderchars layout, see:
-  -- https://github.com/nvim-telescope/telescope.nvim/blob/5972437de807c3bc101565175da66a1aa4f8707a/lua/telescope/themes.lua#L50
-  -- The `prompt`/`results`/`preview` leaf keys stay lowercase (rather than
-  -- CONSTANT_CASE) because Telescope reads them verbatim from `borderchars`.
-  telescope_borders = {
-    prompt = { '─', '│', ' ', '│', '╭', '╮', '│', '│' },
-    -- Disconnected edges, similar to snacks picker
-    results = { '─', '│', '─', '│', '│', '│', '╯', '╰' },
-    preview = { '─', '│', '─', '│', '╭', '╮', '╯', '╰' },
   },
   fillchars = {
     DIFF = '╱',
