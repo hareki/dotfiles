@@ -49,6 +49,7 @@ function M.show()
     title = 'Notifications',
     source = 'notify',
     items = items,
+    show_empty = true,
     format = function(item)
       local notif = item.notif
       local level_hl = 'Notify' .. notif.level .. 'Title'
