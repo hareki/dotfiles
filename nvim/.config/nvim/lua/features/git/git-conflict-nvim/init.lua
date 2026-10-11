@@ -68,6 +68,12 @@ return {
         { lhs = ']x', rhs = '<Plug>(git-conflict-next-conflict)', desc = 'Next Conflict' },
       }
 
+      -- Tells the maps above apart from another plugin's map on the same keys
+      local keymap_rhs = {}
+      for _, map in ipairs(keymaps) do
+        keymap_rhs[map.rhs] = true
+      end
+
       --- @type table<integer, { autocmd_id: integer, timer: uv.uv_timer_t? }>
       local buf_state = {}
 
@@ -216,6 +222,12 @@ return {
       vim.api.nvim_create_autocmd({ 'BufDelete', 'BufWipeout' }, {
         group = group,
         callback = function(event)
+          -- :bdelete frees the git_conflict flag that gates Resolved's cleanup, but the bufnr
+          -- keeps its disabled diagnostics, so a reopened buffer would stay without them.
+          -- Detected disables them again if it is still conflicted
+          if buf_state[event.buf] then
+            vim.diagnostic.enable(true, { bufnr = event.buf })
+          end
           cleanup_buf(event.buf)
         end,
       })
@@ -226,17 +238,24 @@ return {
         callback = function(event)
           local bufnr = event.data.buf
           cleanup_buf(bufnr)
+          if not vim.api.nvim_buf_is_valid(bufnr) then
+            return
+          end
+
+          -- Delete only Detected's maps, whatever the flag says: codediff's merge view claims
+          -- the same keys on this buffer and hands Detected's maps back once it lets go
+          for _, map in ipairs(vim.api.nvim_buf_get_keymap(bufnr, 'n')) do
+            if keymap_rhs[map.rhs] then
+              vim.api.nvim_buf_del_keymap(bufnr, 'n', map.lhs)
+            end
+          end
 
           -- Resolved fires on every parse (with default_mappings = false the
           -- fork's mappings flag is never set), so only undo what Detected did
-          if not vim.api.nvim_buf_is_valid(bufnr) or not vim.b[bufnr].git_conflict then
+          if not vim.b[bufnr].git_conflict then
             return
           end
           vim.b[bufnr].git_conflict = nil
-
-          for _, map in ipairs(keymaps) do
-            pcall(vim.keymap.del, 'n', map.lhs, { buffer = bufnr })
-          end
 
           if package_utils.is_loaded('nvim-colorizer.lua') then
             colorizer.attach_to_buffer(bufnr)
@@ -246,18 +265,6 @@ return {
           for _, win in ipairs(vim.fn.win_findbuf(bufnr)) do
             vim.wo[win].winhighlight = ''
           end
-        end,
-      })
-
-      -- git-conflict.nvim evicts a buffer from its watch list WITHOUT emitting
-      -- GitConflictResolved when the conflict is resolved/aborted outside Neovim
-      -- (e.g. git merge --abort), so vim.b.git_conflict sticks. On reload
-      -- (:edit! via <A-r>, or autoread on a disk change) re-check the flagged
-      -- buffer and emit Resolved ourselves if the markers are gone.
-      vim.api.nvim_create_autocmd({ 'BufReadPost', 'FileChangedShellPost' }, {
-        group = group,
-        callback = function(event)
-          utils.resync_conflict(event.buf)
         end,
       })
     end,

@@ -223,8 +223,8 @@ function M.open()
     M.switch_position('float')
   end
 
-  -- The preview watcher augroup is created in on_attach (see the nvim-tree spec),
-  -- which reruns per open since the tree buffer is bufhidden=wipe.
+  -- The preview watcher augroup is created on nvim-tree's TreeAttachedPost event
+  -- (see the nvim-tree spec), which fires per open since the tree buffer is bufhidden=wipe.
   api.tree.open()
 end
 

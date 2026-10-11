@@ -60,6 +60,11 @@ return {
           },
         },
         lsp = {
+          progress = {
+            -- noice only closes a progress item on its 'end' or when the client exits, so a server
+            -- that never ends a token would leave its spinner up forever
+            max_lifetime = 30 * 1000,
+          },
           hover = {
             opts = { border = 'rounded' },
           },
@@ -140,10 +145,7 @@ return {
       end
 
       local noice = require('noice')
-      local utils = require('chrome.noice-nvim.utils')
-
       noice.setup(opts)
-      utils.cap_progress_lifetime()
     end,
   },
 }

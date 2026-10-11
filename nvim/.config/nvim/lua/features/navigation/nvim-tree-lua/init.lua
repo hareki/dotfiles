@@ -227,6 +227,7 @@ return {
             end,
           },
         },
+        help = { border = 'rounded' },
 
         on_attach = function(tree_bufnr)
           local function map(mode, lhs, rhs, desc)
@@ -282,14 +283,7 @@ return {
           map('n', '<Left>', tree.create_node_action('collapse'), 'Collapse Node')
           map('n', '<S-Left>', api.tree.collapse_all, 'Collapse All Nodes')
           map('n', { '<CR>', 'e' }, tree.create_node_action('toggle'), 'Open File/Toggle Folder')
-          map('n', 'g?', function()
-            -- Toggle can only work when the tree callback is
-            -- api.tree.toggle_help by identity, which this wrapper breaks
-            -- but I don't use it anyway
-            api.tree.toggle_help()
-            local nvim_tree_help = require('nvim-tree.help')
-            vim.api.nvim_win_set_config(nvim_tree_help.winnr, { border = 'rounded' })
-          end, 'Open Help')
+          map('n', 'g?', api.tree.toggle_help, 'Toggle Help')
 
           map('n', '<C-n>', tree.mark_and_next, 'Bookmark and Next')
           map('n', '<C-p>', tree.mark_and_prev, 'Bookmark and Previous')
@@ -298,24 +292,6 @@ return {
           map('n', 'bt', api.marks.bulk.delete, 'Delete Bookmarked')
           map('n', 'bm', api.marks.bulk.move, 'Move Bookmarked')
           map('n', '<A-r>', api.tree.reload, 'Refresh')
-
-          -- The tree buffer is bufhidden=wipe, so on_attach reruns on every open;
-          -- (re)create the watcher group here so the autocmd's lifetime matches the
-          -- buffer that registers it. Creating it in tree.open() instead would leak
-          -- an ungrouped autocmd when the tree is opened via api.tree.open() directly
-          -- (e.g. auto-session's no-restore hook), and lose the autocmd when tree.open()
-          -- clears the group while the buffer survives.
-          state.preview_watcher =
-            vim.api.nvim_create_augroup('navigation.nvim-tree.preview', { clear = true })
-
-          vim.api.nvim_create_autocmd('BufEnter', {
-            group = state.preview_watcher,
-            callback = function(ev)
-              if ev.buf == tree_bufnr then
-                tree.toggle_preview(state.preview_on_focus)
-              end
-            end,
-          })
         end,
       }
 
@@ -324,6 +300,7 @@ return {
 
     config = function(_, opts)
       local tree = require('features.navigation.nvim-tree-lua.utils')
+      local state = tree.state
 
       vim.api.nvim_create_autocmd('VimResized', {
         group = vim.api.nvim_create_augroup('navigation.nvim-tree.resize', { clear = true }),
@@ -338,6 +315,28 @@ return {
       local events = api.events
       events.subscribe(events.Event.NodeRenamed, function(data)
         Snacks.rename.on_rename_file(data.old_name, data.new_name)
+      end)
+
+      -- The tree buffer is bufhidden=wipe, so TreeAttachedPost fires on every open;
+      -- (re)create the watcher group here so the autocmd's lifetime matches the
+      -- buffer that registers it. Creating it in tree.open() instead would leak
+      -- an ungrouped autocmd when the tree is opened via api.tree.open() directly
+      -- (e.g. auto-session's no-restore hook), and lose the autocmd when tree.open()
+      -- clears the group while the buffer survives. Not in on_attach: help (g?)
+      -- also runs on_attach, on a throwaway scratch buffer to list the keymaps,
+      -- which would retarget the watcher to that buffer.
+      events.subscribe(events.Event.TreeAttachedPost, function(tree_bufnr)
+        state.preview_watcher =
+          vim.api.nvim_create_augroup('navigation.nvim-tree.preview', { clear = true })
+
+        vim.api.nvim_create_autocmd('BufEnter', {
+          group = state.preview_watcher,
+          callback = function(ev)
+            if ev.buf == tree_bufnr then
+              tree.toggle_preview(state.preview_on_focus)
+            end
+          end,
+        })
       end)
 
       local nvim_tree = require('nvim-tree')
