@@ -10,7 +10,7 @@
   "claudecode.nvim": { "branch": "main", "commit": "99e9acb1c1312e9405987e93aa5fecc7c864bbd1" },
   "cmp-cmdline-history": { "branch": "master", "commit": "003573b72d4635ce636234a826fa8c4ba2895ffe" },
   "codediff.nvim": { "branch": "main", "commit": "a59723696212ee3bcb51b88d225cc21f0521d123" },
-  "comment.nvim": { "branch": "master", "commit": "e30b7f2008e52442154b66f7c519bfd2f1e32acb" },
+  "comment.nvim": { "branch": "master", "commit": "35316b2f2f7106342c55a011b4af6521381432b5" },
   "conform.nvim": { "branch": "master", "commit": "016802de402556da54c36bd7359b441266b01cdd" },
   "cursortab.nvim": { "branch": "main", "commit": "c4a96aeaf4f0354f8bd7fd4acdd1fbcb6abd57a7" },
   "debugprint.nvim": { "branch": "main", "commit": "957093d8b695aa4cc18c18f421ef0cb6c7380c59" },

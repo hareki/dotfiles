@@ -116,4 +116,4 @@ Server-specific `LspAttach` autocmds use an early-return guard on client name (s
 
 ## Forks
 
-22 minimal-diff plugin forks by `hareki` (list them with `rg -o --no-filename "'hareki/[^']+'" lua | sort -u`), plus 2 parser forks (`tree-sitter-glimmer`, `tree-sitter-scss`) registered in `core/nvim-treesitter.lua`. Updated via [wei/pull](https://github.com/wei/pull) (`.github/pull.yml`), except `eagle.nvim` and `tree-sitter-scss`, which have none.
+23 minimal-diff plugin forks by `hareki` (list them with `rg -o --no-filename "'hareki/[^']+'" lua | sort -u`), plus 2 parser forks (`tree-sitter-glimmer`, `tree-sitter-scss`) registered in `core/nvim-treesitter.lua`. Updated via [wei/pull](https://github.com/wei/pull) (`.github/pull.yml`), except `eagle.nvim` and `tree-sitter-scss`, which have none.
