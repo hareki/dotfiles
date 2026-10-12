@@ -11,6 +11,7 @@ return {
 
     local highlights = {
       RenderMarkdownCode = { bg = 'none' },
+      RenderMarkdownTableRow = { fg = palette.blue },
     }
 
     for level, color in ipairs(heading_colors) do
