@@ -129,7 +129,7 @@ Every item gets exactly one entry. Sections go in this order, and empty ones are
 
 <comment url>
 
-> <the request, quoted or trimmed to its core>
+<quoted comment>
 
 **Options:** <the choices, their trade-offs, and which one you lean toward>
 
@@ -143,7 +143,7 @@ Every item gets exactly one entry. Sections go in this order, and empty ones are
 
 <comment url>
 
-> <quote>
+<quoted comment>
 
 **Draft reply:**
 
@@ -165,12 +165,16 @@ Every item gets exactly one entry. Sections go in this order, and empty ones are
 
 <comment url>
 
+<quoted comment>
+
 `<short SHA>` <commit subject>
 
 **Draft reply:** Fixed in <short SHA>. <one more sentence only when the fix differs from what was suggested, and why>
 ````
 
 Use `originalLine` when `line` is null, just the path for a file-level comment, and a short description of the finding in place of `path:line` for items from a review body or conversation comment.
+
+`<quoted comment>` is the reviewer's comment copied verbatim as a blockquote (every line prefixed with `> `, code and suggestion blocks included), so the user can review each reply against what it answers without opening the link. Do not paraphrase or trim it. When the thread has replies, quote each comment in order, each opened with its author on its own line (`> **@<author>:**`), since the draft reply answers the whole conversation. For an item split out of a longer review body or conversation comment, quote just that finding's part, leaving out bot boilerplate such as collapsed sections and "Prompt for AI agents" blocks.
 
 Writing the replies:
 
