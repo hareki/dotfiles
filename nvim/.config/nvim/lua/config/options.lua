@@ -34,7 +34,9 @@ opt.breakindent = true
 opt.swapfile = false -- Don't use swapfiles
 opt.cursorline = true -- Show which line your cursor is on
 opt.scrolloff = 6 -- Minimal number of screen lines to keep above and below the cursor.
-opt.statuscolumn = '%l%s'
+-- %l, but with the cursor line's number right-aligned too
+opt.statuscolumn = '%=%{(&nu || &rnu) && v:virtnum == 0'
+  .. ' ? (!&rnu || &nu && v:relnum == 0 ? v:lnum : v:relnum) : ""}%s'
 opt.signcolumn = 'yes:1' -- Always show the signcolumn, otherwise it would shift the text each time
 opt.wildmode = 'longest:full,full' -- Command-line completion mode
 opt.winminwidth = 5 -- Minimum window width
