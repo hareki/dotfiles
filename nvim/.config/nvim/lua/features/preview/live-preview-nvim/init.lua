@@ -33,9 +33,16 @@ return {
       },
     },
 
-    config = function()
+    opts = function()
+      return {
+        -- Previews start on this port, or on the first free one above it while it's taken
+        port = 5500,
+      }
+    end,
+
+    config = function(_, opts)
       local utils = require('features.preview.live-preview-nvim.utils')
-      utils.patch_template()
+      utils.setup(opts)
     end,
   },
 }
