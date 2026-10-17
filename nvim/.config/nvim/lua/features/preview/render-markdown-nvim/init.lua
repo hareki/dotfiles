@@ -62,7 +62,7 @@ return {
 
     config = function(_, opts)
       local render_markdown = require('render-markdown')
-      local render_markdown_evict = require('utils.render-markdown-evict')
+      local utils = require('features.preview.render-markdown-nvim.utils')
 
       render_markdown.setup(opts)
 
@@ -71,7 +71,7 @@ return {
       vim.api.nvim_create_autocmd('BufWipeout', {
         group = vim.api.nvim_create_augroup('preview.render-markdown.evict', { clear = true }),
         callback = function(args)
-          render_markdown_evict.sweep(args.buf)
+          utils.evict_wiped_buffers(args.buf)
         end,
       })
     end,
