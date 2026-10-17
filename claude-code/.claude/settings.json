@@ -43,7 +43,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "opus[1m]",
+  "model": "opus",
   "hooks": {
     "Notification": [
       {
@@ -53,24 +53,11 @@
             "command": "bash ~/.claude/hooks/bell.sh Funk"
           }
         ]
-      },
-      {
-        "matcher": "idle_prompt",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/prevent-sleep.sh"
-          }
-        ]
       }
     ],
     "Stop": [
       {
         "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/prevent-sleep.sh"
-          },
           {
             "type": "command",
             "command": "bash ~/.claude/hooks/bell.sh"
@@ -101,13 +88,20 @@
   "syntaxHighlightingDisabled": false,
   "modelSettings": {
     "claude-sonnet-5": {
-      "effortLevel": "high"
+      "effortLevel": "xhigh"
     },
     "claude-opus-5": {
       "effortLevel": "xhigh"
     },
     "claude-fable-5-1": {
       "effortLevel": "xhigh"
+    },
+    "claude-opus-5-5": {
+      "effortLevel": "xhigh",
+      "autoCompactWindow": "auto"
+    },
+    "claude-sonnet-5-5": {
+      "effortLevel": "high"
     }
   },
   "tui": "fullscreen",
