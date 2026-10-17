@@ -86,6 +86,7 @@
     "figma@claude-plugins-official": true
   },
   "syntaxHighlightingDisabled": false,
+  "maxProseWidth": 100,
   "modelSettings": {
     "claude-fable-5-1": {
       "effortLevel": "xhigh",
