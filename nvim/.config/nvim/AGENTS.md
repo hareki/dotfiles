@@ -85,7 +85,7 @@ return { 'author/plugin', keys = { ... }, opts = { ... } }
 return { UI.catppuccin(function(...) ... end, 'plugin'), UI.which_key({ ... }), { 'author/plugin', opts = ... } }
 ```
 
-`UI.catppuccin`'s optional second argument is the lazy.nvim plugin name: the highlight callback then runs when that plugin loads (applied with `nvim_set_hl`, re-applied on `ColorScheme`) instead of merging into catppuccin's `custom_highlights` at startup. Pass it for plugins loaded by `event`/`ft`/`keys`/`cmd`/`require()`; omit it for `lazy=false` and `BufRead*`-triggered plugins, and when the callback recolors built-in groups used before the plugin loads (nvim-hlslens recolors the search groups).
+`UI.catppuccin`'s optional second argument is the lazy.nvim plugin name: the highlight callback then runs when that plugin loads (applied with `nvim_set_hl` right before its `setup()` through an `optional` `opts` fragment on the plugin, so the keypress that loads it already draws with them, again after `User LazyLoad`, and re-applied on `ColorScheme`) instead of merging into catppuccin's `custom_highlights` at startup. Pass it for plugins loaded by `event`/`ft`/`keys`/`cmd`/`require()`; omit it for `lazy=false` and `BufRead*`-triggered plugins, and when the callback recolors built-in groups used before the plugin loads (nvim-hlslens recolors the search groups). The plugin must have its own `opts` or `config`: the fragment's `opts` would otherwise make lazy.nvim start calling its `setup()`.
 
 ### Directory Plugins
 

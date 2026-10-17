@@ -53,27 +53,48 @@ end
 --- Create a catppuccin plugin spec with custom highlights.
 --- Without plugin_name, highlights merge eagerly into catppuccin's custom_highlights option;
 --- with plugin_name, register evaluation and highlight application are deferred until
---- lazy.nvim loads that plugin.
+--- lazy.nvim loads that plugin (applied right before its setup() and again once it has loaded).
 --- @param register utils.ui.catppuccin.Register Callback to generate highlights
 --- @param plugin_name? string lazy.nvim plugin name to defer the registration until it loads
---- @return table spec A lazy.nvim plugin spec for catppuccin
+--- @return table spec A lazy.nvim spec: the catppuccin fragment, plus one on plugin_name if given
 local function catppuccin(register, plugin_name)
-  return {
-    'catppuccin/nvim',
-    opts = function(_, opts)
-      if plugin_name then
-        local package_utils = require('utils.package')
-        package_utils.on_load(plugin_name, function()
-          -- `:colorscheme` wipes nvim_set_hl groups, while eager registers survive through
-          -- catppuccin's custom_highlights; Snacks re-applies the groups it sets on ColorScheme
-          Snacks.util.set_hl(resolve(register))
-        end)
-        return
-      end
+  if not plugin_name then
+    return {
+      'catppuccin/nvim',
+      opts = function(_, opts)
+        opts.custom_highlights =
+          vim.tbl_extend('error', opts.custom_highlights or {}, resolve(register))
+      end,
+    }
+  end
 
-      opts.custom_highlights =
-        vim.tbl_extend('error', opts.custom_highlights or {}, resolve(register))
-    end,
+  local function apply()
+    -- `:colorscheme` wipes nvim_set_hl groups, while eager registers survive through
+    -- catppuccin's custom_highlights; Snacks re-applies the groups it sets on ColorScheme
+    Snacks.util.set_hl(resolve(register))
+  end
+
+  return {
+    {
+      'catppuccin/nvim',
+      opts = function()
+        local package_utils = require('utils.package')
+        package_utils.on_load(plugin_name, apply)
+      end,
+    },
+    -- User LazyLoad fires from vim.schedule, so the keypress that loads a plugin can draw with
+    -- its default groups first (flash's first prompt waits in getchar with them). Resolving opts
+    -- is the only synchronous step of a load, right before setup(): applying there lets groups
+    -- the plugin declares with `default = true` keep ours, while the LazyLoad pass still wins
+    -- over any it forces in setup(). The plugin must have its own opts or config, otherwise
+    -- this fragment makes lazy start calling its setup()
+    {
+      plugin_name,
+      optional = true,
+      opts = function()
+        apply()
+      end,
+    },
   }
 end
 
