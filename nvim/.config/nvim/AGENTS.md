@@ -56,7 +56,7 @@ Six globals available everywhere (five set in `globals.lua`, one by its plugin).
 - `Conf` (`config`; `config/init.lua` assembles the `config.*` tables): `Conf.icons` (never hardcode icons), `Conf.filetypes` (`JS`, `JSX`, `CSS`, `MARKDOWN`, …), `Conf.priority` (`CORE=1000`, `CHROME=900`), `Conf.picker`, `Conf.size`, `Conf.cmp` (from `config/completion.lua`)
 - `UI` (`utils.ui`, direct require):
   - Spec registration: `UI.catppuccin(fn, plugin_name?)`, `UI.which_key(spec)`
-  - Helpers: `UI.layout.popup()` / `UI.layout.popup_fn()` / `UI.layout.side_size()`, `UI.color.blend_hex()`, `UI.pill.virt_text()`, `UI.cursorline.set_cursorline()`
+  - Helpers: `UI.layout.popup()` / `UI.layout.popup_fn()` / `UI.layout.side_size()`, `UI.color.blend_hex()`, `UI.pill.virt_text()`, `UI.cursorline.set_cursorline()`, `UI.mode.name()` / `UI.mode.colors` (the per-mode palette shared by lualine's mode pill and modicator.nvim)
   - Integration helpers: `UI.catppuccin.get_palette('ext')`, `UI.statusline.enabled()` / `UI.statusline.refresh()`
 - `Project` (`utils.project-config`): `Project.linter` (`'eslint'` default, or `'oxlint'`) and `Project.formatter` (`'prettier'` default, or `'oxfmt'`), overridden per project by `.neovimrc.json` in the initial cwd
 - `Snacks` (set by snacks.nvim at runtime): `Snacks.picker.*`, `Snacks.terminal.*`, etc.

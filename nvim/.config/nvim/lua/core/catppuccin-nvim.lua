@@ -44,7 +44,8 @@ return {
         FloatTitle = { bg = 'none', fg = palette.blue, bold = true },
 
         LineNr = { fg = palette.overlay0 },
-        CursorLineNr = { fg = palette.blue },
+        -- Until modicator.nvim loads and recolors it per mode
+        CursorLineNr = { fg = palette[UI.mode.colors.Normal] },
 
         TabLine = {
           bg = 'none',
