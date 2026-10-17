@@ -1,4 +1,4 @@
---- @class utils.render-markdown-evict
+--- @class features.preview.render-markdown.utils
 local M = {}
 
 --- Evict wiped buffers from render-markdown.nvim's per-buffer state.
@@ -9,7 +9,7 @@ local M = {}
 --- Only touches already-loaded modules; never triggers a plugin load.
 --- @param wiping? integer A buffer being wiped, still valid until its BufWipeout ends
 --- @return nil
-function M.sweep(wiping)
+function M.evict_wiped_buffers(wiping)
   local function is_gone(bufnr)
     return bufnr == wiping or not vim.api.nvim_buf_is_valid(bufnr)
   end
