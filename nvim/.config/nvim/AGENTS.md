@@ -40,7 +40,7 @@ The LuaLS diagnostics surfaced to you will often report `undefined-global` for t
   - Load: catppuccin, snacks.nvim and auto-session are eager (`lazy=false`, `priority=CORE(1000)`); the rest load on events (`BufReadPost`/`BufNewFile` for treesitter; `VeryLazy`, `LspAttach` or `ft` for the LSP layer), on first `require()` (mini.icons), or as a dependency (nvim-treesitter-textobjects, via mini.ai)
 - `chrome/`: visual layer (statusline, winbar, scrollbar, notifications, folds, decorations, which-key)
   - Load: only noice.nvim is eager (`lazy=false`, `priority=CHROME(900)`); the rest use `event='VeryLazy'`, buffer events, `ft` or `keys`
-- `features/{domain}/`: domain features in 8 groups (navigation, completion, git, editing, search, diagnostics, formatting, ai)
+- `features/{domain}/`: domain features in 9 groups (navigation, completion, git, editing, search, diagnostics, formatting, ai, preview)
   - Load: on demand via `keys`, `cmd`, `ft` or `event` (mostly `VeryLazy`; blink.cmp uses `InsertEnter`/`CmdlineEnter`), or a `require()` from another module (e.g. conform.nvim via `utils/style-enforcers/`)
 
 `priority` only orders eager plugins, so lazy specs leave it unset.
@@ -89,7 +89,7 @@ return { UI.catppuccin(function(...) ... end, 'plugin'), UI.which_key({ ... }), 
 
 ### Directory Plugins
 
-For plugins with state or large configs: `init.lua` (specs) + `utils.lua` (helpers, holding `M.state = {}` when the plugin keeps state) + optional `config/` sub-modules. See `nvim-tree-lua/` (state) and `blink-cmp/` (`config/` split); larger plugins grow `utils.lua` into a `utils/` directory (`core/snacks-nvim/`).
+Give a plugin the directory form once it has state or more than a few lines of helper logic (wrappers, monkey-patches), keeping its spec file to the lazy.nvim tables and tiny locals such as a desc `prefix`: `init.lua` (specs) + `utils.lua` (helpers, holding `M.state = {}` when the plugin keeps state) + optional `config/` sub-modules. See `nvim-tree-lua/` (state), `live-preview-nvim/` (wrappers) and `blink-cmp/` (`config/` split); larger plugins grow `utils.lua` into a `utils/` directory (`core/snacks-nvim/`).
 
 ### Popup Sizing
 
@@ -116,4 +116,4 @@ Server-specific `LspAttach` autocmds use an early-return guard on client name (s
 
 ## Forks
 
-23 minimal-diff plugin forks by `hareki` (list them with `rg -o --no-filename "'hareki/[^']+'" lua | sort -u`), plus 2 parser forks (`tree-sitter-glimmer`, `tree-sitter-scss`) registered in `core/nvim-treesitter.lua`. Updated via [wei/pull](https://github.com/wei/pull) (`.github/pull.yml`), except `eagle.nvim` and `tree-sitter-scss`, which have none.
+24 minimal-diff plugin forks by `hareki` (list them with `rg -o --no-filename "'hareki/[^']+'" lua | sort -u`), plus 2 parser forks (`tree-sitter-glimmer`, `tree-sitter-scss`) registered in `core/nvim-treesitter.lua`. Updated via [wei/pull](https://github.com/wei/pull) (`.github/pull.yml`), except `eagle.nvim` and `tree-sitter-scss`, which have none.
