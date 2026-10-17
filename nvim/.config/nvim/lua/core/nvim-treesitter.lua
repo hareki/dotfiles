@@ -34,6 +34,7 @@ local ensure_installed = {
   'go',
   'ghostty',
   'glimmer',
+  'applescript',
 }
 
 return {
@@ -90,6 +91,11 @@ return {
           ghostty = {
             url = 'https://github.com/bezhermoso/tree-sitter-ghostty',
             queries = 'queries/ghostty',
+          },
+
+          applescript = {
+            url = 'https://github.com/waddie/tree-sitter-applescript',
+            queries = 'queries',
           },
         }
 
