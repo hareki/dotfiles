@@ -3,7 +3,7 @@
   name = Tu Nguyen
 [core]
   pager = delta
-  editor = NVIM_NO_STATUSLINE=1 nvim # Set NVIM_NO_STATUSLINE variable while launching nvim as the default editor
+  editor = NVIM_INTEGRATION=git nvim # Set NVIM_INTEGRATION variable while launching nvim as the default editor
 [interactive]
   diffFilter = delta --color-only
 [merge]

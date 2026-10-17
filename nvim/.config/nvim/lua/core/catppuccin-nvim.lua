@@ -105,6 +105,12 @@ return {
       opts.custom_highlights[group] = hl
     end
 
+    -- The host label config/options.lua shows in place of lualine
+    local integration = UI.statusline.integration
+    if integration then
+      opts.custom_highlights.StatusLineIntegration = { fg = palette[integration.color] }
+    end
+
     return opts
   end,
 

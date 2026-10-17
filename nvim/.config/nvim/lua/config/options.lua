@@ -38,7 +38,7 @@ opt.statuscolumn = '%l%s'
 opt.signcolumn = 'yes:1' -- Always show the signcolumn, otherwise it would shift the text each time
 opt.wildmode = 'longest:full,full' -- Command-line completion mode
 opt.winminwidth = 5 -- Minimum window width
-opt.laststatus = UI.statusline.enabled() and 3 or 0 -- 3 = Global status line
+opt.laststatus = 3 -- 3 = Global status line
 opt.shiftwidth = 2 -- Number of spaces to use for each step of (auto)indent
 opt.tabstop = 2 -- Number of spaces tabs count for
 opt.softtabstop = 2 -- Number of spaces tabs count for while performing editing operations
@@ -54,6 +54,13 @@ opt.viewoptions:remove('curdir')
 
 -- Diagonal hatch fill for deleted/filler lines in diff views (e.g. codediff)
 opt.fillchars:append({ diff = Conf.icons.fillchars.DIFF, eob = ' ', lastline = '.' })
+
+-- Host tools launching nvim as their editor (NVIM_INTEGRATION) show their label in place of lualine
+local integration = UI.statusline.integration
+if integration then
+  opt.statusline =
+    string.format(' %%#StatusLineIntegration#%s %s', integration.icon, integration.label)
+end
 
 -- Save undo history
 opt.undofile = true

@@ -29,6 +29,7 @@ local M = {
   },
   git = {
     GIT = '󰊢',
+    LAZYGIT = '󰒲',
     SIGN = '',
     HUNK = '┃',
     HUNK_DELETE = '',

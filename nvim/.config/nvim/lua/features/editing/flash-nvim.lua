@@ -77,7 +77,7 @@ return {
       --- @type Flash.Config
       return {
         prompt = {
-          prefix = { { Conf.icons.tools.FLASH .. ' Flash ', 'FlashPromptIcon' } },
+          prefix = { { ' ' }, { Conf.icons.tools.FLASH .. ' Flash ', 'FlashPromptIcon' } },
         },
       }
     end,
