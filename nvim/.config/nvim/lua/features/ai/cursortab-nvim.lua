@@ -14,6 +14,7 @@ return {
 
   {
     'hareki/cursortab.nvim',
+    enabled = false,
     build = 'cd server && go build',
     event = 'VeryLazy',
     opts = function()
