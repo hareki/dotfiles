@@ -132,6 +132,7 @@ local M = {
     SCHEME = '',
     MARKDOWN = '',
     HANDLEBARS = '',
+    APPLESCRIPT = '',
   },
   editor = {
     TERMINAL = '',
