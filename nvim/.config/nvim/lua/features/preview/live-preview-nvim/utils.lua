@@ -1,6 +1,14 @@
 --- @class features.preview.live-preview.utils
 local M = {}
 
+--- @class features.preview.live-preview.utils.State
+--- @field port integer? The configured port, since start() replaces livepreview.config's
+
+--- @type features.preview.live-preview.utils.State
+M.state = {
+  port = nil,
+}
+
 -- Swap this file to change the preview pages' tab icon (any image type). It's inlined as a
 -- data URI, so it never has to sit under the server's webroot
 local FAVICON_PATH = vim.fn.stdpath('config') .. '/assets/live-preview/favicon.svg'
@@ -9,17 +17,41 @@ local FAVICON_PATH = vim.fn.stdpath('config') .. '/assets/live-preview/favicon.s
 local TITLE_SCRIPT =
   "<script>document.title = decodeURIComponent(location.pathname.split('/').pop())</script>"
 
---- Bind a throwaway listener to check that `port` is free; port 0 lets the OS pick a free one
+--- Whether something listens on `port` at `address` or at a loopback or wildcard address. Binding
+--- `address` alone can't tell: macOS lets it share the port with those listeners, and it even takes
+--- a wildcard one's connections to `address`
 --- @param address string
 --- @param port integer
---- @return integer? port The bound port, nil when it's taken
-local function probe_port(address, port)
-  local tcp = assert(vim.uv.new_tcp())
-  -- libuv may defer bind()'s EADDRINUSE to listen()
-  local ok = tcp:bind(address, port) and tcp:listen(1, function() end)
-  local sockname = ok and tcp:getsockname()
-  tcp:close()
-  return sockname and sockname.port
+--- @return boolean
+local function port_in_use(address, port)
+  for _, probe_address in ipairs({ address, '127.0.0.1', '::1', '0.0.0.0', '::' }) do
+    local tcp = assert(vim.uv.new_tcp())
+    -- libuv defers bind()'s EADDRINUSE, and getsockname() reports it without the listen() that
+    -- would open the wildcard addresses to incoming connections
+    local ok, _, err = tcp:bind(probe_address, port)
+    if ok then
+      _, _, err = tcp:getsockname()
+    end
+    tcp:close()
+    -- Other errors, e.g. EACCES or no IPv6 stack, aren't a listener
+    if err == 'EADDRINUSE' then
+      return true
+    end
+  end
+  return false
+end
+
+--- The first port from `port` up that nothing listens on, else `port`
+--- @param address string
+--- @param port integer
+--- @return integer
+local function free_port(address, port)
+  for candidate = port, 65535 do
+    if not port_in_use(address, candidate) then
+      return candidate
+    end
+  end
+  return port
 end
 
 --- The favicon `<link>` with the file inlined
@@ -33,8 +65,8 @@ local function favicon_link()
 end
 
 --- Preview the current buffer. Unlike `:LivePreview start`, it never falls back to another
---- loaded file, and when another process, e.g. a second nvim's preview, holds the default port,
---- it moves to a free one instead of failing
+--- loaded file, and while something else, e.g. a second nvim's preview, listens on the configured
+--- port, it moves to the first free port above it instead of failing
 function M.start()
   local livepreview = require('livepreview')
   local livepreview_config = require('livepreview.config')
@@ -53,8 +85,7 @@ function M.start()
     -- Keep a running server's port: the plugin closes and rebinds it in one tick, so its tabs,
     -- which reload as their socket closes, land on the new server
     port = livepreview.is_running() and livepreview_config.config.port
-      or probe_port(address, livepreview_config.default.port)
-      or probe_port(address, 0),
+      or free_port(address, M.state.port),
   })
 
   vim.cmd.LivePreview('start')
@@ -88,7 +119,7 @@ end
 
 --- Give the generated Markdown, AsciiDoc and SVG pages the file name as their tab title and the
 --- favicon at FAVICON_PATH. HTML files are served as written, keeping their own title and icon
-function M.patch_template()
+local function patch_template()
   local template = require('livepreview.template')
   local head = favicon_link() .. TITLE_SCRIPT
 
@@ -99,6 +130,17 @@ function M.patch_template()
       return (render(...):gsub('</head>', head .. '</head>', 1))
     end
   end
+end
+
+--- Apply `opts` to the plugin, keeping their port for start(), and patch its page template
+--- @param opts LivePreviewConfig
+function M.setup(opts)
+  local livepreview_config = require('livepreview.config')
+
+  --- @diagnostic disable-next-line: param-type-mismatch Wrong type from live-preview
+  livepreview_config.set(opts)
+  M.state.port = livepreview_config.config.port
+  patch_template()
 end
 
 return M
