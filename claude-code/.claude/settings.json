@@ -60,7 +60,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/hooks/bell.sh"
+            "command": "bash ~/.claude/hooks/bell-when-done.sh"
           }
         ]
       }
