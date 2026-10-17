@@ -35,6 +35,7 @@ lazy.setup({
     { import = 'features.diagnostics' },
     { import = 'features.formatting' },
     { import = 'features.ai' },
+    { import = 'features.preview' },
   },
   defaults = {
     lazy = true, -- Don't eagerly load plugins by default

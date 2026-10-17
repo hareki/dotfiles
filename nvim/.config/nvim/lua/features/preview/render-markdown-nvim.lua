@@ -69,7 +69,7 @@ return {
       -- BufWipeout doesn't fire for a wipe made inside another, non-nested autocmd (e.g. a
       -- popup closed on CursorMoved), so each sweep also catches the wipes it missed
       vim.api.nvim_create_autocmd('BufWipeout', {
-        group = vim.api.nvim_create_augroup('chrome.render-markdown.evict', { clear = true }),
+        group = vim.api.nvim_create_augroup('preview.render-markdown.evict', { clear = true }),
         callback = function(args)
           render_markdown_evict.sweep(args.buf)
         end,

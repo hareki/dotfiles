@@ -75,7 +75,7 @@ nvim-tree-lua/
 
 ## Forks (author = hareki)
 
-- 22 minimal-diff forks; updated via [wei/pull](https://github.com/wei/pull)
+- 24 minimal-diff forks; updated via [wei/pull](https://github.com/wei/pull)
 - Features toggleable — disabling custom bits reverts to upstream behavior
 - Enable unified UX by exposing layout hooks, focus toggles, preview coordination, UI tweaks and more.
 
@@ -89,3 +89,5 @@ nvim-tree-lua/
 ## Attribution
 
 Inspired by [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim), [LazyVim](https://github.com/LazyVim/LazyVim) and [NvChad](https://github.com/NvChad/NvChad).
+
+The live preview favicon (`assets/live-preview/favicon.svg`) is the Neovim logo by [Jason Long](https://x.com/jasonlong), licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
