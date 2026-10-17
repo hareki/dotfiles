@@ -6,7 +6,8 @@
       "context": "Chat",
       "bindings": {
         "escape": null,
-        "ctrl+p": "command:effort"
+        "ctrl+p": "command:effort",
+        "ctrl+l": "command:clear"
       }
     },
     {
