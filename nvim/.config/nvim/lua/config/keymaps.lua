@@ -69,7 +69,14 @@ map('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Leave Terminal Mode' })
 map('n', '<Esc>', function()
   UI.color.nohlsearch()
   vim.snippet.stop()
-end, { desc = 'Clear Highlight' })
+
+  -- noice lazy-loads nvim-notify, and nothing can be on screen before it does
+  local notify = package.loaded['notify']
+  if notify then
+    -- `{ pending = true, silent = true }` also drops queued notifications waiting for room
+    notify.dismiss()
+  end
+end, { desc = 'Clear Highlight and Notifications' })
 
 map({ 'n', 'i' }, '<A-s>', style_enforcers.run, { desc = 'Format and Save' })
 

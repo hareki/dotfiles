@@ -146,7 +146,6 @@ local M = {
     URL = '',
     DIAGNOSTIC = '󱖫',
     NOTIFICATION = '',
-    DISMISS_NOTIFICATION = '󱏧',
     SHOW_NOTIFICATION = '󱅫',
     IMAGE = '',
   },

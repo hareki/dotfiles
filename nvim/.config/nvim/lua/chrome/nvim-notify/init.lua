@@ -1,17 +1,8 @@
 local prefix = 'Notification: '
 
---- @module 'notify'
-local notify = Defer.on_exported_call('notify')
-
 return {
   UI.which_key({
-    specs = { '<leader>u', group = 'Notification' },
     rules = {
-      {
-        pattern = prefix:lower() .. 'dismiss all',
-        icon = Conf.icons.editor.DISMISS_NOTIFICATION,
-        color = 'yellow',
-      },
       {
         pattern = prefix:lower() .. 'show history',
         icon = Conf.icons.editor.SHOW_NOTIFICATION,
@@ -26,14 +17,7 @@ return {
     'rcarriga/nvim-notify',
     keys = {
       {
-        '<leader>ud',
-        function()
-          notify.dismiss({ silent = true, pending = true })
-        end,
-        desc = prefix .. 'Dismiss All',
-      },
-      {
-        '<leader>un',
+        '<leader>fn',
         function()
           -- May use `Snacks.picker.noice()` as well
           local notify_utils = require('chrome.nvim-notify.utils')
