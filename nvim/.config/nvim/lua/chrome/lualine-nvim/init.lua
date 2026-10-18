@@ -91,7 +91,7 @@ return {
           create_wrapper({
             comp = harpoon.get,
             type = 'primary-left',
-            color = 'yellow',
+            color = harpoon.color,
             icon = harpoon.icon,
             cond = harpoon.cond,
           }),
@@ -113,7 +113,7 @@ return {
           create_wrapper({
             comp = macro.get,
             type = 'secondary-left',
-            color = 'red',
+            color = macro.color,
             icon = macro.icon,
             cond = macro.cond,
           }),
@@ -133,14 +133,14 @@ return {
           create_wrapper({
             comp = snacks_image.get,
             type = 'secondary-right',
-            color = 'green',
+            color = snacks_image.color,
             cond = snacks_image.cond,
           }),
 
           create_wrapper({
             comp = live_preview.get,
             type = 'secondary-right',
-            color = 'mauve',
+            color = live_preview.color,
             icon = live_preview.icon,
           }),
 
@@ -163,7 +163,7 @@ return {
           create_wrapper({
             comp = repo_name.get,
             type = 'primary-right',
-            color = 'blue',
+            color = repo_name.color,
             icon = repo_name.icon,
             margin = { left = 0, right = 0 },
           })

@@ -131,4 +131,6 @@ function M.get()
   return image_icon
 end
 
+M.color = 'green'
+
 return M

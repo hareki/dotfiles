@@ -8,5 +8,6 @@ function M.get()
 end
 
 M.icon = Conf.icons.tools.LIVE_PREVIEW
+M.color = 'mauve'
 
 return M

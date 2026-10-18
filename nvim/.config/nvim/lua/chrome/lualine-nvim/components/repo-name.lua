@@ -7,5 +7,6 @@ function M.get()
 end
 
 M.icon = Conf.icons.file_tree.FOLDER
+M.color = 'blue'
 
 return M

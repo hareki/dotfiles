@@ -83,5 +83,6 @@ function M.cond()
 end
 
 M.icon = Conf.icons.tools.PIN
+M.color = 'yellow'
 
 return M

@@ -11,5 +11,6 @@ function M.cond()
 end
 
 M.icon = Conf.icons.misc.MACRO
+M.color = 'red'
 
 return M
