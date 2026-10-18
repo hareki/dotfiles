@@ -25,6 +25,11 @@ local LIMITS = {
   -- remaining rows and files fall back to tints. Generous enough that only a
   -- render that would visibly stall lazygit ever hits it.
   max_highlight_ms = 1000,
+  -- Ceiling on the diff engine's time for one change's words. The engine runs
+  -- on the same clock as span extraction, and a rewrite it cannot finish in
+  -- time would otherwise spend the render's whole highlighting budget on
+  -- emphasis; an ordinary change takes a few milliseconds, a large one tens.
+  max_emphasis_ms = 100,
   context_pad_rows = 1,
 }
 
@@ -69,24 +74,29 @@ end
 -- Ranges come from the change rows the layouts draw (hunk.changes): a row
 -- emitted outside the extracted ranges renders tinted but unstyled.
 --
--- `base` rebases a 1-based fragment row onto whatever is being highlighted: the
--- whole old file in full mode (hunk.old_start - 2), or the hunk's own fragment
--- in fragment mode (-1), where `max_row` also clamps to its last row.
-local function push_minus_ranges(ranges, hunk, pad, base, max_row)
+-- `first_row` is where the hunk's fragment row 1 sits in whatever is being
+-- highlighted (hunk.span_base.old, see compute_spans).
+local function push_minus_ranges(ranges, hunk, pad, first_row)
   for _, change in ipairs(hunk.changes) do
     if change.old_end > change.old_start then
-      local e = base + change.old_end - 1 + pad
       push_range(
         ranges,
-        math.max(0, base + change.old_start - pad),
-        max_row and math.min(e, max_row) or e
+        math.max(0, first_row + change.old_start - 1 - pad),
+        first_row + change.old_end - 2 + pad
       )
     end
   end
 end
 
--- Compute treesitter spans for one side. In fragment mode the "file" is the
--- per-hunk reconstruction, so spans are stored on the hunk keyed by side.
+-- A fragment is highlighted on its own, so its first row is row 0 on both sides.
+local FRAGMENT_BASE = { old = 0, new = 0 }
+
+-- Compute treesitter spans for both sides of a file, and leave each hunk the
+-- rows its cells read them from: hunk.spans[side], where the hunk's fragment
+-- row 1 sits at index hunk.span_base[side]. In full mode those are the side's
+-- whole file, shared by every hunk -- blob.acquire found the content and the
+-- patch to agree, so a fragment row maps onto its parsed line by its offset
+-- alone. In fragment mode they are the hunk's own reconstruction.
 -- `langs_by_side` differs between sides only for renames that change the
 -- extension, where the old side is not the new side's language at all.
 -- The side-by-side layout keeps whole-hunk old ranges: its left context cells
@@ -96,8 +106,8 @@ local function compute_spans(file, langs_by_side, ctx)
   local minus_only = not ctx.split
 
   -- Extraction needs a language, at least one row to spend it on, and a
-  -- deadline that has not passed. Stating that once keeps the four call sites
-  -- below from restating it in three slightly different spellings.
+  -- deadline that has not passed. Stating that once keeps the call sites below
+  -- from restating it.
   local function spans(lines, lang, ranges)
     if not lang or #ranges == 0 then
       return nil
@@ -106,10 +116,9 @@ local function compute_spans(file, langs_by_side, ctx)
       ctx.hl_degraded = true
       return nil
     end
-    local rows = highlight.line_spans(table.concat(lines, '\n'), lang, ranges, ctx.hl_deadline)
-    -- line_spans stops collecting once the deadline passes, so a deadline that
-    -- ran out during the call may have cost this side some of its rows.
-    if hl_expired(ctx) then
+    local rows, cut_short =
+      highlight.line_spans(table.concat(lines, '\n'), lang, ranges, ctx.hl_deadline)
+    if cut_short then
       ctx.hl_degraded = true
     end
     return rows
@@ -117,54 +126,43 @@ local function compute_spans(file, langs_by_side, ctx)
 
   if file.content_mode == 'full' then
     local sides = {}
-    if file.need_old and langs_by_side.old then
+    for _, hunk in ipairs(file.hunks) do
+      hunk.spans = sides
+      hunk.span_base = { old = hunk.old_start - 1, new = hunk.new_start - 1 }
+    end
+    if file.need_old then
       local ranges
       if minus_only then
         ranges = {}
         for _, hunk in ipairs(file.hunks) do
-          push_minus_ranges(ranges, hunk, pad, hunk.old_start - 2)
+          push_minus_ranges(ranges, hunk, pad, hunk.span_base.old)
         end
       else
         ranges = needed_ranges(file.hunks, 'old', pad)
       end
       sides.old = spans(file.old_lines, langs_by_side.old, ranges)
     end
-    if file.need_new and langs_by_side.new then
+    if file.need_new then
       sides.new = spans(file.new_lines, langs_by_side.new, needed_ranges(file.hunks, 'new', pad))
     end
-    return sides
+    return
   end
 
   for _, hunk in ipairs(file.hunks) do
-    if langs_by_side.old then
-      local max_row = math.max(#hunk.frag_old - 1, 0)
-      local ranges
-      if minus_only then
-        ranges = {}
-        push_minus_ranges(ranges, hunk, pad, -1, max_row)
-      else
-        ranges = { { 0, max_row } }
-      end
-      hunk.frag_old_spans = spans(hunk.frag_old, langs_by_side.old, ranges)
+    local ranges
+    if minus_only then
+      ranges = {}
+      push_minus_ranges(ranges, hunk, pad, FRAGMENT_BASE.old)
+    else
+      ranges = { { 0, math.max(#hunk.frag_old - 1, 0) } }
     end
-    hunk.frag_new_spans =
-      spans(hunk.frag_new, langs_by_side.new, { { 0, math.max(#hunk.frag_new - 1, 0) } })
+    local old_spans = spans(hunk.frag_old, langs_by_side.old, ranges)
+    hunk.spans = {
+      old = old_spans,
+      new = spans(hunk.frag_new, langs_by_side.new, { { 0, math.max(#hunk.frag_new - 1, 0) } }),
+    }
+    hunk.span_base = FRAGMENT_BASE
   end
-  return nil
-end
-
--- Treesitter spans for fragment row `row` (1-based) on `side`, or nil when
--- highlighting is off for the file. `lnum` is the row's absolute line number,
--- already derived by the cell being built. Full mode means blob.acquire found
--- the content and the patch to agree, so a row maps onto its parsed line here
--- without the question being re-asked per row.
-local function spans_for(file, hunk, sides, side, row, lnum)
-  if file.content_mode == 'full' then
-    local src_spans = sides and sides[side]
-    return src_spans and src_spans[lnum - 1]
-  end
-  local frag_spans = side == 'old' and hunk.frag_old_spans or hunk.frag_new_spans
-  return frag_spans and frag_spans[row - 1]
 end
 
 -- Walk a hunk's rows in order, handing each run to the layout that draws it.
@@ -240,18 +238,17 @@ local function render_hunk_split(out, hunk, cell, ctx)
   end)
 end
 
-local function render_hunk(out, file, hunk, sides, langs_by_side, ctx)
+local function render_hunk(out, hunk, ctx)
   local function cell(side, row, line_type, emph)
-    local frag = side == 'old' and hunk.frag_old or hunk.frag_new
-    local text = frag[row]
-    -- Absolute line number of this row on its own side.
-    local lnum = (side == 'old' and hunk.old_start or hunk.new_start) + row - 1
+    -- Spans, when this side has any (see compute_spans).
+    local rows = hunk.spans and hunk.spans[side]
     return {
-      text = text or '',
-      spans = langs_by_side[side] and spans_for(file, hunk, sides, side, row, lnum) or nil,
+      text = (side == 'old' and hunk.frag_old or hunk.frag_new)[row],
+      spans = rows and rows[hunk.span_base[side] + row - 1],
       line_type = line_type,
       emph = emph,
-      lnum = lnum,
+      -- Absolute line number of this row on its own side.
+      lnum = (side == 'old' and hunk.old_start or hunk.new_start) + row - 1,
       record = hunk.records and hunk.records[side][row],
     }
   end
@@ -262,22 +259,12 @@ local function render_hunk(out, file, hunk, sides, langs_by_side, ctx)
     render_hunk_inline(out, hunk, cell, ctx)
   end
 
-  -- The flag only ever marks the EOF line of a side, which is always among the
-  -- hunk's last rows, so a single trailing note keeps it attached to the right
-  -- hunk.
-  for _, hline in ipairs(hunk.lines) do
-    if hline.no_newline then
-      out[#out + 1] = layout.note_row('\\ no newline at end of file')
-      break
-    end
+  if hunk.no_newline then
+    out[#out + 1] = layout.note_row('\\ no newline at end of file')
   end
 end
 
 local function render_file(file, ctx)
-  if file.is_combined then
-    return passthrough.render_combined(file)
-  end
-
   local out = {}
   -- A deleted file has no new side at all, so this falls through to the old
   -- path without needing to know that (see parse_extended_header).
@@ -333,21 +320,22 @@ local function render_file(file, ctx)
     end
   end
 
-  -- Changes are computed before span extraction so the old-side ranges can
+  -- Changes are laid out before span extraction so the old-side ranges can
   -- follow the minus rows (see push_minus_ranges).
   local max_lnum = 0
   for _, hunk in ipairs(file.hunks) do
-    hunk.frag_old = diffparse.hunk_fragment(hunk, 'old')
-    hunk.frag_new = diffparse.hunk_fragment(hunk, 'new')
+    hunk.frag_old, hunk.frag_new, hunk.changes = diffparse.hunk_rows(hunk)
+    -- Plain mode (an oversized section) draws the changes without their words.
+    if file.content_mode ~= 'plain' then
+      engine.emphasize(hunk.changes, LIMITS.max_emphasis_ms)
+    end
     local last = math.max(hunk.old_start + hunk.old_count, hunk.new_start + hunk.new_count) - 1
     max_lnum = math.max(max_lnum, last)
-    hunk.changes = engine.changes(hunk, file.content_mode ~= 'plain')
   end
 
-  local sides = nil
   if langs_by_side.old or langs_by_side.new then
     ctx.budget = ctx.budget - file.hunk_lines
-    sides = compute_spans(file, langs_by_side, ctx)
+    compute_spans(file, langs_by_side, ctx)
   end
 
   ctx.num_w = layout.number_width(max_lnum)
@@ -371,9 +359,9 @@ local function render_file(file, ctx)
       record and record('h', hunk.new_start)
     )
     hunk.records = record and osc1717.hunk_records(hunk, record)
-    render_hunk(out, file, hunk, sides, langs_by_side, ctx)
+    render_hunk(out, hunk, ctx)
     hunk.frag_old, hunk.frag_new, hunk.changes, hunk.records = nil, nil, nil, nil
-    hunk.frag_old_spans, hunk.frag_new_spans = nil, nil
+    hunk.spans, hunk.span_base = nil, nil
   end
 
   return table.concat(out)
@@ -389,15 +377,16 @@ end
 ---   force_fragment  skip git blob lookups (repo-independent fixtures)
 ---   metadata  put an OSC 1717 record ahead of each row lazygit can act on
 ---             (see lib/osc1717.lua)
---- Returns the document plus a cacheable flag: false when the render read the
---- worktree (an unstaged diff), whose files can change under an unchanged diff,
---- and false when the wall-clock highlight deadline degraded the output --
---- caching would replay a transiently slow first render (cold parsers, query
---- compilation) as tint-only for the daemon's lifetime, while a warm re-render
---- may finish well inside the budget. "Degraded" is recorded where a span
---- extraction was actually skipped or cut short, not read off the clock at the
---- end: a render that highlighted everything and then spent its time emitting
---- rows is exactly the expensive one the cache exists for.
+--- Returns the document, whether it may be cached, and the worktree files the
+--- render consulted (blob.acquire), which a cached copy is only good for while
+--- they are unchanged (blob.unchanged). It may not be cached when the
+--- wall-clock highlight deadline degraded the output -- caching would replay a
+--- transiently slow first render (cold parsers, query compilation) as
+--- tint-only for the daemon's lifetime, while a warm re-render may finish well
+--- inside the budget. "Degraded" is recorded where a span extraction was
+--- actually skipped or cut short, not read off the clock at the end: a render
+--- that highlighted everything and then spent its time emitting rows is
+--- exactly the expensive one the cache exists for.
 function M.render(input, opts)
   if #input > LIMITS.max_input_bytes then
     return input, false
@@ -407,18 +396,21 @@ function M.render(input, opts)
   local lines = util.split_lines(input)
   local blocks = diffparse.parse(lines)
 
+  -- Git's output rather than arbitrary text piped through: it has a diff
+  -- section, or opens with the commit line of a `git show` that has none.
   local files = {}
+  local looks_like_git = lines[1] ~= nil and diffparse.commit_line(lines[1]) ~= nil
   for _, block in ipairs(blocks) do
     if block.kind == 'file' then
       files[#files + 1] = block
     end
+    looks_like_git = looks_like_git or block.kind ~= 'raw'
   end
-  local looks_like_git = #files > 0 or (lines[1] ~= nil and diffparse.is_commit_line(lines[1]))
   if not looks_like_git then
     return input, false
   end
 
-  local worktree_dep = blob.acquire(files, opts.cwd, LIMITS, opts.force_fragment)
+  local consulted = blob.acquire(files, opts.cwd, LIMITS, opts.force_fragment)
 
   local ctx = {
     cols = opts.cols or 120,
@@ -434,18 +426,20 @@ function M.render(input, opts)
     local chunk
     if block.kind == 'raw' then
       chunk = passthrough.render_raw(block.lines, ctx.cols)
+    elseif block.kind == 'combined' then
+      chunk = passthrough.render_combined(block)
     else
       chunk = render_file(block, ctx)
     end
     if #chunk > 0 then
       -- Blank separator between sections; raw blocks keep git's own spacing.
-      if block.kind == 'file' and #out > 0 then
+      if block.kind ~= 'raw' and #out > 0 then
         out[#out + 1] = '\n'
       end
       out[#out + 1] = chunk
     end
   end
-  return table.concat(out), not worktree_dep and not ctx.hl_degraded
+  return table.concat(out), not ctx.hl_degraded, consulted
 end
 
 return M

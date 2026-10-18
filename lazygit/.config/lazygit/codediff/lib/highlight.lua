@@ -19,19 +19,24 @@ local UNDERSCORE = string.byte('_')
 ---             tints), so one pathological file cannot stall the whole render
 ---
 --- Returns rows: { [row0] = { {s1=col, e1=col_end_excl, capture, lang, prio, order}, ... } }
---- or nil when parsing is unavailable. Columns are 1-based and end-exclusive --
---- the form layout.lua clips and sweeps in, so the renderer never has to rebase
---- a span it was handed.
+--- or nil when parsing is unavailable, plus whether the deadline cut the
+--- collection short. Columns are 1-based and end-exclusive -- the form layout.lua
+--- clips and sweeps in, so the renderer never has to rebase a span it was handed.
 function M.line_spans(content, lang, row_ranges, deadline)
   local ok, parser = pcall(vim.treesitter.get_string_parser, content, lang)
   if not ok or not parser then
     return nil
   end
-  -- Parse only the span the diff actually shows, not the whole document: the
-  -- rows outside it are never queried, and injection discovery over them is the
-  -- single most expensive part of highlighting a large file.
-  local first, last = row_ranges[1], row_ranges[#row_ranges]
-  local parse_ok = pcall(parser.parse, parser, { first[1], last[2] + 1 })
+  -- Parse only the rows the diff actually shows, not the whole document: the
+  -- rows outside them are never queried, and injection discovery over them is
+  -- the single most expensive part of highlighting a large file. parse() takes
+  -- the ranges themselves, so the rows between two hunks are skipped as well as
+  -- those around the first and the last.
+  local parse_ranges = {}
+  for i, range in ipairs(row_ranges) do
+    parse_ranges[i] = { range[1], range[2] + 1 }
+  end
+  local parse_ok = pcall(parser.parse, parser, parse_ranges)
   if not parse_ok then
     return nil
   end
@@ -77,7 +82,8 @@ function M.line_spans(content, lang, row_ranges, deadline)
   end
 
   -- Checked between query windows, never inside one: the uv.hrtime call is
-  -- nothing next to a window's worth of captures.
+  -- nothing next to a window's worth of captures. Once set, it also records
+  -- that some of the collection was skipped, which is what the caller is told.
   local expired = false
   local function past_deadline()
     if not expired and vim.uv.hrtime() > deadline then
@@ -137,7 +143,7 @@ function M.line_spans(content, lang, row_ranges, deadline)
   if not walk_ok and not next(rows) then
     return nil
   end
-  return rows
+  return rows, expired
 end
 
 return M

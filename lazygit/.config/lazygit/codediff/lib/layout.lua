@@ -36,7 +36,7 @@ local function clip_to_width(s, limit)
   local nonascii = util.first_non_ascii(s)
   local bulk = nonascii and math.max(nonascii - 2, 0) or limit
   if bulk >= limit then
-    local clipped = s:sub(1, math.max(limit, 0))
+    local clipped = s:sub(1, limit)
     return clipped, #clipped
   end
 
@@ -98,11 +98,11 @@ end
 -- measured relative to column 0, so a header's pieces only add up if none of
 -- them contains one; git keeps interior tabs in a section heading, and a tab or
 -- a newline in a path survives unquoting. Collapsing beats expanding here: this
--- text is metadata, not source that needs its indentation. Any other control
--- byte (a heading is a line of the file, and unquoting restores whatever a path
--- holds) is spelled out like it is in a content row.
+-- text is metadata, not source that needs its indentation. Any other byte nvim
+-- shows in another form (a heading is a line of the file, and unquoting
+-- restores whatever a path holds) is spelled out like it is in a content row.
 local function one_line(s)
-  return util.caret_controls((s:gsub('[\t\r\n]', ' ')))
+  return util.display_form((s:gsub('[\t\r\n]', ' ')))
 end
 
 --- Delta-style boxed hunk header: path, the line the hunk starts at and the
@@ -142,14 +142,13 @@ function M.hunk_header(path, lnum, section, cols, record)
   -- column, so the pad is exactly the leftover width (no -1).
   local pad = width - used
   return table.concat({
-    rule .. '┐' .. ansi.reset .. '\n',
+    rule .. '┐' .. ansi.eol,
     record or '',
     header
       .. string.rep(' ', math.max(pad, 1))
       .. ansi.styled({ fg = p.decoration }, '│')
-      .. ansi.reset
-      .. '\n',
-    rule .. '┘' .. ansi.reset .. '\n',
+      .. ansi.eol,
+    rule .. '┘' .. ansi.eol,
   })
 end
 
@@ -367,9 +366,10 @@ local function emit_line(out, n, text, spans, line_type, emph_ranges, limit)
   -- It also makes a byte offset a display column, which is what lets a clipped
   -- row stop resolving spans at the cut.
   local simple = is_plain_ascii(text)
-  -- A control byte already rules `simple` out, so only the measured path below
-  -- ever meets one, and only a row that holds one pays for spelling it out.
-  local carets = not simple and util.has_control(text)
+  -- Only a row that is not plain ASCII can hold a byte nvim shows in another
+  -- form, so only the measured path below ever meets one, and only a row that
+  -- holds one pays for spelling its segments out.
+  local respell = not simple and util.display_form(text) ~= text
   local winners = nb > 2
       and n_spans > 0
       and segment_winners(spans, boundaries, nb, simple and limit)
@@ -406,8 +406,9 @@ local function emit_line(out, n, text, spans, line_type, emph_ranges, limit)
       if simple then
         expanded, next_col = seg, col + (b - a)
       else
-        -- Controls first, so what is measured and clipped is what is shown.
-        local shown = carets and util.caret_controls(seg) or seg
+        -- The display form first, so what is measured and clipped is what is
+        -- shown.
+        local shown = respell and util.display_form(seg) or seg
         expanded, next_col = util.expand_tabs(shown, TAB_WIDTH, col)
       end
       local truncated = false
@@ -495,8 +496,13 @@ end
 -- Reporting what was written rather than re-deriving it from num_w keeps the
 -- width in one place: the numbers are ASCII (a byte is a cell) and the bar is
 -- one cell, and a number wider than the gutter reserved widens both together
--- instead of silently mis-padding the row.
-local function emit_gutter(out, n, nums, line_type)
+-- instead of silently mis-padding the row. `record`, the OSC 1717 record of
+-- the row or cell (may be nil), goes ahead of it and takes no cells.
+local function emit_gutter(out, n, nums, line_type, record)
+  if record then
+    n = n + 1
+    out[n] = record
+  end
   local g = gutter_sgr(line_type)
   out[n + 1] = g.num
   out[n + 2] = nums
@@ -513,11 +519,8 @@ end
 --- 1717 record that leads the row (may be nil).
 function M.content_line(out, cell, old_no, new_no, cols, num_w)
   local line_type = cell.line_type
-  if cell.record then
-    out[#out + 1] = cell.record
-  end
-  local n, gutter_w =
-    emit_gutter(out, #out, num_fmt(num_w).pair:format(old_no or '', new_no or ''), line_type)
+  local nums = num_fmt(num_w).pair:format(old_no or '', new_no or '')
+  local n, gutter_w = emit_gutter(out, #out, nums, line_type, cell.record)
   local col, line_bg
   n, col, line_bg = emit_line(out, n, cell.text, cell.spans, line_type, cell.emph, nil)
   local text_w = cols - gutter_w
@@ -526,8 +529,7 @@ function M.content_line(out, cell, old_no, new_no, cols, num_w)
     out[n + 2] = string.rep(' ', text_w - col)
     n = n + 2
   end
-  out[n + 1] = ansi.reset
-  out[n + 2] = '\n'
+  out[n + 1] = ansi.eol
 end
 
 -- Append one side-by-side cell of exactly `width` display cells: the side's
@@ -537,14 +539,10 @@ end
 -- the side (may be nil), leads the cell. Returns the new `out` index.
 local function render_cell(out, n, cell, width, num_w)
   local filler = cell.filler
-  if cell.record then
-    n = n + 1
-    out[n] = cell.record
-  end
   local line_type = not filler and cell.line_type or nil
+  local nums = num_fmt(num_w).single:format(not filler and cell.lnum or '')
   local gutter_w
-  n, gutter_w =
-    emit_gutter(out, n, num_fmt(num_w).single:format(not filler and cell.lnum or ''), line_type)
+  n, gutter_w = emit_gutter(out, n, nums, line_type, cell.record)
   -- The gutter is never clipped: a cell too narrow for it overflows, which only
   -- a view a dozen cells wide can bring about.
   width = math.max(width - gutter_w, 1)
@@ -574,8 +572,7 @@ function M.split_line(out, left, right, cols, num_w)
   out[n + 1] = gutter_sgr(nil).bar
   out[n + 2] = '│'
   n = render_cell(out, n + 2, right, right_w, num_w)
-  out[n + 1] = ansi.reset
-  out[n + 2] = '\n'
+  out[n + 1] = ansi.eol
 end
 
 return M

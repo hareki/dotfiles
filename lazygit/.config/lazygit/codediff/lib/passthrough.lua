@@ -1,4 +1,5 @@
 local ansi = require('lib.ansi')
+local diffparse = require('lib.diffparse')
 local theme = require('lib.theme')
 local util = require('lib.util')
 
@@ -12,28 +13,17 @@ local function render_stat_line(line, p)
     return nil
   end
   local out = { styled({ fg = p.default_fg }, name), styled({ fg = p.decoration }, sep) }
-  -- rest is like "12 +++---", "Bin 0 -> 1024 bytes", or just a count.
+  -- rest is like "12 +++---", "Bin 0 -> 1024 bytes", or just a count: runs of
+  -- +, of - and of anything else, each in its own color.
   local pos = 1
   while pos <= #rest do
-    local plus_s, plus_e = rest:find('^%++', pos)
-    local minus_s, minus_e = rest:find('^%-+', pos)
-    if plus_s then
-      out[#out + 1] = styled({ fg = p.plus_num }, rest:sub(plus_s, plus_e))
-      pos = plus_e + 1
-    elseif minus_s then
-      out[#out + 1] = styled({ fg = p.minus_num }, rest:sub(minus_s, minus_e))
-      pos = minus_e + 1
-    else
-      local chunk_e = #rest
-      local next_run = rest:find('[+%-]', pos)
-      if next_run then
-        chunk_e = next_run - 1
-      end
-      out[#out + 1] = styled({ fg = p.stat_count }, rest:sub(pos, chunk_e))
-      pos = chunk_e + 1
-    end
+    local run = rest:match('^%++', pos) or rest:match('^%-+', pos) or rest:match('^[^+%-]+', pos)
+    local first = run:sub(1, 1)
+    local fg = first == '+' and p.plus_num or first == '-' and p.minus_num or p.stat_count
+    out[#out + 1] = styled({ fg = fg }, run)
+    pos = pos + #run
   end
-  out[#out + 1] = ansi.reset .. '\n'
+  out[#out + 1] = ansi.eol
   return table.concat(out)
 end
 
@@ -44,8 +34,8 @@ function M.render_raw(lines, cols)
   local out = {}
   for _, raw in ipairs(lines) do
     -- A commit message or a submodule log is content like any diff row is.
-    local line = util.caret_controls(raw)
-    local hash, decorations = line:match('^commit (%x+)%s*(.*)$')
+    local line = util.display_form(raw)
+    local hash, decorations = diffparse.commit_line(line)
     -- "Author: ...", "Date: ..." and friends: the label keeps the colon, the
     -- rest keeps the whitespace that separated them.
     local label, rest = line:match('^(%u%w*:)(%s.*)$')
@@ -55,19 +45,18 @@ function M.render_raw(lines, cols)
       if decorations ~= '' then
         rendered = rendered .. ' ' .. styled({ fg = p.decorations_fg }, decorations)
       end
-      out[#out + 1] = rendered .. ansi.reset .. '\n'
+      out[#out + 1] = rendered .. ansi.eol
       local rule_width = math.min(util.display_width(line), math.max(cols - 1, 1))
       out[#out + 1] = ansi.line({ fg = p.decoration }, string.rep('─', rule_width))
     elseif label then
       out[#out + 1] = styled({ fg = p.decoration }, label)
         .. styled({ fg = p.default_fg }, rest)
-        .. ansi.reset
-        .. '\n'
+        .. ansi.eol
     elseif line:match('^%s.+%s|%s') then
       out[#out + 1] = render_stat_line(line, p) or ansi.line({ fg = p.default_fg }, line)
     elseif line:match('^ %d+ files? changed') then
       out[#out + 1] = ansi.line({ fg = p.decoration }, line)
-    elseif vim.startswith(line, 'Submodule ') then
+    elseif diffparse.is_submodule_line(line) then
       out[#out + 1] = ansi.line({ fg = p.default_fg, bold = true }, line)
     elseif vim.startswith(line, '  > ') then
       out[#out + 1] = ansi.line({ fg = p.plus_num }, line)
@@ -80,13 +69,14 @@ function M.render_raw(lines, cols)
   return table.concat(out)
 end
 
---- Combined (merge) diffs are shown with simple prefix tinting only.
-function M.render_combined(file)
+--- Combined (merge) diffs (diffparse's "combined" blocks) are shown with simple
+--- prefix tinting only.
+function M.render_combined(block)
   local p = theme.palette
-  local title = util.caret_controls(file.new_path or 'merge diff')
+  local title = util.display_form(block.path or 'merge diff')
   local out = { ansi.line({ fg = p.default_fg, bold = true }, title) }
-  for _, raw in ipairs(file.raw_lines) do
-    local line = util.caret_controls(raw)
+  for _, raw in ipairs(block.lines) do
+    local line = util.display_form(raw)
     local prefix = line:sub(1, 2)
     if line:match('^@@@') then
       out[#out + 1] = ansi.line({ fg = p.hunk_num, bold = true }, line)

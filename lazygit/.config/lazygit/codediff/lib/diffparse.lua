@@ -1,5 +1,9 @@
 local M = {}
 
+-- The named escapes of git's C-style quoting; any other escaped character (\"
+-- and \\) stands for itself.
+local C_ESCAPES = { a = '\a', b = '\b', t = '\t', n = '\n', v = '\v', f = '\f', r = '\r' }
+
 -- Unquote a git C-style quoted path ("a\"b", "\303\251" octal escapes, etc).
 -- Returns the input unchanged when it is not quoted.
 local function unquote_c_string(s)
@@ -12,22 +16,13 @@ local function unquote_c_string(s)
   while i <= #inner do
     local c = inner:sub(i, i)
     if c == '\\' then
-      local nxt = inner:sub(i + 1, i + 1)
       local oct = inner:match('^([0-7][0-7][0-7])', i + 1)
       if oct then
         out[#out + 1] = string.char(tonumber(oct, 8))
         i = i + 4
-      elseif nxt == 'n' then
-        out[#out + 1] = '\n'
-        i = i + 2
-      elseif nxt == 't' then
-        out[#out + 1] = '\t'
-        i = i + 2
-      elseif nxt == 'r' then
-        out[#out + 1] = '\r'
-        i = i + 2
       else
-        out[#out + 1] = nxt
+        local nxt = inner:sub(i + 1, i + 1)
+        out[#out + 1] = C_ESCAPES[nxt] or nxt
         i = i + 2
       end
     else
@@ -58,7 +53,14 @@ local function strip_path_prefix(path, prefixed)
   return stripped or path
 end
 
-local function new_file(diff_line)
+-- The block a "diff --git/--cc/--combined" line opens. A combined (merge) diff
+-- is kept verbatim, for passthrough to tint by prefix: nothing else about it
+-- is a file this renderer lays out.
+local function new_section(diff_line)
+  if not vim.startswith(diff_line, 'diff --git ') then
+    local p = diff_line:match('^diff %-%-c%S* (.+)$')
+    return { kind = 'combined', path = p and unquote_c_string(p) or nil, lines = {} }
+  end
   local file = {
     kind = 'file',
     old_path = nil,
@@ -70,29 +72,21 @@ local function new_file(diff_line)
     is_new = false,
     is_deleted = false,
     is_binary = false,
-    is_combined = false,
     renamed_from = nil,
     renamed_to = nil,
     hunks = {},
   }
-  if vim.startswith(diff_line, 'diff --git ') then
-    -- Whether this file's paths carry the a/ b/ (or mnemonic) prefixes: the
-    -- diff line is the one place the form shows, and the ---/+++ headers of
-    -- the same file always use the same setting. Only source prefixes can
-    -- open the line (a/ plus mnemonic i/ c/ o/ w/ and 1/); b/ and 2/ are
-    -- destination-only, so a bare path starting with b/ stays unprefixed.
-    file.prefixed = diff_line:match('^diff %-%-git "?[aciow1]/') ~= nil
-    -- Path pair from the diff line for the common unquoted case; overridden
-    -- by ---/+++ or rename headers when present.
-    local a, b = diff_line:match('^diff %-%-git a/(.-) b/(.+)$')
-    if a then
-      file.old_path, file.new_path = a, b
-    end
-  else
-    file.is_combined = true
-    file.raw_lines = {} -- combined-diff body kept verbatim
-    local p = diff_line:match('^diff %-%-c%S* (.+)$')
-    file.new_path = p and unquote_c_string(p) or nil
+  -- Whether this file's paths carry the a/ b/ (or mnemonic) prefixes: the diff
+  -- line is the one place the form shows, and the ---/+++ headers of the same
+  -- file always use the same setting. Only source prefixes can open the line
+  -- (a/ plus mnemonic i/ c/ o/ w/ and 1/); b/ and 2/ are destination-only, so
+  -- a bare path starting with b/ stays unprefixed.
+  file.prefixed = diff_line:match('^diff %-%-git "?[aciow1]/') ~= nil
+  -- Path pair from the diff line for the common unquoted case; overridden by
+  -- ---/+++ or rename headers when present.
+  local a, b = diff_line:match('^diff %-%-git a/(.-) b/(.+)$')
+  if a then
+    file.old_path, file.new_path = a, b
   end
   return file
 end
@@ -141,10 +135,11 @@ local function parse_extended_header(file, line)
     end
   end
 
-  if line:match('^similarity index %d+%%$') or line:match('^dissimilarity index %d+%%$') then
+  local old_hex, new_hex = line:match('^index (%x+)%.%.(%x+)')
+  if old_hex then
+    file.old_hex, file.new_hex = old_hex, new_hex
+  elseif line:match('^similarity index %d+%%$') or line:match('^dissimilarity index %d+%%$') then
     -- consumed, nothing to record
-  elseif line:match('^index %x+%.%.%x+') then
-    file.old_hex, file.new_hex = line:match('^index (%x+)%.%.(%x+)')
   elseif vim.startswith(line, 'Binary files ') or vim.startswith(line, 'GIT binary patch') then
     file.is_binary = true
   elseif vim.startswith(line, '--- ') then
@@ -163,35 +158,75 @@ local function parse_extended_header(file, line)
   return true
 end
 
---- Reconstruct one side of a hunk from the patch itself: the lines that side
---- shows, in order. The layouts draw their rows from these per-hunk fragments,
---- and fragment mode highlights them in place of the blobs.
-function M.hunk_fragment(hunk, side)
-  local lines = {}
-  local want_minus = side == 'old'
+--- A hunk's rows as the patch has them: each side's fragment (the lines that
+--- side shows, in order) and the changes between them -- each minus run paired
+--- with the plus run that follows it -- as an ordered list of { old_start,
+--- old_end, new_start, new_end } (1-based fragment rows, end exclusive) holding
+--- the run's own rows in old_rows/new_rows and its per-row char emphasis in
+--- old_emph/new_emph (empty until engine.emphasize fills them in). The layouts
+--- draw their rows from these, and fragment mode highlights the fragments in
+--- place of the blobs; one walk builds both, so a change's rows are fragment
+--- rows by construction.
+---
+--- The rows come from the patch rather than from the diff engine because they
+--- are what lazygit stages: the engine is free to slide a change along lines
+--- that read the same (a blank line or a brace on either end of a deleted
+--- block), and a row drawn as changed would then not be the line that staging
+--- it stages.
+function M.hunk_rows(hunk)
+  local frag_old, frag_new, changes = {}, {}, {}
+  local change = nil
   for _, l in ipairs(hunk.lines) do
-    if
-      l.origin == ' '
-      or (want_minus and l.origin == '-')
-      or (not want_minus and l.origin == '+')
-    then
-      lines[#lines + 1] = l.text
+    local origin, text = l.origin, l.text
+    if origin == ' ' then
+      change = nil
+      frag_old[#frag_old + 1] = text
+      frag_new[#frag_new + 1] = text
+    else
+      -- A minus line after plus lines opens the next change.
+      if not change or (origin == '-' and #change.new_rows > 0) then
+        change = {
+          old_start = #frag_old + 1,
+          new_start = #frag_new + 1,
+          old_rows = {},
+          new_rows = {},
+          old_emph = {},
+          new_emph = {},
+        }
+        changes[#changes + 1] = change
+      end
+      if origin == '-' then
+        frag_old[#frag_old + 1] = text
+        change.old_rows[#change.old_rows + 1] = text
+      else
+        frag_new[#frag_new + 1] = text
+        change.new_rows[#change.new_rows + 1] = text
+      end
+      change.old_end, change.new_end = #frag_old + 1, #frag_new + 1
     end
   end
-  return lines
+  return frag_old, frag_new, changes
 end
 
---- True for the "commit <hash>" line that opens a `git show`. Exported because
---- the combined-diff body below ends at one and core.render reads it to tell
---- git output from arbitrary text: git's line grammar is this module's to know,
---- not something each consumer keeps its own copy of the pattern for.
-function M.is_commit_line(line)
-  return line:match('^commit %x') ~= nil
+--- The hash and decorations of the "commit <hash> (refs)" line that opens a
+--- `git show`, nil for any other line. Exported because the combined-diff body
+--- below ends at one, core.render reads it to tell git output from arbitrary
+--- text, and passthrough styles it: git's line grammar is this module's to
+--- know, not something each consumer keeps its own copy of the pattern for.
+function M.commit_line(line)
+  return line:match('^commit (%x+)%s*(.*)$')
+end
+
+--- True for the "Submodule <path> <range>" line git writes for a submodule's
+--- change (--submodule=log), which also ends a combined-diff body.
+function M.is_submodule_line(line)
+  return vim.startswith(line, 'Submodule ')
 end
 
 --- Parse raw `git diff` / `git show` output into an ordered list of blocks:
---- { kind = "raw", lines }  preamble, commit header/message, --stat, submodules
---- { kind = "file", ... }   one per "diff --git/--cc/--combined" section
+--- { kind = "raw", lines }        preamble, commit header/message, --stat, submodules
+--- { kind = "file", ... }         one per "diff --git" section
+--- { kind = "combined", path, lines }  one per "diff --cc/--combined" section
 function M.parse(lines)
   local blocks = {}
   local raw = nil
@@ -234,18 +269,18 @@ function M.parse(lines)
     then
       flush_file()
       flush_raw()
-      file = new_file(line)
-      state = file.is_combined and 'combined' or 'header'
+      file = new_section(line)
+      state = file.kind == 'combined' and 'combined' or 'header'
     elseif state == 'top' then
       if not raw then
         raw = { kind = 'raw', lines = {} }
       end
       raw.lines[#raw.lines + 1] = line
     elseif file and state == 'combined' then
-      if vim.startswith(line, 'Submodule ') or M.is_commit_line(line) then
+      if M.is_submodule_line(line) or M.commit_line(line) then
         consumed = false
       else
-        file.raw_lines[#file.raw_lines + 1] = line
+        file.lines[#file.lines + 1] = line
       end
     elseif file and line:match('^@@ %-%d') and (state == 'header' or state == 'hunk') then
       local os_, oc, ns, nc, heading = line:match('^@@ %-(%d+),?(%d*) %+(%d+),?(%d*) @@ ?(.*)$')
@@ -271,9 +306,10 @@ function M.parse(lines)
     elseif hunk and state == 'hunk' then
       local origin = line:sub(1, 1)
       if line == '\\ No newline at end of file' then
-        local prev = hunk.lines[#hunk.lines]
-        if prev then
-          prev.no_newline = true
+        -- It marks the line before it, a side's last, which is always among
+        -- the hunk's last rows: the note renders once, after the hunk.
+        if hunk.lines[1] then
+          hunk.no_newline = true
         end
       elseif origin == '-' and remaining_old > 0 then
         hunk.lines[#hunk.lines + 1] = { origin = '-', text = line:sub(2) }

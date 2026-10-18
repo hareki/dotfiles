@@ -7,7 +7,7 @@
 -- them (LineNumberOfLine and OldLineNumberOfLine in its pkg/commands/patch):
 -- that is what lazygit stages by. A render without records must carry none.
 
-local script = arg and arg[0] or debug.getinfo(1, 'S').source:sub(2)
+local script = debug.getinfo(1, 'S').source:sub(2)
 local dir = vim.fn.fnamemodify(script, ':p:h')
 package.path = dir .. '/../?.lua;' .. package.path
 
@@ -24,7 +24,7 @@ local RECORD = '\27%]1717;([^\7]*)\7'
 local function expected_records(input)
   local records = {}
   for _, block in ipairs(diffparse.parse(util.split_lines(input))) do
-    if block.kind == 'file' and not block.is_combined and not block.is_binary then
+    if block.kind == 'file' then
       local path = block.new_path or block.old_path
       for _, hunk in ipairs(block.hunks) do
         records[#records + 1] = ('h;%d;;%s'):format(hunk.new_start, path)
@@ -71,18 +71,12 @@ local function report(ok, name, what, detail)
   fail = fail or not ok
 end
 
-local fixtures = {}
-for name, kind in vim.fs.dir(dir .. '/fixtures') do
-  if kind == 'file' and name:sub(-5) == '.diff' then
-    fixtures[#fixtures + 1] = name
-  end
-end
+local fixtures = vim.fn.glob(dir .. '/fixtures/*.diff', true, true)
 table.sort(fixtures)
 
-for _, name in ipairs(fixtures) do
-  local f = assert(io.open(dir .. '/fixtures/' .. name, 'rb'))
-  local input = f:read('*a')
-  f:close()
+for _, path in ipairs(fixtures) do
+  local name = vim.fs.basename(path)
+  local input = vim.fn.readblob(path)
   local expected = expected_records(input)
 
   for _, layout in ipairs({ 'inline', 'side-by-side' }) do

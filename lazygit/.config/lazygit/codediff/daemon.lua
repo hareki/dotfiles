@@ -11,7 +11,7 @@
 -- nvim binary, to the renderer's own sources or to anything bootstrap loads
 -- (parsers, plugins, filetype rules) recycles the daemon on the next request.
 
-local script = arg and arg[0] or debug.getinfo(1, 'S').source:sub(2)
+local script = debug.getinfo(1, 'S').source:sub(2)
 local dir = vim.fn.fnamemodify(script, ':p:h')
 package.path = dir .. '/?.lua;' .. package.path
 
@@ -138,9 +138,9 @@ end)
 -- updated underneath us) would otherwise abort the -c luafile, leaving a daemon
 -- that answers nothing and never exits while every subsequent render spawns
 -- another one.
-local ok_boot, core = pcall(function()
+local ok_boot, core, blob = pcall(function()
   bootstrap.setup()
-  return require('lib.core')
+  return require('lib.core'), require('lib.blob')
 end)
 if not ok_boot then
   shutdown(1)
@@ -149,10 +149,11 @@ end
 -- Rendered-output cache: browsing commits in lazygit re-requests the same diff
 -- every time the selection returns to it, and the expensive renders (large
 -- commits) are exactly the ones worth never paying twice. Keyed by the full
--- input plus everything else that shapes the output; renders that consulted
--- the worktree are not cached, since the file on disk can change under an
--- unchanged diff. A daemon recycle (parser/plugin/source updates) drops the
--- cache with the process.
+-- input plus everything else that shapes the output. A render that consulted
+-- worktree files (an unstaged diff) is served again only while they are
+-- unchanged: the diff names their content, but a file can change between git
+-- writing the diff and the render reading it. A daemon recycle
+-- (parser/plugin/source updates) drops the cache with the process.
 -- Sized so the byte ceiling below stays the binding constraint rather than this
 -- count: a single file's diff renders to well under a megabyte, so 32 MB is
 -- room for dozens, and a commit-sized render still leaves room for twenty.
@@ -166,7 +167,7 @@ local cache_entries, cache_count, cache_bytes, cache_tick = {}, 0, 0, 0
 
 local function cache_get(key)
   local e = cache_entries[key]
-  if not e then
+  if not e or not blob.unchanged(e.consulted) then
     return nil
   end
   cache_tick = cache_tick + 1
@@ -174,7 +175,7 @@ local function cache_get(key)
   return e.out
 end
 
-local function cache_put(key, out)
+local function cache_put(key, out, consulted)
   if #out > CACHE_MAX_BYTES then
     return
   end
@@ -185,7 +186,7 @@ local function cache_put(key, out)
     cache_count = cache_count + 1
   end
   cache_tick = cache_tick + 1
-  cache_entries[key] = { out = out, stamp = cache_tick }
+  cache_entries[key] = { out = out, stamp = cache_tick, consulted = consulted }
   cache_bytes = cache_bytes + #out
   while cache_count > CACHE_MAX or cache_bytes > CACHE_MAX_BYTES do
     -- Never left unset: the loop only runs with at least two entries cached.
@@ -283,10 +284,10 @@ local function render_request(infile, outfile, opts)
   local key = cache_key(input, opts)
   local rendered = not stale and cache_get(key) or nil
   if not rendered then
-    local ok, result, cacheable = pcall(core.render, input, opts)
+    local ok, result, cacheable, consulted = pcall(core.render, input, opts)
     rendered = ok and result or input
     if ok and cacheable then
-      cache_put(key, rendered)
+      cache_put(key, rendered, consulted)
     end
   end
 

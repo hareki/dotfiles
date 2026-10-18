@@ -41,31 +41,33 @@ function M.first_non_ascii(s)
   return s:find(NON_ASCII)
 end
 
--- Everything below a space except the tab, plus DEL. A tab is left alone
--- because its width depends on the column it starts at, which is the caller's
--- to resolve (expand_tabs).
+-- Everything below a space except the tab, plus DEL: the bytes a terminal acts
+-- on rather than shows.
 local CONTROL = '[%z\1-\8\10-\31\127]'
-local CARETS = { ['\127'] = '^?' }
-for byte = 0, 31 do
-  CARETS[string.char(byte)] = '^' .. string.char(byte + 64)
-end
 
---- True when caret_controls would rewrite `s`. A row is cut into segments
---- before it is shown, and asking once per row keeps the scan out of that loop.
+--- True when `s` holds a control byte (see CONTROL).
 function M.has_control(s)
   return s:find(CONTROL) ~= nil
 end
 
---- Control bytes spelled out in caret notation (^[ for ESC, ^L for a form
---- feed), which is how nvim shows them and the two cells display_width measures
---- them as. Content reaches the view as text, never as instructions: a raw
---- escape would restyle or erase the row it sits in, and a raw CR would
---- overwrite it.
-function M.caret_controls(s)
-  if not s:find(CONTROL) then
+-- The bytes nvim may show as something other than themselves: everything but
+-- printable ASCII and the tab, whose width depends on the column it starts at,
+-- which is the caller's to resolve (expand_tabs).
+local NOT_AS_IS = '[^\t\32-\126]'
+
+--- `s` the way nvim shows it, which is the form display_width measures: control
+--- bytes in caret notation (^[ for ESC, ^L for a form feed), and bytes that are
+--- not valid UTF-8 or unprintable characters in angle brackets (<e9>, <feff>).
+--- Content reaches the view as text, never as instructions: a raw escape would
+--- restyle or erase the row it sits in, a raw CR would overwrite it, and a byte
+--- the terminal draws narrower than it was measured would leave the row short.
+function M.display_form(s)
+  if not s:find(NOT_AS_IS) then
     return s
   end
-  return (s:gsub(CONTROL, CARETS))
+  -- strtrans is nvim's own display form, but it spells a tab ^I, and a NUL
+  -- would turn the string into a Blob on its way into vimscript.
+  return (s:gsub('%z', '^@'):gsub('[^\t]+', vim.fn.strtrans))
 end
 
 --- Display width of a plain string; safe on invalid UTF-8.

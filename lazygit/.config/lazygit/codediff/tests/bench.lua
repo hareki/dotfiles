@@ -13,7 +13,7 @@
 -- core.render only: the daemon is warm by the time a user sees a diff, so the
 -- nvim startup and bootstrap costs are deliberately outside the measurement.
 
-local script = arg and arg[0] or debug.getinfo(1, 'S').source:sub(2)
+local script = debug.getinfo(1, 'S').source:sub(2)
 local dir = vim.fn.fnamemodify(script, ':p:h')
 package.path = dir .. '/../?.lua;' .. package.path
 
@@ -36,11 +36,7 @@ for i = 1, #(arg or {}) do
   end
 end
 if #files == 0 then
-  for name, kind in vim.fs.dir(dir .. '/fixtures') do
-    if kind == 'file' and name:sub(-5) == '.diff' then
-      files[#files + 1] = dir .. '/fixtures/' .. name
-    end
-  end
+  files = vim.fn.glob(dir .. '/fixtures/*.diff', true, true)
   table.sort(files)
 end
 
@@ -67,7 +63,7 @@ if opts.profile then
   diffparse.parse = timed('parse', diffparse.parse)
   blob.acquire = timed('blob', blob.acquire)
   highlight.line_spans = timed('treesitter', highlight.line_spans)
-  engine.changes = timed('diff-engine', engine.changes)
+  engine.emphasize = timed('diff-engine', engine.emphasize)
   layout.content_line = timed('emit', layout.content_line)
   layout.split_line = timed('emit', layout.split_line)
   layout.hunk_header = timed('emit', layout.hunk_header)
@@ -113,10 +109,8 @@ io.write(string.rep('-', 79) .. '\n')
 local results = {}
 local grand_total = 0
 for _, path in ipairs(files) do
-  local f = assert(io.open(path, 'rb'))
-  local input = f:read('*a')
-  f:close()
-  local name = vim.fn.fnamemodify(path, ':t')
+  local input = vim.fn.readblob(path)
+  local name = vim.fs.basename(path)
 
   for _, layout in ipairs(layouts) do
     for _ = 1, opts.warmup do

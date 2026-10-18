@@ -2,28 +2,27 @@ local M = {}
 
 local ESC = string.char(27)
 
+-- One truecolor SGR parameter: 38 selects the foreground, 48 the background.
+local function truecolor(selector, rgb)
+  return string.format(
+    '%d;2;%d;%d;%d',
+    selector,
+    math.floor(rgb / 65536) % 256,
+    math.floor(rgb / 256) % 256,
+    rgb % 256
+  )
+end
+
 --- Build a single SGR sequence that fully restates the style (leading reset),
 --- so gocui's incremental escape parsing can never leak state across segments.
 --- attrs: { fg = 0xRRGGBB|nil, bg = 0xRRGGBB|nil, bold, italic, underline }
 function M.style(attrs)
   local parts = { '0' }
   if attrs.fg then
-    local fg = attrs.fg
-    parts[#parts + 1] = string.format(
-      '38;2;%d;%d;%d',
-      math.floor(fg / 65536) % 256,
-      math.floor(fg / 256) % 256,
-      fg % 256
-    )
+    parts[#parts + 1] = truecolor(38, attrs.fg)
   end
   if attrs.bg then
-    local bg = attrs.bg
-    parts[#parts + 1] = string.format(
-      '48;2;%d;%d;%d',
-      math.floor(bg / 65536) % 256,
-      math.floor(bg / 256) % 256,
-      bg % 256
-    )
+    parts[#parts + 1] = truecolor(48, attrs.bg)
   end
   if attrs.bold then
     parts[#parts + 1] = '1'
@@ -38,6 +37,8 @@ function M.style(attrs)
 end
 
 M.reset = ESC .. '[0m'
+--- The end of every output row: no style carries over into the next one.
+M.eol = M.reset .. '\n'
 
 local SGR = ESC .. '%[[%d;]*m'
 
@@ -67,7 +68,7 @@ end
 
 --- A complete output row: styled text, reset, newline.
 function M.line(attrs, text)
-  return M.style(attrs) .. text .. M.reset .. '\n'
+  return M.style(attrs) .. text .. M.eol
 end
 
 return M

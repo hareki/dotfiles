@@ -1,6 +1,8 @@
 local catfile = require('lib.catfile')
 local util = require('lib.util')
 
+local uv = vim.uv
+
 local M = {}
 
 -- Resolved lazily: only the worktree-side fallback below needs it, and a commit
@@ -18,26 +20,13 @@ local M = {}
 local ROOT_CACHE_MAX = 8
 local roots, n_roots = {}, 0
 
--- vim.system's wait() reports a process it had to kill on timeout as this code.
-local TIMED_OUT = 124
-
 local function worktree_root(cwd)
   local hit = roots[cwd]
   if hit ~= nil then
     return hit or nil
   end
-  local ok, proc = pcall(
-    vim.system,
-    { 'git', 'rev-parse', '--show-toplevel' },
-    { cwd = cwd, text = true }
-  )
-  if not ok then
-    return nil
-  end
-  -- The same bound as the object reads: a hung git (dead network mount,
-  -- stuck fsmonitor) must fail this render, not wedge the daemon.
-  local res = proc:wait(catfile.TIMEOUT_MS)
-  if res.code == TIMED_OUT then
+  local res = catfile.run({ 'git', 'rev-parse', '--show-toplevel' }, cwd)
+  if not res then
     return nil
   end
   local root = res.code == 0 and res.stdout and vim.trim(res.stdout) or nil
@@ -49,8 +38,16 @@ local function worktree_root(cwd)
   return root
 end
 
-local function read_worktree_file(root, path, limits)
-  local f = io.open(root .. '/' .. path, 'rb')
+-- What a render that read a worktree file found there, as far as telling it
+-- apart from a later version goes: the file itself (inode), its size and its
+-- modification time to the nanosecond, or its absence.
+local function file_state(path)
+  local st = uv.fs_stat(path)
+  return st and table.concat({ st.ino, st.size, st.mtime.sec, st.mtime.nsec }, ':') or ''
+end
+
+local function read_worktree_file(path, limits)
+  local f = io.open(path, 'rb')
   if not f then
     return nil
   end
@@ -107,8 +104,10 @@ end
 --- and file.old_lines / file.new_lines in full mode.
 --- With `fragment_only`, files are classified but no git lookup is performed,
 --- so a render stays reproducible outside the repo it was captured from.
---- Returns true when any file consulted the worktree, i.e. the render depends
---- on state the diff text does not capture.
+--- Returns the worktree files it consulted, as { path, state } records: the
+--- diff names their content, but one can change between git writing the diff
+--- and this reading it, so a render made from them is only as good as they are
+--- unchanged (see M.unchanged).
 function M.acquire(files, cwd, limits, fragment_only)
   -- Which sides does each file actually need?
   local requests = {} -- flat list of hashes for one batched cat-file call
@@ -124,10 +123,9 @@ function M.acquire(files, cwd, limits, fragment_only)
     file.hunk_lines = hunk_lines
     -- An oversized section renders with tints only. Classifying it here rather
     -- than after the fact keeps it from paying for a batched cat-file fetch, a
-    -- size check and a line split whose result nothing then reads.
-    local eligible = not (file.is_combined or file.is_binary)
-      and #file.hunks > 0
-      and hunk_lines <= limits.max_file_section_lines
+    -- size check and a line split whose result nothing then reads. A binary
+    -- file has no hunks, so it never qualifies.
+    local eligible = #file.hunks > 0 and hunk_lines <= limits.max_file_section_lines
     if eligible then
       file.content_mode = 'fragment'
       file.need_old = not file.is_new
@@ -144,7 +142,7 @@ function M.acquire(files, cwd, limits, fragment_only)
   end
 
   if fragment_only then
-    return false
+    return {}
   end
 
   -- Blobs past the highlight cap are sized but never fetched: full-content
@@ -171,7 +169,7 @@ function M.acquire(files, cwd, limits, fragment_only)
     end
   end
 
-  local worktree_dep = false
+  local consulted = {}
   for _, file in ipairs(files) do
     if file.content_mode == 'fragment' then
       -- Worktree-side fallback: unstaged/untracked diffs have zero or
@@ -187,8 +185,11 @@ function M.acquire(files, cwd, limits, fragment_only)
           and worktree_root(cwd)
         or nil
       if root then
-        worktree_dep = true
-        local content, oversized = read_worktree_file(root, file.new_path, limits)
+        local path = root .. '/' .. file.new_path
+        -- Taken before the read, so an edit landing between the two fails the
+        -- comparison rather than hiding behind a state taken after it.
+        consulted[#consulted + 1] = { path = path, state = file_state(path) }
+        local content, oversized = read_worktree_file(path, limits)
         file.new_content = content
         if oversized then
           file.new_oversized = true
@@ -226,7 +227,18 @@ function M.acquire(files, cwd, limits, fragment_only)
     end
     file.old_content, file.new_content = nil, nil
   end
-  return worktree_dep
+  return consulted
+end
+
+--- Whether the worktree files a render consulted (M.acquire's records) still
+--- hold what it read from them, so that it can stand in for a fresh one.
+function M.unchanged(consulted)
+  for _, entry in ipairs(consulted) do
+    if file_state(entry.path) ~= entry.state then
+      return false
+    end
+  end
+  return true
 end
 
 return M

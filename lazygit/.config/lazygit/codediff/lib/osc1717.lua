@@ -34,7 +34,7 @@ function M.recorder(path)
 end
 
 --- The records for a hunk's rows, by side and fragment row (the rows
---- diffparse.hunk_fragment reconstructs), numbered as lazygit numbers git's
+--- diffparse.hunk_rows reconstructs), numbered as lazygit numbers git's
 --- patch: a context line by its new-file line on both sides, an added line by
 --- its new-file line, and a deleted line by the new-file line it sits at and
 --- its own old-file line.

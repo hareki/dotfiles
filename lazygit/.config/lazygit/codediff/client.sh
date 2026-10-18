@@ -45,7 +45,6 @@ OUT="$IN.out"
 trap 'rm -f "$IN" "$OUT"' EXIT
 
 cat >|"$IN"
-COLS="${COLUMNS:-120}"
 
 # Optional --layout=<inline|side-by-side> from the diffRenderers command
 # string; anything unrecognized renders inline.
@@ -80,10 +79,11 @@ find_owner() {
 }
 
 # One line in, one line back. cwd goes last because it is the only field that
-# can legitimately contain a tab.
+# can legitimately contain a tab. An unset COLUMNS goes as an empty field, and
+# the renderer picks its default width.
 reply=""
 request_pipe() {
-  reply=$(printf 'render\t%s\t%s\t%s\t%s\t%s\t%s\n' "$IN" "$OUT" "$COLS" "$LAYOUT" "$META" "$PWD" | nc -U "$PIPE" 2>/dev/null)
+  reply=$(printf 'render\t%s\t%s\t%s\t%s\t%s\t%s\n' "$IN" "$OUT" "${COLUMNS:-}" "$LAYOUT" "$META" "$PWD" | nc -U "$PIPE" 2>/dev/null)
   case "$reply" in
     ok | ok:owner) return 0 ;;
     *) return 1 ;;

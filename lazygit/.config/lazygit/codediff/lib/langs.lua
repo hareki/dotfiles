@@ -19,8 +19,10 @@ local function remember(key, lang)
 end
 
 local function parser_available(lang)
-  local ok = pcall(vim.treesitter.language.add, lang)
-  return ok and lang or nil
+  -- add() reports a missing parser by returning nil; it only raises on a
+  -- malformed name or a library that fails to load.
+  local ok, loaded = pcall(vim.treesitter.language.add, lang)
+  return ok and loaded and lang or nil
 end
 
 --- Resolve a path (plus optional content lines) to a loadable treesitter
@@ -35,8 +37,8 @@ function M.lang_for(path, content_lines)
   -- that had the file's content and one that did not.
   --
   -- Only a bounded fingerprint of the first line goes into the key. Embedding
-  -- the line itself would pin it in this never-evicted cache for the daemon's
-  -- lifetime, and a first line can be the whole file (a minified bundle, up to
+  -- the line itself would let each of the cache's few hundred entries pin one,
+  -- and a first line can be the whole file (a minified bundle, up to
   -- max_blob_bytes); the detectors only ever look at its head anyway.
   local sample = (content_lines and content_lines[1]) or ''
   local key = path .. '\0' .. #sample .. '\0' .. sample:sub(1, 256)

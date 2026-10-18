@@ -1,4 +1,5 @@
--- Asking git for the objects a diff refers to.
+-- Asking git for the objects a diff refers to, and running any other git call a
+-- render makes under the same time bound (M.run).
 --
 -- A render needs two answers about the same object list -- how big is it, and
 -- (only for the ones worth reading) what is in it -- and git's own startup is
@@ -14,9 +15,25 @@
 local M = {}
 
 local READ_TIMEOUT_MS = 5000
---- The bound every git call a render makes is held to; lib.blob's own call
---- uses it rather than restating the number.
-M.TIMEOUT_MS = READ_TIMEOUT_MS
+-- vim.system's wait() reports a process it had to kill on timeout as this code.
+local TIMED_OUT = 124
+
+--- Run git under the bound every git call a render makes is held to: a git hung
+--- on a dead network mount or a stuck fsmonitor must fail the render, not wedge
+--- the daemon's event loop (and with it every queued client). Returns
+--- vim.system's result, or nil when git failed to start or ran out of time --
+--- neither of which is an answer worth remembering.
+function M.run(args, cwd, stdin)
+  local ok, proc = pcall(vim.system, args, { cwd = cwd, stdin = stdin, text = false })
+  if not ok then
+    return nil
+  end
+  local res = proc:wait(READ_TIMEOUT_MS)
+  if res.code == TIMED_OUT then
+    return nil
+  end
+  return res
+end
 
 --- Sizes and types only: "<oid> <type> <size>\n" or "<name> missing\n" per
 --- input line, no payloads. Each record keeps its raw line as `header`: a
@@ -87,9 +104,6 @@ end
 -- cap the least recently used one is retired.
 local SESSION_MAX = 2
 local sessions = {}
--- vim.wait pumps the event loop, so a second render can arrive mid-request.
--- It gets the one-shot path rather than a second voice on the same pipe.
-local busy = false
 
 local function retire(s)
   for i, held in ipairs(sessions) do
@@ -229,20 +243,8 @@ end
 -- --------------------------------------------------------------- fallback ---
 
 local function git_batch(args, oids, cwd)
-  local ok, proc = pcall(vim.system, args, {
-    cwd = cwd,
-    stdin = table.concat(oids, '\n') .. '\n',
-    text = false,
-  })
-  if not ok then
-    return nil
-  end
-  -- Bounded like the session reads: a git hung on a dead network mount or a
-  -- stuck fsmonitor must fail this render, not wedge the daemon's event loop
-  -- (and with it every queued client) indefinitely. On timeout wait() kills
-  -- the process and reports code 124, so the nil path below covers it.
-  local res = proc:wait(READ_TIMEOUT_MS)
-  if res.code ~= 0 or not res.stdout then
+  local res = M.run(args, cwd, table.concat(oids, '\n') .. '\n')
+  if not res or res.code ~= 0 or not res.stdout then
     return nil
   end
   return res.stdout
@@ -290,18 +292,14 @@ function M.fetch(cwd, oids, max_bytes)
   if #oids == 0 then
     return {}, {}
   end
-  if not busy then
-    local s = ensure(cwd)
-    if s then
-      busy = true
-      local ok, infos, blobs = pcall(fetch_session, s, oids, max_bytes)
-      busy = false
-      if ok and infos and blobs then
-        return infos, blobs
-      end
-      -- The session is only as trustworthy as its last answer.
-      retire(s)
+  local s = ensure(cwd)
+  if s then
+    local ok, infos, blobs = pcall(fetch_session, s, oids, max_bytes)
+    if ok and infos and blobs then
+      return infos, blobs
     end
+    -- The session is only as trustworthy as its last answer.
+    retire(s)
   end
   return fetch_oneshot(cwd, oids, max_bytes)
 end

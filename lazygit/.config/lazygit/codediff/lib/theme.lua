@@ -3,8 +3,8 @@ local M = {}
 -- Chrome colors (headers, notes, --stat, commit metadata) mirror the delta
 -- catppuccin-mocha theme from ~/.gitconfig. Every value here is a placeholder
 -- that load_diff_colors() overwrites from the live colorscheme -- the chrome
--- entries from catppuccin's own palette, the four diff backgrounds from the
--- CodeDiff* groups -- so lazygit shows exactly what codediff.nvim shows in the
+-- entries from catppuccin's own palette, the diff colors from the CodeDiff*
+-- groups -- so lazygit shows exactly what codediff.nvim shows in the
 -- editor; syntax colors come from catppuccin at runtime. The literals are the
 -- values that resolution produces today, and stand in only for a render that
 -- reaches this module without bootstrap having run.
@@ -48,8 +48,17 @@ local CHROME = {
   stat_count = 'subtext0',
 }
 
---- Copy the chrome colors out of catppuccin's palette and the diff backgrounds
---- out of the CodeDiff* groups. Must run after codediff.nvim's
+-- The CodeDiff* group, and its attribute, each diff color is a copy of.
+local CODEDIFF = {
+  minus_bg = { 'CodeDiffLineDelete', 'bg' },
+  minus_emph_bg = { 'CodeDiffCharDelete', 'bg' },
+  plus_bg = { 'CodeDiffLineInsert', 'bg' },
+  plus_emph_bg = { 'CodeDiffCharInsert', 'bg' },
+  filler_fg = { 'CodeDiffFiller', 'fg' },
+}
+
+--- Copy the chrome colors out of catppuccin's palette and the diff colors out
+--- of the CodeDiff* groups. Must run after codediff.nvim's
 --- highlights.setup() has derived them from the colorscheme.
 function M.load_diff_colors()
   local ok, pal = pcall(function()
@@ -66,21 +75,12 @@ function M.load_diff_colors()
     end
   end
 
-  local map = {
-    minus_bg = 'CodeDiffLineDelete',
-    minus_emph_bg = 'CodeDiffCharDelete',
-    plus_bg = 'CodeDiffLineInsert',
-    plus_emph_bg = 'CodeDiffCharInsert',
-  }
-  for key, group in pairs(map) do
-    local hl = get_hl(group)
-    if hl and hl.bg then
-      M.palette[key] = hl.bg
+  for key, source in pairs(CODEDIFF) do
+    local hl = get_hl(source[1])
+    local value = hl and hl[source[2]]
+    if value then
+      M.palette[key] = value
     end
-  end
-  local filler = get_hl('CodeDiffFiller')
-  if filler and filler.fg then
-    M.palette.filler_fg = filler.fg
   end
 end
 
