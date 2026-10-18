@@ -36,8 +36,8 @@ return {
         '<leader>un',
         function()
           -- May use `Snacks.picker.noice()` as well
-          local notify_picker = require('core.snacks-nvim.pickers.sources.notify')
-          notify_picker.show()
+          local notify_utils = require('chrome.nvim-notify.utils')
+          notify_utils.show_picker()
         end,
         desc = prefix .. 'Show History',
       },

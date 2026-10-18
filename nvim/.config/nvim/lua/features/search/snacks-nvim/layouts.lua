@@ -1,7 +1,7 @@
---- @class core.snacks.pickers.layouts
+--- @class features.search.snacks.layouts
 local M = {}
 
---- @class core.snacks.pickers.layouts.Opts
+--- @class features.search.snacks.layouts.Opts
 --- @field width integer | fun(): integer   Outer window width
 --- @field height integer | fun(): integer  Outer window height
 --- @field preview_title string             Title shown above the preview pane
@@ -18,7 +18,7 @@ local function input_list_box()
   }
 end
 
---- @param opts core.snacks.pickers.layouts.Opts
+--- @param opts features.search.snacks.layouts.Opts
 --- @param box 'horizontal' | 'vertical' Direction the list column and preview are arranged
 --- @param preview table The preview window box (carries its own width/height split)
 local function frame(opts, box, preview)
@@ -39,7 +39,7 @@ local function frame(opts, box, preview)
 end
 
 --- Preview pane to the right of the list.
---- @param opts core.snacks.pickers.layouts.Opts
+--- @param opts features.search.snacks.layouts.Opts
 function M.preview_right(opts)
   return frame(opts, 'horizontal', {
     win = 'preview',
@@ -50,7 +50,7 @@ function M.preview_right(opts)
 end
 
 --- Preview pane below the list.
---- @param opts core.snacks.pickers.layouts.Opts
+--- @param opts features.search.snacks.layouts.Opts
 function M.preview_below(opts)
   return frame(opts, 'vertical', {
     win = 'preview',

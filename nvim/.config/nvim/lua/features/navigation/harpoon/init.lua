@@ -12,8 +12,8 @@ return {
         {
           '<leader>fp',
           function()
-            local harpoon_picker = require('core.snacks-nvim.pickers.sources.harpoon')
-            harpoon_picker.show()
+            local harpoon_utils = require('features.navigation.harpoon.utils')
+            harpoon_utils.show_picker()
           end,
           desc = 'Pinned Files: Quick Menu',
         },

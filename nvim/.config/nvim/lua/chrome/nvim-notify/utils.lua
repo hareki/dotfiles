@@ -1,4 +1,4 @@
---- @class core.snacks.pickers.sources.notify
+--- @class chrome.nvim-notify.utils
 local M = {}
 
 --- Open a notification in a centered float, sized to its content up to the inline popup caps
@@ -29,7 +29,7 @@ end
 --- Show nvim-notify's notification history, newest first, with each message rendered as
 --- markdown in the preview
 --- @return snacks.Picker
-function M.show()
+function M.show_picker()
   local notify = require('notify')
   local history = notify.history()
 

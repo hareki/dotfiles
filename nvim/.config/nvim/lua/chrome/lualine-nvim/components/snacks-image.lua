@@ -82,7 +82,7 @@ local function mermaid_has_content(buf)
 end
 
 --- Returns true when `gi` would render an image at the current cursor position.
---- Mirrors the branching in `core.snacks.utils.image.hover_image`.
+--- Mirrors the branching in `features.preview.snacks.utils.hover_image`.
 --- @return boolean
 function M.cond()
   local buf = vim.api.nvim_get_current_buf()

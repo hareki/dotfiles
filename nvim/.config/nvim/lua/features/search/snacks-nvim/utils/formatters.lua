@@ -1,4 +1,4 @@
---- @class core.snacks.utils.formatters
+--- @class features.search.snacks.utils.formatters
 local M = {}
 
 --- Format function for keymap picker (icon, description, buffer, lhs, mode)

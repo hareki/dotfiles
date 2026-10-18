@@ -1,4 +1,4 @@
---- @class core.snacks.actions
+--- @class features.search.snacks.actions
 local M = {}
 
 --- Whether the preview is shown, for the sources that keep it across openings (their

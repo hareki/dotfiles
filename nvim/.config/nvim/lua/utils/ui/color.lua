@@ -38,7 +38,7 @@ end
 
 --- Clear search highlight and bring Snacks word highlights back right away
 --- Snacks.words hides references while search matches are highlighted (see its `filter`
---- in `core/snacks-nvim/init.lua`) and would otherwise wait for the next cursor move.
+--- in `core/lsp/snacks-nvim.lua`) and would otherwise wait for the next cursor move.
 --- @return nil
 function M.nohlsearch()
   -- With no search highlighted nothing was hidden, and update() would only clear

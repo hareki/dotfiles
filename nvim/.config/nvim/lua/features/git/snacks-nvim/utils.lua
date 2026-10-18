@@ -1,14 +1,14 @@
-local fullscreen_panels = require('core.snacks-nvim.utils.fullscreen-panels')
+local fullscreen_panels = require('core.snacks-nvim.utils')
 
---- @class core.snacks.utils.lazygit
+--- @class features.git.snacks.utils
 local M = {}
 
---- @class core.snacks.utils.lazygit.State
+--- @class features.git.snacks.utils.State
 --- @field win snacks.win? The single Lazygit terminal window
 --- @field last_file string? Most recently focused normal-file path
 --- @field last_win integer? Most recently focused non-floating window showing a normal buffer
 
---- @type core.snacks.utils.lazygit.State
+--- @type features.git.snacks.utils.State
 M.state = {
   win = nil,
   last_file = nil,
@@ -31,7 +31,7 @@ end
 --- (terminal, plugin UI, unnamed) and `prepare_remote_edit` can land in a real editing window.
 function M.setup()
   vim.api.nvim_create_autocmd({ 'WinEnter', 'BufEnter' }, {
-    group = vim.api.nvim_create_augroup('core.snacks.lazygit-last-focus', { clear = true }),
+    group = vim.api.nvim_create_augroup('git.snacks.lazygit-last-focus', { clear = true }),
     callback = function(args)
       if vim.bo[args.buf].buftype ~= '' then
         return

@@ -1,4 +1,4 @@
---- @class core.snacks.utils.sorters
+--- @class features.search.snacks.utils.sorters
 local M = {}
 
 --- Sort function for buffer picker (modified first, then by score/length/index)

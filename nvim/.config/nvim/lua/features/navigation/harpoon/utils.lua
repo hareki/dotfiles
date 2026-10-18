@@ -1,11 +1,11 @@
---- @class core.snacks.pickers.sources.harpoon
+--- @class features.navigation.harpoon.utils
 local M = {}
 
 --- Show the harpoon picker with items from the harpoon list
 --- @return snacks.Picker | nil picker The picker instance, or nil if list is empty
-M.show = function()
+M.show_picker = function()
   local harpoon = require('harpoon')
-  local formatters = require('core.snacks-nvim.utils.formatters')
+  local formatters = require('features.search.snacks-nvim.utils.formatters')
 
   local function build_harpoon_items()
     local items = {}

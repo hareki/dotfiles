@@ -1,12 +1,12 @@
 local common = require('utils.common')
 
---- @class core.snacks.utils.zen
+--- @class chrome.snacks.utils
 local M = {}
 
---- @class core.snacks.utils.zen.State
+--- @class chrome.snacks.utils.State
 --- @field mapped table<integer, true> Buffers currently holding the temporary `q` mapping
 
---- @type core.snacks.utils.zen.State
+--- @type chrome.snacks.utils.State
 M.state = {
   mapped = {},
 }

@@ -1,5 +1,5 @@
 --- @module 'snacks'
---- @class core.snacks.utils.transformers
+--- @class features.search.snacks.utils.transformers
 local M = {}
 
 local filtered_descriptions = {

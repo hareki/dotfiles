@@ -107,7 +107,7 @@ end
 --- Pick a previewable file with the Snacks file finder, which skips ignored files, unlike the
 --- plugin's picker that walks the whole cwd synchronously (node_modules included)
 function M.pick()
-  local actions = require('core.snacks-nvim.actions')
+  local actions = require('features.search.snacks-nvim.actions')
 
   Snacks.picker.files({
     title = 'Live Preview',

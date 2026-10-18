@@ -1,7 +1,7 @@
 --- Keeps full-screen Snacks terminals (Lazygit, the coding agent) from stacking: toggling one on
 --- replaces the one that's up, and toggling it off lands back on the code. Panels are detected
 --- by geometry (any floating Snacks terminal covering the `full` popup preset), not registered.
---- @class core.snacks.utils.fullscreen-panels
+--- @class core.snacks.utils
 local M = {}
 
 --- Whether `terminal` is on screen as a full-screen panel. `valid()` alone isn't enough: the

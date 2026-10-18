@@ -1,16 +1,16 @@
 local common = require('utils.common')
 
---- @class core.snacks.utils.image
+--- @class features.preview.snacks.utils
 local M = {}
 
---- @class core.snacks.utils.image.State
+--- @class features.preview.snacks.utils.State
 --- @field win integer
 --- @field buf integer
 --- @field placement snacks.image.Placement
 --- @field augroup integer
 --- @field release_keymaps fun()
 
---- @type core.snacks.utils.image.State?
+--- @type features.preview.snacks.utils.State?
 local hover = nil
 
 local function close()
@@ -105,7 +105,7 @@ local function open(source_buf, src)
   local scratch = vim.api.nvim_create_buf(false, true)
   vim.bo[scratch].bufhidden = 'wipe'
 
-  local augroup = vim.api.nvim_create_augroup('core.snacks.hover-image', { clear = true })
+  local augroup = vim.api.nvim_create_augroup('preview.snacks.hover-image', { clear = true })
 
   local placement = Snacks.image.placement.new(scratch, src, {
     inline = false,

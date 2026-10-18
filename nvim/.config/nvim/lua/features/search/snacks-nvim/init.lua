@@ -1,0 +1,209 @@
+-- Function-valued geometry: snacks resolves these when a window opens,
+-- so popups stay sized/centered after terminal resizes instead of
+-- keeping the startup screen's cell counts
+local sm = UI.layout.popup_fn('sm', true)
+local lg_border = UI.layout.popup_fn('lg', true)
+
+local layouts = require('features.search.snacks-nvim.layouts')
+local layout_opts = {
+  width = lg_border.width,
+  height = lg_border.height,
+  preview_title = Conf.picker.PREVIEW_TITLE,
+}
+
+local which_key_preset = require('chrome.which-key-nvim.preset')
+
+local transformers = Defer.on_exported_call('features.search.snacks-nvim.utils.transformers')
+local formatters = Defer.on_exported_call('features.search.snacks-nvim.utils.formatters')
+local sorters = Defer.on_exported_call('features.search.snacks-nvim.utils.sorters')
+local actions = Defer.on_exported_call('features.search.snacks-nvim.actions')
+
+return {
+  UI.catppuccin(function(palette)
+    return {
+      SnacksPickerPrompt = { fg = palette.blue },
+      SnacksPickerCursorLine = { bg = palette.surface0 },
+      SnacksPickerPreviewCursorLine = { link = 'CursorLine' },
+      SnacksPickerInputCursorLine = { bg = 'none', fg = palette.text },
+      SnacksPickerListCursorLine = { link = 'ListCursorLine' },
+      SnacksPickerKeymapLhs = { fg = palette.blue },
+      SnacksPickerSelected = { bg = 'none', fg = palette.text },
+      SnacksPickerUnselected = { bg = 'none', fg = palette.text },
+      SnacksPickerDir = { fg = palette.overlay1 },
+      SnacksPickerFile = { fg = palette.text },
+      SnacksPickerTime = { fg = palette.text },
+    }
+  end),
+
+  {
+    'snacks.nvim',
+    keys = {
+      {
+        '<leader><leader>',
+        function()
+          local picker_actions = require('features.search.snacks-nvim.actions')
+
+          Snacks.picker.files({
+            layout = {
+              --- @diagnostic disable-next-line: assign-type-mismatch Wrong type from snacks
+              preview = picker_actions.preview_shown.files,
+            },
+          })
+        end,
+        desc = 'Find Files',
+      },
+      {
+        '<leader>f/',
+        function()
+          Snacks.picker.grep({
+            title = 'Grep',
+            regex = false,
+            hidden = true,
+          })
+        end,
+        desc = 'Find Text',
+      },
+      {
+        '<leader>fb',
+        function()
+          Snacks.picker.buffers({
+            title = 'Buffers',
+          })
+        end,
+        desc = 'Find Buffers',
+      },
+      {
+        '<leader>fk',
+        function()
+          Snacks.picker.keymaps()
+        end,
+        mode = { 'n', 'x' },
+        desc = 'Find Keymaps',
+      },
+      {
+        '<leader>fh',
+        function()
+          Snacks.picker.highlights()
+        end,
+        desc = 'Find Highlight Groups',
+      },
+      {
+        '<leader>fH',
+        function()
+          Snacks.picker.help()
+        end,
+        desc = 'Find Help Tags',
+      },
+    },
+
+    opts = {
+      picker = {
+        icons = {
+          ui = {
+            selected = Conf.icons.file_tree.SELECTED,
+            unselected = Conf.icons.file_tree.UNSELECTED,
+          },
+        },
+        prompt = Conf.picker.PROMPT_PREFIX,
+
+        actions = {
+          list_half_page_down = actions.list_half_page_down,
+          list_half_page_up = actions.list_half_page_up,
+          toggle_preview_focus = actions.toggle_preview_focus,
+          toggle_preview = actions.toggle_preview,
+          snacks_to_trouble = actions.snacks_to_trouble,
+        },
+
+        win = {
+          preview = {
+            keys = {
+              ['<Tab>'] = { 'toggle_preview_focus', mode = { 'i', 'n' } },
+              ['<CR>'] = { 'confirm' },
+              ['<C-t>'] = { 'snacks_to_trouble', mode = { 'i', 'n' } },
+
+              ['B'] = { 'toggle_preview' },
+              ['<C-b>'] = { 'toggle_preview', mode = { 'i', 'n' } },
+            },
+            wo = {
+              number = true,
+              relativenumber = true,
+            },
+          },
+          input = {
+            keys = {
+              ['<PageDown>'] = { 'list_half_page_down', mode = { 'i', 'n' } },
+              ['<PageUp>'] = { 'list_half_page_up', mode = { 'i', 'n' } },
+              ['<Tab>'] = { 'toggle_preview_focus', mode = { 'i', 'n' } },
+
+              ['<C-t>'] = { 'snacks_to_trouble', mode = { 'i', 'n' } },
+
+              ['<C-c>'] = { 'cancel', mode = { 'i', 'n' } },
+              ['<C-p>'] = { 'select_and_prev', mode = { 'i', 'n' } },
+              ['<C-n>'] = { 'select_and_next', mode = { 'i', 'n' } },
+
+              ['B'] = { 'toggle_preview' },
+              ['<C-b>'] = { 'toggle_preview', mode = { 'i', 'n' } },
+            },
+          },
+        },
+
+        layout = { preset = 'preview_below' }, -- Default layout
+        layouts = {
+          preview_below = layouts.preview_below(layout_opts),
+          preview_right = layouts.preview_right(layout_opts),
+        },
+
+        sources = {
+          buffers = {
+            format = formatters.buffer_format,
+            matcher = { sort_empty = true }, -- Required for sort to work with empty search
+            sort = sorters.buffer_sort,
+            win = {
+              input = {
+                keys = {
+                  ['x'] = { 'bufdelete', mode = { 'n' } }, -- close selected buffer from input (normal mode)
+                },
+              },
+            },
+          },
+
+          files = {
+            hidden = true,
+            exclude = { '.DS_Store' },
+          },
+
+          highlights = {
+            layout = 'preview_right',
+          },
+
+          keymaps = {
+            transform = transformers.keymap_transform,
+            format = function(item)
+              return formatters.keymap_format(item, sm.width())
+            end,
+
+            layout = {
+              preview = false,
+              layout = vim.tbl_extend('force', sm, { backdrop = false }),
+            },
+          },
+
+          todo_comments = {
+            actions = {
+              snacks_to_trouble = actions.todo_to_trouble,
+            },
+          },
+        },
+      },
+    },
+  },
+
+  -- Hack to get the fold keymaps to show in Snacks.picker.keymaps; descs
+  -- come from the which-key preset so the two never drift
+  {
+    'snacks.nvim',
+    keys = vim.tbl_map(function(fold)
+      return { fold[1], fold[1], desc = fold[2] }
+    end, which_key_preset.fold_descs),
+  },
+}

@@ -13,7 +13,7 @@ return {
       {
         '<A-a>',
         function()
-          local fullscreen_panels = require('core.snacks-nvim.utils.fullscreen-panels')
+          local fullscreen_panels = require('core.snacks-nvim.utils')
           local terminal = require('claudecode.terminal')
 
           fullscreen_panels.hide_others(terminal.get_active_terminal_bufnr())

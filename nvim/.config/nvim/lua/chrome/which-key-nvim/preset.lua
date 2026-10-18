@@ -125,7 +125,7 @@ M.windows = {
 }
 
 --- Fold-key descriptions in { key, desc } pairs. Single source of truth,
---- shared with core/snacks-nvim/init.lua, which registers identity keymaps
+--- shared with features/search/snacks-nvim/init.lua, which registers identity keymaps
 --- from this list so the fold keys show up in Snacks.picker.keymaps
 M.fold_descs = {
   { 'za', 'Toggle Fold Under Cursor' },
