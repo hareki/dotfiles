@@ -3,7 +3,7 @@ local prefix = 'Live Preview: '
 return {
   UI.which_key({
     specs = { '<leader>p', group = 'Live Preview' },
-    rules = { pattern = 'live preview', icon = Conf.icons.tools.LIVE_PREVIEW, color = 'cyan' },
+    rules = { pattern = 'live preview', icon = Conf.icons.tools.LIVE_PREVIEW, color = 'purple' },
   }),
 
   {

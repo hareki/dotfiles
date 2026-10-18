@@ -163,7 +163,7 @@ local M = {
     CODE = '',
     PIN = '󰐃',
     MARK = '',
-    LIVE_PREVIEW = '󱎴',
+    LIVE_PREVIEW = '󰀃',
   },
   navigation = {
     PREV = '󰒮',

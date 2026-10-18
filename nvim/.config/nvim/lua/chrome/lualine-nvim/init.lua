@@ -44,6 +44,7 @@ return {
     local branch = require('chrome.lualine-nvim.components.branch')
     local tab = require('chrome.lualine-nvim.components.tab')
     local snacks_image = require('chrome.lualine-nvim.components.snacks-image')
+    local live_preview = require('chrome.lualine-nvim.components.live-preview')
 
     local palette = UI.catppuccin.get_palette()
 
@@ -134,6 +135,13 @@ return {
             type = 'secondary-right',
             color = 'green',
             cond = snacks_image.cond,
+          }),
+
+          create_wrapper({
+            comp = live_preview.get,
+            type = 'secondary-right',
+            color = 'mauve',
+            icon = live_preview.icon,
           }),
 
           create_wrapper({

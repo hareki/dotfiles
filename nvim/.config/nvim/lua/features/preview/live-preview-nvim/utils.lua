@@ -11,7 +11,8 @@ M.state = {
 
 -- Swap this file to change the preview pages' tab icon (any image type). It's inlined as a
 -- data URI, so it never has to sit under the server's webroot
-local FAVICON_PATH = vim.fn.stdpath('config') .. '/assets/live-preview/favicon.svg'
+local FAVICON_PATH = vim.fn.stdpath('config')
+  .. '/lua/features/preview/live-preview-nvim/assets/vscode-live-server.svg'
 
 -- toHTML() only gets the file's content, so each page names its tab after its own URL
 local TITLE_SCRIPT =
@@ -64,11 +65,24 @@ local function favicon_link()
   return string.format('<link rel="icon" href="data:%s;base64,%s">', mime, data)
 end
 
+--- The port the preview server listens on, nil while none runs. Safe to poll on every statusline
+--- redraw: it never loads the plugin, since no server exists before its main module is required
+--- @return integer?
+function M.running_port()
+  local livepreview = package.loaded['livepreview']
+  if not (livepreview and livepreview.is_running()) then
+    return nil
+  end
+
+  -- Ask the socket, since livepreview.config's port can change under a running server
+  local address = livepreview.serverObj.server:getsockname()
+  return address and address.port
+end
+
 --- Preview the current buffer. Unlike `:LivePreview start`, it never falls back to another
 --- loaded file, and while something else, e.g. a second nvim's preview, listens on the configured
 --- port, it moves to the first free port above it instead of failing
 function M.start()
-  local livepreview = require('livepreview')
   local livepreview_config = require('livepreview.config')
   local livepreview_utils = require('livepreview.utils')
 
@@ -84,8 +98,7 @@ function M.start()
   livepreview_config.set({
     -- Keep a running server's port: the plugin closes and rebinds it in one tick, so its tabs,
     -- which reload as their socket closes, land on the new server
-    port = livepreview.is_running() and livepreview_config.config.port
-      or free_port(address, M.state.port),
+    port = M.running_port() or free_port(address, M.state.port),
   })
 
   vim.cmd.LivePreview('start')
@@ -132,7 +145,25 @@ local function patch_template()
   end
 end
 
---- Apply `opts` to the plugin, keeping their port for start(), and patch its page template
+--- Refresh the statusline whenever the server starts or stops, so its indicator updates right
+--- away instead of on lualine's next timed refresh
+local function patch_server_lifecycle()
+  local livepreview = require('livepreview')
+
+  -- The command, the plugin's picker, start() itself and the exit hook all call these through the
+  -- module, so wrapping them reaches every start and stop
+  for _, name in ipairs({ 'start', 'close' }) do
+    local fn = livepreview[name]
+    livepreview[name] = function(...)
+      local result = fn(...)
+      UI.statusline.refresh()
+      return result
+    end
+  end
+end
+
+--- Apply `opts` to the plugin, keeping their port for start(), and patch its page template and
+--- server lifecycle
 --- @param opts LivePreviewConfig
 function M.setup(opts)
   local livepreview_config = require('livepreview.config')
@@ -141,6 +172,7 @@ function M.setup(opts)
   livepreview_config.set(opts)
   M.state.port = livepreview_config.config.port
   patch_template()
+  patch_server_lifecycle()
 end
 
 return M
