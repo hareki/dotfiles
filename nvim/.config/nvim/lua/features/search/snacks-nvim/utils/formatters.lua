@@ -82,4 +82,19 @@ function M.buffer_format(item, picker)
   return ret
 end
 
+--- Format function for tabs picker (the tab's statusline name, e.g. "tab-2" or "codediff-2")
+--- Followed by the buffer format of the tab's active window
+--- @param item snacks.picker.Item The picker item
+--- @param picker snacks.Picker The picker instance
+--- @return snacks.picker.Highlight[] highlights Array of highlight segments
+function M.tab_format(item, picker)
+  local ret = { --- @type snacks.picker.Highlight[]
+    { item.label, 'SnacksPickerTabName' },
+    { '  ' },
+  }
+
+  vim.list_extend(ret, M.buffer_format(item, picker))
+  return ret
+end
+
 return M

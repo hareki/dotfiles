@@ -155,7 +155,7 @@ return {
           create_wrapper({
             comp = tab.get,
             type = 'primary-right',
-            color = 'green',
+            color = tab.color,
             icon = tab.icon,
             cond = tab.cond,
           }),

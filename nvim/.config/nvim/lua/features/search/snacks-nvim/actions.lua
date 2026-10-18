@@ -91,4 +91,78 @@ function M.todo_to_trouble(picker)
   vim.cmd.Trouble({ args = todo_args })
 end
 
+--- The tabs source's confirm: switch to the tabpage under the cursor
+--- @param picker snacks.Picker The picker instance
+--- @param item? snacks.picker.Item The item under the cursor
+--- @return nil
+function M.tab_switch(picker, item)
+  -- Leave insert mode first, or the stopinsert picker:close() queues lands in the target tab's
+  -- window and moves its cursor
+  picker:norm(function()
+    picker:close()
+    if item and vim.api.nvim_tabpage_is_valid(item.tab) then
+      vim.api.nvim_set_current_tabpage(item.tab)
+    end
+  end)
+end
+
+--- Close the current tabpage, which hosts the picker's floats, and resume the picker in the
+--- tabpage nvim lands on (the next one, or the previous one when it was the last)
+--- @param picker snacks.Picker The picker instance
+--- @return nil
+local function close_current_tab(picker)
+  local insert = vim.fn.mode():sub(1, 1) == 'i'
+
+  -- Leave insert mode first, or the stopinsert picker:close() queues lands in the window the
+  -- tabclose leaves current
+  picker:norm(function()
+    picker.list:set_selected() -- Don't resume with the closed tabs still selected
+    picker:close()
+    vim.cmd.tabclose()
+
+    -- Focusing the resumed input runs its BufEnter startinsert!, which restores insert mode
+    local resumed = Snacks.picker.resume({ source = picker.opts.source })
+    if not resumed or insert then
+      return
+    end
+
+    -- Cancel that startinsert! so x can be repeated. The picker shows synchronously when resumed
+    -- with an empty pattern (the matcher's fast path), otherwise later, right before on_show runs
+    if resumed.shown then
+      vim.cmd.stopinsert()
+    else
+      resumed.opts.on_show = function()
+        vim.cmd.stopinsert()
+      end
+    end
+  end)
+end
+
+--- Close the selected tabpages (or the one under the cursor), the tabs source's bufdelete
+--- @param picker snacks.Picker The picker instance
+--- @return nil
+function M.tab_close(picker)
+  picker.preview:reset()
+  local current_tab = vim.api.nvim_get_current_tabpage()
+  local close_current = false
+
+  for _, item in ipairs(picker:selected({ fallback = true })) do
+    if item.tab == current_tab then
+      close_current = true -- Closing it takes the picker with it, so it goes last
+    elseif vim.api.nvim_tabpage_is_valid(item.tab) then
+      vim.cmd.tabclose(vim.api.nvim_tabpage_get_number(item.tab))
+    end
+  end
+
+  if close_current then
+    if #vim.api.nvim_list_tabpages() > 1 then
+      close_current_tab(picker)
+      return
+    end
+    Notifier.warn('Cannot close the last tab', { title = 'Snacks Picker' }) -- E784
+  end
+
+  picker:refresh()
+end
+
 return M

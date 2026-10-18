@@ -12,10 +12,12 @@ local layout_opts = {
 }
 
 local which_key_preset = require('chrome.which-key-nvim.preset')
+local tab_component = require('chrome.lualine-nvim.components.tab')
 
 local transformers = Defer.on_exported_call('features.search.snacks-nvim.utils.transformers')
 local formatters = Defer.on_exported_call('features.search.snacks-nvim.utils.formatters')
 local sorters = Defer.on_exported_call('features.search.snacks-nvim.utils.sorters')
+local finders = Defer.on_exported_call('features.search.snacks-nvim.utils.finders')
 local actions = Defer.on_exported_call('features.search.snacks-nvim.actions')
 
 return {
@@ -27,6 +29,7 @@ return {
       SnacksPickerInputCursorLine = { bg = 'none', fg = palette.text },
       SnacksPickerListCursorLine = { link = 'ListCursorLine' },
       SnacksPickerKeymapLhs = { fg = palette.blue },
+      SnacksPickerTabName = { fg = palette[tab_component.color] },
       SnacksPickerSelected = { bg = 'none', fg = palette.text },
       SnacksPickerUnselected = { bg = 'none', fg = palette.text },
       SnacksPickerDir = { fg = palette.overlay1 },
@@ -71,6 +74,15 @@ return {
           })
         end,
         desc = 'Find Buffers',
+      },
+      {
+        '<leader>f<Tab>',
+        function()
+          Snacks.picker.pick('tabs', {
+            title = 'Tabs',
+          })
+        end,
+        desc = 'Find Tabs',
       },
       {
         '<leader>fk',
@@ -185,6 +197,24 @@ return {
             layout = {
               preview = false,
               layout = vim.tbl_extend('force', sm, { backdrop = false }),
+            },
+          },
+
+          tabs = {
+            finder = finders.tabs,
+            format = formatters.tab_format,
+            confirm = actions.tab_switch,
+            actions = {
+              tab_close = actions.tab_close,
+            },
+            win = {
+              input = {
+                keys = {
+                  ['<C-x>'] = { 'tab_close', mode = { 'n', 'i' } },
+                  ['x'] = 'tab_close', -- close selected tab from input (normal mode)
+                },
+              },
+              list = { keys = { ['dd'] = 'tab_close' } },
             },
           },
 
