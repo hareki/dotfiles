@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 build() {
-  local -a targets=(atuin eza television worktrunk lazygit tmux)
+  local -a targets=(atuin eza television worktrunk lazygit fzf tmux)
   local target failed=0
   # mise shims every binary in the toolchains' own dirs (~/.cargo/bin, the versioned
   # go bin), which costs ~50ms per call, and a go upgrade strands anything installed
@@ -25,7 +25,7 @@ build() {
       ;;
     atuin)                    cargo install --locked --path crates/atuin ;;
     eza|television|worktrunk) cargo install --locked --path . ;;
-    lazygit)                  go install ;;
+    lazygit|fzf)              go install ;;
     tmux)
       # Installing explicitly marks them installed_on_request, so `brew
       # autoremove` won't reap deps of a binary brew can't see

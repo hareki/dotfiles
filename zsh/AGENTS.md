@@ -51,7 +51,7 @@ Plugins are declared in `.zplugins` and managed by **Antidote**. Antidote static
   - Its zprof time is the cached scripts' own code: the wrapper adds ~10µs over a bare `source`, which already loads the `.zwc`. Sourcing the `.zwc` directly fails (zsh parses it as text).
 - **mise**: not activated at runtime; it runs purely via shims prepended to `PATH` in `.zshenv`. A shim costs ~50ms per call (~90ms for a tool installed in mise but inactive in the current directory, e.g. claudecode.nvim's pinned fzf/neovim outside that project), so hot paths bypass it:
   - `build` installs into `~/.local/opt/bin` (`CARGO_INSTALL_ROOT`/`GOBIN`), which `user_path` puts ahead of the mise shims. Left in the toolchains' own dirs (`~/.cargo/bin`, mise's versioned go bin), atuin would pay the shim cost at every startup and before every command.
-  - fzf-tab runs `/opt/homebrew/bin/fzf` directly (`fzf-command` zstyle).
+  - fzf is a `build` target too (the hareki/fzf fork, which drops the blank column inside borders), so fzf-tab's plain `fzf` lookup lands there instead of the shim for claudecode.nvim's pinned fzf.
   - `CLOUDSDK_PYTHON` points gcloud/bq/gsutil at the gcloud-cli cask's python@3.14. Unset, the SDK's wrapper probes for a python and then runs it, both through the shims: ~185ms => ~60ms per TAB. Bump it with the cask's python dependency (a stale path fails the `-x` check and falls back to the probe).
 - **gcloud completion**: the SDK's bash-style `completion.zsh.inc`, which its installer sources from `.zshrc` (~3ms), is sourced by `compdefs/_gcloud` on the first TAB instead. Its `complete` calls re-register gcloud/gsutil/bq with `_bash_complete`, so later TABs skip `_gcloud`. `_bash_complete` runs the SDK's functions in a `$(compgen ...)` subshell, so bq's `bq_COMMANDS` cache never survives and every `bq` TAB re-runs `bq help` (~0.4s). Homebrew's `site-functions/_google_cloud_sdk` lacks a `#compdef` line, so compinit ignores it.
 - **use-omz startup forks**: `plugins.zsh` presets `$ZSH` (otherwise a `$(antidote path ...)` subshell, ~15ms) and exports `SHORT_HOST` so child shells skip use-omz's `scutil` fork. It also redefines use-omz's `has-zcompdump-expired` without its omz-HEAD check, a `git rev-parse` fork (~9ms) at every shell's first prompt: no omz dir on `fpath` holds `_*` files, so only an `fpath` change can stale the dump.
@@ -73,7 +73,7 @@ profile               # Profile zsh startup time (zsh -i -c exit, so without the
 sync-dots zsh         # Deploy zsh config via stow
 sync-forks [-j <n>]   # Merge upstream into every hareki fork's default branch, n forks at a time (default 10), report conflicts, then fast-forward each fork's clone in $REPOS_DIR from origin
 yay                   # Update all package managers (brew, antidote, mise, tpm)
-build <target>        # Build a local tool from source into ~/.local/opt/bin (atuin, eza, lazygit, television, worktrunk; tmux goes to /usr/local)
+build <target>        # Build a local tool from source into ~/.local/opt/bin (atuin, eza, fzf, lazygit, television, worktrunk; tmux goes to /usr/local)
 cts                   # Toggle git skip-worktree on claude-code settings.json (model/effort churn)
 ff                    # fastfetch with buffered output
 ```

@@ -73,9 +73,6 @@ zstyle ':antidote:bundle:*' zcompile 'yes'
 # FZF_DEFAULT_OPTS, which zoxide's `zi` and plain fzf read as well
 zstyle ':fzf-tab:*' fzf-flags --height=15 --border-label=' Completions '
 zstyle ':fzf-tab:*' use-fzf-default-opts yes
-# `fzf` on PATH is a mise shim (claudecode.nvim pins its own fzf) that spends ~90ms
-# falling back to Homebrew's outside that project, on every completion
-zstyle ':fzf-tab:*' fzf-command /opt/homebrew/bin/fzf
 
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 # Wrap the widgets once, when the plugin loads, instead of re-binding all ~600 of
