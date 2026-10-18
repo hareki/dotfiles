@@ -13,14 +13,6 @@ function M.noautocmd(fn)
   end
 end
 
---- Check if a window is a floating window
---- @param win integer Window handle (0 for current)
---- @return boolean True if the window is floating
-function M.is_float_win(win)
-  local ok, cfg = pcall(vim.api.nvim_win_get_config, win)
-  return ok and cfg and ((cfg.relative and cfg.relative ~= '') or cfg.external == true)
-end
-
 local function repaint_render_markdown(win_id)
   local render_md = require('render-markdown')
   if not vim.api.nvim_win_is_valid(win_id) then
@@ -51,7 +43,7 @@ function M.focus_win(win)
   end
 
   local src = vim.api.nvim_get_current_win()
-  local need_repaint = M.is_float_win(src) and is_markdown_buf(src)
+  local need_repaint = Snacks.util.is_float(src) and is_markdown_buf(src)
 
   M.noautocmd(function()
     vim.api.nvim_set_current_win(win)

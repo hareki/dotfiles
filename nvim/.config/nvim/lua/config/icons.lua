@@ -62,16 +62,11 @@ local M = {
   -- Unlike every other group, these leaf keys stay PascalCase instead of
   -- CONSTANT_CASE: they are consumed as-is as blink-cmp `kind_icons` keys
   -- (see features/completion/blink-cmp/init.lua) and must match
-  -- the LSP CompletionItemKind names (Array, Boolean, Class, ...) verbatim.
+  -- the LSP CompletionItemKind names (Class, Color, Constant, ...) verbatim.
   cmp_kinds = {
     -- lspkind.nvim codicon preset
-    Array = ' ',
-    Boolean = '󰨙 ',
     Class = '',
-    Codeium = '󰘦 ',
     Color = '',
-    Control = ' ',
-    Collapsed = ' ',
     Constant = '',
     Constructor = '',
     Claude = '✻',
@@ -83,24 +78,15 @@ local M = {
     Folder = '󰉋',
     Function = '',
     Interface = '',
-    Key = ' ',
     Keyword = '',
     Method = '',
     Module = '',
-    Namespace = '󰦮 ',
-    Null = ' ',
-    Number = '󰎠 ',
-    Object = ' ',
     Operator = '',
-    Package = ' ',
     Property = '',
     Reference = '',
     Snippet = '',
     Spell = '',
-    String = ' ',
     Struct = '',
-    Supermaven = ' ',
-    TabNine = '󰏚 ',
     Text = '',
     TypeParameter = '',
     Unit = '',
@@ -108,7 +94,6 @@ local M = {
     Variable = '',
 
     History = '',
-    Yanky = '󰨸',
     RenderMD = '',
     Minuet = ' ',
     CodingAgent = '󰚩 ',

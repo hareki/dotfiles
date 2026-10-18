@@ -40,22 +40,19 @@ local running_bufs = {}
 -- Timeout to prevent permanent locks (5 seconds)
 local TIMEOUT_MS = 5000
 
-local function get_formatter_names(buf)
-  local conform = require('conform')
-  local list, uses_lsp = conform.list_formatters_to_run(buf)
-  local names = {}
-
-  for _, f in ipairs(list or {}) do
-    if f and f.name then
-      names[#names + 1] = f.name
-    end
-  end
+--- @param formatters conform.FormatterInfo[]
+--- @param uses_lsp boolean
+--- @return string names
+local function formatter_names(formatters, uses_lsp)
+  local names = vim.tbl_map(function(formatter)
+    return formatter.name
+  end, formatters)
 
   if uses_lsp then
     names[#names + 1] = 'lsp'
   end
 
-  return #names > 0 and table.concat(names, ', ') or 'No formatter found'
+  return table.concat(names, ', ')
 end
 
 --- Run format and lint sequentially on a buffer with progress tracking
@@ -214,7 +211,7 @@ function M.run(opts)
   end
 
   local formatters, uses_lsp = conform.list_formatters_to_run(buf)
-  local should_format = (formatters and #formatters > 0) or uses_lsp
+  local should_format = #formatters > 0 or uses_lsp
 
   if not should_format then
     run_linters(false)
@@ -235,7 +232,7 @@ function M.run(opts)
       local msg = debug and 'Format error: ' .. format_error
         or string.format(
           'Formatter(s) used: `%s` \nSee `:ConformInfo` for more information',
-          get_formatter_names(buf)
+          formatter_names(formatters, uses_lsp)
         )
 
       Notifier.error(msg, {
@@ -285,8 +282,7 @@ function M.run_all(debug)
     if name == '' then
       return '[No Name]'
     end
-    local path_utils = require('utils.path')
-    return path_utils.get_relative_path(name)
+    return vim.fn.fnamemodify(name, ':.')
   end
 
   local function show_results()
@@ -359,7 +355,7 @@ function M.run_all(debug)
     M.run({
       debug = debug,
       buf = buf,
-      on_done = function(ok, _err)
+      on_done = function(ok)
         if ok then
           table.insert(success_paths, display_path)
         else

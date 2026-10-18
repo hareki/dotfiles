@@ -41,7 +41,7 @@
 ### Central Modules (`lua/config/`)
 
 - `init.lua`: assembles the `Conf` global from the `config.*` tables below
-- `size.lua`: popup dimensions (`sm`, `md`, `lg`, `vertical_sm`, `vertical_md`, `full`)
+- `size.lua`: popup dimensions (`sm`, `lg`, `vertical_sm`, `vertical_md`, `full`)
 - `icons.lua`: all icons (diagnostics, git, file status, LSP kinds)
 - `globals.lua`: 6 project globals (`Defer`, `Notifier`, `Conf`, `UI`, `Project`, plus `Snacks` set by snacks.nvim)
 - `completion.lua`: completion tuning constants in `Conf.cmp` (AI item cap/timeout, ripgrep min keyword length)
@@ -54,7 +54,7 @@
   - `layout.popup(size, with_border)`, `color.blend_hex()`, `pill.virt_text()`, `cursorline.set_cursorline()`
   - `integrations/`: `catppuccin(fn)` / `catppuccin.get_palette()`, `which_key(spec)`, `statusline.refresh()`
 - `notifier.lua`: notification wrapper; supports markdown, tuple lists for custom highlight groups
-- `common.lua`: `noautocmd(fn)`, `focus_win(win)`, `is_float_win()`
+- `common.lua`: `noautocmd(fn)`, `focus_win(win)`
 - `lazy-require.lua`: `Defer.on_index()`, `Defer.on_exported_call()`
 
 ### Complex Plugin Structure
@@ -89,5 +89,3 @@ nvim-tree-lua/
 ## Attribution
 
 Inspired by [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim), [LazyVim](https://github.com/LazyVim/LazyVim) and [NvChad](https://github.com/NvChad/NvChad).
-
-The live preview favicon (`assets/live-preview/favicon.svg`) is the Neovim logo by [Jason Long](https://x.com/jasonlong), licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).

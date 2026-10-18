@@ -109,7 +109,7 @@ return {
       },
 
       -- Op-pending 'h' = trimmed current line (first non-blank to last non-blank).
-      -- This makes 'hh' work regardless of typing speed: even if the 150ms timeoutlen
+      -- This makes 'hh' work regardless of typing speed: even if 'timeoutlen'
       -- fires and 'h' (operator) + 'h' (motion) executes, the result is identical.
       -- Uses ':' not <cmd>: op-pending visual text objects require command-mode path.
       {

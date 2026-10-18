@@ -43,7 +43,6 @@ return {
         backdrop = { transparent = false, blend = 0 },
         border = 'rounded',
         title = ' Zen ',
-        title_pos = 'center',
         -- The zen style pins zindex to 40, tying with satellite.nvim's bars over a normal
         -- window (its default; it only bumps to parent + 1 over a float, hence the 51 noted on
         -- styles.float in core/snacks-nvim/init.lua). 50 clears them while staying under

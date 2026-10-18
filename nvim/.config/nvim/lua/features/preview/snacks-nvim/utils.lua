@@ -126,7 +126,7 @@ local function open(source_buf, src)
       if not hover then
         return
       end
-      if hover.win ~= -1 and vim.api.nvim_win_is_valid(hover.win) then
+      if vim.api.nvim_win_is_valid(hover.win) then
         return
       end
 

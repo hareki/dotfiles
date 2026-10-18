@@ -1,5 +1,3 @@
-local last_obj
-
 return {
   'hareki/mini.ai',
   event = 'VeryLazy',
@@ -54,28 +52,10 @@ return {
   end,
   config = function(_, opts)
     local mini_ai = require('mini.ai')
-
-    vim.api.nvim_create_autocmd('User', {
-      group = vim.api.nvim_create_augroup('editing.mini-ai.record-last-object', { clear = true }),
-      pattern = 'MiniAiSelectObject',
-      callback = function(ev)
-        last_obj = ev.data -- "iw", "af", "ag", ...
-      end,
-    })
-
-    vim.keymap.set('x', '.', function()
-      if last_obj then
-        vim.api.nvim_feedkeys(
-          vim.keycode(last_obj), -- translate <Esc>, <CR> …
-          'x',
-          false -- not literally; integrate with typeahead
-        )
-      end
-    end, { desc = 'Repeat Last Text-Object Selection' })
-
-    mini_ai.setup(opts)
-
     local utils = require('features.editing.mini-ai.utils')
+
+    utils.setup_repeat()
+    mini_ai.setup(opts)
     utils.whichkey()
   end,
 }

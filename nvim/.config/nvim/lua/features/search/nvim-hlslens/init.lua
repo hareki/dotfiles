@@ -1,5 +1,5 @@
 return {
-  UI.catppuccin(function(palette, _)
+  UI.catppuccin(function(palette)
     local near_pill_bg = UI.color.blend_hex(palette.base, palette.yellow)
     local far_pill_bg = UI.color.blend_hex(palette.base, palette.overlay1)
 

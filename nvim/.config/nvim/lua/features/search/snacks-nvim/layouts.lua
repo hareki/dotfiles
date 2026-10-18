@@ -12,7 +12,6 @@ local function input_list_box()
     box = 'vertical',
     border = 'rounded',
     title = '{title} {live}',
-    title_pos = 'center',
     { win = 'input', height = 1, border = 'bottom' },
     { win = 'list', border = 'none' },
   }

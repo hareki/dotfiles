@@ -102,6 +102,21 @@ function M.create_styling_wrapper(opts)
   return result
 end
 
+--- Wrap a component module that exports `get` and optionally `color`, `icon` and `cond`
+--- @param component { get: function, color?: string, icon?: string, cond?: function }
+--- @param wrapper_type 'primary-left' | 'primary-right' | 'secondary-left' | 'secondary-right'
+--- @param extra? table Further create_styling_wrapper options (e.g. margin)
+--- @return table[] components
+function M.wrap_component(component, wrapper_type, extra)
+  return M.create_styling_wrapper(vim.tbl_extend('force', {
+    comp = component.get,
+    type = wrapper_type,
+    color = component.color,
+    icon = component.icon,
+    cond = component.cond,
+  }, extra or {}))
+end
+
 --- Flatten a section containing mixed single components and component arrays
 --- @param ... table Components or arrays of components
 --- @return table[] components Flattened array of components

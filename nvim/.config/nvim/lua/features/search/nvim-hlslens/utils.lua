@@ -29,22 +29,17 @@ end
 --- @param index number Index of current match in pos_list
 --- @param relative_index number Relative index from current position (negative = before, positive = after)
 function M.search_text_handler(render, position_list, nearest, index, relative_index)
-  local search_forward = vim.v.searchforward == 1
-  local indicator, text, chunks
   local abs_relative_index = math.abs(relative_index)
+  local text, chunks
 
-  if abs_relative_index > 1 then
-    indicator = string.format(
-      '%d%s',
-      abs_relative_index,
-      search_forward ~= (relative_index > 1) and Conf.icons.navigation.UP
-        or Conf.icons.navigation.DOWN
-    )
-  elseif abs_relative_index == 1 then
-    indicator = search_forward ~= (relative_index == 1) and Conf.icons.navigation.UP
+  local indicator = ''
+  if relative_index ~= 0 then
+    local search_forward = vim.v.searchforward == 1
+    indicator = search_forward ~= (relative_index > 0) and Conf.icons.navigation.UP
       or Conf.icons.navigation.DOWN
-  else
-    indicator = ''
+    if abs_relative_index > 1 then
+      indicator = string.format('%d%s', abs_relative_index, indicator)
+    end
   end
 
   local pos = position_list[index]

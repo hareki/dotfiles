@@ -32,11 +32,11 @@ return {
       lazygit = { enabled = true, configure = false },
 
       styles = {
+        -- Snacks.lazygit opens a Snacks terminal, so the border and zindex come from
+        -- styles.terminal in core/snacks-nvim/init.lua
         lazygit = vim.tbl_extend('force', UI.layout.popup_fn('full'), {
           backdrop = false,
-          border = 'rounded',
           title = ' Git Client ',
-          title_pos = 'center',
         }),
       },
     },

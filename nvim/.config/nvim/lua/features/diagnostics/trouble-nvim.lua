@@ -35,9 +35,8 @@ return {
     },
 
     opts = function()
-      local preview_cols, preview_rows = UI.layout.side_size('side_preview', 'md')
-      local panel_cols, _ = UI.layout.side_size('side_panel', 'md')
-      local preview_width_offset = panel_cols + preview_cols + 3
+      local side_preview = UI.layout.side_preview()
+      local panel_cols = UI.layout.side_size('side_panel', 'md')
 
       local function toggle_focus()
         local preview_manager = require('trouble.view.preview')
@@ -93,11 +92,13 @@ return {
           -- Fractional row: trouble resolves <=1 values against the parent on
           -- every float open, so vertical centering survives terminal resizes
           -- (an absolute row from vim.o.lines would freeze at plugin load).
-          -- The col offset is panel-anchored, so it needs no recomputation
-          position = { 0.5, -preview_width_offset },
+          -- The col offset is panel-anchored, so it needs no recomputation;
+          -- trouble counts a negative col from the panel's right edge, hence
+          -- the shift by the panel width
+          position = { 0.5, side_preview.col - panel_cols },
           size = {
-            width = preview_cols,
-            height = preview_rows,
+            width = side_preview.width,
+            height = side_preview.height,
           },
           zindex = 200,
 

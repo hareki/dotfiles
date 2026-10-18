@@ -4,7 +4,7 @@
 -- screen; the static opts below only cover direct :GrugFar invocations
 local function preview_geometry()
   local preview = UI.layout.side_preview()
-  local panel_cols, _ = UI.layout.side_size('side_panel', 'md')
+  local panel_cols = UI.layout.side_size('side_panel', 'md')
 
   return {
     window_creation_command = panel_cols .. 'vsplit',

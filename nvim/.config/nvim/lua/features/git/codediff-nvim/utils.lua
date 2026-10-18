@@ -98,7 +98,7 @@ end
 --- Synchronous restore_focus into the current window, for the exit path: a scheduled
 --- edit would land after the session has been saved.
 --- @param tabpage integer
-function M.restore_focus_now(tabpage)
+local function restore_focus_now(tabpage)
   local path, view = take_focus_target(tabpage)
   if path then
     open_focus_target(path, view)
@@ -115,7 +115,7 @@ function M.close_tabs()
       -- in codediff. A blank tab would be saved over the cwd session as an empty layout
       if #vim.api.nvim_list_tabpages() == 1 then
         vim.cmd.tabnew()
-        M.restore_focus_now(tab)
+        restore_focus_now(tab)
       end
       -- Without the switch, tabclose would close whichever tabpage is current instead
       if pcall(vim.api.nvim_set_current_tabpage, tab) then

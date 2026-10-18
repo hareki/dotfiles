@@ -88,8 +88,11 @@ return {
           })
         end, 'Code Actions')
 
-        -- Markdown keeps the runtime ftplugin's ]] / [[ section jumps
-        if vim.bo[args.buf].filetype ~= 'markdown' then
+        -- Snacks.words only jumps between references a client highlights, so buffers without
+        -- such a client (markdown, help, python, ...) keep the runtime ftplugin's ]] / [[ section
+        -- jumps; typos_lsp, which highlights nothing, attaches to every one of them
+        local client = vim.lsp.get_client_by_id(args.data.client_id) --[[@as vim.lsp.Client]]
+        if client:supports_method('textDocument/documentHighlight') then
           map('n', ']]', function()
             Snacks.words.jump(vim.v.count1)
           end, 'Next Reference')

@@ -55,12 +55,7 @@ return {
             api.tree.focus()
             tree.toggle_preview()
           end,
-          ['<CR>'] = function()
-            api.node.open.edit()
-            if state.position == 'float' then
-              tree.close_all()
-            end
-          end,
+          ['<CR>'] = tree.create_node_action('toggle'),
         },
 
         win_position = {

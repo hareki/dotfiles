@@ -27,7 +27,6 @@ return {
       },
       terminal = vim.tbl_extend('force', UI.layout.popup_fn('lg'), {
         title = ' Terminal ',
-        title_pos = 'center',
         border = 'rounded',
         -- Above pickers and nvim-tree; pickers only stack over floats below 100
         zindex = 100,

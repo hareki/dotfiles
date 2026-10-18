@@ -92,6 +92,14 @@ function M.cond()
     return mermaid_has_content(buf)
   end
 
+  -- `gi` is a normal-mode key, while every insert/replace keystroke bumps the changedtick and
+  -- would rerun the whole-buffer find() below (~2ms in an 850-line TSX file, ~6ms in a
+  -- 1.6k-line README)
+  local mode = vim.api.nvim_get_mode().mode:sub(1, 1)
+  if mode == 'i' or mode == 'R' then
+    return false
+  end
+
   -- Skip buffers whose language has no snacks `images` query (json, yaml, help, ...):
   -- nothing can match there, so don't pay the treesitter work below.
   local lang = vim.treesitter.language.get_lang(ft)

@@ -25,16 +25,6 @@ return {
         Visual = { bg = color.surface15, style = {} },
         DocumentHighlight = { bg = palette.surface0 },
 
-        DiagnosticUnderlineInfo = { link = 'LspDiagnosticsUnderlineInformation' },
-        DiagnosticUnderlineHint = { link = 'LspDiagnosticsUnderlineHint' },
-        DiagnosticUnderlineWarn = { link = 'LspDiagnosticsUnderlineWarning' },
-        DiagnosticUnderlineError = { link = 'LspDiagnosticsUnderlineError' },
-
-        LspDiagnosticsUnderlineInformation = { sp = palette.sky },
-        LspDiagnosticsUnderlineHint = { sp = palette.teal },
-        LspDiagnosticsUnderlineWarning = { sp = palette.yellow },
-        LspDiagnosticsUnderlineError = { sp = palette.red },
-
         LspReferenceText = { link = 'DocumentHighlight' },
         LspReferenceRead = { link = 'DocumentHighlight' },
         LspReferenceWrite = { link = 'DocumentHighlight' },

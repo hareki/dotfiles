@@ -69,4 +69,13 @@ function M.keymap_transform(item)
   return item
 end
 
+--- Transform function for buffer picker: flag modified buffers for the `modified` sort field
+--- @param item snacks.picker.Item The picker item to transform
+--- @return nil
+function M.buffer_transform(item)
+  -- The matcher sorts from snacks' async loop, a fast event context where vim.bo raises
+  -- E5560, so the sort key comes from the buffers finder's getbufinfo() snapshot
+  item.modified = item.info.changed == 1
+end
+
 return M

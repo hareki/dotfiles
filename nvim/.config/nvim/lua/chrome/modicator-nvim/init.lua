@@ -15,13 +15,9 @@ return {
     event = 'VeryLazy',
     config = function(_, opts)
       local modicator = require('modicator')
-      -- HACK: Modicator's own map matches whole mode() codes only, sending every code it doesn't
-      -- list (ic, Rv, cv, !, r, rm, ...) to NormalMode; resolve through UI.mode so the line
-      -- number matches lualine's mode pill
-      --- @diagnostic disable-next-line: duplicate-set-field
-      modicator.hl_name_from_mode = function(mode)
-        return UI.mode.name(mode) .. 'Mode'
-      end
+      local utils = require('chrome.modicator-nvim.utils')
+
+      utils.patch(modicator)
       modicator.setup(opts)
     end,
   },

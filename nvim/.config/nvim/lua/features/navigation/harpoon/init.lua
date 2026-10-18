@@ -23,58 +23,8 @@ return {
         table.insert(keys, {
           '<leader>H' .. current_index,
           function()
-            local harpoon = require('harpoon')
-            local list = harpoon:list()
-
-            -- Item values are already relative to the cwd (absolute outside of it)
-            local new_item = list.config.create_list_item(list.config)
-            local old_item = list:get(current_index)
-
-            if old_item and old_item.value == new_item.value then
-              Notifier.warn({
-                { new_item.value, 'NotifyWARNTitle' },
-                { '\nis already in slot ', 'Normal' },
-                { tostring(current_index), 'NotifyWARNTitle' },
-              }, { title = 'Pin' })
-
-              return
-            end
-
-            -- Check if new_item already exists at another index (the early
-            -- return above rules out current_index)
-            local _, old_index = list:get_by_value(new_item.value)
-
-            -- Replace the item at slot i with new_item. If new_item exists in another slot, it is removed from that slot first.
-            list:replace_at(current_index, new_item)
-
-            if old_index then
-              Notifier.warn({
-                { 'Moved ', 'Normal' },
-                { new_item.value, 'NotifyWARNTitle' },
-                { '\nfrom slot ', 'Normal' },
-                { tostring(old_index), 'NotifyWARNTitle' },
-                { ' to ', 'Normal' },
-                { tostring(current_index), 'NotifyWARNTitle' },
-              }, { title = 'Pin' })
-            elseif old_item then
-              -- The early return above rules out the same item
-              Notifier.warn({
-                { 'Replaced ', 'Normal' },
-                { old_item.value, 'NotifyWARNTitle' },
-                { '\nwith ', 'Normal' },
-                { new_item.value, 'NotifyWARNTitle' },
-                { '\nfor slot ', 'Normal' },
-                { tostring(current_index), 'NotifyWARNTitle' },
-              }, { title = 'Pin' })
-            else
-              -- Slot was empty, new file added
-              Notifier.info({
-                { 'Added ', 'Normal' },
-                { new_item.value, 'NotifyINFOTitle' },
-                { '\ninto slot ', 'Normal' },
-                { tostring(current_index), 'NotifyINFOTitle' },
-              }, { title = 'Pin' })
-            end
+            local harpoon_utils = require('features.navigation.harpoon.utils')
+            harpoon_utils.pin(current_index)
           end,
           desc = 'Pin File to Slot ' .. current_index,
         })

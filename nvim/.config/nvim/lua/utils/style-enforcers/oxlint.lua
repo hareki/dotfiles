@@ -30,11 +30,7 @@ function M.run(opts)
   }
 
   opts.client:request('workspace/executeCommand', params, function(err)
-    if err then
-      return opts.on_done(false, err.message)
-    end
-
-    opts.on_done(true)
+    opts.on_done(not err, err and err.message)
   end, bufnr)
 end
 

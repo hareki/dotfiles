@@ -41,6 +41,12 @@ end
 --- in `core/lsp/snacks-nvim.lua`) and would otherwise wait for the next cursor move.
 --- @return nil
 function M.nohlsearch()
+  -- :nohlsearch redraws every window even when highlighting is already off, and the global
+  -- <Esc> calls this on every press
+  if vim.v.hlsearch == 0 then
+    return
+  end
+
   -- With no search highlighted nothing was hidden, and update() would only clear
   -- and re-request reference highlights that are already current
   local was_highlighted = M.search_highlighted()

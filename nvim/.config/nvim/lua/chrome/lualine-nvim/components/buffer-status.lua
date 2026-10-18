@@ -1,5 +1,4 @@
-local lualine_require = require('lualine_require')
-local component = lualine_require.require('lualine.component')
+local component = require('lualine.component')
 local unmerged_icon = Conf.icons.git.UNMERGED .. ' '
 
 --- @class chrome.lualine.components.buffer-status : lualine.component

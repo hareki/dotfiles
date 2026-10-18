@@ -30,10 +30,6 @@ end
 --- @return string
 local function get_angular_core_version(root_dir)
   local package_json = fs.joinpath(root_dir, 'package.json')
-  if not uv.fs_stat(package_json) then
-    return ''
-  end
-
   local ok, content = pcall(fn.readblob, package_json)
   if not ok or not content then
     return ''

@@ -30,7 +30,7 @@ local manager = Defer.on_index('nvim-tree-preview.manager')
 --- Returns 'lg' when float mode has the preview visible (wider popup for readable
 --- preview code), otherwise 'vertical_sm' (narrower default).
 --- @return 'lg' | 'vertical_sm'
-function M.compute_size()
+local function compute_size()
   if M.state.position == 'float' and M.state.preview_on_focus then
     return 'lg'
   end
@@ -120,7 +120,7 @@ end
 --- @return utils.ui.layout.WinConfig tree
 --- @return integer preview_height Height of the preview below the collapsed tree
 function M.float_geometry(action)
-  local size = UI.layout.popup(M.compute_size())
+  local size = UI.layout.popup(compute_size())
   -- Minus 1 for the space between the two windows
   local collapsed_height = math.floor(size.height / 2) - 1
   -- What the collapsed tree leaves, minus the 2 border rows between the windows
@@ -193,7 +193,7 @@ function M.toggle_preview(force_state)
     next_open = force_state
   end
 
-  -- Flip the preview flag BEFORE resizing so M.compute_size() reflects the
+  -- Flip the preview flag BEFORE resizing so compute_size() reflects the
   -- target state and toggle_tree_height applies the correct size preset.
   M.state.preview_on_focus = next_open
   M.toggle_tree_height(next_open and 'collapse' or 'expand')

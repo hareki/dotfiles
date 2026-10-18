@@ -46,9 +46,9 @@ end
 --- main loop and may safely touch vim APIs and module state.
 --- @param cmd string The git command to execute (without 'git' prefix)
 --- @param cwd string | nil The directory to run the command in (default: current)
---- @param cb fun(output: string | nil) Receives trimmed stdout, or nil on error
+--- @param cb fun(output: string | nil) Receives trimmed stdout, or nil on error or empty output
 --- @return nil
-function M.exec_cmd_async(cmd, cwd, cb)
+local function exec_cmd_async(cmd, cwd, cb)
   local args = vim.split(cmd, '%s+')
   local git_cmd = { 'git' }
 
@@ -60,11 +60,8 @@ function M.exec_cmd_async(cmd, cwd, cb)
 
   vim.system(git_cmd, { text = true }, function(result)
     vim.schedule(function()
-      if result.code == 0 and result.stdout and result.stdout ~= '' then
-        cb(vim.trim(result.stdout))
-      else
-        cb(nil)
-      end
+      local output = result.code == 0 and vim.trim(result.stdout or '') or ''
+      cb(output ~= '' and output or nil)
     end)
   end)
 end
@@ -74,7 +71,7 @@ end
 --- @param url string | nil The remote URL
 --- @return string | nil name The repository name, or nil if not extractable
 local function repo_name_from_url(url)
-  if not url or url == '' then
+  if not url then
     return nil
   end
 
@@ -88,7 +85,7 @@ end
 --- Returns the last component of the path (directory/file name).
 --- @param path string The filesystem path
 --- @return string | nil name The last path component, or nil if invalid
-function M.get_repo_name_from_path(path)
+local function get_repo_name_from_path(path)
   return path:match('([^/\\]+)$')
 end
 
@@ -125,7 +122,7 @@ local function resolve_repo_name(cwd)
     UI.statusline.refresh()
   end
 
-  M.exec_cmd_async('rev-parse --show-toplevel', nil, function(toplevel)
+  exec_cmd_async('rev-parse --show-toplevel', nil, function(toplevel)
     if superseded() then
       return
     end
@@ -141,7 +138,7 @@ local function resolve_repo_name(cwd)
     end
 
     -- Step 1: Attempt to get the repository name from the remote URL
-    M.exec_cmd_async('config --get remote.origin.url', nil, function(url)
+    exec_cmd_async('config --get remote.origin.url', nil, function(url)
       if superseded() then
         return
       end
@@ -154,34 +151,25 @@ local function resolve_repo_name(cwd)
 
       -- Step 3 (shared fallback): repo name from the toplevel or cwd basename
       local function finish_from_path()
-        if toplevel and toplevel ~= '' then
-          local toplevel_repo_name = M.get_repo_name_from_path(toplevel)
-          if toplevel_repo_name then
-            finish(toplevel_repo_name, toplevel)
-            return
-          end
-        end
-
-        finish(M.get_repo_name_from_path(cwd) or 'Unknown', toplevel)
+        local name = toplevel and get_repo_name_from_path(toplevel) or get_repo_name_from_path(cwd)
+        finish(name or 'Unknown', toplevel)
       end
 
       -- Step 2: Determine if the parent of the top-level directory is a bare
       -- repository (worktree checkouts named after the bare repo's directory)
-      local parent_dir = toplevel
-        and toplevel ~= ''
-        and (toplevel:match('(.+)/[^/\\]+$') or toplevel:match('(.+)\\[^\\]+$'))
-      if not parent_dir or parent_dir == '' then
+      local parent_dir = toplevel and toplevel:match('(.+)/[^/]+$')
+      if not parent_dir then
         finish_from_path()
         return
       end
 
-      M.exec_cmd_async('rev-parse --is-bare-repository', parent_dir, function(is_bare)
+      exec_cmd_async('rev-parse --is-bare-repository', parent_dir, function(is_bare)
         if superseded() then
           return
         end
 
         if is_bare == 'true' then
-          local parent_repo_name = M.get_repo_name_from_path(parent_dir)
+          local parent_repo_name = get_repo_name_from_path(parent_dir)
           if parent_repo_name then
             finish(parent_repo_name, toplevel)
             return
@@ -207,7 +195,7 @@ function M.get_repo_name()
     return repo_cache.name
   end
 
-  local placeholder = repo_cache.name or M.get_repo_name_from_path(current_cwd or '')
+  local placeholder = repo_cache.name or get_repo_name_from_path(current_cwd or '')
 
   -- cwd can be nil (e.g. the directory was deleted); nothing to resolve then
   if not current_cwd then

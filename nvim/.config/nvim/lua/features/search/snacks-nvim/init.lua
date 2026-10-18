@@ -16,7 +16,6 @@ local tab_component = require('chrome.lualine-nvim.components.tab')
 
 local transformers = Defer.on_exported_call('features.search.snacks-nvim.utils.transformers')
 local formatters = Defer.on_exported_call('features.search.snacks-nvim.utils.formatters')
-local sorters = Defer.on_exported_call('features.search.snacks-nvim.utils.sorters')
 local finders = Defer.on_exported_call('features.search.snacks-nvim.utils.finders')
 local actions = Defer.on_exported_call('features.search.snacks-nvim.actions')
 
@@ -168,8 +167,10 @@ return {
         sources = {
           buffers = {
             format = formatters.buffer_format,
+            transform = transformers.buffer_transform,
             matcher = { sort_empty = true }, -- Required for sort to work with empty search
-            sort = sorters.buffer_sort,
+            -- Modified buffers first, then snacks' default order (score, text length, index)
+            sort = { fields = { 'modified', 'score:desc', '#text', 'idx' } },
             win = {
               input = {
                 keys = {

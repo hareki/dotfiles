@@ -44,11 +44,10 @@ end
 
 --- Flatten a tuple-list and build an on_open that restores highlights.
 --- @param chunks table  list of strings *or* {text, hl} tuples
---- @param opts   table? { default_hl?: string }
+--- @param opts   table { default_hl?: string }
 --- @return string plain     flattened text for vim.notify
 --- @return function on_open callback that reapplies extmarks
 local function normalize_message(chunks, opts)
-  opts = opts or {}
   local default_hl = opts.default_hl or 'Normal'
 
   local parts, regions = {}, {}
@@ -220,7 +219,7 @@ end
 --- @param ... any Values to inspect and display
 --- @return nil
 function M.inspect(...)
-  local parts = {}
+  local msg = ''
   if select('#', ...) > 0 then
     -- Explicit branch: `cond and ... or { ... }` would misroute a falsy single arg
     local obj
@@ -229,11 +228,8 @@ function M.inspect(...)
     else
       obj = { ... }
     end
-    parts[1] = '```lua\n'
-    parts[2] = vim.inspect(obj)
-    parts[3] = '\n```'
+    msg = string.format('```lua\n%s\n```', vim.inspect(obj))
   end
-  local msg = table.concat(parts)
   M.warn(msg, { title = 'Debug ' .. Conf.icons.tools.DEBUG, height_offset = -1 })
 end
 

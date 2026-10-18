@@ -1,6 +1,37 @@
 --- @class features.editing.mini-ai.utils
 local M = {}
 
+--- @class features.editing.mini-ai.utils.State
+--- @field last_obj string? Keys of the last selected text object
+
+--- @type features.editing.mini-ai.utils.State
+M.state = {
+  last_obj = nil,
+}
+
+--- Record every text object mini.ai selects, and map visual `.` to select the last one again
+--- @return nil
+function M.setup_repeat()
+  vim.api.nvim_create_autocmd('User', {
+    group = vim.api.nvim_create_augroup('editing.mini-ai.record-last-object', { clear = true }),
+    pattern = 'MiniAiSelectObject',
+    callback = function(ev)
+      M.state.last_obj = ev.data -- "iw", "af", "ag", ...
+    end,
+  })
+
+  vim.keymap.set('x', '.', function()
+    local last_obj = M.state.last_obj
+    if last_obj then
+      vim.api.nvim_feedkeys(
+        vim.keycode(last_obj), -- translate <Esc>, <CR> …
+        'x',
+        false -- not literally; integrate with typeahead
+      )
+    end
+  end, { desc = 'Repeat Last Text-Object Selection' })
+end
+
 --- Generate textobject spec for the entire buffer
 --- From MiniExtra.gen_ai_spec.buffer - handles 'i' (inner) and 'a' (around) types.
 --- @param ai_type 'a' | 'i' The textobject type ('a' includes blanks, 'i' excludes them)

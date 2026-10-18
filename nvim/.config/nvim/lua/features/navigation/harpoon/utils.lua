@@ -1,6 +1,64 @@
 --- @class features.navigation.harpoon.utils
 local M = {}
 
+--- Pin the current file to a slot, moving it out of any other slot it held
+--- @param index integer Slot number
+--- @return nil
+function M.pin(index)
+  local harpoon = require('harpoon')
+  local list = harpoon:list()
+
+  -- Item values are already relative to the cwd (absolute outside of it)
+  local new_item = list.config.create_list_item(list.config)
+  local old_item = list:get(index)
+
+  if old_item and old_item.value == new_item.value then
+    Notifier.warn({
+      { new_item.value, 'NotifyWARNTitle' },
+      { '\nis already in slot ', 'Normal' },
+      { tostring(index), 'NotifyWARNTitle' },
+    }, { title = 'Pin' })
+
+    return
+  end
+
+  -- Check if new_item already exists at another index (the early
+  -- return above rules out `index`)
+  local _, old_index = list:get_by_value(new_item.value)
+
+  -- Replace the item at slot i with new_item. If new_item exists in another slot, it is removed from that slot first.
+  list:replace_at(index, new_item)
+
+  if old_index then
+    Notifier.warn({
+      { 'Moved ', 'Normal' },
+      { new_item.value, 'NotifyWARNTitle' },
+      { '\nfrom slot ', 'Normal' },
+      { tostring(old_index), 'NotifyWARNTitle' },
+      { ' to ', 'Normal' },
+      { tostring(index), 'NotifyWARNTitle' },
+    }, { title = 'Pin' })
+  elseif old_item then
+    -- The early return above rules out the same item
+    Notifier.warn({
+      { 'Replaced ', 'Normal' },
+      { old_item.value, 'NotifyWARNTitle' },
+      { '\nwith ', 'Normal' },
+      { new_item.value, 'NotifyWARNTitle' },
+      { '\nfor slot ', 'Normal' },
+      { tostring(index), 'NotifyWARNTitle' },
+    }, { title = 'Pin' })
+  else
+    -- Slot was empty, new file added
+    Notifier.info({
+      { 'Added ', 'Normal' },
+      { new_item.value, 'NotifyINFOTitle' },
+      { '\ninto slot ', 'Normal' },
+      { tostring(index), 'NotifyINFOTitle' },
+    }, { title = 'Pin' })
+  end
+end
+
 --- Show the harpoon picker with items from the harpoon list
 --- @return snacks.Picker | nil picker The picker instance, or nil if list is empty
 M.show_picker = function()
@@ -20,23 +78,22 @@ M.show_picker = function()
         -- file-pattern, so paths with magic chars (e.g. "app/[slug]/page.tsx")
         -- can pattern-match an unrelated buffer
         local abs = vim.fn.fnamemodify(filepath, ':p')
-        local bufnr = -1
+        local buf
         for _, b in ipairs(vim.api.nvim_list_bufs()) do
           if vim.api.nvim_buf_get_name(b) == abs then
-            bufnr = b
+            buf = b
             break
           end
         end
-        local valid_buf = bufnr ~= -1 and vim.api.nvim_buf_is_valid(bufnr)
 
         items[#items + 1] = {
           harpoon_idx = harpoon_idx,
           idx = harpoon_idx,
           file = filepath,
-          buf = valid_buf and bufnr or nil,
+          buf = buf,
           name = vim.fs.basename(filepath),
-          buftype = valid_buf and vim.bo[bufnr].buftype or '',
-          filetype = valid_buf and vim.bo[bufnr].filetype or '',
+          buftype = buf and vim.bo[buf].buftype or '',
+          filetype = buf and vim.bo[buf].filetype or '',
           -- Index prefix is built here, not in a transform: snacks re-runs
           -- transforms over these same item tables on every find(), so a
           -- mutating transform would re-prefix the text each time

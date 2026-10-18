@@ -50,6 +50,7 @@ return {
 
     local lualine_utils = require('chrome.lualine-nvim.utils')
     local create_wrapper = lualine_utils.create_styling_wrapper
+    local wrap = lualine_utils.wrap_component
     local flatten = lualine_utils.flatten_section
     local separator = lualine_utils.separator
 
@@ -88,13 +89,7 @@ return {
             color = mode.color,
           },
 
-          create_wrapper({
-            comp = harpoon.get,
-            type = 'primary-left',
-            color = harpoon.color,
-            icon = harpoon.icon,
-            cond = harpoon.cond,
-          }),
+          wrap(harpoon, 'primary-left'),
 
           create_wrapper({
             comp = 'diff',
@@ -110,13 +105,7 @@ return {
             fmt = branch.format,
           }),
 
-          create_wrapper({
-            comp = macro.get,
-            type = 'secondary-left',
-            color = macro.color,
-            icon = macro.icon,
-            cond = macro.cond,
-          }),
+          wrap(macro, 'secondary-left'),
 
           create_wrapper({
             comp = buffer_status,
@@ -130,19 +119,8 @@ return {
         lualine_y = {},
 
         lualine_z = flatten(
-          create_wrapper({
-            comp = snacks_image.get,
-            type = 'secondary-right',
-            color = snacks_image.color,
-            cond = snacks_image.cond,
-          }),
-
-          create_wrapper({
-            comp = live_preview.get,
-            type = 'secondary-right',
-            color = live_preview.color,
-            icon = live_preview.icon,
-          }),
+          wrap(snacks_image, 'secondary-right'),
+          wrap(live_preview, 'secondary-right'),
 
           create_wrapper({
             comp = 'diagnostics',
@@ -152,21 +130,8 @@ return {
             sources = diagnostics.sources,
           }),
 
-          create_wrapper({
-            comp = tab.get,
-            type = 'primary-right',
-            color = tab.color,
-            icon = tab.icon,
-            cond = tab.cond,
-          }),
-
-          create_wrapper({
-            comp = repo_name.get,
-            type = 'primary-right',
-            color = repo_name.color,
-            icon = repo_name.icon,
-            margin = { left = 0, right = 0 },
-          })
+          wrap(tab, 'primary-right'),
+          wrap(repo_name, 'primary-right', { margin = { left = 0, right = 0 } })
         ),
       },
     }

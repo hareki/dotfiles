@@ -52,8 +52,6 @@ return {
     },
 
     opts = function()
-      local size = UI.layout.popup_fn('full')
-
       return {
         focus_after_send = true,
         -- Claude wraps its OSC 52 clipboard write in tmux's DCS passthrough whenever $TMUX is
@@ -63,14 +61,10 @@ return {
         terminal = {
           --- @module "snacks"
           --- @type snacks.win.Config | {}
-          snacks_win_opts = {
+          snacks_win_opts = vim.tbl_extend('force', UI.layout.popup_fn('full'), {
             title = ' Coding Agent ',
             position = 'float',
-            width = size.width,
-            height = size.height,
-            col = size.col,
-            row = size.row,
-          },
+          }),
         },
       }
     end,

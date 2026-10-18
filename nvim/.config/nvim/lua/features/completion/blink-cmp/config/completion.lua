@@ -5,16 +5,7 @@ M.default = {
   accept = { auto_brackets = { enabled = false } },
   -- https://github.com/saghen/blink.cmp/blob/main/doc/configuration/reference.md#completion-trigger
   trigger = {
-    prefetch_on_insert = false,
-    show_in_snippet = true,
-    show_on_keyword = true,
-    show_on_trigger_character = true,
-    show_on_accept_on_trigger_character = true,
-    show_on_insert_on_trigger_character = true,
-    show_on_backspace = false,
-    show_on_backspace_in_keyword = false,
     show_on_backspace_after_insert_enter = false,
-    show_on_insert = false,
   },
   list = {
     selection = {
@@ -31,10 +22,6 @@ M.default = {
     max_height = 15,
     draw = {
       padding = { 1, 0 }, -- For some reason it already has 1 padding on the right
-      columns = {
-        { 'kind_icon' },
-        { 'label', 'label_description', gap = 1 },
-      },
       components = {
         label = {
           width = { fill = false, max = 20 },

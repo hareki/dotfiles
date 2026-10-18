@@ -25,7 +25,7 @@ return {
       end
 
       -- Merge in the base scalar config. The list fields (spec, icons.rules) are appended
-      -- separately below, since tbl_deep_extend index-merges arrays instead of concatenating.
+      -- separately below, since tbl_deep_extend replaces arrays instead of concatenating.
       opts = vim.tbl_deep_extend('force', opts, {
         preset = 'modern',
         delay = function(ctx)
