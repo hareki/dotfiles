@@ -71,7 +71,7 @@ Plugins are declared in `.zplugins` and managed by **Antidote**. Antidote static
 ```bash
 profile               # Profile zsh startup time (zsh -i -c exit, so without the first prompt's precmd or the deferred plugins)
 sync-dots zsh         # Deploy zsh config via stow
-sync-forks [-j <n>]   # Merge upstream into every hareki fork's default branch, n forks at a time (default 10), report conflicts, then fast-forward each fork's clone in $REPOS_DIR from origin
+sync-forks [-j <n>]   # Merge upstream into every hareki fork's default branch, n forks at a time (default 10), then fast-forward each fork's clone in $REPOS_DIR from origin, or start a conflicting merge in the clone (unless --no-local-merge)
 yay                   # Update all package managers (brew, antidote, mise, tpm)
 build <target>        # Build a local tool from source into ~/.local/opt/bin (atuin, eza, fzf, lazygit, television, worktrunk; tmux goes to /usr/local)
 cts                   # Toggle git skip-worktree on claude-code settings.json (model/effort churn)

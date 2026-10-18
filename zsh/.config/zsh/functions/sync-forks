@@ -1,24 +1,27 @@
 #!/bin/zsh
 
 # Stand-in for the wei/pull GitHub app: merges upstream into each fork's default
-# branch through the API behind GitHub's "Sync fork" button. A conflicting merge
-# leaves the fork untouched, so those are only reported. The fork's clone under
-# $REPOS_DIR, if any, is then fast-forwarded from origin, so it has the merge too
+# branch through the API behind GitHub's "Sync fork" button. The fork's clone under
+# $REPOS_DIR, if any, is then fast-forwarded from origin, so it has the merge too.
+# A conflicting merge leaves the fork untouched, so unless --no-local-merge it is
+# started in the clone instead, with its conflicts ready to resolve and push
 sync-forks() {
   local owner=hareki
   # Fork names (not upstream ones) whose drift is accepted, so they are skipped instead of synced
   local -a ignored=(eagle.nvim mason-registry maple-font)
-  local -a opt_jobs=(-j 10) opt_help forks merged conflicted failed unpulled move
-  local jobs list name branch upstream result state detail msg fifo slots dir ref tracking pulled
+  local -a opt_jobs=(-j 10) opt_help opt_no_local_merge forks report parts synced conflicted failed unpulled move summary
+  local -A counts
+  local jobs list name branch upstream result state detail msg fifo slots dir ref tracking line entry sep=$'\x1f'
 
-  zparseopts -D -F -K -- j:=opt_jobs -jobs:=opt_jobs -help=opt_help || return 1
+  zparseopts -D -F -K -- j:=opt_jobs -jobs:=opt_jobs -no-local-merge=opt_no_local_merge -help=opt_help || return 1
   # zparseopts keeps the "=" of --jobs=N
   jobs=${opt_jobs[-1]#=}
   # Leftover arguments are rejected: `sync-forks <fork>` would otherwise sync every fork
   if (( $#opt_help || $# )) || [[ $jobs != <1-> ]]; then
-    print "Usage: sync-forks [-j|--jobs <n>]"
+    print "Usage: sync-forks [-j|--jobs <n>] [--no-local-merge]"
     print "Merge upstream into every fork of $owner, <n> forks at a time (default 10),"
-    print "then fast-forward each fork's clone in ${(D)REPOS_DIR} from origin"
+    print "then fast-forward each fork's clone in ${(D)REPOS_DIR} from origin, or start"
+    print "a conflicting merge in the clone instead (unless --no-local-merge)"
     return $(( ! $#opt_help ))
   fi
 
@@ -50,7 +53,7 @@ sync-forks() {
 
     for name branch upstream in "${forks[@]}"; do
       if (( $ignored[(Ie)$name] )); then
-        print -r -- $name ignored
+        print -r -- $name${sep}ignored
         continue
       fi
 
@@ -60,10 +63,10 @@ sync-forks() {
         # On errors gh prints the raw body without a trailing newline, so its own
         # "gh: <message> (HTTP <code>)" line ends up glued to the end of it
         case $?,$result in
-          0,none)         merged=($name none) ;;
-          0,*)            merged=($name synced "$upstream:$branch ($result)") ;;
-          *'(HTTP 409)'*) merged=($name conflict $upstream:$branch) ;;
-          *)              merged=($name failed ${${result##*gh: }%%$'\n'*}) ;;
+          0,none)         report=($name none '') ;;
+          0,*)            report=($name synced "$upstream:$branch ($result)") ;;
+          *'(HTTP 409)'*) report=($name conflict $upstream:$branch) ;;
+          *)              report=($name failed "${${result##*gh: }%%$'\n'*}") ;;
         esac
 
         # Only a clone of this very fork is pulled (not a same-named repo cloned from
@@ -72,60 +75,107 @@ sync-forks() {
         if [[ -n $branch && $(git -C $dir remote get-url origin 2>/dev/null) == *[:/]$owner/$name(|.git) ]] \
           && git -C $dir show-ref -q --verify $ref; then
           if ! result=$(git -C $dir fetch -q origin $branch 2>&1); then
-            pulled="$name unpulled ${result%%$'\n'*}"
+            report+=(unpulled "${result%%$'\n'*}")
           # Nothing to pull: level with origin, or only ahead of it with unpushed commits
           elif git -C $dir merge-base --is-ancestor $tracking $ref; then
             :
           elif ! git -C $dir merge-base --is-ancestor $ref $tracking; then
-            pulled="$name unpulled diverged from origin/$branch"
+            report+=(unpulled "diverged from origin/$branch")
           # Not checked out here, so only the ref has to move. Git refuses that while
           # another worktree has the branch checked out or is rebasing it
           elif [[ $(git -C $dir symbolic-ref -q HEAD) != $ref ]]; then
             move=(fetch -q . $tracking:$ref)
           elif [[ -n $(git -C $dir status --porcelain -uno) ]]; then
-            pulled="$name unpulled local changes"
+            report+=(unpulled "local changes")
           else
             move=(merge -q --ff-only $tracking)
           fi
           if (( $#move )); then
             if result=$(git -C $dir $move 2>&1); then
-              pulled="$name pulled $branch in ${(D)dir}"
+              report+=(pulled "$branch in ${(D)dir}")
             else
-              pulled="$name unpulled ${result%%$'\n'*}"
+              report+=(unpulled "${result%%$'\n'*}")
+            fi
+          fi
+
+          # The merge GitHub refused is started on the clone's up-to-date branch, so
+          # its conflicts are ready to resolve there
+          if [[ $report[2] == conflict ]] && (( ! $#opt_no_local_merge && ! $report[(Ie)unpulled] )); then
+            if [[ $(git -C $dir symbolic-ref -q HEAD) != $ref ]]; then
+              report+=(unmerged "$branch not checked out")
+            # Most likely started by an earlier run, and not concluded yet
+            elif git -C $dir rev-parse -q --verify MERGE_HEAD >/dev/null; then
+              report+=(merging ${(D)dir})
+            elif [[ -n $(git -C $dir status --porcelain -uno) ]]; then
+              report+=(unmerged "local changes")
+            elif ! result=$(git -C $dir fetch -q https://github.com/$upstream.git $branch 2>&1); then
+              report+=(unmerged "${result%%$'\n'*}")
+            # An earlier run's merge, concluded but not pushed yet
+            elif git -C $dir merge-base --is-ancestor FETCH_HEAD $ref; then
+              report+=(unpushed ${(D)dir})
+            else
+              # --no-commit, so a merge git completes on its own still stops for a
+              # review, the same as a conflicting one
+              result=$(git -C $dir merge -q --no-commit FETCH_HEAD 2>&1)
+              if git -C $dir rev-parse -q --verify MERGE_HEAD >/dev/null; then
+                report+=(merging ${(D)dir})
+              else
+                report+=(unmerged "${result%%$'\n'*}")
+              fi
             fi
           fi
         fi
-        # A single print, so another fork's report can't land between these two lines
-        print -rl -- "$merged" $pulled
+        # A single print, so another fork's report can't land in the middle of this
+        # one. Details hold spaces and may be empty, hence the $sep between fields
+        print -r -- ${(pj:$sep:)report}
         print -u $slots
       } &
     done
     wait
-  } | while read -r name state detail; do
-    # The syncs run in subshells, so they report as lines (one for the merge, one
-    # more if the clone was pulled or failed to) and the tallying happens here, since
-    # zsh runs a pipeline's last command in the current shell
-    case $state in
-      ignored)  msg="%F{yellow}ignored%f" ;;
-      none)     msg="up to date" ;;
-      synced)   msg="%F{green}synced%f with" ;;
-      conflict) msg="%F{red}merge conflict%f with"; conflicted+=($name) ;;
-      pulled)   msg="%F{green}pulled%f" ;;
-      unpulled) msg="%F{red}not pulled%f,"; unpulled+=("${(D)REPOS_DIR}/$name: $detail") ;;
-      *)        msg="%F{red}failed%f,"; failed+=("$name: $detail") ;;
+  } | while IFS= read -r line; do
+    # The syncs run in subshells, so they report as lines (the fork's name, then the
+    # state and detail of the merge and of whatever happened to the clone) and the
+    # tallying happens here, since zsh runs a pipeline's last command in the current shell
+    report=("${(@ps:$sep:)line}") parts=()
+    name=$report[1]
+    for state detail in "${(@)report[2,-1]}"; do
+      (( ++counts[$state] ))
+      case $state in
+        ignored)  msg="%F{yellow}ignored%f" ;;
+        none)     msg="up to date" ;;
+        synced)   msg="%F{green}synced%f with" ;;
+        conflict) msg="%F{red}merge conflict%f with" ;;
+        pulled)   msg="%F{green}pulled%f" ;;
+        unpulled) msg="%F{red}not pulled%f,"; unpulled+=("${(D)REPOS_DIR}/$name: $detail") ;;
+        merging)  msg="%F{yellow}merging%f in" ;;
+        unpushed) msg="%F{yellow}unpushed merge%f in" ;;
+        unmerged) msg="%F{red}not merged%f," ;;
+        *)        msg="%F{red}failed%f,"; failed+=("$name: $detail") ;;
+      esac
+      # Only the fixed text goes through prompt expansion: $detail carries branch names
+      # and API messages, and PROMPT_SUBST would run any $(...) in them
+      parts+=("${(%)msg}${detail:+ $detail}")
+    done
+    # Synced and conflicting forks are listed again at the end, along with what
+    # happened to their clone, which is where a merge started there is resolved
+    entry="https://github.com/$owner/$name${parts[2]:+: ${(j:, :)parts[2,-1]}}"
+    case $report[2] in
+      synced)   synced+=($entry) ;;
+      conflict) conflicted+=($entry) ;;
     esac
-    msg="%F{blue}$name%f: $msg"
-    # Only the fixed text goes through prompt expansion: $detail carries branch names
-    # and API messages, and PROMPT_SUBST would run any $(...) in them. An empty
-    # $detail drops out as an argument, so no trailing space
-    print -r -- ${(%)msg} $detail
+    msg="%F{blue}$name%f:"
+    print -r -- ${(%)msg} ${(j:, :)parts}
   done
   (( pipestatus[1] )) && return 1
 
+  if (( $#synced )); then
+    print -P "\n%F{green}==> Synced with upstream:%f"
+    print -rl -- "  "$^synced
+  fi
   {
     if (( $#conflicted )); then
       print -P "\n%F{red}==> Merge conflicts, resolve them or add the fork to the ignore list:%f"
-      print -l "  https://github.com/$owner/"$^conflicted
+      print -rl -- "  "$^conflicted
     fi
     if (( $#failed )); then
       print -P "\n%F{red}==> Failed to sync:%f"
@@ -136,5 +186,20 @@ sync-forks() {
       print -rl -- "  "$^unpulled
     fi
   } >&2
+
+  for state msg in \
+    synced   "%F{green}synced%f" \
+    none     "up to date" \
+    ignored  "%F{yellow}ignored%f" \
+    conflict "%F{red}conflicting%f" \
+    failed   "%F{red}failed%f" \
+    pulled   "%F{green}pulled%f" \
+    unpulled "%F{red}not pulled%f" \
+    merging  "%F{yellow}merging%f" \
+    unpushed "%F{yellow}unpushed%f" \
+    unmerged "%F{red}not merged%f"; do
+    (( counts[$state] )) && summary+=("$counts[$state] $msg")
+  done
+  (( $#summary )) && print -P "\n%F{blue}==>%f ${(j:, :)summary}"
   (( ! $#conflicted && ! $#failed && ! $#unpulled ))
 }

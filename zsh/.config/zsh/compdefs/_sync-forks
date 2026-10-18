@@ -2,4 +2,5 @@
 
 _arguments \
   '(-j --jobs)'{-j+,--jobs=}'[Sync <n> forks at a time (default 10)]:number of jobs' \
+  "--no-local-merge[Don't start a conflicting fork's merge in its clone]" \
   '(- *)--help[Show usage info]'
