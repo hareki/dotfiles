@@ -217,6 +217,7 @@ return {
 
           float = {
             enable = state.position == 'float',
+            quit_on_focus_loss = false,
             open_win_config = function()
               return vim.tbl_extend('force', tree.float_geometry('collapse'), {
                 title = string.format(' %s ', ui_name),
