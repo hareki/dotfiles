@@ -371,6 +371,8 @@ return {
             title = ' Terminal ',
             title_pos = 'center',
             border = 'rounded',
+            -- Above pickers and nvim-tree; pickers only stack over floats below 100
+            zindex = 100,
           }),
           lazygit = vim.tbl_extend('force', popup_fn('full'), {
             backdrop = false,
