@@ -24,7 +24,6 @@ export FZF_DEFAULT_OPTS=" \
 --margin=0,1 \
 --bind page-up:preview-half-page-up \
 --bind page-down:preview-half-page-down \
---bind esc:abort \
 --multi"
 
 # Zoxide specific options

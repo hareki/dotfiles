@@ -9,9 +9,26 @@ sync-forks() {
   local owner=hareki
   # Fork names (not upstream ones) whose drift is accepted, so they are skipped instead of synced
   local -a ignored=(eagle.nvim mason-registry maple-font)
+  # Every state a sync can report, in the closing tally's order: how a fork's line
+  # puts it (ahead of the detail), then how the tally does
+  local -a states=(
+    synced   '%F{green}synced%f with'        '%F{green}synced%f'
+    none     'up to date'                    'up to date'
+    ignored  '%F{yellow}ignored%f'           '%F{yellow}ignored%f'
+    conflict '%F{red}merge conflict%f with'  '%F{red}conflicting%f'
+    failed   '%F{red}failed%f,'              '%F{red}failed%f'
+    pulled   '%F{green}pulled%f'             '%F{green}pulled%f'
+    unpulled '%F{red}not pulled%f,'          '%F{red}not pulled%f'
+    merging  '%F{yellow}merging%f in'        '%F{yellow}merging%f'
+    unpushed '%F{yellow}unpushed merge%f in' '%F{yellow}unpushed%f'
+    unmerged '%F{red}not merged%f,'          '%F{red}not merged%f'
+  )
   local -a opt_jobs=(-j 10) opt_help opt_no_local_merge forks report parts synced conflicted failed unpulled move summary
-  local -A counts
-  local jobs list name branch upstream result state detail msg fifo slots dir ref tracking line entry sep=$'\x1f'
+  local -A counts phrases
+  local jobs list name branch upstream oid result state detail msg label fifo slots dir ref tracking entry sep=$'\x1f'
+  for state msg label in "${states[@]}"; do
+    phrases[$state]=$msg
+  done
 
   zparseopts -D -F -K -- j:=opt_jobs -jobs:=opt_jobs -no-local-merge=opt_no_local_merge -help=opt_help || return 1
   # zparseopts keeps the "=" of --jobs=N
@@ -30,16 +47,25 @@ sync-forks() {
   local -x GH_TOKEN
   GH_TOKEN=$(gh auth token --user $owner) || return 1
 
-  # Archived forks are filtered here, since --no-archived moves the listing onto
-  # the slower search API (~1s)
-  list=$(gh repo list $owner --fork --limit 1000 --json name,defaultBranchRef,parent,isArchived \
-    --jq '.[] | select(.isArchived | not) | .name, .defaultBranchRef.name, "\(.parent.owner.login)/\(.parent.name)"') || return 1
+  # The GraphQL query behind `gh repo list`, plus each default branch's head, which
+  # its --json can't return: a clone that already has the head skips its fetch.
+  # isArchived filters on the server, without the search API that --no-archived uses (~1s)
+  list=$(gh api graphql --paginate -f owner=$owner -f query='
+    query($owner: String!, $endCursor: String) {
+      repositoryOwner(login: $owner) {
+        repositories(first: 100, isFork: true, isArchived: false, ownerAffiliations: OWNER, after: $endCursor) {
+          nodes { name defaultBranchRef { name target { oid } } parent { nameWithOwner } }
+          pageInfo { hasNextPage endCursor }
+        }
+      }
+    }' --jq '.data.repositoryOwner.repositories.nodes[]
+      | .name, .defaultBranchRef.name, .parent.nameWithOwner, .defaultBranchRef.target.oid') || return 1
   # gh prints a null field (an empty fork has no default branch) as an empty line, which
-  # unquoted (f) would drop, shifting every later name/branch/upstream triple
+  # unquoted (f) would drop, shifting every later name/branch/upstream/head group
   [[ -n $list ]] && forks=("${(@f)list}")
   # The slots are pre-filled before anything reads them, and print blocks once they
   # exceed the FIFO's buffer (8KB on macOS), so they are capped at the fork count
-  (( jobs > $#forks / 3 )) && jobs=$(( $#forks / 3 ))
+  (( jobs > $#forks / 4 )) && jobs=$(( $#forks / 4 ))
 
   print-header "Syncing forks of $owner"
   # A FIFO pre-filled with one line per slot: each sync takes a line to start and
@@ -51,7 +77,7 @@ sync-forks() {
     rm $fifo
     repeat $jobs print -u $slots
 
-    for name branch upstream in "${forks[@]}"; do
+    for name branch upstream oid in "${forks[@]}"; do
       if (( $ignored[(Ie)$name] )); then
         print -r -- $name${sep}ignored
         continue
@@ -66,7 +92,7 @@ sync-forks() {
           0,none)         report=($name none '') ;;
           0,*)            report=($name synced "$upstream:$branch ($result)") ;;
           *'(HTTP 409)'*) report=($name conflict $upstream:$branch) ;;
-          *)              report=($name failed "${${result##*gh: }%%$'\n'*}") ;;
+          *)              report=($name failed "${result##*gh: }") ;;
         esac
 
         # Only a clone of this very fork is pulled (not a same-named repo cloned from
@@ -74,8 +100,11 @@ sync-forks() {
         dir=$REPOS_DIR/$name ref=refs/heads/$branch tracking=refs/remotes/origin/$branch
         if [[ -n $branch && $(git -C $dir remote get-url origin 2>/dev/null) == *[:/]$owner/$name(|.git) ]] \
           && git -C $dir show-ref -q --verify $ref; then
-          if ! result=$(git -C $dir fetch -q origin $branch 2>&1); then
-            report+=(unpulled "${result%%$'\n'*}")
+          # When GitHub merged nothing, a clone that already has the listed head skips
+          # the fetch: an SSH round trip of ~3s that would bring nothing
+          if [[ $report[2] != (none|conflict) || $(git -C $dir rev-parse -q --verify $tracking) != $oid ]] \
+            && ! result=$(git -C $dir fetch -q origin $branch 2>&1); then
+            report+=(unpulled "$result")
           # Nothing to pull: level with origin, or only ahead of it with unpushed commits
           elif git -C $dir merge-base --is-ancestor $tracking $ref; then
             :
@@ -94,7 +123,7 @@ sync-forks() {
             if result=$(git -C $dir $move 2>&1); then
               report+=(pulled "$branch in ${(D)dir}")
             else
-              report+=(unpulled "${result%%$'\n'*}")
+              report+=(unpulled "$result")
             fi
           fi
 
@@ -109,7 +138,7 @@ sync-forks() {
             elif [[ -n $(git -C $dir status --porcelain -uno) ]]; then
               report+=(unmerged "local changes")
             elif ! result=$(git -C $dir fetch -q https://github.com/$upstream.git $branch 2>&1); then
-              report+=(unmerged "${result%%$'\n'*}")
+              report+=(unmerged "$result")
             # An earlier run's merge, concluded but not pushed yet
             elif git -C $dir merge-base --is-ancestor FETCH_HEAD $ref; then
               report+=(unpushed ${(D)dir})
@@ -120,41 +149,30 @@ sync-forks() {
               if git -C $dir rev-parse -q --verify MERGE_HEAD >/dev/null; then
                 report+=(merging ${(D)dir})
               else
-                report+=(unmerged "${result%%$'\n'*}")
+                report+=(unmerged "$result")
               fi
             fi
           fi
         fi
         # A single print, so another fork's report can't land in the middle of this
-        # one. Details hold spaces and may be empty, hence the $sep between fields
-        print -r -- ${(pj:$sep:)report}
+        # one. Details hold spaces and may be empty, hence the $sep between fields, and
+        # are cut to their first line, since git's and gh's errors can run over several
+        print -r -- ${(pj:$sep:)report%%$'\n'*}
         print -u $slots
       } &
     done
     wait
-  } | while IFS= read -r line; do
+  } | while IFS=$sep read -rA report; do
     # The syncs run in subshells, so they report as lines (the fork's name, then the
     # state and detail of the merge and of whatever happened to the clone) and the
     # tallying happens here, since zsh runs a pipeline's last command in the current shell
-    report=("${(@ps:$sep:)line}") parts=()
-    name=$report[1]
+    name=$report[1] parts=()
     for state detail in "${(@)report[2,-1]}"; do
       (( ++counts[$state] ))
-      case $state in
-        ignored)  msg="%F{yellow}ignored%f" ;;
-        none)     msg="up to date" ;;
-        synced)   msg="%F{green}synced%f with" ;;
-        conflict) msg="%F{red}merge conflict%f with" ;;
-        pulled)   msg="%F{green}pulled%f" ;;
-        unpulled) msg="%F{red}not pulled%f,"; unpulled+=("${(D)REPOS_DIR}/$name: $detail") ;;
-        merging)  msg="%F{yellow}merging%f in" ;;
-        unpushed) msg="%F{yellow}unpushed merge%f in" ;;
-        unmerged) msg="%F{red}not merged%f," ;;
-        *)        msg="%F{red}failed%f,"; failed+=("$name: $detail") ;;
-      esac
+      [[ $state == unpulled ]] && unpulled+=("${(D)REPOS_DIR}/$name: $detail")
       # Only the fixed text goes through prompt expansion: $detail carries branch names
       # and API messages, and PROMPT_SUBST would run any $(...) in them
-      parts+=("${(%)msg}${detail:+ $detail}")
+      parts+=("${(%)phrases[$state]}${detail:+ $detail}")
     done
     # Synced and conflicting forks are listed again at the end, along with what
     # happened to their clone, which is where a merge started there is resolved
@@ -162,6 +180,7 @@ sync-forks() {
     case $report[2] in
       synced)   synced+=($entry) ;;
       conflict) conflicted+=($entry) ;;
+      failed)   failed+=("$name: $report[3]") ;;
     esac
     msg="%F{blue}$name%f:"
     print -r -- ${(%)msg} ${(j:, :)parts}
@@ -187,18 +206,8 @@ sync-forks() {
     fi
   } >&2
 
-  for state msg in \
-    synced   "%F{green}synced%f" \
-    none     "up to date" \
-    ignored  "%F{yellow}ignored%f" \
-    conflict "%F{red}conflicting%f" \
-    failed   "%F{red}failed%f" \
-    pulled   "%F{green}pulled%f" \
-    unpulled "%F{red}not pulled%f" \
-    merging  "%F{yellow}merging%f" \
-    unpushed "%F{yellow}unpushed%f" \
-    unmerged "%F{red}not merged%f"; do
-    (( counts[$state] )) && summary+=("$counts[$state] $msg")
+  for state msg label in "${states[@]}"; do
+    (( counts[$state] )) && summary+=("$counts[$state] $label")
   done
   (( $#summary )) && print -P "\n%F{blue}==>%f ${(j:, :)summary}"
   (( ! $#conflicted && ! $#failed && ! $#unpulled ))

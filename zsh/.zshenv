@@ -16,8 +16,8 @@ export EZA_CONFIG_DIR="$XDG_CONFIG_HOME/eza"
 # python3.13, ... through the mise shims to find a supported version (~125ms).
 # This is the interpreter the gcloud-cli cask installs with; bump it along with
 # the cask's python dependency (a stale path falls back to that probe)
-[[ -x /opt/homebrew/opt/python@3.14/libexec/bin/python ]] \
-  && export CLOUDSDK_PYTHON=/opt/homebrew/opt/python@3.14/libexec/bin/python
+CLOUDSDK_PYTHON=/opt/homebrew/opt/python@3.13/libexec/bin/python
+[[ -x $CLOUDSDK_PYTHON ]] && export CLOUDSDK_PYTHON || unset CLOUDSDK_PYTHON
 
 # Use MacOS keychain to store secrets; skip when a parent shell already exported the value
 [[ -n $MERCURY_API_KEY ]] || export MERCURY_API_KEY=$(security find-generic-password -a "$USER" -s "MERCURY_API_KEY" -w)

@@ -20,7 +20,7 @@ source $__zsh_config_dir/plugins.zsh
 _evalcache /opt/homebrew/bin/brew shellenv
 # brew shellenv exports FPATH, so child shells (tmux panes, nvim terminals) would
 # inherit deferred fzf-tab's lib dir ahead of their compinit, and use-omz rebuilds
-# the completion dump (~190ms) whenever fpath differs from the previous shell's
+# the completion dump (~185ms) whenever fpath differs from the previous shell's
 typeset +x FPATH
 
 # Re-apply .zshenv's PATH order: brew shellenv prepends Homebrew (.zprofile has
