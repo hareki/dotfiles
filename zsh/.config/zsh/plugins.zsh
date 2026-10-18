@@ -69,9 +69,9 @@ zstyle ':omz:plugins:ssh-agent' quiet yes
 
 zstyle ':antidote:bundle:*' zcompile 'yes'
 
-# --height matches atuin's inline_height. The label lives here rather than in
-# FZF_DEFAULT_OPTS, which zoxide's `zi` and plain fzf read as well
-zstyle ':fzf-tab:*' fzf-flags --height=15 --border-label=' Completions '
+# Completion-only flags live here rather than in FZF_DEFAULT_OPTS, which zoxide's
+# `zi` and plain fzf read as well
+zstyle ':fzf-tab:*' fzf-flags --height=13 --max-width=75 --border-label=' Completions '
 zstyle ':fzf-tab:*' use-fzf-default-opts yes
 
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
