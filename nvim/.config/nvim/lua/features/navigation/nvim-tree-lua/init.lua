@@ -103,6 +103,8 @@ return {
   },
   {
     'hareki/nvim-tree.lua',
+    -- Load before LSP starts, or diagnostics published earlier never show in the tree
+    event = 'VeryLazy',
     dependencies = {
       'echasnovski/mini.icons',
     },
@@ -118,7 +120,7 @@ return {
             return
           end
 
-          api.tree.reload()
+          -- No reload: filesystem watchers keep it fresh, a sync reload stalls large repos
           tree.open()
         end,
         desc = ui_name,
