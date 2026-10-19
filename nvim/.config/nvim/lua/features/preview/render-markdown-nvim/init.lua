@@ -31,6 +31,14 @@ return {
     'MeanderingProgrammer/render-markdown.nvim',
     ft = Conf.filetypes.MARKDOWN,
     dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' },
+    keys = {
+      {
+        'yom',
+        '<cmd>RenderMarkdown buf_toggle<cr>',
+        ft = Conf.filetypes.MARKDOWN,
+        desc = 'Toggle Markdown Rendering',
+      },
+    },
 
     opts = function()
       --- @module 'render-markdown'
