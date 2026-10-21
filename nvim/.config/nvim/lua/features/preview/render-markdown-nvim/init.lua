@@ -65,6 +65,13 @@ return {
         quote = {
           icon = Conf.icons.misc.QUOTE_BAR, -- Thinner line for quotes
         },
+        overrides = {
+          filetype = {
+            -- Snacks picker previews prefix their filetype with `markdown.` and call render()
+            -- directly, which skips the `ignore` check, so only an override can opt them out
+            ['markdown.snacks_picker_preview'] = { enabled = false },
+          },
+        },
       }
     end,
 
