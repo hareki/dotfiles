@@ -31,6 +31,7 @@ return {
       local hunk_delete = Conf.icons.git.HUNK_DELETE
       local utils = require('features.git.gitsigns-nvim.utils')
       local build_popup_navigation = utils.build_popup_navigation
+      local media = require('features.preview.snacks-nvim.utils')
 
       local signs_staged = {
         add = { text = hunk },
@@ -70,6 +71,12 @@ return {
         signs_staged = signs_staged,
 
         on_attach = function(buffer)
+          -- Media buffers hold a rendered view, not the file's bytes, so a diff against
+          -- git would mark every line changed
+          if media.is_media(vim.api.nvim_buf_get_name(buffer)) then
+            return false
+          end
+
           local nav_opts = { target = 'all', navigation_message = false }
 
           local gs = package.loaded.gitsigns
