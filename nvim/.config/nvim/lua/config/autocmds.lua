@@ -80,6 +80,30 @@ aucmd('TabEnter', {
   end,
 })
 
+-- Read binary files raw, by git's test for one: a NUL in the first 8000 bytes. Read as text,
+-- they decode as latin1, and a :w writes them back re-encoded (editorconfig's `charset`) and
+-- with an EOL appended ('fixeol'). UTF-16 text holds NULs too, but its BOM gets it decoded
+aucmd('BufReadPre', {
+  group = augroup('binary-files'),
+  callback = function(event)
+    -- Regular files only: opening a FIFO would wait for its writer
+    local stat = vim.uv.fs_stat(event.match)
+    local fd = stat and stat.type == 'file' and vim.uv.fs_open(event.match, 'r', 438)
+    if not fd then
+      return
+    end
+    local head = vim.uv.fs_read(fd, 8000, 0) or ''
+    vim.uv.fs_close(fd)
+
+    local bom = head:sub(1, 2)
+    if head:find('\0', 1, true) and bom ~= '\254\255' and bom ~= '\255\254' then
+      vim.bo[event.buf].binary = true
+      -- Its whitespace and final-newline rules would still rewrite the bytes on :w
+      vim.b[event.buf].editorconfig = false
+    end
+  end,
+})
+
 -- Go to last location when opening a buffer
 aucmd('BufReadPost', {
   group = augroup('last-location'),
