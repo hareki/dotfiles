@@ -1,6 +1,9 @@
 --- @module 'utils.common'
 local common = Defer.on_exported_call('utils.common')
 
+--- @module 'render-markdown'
+local render_markdown = Defer.on_exported_call('render-markdown')
+
 --- @class features.preview.snacks.utils
 local M = {}
 
@@ -239,13 +242,36 @@ end
 local audio_extensions =
   { 'aac', 'aif', 'aiff', 'flac', 'm4a', 'mp3', 'oga', 'ogg', 'opus', 'wav', 'weba', 'wma' }
 
+--- @param path string
+--- @return boolean
+local function is_audio(path)
+  return vim.list_contains(audio_extensions, vim.fn.fnamemodify(path, ':e'):lower())
+end
+
 --- Whether `path` opens as a rendered view (snacks.image's viewer or the audio page)
 --- rather than as its own bytes
 --- @param path string
 --- @return boolean
 function M.is_media(path)
-  return vim.list_contains(audio_extensions, vim.fn.fnamemodify(path, ':e'):lower())
-    or Snacks.image.supports_file(path)
+  return is_audio(path) or Snacks.image.supports_file(path)
+end
+
+--- No mode change or cursor move redraws the page, so it renders in every mode, with the
+--- cursor's line drawn like the rest (no anti-conceal, and 'concealcursor' covering every mode),
+--- and without the debounce, which drops a draw landing within 100ms of the last (ffprobe's
+--- details). render-markdown reads it on a buffer's first draw only
+--- @type render.md.partial.UserConfig
+local page_render_config = {
+  render_modes = true,
+  anti_conceal = { enabled = false },
+  win_options = { concealcursor = { rendered = 'nvic' } },
+  debounce = 0,
+}
+
+--- Draw the page with render-markdown, which only attaches by filetype (the page has none)
+--- @param buf integer
+local function draw_page(buf)
+  render_markdown.render({ buf = buf, config = page_render_config })
 end
 
 --- @param buf integer
@@ -256,6 +282,7 @@ local function write_page(buf, start, lines)
   vim.api.nvim_buf_set_lines(buf, start, -1, false, lines)
   vim.bo[buf].modifiable = false
   vim.bo[buf].modified = false
+  draw_page(buf)
 end
 
 --- @param seconds number
@@ -325,12 +352,11 @@ end
 
 --- Fill the buffer with the audio page, appending ffprobe's details once it reports
 --- @param buf integer
-local function render_audio_page(buf)
-  local path = vim.api.nvim_buf_get_name(buf)
-
-  write_page(buf, 0, { '# Audio file', '', string.format('- **file**: `%s`', path) })
+--- @param path string
+local function render_audio_page(buf, path)
   -- Highlight without a filetype, whose FileType event would attach LSP clients
   vim.treesitter.start(buf, 'markdown')
+  write_page(buf, 0, { '# Audio file', '', string.format('- **file**: `%s`', path) })
 
   if vim.fn.executable('ffprobe') == 0 then
     return
@@ -366,6 +392,28 @@ local function render_audio_page(buf)
   end)
 end
 
+--- The picker's file previewer, showing audio as its info page instead of "binary file", the
+--- way snacks' own previewer hands images and videos to snacks.image
+--- @param ctx snacks.picker.preview.ctx
+function M.preview_file(ctx)
+  local path = Snacks.picker.util.path(ctx.item)
+  if not (path and is_audio(path)) then
+    return Snacks.picker.preview.file(ctx)
+  end
+
+  -- A fresh scratch buffer per item, wiped once the next item replaces it, so a probe that
+  -- reports late finds its buffer unloaded
+  local buf = ctx.preview:scratch()
+  -- Without a filetype, as on the audio buffer: render-markdown looks its parser up by
+  -- filetype, and scratch()'s `snacks_picker_preview` names a language with no parser
+  common.noautocmd(function()
+    vim.bo[buf].filetype = ''
+  end)
+
+  ctx.preview:set_title(ctx.item.preview_title or ctx.item.title or vim.fn.fnamemodify(path, ':t'))
+  render_audio_page(buf, path)
+end
+
 --- Open audio files as a read-only info page, the way snacks.image opens images and videos
 function M.setup_audio_viewer()
   local group = vim.api.nvim_create_augroup('preview.snacks.audio-viewer', { clear = true })
@@ -375,7 +423,16 @@ function M.setup_audio_viewer()
     group = group,
     pattern = pattern,
     callback = function(args)
-      render_audio_page(args.buf)
+      render_audio_page(args.buf, vim.api.nvim_buf_get_name(args.buf))
+    end,
+  })
+
+  -- A draw only reaches the windows showing the page, so redraw it each time it's shown
+  vim.api.nvim_create_autocmd('BufWinEnter', {
+    group = group,
+    pattern = pattern,
+    callback = function(args)
+      draw_page(args.buf)
     end,
   })
 

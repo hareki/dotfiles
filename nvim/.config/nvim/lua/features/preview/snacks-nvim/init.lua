@@ -42,6 +42,11 @@ return {
           excluded_filetypes = Conf.filetypes.merge(Conf.filetypes.JS_ALL, Conf.filetypes.CSS),
         },
       },
+
+      picker = {
+        -- Stands in for snacks' file previewer wherever a source sets no previewer of its own
+        preview = media.preview_file,
+      },
     },
   },
 }
