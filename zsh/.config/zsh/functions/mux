@@ -1,0 +1,20 @@
+#!/bin/zsh
+
+# `tmuxinator start`, with the project's layouts built at the terminal's size.
+#
+# Outside tmux, tmuxinator creates the session detached at default-size (80x24)
+# and tmux skews the pane sizes when it grows the windows to the terminal on
+# attach, e.g. a main-vertical column ends up 17/15 rows instead of 16/16
+# (tmuxinator/tmuxinator#568). From inside a client, tmux creates the windows at
+# the client's size instead, so outside tmux the project starts from a throwaway
+# session, which closes once tmuxinator switches the client over to the project.
+mux() {
+  if [[ -n $TMUX ]]; then
+    tmuxinator start "$@"
+  else
+    # One quoted string, since tmux would split an argument ending in `;` off as
+    # a separate command. On failure, keep the pane open so the error stays readable
+    tmux new-session zsh -c "tmuxinator start ${(j: :)${(q)@}} ||
+      { print -P '%F{red}mux: tmuxinator failed, press any key to close%f'; read -sk1 }"
+  fi
+}

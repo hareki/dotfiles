@@ -1,0 +1,6 @@
+#compdef mux
+
+# mux takes `tmuxinator start`'s arguments, so complete them as that command line
+words=(tmuxinator start "${(@)words[2,-1]}")
+(( CURRENT++ ))
+_normal

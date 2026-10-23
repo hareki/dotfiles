@@ -76,6 +76,7 @@ yay                   # Update all package managers (brew, antidote, mise, tpm)
 build <target>        # Build a local tool from source into ~/.local/opt/bin (atuin, eza, fzf, lazygit, television, worktrunk; tmux goes to /usr/local)
 cts                   # Toggle git skip-worktree on claude-code settings.json (model/effort churn)
 ff                    # fastfetch with buffered output
+mux <project>         # tmuxinator start, from a throwaway session outside tmux so the layouts are built at the terminal's size
 ```
 
 ## Conventions
