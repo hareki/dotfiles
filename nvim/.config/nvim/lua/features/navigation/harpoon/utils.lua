@@ -26,7 +26,7 @@ function M.pin(index)
   -- return above rules out `index`)
   local _, old_index = list:get_by_value(new_item.value)
 
-  -- Replace the item at slot i with new_item. If new_item exists in another slot, it is removed from that slot first.
+  -- replace_at also clears new_item from any other slot it held
   list:replace_at(index, new_item)
 
   if old_index then
@@ -59,7 +59,6 @@ function M.pin(index)
   end
 end
 
---- Show the harpoon picker with items from the harpoon list
 --- @return snacks.Picker | nil picker The picker instance, or nil if list is empty
 M.show_picker = function()
   local harpoon = require('harpoon')
@@ -74,9 +73,8 @@ M.show_picker = function()
       local item = list:get(harpoon_idx)
       if item then
         local filepath = item.value
-        -- Compare names exactly: vim.fn.bufnr() treats its argument as a
-        -- file-pattern, so paths with magic chars (e.g. "app/[slug]/page.tsx")
-        -- can pattern-match an unrelated buffer
+        -- Compare names exactly: vim.fn.bufnr() treats its argument as a file-pattern, so paths
+        -- with magic chars ("app/[slug]/page.tsx") can match an unrelated buffer
         local abs = vim.fn.fnamemodify(filepath, ':p')
         local buf
         for _, b in ipairs(vim.api.nvim_list_bufs()) do
@@ -94,9 +92,8 @@ M.show_picker = function()
           name = vim.fs.basename(filepath),
           buftype = buf and vim.bo[buf].buftype or '',
           filetype = buf and vim.bo[buf].filetype or '',
-          -- Index prefix is built here, not in a transform: snacks re-runs
-          -- transforms over these same item tables on every find(), so a
-          -- mutating transform would re-prefix the text each time
+          -- Prefixed here, not in a transform: snacks re-runs transforms over these item tables on
+          -- every find(), so a mutating transform would re-prefix the text each time
           text = harpoon_idx .. ' ' .. filepath,
         }
       end
@@ -104,11 +101,10 @@ M.show_picker = function()
     return items
   end
 
-  --- Format function for harpoon picker (harpoon index + buffer format)
-  --- Adds harpoon index number prefix to buffer_format output.
-  --- @param item snacks.picker.Item The picker item
-  --- @param picker snacks.Picker The picker instance
-  --- @return snacks.picker.Highlight[] highlights Array of highlight segments
+  --- Picker format: the harpoon index, then the buffer format
+  --- @param item snacks.picker.Item
+  --- @param picker snacks.Picker
+  --- @return snacks.picker.Highlight[] highlights
   local function harpoon_format(item, picker)
     local ret = {} --- @type snacks.picker.Highlight[]
     local max_harpoon_idx = harpoon:list():length()

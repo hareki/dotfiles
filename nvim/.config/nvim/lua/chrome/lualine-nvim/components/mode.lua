@@ -3,9 +3,7 @@ local M = {}
 
 local palette = UI.catppuccin.get_palette()
 
--- lualine re-evaluates function colors on every redraw, so building the
--- inverse table per call would allocate ~30x/sec; both variants are static
--- per mode, precompute them once
+-- Precompute both per-mode variants: lualine re-evaluates function colors ~30x/sec
 local mode_hl, inverse_mode_hl = {}, {}
 for name, color in pairs(UI.mode.colors) do
   mode_hl[name] = { fg = palette.surface0, bg = palette[color] }

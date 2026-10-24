@@ -54,9 +54,8 @@ return {
       local harpoon = require('harpoon')
       harpoon.setup(opts)
 
-      -- Mutations can keep the list length unchanged (replace_at, menu-save
-      -- reorder), which the statusline component's (buf, length) cache key
-      -- can't detect; invalidate on harpoon's own mutation events instead
+      -- Some mutations keep the list length (replace_at, menu-save reorder), so the statusline's
+      -- (buf, length) cache key misses them; invalidate on harpoon's mutation events instead
       local function refresh_component()
         local harpoon_component = require('chrome.lualine-nvim.components.harpoon')
         harpoon_component.invalidate()

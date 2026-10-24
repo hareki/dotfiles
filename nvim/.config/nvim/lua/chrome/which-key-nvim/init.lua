@@ -47,8 +47,8 @@ return {
           },
         },
         keys = {
-          scroll_down = '<S-PageDown>', -- Binding to scroll down inside the popup
-          scroll_up = '<S-PageUp>', -- Binding to scroll up inside the popup
+          scroll_down = '<S-PageDown>',
+          scroll_up = '<S-PageUp>',
         },
         icons = {
           group = '',
@@ -65,16 +65,13 @@ return {
       })
       vim.list_extend(opts.spec, desc_override_specs)
 
-      -- <auto> installs triggers for every prefix except single-letter builtins;
-      -- plugins needing a single-letter prefix (e.g. Mini Surround's `l`) contribute a
-      -- manual trigger via UI.which_key({ triggers = ... }). Order among triggers is irrelevant.
+      -- <auto> skips single-letter builtin prefixes, so plugins needing one (Mini Surround's `l`)
+      -- add a manual trigger via UI.which_key({ triggers = ... })
       opts.triggers = opts.triggers or {}
       table.insert(opts.triggers, { '<auto>', mode = 'nxso' })
 
-      -- Plugin > filetype > pattern
-      -- Elements come first have higher priority when multiple patterns match
-      -- Plugin-specific rules are defined in their respective plugin files via UI.which_key()
-      -- and prepended there, so these generic rules are appended to keep lower priority
+      -- Earlier rules win when several match (plugin > filetype > pattern); plugin rules come from
+      -- UI.which_key() and are prepended, so these generic ones are appended
       opts.icons.rules = vim.list_extend(opts.icons.rules or {}, {
         { pattern = 'terminal', icon = Conf.icons.editor.TERMINAL, color = 'green' },
         { pattern = 'plugin', icon = Conf.icons.tools.PLUGIN_MANAGER, color = 'orange' },

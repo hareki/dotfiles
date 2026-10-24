@@ -25,14 +25,8 @@ local CONFLICT_SEARCH_RANGE = 500
 -- 1000 lines, which can lag when cursor movement is held down.
 local CURSOR_DEBOUNCE_MS = 100
 
--- Window-local 'winhighlight' redirect: only the listed groups are
--- remapped in the conflict window, leaving every other highlight
--- (NvimTreeWindowPicker, statusline, etc.) to resolve normally.
-
--- We intentionally do NOT use nvim_win_set_hl_ns: with a window
--- namespace set, winhighlight redirects in OTHER plugins (e.g.
--- nvim-tree's picker remapping StatusLine -> NvimTreeWindowPicker)
--- fail to fall back to global definitions and render with defaults.
+-- Window-local 'winhighlight' remaps only these groups; nvim_win_set_hl_ns would break other
+-- plugins' winhighlight redirects (nvim-tree's picker StatusLine), rendering them with defaults
 local conflict_winhl = table.concat({
   'DocumentHighlight:GitConflictDocumentHighlight',
   'GitSignsCurrentLineBlame:GitConflictBlame',
@@ -53,9 +47,7 @@ for _, map in ipairs(keymaps) do
   keymap_rhs[map.rhs] = true
 end
 
---- Detect if cursor is currently inside a git conflict block
---- Uses a single bulk line fetch instead of per-line API calls for performance.
---- @return boolean in_conflict True if cursor is in a conflict block
+--- @return boolean in_conflict
 local function cursor_in_conflict()
   local bufnr = vim.api.nvim_get_current_buf()
   local cursor = vim.api.nvim_win_get_cursor(0)
@@ -68,13 +60,12 @@ local function cursor_in_conflict()
   local all_lines = vim.api.nvim_buf_get_lines(bufnr, fetch_start, fetch_end, false)
 
   --- Get line text by absolute 0-based line number from the bulk-fetched range
-  --- @param abs_idx integer 0-based absolute line number
+  --- @param abs_idx integer
   --- @return string line_text The line content, or empty string if out of range
   local function get_line(abs_idx)
     return all_lines[abs_idx - fetch_start + 1] or ''
   end
 
-  -- Search backwards from cursor for conflict start (limit search range)
   local start_line = nil
 
   for i = line, fetch_start, -1 do
@@ -94,7 +85,6 @@ local function cursor_in_conflict()
     return false
   end
 
-  -- From the start, find the separator and end markers (limit forward search)
   local middle_line = nil
   local end_line = nil
   local max_search = math.min(line_count - 1, start_line + CONFLICT_SEARCH_RANGE)
@@ -110,7 +100,6 @@ local function cursor_in_conflict()
     end
   end
 
-  -- Validate conflict block structure and cursor position
   return middle_line ~= nil and end_line ~= nil and line <= end_line
 end
 
@@ -214,11 +203,8 @@ function M.setup()
               return
             end
 
-            -- 'winhighlight' is window-local and persists across buffer
-            -- swaps in the same window (e.g. opening a file via nvim-tree
-            -- / snacks picker), so clear it when the conflict buffer
-            -- leaves the window. BufWinEnter / BufEnter / CursorMoved
-            -- re-apply on return.
+            -- 'winhighlight' outlives a buffer swap in its window (nvim-tree, pickers), so clear it
+            -- when the conflict buffer leaves; BufWinEnter/BufEnter/CursorMoved re-apply it
             if args.event == 'BufLeave' then
               if state.timer then
                 state.timer:stop()
@@ -227,14 +213,8 @@ function M.setup()
               return
             end
 
-            -- Cursor movement is debounced because cursor_in_conflict
-            -- scans up to 1000 lines and can stutter when held down.
-
-            -- BufWinEnter / BufEnter stay synchronous to avoid a visible
-            -- gap when entering a new split (which starts with empty
-            -- winhighlight). BufEnter covers refocusing a window that kept
-            -- the conflict buffer visible: BufLeave cleared its winhl, and
-            -- BufWinEnter won't fire since the buffer never left the window.
+            -- Cursor moves are debounced; entering stays synchronous so a new split shows no gap,
+            -- and BufEnter covers a refocused window whose winhl BufLeave cleared
             if args.event == 'CursorMoved' or args.event == 'CursorMovedI' then
               schedule_cursor_check(bufnr)
               return
@@ -259,9 +239,8 @@ function M.setup()
   vim.api.nvim_create_autocmd({ 'BufDelete', 'BufWipeout' }, {
     group = group,
     callback = function(event)
-      -- :bdelete frees the git_conflict flag that gates Resolved's cleanup, but the bufnr
-      -- keeps its disabled diagnostics, so a reopened buffer would stay without them.
-      -- Detected disables them again if it is still conflicted
+      -- :bdelete clears the git_conflict flag gating Resolved's cleanup but not the disabled
+      -- diagnostics, so re-enable them (Detected disables them again if still conflicted)
       if M.state.bufs[event.buf] then
         vim.diagnostic.enable(true, { bufnr = event.buf })
       end

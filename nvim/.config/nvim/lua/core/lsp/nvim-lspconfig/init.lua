@@ -7,8 +7,8 @@ return {
     local server_loader = require('core.lsp.nvim-lspconfig.utils.server-loader')
 
     local original_set = vim.diagnostic.set
-    --- @param namespace integer The diagnostic namespace
-    --- @param bufnr integer Buffer number
+    --- @param namespace integer
+    --- @param bufnr integer
     --- @param diagnostics vim.Diagnostic[]
     --- @param opts? vim.diagnostic.Opts Display options to pass to |vim.diagnostic.show()|
     --- @diagnostic disable-next-line: duplicate-set-field
@@ -79,18 +79,16 @@ return {
         map({ 'n', 'x' }, '<leader>ca', function()
           local tiny_code_action = require('tiny-code-action')
           tiny_code_action.code_action({
-            -- Drop actions the server marked as disabled (e.g. vtsls
-            -- non-applicable refactors); resolving them for preview surfaces
-            -- raw server errors.
+            -- Drop actions the server marked disabled (vtsls's non-applicable refactors); resolving
+            -- them for preview surfaces raw server errors
             filter = function(action)
               return action.disabled == nil
             end,
           })
         end, 'Code Actions')
 
-        -- Snacks.words only jumps between references a client highlights, so buffers without
-        -- such a client (markdown, help, python, ...) keep the runtime ftplugin's ]] / [[ section
-        -- jumps; typos_lsp, which highlights nothing, attaches to every one of them
+        -- Snacks.words only jumps between references a client highlights; buffers without one keep
+        -- the ftplugin's ]] / [[ section jumps (typos_lsp highlights nothing but attaches to all)
         local client = vim.lsp.get_client_by_id(args.data.client_id) --[[@as vim.lsp.Client]]
         if client:supports_method('textDocument/documentHighlight') then
           map('n', ']]', function()
@@ -107,20 +105,20 @@ return {
     -- LSP servers start matching and attaching.
     local servers = {
       'marksman', -- Markdown
-      'lua_ls', -- Lua
-      'taplo', -- Toml
-      'yamlls', -- Yaml
+      'lua_ls',
+      'taplo', -- TOML
+      'yamlls',
       'typos_lsp', -- Spell checker
-      'jsonls', -- JSON
-      'html', -- HTML
-      'cssls', -- CSS
-      'css_variables', -- CSS
+      'jsonls',
+      'html',
+      'cssls',
+      'css_variables',
       'stylua', -- Lua formatter
       'vtsls', -- TypeScript
-      'tailwindcss', -- Tailwind
-      'astro', -- Astro
+      'tailwindcss',
+      'astro',
       'ember', -- Ember/Glimmer
-      'angularls', -- Angular
+      'angularls',
     }
 
     -- eslint vs oxlint are mutually exclusive; selected by Project.linter

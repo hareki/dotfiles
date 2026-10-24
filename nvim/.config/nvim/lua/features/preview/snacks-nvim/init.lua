@@ -22,9 +22,8 @@ return {
         convert = {
           notify = true,
           magick = {
-            -- snacks' default plus the define: ImageMagick takes video frames from ffmpeg as
-            -- WebP by default, which Homebrew's ffmpeg (built without libwebp) can't encode.
-            -- PAM needs no extra library, and only the video coder reads the define
+            -- snacks' default plus the define: ImageMagick asks ffmpeg for WebP frames, which
+            -- Homebrew's ffmpeg (no libwebp) can't encode; PAM needs none, and only video reads it
             default = {
               '-define',
               'video:intermediate-format=pam',
@@ -34,7 +33,7 @@ return {
             },
           },
         },
-        -- Inline images are inserted as virtual lines, and virtual lines are tricky to scroll, so better keep it short
+        -- Inline images render as virtual lines, which are tricky to scroll, so keep them short
         doc = {
           -- Static number: snacks.image does no callable resolution here
           max_width = UI.layout.popup('full').width,

@@ -1,7 +1,5 @@
--- https://github.com/hrsh7th/vscode-langservers-extracted
--- The server advertises the `json.sort` code action but no executeCommandProvider,
--- so `Client:exec_cmd` would refuse to send it; implement it as a client-side
--- command instead, which `exec_cmd` checks first
+-- The server advertises `json.sort` without an executeCommandProvider, so `Client:exec_cmd` would
+-- refuse to send it; a client-side command, which `exec_cmd` checks first, implements it instead
 return {
   opts = {
     commands = {
@@ -15,7 +13,6 @@ return {
           return
         end
 
-        -- Use jq to sort the JSON
         local job = vim
           .system({ 'jq', '-S', '.' }, {
             stdin = content,
@@ -28,7 +25,6 @@ return {
           return
         end
 
-        -- Replace buffer content with sorted JSON
         local sorted_lines = vim.split(job.stdout, '\n', { plain = true, trimempty = true })
         vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, sorted_lines)
       end,

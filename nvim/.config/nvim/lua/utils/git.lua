@@ -1,11 +1,8 @@
 --- @class utils.git
 local M = {}
 
--- A cache table to store the repository name and last known CWD.
--- `name`, `last_cwd`, and `toplevel` are only written together (in
--- `resolve_repo_name`'s finish step) so an abandoned resolve can never leave
--- a name paired with another repo's toplevel. `pending_cwd` marks the cwd an
--- async resolve chain is currently running for.
+-- `name`, `last_cwd` and `toplevel` are written together (in `finish`), so an abandoned resolve
+-- can't pair a name with another repo's toplevel; `pending_cwd` is the cwd a resolve runs for
 local repo_cache = {
   name = nil,
   last_cwd = nil,
@@ -18,8 +15,8 @@ local last_format = { branch = nil, result = nil }
 
 --- Shorten a ClickUp task branch to its CU-ID, which may lead (`CU-<id>_<task>`)
 --- or trail (`<task>_CU-<id>`); other branch names pass through unchanged
---- @param branch_name string The original branch name to format
---- @return string formatted The formatted branch name
+--- @param branch_name string
+--- @return string formatted
 function M.format_branch_name(branch_name)
   if last_format.branch == branch_name then
     return last_format.result
@@ -41,9 +38,8 @@ function M.format_branch_name(branch_name)
   return result
 end
 
---- Execute a git command asynchronously and pass trimmed output to a callback
---- The callback is dispatched via `vim.schedule`, so it always runs on the
---- main loop and may safely touch vim APIs and module state.
+--- Run a git command asynchronously, passing its trimmed output to `cb` on the main loop
+--- (via `vim.schedule`), where it may touch vim APIs and module state
 --- @param cmd string The git command to execute (without 'git' prefix)
 --- @param cwd string | nil The directory to run the command in (default: current)
 --- @param cb fun(output: string | nil) Receives trimmed stdout, or nil on error or empty output
@@ -68,32 +64,27 @@ end
 
 --- Extract the repository name from a git remote URL
 --- Strips .git suffix and extracts the last path component.
---- @param url string | nil The remote URL
+--- @param url string | nil
 --- @return string | nil name The repository name, or nil if not extractable
 local function repo_name_from_url(url)
   if not url then
     return nil
   end
 
-  -- Remove .git suffix if present, then take the last path component
   url = url:gsub('%.git$', '')
 
   return url:match('([^/]+)$')
 end
 
---- Extract the repository name from a filesystem path
 --- Returns the last component of the path (directory/file name).
---- @param path string The filesystem path
+--- @param path string
 --- @return string | nil name The last path component, or nil if invalid
 local function get_repo_name_from_path(path)
   return path:match('([^/\\]+)$')
 end
 
---- Async continuation of `get_repo_name`'s cache-miss path
---- Every callback runs on the main loop (see `exec_cmd_async`). A cwd change
---- between steps abandons the chain; the next render restarts it for the new
---- cwd. Cache fields are only written together in `finish` so the
---- name/toplevel pairing stays consistent even when a chain is abandoned.
+--- Async continuation of `get_repo_name`'s cache-miss path; a cwd change between steps abandons
+--- the chain, and the next render restarts it for the new cwd
 --- @param cwd string The cwd this chain resolves for
 local function resolve_repo_name(cwd)
   --- Mark this chain done, unless a chain for a newer cwd has taken over the slot
@@ -127,17 +118,14 @@ local function resolve_repo_name(cwd)
       return
     end
 
-    -- Still in the repo the cached name belongs to: re-key the fast path and
-    -- stop; the rendered name is already correct. Require a non-nil toplevel:
-    -- outside a repo, nil == nil would keep a stale name from a previously
-    -- visited directory.
+    -- Still in the cached name's repo: re-key the fast path and stop. A nil toplevel doesn't count:
+    -- outside a repo, nil == nil would keep a stale name from a previous directory
     if repo_cache.name and toplevel and repo_cache.toplevel == toplevel then
       repo_cache.last_cwd = cwd
       release_pending()
       return
     end
 
-    -- Step 1: Attempt to get the repository name from the remote URL
     exec_cmd_async('config --get remote.origin.url', nil, function(url)
       if superseded() then
         return
@@ -149,14 +137,12 @@ local function resolve_repo_name(cwd)
         return
       end
 
-      -- Step 3 (shared fallback): repo name from the toplevel or cwd basename
       local function finish_from_path()
         local name = toplevel and get_repo_name_from_path(toplevel) or get_repo_name_from_path(cwd)
         finish(name or 'Unknown', toplevel)
       end
 
-      -- Step 2: Determine if the parent of the top-level directory is a bare
-      -- repository (worktree checkouts named after the bare repo's directory)
+      -- Worktrees of a bare repo show the bare repo's directory name (the toplevel's parent)
       local parent_dir = toplevel and toplevel:match('(.+)/[^/]+$')
       if not parent_dir then
         finish_from_path()
@@ -182,11 +168,8 @@ local function resolve_repo_name(cwd)
   end)
 end
 
---- Get the repository name with caching and multiple fallback strategies
---- Never blocks a render: on cache miss the last known name (or the cwd
---- basename) is returned immediately while an async git chain refreshes the
---- cache and re-renders the statusline when it settles.
---- Tries: remote URL => bare repo parent => toplevel dir => cwd name.
+--- The repository name (remote URL => bare repo parent => toplevel dir => cwd name), never
+--- blocking a render: a miss returns the last known name while an async chain refreshes it
 --- @return string | nil name The repository name, or nil if not determinable
 function M.get_repo_name()
   local current_cwd = vim.uv.cwd()

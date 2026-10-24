@@ -18,9 +18,8 @@ local FAVICON_PATH = vim.fn.stdpath('config')
 local TITLE_SCRIPT =
   "<script>document.title = decodeURIComponent(location.pathname.split('/').pop())</script>"
 
---- Whether something listens on `port` at `address` or at a loopback or wildcard address. Binding
---- `address` alone can't tell: macOS lets it share the port with those listeners, and it even takes
---- a wildcard one's connections to `address`
+--- Whether something listens on `port` at `address` or a loopback/wildcard address, since macOS
+--- lets a bind to `address` share the port with those (even taking a wildcard one's connections)
 --- @param address string
 --- @param port integer
 --- @return boolean
@@ -79,9 +78,8 @@ function M.running_port()
   return address and address.port
 end
 
---- Preview the current buffer. Unlike `:LivePreview start`, it never falls back to another
---- loaded file, and while something else, e.g. a second nvim's preview, listens on the configured
---- port, it moves to the first free port above it instead of failing
+--- Preview the current buffer, never another loaded file like `:LivePreview start`, moving to the
+--- first free port above the configured one while something else (a second nvim) listens there
 function M.start()
   local livepreview_config = require('livepreview.config')
   local livepreview_utils = require('livepreview.utils')

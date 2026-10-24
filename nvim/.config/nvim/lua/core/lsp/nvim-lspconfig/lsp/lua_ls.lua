@@ -3,7 +3,7 @@ return {
     settings = {
       Lua = {
         diagnostics = {
-          unusedLocalExclude = { '_*' }, -- ignore _foo, _bar, _
+          unusedLocalExclude = { '_*' },
         },
       },
     },

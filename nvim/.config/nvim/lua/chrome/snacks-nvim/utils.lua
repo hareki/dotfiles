@@ -11,10 +11,8 @@ M.state = {
   mapped = {},
 }
 
---- Map `q` to close the popup on the buffer it currently shows. Snacks applies
---- its own `win.keys` with `buffer = win.buf` and never unmaps them, and the zen
---- window displays the real buffer, so a `keys = { q = 'close' }` entry would
---- outlive the popup and shadow macro recording on that buffer.
+--- Map `q` to close the popup on its current buffer. A `win.keys` entry would outlive the popup
+--- (Snacks never unmaps them, and zen shows the real buffer), shadowing macro recording there
 --- @param win snacks.win
 --- @return nil
 local function map_close(win)
@@ -31,9 +29,8 @@ local function map_close(win)
   end, { buffer = buf, nowait = true, desc = 'Close Zen Mode' })
 end
 
---- Screen rectangle of the parent's whole frame, winbar row included, so the
---- backdrop hides the parent's breadcrumb along with its text. `getwininfo`
---- counts text rows only in `height` and returns nothing for a dead window
+--- Screen rect of the parent's whole frame, winbar row included, so the backdrop hides its
+--- breadcrumb too (`getwininfo` counts only text rows in `height`, nothing for a dead window)
 --- @param parent integer
 --- @return { row: integer, col: integer, height: integer, width: integer }
 local function parent_rect(parent)
@@ -71,18 +68,16 @@ function M.on_open(win)
   end)
 end
 
---- Open the popup over the current window, or close it when it is already up.
---- Snacks builds the backdrop only once the popup has taken focus, so the
---- window it has to cover can only be captured here, before that happens.
+--- Toggle the popup over the current window, captured here since Snacks builds the backdrop only
+--- once the popup has taken focus
 --- @return nil
 function M.toggle()
   local parent = vim.api.nvim_get_current_win()
 
   Snacks.zen({
     win = {
-      -- Editor-relative so the rect can start on the parent's winbar row: a
-      -- win-relative row 0 is already the first text row, and Snacks reads a
-      -- negative row as an offset from the bottom edge instead
+      -- Editor-relative, so the rect can start on the winbar row: win-relative row 0 is the first
+      -- text row, and Snacks reads a negative row as an offset from the bottom edge
       backdrop = {
         win = {
           row = rect_field(parent, 'row'),

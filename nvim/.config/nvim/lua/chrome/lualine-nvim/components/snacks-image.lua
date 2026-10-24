@@ -3,9 +3,8 @@ local M = {}
 
 local image_icon = Conf.icons.editor.IMAGE .. ' '
 
--- vim.treesitter.query.get is memoized, but in a GC-weak cache: after any
--- collection the next lookup re-scans the runtimepath (and recompiles the
--- query), which is too slow for a per-redraw path. Pin the answer here.
+-- vim.treesitter.query.get memoizes in a GC-weak cache, so after a collection it re-scans the
+-- runtimepath and recompiles the query, too slow for a per-redraw path: pin the answer here
 --- @type table<string, boolean | 'no-parser'>
 local lang_has_images_query = {}
 
@@ -93,8 +92,7 @@ function M.cond()
   end
 
   -- `gi` is a normal-mode key, while every insert/replace keystroke bumps the changedtick and
-  -- would rerun the whole-buffer find() below (~2ms in an 850-line TSX file, ~6ms in a
-  -- 1.6k-line README)
+  -- would rerun the whole-buffer find() below (~2ms in an 850-line TSX file)
   local mode = vim.api.nvim_get_mode().mode:sub(1, 1)
   if mode == 'i' or mode == 'R' then
     return false
@@ -113,7 +111,7 @@ function M.cond()
     cache.tick = tick
     cache.images = nil
 
-    -- `find` parses asynchronously on nvim 0.11.4+, so no image shows until it lands;
+    -- `find` parses asynchronously, so no image shows until it lands;
     -- refresh the statusline then if one turns out to cover the cursor
     Snacks.image.doc.find(buf, function(images)
       -- The buffer may have changed during the async gap; this result is for an older state

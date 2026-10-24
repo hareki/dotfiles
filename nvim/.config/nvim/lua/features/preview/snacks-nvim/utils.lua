@@ -43,11 +43,8 @@ local function close()
   end
 end
 
---- Build a hover-unique src path so the floating preview gets its own kitty
---- graphics ID, decoupled from any inline placement of the same source. This
---- prevents size juggling when the same image is rendered both inline and in
---- the float, and ensures unsaved buffer edits (e.g. `.mmd` files) are picked
---- up by re-hashing the live content.
+--- A hover-unique src path, so the float gets its own kitty graphics ID (no size juggling with
+--- an inline placement of the same image) and unsaved edits (`.mmd`) are re-hashed from the buffer
 --- @param original_src string | nil  Resolved on-disk file (used when `content` is nil)
 --- @param ext string  File extension without leading dot
 --- @param content string | nil  Raw bytes to persist (e.g. live buffer text)
@@ -104,9 +101,8 @@ end
 --- @param source_buf integer
 --- @param src string
 local function open(source_buf, src)
-  -- A second hover can arrive through the async at_cursor callback before the
-  -- toggle guard sees the first; close it here, or replacing `M.state.hover` below
-  -- would orphan its window, placement and <Esc> override
+  -- A second hover can arrive via the async at_cursor callback before the toggle guard sees the
+  -- first; close it, or replacing `M.state.hover` would orphan its window, placement and <Esc> map
   if M.state.hover then
     close()
   end
@@ -120,19 +116,14 @@ local function open(source_buf, src)
 
   local placement = Snacks.image.placement.new(scratch, src, {
     inline = false,
-    -- Shift the image right by 1 cell so there's a left padding column;
-    -- combined with `w = loc.width + 2` below, this gives 1 cell of padding
-    -- on each side.
+    -- Shift the image 1 cell right; with `w = loc.width + 2` below, that pads 1 cell on each side
     pos = { 1, 1 },
-    -- Reserve 2 cells (1 padding + 1 padding) so the image scales down to fit
-    -- horizontally inside the padded window.
+    -- Reserve the 2 padding cells so the image scales down to fit the padded window
     max_width = lg.width - 2,
-    -- Reserve 2 rows so the image scales down to fit, instead of the rendered
-    -- image overflowing the window's bottom row.
+    -- Reserve 2 rows so the image scales down rather than overflowing the bottom row
     max_height = lg.height - 2,
-    -- Defer window creation until snacks reports the rendered image's actual
-    -- cell dims. Opening the window upfront would briefly show the full `lg`
-    -- frame and then snap to the smaller image size: a visible flash.
+    -- Open the window only once snacks reports the image's cell dims; opening it upfront would
+    -- flash the full `lg` frame before snapping to the image size
     on_update_pre = function(self)
       local current = M.state.hover
       if not current then
@@ -142,9 +133,8 @@ local function open(source_buf, src)
         return
       end
 
-      -- Wipe any leftover extmarks (e.g. snacks's "<step> loading …" virt_text
-      -- from `placement:progress()`, which it never clears once ready). The
-      -- subsequent render() call will re-set image extmarks.
+      -- Wipe leftover extmarks such as snacks' "<step> loading …" virt_text, which it never clears
+      -- once ready; the render() below re-sets the image's own
       vim.api.nvim_buf_clear_namespace(scratch, -1, 0, -1)
 
       local loc = self:state().loc
@@ -256,10 +246,8 @@ function M.is_media(path)
   return is_audio(path) or Snacks.image.supports_file(path)
 end
 
---- No mode change or cursor move redraws the page, so it renders in every mode, with the
---- cursor's line drawn like the rest (no anti-conceal, and 'concealcursor' covering every mode),
---- and without the debounce, which drops a draw landing within 100ms of the last (ffprobe's
---- details). render-markdown reads it on a buffer's first draw only
+--- The page never redraws on mode changes or cursor moves: render every mode and the cursor line
+--- alike, without the debounce that drops ffprobe's late draw (read on a buffer's first draw)
 --- @type render.md.partial.UserConfig
 local page_render_config = {
   render_modes = true,
@@ -362,9 +350,8 @@ local function render_audio_page(buf, path)
     return
   end
 
-  -- A probe started by an earlier render (an `:edit!` came while it ran) must not append to
-  -- the new page; changedtick can't tell, since nvim bumps it once the BufReadCmd that renders
-  -- the page returns
+  -- A probe from an earlier render (an `:edit!` while it ran) must not append to the new page;
+  -- changedtick can't tell, since nvim bumps it after the rendering BufReadCmd returns
   local render = {}
   M.state.page_renders[buf] = render
   vim.system({

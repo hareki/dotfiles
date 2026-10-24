@@ -83,9 +83,8 @@ return {
         desc = 'Next Yanky Entry',
       },
 
-      -- Trimmed, No indent/trailing. With a count, these fall back to native linewise
-      -- semantics like dd below; the pending count and `"x` prefix carry over to the
-      -- returned keys, so 3yy still yanks 3 lines
+      -- Trimmed (no indent/trailing); with a count, native linewise like dd below, since the count
+      -- and `"x` prefix carry over to the returned keys (3yy still yanks 3 lines)
       {
         'yy',
         function()
@@ -108,10 +107,8 @@ return {
         desc = 'Yank Line Trimmed to System Clipboard',
       },
 
-      -- Op-pending 'h' = trimmed current line (first non-blank to last non-blank).
-      -- This makes 'hh' work regardless of typing speed: even if 'timeoutlen'
-      -- fires and 'h' (operator) + 'h' (motion) executes, the result is identical.
-      -- Uses ':' not <cmd>: op-pending visual text objects require command-mode path.
+      -- Op-pending `h` is the trimmed line, so `hh` split by 'timeoutlen' still yanks the same
+      -- Uses ':' not <cmd>: op-pending visual text objects require the command-mode path
       {
         'h',
         function()
@@ -125,10 +122,8 @@ return {
       {
         'dd',
         function()
-          -- :normal! starts with a fresh operator state, so the `"x` prefix typed
-          -- before this mapping (e.g. `"_dd`) must be passed through explicitly.
-          -- Except the default register: unlike no prefix at all, an explicit `""` also
-          -- overwrites register 0 (which P puts from) and skips the small delete register
+          -- :normal! drops a typed `"x` prefix (`"_dd`), so pass it on, except `""`: unlike no
+          -- prefix, it overwrites register 0 (P's source) and skips the small delete register
           local register = vim.v.register == '"' and '' or '"' .. vim.v.register
 
           -- Trimming only makes sense for a single line; with a count, fall

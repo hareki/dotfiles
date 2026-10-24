@@ -88,8 +88,7 @@ return {
         desc = 'Multicursor: Skip Next Line Cursor',
         mode = { 'n', 'x' },
       },
-      -- Remapped from <C-m> in ghostty configs, for whatever reason
-      -- <C-m> is recognized as <CR> by Neovim by default
+      -- ghostty sends <F37> for <C-m>, which Neovim would otherwise read as <CR>
       { '<F37>', mc.toggleCursor, desc = 'Multicursor: Toggle Cursor', mode = { 'n', 'x' } },
     },
 
@@ -103,10 +102,8 @@ return {
       multicursor.setup(opts)
 
       multicursor.addKeymapLayer(function(layer_set)
-        -- Delete the main cursor.
         layer_set({ 'n', 'x' }, '<leader>mx', multicursor.deleteCursor)
 
-        -- Enable and clear cursors using escape.
         layer_set('n', '<esc>', function()
           if not multicursor.cursorsEnabled() then
             multicursor.enableCursors()

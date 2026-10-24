@@ -92,9 +92,9 @@ end
 --- @field row      integer
 
 --- Compute a centered window configuration from a size preset
---- @param size utils.ui.layout.PopupSize Size preset name
+--- @param size utils.ui.layout.PopupSize
 --- @param with_border boolean | nil Whether to add 2 for border (default false)
---- @return utils.ui.layout.WinConfig config Window config with width, height, col, row
+--- @return utils.ui.layout.WinConfig config
 function M.popup(size, with_border)
   local window_w, window_h
   local preset = Conf.size.popup[size] -- nil for 'input'
@@ -124,12 +124,9 @@ end
 --- @field col    fun(): integer
 --- @field row    fun(): integer
 
---- Like M.popup, but with function-valued fields the consumer resolves at
---- window-open time, so popups opened after a terminal resize are sized and
---- centered against the current screen instead of the startup one. Snacks
---- resolves callables for width/height/col/row; its max_width/max_height do
---- not support callables, so pair these with no max fields
---- @param size utils.ui.layout.PopupSize Size preset name
+--- Like M.popup, but function-valued, so consumers size and center popups at open time, after
+--- any terminal resize (Snacks can't take callable max_width/max_height, so set no max fields)
+--- @param size utils.ui.layout.PopupSize
 --- @param with_border boolean | nil Whether to add 2 for border (default false)
 --- @return utils.ui.layout.WinConfigFn config Window config resolved per call
 function M.popup_fn(size, with_border)

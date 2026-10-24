@@ -3,9 +3,8 @@ local common = require('utils.common')
 --- @class utils.hl-at-cursor
 local M = {}
 
--- Closer of the currently open popup, if any. Only one popup may exist at a
--- time: a second one would otherwise fight the first over the origin buffer's
--- <Tab>/<Esc> keymaps and orphan the earlier float
+-- Closer of the open popup: only one may exist, or a second would fight the first over the
+-- origin buffer's <Tab>/<Esc> keymaps and orphan the earlier float
 local close_active_popup
 
 local function collect_matches()
@@ -39,7 +38,6 @@ local function group_item(group, note)
   return string.format('- `%s`%s', group, note and (' ' .. note) or '')
 end
 
---- Create the floating buffer/window pair for the popup.
 --- @return integer buf, integer win
 local function open_popup(lines, row0, col0)
   local buf = vim.api.nvim_create_buf(false, true)

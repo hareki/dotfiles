@@ -13,17 +13,14 @@ return {
           a = { '@block.outer', '@conditional.outer', '@loop.outer' },
           i = { '@block.inner', '@conditional.inner', '@loop.inner' },
         }),
-        f = mini_ai.gen_spec.treesitter({ a = '@function.outer', i = '@function.inner' }), -- function
-        c = mini_ai.gen_spec.treesitter({ a = '@class.outer', i = '@class.inner' }), -- class
-        t = mini_ai.gen_spec.treesitter({ a = '@tag.outer', i = '@tag.inner' }), -- tags
+        f = mini_ai.gen_spec.treesitter({ a = '@function.outer', i = '@function.inner' }),
+        c = mini_ai.gen_spec.treesitter({ a = '@class.outer', i = '@class.inner' }),
+        t = mini_ai.gen_spec.treesitter({ a = '@tag.outer', i = '@tag.inner' }),
         d = { '%f[%d]%d+' }, -- digits
         w = {
           {
-            -- Acronyms / ALL-CAPS segments (incl. digits), e.g. "CONSTANT", "HTTP2",
-            -- and trailing acronyms like "JSON" in "parseJSON". A leading acronym
-            -- glued to a camel chunk ("XML" in "XMLHttpRequest") is still not
-            -- expressible with Lua frontier patterns; the camel pattern below
-            -- picks up "Http"-style chunks instead
+            -- ALL-CAPS segments with digits ("HTTP2", "JSON" in "parseJSON"); frontier patterns
+            -- can't split a leading acronym off a camel chunk ("XML" in "XMLHttpRequest")
             '%f[%u%d][%u%d]+%f[^%a%d]',
 
             -- Pascal/Camel subwords, e.g. "Http" in "XMLHttp"

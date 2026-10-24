@@ -4,14 +4,13 @@ local M = {}
 --- Shared separator for primary-style pill components
 M.separator = { left = Conf.icons.misc.PILL_LEFT, right = Conf.icons.misc.PILL_RIGHT }
 
--- Cached function for empty components
 local function empty_func()
   return ' '
 end
 
 --- Create an empty component (1 margin unit)
---- @param cond function | nil Condition function (synced with main component)
---- @return table component Empty lualine component
+--- @param cond function | nil Synced with the main component
+--- @return table component
 local function create_empty_comp(cond)
   return {
     empty_func,
@@ -23,9 +22,9 @@ local function create_empty_comp(cond)
 end
 
 --- Create margin components (empty_comp repeated n times)
---- @param count number Number of margin units
---- @param cond function | nil Condition function
---- @return table[] components Array of empty components
+--- @param count number
+--- @param cond function | nil
+--- @return table[] components
 local function create_margins(count, cond)
   local margins = {}
   for _ = 1, count do
@@ -35,7 +34,6 @@ local function create_margins(count, cond)
   return margins
 end
 
---- Default margin/padding values per component type
 local DEFAULTS = {
   ['primary-left'] = { margin = { left = 1, right = 0 } },
   ['primary-right'] = { margin = { left = 0, right = 1 } },
@@ -118,8 +116,8 @@ function M.wrap_component(component, wrapper_type, extra)
 end
 
 --- Flatten a section containing mixed single components and component arrays
---- @param ... table Components or arrays of components
---- @return table[] components Flattened array of components
+--- @param ... table
+--- @return table[] components
 function M.flatten_section(...)
   local result = {}
   for _, item in ipairs({ ... }) do

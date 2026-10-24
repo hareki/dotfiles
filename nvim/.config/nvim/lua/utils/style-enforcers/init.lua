@@ -5,9 +5,8 @@ local oxlint = require('utils.style-enforcers.oxlint')
 
 local filetypes = Conf.filetypes
 
--- Subset of oxfmt LSP's advertised filetypes that we want it to own.
--- Excludes astro/mdx (oxfmt LSP doesn't support them) and toml (taplo owns it).
--- Run before lint-fix steps so oxlint's on-disk fixAll sees formatted content.
+-- The oxfmt LSP filetypes it should own (not astro/mdx, unsupported, or toml, taplo's), run
+-- before the lint-fix steps so oxlint's on-disk fixAll sees formatted content
 engine.register(
   'oxfmt',
   filetypes.merge(
@@ -37,7 +36,7 @@ engine.register('oxlint', filetypes.JS_ALL, oxlint.run, { client = 'oxlint' })
 local M = {}
 
 local running_bufs = {}
--- Timeout to prevent permanent locks (5 seconds)
+-- Timeout to prevent permanent locks
 local TIMEOUT_MS = 5000
 
 --- @param formatters conform.FormatterInfo[]
@@ -77,7 +76,6 @@ function M.run(opts)
     return
   end
 
-  -- Prevent concurrent format+lint operations on the same buffer
   if running_bufs[buf] then
     Notifier.warn('Formatting already in progress', { title = 'Style Enforcer' })
     finish(false, 'Already in progress')
@@ -90,9 +88,8 @@ function M.run(opts)
   local settled = false
   local timeout_timer
 
-  -- Single completion point: fires on_done and releases the lock exactly once,
-  -- so a pipeline callback landing after the timeout can't double-report or
-  -- clobber the lock of a newer run on the same buffer.
+  -- Single completion point, firing on_done and releasing the lock once, so a callback landing
+  -- after the timeout can't double-report or clobber a newer run's lock on the same buffer
   --- @param ok boolean
   --- @param err? string
   local function cleanup(ok, err)
@@ -201,7 +198,6 @@ function M.run(opts)
       })
     end)
 
-    -- If linter setup fails, ensure cleanup
     if not ok then
       Notifier.error('Linter setup failed: ' .. tostring(err), { title = 'Style Enforcer' })
       write()
@@ -262,7 +258,6 @@ function M.run_all(debug)
     return
   end
 
-  -- Skip buffers that are already being formatted
   local to_run = vim.tbl_filter(function(buf)
     return not running_bufs[buf]
   end, all_buffers)
@@ -276,7 +271,6 @@ function M.run_all(debug)
   local success_paths = {}
   local error_paths = {}
 
-  -- Helper to get a nice display path
   local function buf_display_path(bufnr)
     local name = vim.api.nvim_buf_get_name(bufnr)
     if name == '' then
@@ -288,13 +282,11 @@ function M.run_all(debug)
   local function show_results()
     local mini_icons = require('mini.icons')
 
-    -- Helper to get icon and its highlight group for a file path
     local function get_icon_with_hl(path)
       local icon, hl, _ = mini_icons.get('file', path)
       return icon or '', hl or 'Normal'
     end
 
-    -- Helper to split path into directory and filename
     local function split_path(path)
       local dir, file = path:match('^(.*/)(.*)')
       if not dir then
@@ -344,9 +336,8 @@ function M.run_all(debug)
     end
   end
 
-  -- Preset the counter before dispatching: a buffer with no formatter and no
-  -- linter completes synchronously inside M.run, so a live-incremented counter
-  -- would transiently hit zero mid-loop and fire a premature partial summary.
+  -- Preset the counter: a buffer with no formatter or linter completes synchronously in M.run, so
+  -- a live-incremented counter could hit zero mid-loop and fire a premature partial summary
   local pending_count = #to_run
 
   for _, buf in ipairs(to_run) do

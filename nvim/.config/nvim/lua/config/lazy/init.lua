@@ -4,7 +4,6 @@ lazy_utils.ensure_lazy()
 -- LazyFile events for reference:
 -- { 'BufReadPost', 'BufNewFile', 'BufWritePre' }
 
--- [[ Configure and install plugins ]]
 local lg = Conf.size.popup.lg
 local lazy = require('lazy')
 lazy.setup({
@@ -38,7 +37,7 @@ lazy.setup({
     { import = 'features.preview' },
   },
   defaults = {
-    lazy = true, -- Don't eagerly load plugins by default
+    lazy = true,
     version = false, -- Always use the latest git commit
   },
   performance = {

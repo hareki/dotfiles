@@ -7,10 +7,8 @@ vim.filetype.add({
     ['.*ghostty/config.*'] = 'ghostty',
     ['.*ghostty/themes/.*'] = 'ghostty',
 
-    -- Angular component templates co-locate a same-named .ts sibling within an
-    -- Angular workspace: app.html + app.ts, foo.component.html + foo.component.ts.
-    -- The cheap sibling check short-circuits before the upward workspace walk, so
-    -- static html (index.html, non-Angular projects) stays plain 'html'.
+    -- Angular templates sit next to a same-named .ts (app.html + app.ts) in an Angular workspace;
+    -- the cheap sibling check runs before the upward workspace walk, so static html stays 'html'
     ['.*%.html'] = function(path)
       if
         vim.uv.fs_stat((path:gsub('%.html$', '.ts')))

@@ -13,7 +13,7 @@ local M = {}
 M.state = {
   position = 'float',
   opts = nil,
-  preview_on_focus = false, -- Preview is off on startup
+  preview_on_focus = false,
   preview_watcher = nil,
 }
 
@@ -26,9 +26,7 @@ local preview = Defer.on_exported_call('nvim-tree-preview')
 --- @module 'nvim-tree-preview.manager'
 local manager = Defer.on_index('nvim-tree-preview.manager')
 
---- Compute the popup size preset for the float tree based on current state.
---- Returns 'lg' when float mode has the preview visible (wider popup for readable
---- preview code), otherwise 'vertical_sm' (narrower default).
+--- 'lg' while the float tree shows the preview (wide enough for readable code), else 'vertical_sm'
 --- @return 'lg' | 'vertical_sm'
 local function compute_size()
   if M.state.position == 'float' and M.state.preview_on_focus then
@@ -49,10 +47,8 @@ function M.close_all()
   api.tree.close()
 end
 
---- Close the float tree once focus lands in a normal window, the rule Snacks pickers auto-close
---- by: floats (the preview, inputs, pickers, Lazygit, the coding agent, the floating terminal)
---- keep it open, unlike nvim-tree's quit_on_focus_loss, which closes on any WinLeave. The
---- cmdline window keeps it open too: it returns to the tree, and can't close windows (E11).
+--- Close the float tree once focus lands in a normal window, like Snacks pickers: floats keep it
+--- open, unlike quit_on_focus_loss (any WinLeave), and so does the cmdline window (E11)
 --- @return nil
 function M.close_on_focus_loss()
   if
@@ -67,11 +63,10 @@ function M.close_on_focus_loss()
   M.close_all()
 end
 
---- Create a node action function for file/folder interaction
---- For files: opens the file and closes tree if floating.
---- For folders: expands, collapses, or toggles based on action type.
---- @param folder_action 'expand' | 'collapse' | 'toggle' The action to perform on folders
---- @return function action The node action function
+--- Node action: files open (closing the float tree), or collapse their parent for 'collapse';
+--- folders expand, collapse or toggle
+--- @param folder_action 'expand' | 'collapse' | 'toggle'
+--- @return function action
 function M.create_node_action(folder_action)
   return function()
     local ok, node = pcall(api.tree.get_node_under_cursor)
@@ -79,7 +74,7 @@ function M.create_node_action(folder_action)
       return
     end
 
-    --- api.tree.get_node_under_cursor can return nvim_tree.api.DirectoryNode. Which contains `nodes`
+    --- get_node_under_cursor can return a nvim_tree.api.DirectoryNode, which has `nodes`
     --- @diagnostic disable-next-line: undefined-field
     local is_file_node = node.nodes == nil
 
@@ -96,7 +91,7 @@ function M.create_node_action(folder_action)
       return
     end
 
-    --- api.tree.get_node_under_cursor can return nvim_tree.api.DirectoryNode. Which contains `open` field
+    --- get_node_under_cursor can return a nvim_tree.api.DirectoryNode, which has `open`
     --- @diagnostic disable-next-line: undefined-field
     local node_open = node.open
 
@@ -111,7 +106,7 @@ function M.create_node_action(folder_action)
 end
 
 --- Switch nvim-tree between float and side panel positions
---- @param position features.navigation.nvim-tree.utils.Position The target position ('float' or other)
+--- @param position features.navigation.nvim-tree.utils.Position
 --- @return nil
 function M.switch_position(position)
   if position == M.state.position then
@@ -131,9 +126,8 @@ function M.switch_position(position)
   nvimtree.setup(M.state.opts)
 end
 
---- Float geometry of the tree for the current size preset: its width and
---- position, with the height halved to leave room for the preview below
---- ('collapse') or filling the whole popup ('expand')
+--- The tree's float geometry for the current size preset, its height halved to leave room for
+--- the preview below ('collapse') or filling the whole popup ('expand')
 --- @param action 'expand' | 'collapse'
 --- @return utils.ui.layout.WinConfig tree
 --- @return integer preview_height Height of the preview below the collapsed tree
@@ -153,10 +147,9 @@ function M.float_geometry(action)
     preview_height
 end
 
---- Toggle the tree window height between half and full in float mode, and
---- re-apply width / position to match the current size preset (so the popup
---- can grow/shrink in width when the preview is toggled on/off).
---- @param action 'expand' | 'collapse' The height action to perform
+--- Toggle the float tree between half and full height, re-applying width and position for
+--- the current size preset (the popup widens while the preview shows)
+--- @param action 'expand' | 'collapse'
 --- @return nil
 function M.toggle_tree_height(action)
   if M.state.position ~= 'float' then
@@ -193,8 +186,7 @@ function M.resize()
   preview.resize()
 end
 
---- Toggle the preview window open/closed state
---- Adjusts tree height in float mode and manages watch state.
+--- Toggle the preview, adjusting the float tree's height and the watch state
 --- @param force_state boolean | nil Force specific state (true=open, false=close, nil=toggle)
 --- @return nil
 function M.toggle_preview(force_state)
@@ -211,8 +203,7 @@ function M.toggle_preview(force_state)
     next_open = force_state
   end
 
-  -- Flip the preview flag BEFORE resizing so compute_size() reflects the
-  -- target state and toggle_tree_height applies the correct size preset.
+  -- Flip the flag before resizing, so compute_size() picks the target state's size preset
   M.state.preview_on_focus = next_open
   M.toggle_tree_height(next_open and 'collapse' or 'expand')
 
@@ -267,10 +258,9 @@ function M.mark_and_prev()
   vim.api.nvim_feedkeys(vim.keycode('<Up>'), 'n', false)
 end
 
---- Format the root folder label with icons and path separators
 --- Replaces home directory with  icon and path separators with .
 --- @param path string The absolute path to format
---- @return string formatted The formatted path with icons
+--- @return string formatted
 function M.format_root_label(path)
   local home_icon = vim.trim(Conf.icons.file_tree.HOME)
   local separator = Conf.icons.file_tree.COLLAPSED .. ' '
@@ -278,7 +268,6 @@ function M.format_root_label(path)
   local short = vim.fn.fnamemodify(path, ':~')
 
   if short == '~' then
-    -- If we're exactly at home, just show the icon
     return home_icon .. ' '
   end
 

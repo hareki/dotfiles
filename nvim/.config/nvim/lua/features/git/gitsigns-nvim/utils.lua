@@ -3,9 +3,8 @@ local common = require('utils.common')
 --- @class features.git.gitsigns.utils
 local M = {}
 
---- Build a setup callback that links a gitsigns popup to the window it was opened from.
---- Returns a function that, when invoked after the popup opens, wires <Tab>/<Esc>
---- to toggle focus between the source window and the popup, or close it.
+--- A callback that, run once a gitsigns popup opens, wires <Tab> to toggle focus between it and
+--- the window it was opened from, and <Esc> to close it
 --- @param popup_type string Gitsigns popup type ('blame' | 'hunk')
 function M.build_popup_navigation(popup_type)
   return function()

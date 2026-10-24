@@ -20,9 +20,8 @@ function M.navigate(direction)
   end
 end
 
---- Custom lens handler for nvim-hlslens search results
---- Displays directional indicators (↑/↓) and pill-shaped position information for search matches.
---- Source: `https://github.com/kevinhwang91/nvim-hlslens?tab=readme-ov-file#customize-virtual-text`
+--- Lens with direction arrows and a pill-shaped match position, adapted from
+--- https://github.com/kevinhwang91/nvim-hlslens?tab=readme-ov-file#customize-virtual-text
 --- @param render table Inner hlslens module, use `render.setVirt()` to set virtual text
 --- @param position_list table (1,1)-indexed position list of search matches
 --- @param nearest boolean Whether this is the nearest lens to cursor

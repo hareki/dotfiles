@@ -128,9 +128,8 @@ return {
       treesitter.install(missing, { summary = true })
     end
 
-    -- https://morizbuesing.com/blog/mdx-support-in-nvchad/
-    -- (handlebars => glimmer and htmlangular => angular come from the plugin's own
-    -- plugin/filetypes.lua, sourced before this config runs)
+    -- mdx reuses the markdown parser (handlebars => glimmer and htmlangular => angular are
+    -- registered by the plugin's own plugin/filetypes.lua)
     vim.treesitter.language.register('markdown', 'mdx')
   end,
 }

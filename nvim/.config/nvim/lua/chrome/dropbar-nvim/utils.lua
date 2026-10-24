@@ -4,18 +4,17 @@ local M = {}
 local IGNORED_FILETYPES = { help = true, trouble = true, ['grug-far'] = true }
 
 --- Check if the buffer never gets a dropbar: an ignored filetype, or a terminal
---- @param buf integer Buffer number
+--- @param buf integer
 --- @return boolean
 function M.is_ignored(buf)
   return IGNORED_FILETYPES[vim.bo[buf].filetype] == true or vim.bo[buf].buftype == 'terminal'
 end
 
---- Determine if dropbar should be enabled for a buffer/window
 --- Filters out help files, terminals, and large files (>1MB).
---- @param buf integer Buffer number
---- @param win integer Window handle
---- @param _ table | nil Additional info (unused)
---- @return boolean enabled True if dropbar should be enabled
+--- @param buf integer
+--- @param win integer
+--- @param _ table | nil
+--- @return boolean
 function M.enable(buf, win, _)
   if
     not vim.api.nvim_buf_is_valid(buf)
@@ -39,7 +38,7 @@ end
 
 --- Build a dropbar source that renders a single static title symbol
 --- @param opts { icon: string, icon_hl: string, name: string, name_hl: string }
---- @return table[] sources Dropbar sources list containing one static symbol
+--- @return table[] sources
 function M.title_symbol(opts)
   return {
     {

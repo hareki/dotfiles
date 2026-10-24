@@ -1,8 +1,7 @@
 --- @class utils.style-enforcers.eslint
 local M = {}
 
---- Run eslint auto-fix on a buffer via LSP
---- Executes eslint.applyAllFixes command through the eslint language server.
+--- Run eslint.applyAllFixes on a buffer through the eslint language server
 --- @param opts { bufnr: integer, client: vim.lsp.Client, on_done: fun(ok: boolean, err?: string) }
 --- @return nil
 function M.run(opts)

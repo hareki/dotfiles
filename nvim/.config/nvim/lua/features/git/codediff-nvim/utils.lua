@@ -10,10 +10,8 @@ local views = {}
 --- @param tabpage integer
 --- @return boolean
 function M.is_codediff_tab(tabpage)
-  -- codediff is lazy (cmd = 'CodeDiff'); requiring its module before it loads
-  -- would force-load the whole plugin from every caller (statusline redraws,
-  -- git-conflict scans). When it isn't loaded there are no sessions, so bail
-  -- without touching it.
+  -- Requiring codediff (lazy, cmd = 'CodeDiff') would force-load it from every caller (statusline
+  -- redraws, git-conflict scans), and while it isn't loaded there are no sessions
   local package_utils = require('utils.package')
   if not package_utils.is_loaded('codediff.nvim') then
     return false

@@ -1,4 +1,4 @@
--- [[ Cursor Line Number Mode Indicator ]]
+-- Cursor line number mode indicator
 return {
   -- Applied before setup(), and modicator only fills *Mode groups that are still empty, so its
   -- fallback links and lualine integration (lualine's theme is reset) never override these

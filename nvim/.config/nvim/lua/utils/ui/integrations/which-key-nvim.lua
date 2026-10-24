@@ -1,11 +1,8 @@
---- Create a which-key.nvim plugin spec with group specs, icon rules and/or triggers
---- Returns a lazy.nvim spec that contributes to which-key's configuration.
---- Icon rules are prepended (higher priority than generic rules in the main spec).
---- Triggers register manual which-key prefixes (needed for single-letter builtins
---- like `l`, which which-key never auto-triggers).
+--- A which-key.nvim spec fragment adding group specs, icon rules (prepended, so they outrank
+--- the generic ones) and/or manual triggers (for single-letter builtins like `l`)
 --- @module 'which-key'
 --- @param config { specs?: wk.Spec, rules?: wk.IconRule | wk.IconRule[], triggers?: wk.Spec }
---- @return table spec A lazy.nvim plugin spec for which-key.nvim
+--- @return table spec
 local function which_key(config)
   local specs = config.specs
   local rules = config.rules

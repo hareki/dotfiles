@@ -36,7 +36,6 @@ local function invalidate_cache()
   cache.last_bufnr = -1
 end
 
--- Set up autocmds to invalidate cache on relevant events
 local group = vim.api.nvim_create_augroup('chrome.lualine.buffer-status-cache', { clear = true })
 vim.api.nvim_create_autocmd({
   'BufReadPost',
@@ -78,11 +77,8 @@ local function get_current_unsaved()
   local ft = bo.filetype
   local name = vim.api.nvim_buf_get_name(bufnr) or ''
 
-  -- Empty filetype is ambiguous: ignore true scratch/UI buffers (nofile,
-  -- prompt), but allow readonly content like codediff:// diff views (which
-  -- clear their filetype to avoid LSP attach) to still report the lock icon.
-  -- Terminals are always 'modifiable = false' and would show a misleading
-  -- padlock, so they are ignored regardless of filetype
+  -- Terminals are always nomodifiable (a misleading padlock); empty-filetype nofile/prompt buffers
+  -- are UI, while codediff:// views clear their filetype yet still earn the lock icon
   local is_ignored
   if bo.buftype == 'terminal' then
     is_ignored = true
@@ -164,7 +160,6 @@ local function get_global_unsaved()
   return cache.global_unsaved
 end
 
---- Get conflict flag for the current buffer
 --- @return string
 local function get_current_conflict()
   local bufnr = vim.api.nvim_get_current_buf()
@@ -195,7 +190,6 @@ local PARTS = {
   { 'global_conflict', get_global_conflict, 'red' },
 }
 
---- Initialize the component
 --- @param options table
 function M:init(options)
   M.super.init(self, options)
@@ -207,7 +201,6 @@ function M:init(options)
   end
 end
 
---- Update and return the status string
 --- @return string
 function M:update_status()
   local result = {}

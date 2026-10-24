@@ -124,9 +124,8 @@ M.windows = {
   { '<c-w>L', desc = 'Move Window to Far Right' },
 }
 
---- Fold-key descriptions in { key, desc } pairs. Single source of truth,
---- shared with features/search/snacks-nvim/init.lua, which registers identity keymaps
---- from this list so the fold keys show up in Snacks.picker.keymaps
+--- Fold-key { key, desc } pairs, also read by features/search/snacks-nvim/init.lua to register
+--- identity keymaps so the fold keys show up in Snacks.picker.keymaps
 M.fold_descs = {
   { 'za', 'Toggle Fold Under Cursor' },
   { 'zA', 'Toggle All Folds Under Cursor' },

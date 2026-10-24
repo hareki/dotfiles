@@ -26,14 +26,14 @@ function M.setup_repeat()
       vim.api.nvim_feedkeys(
         vim.keycode(last_obj), -- translate <Esc>, <CR> …
         'x',
-        false -- not literally; integrate with typeahead
+        false -- keycode() already escaped K_SPECIAL
       )
     end
   end, { desc = 'Repeat Last Text-Object Selection' })
 end
 
 --- Generate textobject spec for the entire buffer
---- From MiniExtra.gen_ai_spec.buffer - handles 'i' (inner) and 'a' (around) types.
+--- From MiniExtra.gen_ai_spec.buffer
 --- @param ai_type 'a' | 'i' The textobject type ('a' includes blanks, 'i' excludes them)
 --- @return table spec The region spec with from/to positions
 function M.buffer(ai_type)

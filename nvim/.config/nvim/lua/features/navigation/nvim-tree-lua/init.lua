@@ -317,22 +317,15 @@ return {
         end,
       })
 
-      -- Subscribed once here rather than on User NvimTreeSetup: switch_position()
-      -- re-runs setup(), which re-fires that event while earlier subscriptions
-      -- persist, so every switch would stack another handler
+      -- Subscribed here, not on User NvimTreeSetup: switch_position() re-runs setup(), re-firing
+      -- that event while old subscriptions persist, so every switch would stack another handler
       local events = api.events
       events.subscribe(events.Event.NodeRenamed, function(data)
         Snacks.rename.on_rename_file(data.old_name, data.new_name)
       end)
 
-      -- The tree buffer is bufhidden=wipe, so TreeAttachedPost fires on every open;
-      -- (re)create the watcher group here so the autocmd's lifetime matches the
-      -- buffer that registers it. Creating it in tree.open() instead would leak
-      -- an ungrouped autocmd when the tree is opened via api.tree.open() directly
-      -- (e.g. auto-session's no-restore hook), and lose the autocmd when tree.open()
-      -- clears the group while the buffer survives. Not in on_attach: help (g?)
-      -- also runs on_attach, on a throwaway scratch buffer to list the keymaps,
-      -- which would retarget the watcher to that buffer.
+      -- TreeAttachedPost fires per open (the buffer is bufhidden=wipe), matching the watcher's
+      -- lifetime; tree.open() misses direct api.tree.open() calls, and on_attach runs for help too
       events.subscribe(events.Event.TreeAttachedPost, function(tree_bufnr)
         state.preview_watcher =
           vim.api.nvim_create_augroup('navigation.nvim-tree.preview', { clear = true })

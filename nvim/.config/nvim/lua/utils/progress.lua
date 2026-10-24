@@ -24,9 +24,8 @@ local M = {}
 --- @param bufnr integer | nil
 --- @return integer | nil
 local function get_valid_client_id(bufnr)
-  -- Noice drops progress events whose client id doesn't resolve to a live
-  -- client (ids start at 1, there is no anonymous id), so fall back to any
-  -- running client and return nil when none exists
+  -- Noice drops progress whose client id isn't a live client (there's no anonymous id), so fall
+  -- back to any running client, or nil when none runs
   local client = vim.lsp.get_clients({ bufnr = bufnr or 0 })[1] or vim.lsp.get_clients()[1]
   return client and client.id
 end
@@ -34,7 +33,6 @@ end
 local ProgressHandle = {}
 ProgressHandle.__index = ProgressHandle --[[@as utils.progress.Handle]]
 
--- [[ Internal low-level sender ]]
 --- @private
 --- @param kind       'begin' | 'report' | 'end'
 --- @param title      string | nil
@@ -60,10 +58,8 @@ function ProgressHandle:_send(kind, title, percentage)
   })
 end
 
--- When progress is still *pending*, we cache the latest state. If `finish` is
--- triggered before the delay elapses, we cache 'end' which the timer flush
--- treats as an abort (nothing is ever shown). Once delay passes
--- (`self._pending == false`), all events go straight to Noice.
+-- While pending, cache the latest state; an 'end' cached before the delay elapses aborts the
+-- flush, so nothing shows. After the delay, events go straight to Noice
 --- @private
 --- @param kind       'begin' | 'report' | 'end'
 --- @param title      string | nil
@@ -84,9 +80,8 @@ function ProgressHandle:_close_timer()
   self._timer = nil
 end
 
--- [[ Public helpers ]]
 --- Start the progress notification (sends 'begin' kind)
---- @param title? string The progress title to display
+--- @param title? string
 --- @param percentage? number Initial percentage (0-100)
 --- @return nil
 function ProgressHandle:start(title, percentage)
@@ -94,7 +89,7 @@ function ProgressHandle:start(title, percentage)
 end
 
 --- Update the progress notification (sends 'report' kind)
---- @param title? string Updated progress title
+--- @param title? string
 --- @param percentage? number Current percentage (0-100)
 --- @return nil
 function ProgressHandle:report(title, percentage)
@@ -108,17 +103,15 @@ end
 function ProgressHandle:finish(title)
   self:_close_timer()
   self:_queue_or_send('end', title, nil) -- Percentage is not sent for the `end` kind
-  -- The timer is gone, so nothing will ever flush the pending cache again;
-  -- clear the flag so a reused handle sends straight to Noice instead of
-  -- caching into the void.
+  -- With the timer gone nothing flushes the pending cache, so clear the flag and let a reused
+  -- handle send straight to Noice
   self._pending = false
 end
 
--- [[ Factory ]]
 --- Create a new progress handle for showing LSP-style progress notifications
 --- Supports delayed display via pending_ms to avoid flicker for fast operations.
---- @param opts utils.progress.CreateOpts | nil Options (token, client_name, client_id, pending_ms)
---- @return utils.progress.Handle handle Progress handle with start/report/finish methods
+--- @param opts utils.progress.CreateOpts | nil
+--- @return utils.progress.Handle handle
 function M.create(opts)
   opts = opts or {}
 

@@ -61,9 +61,7 @@ return {
         callback = codediff_utils.capture_view,
       })
 
-      -- On close, switch the initial tab's active window to the file that was last
-      -- focused in codediff and restore its scroll position, so quitting feels like
-      -- simply turning codediff off.
+      -- On close, show the last-focused file in the initial tab at its scroll position
       vim.api.nvim_create_autocmd('User', {
         group = group,
         pattern = 'CodeDiffClose',

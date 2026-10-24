@@ -27,11 +27,11 @@ local DEFAULT_ORDER = 100
 local entries = {}
 local seq = 0
 
---- Register a enforcer with its supported filetypes
+--- Register an enforcer with its supported filetypes
 --- @param name string Unique enforcer name
---- @param filetypes string[] List of filetypes this enforcer supports
---- @param runner utils.style-enforcers.Runner The enforcer function
---- @param opts? { order?: integer, client?: string } `order` sets run position: smaller runs first (default 100). Use a lower value for a formatter step that must run ahead of lint-fix steps. `client` limits the enforcer to buffers that LSP client is attached to, so projects that never start the server (or files outside its root) skip the step.
+--- @param filetypes string[]
+--- @param runner utils.style-enforcers.Runner
+--- @param opts? { order?: integer, client?: string } `client`: skip buffers it's not attached to
 --- @return nil
 function M.register(name, filetypes, runner, opts)
   seq = seq + 1
@@ -65,7 +65,7 @@ local function entries_for_buf(bufnr)
   return matched
 end
 
---- Internal: run the matched enforcers sequentially
+--- Run the matched enforcers sequentially
 --- @param matched utils.style-enforcers.Entry[]
 --- @param opts utils.style-enforcers.RunOpts
 --- @param idx integer
@@ -89,9 +89,8 @@ local function run_next(matched, opts, idx)
       opts.on_done(entry.name, ok, err)
     end
 
-    -- A failed enforcer ends the run, the way a failed format step ends the pipeline
-    -- (init.lua). After BUFFER_CHANGED in particular, whoever is editing the buffer
-    -- would race the remaining enforcers the same way
+    -- A failed enforcer ends the run like a failed format step ends the pipeline (init.lua): after
+    -- BUFFER_CHANGED, whoever is editing the buffer would race the remaining enforcers
     if ok then
       run_next(matched, opts, idx + 1)
     elseif opts.on_complete then
@@ -111,16 +110,14 @@ local function run_next(matched, opts, idx)
 end
 
 --- Run every registered enforcer that applies to the buffer
---- @param opts utils.style-enforcers.RunOpts Options with bufnr, on_start, on_done, on_complete callbacks
+--- @param opts utils.style-enforcers.RunOpts
 --- @return nil
 function M.run_for_buf(opts)
   run_next(entries_for_buf(opts.bufnr), opts, 1)
 end
 
---- Write the buffer to disk if it has unsaved changes
---- Returns ok, err instead of throwing: an unwritable buffer (E32 no name, E45 readonly,
---- E212 missing dir) would otherwise escape the async pipeline, e.g. from inside an
---- enforcer's LSP response callback, and leak the buffer lock.
+--- Write the buffer if it has unsaved changes, returning ok, err rather than throwing: an
+--- unwritable buffer (E32, E45, E212) would escape the async pipeline and leak the buffer lock
 --- @param bufnr integer
 --- @return boolean ok
 --- @return string? err

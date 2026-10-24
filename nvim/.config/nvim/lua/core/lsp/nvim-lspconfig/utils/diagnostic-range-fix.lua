@@ -1,14 +1,9 @@
 --- @class core.lsp.nvim-lspconfig.utils.diagnostic-range-fix
---- HACK: Some servers emit diagnostics whose range ends at column 0 of the next line.
---- Nvim draws them on their own line, but its line-scoped lookups also return them for
---- the next one (`vim.diagnostic.get({ lnum })` matches up to end_lnum), so eagle's line
---- popup would show them there. This module ends those ranges on their own line,
---- underlining at least one character.
+--- HACK: some servers end a diagnostic's range at column 0 of the next line, so line lookups
+--- (eagle's popup) return it there too; end such ranges on their own line instead
 local M = {}
 
---- Fix zero-width or out-of-bounds diagnostics to underline at least one character
---- Corrects diagnostics that would otherwise be invisible due to invalid ranges.
---- Expects a diagnostic whose range ends at column 0 of the next line (see M.apply).
+--- Underline at least one character of a diagnostic ending at column 0 of the next line
 --- @param line string | nil The line text for bounds checking
 --- @param diagnostic vim.Diagnostic The diagnostic to fix in-place
 --- @return nil
@@ -19,11 +14,9 @@ local function fix_diagnostic_range(line, diagnostic)
 
   local line_len = #line
 
-  -- Only the vim-side range is rewritten. user_data.lsp is echoed back verbatim as
-  -- code action context, and servers like eslint look their fixes up by the exact
-  -- range they sent (its characters are also UTF-16 offsets, not byte columns)
+  -- Only the vim-side range is rewritten: user_data.lsp goes back verbatim as code action context,
+  -- and servers like eslint look fixes up by the exact (UTF-16) range they sent
 
-  -- Set end line to start line
   diagnostic.end_lnum = diagnostic.lnum
 
   -- Only shift backward if col is out of bounds (pointing past the line end)
@@ -35,7 +28,7 @@ end
 
 --- Fix all diagnostic ranges in a list
 --- Fetches lines (once per unique lnum) only for diagnostics whose range needs fixing.
---- @param bufnr integer Buffer number
+--- @param bufnr integer
 --- @param diagnostics vim.Diagnostic[] List of diagnostics to fix in-place
 --- @return nil
 function M.apply(bufnr, diagnostics)

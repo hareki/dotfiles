@@ -1,4 +1,3 @@
--- [[ Autocommands ]]
 local function augroup(name)
   return vim.api.nvim_create_augroup('config.autocmds.' .. name, {
     clear = true,
@@ -7,15 +6,13 @@ end
 
 local aucmd = vim.api.nvim_create_autocmd
 
--- Reload files changed on disk. Bare `:checktime` only inspects buffers shown
--- in a window (check_timestamps() skips b_nwindows == 0, contra its docs), so
--- hidden buffers rewritten from outside keep serving stale text.
+-- Reload files changed on disk. Bare `:checktime` skips buffers not shown in a window (contra its
+-- docs), so hidden buffers rewritten from outside would keep serving stale text
 aucmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
   group = augroup('checktime'),
   callback = function()
-    -- `:checktime {bufnr}` reloads immediately, while the argument-less form
-    -- postpones the reload to a harmless moment when called from an autocmd.
-    -- Deferring to the event loop restores that guarantee.
+    -- `:checktime {bufnr}` reloads immediately, unlike the bare form, which waits for a harmless
+    -- moment when called from an autocmd; scheduling restores that guarantee
     vim.schedule(function()
       for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
         -- getbufvar rather than vim.bo, which reads a hidden buffer's option by switching
@@ -37,10 +34,8 @@ aucmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
   end,
 })
 
--- Resize splits if window got resized. Neovim refits a background tabpage to the
--- new screen size only when it's next entered, so those are equalized on TabEnter
--- (which fires after the refit). Visiting them from here would fire Win/BufEnter in
--- each one and retarget focus trackers (e.g. lazygit's last editing window)
+-- Equalize splits on resize. Background tabpages refit only once entered, so they wait for
+-- TabEnter: visiting them here would fire Win/BufEnter and retarget focus trackers (lazygit's)
 local resize_group = augroup('resize-splits')
 --- @type table<integer, true>
 local tabpages_to_equalize = {}
@@ -80,9 +75,8 @@ aucmd('TabEnter', {
   end,
 })
 
--- Read binary files raw, by git's test for one: a NUL in the first 8000 bytes. Read as text,
--- they decode as latin1, and a :w writes them back re-encoded (editorconfig's `charset`) and
--- with an EOL appended ('fixeol'). UTF-16 text holds NULs too, but its BOM gets it decoded
+-- Read binary files raw (git's test: a NUL in the first 8000 bytes), or :w re-encodes them per
+-- editorconfig's `charset` and appends an EOL; UTF-16 has NULs too, but its BOM gets it decoded
 aucmd('BufReadPre', {
   group = augroup('binary-files'),
   callback = function(event)
@@ -104,7 +98,6 @@ aucmd('BufReadPre', {
   end,
 })
 
--- Go to last location when opening a buffer
 aucmd('BufReadPost', {
   group = augroup('last-location'),
   callback = function(event)
@@ -118,12 +111,11 @@ aucmd('BufReadPost', {
       ft = vim.filetype.match({ buf = buf }) or ''
     end
 
-    -- Skip if the filetype is excluded or we've already restored once
     if vim.list_contains(exclude, ft) or vim.b[buf].restored_last_position then
       return
     end
 
-    vim.b[buf].restored_last_position = true -- mark as done
+    vim.b[buf].restored_last_position = true
 
     local mark = vim.api.nvim_buf_get_mark(buf, '"')
     local lcount = vim.api.nvim_buf_line_count(buf)
@@ -133,7 +125,6 @@ aucmd('BufReadPost', {
   end,
 })
 
--- Close some filetypes with <q>
 aucmd('FileType', {
   group = augroup('close-with-q'),
   pattern = {
@@ -165,7 +156,7 @@ aucmd('FileType', {
   command = 'wincmd L',
 })
 
--- Stop starting auto comment insertion on new lines
+-- Don't continue comments onto new lines
 aucmd('FileType', {
   group = augroup('stop-auto-comment'),
   callback = function()
@@ -216,9 +207,8 @@ aucmd('FileType', {
       return
     end
 
-    -- A buffer loaded while hidden (e.g. an LSP bufload()) gets its FileType, and a
-    -- first BufWinEnter, in the temporary autocmd window. FileType won't fire again
-    -- once it's displayed for real, so wait for the BufWinEnter of that window
+    -- A buffer loaded while hidden (an LSP bufload()) gets FileType and a first BufWinEnter in the
+    -- autocmd window, and FileType won't fire again, so wait for a real window's BufWinEnter
     vim.api.nvim_clear_autocmds({ group = markdown_group, buffer = event.buf })
     aucmd('BufWinEnter', {
       group = markdown_group,
@@ -241,7 +231,7 @@ aucmd('FileType', {
   end,
 })
 
--- Use the same keymap as switching to cmdline window mode (vim.opt.cedit) to switch back to cmdline mode
+-- Switch back to the cmdline with the key that opened the cmdline window ('cedit')
 aucmd('CmdwinEnter', {
   group = augroup('cmdwin-keymaps'),
   callback = function(event)
@@ -266,7 +256,6 @@ aucmd('CmdwinEnter', {
   end,
 })
 
--- Clear search highlight when entering insert mode
 aucmd('InsertEnter', {
   group = augroup('clear-hlsearch-on-insert'),
   callback = function()

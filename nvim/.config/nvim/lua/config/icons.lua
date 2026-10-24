@@ -59,10 +59,8 @@ local M = {
     FOLDER_EMPTY_OPEN = '',
     FOLDER_SYMLINK = '',
   },
-  -- Unlike every other group, these leaf keys stay PascalCase instead of
-  -- CONSTANT_CASE: they are consumed as-is as blink-cmp `kind_icons` keys
-  -- (see features/completion/blink-cmp/init.lua) and must match
-  -- the LSP CompletionItemKind names (Class, Color, Constant, ...) verbatim.
+  -- PascalCase rather than CONSTANT_CASE: blink-cmp reads these as `kind_icons` keys, which must
+  -- match the LSP CompletionItemKind names verbatim (features/completion/blink-cmp/init.lua)
   cmp_kinds = {
     -- lspkind.nvim codicon preset
     Class = '',

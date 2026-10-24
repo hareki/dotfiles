@@ -1,9 +1,8 @@
 --- @class utils.path
 local M = {}
 
---- Get the initial working directory path
 --- Returns the directory passed as the single neovim argument, or the startup CWD.
---- @return string path The initial working directory path
+--- @return string path
 function M.get_initial_path()
   -- The cwd only catches up to a directory argument at VimEnter
   -- (lua/core/auto-session.lua), so resolve the argument itself.

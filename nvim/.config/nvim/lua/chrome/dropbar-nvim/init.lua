@@ -151,7 +151,7 @@ return {
             end,
           },
           lsp = {
-            max_depth = 6, -- Limit the lsp items to avoid too deeply nested items
+            max_depth = 6,
           },
         },
       }

@@ -1,9 +1,8 @@
 --- @class chrome.nvim-ufo.utils
 local M = {}
 
---- Custom fold virtual text handler for nvim-ufo
---- Displays a folded region with dynamic truncation and a pill-shaped line count indicator.
---- Source: `https://github.com/kevinhwang91/nvim-ufo?tab=readme-ov-file#customize-fold-text`
+--- Fold text with dynamic truncation and a pill-shaped line count, adapted from
+--- https://github.com/kevinhwang91/nvim-ufo?tab=readme-ov-file#customize-fold-text
 --- @param virt_text table Array of virtual text chunks (text, hl_group pairs)
 --- @param lnum integer Starting line number of the fold
 --- @param end_lnum integer Ending line number of the fold
@@ -29,7 +28,7 @@ function M.fold_text_handler(virt_text, lnum, end_lnum, width, truncate)
       local hl_group = chunk[2]
       table.insert(virt_text_result, { chunk_text, hl_group })
 
-      -- str width returned from truncate() may less than 2nd argument, need padding
+      -- truncate() can return a narrower string than requested, so pad it
       if cur_width + chunk_width < target_width then
         local padding = (' '):rep(target_width - cur_width - chunk_width)
         table.insert(virt_text_result, { padding })

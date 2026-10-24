@@ -87,10 +87,7 @@ return {
       },
     }
 
-    -- Merged in rather than written above because the lazygit codediff renderer
-    -- loads the same module headlessly: these four decide what a highlighted
-    -- diff row looks like, and a second copy here is what would let the two
-    -- drift apart. See the module's own header.
+    -- Kept in their own module, which the lazygit codediff renderer also loads headlessly
     local treesitter_highlights = require('config.treesitter-highlights')
     for group, hl in pairs(treesitter_highlights(palette)) do
       opts.custom_highlights[group] = hl

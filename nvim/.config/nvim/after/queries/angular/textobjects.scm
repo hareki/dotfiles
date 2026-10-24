@@ -1,4 +1,3 @@
-; The angular grammar is a tree-sitter-html fork with identical node names, so
-; inheriting resolves the full html textobjects query, including the @tag.*
-; extensions in after/queries/html/textobjects.scm.
+; The angular grammar is a tree-sitter-html fork with identical node names, so inheriting
+; resolves html's full textobjects query, its @tag.* extensions in after/queries/html included
 ; inherits: html

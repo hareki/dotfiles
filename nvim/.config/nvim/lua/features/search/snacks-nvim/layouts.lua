@@ -37,7 +37,6 @@ local function frame(opts, box, preview)
   }
 end
 
---- Preview pane to the right of the list.
 --- @param opts features.search.snacks.layouts.Opts
 function M.preview_right(opts)
   return frame(opts, 'horizontal', {
@@ -48,7 +47,6 @@ function M.preview_right(opts)
   })
 end
 
---- Preview pane below the list.
 --- @param opts features.search.snacks.layouts.Opts
 function M.preview_below(opts)
   return frame(opts, 'vertical', {

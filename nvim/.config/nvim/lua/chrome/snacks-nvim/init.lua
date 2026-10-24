@@ -35,18 +35,13 @@ return {
     styles = {
       input = UI.layout.popup_fn('input'),
       zen = vim.tbl_extend('force', UI.layout.popup_fn('vertical_md'), {
-        -- transparent = false makes snacks drop winblend entirely, so the
-        -- backdrop is an opaque window (painted in the Normal background, or
-        -- in nothing under our transparent colorscheme) and the window behind
-        -- the popup is hidden outright rather than dimmed, then restored on
-        -- close. Its geometry is anchored to that window in utils.lua
+        -- transparent = false drops winblend, so the backdrop is opaque and hides the window behind
+        -- the popup outright instead of dimming it; utils.lua anchors its geometry to that window
         backdrop = { transparent = false, blend = 0 },
         border = 'rounded',
         title = ' Zen ',
-        -- The zen style pins zindex to 40, tying with satellite.nvim's bars over a normal
-        -- window (its default; it only bumps to parent + 1 over a float, hence the 51 noted on
-        -- styles.float in core/snacks-nvim/init.lua). 50 clears them while staying under
-        -- styles.float (52) so pickers from zen stay on top
+        -- Zen's zindex 40 ties satellite.nvim's bars over a normal window; 50 clears them while
+        -- staying under styles.float (52), so pickers opened from zen stay on top
         zindex = 50,
       }),
     },

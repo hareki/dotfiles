@@ -38,7 +38,7 @@ function M.list_half_page_up(picker)
 end
 
 --- Toggle focus between the picker input and preview window
---- @param picker snacks.Picker The picker instance
+--- @param picker snacks.Picker
 --- @return nil
 function M.toggle_preview_focus(picker)
   local input_win = picker.layout.opts.wins.input.win
@@ -64,7 +64,7 @@ function M.toggle_preview_focus(picker)
 end
 
 --- Send picker results to Trouble for persistent viewing
---- @param picker snacks.Picker The picker instance
+--- @param picker snacks.Picker
 --- @return nil
 function M.snacks_to_trouble(picker)
   local trouble_sources = require('trouble.sources.snacks')
@@ -73,7 +73,7 @@ end
 
 --- The todo_comments source's snacks_to_trouble: opens Trouble's own todo view,
 --- filtered to the picker's keywords
---- @param picker snacks.Picker The picker instance
+--- @param picker snacks.Picker
 --- @return nil
 function M.todo_to_trouble(picker)
   local todo_args = { 'todo', 'toggle' }
@@ -92,7 +92,7 @@ function M.todo_to_trouble(picker)
 end
 
 --- The tabs source's confirm: switch to the tabpage under the cursor
---- @param picker snacks.Picker The picker instance
+--- @param picker snacks.Picker
 --- @param item? snacks.picker.Item The item under the cursor
 --- @return nil
 function M.tab_switch(picker, item)
@@ -108,7 +108,7 @@ end
 
 --- Close the current tabpage, which hosts the picker's floats, and resume the picker in the
 --- tabpage nvim lands on (the next one, or the previous one when it was the last)
---- @param picker snacks.Picker The picker instance
+--- @param picker snacks.Picker
 --- @return nil
 local function close_current_tab(picker)
   local insert = vim.fn.mode():sub(1, 1) == 'i'
@@ -139,7 +139,7 @@ local function close_current_tab(picker)
 end
 
 --- Close the selected tabpages (or the one under the cursor), the tabs source's bufdelete
---- @param picker snacks.Picker The picker instance
+--- @param picker snacks.Picker
 --- @return nil
 function M.tab_close(picker)
   picker.preview:reset()

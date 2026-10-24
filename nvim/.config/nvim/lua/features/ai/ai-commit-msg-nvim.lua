@@ -14,11 +14,8 @@ return {
           model = 'claude-haiku-5-5',
           max_tokens = 10000, -- Required by the Anthropic Messages API
 
-          -- The plugin's default pricing table doesn't cover this model, and
-          -- cost_display silently shows nothing without a matching entry.
-          -- These are the rates for prompts up to 100K tokens (beyond that it's $0.50 / $2.50),
-          -- the plugin only supports flat rates
-          -- https://platform.claude.com/docs/en/about-claude/pricing
+          -- The plugin's pricing table lacks this model (cost_display then shows nothing) and
+          -- takes flat rates only, so these are the rates for prompts up to 100K tokens
           pricing = {
             ['claude-haiku-5-5'] = { input_per_million = 0.10, output_per_million = 0.50 },
           },

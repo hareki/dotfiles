@@ -3,9 +3,7 @@ local engine = require('utils.style-enforcers.engine')
 --- @class utils.style-enforcers.oxfmt
 local M = {}
 
---- Run oxfmt formatting on a buffer via LSP
---- Sends textDocument/formatting to the oxfmt language server and applies the
---- returned edits to the in-memory buffer (no CLI spawn).
+--- Format a buffer in memory with the oxfmt language server's edits (no CLI spawn)
 --- @param opts { bufnr: integer, client: vim.lsp.Client, on_done: fun(ok: boolean, err?: string) }
 --- @return nil
 function M.run(opts)
@@ -23,9 +21,8 @@ function M.run(opts)
       return opts.on_done(false, err.message)
     end
 
-    -- The edits carry no document version: applied after an edit made while the
-    -- request was in flight (e.g. typing on after <A-s> in insert mode), they would
-    -- land at shifted positions and corrupt the text, so discard them instead
+    -- The edits carry no document version, so after an edit made while the request was in flight
+    -- (typing on after <A-s>) they'd land at shifted positions and corrupt the text: discard them
     if
       not vim.api.nvim_buf_is_valid(bufnr)
       or vim.api.nvim_buf_get_changedtick(bufnr) ~= changedtick

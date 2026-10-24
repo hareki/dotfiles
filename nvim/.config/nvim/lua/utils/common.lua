@@ -1,7 +1,6 @@
 --- @class utils.common
 local M = {}
 
---- Execute a function without triggering autocommands
 --- @param fn fun()
 function M.noautocmd(fn)
   local ei = vim.o.eventignore
@@ -36,7 +35,7 @@ end
 --- Focus a window without triggering autocommands
 --- If current window is a floating markdown preview, repaint it after focus change.
 --- @param win integer | nil Window handle to focus (0/nil returns false)
---- @return boolean success True if window was successfully focused
+--- @return boolean success
 function M.focus_win(win)
   if not win or win == 0 or not vim.api.nvim_win_is_valid(win) then
     return false
@@ -93,10 +92,8 @@ end
 --- @type table<string, { base: table?, layers: utils.common.KeymapLayer[] }>
 local override_stacks = {}
 
---- Map keys on a buffer for as long as a popup lives. Overrides of the same key
---- stack, so whatever order overlapping popups close in, releasing one keeps the
---- newest remaining override active, or reinstates the buffer's own mapping once
---- none remain
+--- Map keys on a buffer while a popup lives; overrides of a key stack, so releasing one in any
+--- order keeps the newest remaining one active, or restores the buffer's own mapping
 --- @param buf integer
 --- @param maps { [1]: string | string[], [2]: string, [3]: string | function, [4]?: vim.keymap.set.Opts }[] Mode(s), lhs, rhs and opts of each override
 --- @return fun() release Undoes every override of this call; later calls are no-ops
@@ -164,9 +161,8 @@ end
 --- @field before_focus? fun(target: 'popup' | 'source') Runs before either focus switch, e.g. so the plugin ignores the CursorMoved it causes
 --- @field esc_passthrough? boolean Have the source window's <Esc> also do what it does without the popup (e.g. the global Clear Highlight)
 
---- Link a popup to the window it was opened from (the current one): <Tab> toggles focus
---- between the two, and <Esc> closes the popup from either side, as does q inside it.
---- The source buffer's overrides are released once the popup closes
+--- Link a popup to the current window: <Tab> toggles focus between them, <Esc> closes the popup
+--- from either side (q too, inside it), and the source buffer's overrides go once it closes
 --- @param popup_win integer
 --- @param opts utils.common.LinkPopupOpts
 --- @return nil

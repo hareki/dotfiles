@@ -1,15 +1,7 @@
 local fn, fs, uv = vim.fn, vim.fs, vim.uv
 
--- nvim-lspconfig derives probe locations from exepath('ngserver'), but the mise
--- shim's realpath is the `mise` binary itself, so ngserver can't find
--- typescript / @angular/language-service and exits 1. Ask mise which install it
--- picks for the project and spawn that directly, so the probed bundle always
--- belongs to the running server (the `latest` install dir follows the newest
--- installed version, not the pinned one).
---
--- mise's npm backend hoists those deps into its virtual store and symlinks the
--- package into it, so realpath the package and take its grandparent to reach
--- the store's node_modules.
+-- lspconfig probes ngserver's deps from exepath(), but the mise shim's realpath is `mise` itself;
+-- spawn the install `mise which` picks (the npm store is the package realpath's grandparent)
 --- @param root_dir string
 --- @return string ngserver
 --- @return string? bundle
@@ -47,18 +39,16 @@ end
 
 return {
   opts = {
-    -- angularls's default filetypes include plain typescript/html, so without a
-    -- workspace guard ngserver would spawn in single-file mode in every JS/TS/HTML
-    -- project. Its default root markers (angular.json/nx.json) already scope it.
+    -- angularls's default filetypes include plain typescript/html, so without this ngserver would
+    -- spawn in single-file mode in every JS/TS/HTML project (its root markers scope it otherwise)
     workspace_required = true,
 
     cmd = function(dispatchers, config)
       local root_dir = (config and config.root_dir) or fn.getcwd()
       local ngserver, ng_bundle = resolve_ngserver(root_dir)
 
-      -- Project node_modules first so a project's own TypeScript/Angular
-      -- versions win; the bundle is the fallback. 13.x bundles no TypeScript,
-      -- so unlike 22.x it can't serve a project that hasn't been installed yet.
+      -- Project node_modules first so its own TypeScript/Angular versions win over the bundle; 13.x
+      -- bundles no TypeScript, so it can't serve a project whose deps aren't installed yet
       local probe = {}
       local project_node = fs.joinpath(root_dir, 'node_modules')
       if uv.fs_stat(project_node) then
@@ -78,10 +68,8 @@ return {
         probe_str,
       }
 
-      -- An empty --angularCoreVersion is not treated as "unknown": it reaches the
-      -- feature gates verbatim and fails every semver check, disabling @if/@for,
-      -- @let, etc. Omitting the flag keeps them enabled via the server's own
-      -- version auto-detection. (13.x doesn't know the flag and ignores it.)
+      -- An empty --angularCoreVersion fails every semver gate (disabling @if/@for, @let, ...), so
+      -- omit it and let the server detect the version (13.x ignores the flag)
       local core_version = get_angular_core_version(root_dir)
       if core_version ~= '' then
         vim.list_extend(cmd, { '--angularCoreVersion', core_version })

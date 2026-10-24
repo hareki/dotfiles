@@ -1,7 +1,5 @@
--- grug-far feeds previewWindow straight into nvim_open_win (no callables or
--- fractions), so geometry must be plain numbers. Computing them here and
--- calling this per open keeps the panel and preview sized for the current
--- screen; the static opts below only cover direct :GrugFar invocations
+-- grug-far passes previewWindow straight to nvim_open_win, so geometry must be plain numbers,
+-- computed per open; the static opts below only cover direct :GrugFar invocations
 local function preview_geometry()
   local preview = UI.layout.side_preview()
   local panel_cols = UI.layout.side_size('side_panel', 'md')
@@ -43,9 +41,8 @@ return {
 
           if vim.bo.buftype == '' then
             local name = vim.api.nvim_buf_get_name(0)
-            -- From the file name alone, so a dotted directory (`b.c/Makefile`) can't
-            -- pose as an extension; unlike fnamemodify(':e'), `.bashrc` still gives
-            -- `*.bashrc`, and that glob also lets rg search the hidden file
+            -- From the file name, so a dotted dir (`b.c/Makefile`) can't pose as an extension;
+            -- unlike fnamemodify(':e'), `.bashrc` gives `*.bashrc`, so rg searches the hidden file
             ext = vim.fs.basename(name):match('%.([^%.]+)$')
           end
 

@@ -26,9 +26,8 @@ local function target_file()
   return M.state.last_file
 end
 
---- Register the autocmd that tracks the most recently focused normal buffer and the non-floating
---- window showing it, so `toggle` can fall back to the file when invoked from a non-file buffer
---- (terminal, plugin UI, unnamed) and `prepare_remote_edit` can land in a real editing window.
+--- Track the last focused normal buffer and its non-floating window, so `toggle` can fall back
+--- to that file from non-file buffers and `prepare_remote_edit` can land in a real editing window
 function M.setup()
   vim.api.nvim_create_autocmd({ 'WinEnter', 'BufEnter' }, {
     group = vim.api.nvim_create_augroup('git.snacks.lazygit-last-focus', { clear = true }),
@@ -50,10 +49,8 @@ function M.setup()
   })
 end
 
---- Toggle the single Lazygit instance, preselecting the captured file on first launch.
---- `Snacks.terminal` keys instances on the full command (including `--file <path>`), so a
---- varying path would spawn a new terminal each time. To keep one instance, we hold the window
---- returned on creation and toggle it directly afterwards; `--file` only matters at startup.
+--- Toggle the single Lazygit instance, preselecting the file on first launch: Snacks.terminal
+--- keys instances on the full command (`--file <path>` included), so the window is held instead
 function M.toggle()
   local state = M.state
   fullscreen_panels.hide_others(state.win and state.win.buf)
@@ -67,10 +64,8 @@ function M.toggle()
   state.win = Snacks.lazygit(file and { args = { '--file', file } } or nil)
 end
 
---- Hide every visible Snacks terminal (Lazygit, floating terminal, coding agent) and refocus the
---- last editing window, so a file handed over by `nvim --server $NVIM --remote` lands there.
---- Nvim can't pick the window itself: closing a float nulls `prevwin`, so unwinding a stack of
---- them falls back to the top-left split.
+--- Hide every visible Snacks terminal and refocus the last editing window for `nvim --remote`
+--- files: closing a float nulls `prevwin`, so nvim alone would fall back to the top-left split
 function M.prepare_remote_edit()
   -- Snapshot before hiding: nvim's fallback landing fires WinEnter and would overwrite it
   local win = M.state.last_win

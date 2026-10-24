@@ -42,7 +42,7 @@ return {
         },
         views = {
           cmdline_popup = {
-            zindex = 999, -- Ensure cmdline popup is always on top
+            zindex = 999,
           },
           confirm = {
             timeout = false,
@@ -92,7 +92,7 @@ return {
             },
           },
 
-          --  Ignore "No information available" since there could be multiple LSP clients for the same filetype
+          -- Ignore "No information available": a filetype can have several LSP clients
           {
             filter = {
               event = 'notify',
@@ -101,9 +101,8 @@ return {
             opts = { skip = true },
           },
 
-          -- Suppress trouble.nvim's cosmetic "parser missing" warning, but ONLY for
-          -- the allowlisted pseudo-languages real missing parsers still
-          -- surface so they can be added to nvim-treesitter's `ensure_installed`.
+          -- Mute trouble's "parser missing" warning for allowlisted pseudo-languages; real misses
+          -- still surface for nvim-treesitter's `ensure_installed`
           {
             filter = {
               event = 'notify',
@@ -116,10 +115,8 @@ return {
             opts = { skip = true },
           },
 
-          -- Unify both "not modifiable" error variants into one concise message:
-          --  - native       "E21: Cannot make changes, 'modifiable' is off"
-          --  - Lua-wrapped  "E5108: ...: Vim:E21: ..." + stack traceback
-          -- Both carry "E21:"; rewrite in place and let noice's default error route display it.
+          -- Rewrite the native E21 and its Lua-wrapped E5108 (+ traceback) as one concise message;
+          -- noice's default error route then displays it
           {
             filter = {
               error = true,
@@ -137,9 +134,7 @@ return {
     end,
 
     config = function(_, opts)
-      -- HACK: noice shows messages from before it was enabled.
-      -- This is not ideal when Lazy is installing plugins,
-      -- so clear the messages in this case.
+      -- HACK: noice shows messages from before it was enabled, so clear them in the Lazy install UI
       if vim.bo.filetype == 'lazy' then
         vim.cmd.messages({ args = { 'clear' } })
       end

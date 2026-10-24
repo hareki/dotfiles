@@ -1,6 +1,4 @@
--- Function-valued geometry: snacks resolves these when a window opens,
--- so popups stay sized/centered after terminal resizes instead of
--- keeping the startup screen's cell counts
+-- Function-valued, so snacks sizes and centers popups per open, across terminal resizes
 local sm = UI.layout.popup_fn('sm', true)
 local lg_border = UI.layout.popup_fn('lg', true)
 
@@ -158,7 +156,7 @@ return {
           },
         },
 
-        layout = { preset = 'preview_below' }, -- Default layout
+        layout = { preset = 'preview_below' },
         layouts = {
           preview_below = layouts.preview_below(layout_opts),
           preview_right = layouts.preview_right(layout_opts),
@@ -174,7 +172,7 @@ return {
             win = {
               input = {
                 keys = {
-                  ['x'] = { 'bufdelete', mode = { 'n' } }, -- close selected buffer from input (normal mode)
+                  ['x'] = { 'bufdelete', mode = { 'n' } },
                 },
               },
             },

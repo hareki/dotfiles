@@ -26,7 +26,7 @@ local ext = {
 --- Get a catppuccin color palette, or the extension colors when name is 'ext'
 --- @overload fun(name: 'ext'): utils.ui.catppuccin.Ext
 --- @param name? "frappe" | "latte" | "macchiato" | "mocha" Flavor name (default: "mocha")
---- @return utils.ui.catppuccin.Palette colors The color palette table
+--- @return utils.ui.catppuccin.Palette colors
 local function get_palette(name)
   if name == 'ext' then
     return ext
@@ -50,11 +50,9 @@ local function resolve(register)
   return register(palette, sub_palette, extension)
 end
 
---- Create a catppuccin plugin spec with custom highlights.
---- Without plugin_name, highlights merge eagerly into catppuccin's custom_highlights option;
---- with plugin_name, register evaluation and highlight application are deferred until
---- lazy.nvim loads that plugin (applied right before its setup() and again once it has loaded).
---- @param register utils.ui.catppuccin.Register Callback to generate highlights
+--- A catppuccin spec fragment merging the highlights into custom_highlights, or, with
+--- plugin_name, applying them when lazy.nvim loads it (right before its setup() and after)
+--- @param register utils.ui.catppuccin.Register
 --- @param plugin_name? string lazy.nvim plugin name to defer the registration until it loads
 --- @return table spec A lazy.nvim spec: the catppuccin fragment, plus one on plugin_name if given
 local function catppuccin(register, plugin_name)
@@ -82,12 +80,8 @@ local function catppuccin(register, plugin_name)
         package_utils.on_load(plugin_name, apply)
       end,
     },
-    -- User LazyLoad fires from vim.schedule, so the keypress that loads a plugin can draw with
-    -- its default groups first (flash's first prompt waits in getchar with them). Resolving opts
-    -- is the only synchronous step of a load, right before setup(): applying there lets groups
-    -- the plugin declares with `default = true` keep ours, while the LazyLoad pass still wins
-    -- over any it forces in setup(). The plugin must have its own opts or config, otherwise
-    -- this fragment makes lazy start calling its setup()
+    -- LazyLoad runs scheduled, after the loading keypress draws, so also apply as opts resolve,
+    -- just before setup(); the plugin needs its own opts or config, or lazy starts calling setup()
     {
       plugin_name,
       optional = true,

@@ -44,7 +44,7 @@ local M = {
 }
 
 --- Check if the lualine statusline is enabled (host integrations show their label instead)
---- @return boolean enabled True if lualine should be loaded
+--- @return boolean enabled
 function M.enabled()
   return M.integration == nil
 end

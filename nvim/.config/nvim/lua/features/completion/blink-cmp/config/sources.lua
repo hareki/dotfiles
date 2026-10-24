@@ -103,7 +103,7 @@ M.default = {
     },
 
     cmdline_history = {
-      -- IMPORTANT: use the same name as you would for nvim-cmp
+      -- Must match the source's nvim-cmp name
       name = 'cmdline_history',
       module = 'blink.compat.source',
       max_items = 9,

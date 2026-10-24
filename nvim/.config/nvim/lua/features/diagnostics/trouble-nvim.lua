@@ -89,12 +89,8 @@ return {
           border = 'rounded',
           title = Conf.picker.PREVIEW_TITLE,
           title_pos = 'center',
-          -- Fractional row: trouble resolves <=1 values against the parent on
-          -- every float open, so vertical centering survives terminal resizes
-          -- (an absolute row from vim.o.lines would freeze at plugin load).
-          -- The col offset is panel-anchored, so it needs no recomputation;
-          -- trouble counts a negative col from the panel's right edge, hence
-          -- the shift by the panel width
+          -- Fractional row: trouble resolves it against the parent on every open, so centering
+          -- survives resizes; a negative col counts from the panel's right edge, hence the shift
           position = { 0.5, side_preview.col - panel_cols },
           size = {
             width = side_preview.width,

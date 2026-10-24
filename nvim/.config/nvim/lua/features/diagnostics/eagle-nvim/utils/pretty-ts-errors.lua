@@ -30,11 +30,8 @@ local function build_cli_input(diagnostic)
   }
 end
 
--- Key only over the fields that change the CLI's output, verified empirically:
--- identical input with different ranges or relatedInformation produces identical
--- markdown, while severity changes the header icon. Keying on range would turn
--- every line shift above the error into a miss, and each miss is a synchronous
--- ~200ms CLI spawn.
+-- Key only on fields that change the CLI's output (not range or relatedInformation): keying on
+-- range would make every line shift above the error a miss, each a synchronous ~200ms spawn
 local function compute_cache_key(diagnostic)
   local parts = {
     diagnostic.source,
@@ -113,9 +110,8 @@ local function collect_cli(handle, json_text)
     return markdown
   end
 
-  -- vim.system throws on spawn failure: the CLI not being installed, but also
-  -- a JSON arg exceeding the OS arg limit, which this stdin form handles.
-  -- So only latch cli_unavailable when the stdin form throws too.
+  -- vim.system also throws for a JSON arg past the OS arg limit, which this stdin form handles,
+  -- so latch cli_unavailable only when the stdin form throws too
   local ok, result = pcall(function()
     return vim.system({ M.state.executable_path }, { text = true, stdin = json_text }):wait()
   end)
@@ -127,11 +123,8 @@ local function collect_cli(handle, json_text)
   return cli_markdown(result)
 end
 
--- Eagle formats a line's diagnostics one after another, and every cache miss
--- blocks on a CLI spawn. So a miss spawns the CLI for all of the line's
--- uncached diagnostics from the same source at once: the popup then waits
--- about as long as the slowest spawn instead of their sum, and eagle's calls
--- for the rest of the line hit the cache.
+-- Eagle formats a line's diagnostics one by one, so a miss spawns the CLI for all of the line's
+-- uncached same-source diagnostics at once: the popup waits for the slowest, not their sum
 --- @param diagnostic vim.Diagnostic The cache miss
 --- @return table<string, { value: string, from_cli: boolean, hits: integer }> entries By cache key
 local function format_line(diagnostic)
@@ -175,18 +168,16 @@ local function strip_cli_header(md)
     return md
   end
   local rest = md:sub(first_nl + 1)
-  rest = rest:gsub('^\r?\n', '', 1) -- Remove one extra blank line if present
+  rest = rest:gsub('^\r?\n', '', 1)
 
   return rest
 end
 
---- Format a TypeScript diagnostic into pretty markdown using pretty-ts-errors-markdown CLI
---- Caches CLI output (evicting the least-hit entry past the cap) to avoid
---- redundant CLI calls for repeated diagnostics, and formats a miss's whole line at once.
---- Eagle only calls this for the `ts` source it is registered under (eagle-nvim/init.lua).
---- @param diagnostic vim.Diagnostic The diagnostic to format
+--- Pretty markdown for a TypeScript diagnostic via the pretty-ts-errors-markdown CLI, cached
+--- (least-hit eviction past the cap); eagle calls it only for its `ts` source (eagle-nvim/init.lua)
+--- @param diagnostic vim.Diagnostic
 --- @param opts? { href?: boolean } Options (href: keep CLI header with links)
---- @return string markdown The formatted markdown message
+--- @return string markdown
 function M.format(diagnostic, opts)
   local key = compute_cache_key(diagnostic)
   local entry = cache_get(key) or format_line(diagnostic)[key]

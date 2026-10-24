@@ -3,9 +3,9 @@ local M = {}
 
 --- Format function for keymap picker (icon, description, buffer, lhs, mode)
 --- Removes rhs and file columns from default format.
---- @param item snacks.picker.Item The picker item
+--- @param item snacks.picker.Item
 --- @param width integer Available width for formatting
---- @return snacks.picker.Highlight[] highlights Array of highlight segments
+--- @return snacks.picker.Highlight[] highlights
 function M.keymap_format(item, width)
   local ret = {} --- @type snacks.picker.Highlight[]
   --- @type wk.Keymap
@@ -56,10 +56,9 @@ end
 
 --- Format function for buffer picker with modified indicator
 --- Removes buf number, buf type, and flags from default format.
---- Adds modified indicator
---- @param item snacks.picker.Item The picker item
---- @param picker snacks.Picker The picker instance
---- @return snacks.picker.Highlight[] highlights Array of highlight segments
+--- @param item snacks.picker.Item
+--- @param picker snacks.Picker
+--- @return snacks.picker.Highlight[] highlights
 function M.buffer_format(item, picker)
   local ret = {} --- @type snacks.picker.Highlight[]
   vim.list_extend(ret, Snacks.picker.format.filename(item, picker))
@@ -84,9 +83,9 @@ end
 
 --- Format function for tabs picker (the tab's statusline name, e.g. "tab-2" or "codediff-2")
 --- Followed by the buffer format of the tab's active window
---- @param item snacks.picker.Item The picker item
---- @param picker snacks.Picker The picker instance
---- @return snacks.picker.Highlight[] highlights Array of highlight segments
+--- @param item snacks.picker.Item
+--- @param picker snacks.Picker
+--- @return snacks.picker.Highlight[] highlights
 function M.tab_format(item, picker)
   local ret = { --- @type snacks.picker.Highlight[]
     { item.label, 'SnacksPickerTabName' },

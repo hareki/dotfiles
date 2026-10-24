@@ -11,9 +11,8 @@ local cache = {
   text = nil,
 }
 
---- Drop the cached text. Called from harpoon's extension events (see the spec's
---- `config`) for mutations the (buf, length) key can't detect, e.g. replace_at
---- or a same-length menu-save reorder.
+--- Drop the cached text, for mutations the (buf, length) key can't detect (replace_at, a
+--- same-length menu-save reorder); harpoon's extension events in the spec's `config` call it
 --- @return nil
 function M.invalidate()
   cache.buf = -1
@@ -21,10 +20,8 @@ function M.invalidate()
   cache.text = nil
 end
 
---- Compute (or return cached) harpoon indices text for the current buffer.
---- The statusline re-evaluates on every redraw, so building the list item
---- (plenary path normalization + cwd) each time is wasted work; cache by
---- (current buffer, list length) and let BufEnter-driven redraws re-key it.
+--- Harpoon indices text for the current buffer, cached by (buffer, list length): building the
+--- list item (plenary path normalization + cwd) on every statusline redraw is wasted work
 --- @return string | nil formatted as "1 [3] 4" or nil if harpoon list is empty
 local function compute()
   local harpoon = require('harpoon')
@@ -66,18 +63,15 @@ local function compute()
   return text
 end
 
---- Get all harpoon indices that have files, with current buffer's index wrapped in brackets
---- Reads the cache directly: lualine invokes `cond` immediately before
---- `update_status` within the same synchronous draw, so `compute` has already
---- refreshed the cache for this render (harpoon:list() does a getcwd syscall
---- plus an extension emit per call, so skipping the re-compute is worth it)
+--- Reads the cache directly: lualine calls `cond` right before `update_status` in the same draw,
+--- so `compute` just refreshed it (skipping harpoon:list()'s getcwd syscall and extension emit)
 --- @return string | nil formatted as "1 [3] 4" or nil if harpoon list is empty
 function M.get()
   return cache.text
 end
 
 --- Check if there are any harpooned files
---- @return boolean has_harpooned_files True if there are any files in the harpoon list
+--- @return boolean has_harpooned_files
 function M.cond()
   return compute() ~= nil
 end

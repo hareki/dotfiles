@@ -6,10 +6,8 @@ return {
         lua = { 'stylua' },
         toml = { 'taplo' },
 
-        -- prettier parses handlebars with Ember's glimmer parser, which rejects the
-        -- Express flavor (blocks inside attributes) and rewrites HTML attribute
-        -- quotes per `singleQuote`; vscode-html-language-server handles it instead
-        -- (see the format settings in core/lsp/nvim-lspconfig/lsp/html.lua)
+        -- prettier's glimmer parser rejects Express handlebars and rewrites quotes, so the html
+        -- server formats it instead (see core/lsp/nvim-lspconfig/lsp/html.lua)
         handlebars = { lsp_format = 'fallback' },
       },
     }
@@ -29,9 +27,8 @@ return {
         opts.formatters_by_ft[ft] = { 'prettier' }
       end
 
-      -- prettier infers the angular parser only for *.component.html; Angular 20
-      -- style templates (app.html) would fall back to the html parser, which
-      -- mangles @if/@for control flow blocks
+      -- prettier infers the angular parser only for *.component.html; Angular 20 style app.html
+      -- would get the html parser, which mangles @if/@for control flow blocks
       opts.formatters = {
         prettier = { options = { ft_parsers = { htmlangular = 'angular' } } },
       }

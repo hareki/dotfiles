@@ -2,7 +2,6 @@
 local M = {}
 
 --- Load all LSP server configurations from the lsp/ directory
---- Iterates through lua files and configures each server via vim.lsp.config.
 --- @return nil
 function M.load_all()
   local lsp_config_path = vim.fn.stdpath('config') .. '/lua/core/lsp/nvim-lspconfig/lsp'
@@ -16,10 +15,8 @@ function M.load_all()
         opts = opts()
       end
 
-      -- Configure the LSP server
       vim.lsp.config(server_name, opts)
 
-      -- Run setup if provided
       if config.setup then
         config.setup()
       end

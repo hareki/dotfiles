@@ -1,8 +1,7 @@
 --- @class utils.ui.color
 local M = {}
 
---- Convert hex color to RGB components
---- @param hex string Hex color
+--- @param hex string
 --- @return integer r Red component (0-255)
 --- @return integer g Green component (0-255)
 --- @return integer b Blue component (0-255)
@@ -11,11 +10,10 @@ local function hex_to_rgb(hex)
   return tonumber(hex:sub(1, 2), 16), tonumber(hex:sub(3, 4), 16), tonumber(hex:sub(5, 6), 16)
 end
 
---- Blend two hex colors together
 --- @param from string Starting hex color (alpha=0)
 --- @param to string Target hex color (alpha=1)
 --- @param alpha? number Blend factor (0.0 = fully from, 1.0 = fully to, default: 0.28)
---- @return string hex Blended hex color
+--- @return string hex
 function M.blend_hex(from, to, alpha)
   alpha = alpha or 0.28
 
@@ -29,16 +27,14 @@ function M.blend_hex(from, to, alpha)
   return string.format('#%02x%02x%02x', r, g, b)
 end
 
---- Whether search matches are currently highlighted
 --- @return boolean
 function M.search_highlighted()
   -- v:hlsearch alone reads 1 before any search when no shada was loaded
   return vim.v.hlsearch == 1 and vim.fn.getreg('/') ~= ''
 end
 
---- Clear search highlight and bring Snacks word highlights back right away
---- Snacks.words hides references while search matches are highlighted (see its `filter`
---- in `core/lsp/snacks-nvim.lua`) and would otherwise wait for the next cursor move.
+--- Clear search highlight and bring Snacks word highlights back now, not on the next cursor
+--- move (Snacks.words hides them while search matches show, see core/lsp/snacks-nvim.lua)
 --- @return nil
 function M.nohlsearch()
   -- :nohlsearch redraws every window even when highlighting is already off, and the global

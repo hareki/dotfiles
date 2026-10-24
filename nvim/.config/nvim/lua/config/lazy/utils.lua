@@ -5,8 +5,6 @@ local M = {}
 --- Adds lazy.nvim to the runtimepath after ensuring installation.
 --- @return nil
 function M.ensure_lazy()
-  -- [[ Install `lazy.nvim` plugin manager ]]
-  --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
   local lazypath = vim.fs.joinpath(vim.fn.stdpath('data'), 'lazy', 'lazy.nvim')
   if not vim.uv.fs_stat(lazypath) then
     local lazyrepo = 'https://github.com/folke/lazy.nvim.git'

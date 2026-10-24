@@ -87,14 +87,10 @@ map('n', '<leader>F', function()
   })
 end, { desc = 'Format' })
 
--- Mapped from Cmd+Shift+S in ghostty config
--- Test the keymap Neovim will receive with
--- :echo keytrans(getcharstr())
+-- Sent for Cmd+Shift+S by the ghostty config; inspect with :echo keytrans(getcharstr())
 map({ 'n', 'i' }, '<F40>', style_enforcers.run_all, { desc = 'Format and Save All' })
 
--- Mapped to Cmd+Shift+W in ghostty config
--- Test the keymap Neovim will receive with
--- :echo keytrans(getcharstr())
+-- Sent for Cmd+Shift+W by the ghostty config; inspect with :echo keytrans(getcharstr())
 map({ 'i', 'x', 'n', 's' }, '<C-S-End>', function()
   Snacks.bufdelete.other()
   Notifier.info('Closed Other Buffers')
@@ -113,7 +109,7 @@ map('n', '<leader>?h', '<cmd>HlAtCursor<cr>', {
   desc = 'Highlight Groups at Cursor',
 })
 
--- Better indenting
+-- Keep the selection after indenting
 map('v', '<', '<gv', { desc = 'Indent Left' })
 map('v', '>', '>gv', { desc = 'Indent Right' })
 

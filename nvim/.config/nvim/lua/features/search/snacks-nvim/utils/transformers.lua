@@ -8,9 +8,9 @@ local filtered_descriptions = {
 }
 
 --- Query spec descriptions from which-key mappings
---- @param lhs string The left-hand side (key binding) to search for (required)
---- @param mode string The mode to search for (required)
---- @param buffer? number The buffer id to search for (optional)
+--- @param lhs string
+--- @param mode string
+--- @param buffer? number
 --- @return string? # The description of the first matching spec, or nil if not found
 local function query_spec_desc(lhs, mode, buffer)
   local wk_config = require('which-key.config')
@@ -31,16 +31,15 @@ end
 
 --- Transform function for keymap picker to enrich with which-key descriptions
 --- Looks up descriptions from which-key config and filters unwanted mappings.
---- @param item snacks.picker.Item The picker item to transform
+--- @param item snacks.picker.Item
 --- @return snacks.picker.Item | false item The enriched item or false to filter out
 function M.keymap_transform(item)
   local keymap_registry = require('config.keymap-registry')
   local desc_overrides = keymap_registry.DESC_OVERRIDES
   local keymap = item.item
   local old_desc = keymap.desc
-  -- nvim_get_keymap reports the resolved lhs (mapleader as a literal space),
-  -- while the registry keys use <leader> notation for the which-key path;
-  -- normalize before the lookup
+  -- nvim_get_keymap reports the resolved lhs (mapleader as a literal space), while the registry
+  -- keys use <leader> notation; normalize before the lookup
   local lhs = keymap.lhs
   local leader = vim.g.mapleader
   if type(leader) == 'string' and leader ~= '' then
@@ -70,7 +69,7 @@ function M.keymap_transform(item)
 end
 
 --- Transform function for buffer picker: flag modified buffers for the `modified` sort field
---- @param item snacks.picker.Item The picker item to transform
+--- @param item snacks.picker.Item
 --- @return nil
 function M.buffer_transform(item)
   -- The matcher sorts from snacks' async loop, a fast event context where vim.bo raises

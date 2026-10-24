@@ -19,9 +19,8 @@ local function apply_win_opts(win)
   w.spell = false
 end
 
---- Return true if tbl looks like a chunk list: { 'txt', { 'txt', 'hl' }, … }.
---- A table of only bare strings is a string[] message (markdown path, joined
---- with newlines), so at least one {text, hl} tuple is required here.
+--- Whether tbl is a chunk list ({ 'txt', { 'txt', 'hl' }, ... }), which needs at least one
+--- {text, hl} tuple: a table of bare strings is a string[] message, joined as markdown
 local function is_chunk_list(tbl)
   if type(tbl) ~= 'table' then
     return false
@@ -55,14 +54,13 @@ local function normalize_message(chunks, opts)
 
   for _, item in ipairs(chunks) do
     local text, group
-    if type(item) == 'string' then -- bare string
+    if type(item) == 'string' then
       text, group = item, default_hl
     else -- {text, hl}
       text, group = item[1], item[2] or default_hl
     end
     table.insert(parts, text)
 
-    -- Handle multi-line text by splitting on newlines
     local lines = vim.split(text, '\n', { plain = true })
     for i, line_text in ipairs(lines) do
       local byte_len = #line_text
@@ -107,15 +105,13 @@ local function normalize_message(chunks, opts)
 end
 
 --- Core notification function with rich highlighting and markdown support
---- Supports both plain strings and tuple lists for custom highlight groups.
 --- @param msg string | table Plain message or tuple list like {{text, hl}, ...}
---- @param opts utils.notifier.NotifierOpts? Notification options (level, title, default_hl, height_offset)
+--- @param opts utils.notifier.NotifierOpts?
 --- @return any handle The notification record
 function M.notify(msg, opts)
   opts = opts or {}
   local is_markdown = not is_chunk_list(msg)
 
-  -- Prepare the message/handler depending on the input shape
   local apply_highlight
   if is_markdown then
     -- Strings/list-of-strings: fall back to Treesitter markdown
@@ -192,24 +188,24 @@ local function notify_at(level, default_hl, msg, opts)
 end
 
 --- Display an info-level notification with optional custom highlights
---- @param msg utils.notifier.Message String, string array, or tuple list for rich formatting
---- @param opts? utils.notifier.NotifierOpts Notification options (title, height_offset, etc.)
+--- @param msg utils.notifier.Message
+--- @param opts? utils.notifier.NotifierOpts
 --- @return any handle The notification record
 function M.info(msg, opts)
   return notify_at(vim.log.levels.INFO, 'NotifyINFOBody', msg, opts)
 end
 
 --- Display a warning-level notification with optional custom highlights
---- @param msg utils.notifier.Message String, string array, or tuple list for rich formatting
---- @param opts? utils.notifier.NotifierOpts Notification options (title, height_offset, etc.)
+--- @param msg utils.notifier.Message
+--- @param opts? utils.notifier.NotifierOpts
 --- @return any handle The notification record
 function M.warn(msg, opts)
   return notify_at(vim.log.levels.WARN, 'NotifyWARNBody', msg, opts)
 end
 
 --- Display an error-level notification with optional custom highlights
---- @param msg utils.notifier.Message String, string array, or tuple list for rich formatting
---- @param opts? utils.notifier.NotifierOpts Notification options (title, height_offset, etc.)
+--- @param msg utils.notifier.Message
+--- @param opts? utils.notifier.NotifierOpts
 --- @return any handle The notification record
 function M.error(msg, opts)
   return notify_at(vim.log.levels.ERROR, 'NotifyERRORBody', msg, opts)

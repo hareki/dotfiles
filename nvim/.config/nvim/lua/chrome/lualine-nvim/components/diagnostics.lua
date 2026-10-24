@@ -17,11 +17,8 @@ local SEVERITY_NAMES = {
   [vim.diagnostic.severity.HINT] = 'hint',
 }
 
--- The statusline re-evaluates on every redraw, so even vim.diagnostic.count()'s
--- store walk is worth caching. A single slot is enough: with globalstatus the
--- statusline only renders the current buffer, so almost all redraws hit the same
--- buffer back to back, and a per-buffer map would just accumulate entries that
--- are never re-read.
+-- The statusline redraws constantly, so even vim.diagnostic.count()'s store walk is cached. One
+-- slot suffices: globalstatus renders only the current buffer, so a per-buffer map would just grow
 --- @class chrome.lualine.components.diagnostics.Cache
 --- @field buf integer -1 while the slot is empty
 --- @field counts { error: integer, warn: integer, info: integer, hint: integer }

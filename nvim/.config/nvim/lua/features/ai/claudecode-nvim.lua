@@ -54,9 +54,8 @@ return {
     opts = function()
       return {
         focus_after_send = true,
-        -- Claude wraps its OSC 52 clipboard write in tmux's DCS passthrough whenever $TMUX is
-        -- set. Here nvim's :terminal is the first parser and does not speak that passthrough,
-        -- so the doubled ESCs abort the DCS and dump the base64 into the grid as literal text.
+        -- With $TMUX set, Claude wraps OSC 52 copies in tmux's DCS passthrough, which nvim's
+        -- :terminal doesn't speak, so the base64 lands in the grid as literal text
         env = { TMUX = '' },
         terminal = {
           --- @module "snacks"

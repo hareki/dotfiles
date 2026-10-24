@@ -55,9 +55,8 @@ return {
         },
 
         diff_opts = {
-          -- Hunks differed from VS Code's because of the linematch:40 gitsigns inherits
-          -- from 'diffopt', not because of xdiff (git's own diff library), so diff
-          -- in-process without it instead of spawning `git diff` twice per update
+          -- The inherited 'diffopt' linematch:40, not xdiff, made hunks differ from VS Code's, so
+          -- diff in-process without it rather than spawning `git diff` twice per update
           internal = true,
           linematch = false,
 

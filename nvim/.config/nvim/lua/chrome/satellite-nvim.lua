@@ -1,4 +1,4 @@
--- [[ Neovim Scrollbar ]]
+-- Scrollbar
 return {
   UI.catppuccin(function(palette)
     return {

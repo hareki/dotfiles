@@ -15,7 +15,7 @@ function M.get()
   return M.name(vim.api.nvim_get_current_tabpage())
 end
 
---- @return boolean shown True when more than one tab page is open
+--- @return boolean
 function M.cond()
   return vim.fn.tabpagenr('$') > 1
 end
