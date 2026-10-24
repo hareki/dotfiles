@@ -29,7 +29,7 @@ end
 
 local function is_markdown_buf(win_id)
   local buf = vim.api.nvim_win_get_buf(win_id)
-  return vim.bo[buf].filetype == 'markdown'
+  return vim.list_contains(Conf.filetypes.MARKDOWN, vim.bo[buf].filetype)
 end
 
 --- Focus a window without triggering autocommands
@@ -53,6 +53,26 @@ function M.focus_win(win)
   end
 
   return true
+end
+
+--- Buffer-local `vim.keymap.set` sharing one opts table, with an optional desc prefix
+--- @param buf integer
+--- @param opts? vim.keymap.set.Opts | { prefix?: string }
+--- @return fun(mode: string | string[], lhs: string | string[], rhs: string | function, desc: string) map
+function M.buf_mapper(buf, opts)
+  local base = vim.tbl_extend('force', opts or {}, { buffer = buf })
+  local prefix = base.prefix or ''
+  base.prefix = nil
+
+  return function(mode, lhs, rhs, desc)
+    if type(lhs) == 'string' then
+      lhs = { lhs }
+    end
+    local keymap_opts = vim.tbl_extend('force', base, { desc = prefix .. desc })
+    for _, key in ipairs(lhs) do
+      vim.keymap.set(mode, key, rhs, keymap_opts)
+    end
+  end
 end
 
 --- Snapshot a buffer's own mapping, in the maparg() form restore_buf_keymap reinstates

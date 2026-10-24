@@ -134,7 +134,6 @@ return {
               ['<C-b>'] = { 'toggle_preview', mode = { 'i', 'n' } },
             },
             wo = {
-              number = true,
               relativenumber = true,
             },
           },

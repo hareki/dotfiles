@@ -67,7 +67,7 @@ local function take_focus_target(tabpage)
     return
   end
 
-  return git_root .. '/' .. rel, view
+  return vim.fs.joinpath(git_root, rel), view
 end
 
 --- @param path string

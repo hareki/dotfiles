@@ -75,16 +75,15 @@ return {
         right_var = ')',
       }
 
+      local filetypes = {}
+      for _, ft in ipairs(Conf.filetypes.JS_ALL) do
+        filetypes[ft] = js_like
+      end
+
       return {
         picker = 'snacks.picker',
         highlight_lines = false,
-        filetypes = (function()
-          local fts = {}
-          for _, ft in ipairs(Conf.filetypes.JS_ALL) do
-            fts[ft] = js_like
-          end
-          return fts
-        end)(),
+        filetypes = filetypes,
 
         -- Turn off all keymaps by default for performance reasons (mapping overhead + can't lazy load)
         -- Also, I want to customize the descriptions

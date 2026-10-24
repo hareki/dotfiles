@@ -10,7 +10,7 @@ M.state = {
 }
 
 local function trim_trailing_whitespace(text)
-  return (text or ''):gsub('%s*$', '')
+  return (text:gsub('%s*$', ''))
 end
 
 --- Read a field of the raw LSP diagnostic that Neovim keeps under user_data.lsp
@@ -160,9 +160,6 @@ end
 
 -- Strip the first line (the header with links) + a single blank line after it.
 local function strip_cli_header(md)
-  if type(md) ~= 'string' or md == '' then
-    return md
-  end
   local first_nl = md:find('\n', 1, true)
   if not first_nl then
     return md

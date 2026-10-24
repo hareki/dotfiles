@@ -39,7 +39,7 @@ local function close()
   end)
   pcall(vim.api.nvim_win_close, current.win, true)
   if vim.api.nvim_buf_is_valid(current.buf) then
-    pcall(vim.api.nvim_buf_delete, current.buf, { force = true })
+    vim.api.nvim_buf_delete(current.buf, { force = true })
   end
 end
 
@@ -57,10 +57,7 @@ local function build_hover_src(original_src, ext, content)
   if content then
     hash = vim.fn.sha256(content):sub(1, 12)
   else
-    if not original_src or vim.fn.filereadable(original_src) == 0 then
-      return nil
-    end
-    local stat = vim.uv.fs_stat(original_src)
+    local stat = original_src and vim.uv.fs_stat(original_src)
     if not stat then
       return nil
     end
@@ -75,7 +72,7 @@ local function build_hover_src(original_src, ext, content)
     hash = vim.fn.sha256(key):sub(1, 12)
   end
 
-  local out = cache .. '/' .. hash .. '-hover.' .. ext
+  local out = vim.fs.joinpath(cache, hash .. '-hover.' .. ext)
 
   if vim.fn.filereadable(out) == 1 then
     return out

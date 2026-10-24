@@ -17,52 +17,35 @@ M.BUFFER_CHANGED = 'buffer changed while running'
 --- @field name string
 --- @field filetypes string[]
 --- @field runner utils.style-enforcers.Runner Gets the entry's LSP client, when it names one
---- @field order integer Smaller runs first
---- @field seq integer Registration sequence, tiebreaker for a stable sort
 --- @field client? string LSP client the runner drives
-
-local DEFAULT_ORDER = 100
 
 --- @type utils.style-enforcers.Entry[]
 local entries = {}
-local seq = 0
 
---- Register an enforcer with its supported filetypes
+--- Register an enforcer with its supported filetypes; enforcers run in registration order
 --- @param name string Unique enforcer name
 --- @param filetypes string[]
 --- @param runner utils.style-enforcers.Runner
---- @param opts? { order?: integer, client?: string } `client`: skip buffers it's not attached to
+--- @param opts? { client?: string } `client`: skip buffers it's not attached to
 --- @return nil
 function M.register(name, filetypes, runner, opts)
-  seq = seq + 1
   entries[#entries + 1] = {
     name = name,
     filetypes = filetypes,
     runner = runner,
-    order = (opts and opts.order) or DEFAULT_ORDER,
-    seq = seq,
     client = opts and opts.client,
   }
 end
 
---- Registered enforcers that apply to a buffer, sorted by `order`, then registration order
+--- Registered enforcers that apply to a buffer, in registration order
 --- @param bufnr integer
 --- @return utils.style-enforcers.Entry[]
 local function entries_for_buf(bufnr)
   local ft = vim.bo[bufnr].filetype
-  local matched = vim.tbl_filter(function(entry)
+  return vim.tbl_filter(function(entry)
     return vim.list_contains(entry.filetypes, ft)
       and (not entry.client or #vim.lsp.get_clients({ name = entry.client, bufnr = bufnr }) > 0)
   end, entries)
-
-  table.sort(matched, function(a, b)
-    if a.order ~= b.order then
-      return a.order < b.order
-    end
-    return a.seq < b.seq
-  end)
-
-  return matched
 end
 
 --- Run the matched enforcers sequentially

@@ -5,8 +5,8 @@ local oxlint = require('utils.style-enforcers.oxlint')
 
 local filetypes = Conf.filetypes
 
--- The oxfmt LSP filetypes it should own (not astro/mdx, unsupported, or toml, taplo's), run
--- before the lint-fix steps so oxlint's on-disk fixAll sees formatted content
+-- The oxfmt LSP filetypes it should own (not astro/mdx, unsupported, or toml, taplo's). Registered
+-- first: it runs before the lint-fix steps, so oxlint's on-disk fixAll sees formatted content
 engine.register(
   'oxfmt',
   filetypes.merge(
@@ -18,7 +18,7 @@ engine.register(
     { 'yaml' }
   ),
   oxfmt.run,
-  { order = 10, client = 'oxfmt' }
+  { client = 'oxfmt' }
 )
 
 -- The eslint server also attaches to htmlangular (upstream filetypes),

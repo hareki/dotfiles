@@ -101,7 +101,6 @@ aucmd('BufReadPre', {
 aucmd('BufReadPost', {
   group = augroup('last-location'),
   callback = function(event)
-    local exclude = { 'gitcommit' }
     local buf = event.buf
 
     -- BufReadPost runs before filetype detection (this autocmd is registered
@@ -111,7 +110,7 @@ aucmd('BufReadPost', {
       ft = vim.filetype.match({ buf = buf }) or ''
     end
 
-    if vim.list_contains(exclude, ft) or vim.b[buf].restored_last_position then
+    if ft == 'gitcommit' or vim.b[buf].restored_last_position then
       return
     end
 
@@ -263,27 +262,6 @@ aucmd('InsertEnter', {
       vim.schedule(function()
         UI.color.nohlsearch()
       end)
-    end
-  end,
-})
-
--- Prevent accidental jumplist navigation in non-file buffers
-aucmd('BufEnter', {
-  group = augroup('disable-ctrl-o-non-file'),
-  callback = function(event)
-    local buf = event.buf
-    local buftype = vim.bo[buf].buftype
-
-    if buftype ~= '' then
-      vim.keymap.set('n', '<C-o>', '<Nop>', {
-        buffer = buf,
-        desc = 'Disable Jumplist Back in Non-File Buffers',
-      })
-
-      vim.keymap.set('n', '<C-i>', '<Nop>', {
-        buffer = buf,
-        desc = 'Disable Jumplist Forward in Non-File Buffers',
-      })
     end
   end,
 })

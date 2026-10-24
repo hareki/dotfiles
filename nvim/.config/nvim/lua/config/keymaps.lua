@@ -10,7 +10,7 @@ end
 
 local function diagnostic_goto(next, severity)
   local count = next and 1 or -1
-  severity = severity and vim.diagnostic.severity[severity] or nil
+  severity = severity and vim.diagnostic.severity[severity]
 
   return function()
     -- on_jump runs scheduled, and only once the jump succeeded
@@ -32,6 +32,14 @@ local function scroll_center(motion)
     if last_line - cursor_line >= math.floor(win_height / 2) then
       vim.cmd.normal({ args = { 'zz' }, bang = true })
     end
+  end
+end
+
+-- Jumplist keys as no-ops in non-file buffers, decided per keypress: <C-i> is <Tab>, so a
+-- buffer-local <Nop> set on BufEnter would also shadow a UI buffer's own <Tab> map
+local function jumplist(key)
+  return function()
+    return vim.bo.buftype == '' and key or ''
   end
 end
 
@@ -128,6 +136,10 @@ map('n', 'yow', '<cmd>setlocal wrap!<cr>', { desc = 'Toggle Line Wrap' })
 map('n', '<leader>l', '<cmd>Lazy<cr>', { desc = 'Plugin Manager' })
 map('n', '<leader>-', '<cmd>split<cr>', { desc = 'Split Window Below' })
 map('n', '<leader>\\', '<cmd>vsplit<cr>', { desc = 'Split Window Right' })
+
+-- Jumplist
+map('n', '<C-o>', jumplist('<C-o>'), { expr = true, desc = 'Jumplist Back' })
+map('n', '<C-i>', jumplist('<C-i>'), { expr = true, desc = 'Jumplist Forward' })
 
 -- Diagnostics
 map('n', '<leader>cd', vim.diagnostic.open_float, { desc = 'Line Diagnostics' })

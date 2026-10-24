@@ -4,7 +4,8 @@ local M = {}
 --- Load all LSP server configurations from the lsp/ directory
 --- @return nil
 function M.load_all()
-  local lsp_config_path = vim.fn.stdpath('config') .. '/lua/core/lsp/nvim-lspconfig/lsp'
+  local lsp_config_path =
+    vim.fs.joinpath(vim.fn.stdpath('config'), 'lua/core/lsp/nvim-lspconfig/lsp')
   for name, file_type in vim.fs.dir(lsp_config_path) do
     if file_type == 'file' and name:match('%.lua$') then
       local server_name = name:gsub('%.lua$', '')

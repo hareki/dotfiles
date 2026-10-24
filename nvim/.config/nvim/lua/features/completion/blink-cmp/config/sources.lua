@@ -7,7 +7,8 @@ local history = utils.custom_kind('History')
 local spell = utils.custom_kind('Spell')
 local render_markdown = utils.custom_kind('RenderMD')
 
-local extra_words_path = vim.fn.stdpath('config') .. '/lua/features/completion/blink-cmp/words'
+local extra_words_path =
+  vim.fs.joinpath(vim.fn.stdpath('config'), 'lua/features/completion/blink-cmp/words')
 local word_paths = {
   builtin = '/usr/share/dict/words',
   google = extra_words_path .. '/google-10000-english-usa-no-swears-long.txt',
@@ -84,9 +85,8 @@ M.default = {
       score_offset = -10,
       should_show_items = function()
         local filetype = vim.bo.filetype
-        local is_ignored_filetype = filetype == '' or filetype == 'NvimTree' -- NvimTree live_filter has a blank filetype
-
-        return not is_ignored_filetype
+        -- NvimTree live_filter has a blank filetype
+        return filetype ~= '' and filetype ~= 'NvimTree'
       end,
     },
 

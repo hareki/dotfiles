@@ -8,7 +8,7 @@ return {
     -- since the version rarely changes anyway; packages are under lib/node_modules
     local plugin_root =
       vim.fn.expand('~/.local/share/mise/installs/npm-styled-typescript-styled-plugin/1')
-    local npm_global_root = plugin_root .. '/lib/node_modules'
+    local npm_global_root = vim.fs.joinpath(plugin_root, 'lib/node_modules')
 
     return {
       -- Parent-pid watchdog: vtsls exits cleanly (reaping its forked tsserver) when this pid dies
@@ -126,16 +126,8 @@ return {
           end
         end
 
-        --- @param mode string | string[]
-        --- @param lhs string
-        --- @param rhs string | function
-        --- @param desc string
-        local function map(mode, lhs, rhs, desc)
-          vim.keymap.set(mode, lhs, rhs, {
-            buffer = args.buf,
-            desc = 'TypeScript LSP: ' .. desc,
-          })
-        end
+        local common = require('utils.common')
+        local map = common.buf_mapper(args.buf, { prefix = 'TypeScript LSP: ' })
 
         map('n', '<leader>cu', code_action('source.removeUnused.ts'), 'Remove Unused Imports')
         map('n', '<leader>ci', code_action('source.addMissingImports.ts'), 'Add Missing Imports')

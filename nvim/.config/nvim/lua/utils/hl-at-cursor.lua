@@ -92,9 +92,12 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
     pcall(vim.api.nvim_win_close, win, true)
   end
 
+  -- Nested, so closing the popup from these fires its WinClosed (link_popup's release) and the
+  -- markdown buffer's BufWipeout (render-markdown's eviction)
   vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
     group = augroup,
     buffer = origin_buf,
+    nested = true,
     callback = function()
       if not vim.api.nvim_win_is_valid(win) then
         return
@@ -111,6 +114,7 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
 
   vim.api.nvim_create_autocmd('WinEnter', {
     group = augroup,
+    nested = true,
     callback = function()
       local current = vim.api.nvim_get_current_win()
       if current == win or current == origin_win then
@@ -122,6 +126,7 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
 
   vim.api.nvim_create_autocmd('BufEnter', {
     group = augroup,
+    nested = true,
     callback = function(args)
       if args.buf == buf or args.buf == origin_buf then
         return

@@ -59,11 +59,6 @@ return {
           -- diff in-process without it rather than spawning `git diff` twice per update
           internal = true,
           linematch = false,
-
-          ignore_whitespace = false,
-          ignore_whitespace_change = false,
-          ignore_whitespace_change_at_eol = false,
-          ignore_blank_lines = false,
         },
 
         signs = vim.tbl_extend('force', signs_staged, { untracked = { text = hunk } }),
@@ -80,9 +75,8 @@ return {
 
           local gs = package.loaded.gitsigns
 
-          local function map(mode, lhs, rhs, desc)
-            vim.keymap.set(mode, lhs, rhs, { buffer = buffer, desc = desc, silent = true })
-          end
+          local common = require('utils.common')
+          local map = common.buf_mapper(buffer, { silent = true })
 
           map('n', ']h', function()
             if vim.wo.diff then

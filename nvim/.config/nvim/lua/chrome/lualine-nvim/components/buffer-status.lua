@@ -102,15 +102,12 @@ local function get_current_unsaved()
     out[#out + 1] = status.NEW
   end
 
-  local is_readonly = (bo.readonly or not bo.modifiable or bo.buftype == 'nowrite')
-    and status.READONLY ~= ''
-
+  local is_readonly = bo.readonly or not bo.modifiable or bo.buftype == 'nowrite'
   if is_readonly then
     out[#out + 1] = status.READONLY
   end
 
-  local is_modified = bo.modified and status.MODIFIED ~= '' and not is_readonly
-  if is_modified then
+  if bo.modified and not is_readonly then
     out[#out + 1] = status.MODIFIED
   end
 
@@ -146,7 +143,6 @@ local function is_unsaved(bufnr)
     and getbufvar(bufnr, '&readonly') == 0
     and getbufvar(bufnr, '&modifiable') == 1
     and vim.api.nvim_buf_get_name(bufnr) ~= ''
-    and not IGNORE_FILETYPES[getbufvar(bufnr, '&filetype')]
 end
 
 --- Get global modified flag (count of other modified buffers)

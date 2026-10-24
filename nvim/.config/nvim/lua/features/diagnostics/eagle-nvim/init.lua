@@ -43,12 +43,9 @@ return {
       },
 
       on_open = function(eagle_win, eagle_buf)
-        local function eagle_map(lhs, rhs, desc)
-          vim.keymap.set({ 'n', 'x' }, lhs, rhs, { buffer = eagle_buf, desc = desc })
-        end
-
-        eagle_map('<PageUp>', '<C-u>', 'Scroll Up')
-        eagle_map('<PageDown>', '<C-d>', 'Scroll Down')
+        local map = common.buf_mapper(eagle_buf)
+        map({ 'n', 'x' }, '<PageUp>', '<C-u>', 'Scroll Up')
+        map({ 'n', 'x' }, '<PageDown>', '<C-d>', 'Scroll Down')
 
         common.link_popup(eagle_win, {
           name = 'Eagle',

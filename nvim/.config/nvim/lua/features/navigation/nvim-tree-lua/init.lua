@@ -139,7 +139,6 @@ return {
         -- Hijack directories ourselves for the floating view to work correctly
         hijack_directories = {
           enable = false,
-          auto_open = false,
         },
         live_filter = {
           prefix = Conf.picker.PROMPT_PREFIX,
@@ -147,10 +146,6 @@ return {
         },
         update_focused_file = {
           enable = true,
-          -- Prevent changing cwd when navigating to files outside of the tree root
-          update_root = {
-            enable = false,
-          },
         },
         filters = {
           git_ignored = false,
@@ -208,8 +203,7 @@ return {
           side = 'right',
           -- Width when not in float mode
           width = function()
-            local panel_cols = UI.layout.side_size('side_panel', 'md')
-            return panel_cols
+            return (UI.layout.side_size('side_panel', 'md'))
           end,
 
           float = {
@@ -229,16 +223,8 @@ return {
         help = { border = 'rounded' },
 
         on_attach = function(tree_bufnr)
-          local function map(mode, lhs, rhs, desc)
-            local keys = type(lhs) == 'table' and lhs or { lhs }
-            for _, key in ipairs(keys) do
-              vim.keymap.set(mode, key, rhs, {
-                desc = 'File Tree: ' .. desc,
-                buffer = tree_bufnr,
-                nowait = true,
-              })
-            end
-          end
+          local common = require('utils.common')
+          local map = common.buf_mapper(tree_bufnr, { prefix = 'File Tree: ', nowait = true })
 
           map('n', '<C-t>', tree.switch_to_side, 'Switch to Side')
 
@@ -333,15 +319,15 @@ return {
       -- TreeAttachedPost fires per open (the buffer is bufhidden=wipe), matching the watcher's
       -- lifetime; tree.open() misses direct api.tree.open() calls, and on_attach runs for help too
       events.subscribe(events.Event.TreeAttachedPost, function(tree_bufnr)
+        --- @cast tree_bufnr integer
         state.preview_watcher =
           vim.api.nvim_create_augroup('features.navigation.nvim-tree.preview', { clear = true })
 
         vim.api.nvim_create_autocmd('BufEnter', {
           group = state.preview_watcher,
-          callback = function(ev)
-            if ev.buf == tree_bufnr then
-              tree.toggle_preview(state.preview_on_focus)
-            end
+          buffer = tree_bufnr,
+          callback = function()
+            tree.toggle_preview(state.preview_on_focus)
           end,
         })
       end)

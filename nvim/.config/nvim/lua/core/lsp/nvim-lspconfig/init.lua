@@ -49,12 +49,8 @@ return {
         { clear = true }
       ),
       callback = function(args)
-        local function map(mode, lhs, rhs, desc)
-          vim.keymap.set(mode, lhs, rhs, {
-            buffer = args.buf,
-            desc = 'LSP: ' .. desc,
-          })
-        end
+        local common = require('utils.common')
+        local map = common.buf_mapper(args.buf, { prefix = 'LSP: ' })
 
         map('n', 'gd', function()
           Snacks.picker.lsp_definitions({

@@ -38,7 +38,6 @@ lazy.setup({
   },
   defaults = {
     lazy = true,
-    version = false, -- Always use the latest git commit
   },
   performance = {
     rtp = {

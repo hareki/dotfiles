@@ -11,8 +11,10 @@ M.state = {
 
 -- Swap this file to change the preview pages' tab icon (any image type). It's inlined as a
 -- data URI, so it never has to sit under the server's webroot
-local FAVICON_PATH = vim.fn.stdpath('config')
-  .. '/lua/features/preview/live-preview-nvim/assets/vscode-live-server.svg'
+local FAVICON_PATH = vim.fs.joinpath(
+  vim.fn.stdpath('config'),
+  'lua/features/preview/live-preview-nvim/assets/vscode-live-server.svg'
+)
 
 -- toHTML() only gets the file's content, so each page names its tab after its own URL
 local TITLE_SCRIPT =

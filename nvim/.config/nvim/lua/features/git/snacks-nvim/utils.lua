@@ -42,7 +42,7 @@ function M.setup()
       end
 
       local win = vim.api.nvim_get_current_win()
-      if vim.api.nvim_win_get_config(win).relative == '' then
+      if not Snacks.util.is_float(win) then
         M.state.last_win = win
       end
     end,
