@@ -30,7 +30,7 @@ end
 --- to that file from non-file buffers and `prepare_remote_edit` can land in a real editing window
 function M.setup()
   vim.api.nvim_create_autocmd({ 'WinEnter', 'BufEnter' }, {
-    group = vim.api.nvim_create_augroup('git.snacks.lazygit-last-focus', { clear = true }),
+    group = vim.api.nvim_create_augroup('features.git.snacks.lazygit-last-focus', { clear = true }),
     callback = function(args)
       if vim.bo[args.buf].buftype ~= '' then
         return

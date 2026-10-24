@@ -21,7 +21,7 @@ return {
         select = {
           layout = {
             layout = {
-              width = UI.layout.popup_fn('sm', true).width,
+              width = UI.layout.picker_fn('sm').width,
               -- Neutralize the select preset's min_width=80/max_width=100,
               -- which would otherwise clamp the function-valued width
               min_width = 0,

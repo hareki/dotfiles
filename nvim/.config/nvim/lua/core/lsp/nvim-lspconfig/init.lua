@@ -1,5 +1,6 @@
 return {
   'neovim/nvim-lspconfig',
+  -- VeryLazy, not BufReadPost/BufNewFile, to avoid directory filetype detection issues:
   -- https://www.reddit.com/r/neovim/comments/1l7pz1l/starting_from_0112_i_have_a_weird_issue
   event = 'VeryLazy',
   config = function()

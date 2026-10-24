@@ -1,6 +1,6 @@
 -- Function-valued, so snacks sizes and centers popups per open, across terminal resizes
-local sm = UI.layout.popup_fn('sm', true)
-local lg_border = UI.layout.popup_fn('lg', true)
+local sm = UI.layout.picker_fn('sm')
+local lg_border = UI.layout.picker_fn('lg')
 
 local layouts = require('features.search.snacks-nvim.layouts')
 local layout_opts = {

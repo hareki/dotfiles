@@ -302,7 +302,10 @@ return {
       local state = tree.state
 
       vim.api.nvim_create_autocmd('VimResized', {
-        group = vim.api.nvim_create_augroup('navigation.nvim-tree.resize', { clear = true }),
+        group = vim.api.nvim_create_augroup(
+          'features.navigation.nvim-tree.resize',
+          { clear = true }
+        ),
         callback = function()
           tree.resize()
         end,
@@ -311,7 +314,10 @@ return {
       -- Deferred like the Snacks pickers' check, so nvim-tree's own hops through a split
       -- (removing a file shown in one) are back in the tree by the time it runs
       vim.api.nvim_create_autocmd('WinEnter', {
-        group = vim.api.nvim_create_augroup('navigation.nvim-tree.focus-loss', { clear = true }),
+        group = vim.api.nvim_create_augroup(
+          'features.navigation.nvim-tree.focus-loss',
+          { clear = true }
+        ),
         callback = function()
           vim.schedule(tree.close_on_focus_loss)
         end,
@@ -328,7 +334,7 @@ return {
       -- lifetime; tree.open() misses direct api.tree.open() calls, and on_attach runs for help too
       events.subscribe(events.Event.TreeAttachedPost, function(tree_bufnr)
         state.preview_watcher =
-          vim.api.nvim_create_augroup('navigation.nvim-tree.preview', { clear = true })
+          vim.api.nvim_create_augroup('features.navigation.nvim-tree.preview', { clear = true })
 
         vim.api.nvim_create_autocmd('BufEnter', {
           group = state.preview_watcher,

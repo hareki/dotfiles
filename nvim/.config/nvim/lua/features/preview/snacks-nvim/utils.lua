@@ -112,7 +112,8 @@ local function open(source_buf, src)
   local scratch = vim.api.nvim_create_buf(false, true)
   vim.bo[scratch].bufhidden = 'wipe'
 
-  local augroup = vim.api.nvim_create_augroup('preview.snacks.hover-image', { clear = true })
+  local augroup =
+    vim.api.nvim_create_augroup('features.preview.snacks.hover-image', { clear = true })
 
   local placement = Snacks.image.placement.new(scratch, src, {
     inline = false,
@@ -403,7 +404,8 @@ end
 
 --- Open audio files as a read-only info page, the way snacks.image opens images and videos
 function M.setup_audio_viewer()
-  local group = vim.api.nvim_create_augroup('preview.snacks.audio-viewer', { clear = true })
+  local group =
+    vim.api.nvim_create_augroup('features.preview.snacks.audio-viewer', { clear = true })
   local pattern = string.format('*.{%s}', table.concat(audio_extensions, ','))
 
   vim.api.nvim_create_autocmd('BufReadCmd', {

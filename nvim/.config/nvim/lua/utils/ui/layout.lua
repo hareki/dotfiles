@@ -48,18 +48,14 @@ local function resolve_dimensions(dimensions)
 end
 
 --- Compute width/height for a side panel or side preview size preset
---- @overload fun(category: 'side_panel', variant: 'sm'|'md', with_border?: boolean): integer, integer
---- @overload fun(category: 'side_preview', variant: 'md', with_border?: boolean): integer, integer
+--- @overload fun(category: 'side_panel', variant: 'sm'|'md'): integer, integer
+--- @overload fun(category: 'side_preview', variant: 'md'): integer, integer
 --- @param category 'side_panel' | 'side_preview' Size category in config.size
 --- @param variant string Variant key within the category
---- @param with_border? boolean Whether to add 2 for border (default false)
 --- @return integer width Width in columns
 --- @return integer height Height in rows
-function M.side_size(category, variant, with_border)
-  local width, height = resolve_dimensions(Conf.size[category][variant])
-  local border = with_border and 2 or 0
-
-  return width + border, height + border
+function M.side_size(category, variant)
+  return resolve_dimensions(Conf.size[category][variant])
 end
 
 --- Geometry of the side preview float, docked left of the side panel it's relative to:
@@ -93,9 +89,8 @@ end
 
 --- Compute a centered window configuration from a size preset
 --- @param size utils.ui.layout.PopupSize
---- @param with_border boolean | nil Whether to add 2 for border (default false)
 --- @return utils.ui.layout.WinConfig config
-function M.popup(size, with_border)
+function M.popup(size)
   local window_w, window_h
   local preset = Conf.size.popup[size] -- nil for 'input'
 
@@ -109,10 +104,8 @@ function M.popup(size, with_border)
   local col, row = M.center(window_w, window_h)
 
   return {
-    -- Some consumers (e.g. bordered snacks windows) count the border in the size they render;
-    -- add 2 to the width and height for them to match the size of the others that do not
-    width = window_w + (with_border and 2 or 0),
-    height = window_h + (with_border and 2 or 0),
+    width = window_w,
+    height = window_h,
     col = col,
     row = row + (preset and preset.ROW_OFFSET or 0),
   }
@@ -127,22 +120,40 @@ end
 --- Like M.popup, but function-valued, so consumers size and center popups at open time, after
 --- any terminal resize (Snacks can't take callable max_width/max_height, so set no max fields)
 --- @param size utils.ui.layout.PopupSize
---- @param with_border boolean | nil Whether to add 2 for border (default false)
 --- @return utils.ui.layout.WinConfigFn config Window config resolved per call
-function M.popup_fn(size, with_border)
+function M.popup_fn(size)
   return {
     width = function()
-      return M.popup(size, with_border).width
+      return M.popup(size).width
     end,
     height = function()
-      return M.popup(size, with_border).height
+      return M.popup(size).height
     end,
     col = function()
-      return M.popup(size, with_border).col
+      return M.popup(size).col
     end,
     row = function()
-      return M.popup(size, with_border).row
+      return M.popup(size).row
     end,
+  }
+end
+
+--- Like M.popup_fn, for a snacks picker layout: its size counts the borders of the windows it
+--- draws inside, so it gets 2 more cells per dimension to match a window of the same preset
+--- @param size utils.ui.layout.PopupSize
+--- @return utils.ui.layout.WinConfigFn config Window config resolved per call
+function M.picker_fn(size)
+  local config = M.popup_fn(size)
+
+  return {
+    width = function()
+      return config.width() + 2
+    end,
+    height = function()
+      return config.height() + 2
+    end,
+    col = config.col,
+    row = config.row,
   }
 end
 

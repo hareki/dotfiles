@@ -13,7 +13,10 @@ M.state = {
 --- @return nil
 function M.setup_repeat()
   vim.api.nvim_create_autocmd('User', {
-    group = vim.api.nvim_create_augroup('editing.mini-ai.record-last-object', { clear = true }),
+    group = vim.api.nvim_create_augroup(
+      'features.editing.mini-ai.record-last-object',
+      { clear = true }
+    ),
     pattern = 'MiniAiSelectObject',
     callback = function(ev)
       M.state.last_obj = ev.data -- "iw", "af", "ag", ...

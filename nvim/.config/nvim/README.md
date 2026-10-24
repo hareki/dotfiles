@@ -51,8 +51,8 @@
 ### Utils (`lua/utils/`)
 
 - `ui/`: namespaces of the `UI` global
-  - `layout.popup(size, with_border)`, `color.blend_hex()`, `pill.virt_text()`, `cursorline.set_cursorline()`
-  - `integrations/`: `catppuccin(fn)` / `catppuccin.get_palette()`, `which_key(spec)`, `statusline.refresh()`
+  - `layout.popup(size)` / `layout.picker_fn(size)`, `color.blend_hex()`, `pill.virt_text()`, `cursorline.set_cursorline()`
+  - `integrations/`: `catppuccin(fn)` / `catppuccin.get_palette()`, `which_key({ specs?, rules?, triggers? })`, `statusline.refresh()`
 - `notifier.lua`: notification wrapper; supports markdown, tuple lists for custom highlight groups
 - `common.lua`: `noautocmd(fn)`, `focus_win(win)`
 - `lazy-require.lua`: `Defer.on_index()`, `Defer.on_exported_call()`

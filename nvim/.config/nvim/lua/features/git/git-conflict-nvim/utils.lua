@@ -164,7 +164,7 @@ end
 --- highlights, pause colorizer and diagnostics in them, and undo it all once resolved
 --- @return nil
 function M.setup()
-  local group = vim.api.nvim_create_augroup('git.git-conflict.keymaps', { clear = true })
+  local group = vim.api.nvim_create_augroup('features.git.git-conflict.keymaps', { clear = true })
 
   vim.api.nvim_create_autocmd('User', {
     group = group,
