@@ -214,6 +214,7 @@ return {
 
           float = {
             enable = state.position == 'float',
+            -- Replaced by tree.close_on_focus_loss, which spares floats
             quit_on_focus_loss = false,
             open_win_config = function()
               return vim.tbl_extend('force', tree.float_geometry('collapse'), {
@@ -304,6 +305,15 @@ return {
         group = vim.api.nvim_create_augroup('navigation.nvim-tree.resize', { clear = true }),
         callback = function()
           tree.resize()
+        end,
+      })
+
+      -- Deferred like the Snacks pickers' check, so nvim-tree's own hops through a split
+      -- (removing a file shown in one) are back in the tree by the time it runs
+      vim.api.nvim_create_autocmd('WinEnter', {
+        group = vim.api.nvim_create_augroup('navigation.nvim-tree.focus-loss', { clear = true }),
+        callback = function()
+          vim.schedule(tree.close_on_focus_loss)
         end,
       })
 

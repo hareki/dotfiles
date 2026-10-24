@@ -49,6 +49,24 @@ function M.close_all()
   api.tree.close()
 end
 
+--- Close the float tree once focus lands in a normal window, the rule Snacks pickers auto-close
+--- by: floats (the preview, inputs, pickers, Lazygit, the coding agent, the floating terminal)
+--- keep it open, unlike nvim-tree's quit_on_focus_loss, which closes on any WinLeave. The
+--- cmdline window keeps it open too: it returns to the tree, and can't close windows (E11).
+--- @return nil
+function M.close_on_focus_loss()
+  if
+    M.state.position ~= 'float'
+    or Snacks.util.is_float()
+    or vim.fn.getcmdwintype() ~= ''
+    or not api.tree.is_visible()
+  then
+    return
+  end
+
+  M.close_all()
+end
+
 --- Create a node action function for file/folder interaction
 --- For files: opens the file and closes tree if floating.
 --- For folders: expands, collapses, or toggles based on action type.
