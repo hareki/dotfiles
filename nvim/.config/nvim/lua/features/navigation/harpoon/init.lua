@@ -52,21 +52,15 @@ return {
 
     config = function(_, opts)
       local harpoon = require('harpoon')
+      local utils = require('features.navigation.harpoon.utils')
       harpoon.setup(opts)
 
-      -- Some mutations keep the list length (replace_at, menu-save reorder), so the statusline's
-      -- (buf, length) cache key misses them; invalidate on harpoon's mutation events instead
-      local function refresh_component()
-        local harpoon_component = require('chrome.lualine-nvim.components.harpoon')
-        harpoon_component.invalidate()
-        UI.statusline.refresh()
-      end
-
+      -- Invalidate the statusline component on harpoon's mutation events
       harpoon:extend({
-        ADD = refresh_component,
-        REMOVE = refresh_component,
-        REPLACE = refresh_component,
-        LIST_CHANGE = refresh_component,
+        ADD = utils.refresh_statusline,
+        REMOVE = utils.refresh_statusline,
+        REPLACE = utils.refresh_statusline,
+        LIST_CHANGE = utils.refresh_statusline,
       })
     end,
   },

@@ -12,6 +12,7 @@ return {
       FlashPromptIcon = { fg = palette.yellow },
     }
   end, 'flash.nvim'),
+
   UI.which_key({
     rules = { plugin = 'flash.nvim', icon = Conf.icons.tools.FLASH, color = 'yellow' },
   }),

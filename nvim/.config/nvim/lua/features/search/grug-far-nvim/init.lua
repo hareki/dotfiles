@@ -1,22 +1,3 @@
--- grug-far passes previewWindow straight to nvim_open_win, so geometry must be plain numbers,
--- computed per open; the static opts below only cover direct :GrugFar invocations
-local function preview_geometry()
-  local preview = UI.layout.side_preview()
-  local panel_cols = UI.layout.side_size('side_panel', 'md')
-
-  return {
-    window_creation_command = panel_cols .. 'vsplit',
-    preview_window = {
-      row = preview.row,
-      col = preview.col,
-      title = Conf.picker.PREVIEW_TITLE,
-      title_pos = 'center',
-      width = preview.width,
-      height = preview.height,
-    },
-  }
-end
-
 return {
   UI.catppuccin(function(palette)
     return {
@@ -37,6 +18,7 @@ return {
         '<leader>sr',
         function()
           local grug = require('grug-far')
+          local utils = require('features.search.grug-far-nvim.utils')
           local ext = nil
 
           if vim.bo.buftype == '' then
@@ -46,7 +28,7 @@ return {
             ext = vim.fs.basename(name):match('%.([^%.]+)$')
           end
 
-          local geometry = preview_geometry()
+          local geometry = utils.preview_geometry()
           grug.open({
             transient = true,
             windowCreationCommand = geometry.window_creation_command,
@@ -62,7 +44,8 @@ return {
     },
 
     opts = function()
-      local geometry = preview_geometry()
+      local utils = require('features.search.grug-far-nvim.utils')
+      local geometry = utils.preview_geometry()
 
       return {
         windowCreationCommand = geometry.window_creation_command,

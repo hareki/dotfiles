@@ -171,4 +171,13 @@ M.show_picker = function()
   })
 end
 
+--- Invalidate the statusline's harpoon component and redraw it. Some mutations keep the list
+--- length (replace_at, menu-save reorder), so the component's (buf, length) cache key misses them
+--- @return nil
+function M.refresh_statusline()
+  local harpoon_component = require('chrome.lualine-nvim.components.harpoon')
+  harpoon_component.invalidate()
+  UI.statusline.refresh()
+end
+
 return M
