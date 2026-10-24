@@ -76,7 +76,7 @@ nvim-tree-lua/
 ## Forks (author = hareki)
 
 - 24 minimal-diff forks; updated via [wei/pull](https://github.com/wei/pull)
-- Features toggleable — disabling custom bits reverts to upstream behavior
+- Features toggleable: disabling custom bits reverts to upstream behavior
 - Enable unified UX by exposing layout hooks, focus toggles, preview coordination, UI tweaks and more.
 
 ## Code Style
@@ -84,7 +84,7 @@ nvim-tree-lua/
 - stylua: 100-char lines, 2-space indent
 - LuaLS `--- @class` / `--- @param` / `--- @return` annotations for public APIs
 - All keymaps include `desc` in CMOS 18 title case
-- Icons imported from `config/icons.lua` — never hardcoded
+- Icons imported from `config/icons.lua`, never hardcoded
 
 ## Attribution
 
