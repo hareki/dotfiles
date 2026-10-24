@@ -1,7 +1,6 @@
 _evalcache zoxide init zsh
-# atuin's init forks `atuin uuid` (~5.5ms) in every new shell, whose SHLVL never
-# matches the inherited ATUIN_SHLVL. Mint the same simple-format UUIDv7 here so its
-# check passes (atuin reads a session's start time back out of the timestamp)
+# Mint atuin's simple-format UUIDv7 here, sparing its init an `atuin uuid` fork (~5.5ms)
+# per shell; atuin reads the session's start time back out of the timestamp
 if [[ -z $ATUIN_SESSION || $ATUIN_SHLVL != $SHLVL ]]; then
   zmodload zsh/datetime
   printf -v ATUIN_SESSION '%012x7%03x%x%03x%04x%04x%04x' \

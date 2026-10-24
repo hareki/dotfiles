@@ -1,10 +1,7 @@
-# Enable vi mode
 bindkey -v
 
-# Make <Esc> switch modes instantly. The default KEYTIMEOUT (40 = 400ms) makes zle pause after
-# Esc to see whether it begins a multi-key sequence (arrow keys, bracketed paste, etc. all start
-# with ^[). 1 = 10ms is imperceptible, and real escape sequences still match because the terminal
-# delivers them as a single burst that is already buffered when zle reads it.
+# 10ms instead of 400ms, so <Esc> switches modes at once; real escape sequences still
+# match, since the terminal delivers them in one already-buffered burst
 KEYTIMEOUT=1
 
 # Change cursor shape for different vi modes.
@@ -21,10 +18,8 @@ _cursor_keymap_select() {
 }
 _cursor_line_init() { cursor_beam }
 
-# Hooks, not `zle -N zle-line-init`: that would replace omz's zle-line-init
-# (`echoti smkx`), and omz binds Home/End only to the application-mode sequences
-# from terminfo, so without smkx they fall apart into vi commands outside tmux.
-# The `_` prefix keeps zsh-autosuggestions from wrapping the hook widgets
+# Hooks, since `zle -N zle-line-init` would drop omz's `echoti smkx`, which Home/End need
+# outside tmux. The `_` prefix keeps zsh-autosuggestions from wrapping the hook widgets
 autoload -Uz add-zle-hook-widget
 add-zle-hook-widget keymap-select _cursor_keymap_select
 add-zle-hook-widget line-init _cursor_line_init
@@ -34,10 +29,8 @@ osc52_copy() {
   printf '\e]52;c;%s\a' "$data"
 }
 
-# One function serves several widgets: $WIDGET holds the name it was invoked as,
-# so `zle .$WIDGET` dispatches to the matching builtin. A cancelled yank (`h` then
-# Esc) fails and leaves CUTBUFFER alone; copying then would overwrite whatever the
-# system clipboard has picked up since with the previous yank
+# `zle .$WIDGET` runs the builtin the invoked widget shadows; `&&` skips the copy on a
+# cancelled yank (`h` then Esc), which would put the old yank over the system clipboard
 vi_yank_osc52() { zle .$WIDGET && osc52_copy "$CUTBUFFER"; cursor_block }
 
 zle -N vi-yank vi_yank_osc52
@@ -67,13 +60,12 @@ bindkey -M visual 'k' vi-put-after
 bindkey -M vicmd  'h' vi-yank
 bindkey -M vicmd  'k' vi-put-after
 
-# Shift+V selects the whole current line in Visual mode.
-# Native visual-line-mode leaves mark==cursor, so nothing highlights on a single-line buffer;
-# instead go to beginning-of-line, enter char-wise Visual, then extend to end-of-line
+# Native visual-line-mode leaves mark==cursor, so nothing highlights on a single-line
+# buffer; a char-wise selection of the whole line does
 select_whole_line() { zle .beginning-of-line; zle .visual-mode; zle .end-of-line }
 zle -N select-whole-line select_whole_line
 bindkey -M vicmd  'V' select-whole-line
 
-# Set highlight color for region in vi mode: Surface1(bg) and Yellow(fg) from Catppuccin Mocha
-# Couldn't get it to just change the bg color and leave the fg color as is, so I chose a foreground color myself
+# Visual selection in Catppuccin Mocha Surface1 (bg) and Yellow (fg); the fg is set too,
+# since a bg-only region style couldn't keep the text's own color
 zle_highlight=(region:bg=#4f5164,fg=#f9e2af)

@@ -1,13 +1,7 @@
 #!/bin/zsh
 
-# `tmuxinator start`, with the project's layouts built at the terminal's size.
-#
-# Outside tmux, tmuxinator creates the session detached at default-size (80x24)
-# and tmux skews the pane sizes when it grows the windows to the terminal on
-# attach, e.g. a main-vertical column ends up 17/15 rows instead of 16/16
-# (tmuxinator/tmuxinator#568). From inside a client, tmux creates the windows at
-# the client's size instead, so outside tmux the project starts from a throwaway
-# session, which closes once tmuxinator switches the client over to the project.
+# Outside tmux, tmuxinator builds the layouts at 80x24 and they skew as the windows grow
+# on attach, so it runs from a throwaway session, sized to the terminal, that then closes
 mux() {
   if [[ -n $TMUX ]]; then
     tmuxinator start "$@"

@@ -3,9 +3,8 @@
 build() {
   local -a targets=(atuin eza television worktrunk lazygit fzf tmux)
   local target failed=0
-  # mise shims every binary in the toolchains' own dirs (~/.cargo/bin, the versioned
-  # go bin), which costs ~50ms per call, and a go upgrade strands anything installed
-  # there. PATH puts this dir ahead of the mise shims instead
+  # In the toolchains' own dirs, mise would shim every binary (~50ms per call) and a go
+  # upgrade would strand them; PATH puts this dir ahead of the mise shims instead
   local -x CARGO_INSTALL_ROOT=~/.local/opt GOBIN=~/.local/opt/bin
 
   case "$1" in
@@ -23,16 +22,14 @@ build() {
       done
       return $failed
       ;;
-    # Build artifacts are removed only once installed, so a failed build keeps them for
-    # debugging and as the retry's cache. `go install` leaves nothing in the repo (its
-    # build cache is the shared GOCACHE, which trims itself)
+    # A failed build keeps its artifacts for debugging and as the retry's cache, while
+    # `go install` leaves none in the repo (its build cache is the self-trimming GOCACHE)
     atuin)                    cargo install --locked --path crates/atuin && cargo clean ;;
     eza|television|worktrunk) cargo install --locked --path . && cargo clean ;;
     lazygit|fzf)              go install ;;
     tmux)
-      # Installing explicitly marks them installed_on_request, so `brew
-      # autoremove` won't reap deps of a binary brew can't see. distclean leaves
-      # autogen.sh's outputs and the .deps dirs (with stale .Po files) behind
+      # Explicit installs keep `brew autoremove` off the deps of a binary it can't see;
+      # distclean leaves autogen.sh's outputs and the .deps dirs (stale .Po files) behind
       brew install libevent utf8proc jemalloc \
         && sh autogen.sh \
         && ./configure --enable-utf8proc --enable-jemalloc \

@@ -1,7 +1,6 @@
 # Emit beam cursor to override Neovim's :terminal default cursor block
 [[ -t 1 ]] && print -n $'\e[5 q'
 
-# Load p10k instant prompt
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
@@ -18,9 +17,8 @@ source ~/.p10k.zsh
 __zsh_config_dir=$XDG_CONFIG_HOME/zsh
 source $__zsh_config_dir/plugins.zsh
 _evalcache /opt/homebrew/bin/brew shellenv
-# brew shellenv exports FPATH, so child shells (tmux panes, nvim terminals) would
-# inherit deferred fzf-tab's lib dir ahead of their compinit, and use-omz rebuilds
-# the completion dump (~185ms) whenever fpath differs from the previous shell's
+# brew shellenv exports FPATH: child shells would inherit deferred fzf-tab's lib dir, and
+# use-omz rebuilds the dump (~185ms) whenever fpath differs from the last shell's
 typeset +x FPATH
 
 # Re-apply .zshenv's PATH order: brew shellenv prepends Homebrew (.zprofile has

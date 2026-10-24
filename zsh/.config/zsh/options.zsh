@@ -1,4 +1,4 @@
-# [[ Settings ENV variables that are not needed outside interactive shells ]]
+# Settings that only interactive shells need
 # History settings come from omz's lib/history.zsh
 
 export REPOS_DIR="$HOME/Repositories/personal"
@@ -8,9 +8,8 @@ export STOW_REPO="$REPOS_DIR/dotfiles"
 # https://unix.stackexchange.com/questions/167582/why-zsh-ends-a-line-with-a-highlighted-percent-symbol
 PROMPT_EOL_MARK=''
 
-# The two settings of the skipped /etc/zshrc that nothing overrides later: combining
-# accents render in place (macOS file names are NFD), and `log` runs /usr/bin/log
-# instead of zsh's builtin
+# The skipped /etc/zshrc's two settings nothing overrides: combining accents render in
+# place (macOS file names are NFD), and `log` runs /usr/bin/log instead of zsh's builtin
 setopt combining_chars
 disable log
 

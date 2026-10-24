@@ -1,10 +1,7 @@
 #!/bin/zsh
 
-# Stand-in for the wei/pull GitHub app: merges upstream into each fork's default
-# branch through the API behind GitHub's "Sync fork" button. The fork's clone under
-# $REPOS_DIR, if any, is then fast-forwarded from origin, so it has the merge too.
-# A conflicting merge leaves the fork untouched, so unless --no-local-merge it is
-# started in the clone instead, with its conflicts ready to resolve and push
+# Stand-in for the wei/pull GitHub app, through the API behind the "Sync fork" button.
+# A conflicting merge leaves the fork untouched, so it's started in the clone instead
 sync-forks() {
   local owner=hareki
   # Fork names (not upstream ones) whose drift is accepted, so they are skipped instead of synced
@@ -47,8 +44,7 @@ sync-forks() {
   local -x GH_TOKEN
   GH_TOKEN=$(gh auth token --user $owner) || return 1
 
-  # The GraphQL query behind `gh repo list`, plus each default branch's head, which
-  # its --json can't return: a clone that already has the head skips its fetch.
+  # `gh repo list`'s GraphQL query, plus the default branch heads its --json can't return.
   # isArchived filters on the server, without the search API that --no-archived uses (~1s)
   list=$(gh api graphql --paginate -f owner=$owner -f query='
     query($owner: String!, $endCursor: String) {
@@ -68,10 +64,8 @@ sync-forks() {
   (( jobs > $#forks / 4 )) && jobs=$(( $#forks / 4 ))
 
   print-header "Syncing forks of $owner"
-  # A FIFO pre-filled with one line per slot: each sync takes a line to start and
-  # puts it back when done, so a slow merge never stalls the free slots (zargs -P
-  # runs fixed batches, and zsh's wait has no -n). The subshell owns the FIFO's fd,
-  # so nothing is left open in this shell, even on Ctrl-C
+  # A FIFO semaphore, so a slow merge never stalls the free slots (zargs -P runs fixed
+  # batches, zsh's wait has no -n); the subshell owns its fd, so Ctrl-C leaks nothing
   {
     fifo=$(mktemp -u) && mkfifo $fifo && exec {slots}<>$fifo || exit 1
     rm $fifo
@@ -154,18 +148,16 @@ sync-forks() {
             fi
           fi
         fi
-        # A single print, so another fork's report can't land in the middle of this
-        # one. Details hold spaces and may be empty, hence the $sep between fields, and
-        # are cut to their first line, since git's and gh's errors can run over several
+        # One print, so reports can't interleave. Details may be empty or hold spaces
+        # (hence $sep), and keep only their first line, as errors can run over several
         print -r -- ${(pj:$sep:)report%%$'\n'*}
         print -u $slots
       } &
     done
     wait
   } | while IFS=$sep read -rA report; do
-    # The syncs run in subshells, so they report as lines (the fork's name, then the
-    # state and detail of the merge and of whatever happened to the clone) and the
-    # tallying happens here, since zsh runs a pipeline's last command in the current shell
+    # The subshells report as lines (name, then state/detail pairs for the merge and the
+    # clone), tallied here since zsh runs a pipeline's last command in the current shell
     name=$report[1] parts=()
     for state detail in "${(@)report[2,-1]}"; do
       (( ++counts[$state] ))

@@ -1,18 +1,7 @@
 #!/bin/zsh
 
-# cts = "Claude Toggle Settings"
-#
-# Claude Code persists runtime /model and /effort changes back into
-# ~/.claude/settings.json, which is stow-symlinked to the git-tracked
-# claude-code/.claude/settings.json in this repo. That constant rewriting
-# keeps dirtying the worktree, and Claude Code exposes no setting to redirect
-# where those two fields are written.
-#
-# So instead we tell git to ignore local changes to that one file via
-# `--skip-worktree`, and toggle the flag with this function:
-#   - skip-worktree SET   => git ignores model/effort churn (normal resting state)
-#   - skip-worktree CLEAR => git sees the file again so you can stage & commit a
-#                            deliberate settings change, then run `cts` to re-hide it.
+# cts = "Claude Toggle Settings". Claude Code writes /model and /effort back into the
+# stowed settings.json (no setting redirects them), so git normally ignores its changes
 cts() {
   local file="claude-code/.claude/settings.json"
 
@@ -31,12 +20,10 @@ cts() {
   fi
 
   if [[ "$flag" == "S" ]]; then
-    # Currently ignoring churn => re-expose the file for an intentional commit.
     git -C "$STOW_REPO" update-index --no-skip-worktree -- "$file" || return 1
     print -P "%F{green}TRACKING ON%f => git now tracks %F{blue}$file%f"
     print -P "     commit your intended change, then run %F{green}cts%f again to resume ignoring model/effort churn"
   else
-    # Currently visible => start ignoring the runtime churn.
     git -C "$STOW_REPO" update-index --skip-worktree -- "$file" || return 1
     print -P "%F{red}TRACKING OFF%f => git now ignores model/effort churn in %F{blue}$file%f"
   fi

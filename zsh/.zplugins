@@ -1,8 +1,6 @@
 getantidote/use-omz
 # Only the omz libs this config uses, not all of lib (~2ms per shell): use-omz stubs
-# the other libs' helpers (`omz`, clipcopy, git_prompt_info, ...) and sources their
-# file on first call, and spectrum, correction and diagnostics only serve omz
-# themes, an opt-in option and debugging
+# the other libs' helpers (`omz`, clipcopy, ...) and sources their file on first call
 ohmyzsh/ohmyzsh path:lib/completion.zsh
 ohmyzsh/ohmyzsh path:lib/directories.zsh
 ohmyzsh/ohmyzsh path:lib/functions.zsh
