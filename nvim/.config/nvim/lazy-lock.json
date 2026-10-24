@@ -53,7 +53,7 @@
   "rainbow-delimiters.nvim": { "branch": "master", "commit": "b55decda611755171bc5bf8f4c99603a75de4b41" },
   "render-markdown.nvim": { "branch": "main", "commit": "8e8795368391036643b622875a6da6a51bcd33f4" },
   "reticle.nvim": { "branch": "main", "commit": "72cd360845a4cc83108d880554548ed7c6a83156" },
-  "satellite.nvim": { "branch": "main", "commit": "64f50219d9ab40400b85d18ccdca244aacdf1352" },
+  "satellite.nvim": { "branch": "main", "commit": "214b37b106f1e0568e0244dd8996e6c43c353bfd" },
   "snacks.nvim": { "branch": "main", "commit": "84e6cb07c15a10077c4d7aa3ce1098d1fee274bf" },
   "tiny-code-action.nvim": { "branch": "main", "commit": "91a9c32228e9a7761d241023d9ebb9d11d8fb10d" },
   "todo-comments.nvim": { "branch": "main", "commit": "31e3c38ce9b29781e4422fc0322eb0a21f4e8668" },
