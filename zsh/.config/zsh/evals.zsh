@@ -11,5 +11,10 @@ fi
 _evalcache atuin init zsh --disable-up-arrow
 _evalcache wt config shell init zsh
 
-# _evalcache doesn't work reliably for this, only works when cache is empty
-eval "$(zsh-patina activate)"
+# `activate` is also what starts the daemon, which its cached script can't (it only returns
+# while the socket is missing): fork the binary when the daemon is down, not in every shell
+() {
+  local d=${TMPDIR:-/tmp}/zsh-patina
+  [[ -S $d/daemon.sock ]] && { kill -0 "$(<$d/daemon.lock)" } 2>/dev/null || zsh-patina start
+}
+_evalcache zsh-patina activate

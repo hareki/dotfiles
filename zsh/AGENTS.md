@@ -36,7 +36,7 @@ This is a zsh dotfiles configuration targeting macOS with Homebrew. Files are de
 The sourcing order of config modules matters: later files depend on earlier ones (e.g., keymaps' plain `bindkey` calls only reach viins because vi-mode's `bindkey -v` has replaced omz's `bindkey -e` by then, and evals runs tool init that needs PATH set up earlier).
 
 - `options.zsh` holds interactive-only settings (`REPOS_DIR`/`STOW_REPO`, `PROMPT_EOL_MARK`, plus `combining_chars` and `disable log` from the skipped `/etc/zshrc`) and the Catppuccin `FZF_DEFAULT_OPTS` / `_ZO_FZF_OPTS`. History settings come from omz's `lib/history.zsh`.
-- `evals.zsh` runs tool init via `_evalcache`: zoxide, atuin (after minting its session ID, see Performance Patterns), and `wt` (worktrunk); zsh-patina (syntax highlighter) is a plain `eval` because evalcache is unreliable for it.
+- `evals.zsh` runs tool init via `_evalcache`: zoxide, atuin (after minting its session ID, see Performance Patterns), `wt` (worktrunk) and zsh-patina (syntax highlighter, after the daemon check described there).
 - `tty-guard.zsh` is a `sched`-driven self-heal for the tty being put back into cooked mode while zle is reading the line (Node.js restores its startup termios on exit, even from a background process group): one `stty -g` per idle 2s tick, an empty `zle -M` to force `zsetterm` when icanon/echo are set.
 
 ### Plugin Management
@@ -47,7 +47,7 @@ Plugins are declared in `.zplugins` and managed by **Antidote**. Antidote static
 
 ### Performance Patterns
 
-- **evalcache**: A small local `_evalcache` in `plugins.zsh` wraps expensive `eval "$(command)"` calls (brew shellenv, zoxide, atuin, wt); output cached and zcompiled in `~/.cache/.zsh-evalcache/`, invalidated by `_evalcache_clear` (`yay` and `build` call it after updating tools).
+- **evalcache**: A small local `_evalcache` in `plugins.zsh` wraps expensive `eval "$(command)"` calls (brew shellenv, zoxide, atuin, wt, zsh-patina); output cached and zcompiled in `~/.cache/.zsh-evalcache/`, invalidated by `_evalcache_clear` (`yay` and `build` call it after updating tools).
   - Its zprof time is the cached scripts' own code: the wrapper adds ~10µs over a bare `source`, which already loads the `.zwc`. Sourcing the `.zwc` directly fails (zsh parses it as text).
 - **mise**: not activated at runtime; it runs purely via shims prepended to `PATH` in `.zshenv`. A shim costs ~50ms per call (~90ms for a tool installed in mise but inactive in the current directory, e.g. claudecode.nvim's pinned fzf/neovim outside that project), so hot paths bypass it:
   - `build` installs into `~/.local/opt/bin` (`CARGO_INSTALL_ROOT`/`GOBIN`), which `user_path` puts ahead of the mise shims. Left in the toolchains' own dirs (`~/.cargo/bin`, mise's versioned go bin), atuin would pay the shim cost at every startup and before every command.
@@ -58,9 +58,10 @@ Plugins are declared in `.zplugins` and managed by **Antidote**. Antidote static
 - **Exported FPATH**: `brew shellenv` exports `FPATH`, so `.zshrc` un-exports it. Otherwise child shells (tmux panes, nvim terminals) inherit deferred fzf-tab's `lib` dir ahead of their compinit, their `fpath` no longer matches a top-level shell's, and use-omz rebuilds the dump (~185ms) on every switch between the two.
 - **p10k SSH probe**: p10k forks `who -m` (~2.5ms) in every shell on a new tty, to catch an SSH login whose `SSH_*` vars were lost (su on a remote host). `plugins.zsh` presets `P9K_SSH=0` when no `SSH_*` var is set.
 - **atuin session**: atuin's init forks `atuin uuid` (~5.5ms) in every new shell, since its `ATUIN_SHLVL` check never matches a new `SHLVL`. `evals.zsh` mints the same simple-format UUIDv7 in zsh first, so that check passes.
+- **zsh-patina daemon**: `zsh-patina activate` prints the init script and also launches the highlighter daemon (~3.3ms per shell for the fork), and the script it prints only returns while the daemon's socket is missing, so a cached copy alone would leave highlighting dead after a reboot or a crash. `evals.zsh` checks the socket and the pid in `$TMPDIR/zsh-patina/daemon.lock` first, runs `zsh-patina start` (silent, idempotent) only when the daemon is down, then evalcaches `activate` like the other tools.
 - **/etc/zshrc**: skipped with `global_rcs` off (in `.zshenv` for non-login shells, in `.zprofile` after `/etc/zprofile`'s path_helper for login shells). It forks `locale` (~4ms) in every interactive shell, and omz and p10k override the rest of it (history, key bindings, prompt) except `combining_chars` and `disable log`, which `options.zsh` keeps.
 - **zsh-autosuggestions**: `ZSH_AUTOSUGGEST_MANUAL_REBIND` wraps the widgets once, when the plugin loads, instead of re-binding ~600 of them every precmd. `.zplugins` must therefore load it after every other widget-defining plugin (fzf-tab), since zsh-defer runs the precmd hooks after each deferred plugin.
-- **zcompile**: `.zshenv` recompiles `.zshrc` to bytecode whenever `.zshrc` is newer than `~/.zshrc.zwc` (zsh itself ignores an older `.zwc`).
+- **zcompile**: `.zshenv` recompiles `.zshrc` to bytecode unless `~/.zshrc.zwc` is newer than `.zshrc`: zsh ignores an older `.zwc` but still loads one from the same second, which a `-nt` test on the source alone would leave stale.
 - **Autoload**: Functions in `.config/zsh/functions/` are registered via `autoload -Uz` and only loaded on first call.
 - **Antidote zcompile**: All bundled plugins are zcompiled (`zstyle ':antidote:bundle:*' zcompile 'yes'`).
 - **OSC 7 cwd reporting**: omz's `omz_termsupport_cwd` forks two subshells per prompt to URL-encode `$PWD`; a wrapper at the end of `plugins.zsh` caches the escape sequence until `$PWD` changes and re-emits the cached one each prompt (still every prompt, so the terminal's recorded cwd survives `reset` and tmux reattach).

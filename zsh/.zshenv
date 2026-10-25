@@ -1,6 +1,6 @@
 # Compiled under a per-shell name and moved in: shells that start together (tmuxinator)
 # collide creating a shared .zwc, and sourcing a half-written one can crash
-if [[ -o interactive && ( ! -f ~/.zshrc.zwc || ~/.zshrc -nt ~/.zshrc.zwc ) ]]; then
+if [[ -o interactive && ! ~/.zshrc.zwc -nt ~/.zshrc ]]; then
   zcompile ~/.zshrc.$$.zwc ~/.zshrc && mv -f ~/.zshrc.$$.zwc ~/.zshrc.zwc
 fi
 

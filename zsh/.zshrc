@@ -34,6 +34,7 @@ done
 # in compdefs/ via their `#compdef` tag
 fpath=($__zsh_config_dir/{compdefs,functions} $fpath)
 autoload -Uz $__zsh_config_dir/functions/*(.N:t)
+unset __zsh_config_dir cfg
 
 if [[ -n "$ZSH_DEBUGRC" ]]; then
   zprof

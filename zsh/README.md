@@ -2,12 +2,12 @@
 
 ![image](./assets/docs/demo.png)
 
-Feature-packed zsh setup with ~55ms to the first usable prompt (~30ms for `zsh -i -c exit`). Optimized via static plugin bundling, eval caching, bytecode compilation, and function autoloading.
+Feature-packed zsh setup with ~55ms to the first usable prompt (~25ms for `zsh -i -c exit`). Optimized via static plugin bundling, eval caching, bytecode compilation, and function autoloading.
 
 ## Core Ideas
 
 - [Antidote](https://github.com/mattmc3/antidote) for static plugin bundling with deferred loading
-- A small local `_evalcache` to cache expensive `eval` calls (brew, zoxide, atuin, wt)
+- A small local `_evalcache` to cache expensive `eval` calls (brew, zoxide, atuin, wt, zsh-patina)
 - `zcompile` pre-compiles `.zshrc` to bytecode; functions autoload on first call
 - Vi mode with OSC52 clipboard integration (works over SSH)
 - Catppuccin Mocha theme applied across fzf, zsh-patina syntax highlighting, and eza

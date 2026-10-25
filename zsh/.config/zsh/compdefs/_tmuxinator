@@ -12,10 +12,7 @@ if (( CURRENT == 2 )); then
   _alternative \
     'commands:: _describe -t commands "tmuxinator subcommands" _tmuxinator_commands' \
     'projects:: _describe -t projects "tmuxinator projects" projects'
-elif (( CURRENT == 3 )); then
-  case $words[2] in
-    copy|cp|c|debug|delete|rm|open|o|start|s|stop|edit|e)
-      _arguments '*:projects:($projects)'
-    ;;
-  esac
+elif (( CURRENT == 3 )) \
+  && [[ $words[2] == (copy|cp|c|debug|delete|rm|open|o|start|s|stop|edit|e) ]]; then
+  _arguments '*:projects:($projects)'
 fi

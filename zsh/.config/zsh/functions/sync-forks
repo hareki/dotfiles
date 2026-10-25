@@ -174,8 +174,7 @@ sync-forks() {
       conflict) conflicted+=($entry) ;;
       failed)   failed+=("$name: $report[3]") ;;
     esac
-    msg="%F{blue}$name%f:"
-    print -r -- ${(%)msg} ${(j:, :)parts}
+    print -r -- ${(%):-"%F{blue}$name%f:"} ${(j:, :)parts}
   done
   (( pipestatus[1] )) && return 1
 

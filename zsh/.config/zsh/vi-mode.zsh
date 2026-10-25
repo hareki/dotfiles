@@ -29,9 +29,9 @@ osc52_copy() {
   printf '\e]52;c;%s\a' "$data"
 }
 
-# `zle .$WIDGET` runs the builtin the invoked widget shadows; `&&` skips the copy on a
-# cancelled yank (`h` then Esc), which would put the old yank over the system clipboard
-vi_yank_osc52() { zle .$WIDGET && osc52_copy "$CUTBUFFER"; cursor_block }
+# `zle .$WIDGET` runs the builtin the invoked widget shadows. A cancelled yank (`h` then Esc)
+# skips the copy (the old yank would land on the clipboard) but exits 0, or zle would beep
+vi_yank_osc52() { if zle .$WIDGET; then osc52_copy "$CUTBUFFER"; fi }
 
 zle -N vi-yank vi_yank_osc52
 zle -N vi-yank-eol vi_yank_osc52
@@ -47,7 +47,6 @@ vi_put_smart() {
   else
     zle .$WIDGET
   fi
-  cursor_block
 }
 
 zle -N vi-put-after vi_put_smart
