@@ -37,7 +37,7 @@ function M.enable(buf, win, _)
 end
 
 --- Build a dropbar source that renders a single static title symbol
---- @param opts { icon: string, icon_hl: string, name: string, name_hl: string }
+--- @param opts { icon: string, icon_hl: string, name: string }
 --- @return table[] sources
 function M.title_symbol(opts)
   return {
@@ -45,7 +45,9 @@ function M.title_symbol(opts)
       get_symbols = function()
         local dropbar_bar = require('dropbar.bar')
         return {
-          dropbar_bar.dropbar_symbol_t:new(opts),
+          dropbar_bar.dropbar_symbol_t:new(
+            vim.tbl_extend('keep', opts, { name_hl = 'DropBarKindFileBar' })
+          ),
         }
       end,
     },

@@ -11,9 +11,9 @@ local extra_words_path =
   vim.fs.joinpath(vim.fn.stdpath('config'), 'lua/features/completion/blink-cmp/words')
 local word_paths = {
   builtin = '/usr/share/dict/words',
-  google = extra_words_path .. '/google-10000-english-usa-no-swears-long.txt',
-  monkeytype = extra_words_path .. '/monkeytype-commonly-misspelled.txt',
-  my_words = extra_words_path .. '/my-words.txt',
+  google = vim.fs.joinpath(extra_words_path, 'google-10000-english-usa-no-swears-long.txt'),
+  monkeytype = vim.fs.joinpath(extra_words_path, 'monkeytype-commonly-misspelled.txt'),
+  my_words = vim.fs.joinpath(extra_words_path, 'my-words.txt'),
 }
 
 M.default = {

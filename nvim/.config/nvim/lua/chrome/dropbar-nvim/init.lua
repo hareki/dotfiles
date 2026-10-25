@@ -56,21 +56,18 @@ return {
           icon_hl = 'DropBarIconGreen',
 
           name = ' File Tree',
-          name_hl = 'DropBarKindFileBar',
         },
         ['codediff-history'] = {
           icon = Conf.icons.cmp_kinds.History .. ' ',
           icon_hl = 'DropBarIconPurple',
 
           name = 'Diff History',
-          name_hl = 'DropBarKindFileBar',
         },
         ['codediff-explorer'] = {
           icon = Conf.icons.git.DIFF .. ' ',
           icon_hl = 'DropBarIconYellow',
 
           name = 'Diff Explorer',
-          name_hl = 'DropBarKindFileBar',
         },
       }
 

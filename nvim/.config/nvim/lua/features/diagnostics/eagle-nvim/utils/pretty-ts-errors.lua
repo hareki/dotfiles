@@ -173,16 +173,15 @@ end
 --- Pretty markdown for a TypeScript diagnostic via the pretty-ts-errors-markdown CLI, cached
 --- (least-hit eviction past the cap); eagle calls it only for its `ts` source (eagle-nvim/init.lua)
 --- @param diagnostic vim.Diagnostic
---- @param opts? { href?: boolean } Options (href: keep CLI header with links)
 --- @return string markdown
-function M.format(diagnostic, opts)
+function M.format(diagnostic)
   local key = compute_cache_key(diagnostic)
   local entry = cache_get(key) or format_line(diagnostic)[key]
   local md = entry.value
 
   -- Only the CLI's markdown carries a header line; stripping the raw-message
   -- fallback would delete the first line of the actual error text
-  if entry.from_cli and not (opts and opts.href) then
+  if entry.from_cli then
     md = strip_cli_header(md)
   end
 

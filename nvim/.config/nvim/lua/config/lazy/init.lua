@@ -1,9 +1,6 @@
 local lazy_utils = require('config.lazy.utils')
 lazy_utils.ensure_lazy()
 
--- LazyFile events for reference:
--- { 'BufReadPost', 'BufNewFile', 'BufWritePre' }
-
 local lg = Conf.size.popup.lg
 local lazy = require('lazy')
 lazy.setup({

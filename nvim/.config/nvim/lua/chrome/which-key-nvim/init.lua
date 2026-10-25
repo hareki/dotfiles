@@ -95,7 +95,6 @@ return {
         { pattern = 'register', icon = Conf.icons.editor.REGISTER, color = 'yellow' },
         { pattern = 'tab', icon = Conf.icons.misc.TAB, color = 'blue' },
         { pattern = 'rename', icon = Conf.icons.actions.RENAME, color = 'yellow' },
-        { pattern = 'grep', icon = Conf.icons.actions.GREP, color = 'green' },
         { pattern = 'find', icon = Conf.icons.actions.FIND, color = 'blue' },
         { pattern = 'delete', icon = Conf.icons.actions.DELETE, color = 'red' },
         { pattern = 'paste', icon = Conf.icons.actions.PASTE, color = 'orange' },
@@ -125,7 +124,6 @@ return {
         { pattern = 'url', icon = Conf.icons.editor.URL },
         { pattern = 'comment', icon = Conf.icons.actions.COMMENT },
         { pattern = 'prompt', icon = Conf.icons.editor.PROMPT, color = 'blue' },
-        { pattern = 'send file', icon = Conf.icons.actions.SEND_FILE, color = 'cyan' },
         { pattern = 'newline', icon = Conf.icons.actions.NEWLINE },
         { pattern = 'image', icon = Conf.icons.editor.IMAGE, color = 'green' },
       })

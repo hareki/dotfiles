@@ -13,18 +13,14 @@ function M.noautocmd(fn)
 end
 
 local function repaint_render_markdown(win_id)
-  local render_md = require('render-markdown')
   if not vim.api.nvim_win_is_valid(win_id) then
     return
   end
 
-  M.noautocmd(function()
-    vim.api.nvim_win_call(win_id, function()
-      -- buf_enable scopes to the float's buffer; enable() would flip the
-      -- plugin's global state and force-render every attached buffer
-      render_md.buf_enable()
-    end)
-  end)
+  -- render-markdown anti-conceals the cursor row only while its buffer is current, and the
+  -- eventless switch gave it no reason to redraw, so the row it left behind stays raw
+  local render_md = require('render-markdown')
+  render_md.render({ buf = vim.api.nvim_win_get_buf(win_id), win = win_id })
 end
 
 local function is_markdown_buf(win_id)
@@ -216,16 +212,10 @@ function M.link_popup(popup_win, opts)
     end
   end
 
-  --- @param lhs string
-  --- @param rhs function
-  --- @param desc string
-  local function map_popup(lhs, rhs, desc)
-    vim.keymap.set(modes, lhs, rhs, { buffer = popup_buf, nowait = true, desc = desc })
-  end
+  local map_popup = M.buf_mapper(popup_buf, { nowait = true })
 
-  map_popup('q', close, close_desc)
-  map_popup('<Esc>', close, close_desc)
-  map_popup('<Tab>', function()
+  map_popup(modes, { 'q', '<Esc>' }, close, close_desc)
+  map_popup(modes, '<Tab>', function()
     focus('source')
   end, 'Focus Source Window')
 

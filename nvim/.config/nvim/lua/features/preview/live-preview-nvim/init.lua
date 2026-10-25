@@ -35,8 +35,6 @@ return {
 
     opts = function()
       return {
-        -- Previews start on this port, or on the first free one above it while it's taken
-        port = 5500,
         sync_scroll = false,
       }
     end,

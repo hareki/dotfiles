@@ -4,25 +4,23 @@ local M = {}
 --- Load all LSP server configurations from the lsp/ directory
 --- @return nil
 function M.load_all()
-  local lsp_config_path =
-    vim.fs.joinpath(vim.fn.stdpath('config'), 'lua/core/lsp/nvim-lspconfig/lsp')
-  for name, file_type in vim.fs.dir(lsp_config_path) do
-    if file_type == 'file' and name:match('%.lua$') then
-      local server_name = name:gsub('%.lua$', '')
-      local config = require('core.lsp.nvim-lspconfig.lsp.' .. server_name)
+  -- The lister behind lazy.nvim's `import`, so the directory is named once, as a module path
+  local lazy_util = require('lazy.core.util')
+  lazy_util.lsmod('core.lsp.nvim-lspconfig.lsp', function(modname)
+    local server_name = modname:match('[^.]+$')
+    local config = require(modname)
 
-      local opts = config.opts
-      if type(opts) == 'function' then
-        opts = opts()
-      end
-
-      vim.lsp.config(server_name, opts)
-
-      if config.setup then
-        config.setup()
-      end
+    local opts = config.opts
+    if type(opts) == 'function' then
+      opts = opts()
     end
-  end
+
+    vim.lsp.config(server_name, opts)
+
+    if config.setup then
+      config.setup()
+    end
+  end)
 end
 
 return M

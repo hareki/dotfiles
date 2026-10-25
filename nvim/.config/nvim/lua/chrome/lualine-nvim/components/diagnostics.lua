@@ -5,7 +5,6 @@ M.symbols = {
   error = Conf.icons.diagnostics.ERROR,
   warn = Conf.icons.diagnostics.WARN,
   info = Conf.icons.diagnostics.INFO,
-  hint = Conf.icons.diagnostics.HINT,
 }
 
 M.sections = { 'error', 'warn', 'info' }

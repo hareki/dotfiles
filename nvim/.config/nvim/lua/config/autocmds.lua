@@ -245,13 +245,6 @@ aucmd('CmdwinEnter', {
       buffer = buf,
       desc = 'Quit Command-Line Window',
     })
-
-    -- Restore native <CR> (execute the selected command), which the global
-    -- 'Insert Newline After Cursor' <CR> map would otherwise shadow
-    vim.keymap.set('n', '<CR>', '<CR>', {
-      buffer = buf,
-      desc = 'Execute Command',
-    })
   end,
 })
 

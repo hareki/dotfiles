@@ -67,10 +67,13 @@ end
 
 map('n', 'Q', '<cmd>q<cr>', { desc = 'Close Window' })
 
--- Fall back to native <CR> in nomodifiable buffers (help, man, checkhealth, ...),
--- where feeding `a` would raise E21
+-- Fall back to native <CR> in nomodifiable buffers (help, man, checkhealth, ...), where
+-- feeding `a` would raise E21, and in the command-line window, where it runs the command
 map('n', '<CR>', function()
-  return vim.bo.modifiable and 'a<CR><Esc>' or '<CR>'
+  if vim.bo.modifiable and vim.fn.win_gettype() ~= 'command' then
+    return 'a<CR><Esc>'
+  end
+  return '<CR>'
 end, { expr = true, desc = 'Insert Newline After Cursor' })
 map('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Leave Terminal Mode' })
 
