@@ -3,7 +3,7 @@ local log = vim.ringbuf(200)
 
 --- @param line string
 local function push(line)
-  log:push((line:gsub('\n', ' ')))
+  log:push(string.format('%s %s', os.date('%Y-%m-%d %H:%M:%S'), (line:gsub('\n', ' '))))
 end
 
 return {
@@ -12,19 +12,12 @@ return {
     trace = 'verbose',
     handlers = {
       ['$/logTrace'] = function(_, params)
-        push(
-          string.format(
-            '%s %s%s',
-            os.date('%Y-%m-%d %H:%M:%S '),
-            params.message,
-            params.verbose or ''
-          )
-        )
+        push(params.message .. (params.verbose or ''))
       end,
 
       ['window/logMessage'] = function(err, params, ctx, cfg)
         local lvl = vim.lsp.protocol.MessageType[params.type] or tostring(params.type)
-        push(string.format('%s [%s] %s', os.date('%Y-%m-%d %H:%M:%S'), lvl, params.message))
+        push(string.format('[%s] %s', lvl, params.message))
         return vim.lsp.handlers['window/logMessage'](err, params, ctx, cfg)
       end,
     },

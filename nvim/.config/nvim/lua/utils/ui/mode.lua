@@ -3,7 +3,7 @@
 --- @class utils.ui.mode
 local M = {}
 
---- Catppuccin palette key per mode, shared by lualine's mode pill and modicator's CursorLineNr
+--- Catppuccin palette key per mode, shared by lualine's mode pill and the CursorLineNr link
 --- @type table<utils.ui.mode.Name, string>
 M.colors = {
   Normal = 'blue',

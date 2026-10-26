@@ -4,7 +4,7 @@ local engine = require('utils.style-enforcers.engine')
 local M = {}
 
 --- Run oxc.fixAll on a buffer through the oxlint language server
---- @param opts { bufnr: integer, client: vim.lsp.Client, on_done: fun(ok: boolean, err?: string) }
+--- @param opts utils.style-enforcers.RunnerOpts
 --- @return nil
 function M.run(opts)
   local bufnr = opts.bufnr
@@ -16,18 +16,7 @@ function M.run(opts)
     return opts.on_done(false, 'write before oxc.fixAll failed: ' .. tostring(err))
   end
 
-  local params = {
-    command = 'oxc.fixAll',
-    arguments = {
-      {
-        uri = vim.uri_from_bufnr(bufnr),
-      },
-    },
-  }
-
-  opts.client:request('workspace/executeCommand', params, function(err)
-    opts.on_done(not err, err and err.message)
-  end, bufnr)
+  engine.execute_command(opts, 'oxc.fixAll', { uri = vim.uri_from_bufnr(bufnr) })
 end
 
 return M

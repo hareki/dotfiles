@@ -30,7 +30,7 @@
 
 ## Core Ideas
 
-- One plugin per file under `lua/{core,chrome,features}/`
+- One spec file or directory per plugin under `lua/{core,chrome,features}/`; snacks.nvim is split into per-feature fragments
 - On-demand loading via keymaps or `VeryLazy` event
 - Startup: ~38ms (no session or blank file) / ~80ms (opening file or directory with session) via `:Lazy profile`
 - Unified floating layout across Snacks picker and floating nvim-tree
@@ -54,17 +54,17 @@
   - `layout.popup(size)` / `layout.picker_fn(size)`, `color.blend_hex()`, `pill.virt_text()`, `cursorline.set_cursorline()`
   - `integrations/`: `catppuccin(fn)` / `catppuccin.get_palette()`, `which_key({ specs?, rules?, triggers? })`, `statusline.refresh()`
 - `notifier.lua`: notification wrapper; supports markdown, tuple lists for custom highlight groups
-- `common.lua`: `noautocmd(fn)`, `focus_win(win)`
+- `common.lua`: `buf_mapper()`, `link_popup()`, `override_buf_keymaps()`, `focus_win()`, `noautocmd()`
 - `lazy-require.lua`: `Defer.on_index()`, `Defer.on_exported_call()`
 
 ### Complex Plugin Structure
 
-Plugins requiring state management use this pattern:
+Plugins with state or more than a few lines of helper logic use the directory form:
 
 ```
 nvim-tree-lua/
-  init.lua   -- Returns table: [1] catppuccin highlights, [2] plugin spec
-  utils.lua  -- M.state = {} table + helper functions
+  init.lua   -- lazy.nvim specs: UI.catppuccin, UI.which_key, then the plugin specs
+  utils.lua  -- helpers, plus the M.state = {} table when the plugin keeps state
 ```
 
 ### LSP & Formatting

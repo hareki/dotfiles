@@ -1,5 +1,7 @@
 -- https://github.com/folke/which-key.nvim/blob/370ec46f710e058c9c1646273e6b225acf47cbed/lua/which-key/plugins/presets.lua#L1
 -- With letter case converted to CMOS 18th Edition
+local keymap_registry = require('config.keymap-registry')
+
 --- @class chrome.which-key.preset
 local M = {}
 
@@ -124,23 +126,6 @@ M.windows = {
   { '<c-w>L', desc = 'Move Window to Far Right' },
 }
 
---- Fold-key { key, desc } pairs, also read by features/search/snacks-nvim/init.lua to register
---- identity keymaps so the fold keys show up in Snacks.picker.keymaps
-M.fold_descs = {
-  { 'za', 'Toggle Fold Under Cursor' },
-  { 'zA', 'Toggle All Folds Under Cursor' },
-  { 'zC', 'Close All Folds Under Cursor' },
-  { 'zD', 'Delete All Folds Under Cursor' },
-  { 'zE', 'Delete All Folds in File' },
-  { 'zM', 'Close All Folds' },
-  { 'zO', 'Open All Folds Under Cursor' },
-  { 'zR', 'Open All Folds' },
-  { 'zi', 'Toggle Folding' },
-  { 'zm', 'Fold More' },
-  { 'zo', 'Open Fold Under Cursor' },
-  { 'zr', 'Fold Less' },
-}
-
 M.z = {
   preset = true,
   { 'z<CR>', desc = 'Top This Line' },
@@ -160,7 +145,7 @@ M.z = {
   { 'zz', desc = 'Center This Line' },
 }
 
-for _, fold in ipairs(M.fold_descs) do
+for _, fold in ipairs(keymap_registry.FOLD_DESCS) do
   table.insert(M.z, { fold[1], desc = fold[2] })
 end
 

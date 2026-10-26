@@ -1,5 +1,5 @@
 return {
-  UI.catppuccin(function(palette, _, extension)
+  UI.catppuccin(function(palette, extension)
     return {
       GitConflictCurrentLabel = { bg = extension.conflict_current_label, fg = palette.text },
       GitConflictCurrent = { bg = extension.conflict_current },

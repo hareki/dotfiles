@@ -3,10 +3,6 @@ local M = {}
 
 local utils = require('features.completion.blink-cmp.utils')
 
-local history = utils.custom_kind('History')
-local spell = utils.custom_kind('Spell')
-local render_markdown = utils.custom_kind('RenderMD')
-
 local extra_words_path =
   vim.fs.joinpath(vim.fn.stdpath('config'), 'lua/features/completion/blink-cmp/words')
 local word_paths = {
@@ -53,7 +49,7 @@ M.default = {
         },
         spellsuggest = true,
       },
-      transform_items = spell.transform_items,
+      transform_items = utils.custom_kind('Spell'),
     },
 
     ripgrep = {
@@ -107,7 +103,7 @@ M.default = {
       name = 'cmdline_history',
       module = 'blink.compat.source',
       max_items = 9,
-      transform_items = history.transform_items,
+      transform_items = utils.custom_kind('History'),
     },
 
     lazydev = {
@@ -121,7 +117,7 @@ M.default = {
       name = 'RenderMarkdown',
       module = 'render-markdown.integ.blink',
       max_items = 3,
-      transform_items = render_markdown.transform_items,
+      transform_items = utils.custom_kind('RenderMD'),
     },
 
     conventional_commits = {

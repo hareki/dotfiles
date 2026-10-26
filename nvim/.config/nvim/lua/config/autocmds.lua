@@ -6,6 +6,9 @@ end
 
 local aucmd = vim.api.nvim_create_autocmd
 
+--- @module 'utils.common'
+local common = Defer.on_exported_call('utils.common')
+
 -- Reload files changed on disk. Bare `:checktime` skips buffers not shown in a window (contra its
 -- docs), so hidden buffers rewritten from outside would keep serving stale text
 aucmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
@@ -182,17 +185,18 @@ aucmd('FileType', {
   callback = function(event)
     -- The runtime ftplugin's visual-mode section jumps, whose own maps are disabled
     -- (see g.no_markdown_maps in config/options.lua)
-    vim.keymap.set(
+    local map = common.buf_mapper(event.buf)
+    map(
       'x',
       ']]',
       string.format("<cmd>call search('%s', 'sW')<cr>", markdown_heading),
-      { buffer = event.buf, desc = 'Jump to Next Section' }
+      'Jump to Next Section'
     )
-    vim.keymap.set(
+    map(
       'x',
       '[[',
       string.format("<cmd>call search('%s', 'bsW')<cr>", markdown_heading),
-      { buffer = event.buf, desc = 'Jump to Previous Section' }
+      'Jump to Previous Section'
     )
 
     local function set_window_options()
@@ -234,17 +238,22 @@ aucmd('FileType', {
 aucmd('CmdwinEnter', {
   group = augroup('cmdwin-keymaps'),
   callback = function(event)
-    local buf = event.buf
+    local map = common.buf_mapper(event.buf)
+    map({ 'i', 'x', 'n', 's' }, '<C-f>', '<C-c>', 'Exit Command-Line Window Mode')
+    map('n', 'q', '<cmd>q!<cr>', 'Quit Command-Line Window')
+  end,
+})
 
-    vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-f>', '<C-c>', {
-      buffer = buf,
-      desc = 'Exit Command-Line Window Mode',
-    })
-
-    vim.keymap.set({ 'n' }, 'q', '<cmd>q!<cr>', {
-      buffer = buf,
-      desc = 'Quit Command-Line Window',
-    })
+-- Color the cursor line number by mode, like lualine's mode pill; the per-mode groups come from
+-- core/catppuccin-nvim.lua, and ColorScheme relinks after the colorscheme resets CursorLineNr
+aucmd({ 'ModeChanged', 'ColorScheme' }, {
+  group = augroup('mode-line-number'),
+  callback = function()
+    local hl_name = UI.mode.name() .. 'Mode'
+    -- Relinking redraws every window, so only relink on a target change
+    if vim.api.nvim_get_hl(0, { name = 'CursorLineNr' }).link ~= hl_name then
+      vim.api.nvim_set_hl(0, 'CursorLineNr', { link = hl_name })
+    end
   end,
 })
 

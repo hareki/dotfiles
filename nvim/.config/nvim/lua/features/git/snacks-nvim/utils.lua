@@ -1,4 +1,5 @@
-local fullscreen_panels = require('core.snacks-nvim.utils')
+--- @module 'core.snacks-nvim.utils'
+local fullscreen_panels = Defer.on_exported_call('core.snacks-nvim.utils')
 
 --- @class features.git.snacks.utils
 local M = {}

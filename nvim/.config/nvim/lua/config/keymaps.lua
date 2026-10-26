@@ -9,12 +9,16 @@ local function open_line_diagnostics()
 end
 
 local function diagnostic_goto(next, severity)
-  local count = next and 1 or -1
+  local direction = next and 1 or -1
   severity = severity and vim.diagnostic.severity[severity]
 
   return function()
     -- on_jump runs scheduled, and only once the jump succeeded
-    vim.diagnostic.jump({ severity = severity, count = count, on_jump = open_line_diagnostics })
+    vim.diagnostic.jump({
+      severity = severity,
+      count = direction * vim.v.count1,
+      on_jump = open_line_diagnostics,
+    })
   end
 end
 
@@ -155,12 +159,7 @@ map('n', '[w', diagnostic_goto(false, 'WARN'), { desc = 'Previous Warning' })
 map('n', ']i', diagnostic_goto(true, 'INFO'), { desc = 'Next Info' })
 map('n', '[i', diagnostic_goto(false, 'INFO'), { desc = 'Previous Info' })
 
--- Buffer
-map('n', ']b', '<cmd>bnext<cr>', { desc = 'Next Buffer' })
-map('n', ']B', '<cmd>blast<cr>', { desc = 'Last Buffer' })
-map('n', '[b', '<cmd>bprevious<cr>', { desc = 'Previous Buffer' })
-map('n', '[B', '<cmd>brewind<cr>', { desc = 'First Buffer' })
-
+-- Buffer (Neovim's own ]b/[b/]B/[B take counts; config/keymap-registry.lua titles them)
 map(
   { 'i', 'x', 'n', 's' },
   '<A-r>',

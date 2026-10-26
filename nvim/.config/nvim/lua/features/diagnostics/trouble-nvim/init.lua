@@ -10,26 +10,24 @@ return {
   {
     'hareki/trouble.nvim',
     cmd = { 'Trouble' },
-    keys = function()
-      local utils = require('features.diagnostics.trouble-nvim.utils')
-
-      return {
-        {
-          '[q',
-          function()
-            utils.jump('prev')
-          end,
-          desc = 'Previous Trouble/Quickfix Item',
-        },
-        {
-          ']q',
-          function()
-            utils.jump('next')
-          end,
-          desc = 'Next Trouble/Quickfix Item',
-        },
-      }
-    end,
+    keys = {
+      {
+        '[q',
+        function()
+          local utils = require('features.diagnostics.trouble-nvim.utils')
+          utils.jump('prev')
+        end,
+        desc = 'Previous Trouble/Quickfix Item',
+      },
+      {
+        ']q',
+        function()
+          local utils = require('features.diagnostics.trouble-nvim.utils')
+          utils.jump('next')
+        end,
+        desc = 'Next Trouble/Quickfix Item',
+      },
+    },
 
     opts = function()
       local utils = require('features.diagnostics.trouble-nvim.utils')

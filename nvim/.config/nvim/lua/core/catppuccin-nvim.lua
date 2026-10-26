@@ -34,13 +34,6 @@ return {
         FloatTitle = { bg = 'none', fg = palette.blue, bold = true },
 
         LineNr = { fg = palette.overlay0 },
-        -- Until modicator.nvim loads and recolors it per mode
-        CursorLineNr = { fg = palette[UI.mode.colors.Normal] },
-
-        TabLine = {
-          bg = 'none',
-          fg = palette.surface1,
-        },
 
         ModifiedIndicator = { fg = palette.yellow },
         SnippetTabStop = { bg = color.snippet_tab_stop },
@@ -96,6 +89,11 @@ return {
     local integration = UI.statusline.integration
     if integration then
       opts.custom_highlights.StatusLineIntegration = { fg = palette[integration.color] }
+    end
+
+    -- The groups config/autocmds.lua links CursorLineNr to, one per mode
+    for name, palette_key in pairs(UI.mode.colors) do
+      opts.custom_highlights[name .. 'Mode'] = { fg = palette[palette_key] }
     end
 
     return opts

@@ -1,5 +1,5 @@
 return {
-  UI.catppuccin(function(palette, _, extension)
+  UI.catppuccin(function(palette, extension)
     local blended_yellow_bg = UI.color.blend_hex(palette.base, palette.yellow)
 
     return {

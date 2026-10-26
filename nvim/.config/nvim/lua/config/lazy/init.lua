@@ -47,6 +47,8 @@ lazy.setup({
         'matchparen',
         'tarPlugin',
         'tutor',
+        -- Remote-plugin manifest loader, inert with every provider off (config/options.lua)
+        'rplugin',
       },
     },
   },

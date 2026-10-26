@@ -105,11 +105,6 @@ return {
         end
       end,
     })
-
-    vim.api.nvim_create_user_command('TSInstallAll', function()
-      local treesitter = require('nvim-treesitter')
-      treesitter.install(ensure_installed)
-    end, {})
   end,
 
   config = function()

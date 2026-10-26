@@ -1,3 +1,4 @@
+local common = require('utils.common')
 local package_utils = require('utils.package')
 
 --- @module 'colorizer'
@@ -178,11 +179,9 @@ function M.setup()
         return
       end
 
-      for _, map in ipairs(keymaps) do
-        vim.keymap.set('n', map.lhs, map.rhs, {
-          desc = 'Git Conflict: ' .. map.desc,
-          buffer = bufnr,
-        })
+      local map = common.buf_mapper(bufnr, { prefix = 'Git Conflict: ' })
+      for _, keymap in ipairs(keymaps) do
+        map('n', keymap.lhs, keymap.rhs, keymap.desc)
       end
 
       vim.b[bufnr].git_conflict = true
@@ -279,7 +278,7 @@ function M.setup()
       vim.diagnostic.enable(true, { bufnr = bufnr })
 
       for _, win in ipairs(vim.fn.win_findbuf(bufnr)) do
-        vim.wo[win].winhighlight = ''
+        apply_window_winhl(win, false)
       end
     end,
   })

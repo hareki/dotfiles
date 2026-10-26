@@ -1,24 +1,16 @@
+local engine = require('utils.style-enforcers.engine')
+
 --- @class utils.style-enforcers.eslint
 local M = {}
 
 --- Run eslint.applyAllFixes on a buffer through the eslint language server
---- @param opts { bufnr: integer, client: vim.lsp.Client, on_done: fun(ok: boolean, err?: string) }
+--- @param opts utils.style-enforcers.RunnerOpts
 --- @return nil
 function M.run(opts)
-  local bufnr = opts.bufnr
-  local params = {
-    command = 'eslint.applyAllFixes',
-    arguments = {
-      {
-        uri = vim.uri_from_bufnr(bufnr),
-        version = vim.lsp.util.buf_versions[bufnr],
-      },
-    },
-  }
-
-  opts.client:request('workspace/executeCommand', params, function(err)
-    opts.on_done(not err, err and err.message)
-  end, bufnr)
+  engine.execute_command(opts, 'eslint.applyAllFixes', {
+    uri = vim.uri_from_bufnr(opts.bufnr),
+    version = vim.lsp.util.buf_versions[opts.bufnr],
+  })
 end
 
 return M

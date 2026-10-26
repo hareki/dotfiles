@@ -17,31 +17,29 @@ return {
 
   {
     'kevinhwang91/nvim-hlslens',
-    keys = function()
-      local utils = require('features.search.nvim-hlslens.utils')
-
-      return {
-        {
-          '<CR>',
-          mode = 'c',
-          desc = 'Execute Command Line',
-        },
-        {
-          'n',
-          function()
-            utils.navigate('n')
-          end,
-          desc = 'Next Search Result',
-        },
-        {
-          'N',
-          function()
-            utils.navigate('N')
-          end,
-          desc = 'Previous Search Result',
-        },
-      }
-    end,
+    keys = {
+      {
+        '<CR>',
+        mode = 'c',
+        desc = 'Execute Command Line',
+      },
+      {
+        'n',
+        function()
+          local utils = require('features.search.nvim-hlslens.utils')
+          utils.navigate('n')
+        end,
+        desc = 'Next Search Result',
+      },
+      {
+        'N',
+        function()
+          local utils = require('features.search.nvim-hlslens.utils')
+          utils.navigate('N')
+        end,
+        desc = 'Previous Search Result',
+      },
+    },
 
     opts = function()
       local utils = require('features.search.nvim-hlslens.utils')

@@ -3,7 +3,8 @@
 --- (eagle's popup) return it there too; end such ranges on their own line instead
 local M = {}
 
---- Underline at least one character of a diagnostic ending at column 0 of the next line
+--- End a diagnostic that stops at column 0 of the next line at its own line's end instead,
+--- pulling a start past that end back onto the last character so it still underlines one
 --- @param line string | nil The line text for bounds checking
 --- @param diagnostic vim.Diagnostic The diagnostic to fix in-place
 --- @return nil
@@ -23,7 +24,7 @@ local function fix_diagnostic_range(line, diagnostic)
   if diagnostic.col >= line_len then
     diagnostic.col = math.max(0, line_len - 1)
   end
-  diagnostic.end_col = math.min(diagnostic.col + 1, line_len)
+  diagnostic.end_col = line_len
 end
 
 --- Fix all diagnostic ranges in a list

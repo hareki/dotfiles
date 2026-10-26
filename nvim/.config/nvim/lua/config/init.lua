@@ -8,6 +8,8 @@ M.icons = require('config.icons')
 M.priority = require('config.priority')
 M.picker = require('config.picker')
 M.size = require('config.size')
-M.cmp = require('config.completion')
+-- Deferred: only lazy-loaded plugins' opts read it
+--- @type config.completion
+M.cmp = Defer.on_index('config.completion')
 
 return M

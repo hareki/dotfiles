@@ -1,7 +1,5 @@
 --- @class utils.progress.CreateOpts
---- @field token        string?         -- Stable id that groups begin/report/end
 --- @field client_name  string?         -- Label that Noice prints
---- @field client_id    integer?        -- Explicit client-id (fallback: first LSP)
 --- @field bufnr        integer?        -- Buffer whose LSP client id is sampled (fallback: current)
 --- @field pending_ms   integer?        -- Delay (in ms) before the first message is shown
 
@@ -116,9 +114,9 @@ function M.create(opts)
   opts = opts or {}
 
   local pending_ms = opts.pending_ms or 0
-  local token = opts.token or ('token:' .. vim.uv.hrtime())
+  local token = 'token:' .. vim.uv.hrtime()
   local client_name = opts.client_name or 'progress'
-  local client_id = opts.client_id or get_valid_client_id(opts.bufnr)
+  local client_id = get_valid_client_id(opts.bufnr)
 
   --- @type utils.progress.Handle
   local handle = setmetatable({

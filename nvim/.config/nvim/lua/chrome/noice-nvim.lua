@@ -45,10 +45,7 @@ return {
         },
         confirm = {
           timeout = false,
-          position = {
-            row = '50%',
-            col = '50%',
-          },
+          position = { row = '50%' },
           win_options = {
             winhighlight = {
               FloatTitle = 'WarningMsg',

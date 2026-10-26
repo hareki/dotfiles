@@ -4,7 +4,7 @@ local engine = require('utils.style-enforcers.engine')
 local M = {}
 
 --- Format a buffer in memory with the oxfmt language server's edits (no CLI spawn)
---- @param opts { bufnr: integer, client: vim.lsp.Client, on_done: fun(ok: boolean, err?: string) }
+--- @param opts utils.style-enforcers.RunnerOpts
 --- @return nil
 function M.run(opts)
   local bufnr = opts.bufnr

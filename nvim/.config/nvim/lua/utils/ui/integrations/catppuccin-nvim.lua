@@ -37,17 +37,13 @@ local function get_palette(name)
   return palettes.get_palette(name or 'mocha')
 end
 
---- @alias utils.ui.catppuccin.Register fun(palette: utils.ui.catppuccin.Palette, sub_palette: utils.ui.catppuccin.Palette, extension: utils.ui.catppuccin.Ext): table<string, vim.api.keyset.highlight>
+--- @alias utils.ui.catppuccin.Register fun(palette: utils.ui.catppuccin.Palette, extension: utils.ui.catppuccin.Ext): table<string, vim.api.keyset.highlight>
 
 --- Resolve a register callback into its highlight table
 --- @param register utils.ui.catppuccin.Register
 --- @return table<string, vim.api.keyset.highlight> highlights
 local function resolve(register)
-  local palette = get_palette()
-  local sub_palette = get_palette('latte')
-  local extension = get_palette('ext')
-
-  return register(palette, sub_palette, extension)
+  return register(get_palette(), get_palette('ext'))
 end
 
 --- A catppuccin spec fragment merging the highlights into custom_highlights, or, with

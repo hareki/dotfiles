@@ -59,7 +59,7 @@ local function open_popup(lines, row0, col0)
     row = 1,
     col = 1,
     width = math.max(28, maxw + 2),
-    height = math.min(#lines, 30),
+    height = math.min(#lines, UI.layout.inline_max_height()),
     style = 'minimal',
     border = 'rounded',
     title = string.format(' Highlights (%d, %d) ', row0 + 1, col0 + 1),

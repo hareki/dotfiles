@@ -44,7 +44,7 @@ Plugins are lazy by default (`defaults.lazy = true`). Only catppuccin, snacks.nv
 - `Conf` (`config`; `config/init.lua` assembles the `config.*` tables): `Conf.icons`, `Conf.filetypes` (`JS`, `JSX`, `CSS`, `MARKDOWN`, …), `Conf.priority`, `Conf.picker`, `Conf.size`, `Conf.cmp` (from `config/completion.lua`)
 - `UI` (`utils.ui`, direct require):
   - Spec registration: `UI.catppuccin(fn, plugin_name?)`, `UI.which_key({ specs?, rules?, triggers? })`
-  - Helpers: `UI.layout.*` (see **Popup Sizing**), `UI.color.blend_hex()`, `UI.pill.virt_text()`, `UI.cursorline.set_cursorline()`, `UI.mode.name()` / `UI.mode.colors` (the per-mode palette shared by lualine's mode pill and modicator.nvim)
+  - Helpers: `UI.layout.*` (see **Popup Sizing**), `UI.color.blend_hex()`, `UI.pill.virt_text()`, `UI.cursorline.set_cursorline()`, `UI.mode.name()` / `UI.mode.colors` (the per-mode palette shared by lualine's mode pill and the cursor line number)
   - Integration helpers: `UI.catppuccin.get_palette('ext')`, `UI.statusline.enabled()` / `UI.statusline.refresh()`
 - `Project` (`utils.project-config`): `Project.linter` (`'eslint'` default, or `'oxlint'`) and `Project.formatter` (`'prettier'` default, or `'oxfmt'`), overridden per project by `.neovimrc.json` in the initial cwd
 - `Snacks` (set by snacks.nvim at runtime): `Snacks.picker.*`, `Snacks.terminal.*`, etc.
@@ -60,7 +60,7 @@ Plugins are lazy by default (`defaults.lazy = true`). Only catppuccin, snacks.nv
 Make `opts` or `keys` a function (`opts = function() return { ... } end`) exactly when the function buys deferral or body-level logic; otherwise it stays a plain table, including an empty `opts = {}`:
 
 - **Deferral** comes only to a lazy-loaded plugin's `opts`: lazy.nvim parses every spec file at startup to learn load triggers, and the function builds the table only when the plugin loads. `keys` and the `opts` of plugins that load at startup anyway (`lazy = false`, or unfiltered buffer/window events such as `BufReadPost`/`BufNewFile`) resolve right away, so a function defers nothing there
-- **Body-level logic** means requires, computed locals or programmatically built entries in the function body itself (`features/navigation/harpoon/init.lua` loops over pin slots, `features/search/nvim-hlslens/init.lua` shares one utils local across entries); for a plugin that loads at startup, the function also keeps those requires out of spec-parse time, before plugin rtp paths exist. Callbacks that close over parse-time locals or `Defer` proxies, or `require()` inside their own body, are not body-level logic
+- **Body-level logic** means requires, computed locals or programmatically built entries in the function body itself (`features/navigation/harpoon/init.lua` loops over pin slots); for a plugin that loads at startup, the function also keeps those requires out of spec-parse time, before plugin rtp paths exist. Callbacks that close over parse-time locals or `Defer` proxies, or `require()` inside their own body, are not body-level logic. Key callbacks take that last form: `keys` resolve at startup, so a utils local shared from the `keys` body would load that module on every startup
 
 ### Return Convention
 
@@ -98,7 +98,7 @@ Size floats through `UI.layout` (`utils/ui/layout.lua`, whose annotations docume
 
 Uses native `vim.lsp.enable()` / `vim.lsp.config()` (not `lspconfig[server].setup()`). Each `core/lsp/nvim-lspconfig/lsp/{server}.lua` returns `{ opts = table|function, setup = function? }`, **not a lazy.nvim spec or a raw `vim.lsp.Config`**: `nvim-lspconfig/utils/server-loader.lua` loads every file, resolving `opts` right away (so it stays a plain table unless it needs logic), then calls `vim.lsp.config(name, opts)` and `setup()` if present. General LSP keymaps live in `nvim-lspconfig/init.lua`, not server files.
 
-Enable a server in the `servers` list in `nvim-lspconfig/init.lua`; add a `lsp/{server}.lua` only to override nvim-lspconfig's defaults. Servers that drive style-enforcer steps (`eslint`, `oxlint`, `oxfmt`) are also registered in `utils/style-enforcers/init.lua`, where `client = '<server>'` limits each step to buffers that server is attached to.
+Enable a server in the `servers` list in `nvim-lspconfig/init.lua`; add a `lsp/{server}.lua` only to override nvim-lspconfig's defaults. Servers that drive style-enforcer steps (`eslint`, `oxlint`, `oxfmt`) are also registered in `utils/style-enforcers/init.lua` under their server id, which limits each step to buffers that server is attached to.
 
 Server-specific `LspAttach` autocmds use an early-return guard on client name (see `lsp/vtsls.lua`).
 

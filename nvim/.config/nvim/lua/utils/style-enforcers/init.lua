@@ -17,20 +17,14 @@ engine.register(
     filetypes.JSON, -- json/jsonc/json5
     { 'yaml' }
   ),
-  oxfmt.run,
-  { client = 'oxfmt' }
+  oxfmt.run
 )
 
 -- The eslint server also attaches to htmlangular (upstream filetypes),
 -- so angular-eslint template fixes should run on save too
-engine.register(
-  'eslint',
-  filetypes.merge(filetypes.JS_ALL, filetypes.ANGULAR),
-  eslint.run,
-  { client = 'eslint' }
-)
+engine.register('eslint', filetypes.merge(filetypes.JS_ALL, filetypes.ANGULAR), eslint.run)
 
-engine.register('oxlint', filetypes.JS_ALL, oxlint.run, { client = 'oxlint' })
+engine.register('oxlint', filetypes.JS_ALL, oxlint.run)
 
 --- @class utils.style-enforcers
 local M = {}

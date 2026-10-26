@@ -1,15 +1,8 @@
 -- Function-valued, so snacks sizes and centers popups per open, across terminal resizes
 local sm = UI.layout.picker_fn('sm')
-local lg_border = UI.layout.picker_fn('lg')
 
 local layouts = require('features.search.snacks-nvim.layouts')
-local layout_opts = {
-  width = lg_border.width,
-  height = lg_border.height,
-  preview_title = Conf.picker.PREVIEW_TITLE,
-}
-
-local which_key_preset = require('chrome.which-key-nvim.preset')
+local keymap_registry = require('config.keymap-registry')
 local tab_component = require('chrome.lualine-nvim.components.tab')
 
 local transformers = Defer.on_exported_call('features.search.snacks-nvim.utils.transformers')
@@ -156,10 +149,7 @@ return {
         },
 
         layout = { preset = 'preview_below' },
-        layouts = {
-          preview_below = layouts.preview_below(layout_opts),
-          preview_right = layouts.preview_right(layout_opts),
-        },
+        layouts = layouts,
 
         sources = {
           buffers = {
@@ -226,12 +216,12 @@ return {
     },
   },
 
-  -- Hack to get the fold keymaps to show in Snacks.picker.keymaps; descs
-  -- come from the which-key preset so the two never drift
+  -- Hack to get the fold keymaps to show in Snacks.picker.keymaps; descs come from the
+  -- keymap registry, shared with the which-key preset so the two never drift
   {
     'snacks.nvim',
     keys = vim.tbl_map(function(fold)
       return { fold[1], fold[1], desc = fold[2] }
-    end, which_key_preset.fold_descs),
+    end, keymap_registry.FOLD_DESCS),
   },
 }

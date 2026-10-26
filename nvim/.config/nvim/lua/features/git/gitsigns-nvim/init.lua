@@ -1,5 +1,7 @@
 return {
-  UI.catppuccin(function(_, sub_palette, ext)
+  UI.catppuccin(function(_, ext)
+    local sub_palette = UI.catppuccin.get_palette('latte')
+
     return {
       GitSignsStagedAdd = { fg = sub_palette.green },
       GitSignsStagedUntracked = { link = 'GitSignsStagedAdd' },

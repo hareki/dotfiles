@@ -4,7 +4,8 @@ local ui_name = 'File Tree'
 local api = Defer.on_index('nvim-tree.api')
 
 return {
-  UI.catppuccin(function(palette, sub_palette)
+  UI.catppuccin(function(palette)
+    local sub_palette = UI.catppuccin.get_palette('latte')
     local picker_bg = UI.color.blend_hex(palette.base, palette.blue)
 
     return {
@@ -175,8 +176,6 @@ return {
             glyphs = {
               bookmark = vim.trim(Conf.icons.file_tree.SELECTED),
               folder = {
-                arrow_closed = Conf.icons.file_tree.COLLAPSED,
-                arrow_open = Conf.icons.file_tree.EXPANDED,
                 default = Conf.icons.file_tree.FOLDER,
                 open = Conf.icons.file_tree.FOLDER_OPEN,
                 empty = Conf.icons.file_tree.FOLDER_EMPTY,

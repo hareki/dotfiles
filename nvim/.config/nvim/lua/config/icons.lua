@@ -52,7 +52,6 @@ local M = {
     SELECTED = ' 󰪥 ',
     UNSELECTED = ' 󰄰',
     COLLAPSED = '',
-    EXPANDED = '',
     FOLDER = '󰉋',
     FOLDER_OPEN = '',
     FOLDER_EMPTY = '',

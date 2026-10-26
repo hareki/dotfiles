@@ -11,30 +11,25 @@ local M = {}
 --- so the result no longer applies to it
 M.BUFFER_CHANGED = 'buffer changed while running'
 
---- @alias utils.style-enforcers.Runner fun(opts: { bufnr: integer, client?: vim.lsp.Client, on_done: fun(ok: boolean, err?: string) })
+--- @alias utils.style-enforcers.RunnerOpts { bufnr: integer, client: vim.lsp.Client, on_done: fun(ok: boolean, err?: string) }
+--- @alias utils.style-enforcers.Runner fun(opts: utils.style-enforcers.RunnerOpts)
 
 --- @class utils.style-enforcers.Entry
---- @field name string
+--- @field name string LSP client the runner drives, doubling as the enforcer name
 --- @field filetypes string[]
---- @field runner utils.style-enforcers.Runner Gets the entry's LSP client, when it names one
---- @field client? string LSP client the runner drives
+--- @field runner utils.style-enforcers.Runner
 
 --- @type utils.style-enforcers.Entry[]
 local entries = {}
 
---- Register an enforcer with its supported filetypes; enforcers run in registration order
---- @param name string Unique enforcer name
+--- Register an enforcer driven by the LSP client `name`, skipping buffers that client isn't
+--- attached to; enforcers run in registration order
+--- @param name string
 --- @param filetypes string[]
 --- @param runner utils.style-enforcers.Runner
---- @param opts? { client?: string } `client`: skip buffers it's not attached to
 --- @return nil
-function M.register(name, filetypes, runner, opts)
-  entries[#entries + 1] = {
-    name = name,
-    filetypes = filetypes,
-    runner = runner,
-    client = opts and opts.client,
-  }
+function M.register(name, filetypes, runner)
+  entries[#entries + 1] = { name = name, filetypes = filetypes, runner = runner }
 end
 
 --- Registered enforcers that apply to a buffer, in registration order
@@ -44,7 +39,7 @@ local function entries_for_buf(bufnr)
   local ft = vim.bo[bufnr].filetype
   return vim.tbl_filter(function(entry)
     return vim.list_contains(entry.filetypes, ft)
-      and (not entry.client or #vim.lsp.get_clients({ name = entry.client, bufnr = bufnr }) > 0)
+      and #vim.lsp.get_clients({ name = entry.name, bufnr = bufnr }) > 0
   end, entries)
 end
 
@@ -83,10 +78,9 @@ local function run_next(matched, opts, idx)
 
   -- Looked up again rather than kept from the match: it may have detached while the
   -- earlier enforcers ran
-  local client = entry.client
-    and vim.lsp.get_clients({ name = entry.client, bufnr = opts.bufnr })[1]
-  if entry.client and not client then
-    return on_done(false, entry.client .. ' client missing')
+  local client = vim.lsp.get_clients({ name = entry.name, bufnr = opts.bufnr })[1]
+  if not client then
+    return on_done(false, entry.name .. ' client missing')
   end
 
   entry.runner({ bufnr = opts.bufnr, client = client, on_done = on_done })
@@ -97,6 +91,18 @@ end
 --- @return nil
 function M.run_for_buf(opts)
   run_next(entries_for_buf(opts.bufnr), opts, 1)
+end
+
+--- Send a workspace/executeCommand for a runner, reporting the server's error to its on_done
+--- @param opts utils.style-enforcers.RunnerOpts
+--- @param command string
+--- @param argument table The command's only argument
+--- @return nil
+function M.execute_command(opts, command, argument)
+  local params = { command = command, arguments = { argument } }
+  opts.client:request('workspace/executeCommand', params, function(err)
+    opts.on_done(not err, err and err.message)
+  end, opts.bufnr)
 end
 
 --- Write the buffer if it has unsaved changes, returning ok, err rather than throwing: an

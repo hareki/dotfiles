@@ -68,7 +68,7 @@ function M.side_preview()
   return { width = width, height = height, row = row, col = -width - 3 }
 end
 
---- Height cap for inline popups (gitsigns, eagle, nvim-notify); pass the
+--- Height cap for inline popups (gitsigns, eagle, nvim-notify, hl-at-cursor); pass the
 --- function itself so the cap follows terminal resizes
 --- @return integer max_height Height in rows
 function M.inline_max_height()
