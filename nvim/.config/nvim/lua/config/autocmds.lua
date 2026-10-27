@@ -244,8 +244,8 @@ aucmd('CmdwinEnter', {
   end,
 })
 
--- Color the cursor line number by mode, like lualine's mode pill; the per-mode groups come from
--- core/catppuccin-nvim.lua, and ColorScheme relinks after the colorscheme resets CursorLineNr
+-- Color the cursor line number by mode, with the per-mode groups from core/catppuccin-nvim.lua;
+-- ColorScheme relinks after the colorscheme resets CursorLineNr
 aucmd({ 'ModeChanged', 'ColorScheme' }, {
   group = augroup('mode-line-number'),
   callback = function()
