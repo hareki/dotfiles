@@ -81,7 +81,6 @@ M.show_picker = function()
 
         items[#items + 1] = {
           harpoon_idx = harpoon_idx,
-          idx = harpoon_idx,
           file = filepath,
           buf = buf,
           name = vim.fs.basename(filepath),
@@ -124,7 +123,7 @@ M.show_picker = function()
   -- the harpoon spec registers, which list:remove_at() emits
   local function remove_harpoon_item(picker)
     local selection = picker:selected({ fallback = true })
-    if not selection or not selection[1] then
+    if not selection[1] then
       return
     end
 

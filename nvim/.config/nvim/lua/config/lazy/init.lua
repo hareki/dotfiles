@@ -49,6 +49,8 @@ lazy.setup({
         'tutor',
         -- Remote-plugin manifest loader, inert with every provider off (config/options.lua)
         'rplugin',
+        -- Its packadd extends 'runtimepath' before the first draw; init.lua adds it at VeryLazy
+        'matchit',
       },
     },
   },

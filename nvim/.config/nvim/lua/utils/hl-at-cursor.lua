@@ -45,13 +45,7 @@ local function open_popup(lines, row0, col0)
   vim.bo[buf].bufhidden = 'wipe'
   vim.bo[buf].modifiable = false
 
-  local maxw = 0
-  for _, s in ipairs(lines) do
-    local w = vim.fn.strdisplaywidth(s)
-    if w > maxw then
-      maxw = w
-    end
-  end
+  local maxw = vim.fn.max(vim.tbl_map(vim.fn.strdisplaywidth, lines))
 
   local win = vim.api.nvim_open_win(buf, false, {
     relative = 'cursor',
@@ -66,8 +60,6 @@ local function open_popup(lines, row0, col0)
   })
 
   vim.bo[buf].filetype = 'markdown'
-  -- avoid legacy syntax racing TS; must follow the ft change, whose cascade resets 'syntax'
-  vim.bo[buf].syntax = 'off'
   vim.wo[win].conceallevel = 2
   vim.wo[win].wrap = false
   vim.wo[win].signcolumn = 'no'

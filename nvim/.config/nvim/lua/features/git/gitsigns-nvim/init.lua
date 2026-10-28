@@ -117,9 +117,7 @@ return {
           map('n', '<leader>hS', gs.stage_buffer, 'Stage Buffer')
           map('n', '<leader>hR', gs.reset_buffer, 'Reset Buffer')
 
-          map('n', '<leader>hB', function()
-            gs.blame()
-          end, 'Blame Buffer')
+          map('n', '<leader>hB', gs.blame, 'Blame Buffer')
 
           map('n', '<leader>hb', function()
             gs.blame_line({ full = true }, build_popup_navigation('blame'))

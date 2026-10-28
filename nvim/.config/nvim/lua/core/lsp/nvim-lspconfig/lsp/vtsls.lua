@@ -72,10 +72,6 @@ return {
             local files = result.body.files
             table.insert(files, 1, 'Enter new path...')
 
-            local function parent_dir(path)
-              local dir = vim.fs.dirname(path)
-              return dir and (dir:sub(-1) == '/' and dir or (dir .. '/')) or ''
-            end
             vim.ui.select(files, {
               prompt = 'Select Move Destination:',
               format_item = function(f)
@@ -83,9 +79,10 @@ return {
               end,
             }, function(f)
               if f and f:find('^Enter new path') then
+                local dir = vim.fs.dirname(fname)
                 vim.ui.input({
                   prompt = 'Enter Move Destination:',
-                  default = parent_dir(fname),
+                  default = dir:sub(-1) == '/' and dir or dir .. '/',
                   completion = 'file',
                 }, function(newf)
                   if newf then

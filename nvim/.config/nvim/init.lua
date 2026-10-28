@@ -12,6 +12,8 @@ vim.api.nvim_create_autocmd('User', {
   callback = function()
     require('config.usercmds')
     require('config.keymaps')
+    -- Kept off the startup path, see disabled_plugins in config/lazy/init.lua
+    vim.cmd.packadd('matchit')
   end,
 })
 

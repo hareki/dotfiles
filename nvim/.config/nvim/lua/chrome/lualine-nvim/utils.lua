@@ -42,7 +42,7 @@ local DEFAULTS = {
 }
 
 --- Create lualine components with consistent styling
---- @param opts { type: 'primary-left' | 'primary-right' | 'secondary-left' | 'secondary-right', comp: string | function, color: string, icon: string, margin?: {left: number, right: number}, padding?: {left: number, right: number}, [string]: any }
+--- @param opts { type: 'primary-left' | 'primary-right' | 'secondary-left' | 'secondary-right', comp: string | function, color: string, icon: string, margin?: {left: number, right: number}, [string]: any }
 --- @return table[] components Array of lualine components (main + margins for primary types)
 function M.create_styling_wrapper(opts)
   local palette = UI.catppuccin.get_palette()
@@ -55,7 +55,6 @@ function M.create_styling_wrapper(opts)
     color = true,
     icon = true,
     margin = true,
-    padding = true,
   }
 
   local extra = {}
@@ -76,12 +75,11 @@ function M.create_styling_wrapper(opts)
     }, extra)
   else
     local text_color = opts.color and palette[opts.color] or palette.subtext0
-    local padding = opts.padding or defaults.padding
     main_comp = vim.tbl_extend('force', {
       [1] = opts.comp,
       icon = opts.icon,
       color = { fg = text_color, bg = 'none' },
-      padding = padding,
+      padding = defaults.padding,
     }, extra)
 
     return { main_comp }

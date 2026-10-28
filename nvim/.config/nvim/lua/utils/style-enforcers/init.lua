@@ -3,7 +3,7 @@ local eslint = require('utils.style-enforcers.eslint')
 local oxfmt = require('utils.style-enforcers.oxfmt')
 local oxlint = require('utils.style-enforcers.oxlint')
 
--- In run order: oxfmt formats before the lint-fix steps, so oxlint's on-disk fixAll sees formatted
+-- In run order: oxfmt formats before the lint-fix steps, so oxlint's fixAll sees formatted
 -- content. Each step runs where its server is attached (lsp/oxfmt.lua narrows oxfmt's filetypes)
 engine.register('oxfmt', oxfmt.run)
 engine.register('eslint', eslint.run)
@@ -65,8 +65,9 @@ function M.run(opts)
   local settled = false
   local timeout_timer
 
-  -- Single completion point, firing on_done and releasing the lock once, so a callback landing
-  -- after the timeout can't double-report or clobber a newer run's lock on the same buffer
+  -- Single completion point, ending the progress, firing on_done and releasing the lock once, so a
+  -- callback landing after the timeout can't double-report or clobber a newer run's lock on the
+  -- same buffer
   --- @param ok boolean
   --- @param err? string
   local function cleanup(ok, err)
@@ -76,6 +77,10 @@ function M.run(opts)
     settled = true
 
     Snacks.util.stop(timeout_timer)
+    -- Still nil when a require below threw, leaving only the timeout to release the lock
+    if progress then
+      progress:finish()
+    end
     running_bufs[buf] = nil
     finish(ok, err)
   end
@@ -84,9 +89,6 @@ function M.run(opts)
   timeout_timer = vim.defer_fn(function()
     if settled then
       return
-    end
-    if progress then
-      progress:finish()
     end
     Notifier.warn('Formatting/linting timed out', { title = 'Style Enforcer' })
     cleanup(false, 'Timed out')
@@ -118,7 +120,6 @@ function M.run(opts)
 
   local function run_linters(formatted)
     if not vim.api.nvim_buf_is_valid(buf) then
-      progress:finish()
       cleanup(false, 'Buffer became invalid')
       return
     end
@@ -169,7 +170,6 @@ function M.run(opts)
           end
 
           local write_ok, write_err = write()
-          progress:finish()
           cleanup(write_ok and not had_lint_error, write_err)
         end,
       })
@@ -178,7 +178,6 @@ function M.run(opts)
     if not ok then
       Notifier.error('Linter setup failed: ' .. tostring(err), { title = 'Style Enforcer' })
       write()
-      progress:finish()
       cleanup(false, err)
     end
   end
@@ -212,7 +211,6 @@ function M.run(opts)
         title = 'Formatting Failed',
       })
       write()
-      progress:finish()
       cleanup(false, format_error)
       return
     end
@@ -259,11 +257,6 @@ function M.run_all(debug)
   local function show_results()
     local mini_icons = require('mini.icons')
 
-    local function get_icon_with_hl(path)
-      local icon, hl, _ = mini_icons.get('file', path)
-      return icon or '', hl or 'Normal'
-    end
-
     local function split_path(path)
       local dir, file = path:match('^(.*/)(.*)')
       if not dir then
@@ -283,7 +276,7 @@ function M.run_all(debug)
     local function add_section(header, header_hl, paths, ends_message)
       table.insert(chunks, { header, header_hl })
       for index, path in ipairs(paths) do
-        local icon, icon_hl = get_icon_with_hl(path)
+        local icon, icon_hl = mini_icons.get('file', path)
         local dir, file = split_path(path)
         local is_last = ends_message and index == #paths
 

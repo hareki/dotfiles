@@ -101,7 +101,7 @@ map('n', '<Esc>', function()
   -- noice lazy-loads nvim-notify, and nothing can be on screen before it does
   local notify = package.loaded['notify']
   if notify then
-    -- `{ pending = true, silent = true }` also drops queued notifications waiting for room
+    -- `{ pending = true, silent = true }` would also drop queued notifications waiting for room
     notify.dismiss()
   end
 end, { desc = 'Clear Highlight and Notifications' })
@@ -109,7 +109,6 @@ end, { desc = 'Clear Highlight and Notifications' })
 map({ 'n', 'i' }, '<A-s>', style_enforcers.run, { desc = 'Format and Save' })
 
 map('n', '<leader>F', function()
-  -- Still partially save the file when linter is oxlint, see `lua/utils/style-enforcers/oxlint.lua`
   style_enforcers.run({
     save = false,
   })

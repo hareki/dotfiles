@@ -49,7 +49,6 @@ return {
         '<leader>f/',
         function()
           Snacks.picker.grep({
-            title = 'Grep',
             regex = false,
             hidden = true,
           })
@@ -59,18 +58,14 @@ return {
       {
         '<leader>fb',
         function()
-          Snacks.picker.buffers({
-            title = 'Buffers',
-          })
+          Snacks.picker.buffers()
         end,
         desc = 'Find Buffers',
       },
       {
         '<leader>f<Tab>',
         function()
-          Snacks.picker.pick('tabs', {
-            title = 'Tabs',
-          })
+          Snacks.picker.pick('tabs')
         end,
         desc = 'Find Tabs',
       },

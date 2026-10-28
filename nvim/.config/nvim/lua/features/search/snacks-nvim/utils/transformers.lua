@@ -35,25 +35,25 @@ end
 --- @return snacks.picker.Item | false item The enriched item or false to filter out
 function M.keymap_transform(item)
   local keymap = item.item
-  local old_desc = keymap.desc
-  -- nvim_get_keymap reports the resolved lhs (mapleader as a literal space), while which-key specs
-  -- keep <leader> notation; normalize before the lookup
-  local lhs = keymap.lhs
-  local leader = vim.g.mapleader
-  if type(leader) == 'string' and leader ~= '' then
-    lhs = lhs:gsub(vim.pesc(leader), '<leader>')
-  end
-  local new_desc = keymap.desc or query_spec_desc(lhs, keymap.mode, keymap.buffer)
-
   item.file = nil -- We're not showing the file column anyway
-  item.item.desc = new_desc
-  if old_desc ~= new_desc then
-    item.text = item.text .. new_desc
+
+  if not keymap.desc then
+    -- nvim_get_keymap reports the resolved lhs (mapleader as a literal space), while which-key
+    -- specs keep <leader> notation; normalize before the lookup
+    local lhs = keymap.lhs
+    local leader = vim.g.mapleader
+    if type(leader) == 'string' and leader ~= '' then
+      lhs = lhs:gsub(vim.pesc(leader), '<leader>')
+    end
+    keymap.desc = query_spec_desc(lhs, keymap.mode, keymap.buffer)
+    if keymap.desc then
+      item.text = item.text .. keymap.desc
+    end
   end
 
-  if new_desc then
+  if keymap.desc then
     for _, v in ipairs(filtered_descriptions) do
-      if new_desc:find(v, 1, true) then
+      if keymap.desc:find(v, 1, true) then
         return false
       end
     end

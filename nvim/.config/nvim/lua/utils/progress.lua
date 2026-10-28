@@ -72,12 +72,6 @@ function ProgressHandle:_queue_or_send(kind, title, percentage)
   end
 end
 
---- @private
-function ProgressHandle:_close_timer()
-  Snacks.util.stop(self._timer)
-  self._timer = nil
-end
-
 --- Start the progress notification (sends 'begin' kind)
 --- @param title string
 --- @return nil
@@ -97,11 +91,8 @@ end
 --- Cancels any pending timer and closes the progress display.
 --- @return nil
 function ProgressHandle:finish()
-  self:_close_timer()
+  Snacks.util.stop(self._timer)
   self:_queue_or_send('end')
-  -- With the timer gone nothing flushes the pending cache, so clear the flag and let a reused
-  -- handle send straight to Noice
-  self._pending = false
 end
 
 --- Create a new progress handle for showing LSP-style progress notifications

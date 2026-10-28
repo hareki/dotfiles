@@ -80,8 +80,7 @@ function M.create_node_action(folder_action)
 
     if is_file_node then
       if folder_action == 'collapse' then
-        api.node.navigate.parent()
-        api.node.open.edit()
+        api.node.navigate.parent_close()
         return
       end
       api.node.open.edit()

@@ -193,13 +193,7 @@ M.g = {
 
 function M.setup()
   local wk = require('which-key')
-  wk.add(M.operators)
-  wk.add(M.motions)
-  wk.add(M.text_objects)
-  wk.add(M.windows)
-  wk.add(M.z)
-  wk.add(M.nav)
-  wk.add(M.g)
+  wk.add({ M.operators, M.motions, M.text_objects, M.windows, M.z, M.nav, M.g })
 end
 
 return M
