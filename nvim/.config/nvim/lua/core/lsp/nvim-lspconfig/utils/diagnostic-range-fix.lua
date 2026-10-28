@@ -5,7 +5,7 @@ local M = {}
 
 --- End a diagnostic that stops at column 0 of the next line at its own line's end instead,
 --- pulling a start past that end back onto the last character so it still underlines one
---- @param line string | nil The line text for bounds checking
+--- @param line string | false The line text for bounds checking, false when the line is gone
 --- @param diagnostic vim.Diagnostic The diagnostic to fix in-place
 --- @return nil
 local function fix_diagnostic_range(line, diagnostic)
@@ -44,7 +44,7 @@ function M.apply(bufnr, diagnostics)
         line_cache[lnum] = lines[1] or false -- false = no line found
       end
 
-      fix_diagnostic_range(line_cache[lnum] or nil, diagnostic)
+      fix_diagnostic_range(line_cache[lnum], diagnostic)
     end
   end
 end

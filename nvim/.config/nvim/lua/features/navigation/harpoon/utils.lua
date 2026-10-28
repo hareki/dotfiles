@@ -158,7 +158,7 @@ M.show_picker = function()
     win = {
       input = {
         keys = {
-          ['x'] = { 'remove_harpoon_item', mode = { 'n' }, desc = 'Remove from Pin List' },
+          ['x'] = { 'remove_harpoon_item', desc = 'Remove from Pin List' },
         },
       },
     },

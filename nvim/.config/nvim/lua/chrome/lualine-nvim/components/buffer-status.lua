@@ -75,7 +75,7 @@ local function get_current_unsaved()
   local status = Conf.icons.file_status
   local bo = vim.bo[bufnr]
   local ft = bo.filetype
-  local name = vim.api.nvim_buf_get_name(bufnr) or ''
+  local name = vim.api.nvim_buf_get_name(bufnr)
 
   -- Terminals are always nomodifiable (a misleading padlock); empty-filetype nofile/prompt buffers
   -- are UI, while codediff:// views clear their filetype yet still earn the lock icon

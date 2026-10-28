@@ -21,7 +21,7 @@ function M.get()
   end
 
   local ok_read, lines = pcall(vim.fn.readfile, file)
-  if not ok_read or type(lines) ~= 'table' then
+  if not ok_read then
     Notifier.warn('Failed to read .neovimrc.json', { title = 'Project Config' })
     return defaults
   end

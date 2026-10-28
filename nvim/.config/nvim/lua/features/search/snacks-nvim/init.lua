@@ -156,7 +156,7 @@ return {
             win = {
               input = {
                 keys = {
-                  ['x'] = { 'bufdelete', mode = { 'n' } },
+                  ['x'] = { 'bufdelete' },
                 },
               },
             },

@@ -14,13 +14,17 @@ local filtered_descriptions = {
 --- @return string? # The description of the first matching spec, or nil if not found
 local function query_spec_desc(lhs, mode, buffer)
   local wk_config = require('which-key.config')
+  -- nvim_get_keymap reports the resolved lhs (mapleader as a literal space), while which-key specs
+  -- keep <leader> notation; normkey brings both to one spelling
+  local normkey = Snacks.util.normkey
+  lhs = normkey(lhs)
 
   -- First matching spec wins
   for _, mapping in ipairs(wk_config.mappings) do
     if
-      mapping.lhs == lhs
-      and mapping.mode == mode
+      mapping.mode == mode
       and (buffer == nil or buffer == 0 or mapping.buffer == buffer)
+      and normkey(mapping.lhs) == lhs
     then
       return mapping.desc
     end
@@ -38,14 +42,7 @@ function M.keymap_transform(item)
   item.file = nil -- We're not showing the file column anyway
 
   if not keymap.desc then
-    -- nvim_get_keymap reports the resolved lhs (mapleader as a literal space), while which-key
-    -- specs keep <leader> notation; normalize before the lookup
-    local lhs = keymap.lhs
-    local leader = vim.g.mapleader
-    if type(leader) == 'string' and leader ~= '' then
-      lhs = lhs:gsub(vim.pesc(leader), '<leader>')
-    end
-    keymap.desc = query_spec_desc(lhs, keymap.mode, keymap.buffer)
+    keymap.desc = query_spec_desc(keymap.lhs, keymap.mode, keymap.buffer)
     if keymap.desc then
       item.text = item.text .. keymap.desc
     end

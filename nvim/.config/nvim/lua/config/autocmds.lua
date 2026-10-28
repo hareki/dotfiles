@@ -261,9 +261,7 @@ aucmd('InsertEnter', {
   group = augroup('clear-hlsearch-on-insert'),
   callback = function()
     if vim.v.hlsearch == 1 then
-      vim.schedule(function()
-        UI.color.nohlsearch()
-      end)
+      vim.schedule(UI.color.nohlsearch)
     end
   end,
 })

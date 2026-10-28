@@ -288,9 +288,7 @@ return {
           'features.navigation.nvim-tree.resize',
           { clear = true }
         ),
-        callback = function()
-          tree.resize()
-        end,
+        callback = tree.resize,
       })
 
       -- Deferred like the Snacks pickers' check, so nvim-tree's own hops through a split

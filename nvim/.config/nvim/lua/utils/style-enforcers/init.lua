@@ -59,9 +59,19 @@ function M.run(opts)
     return
   end
 
+  local conform = require('conform')
+  local progress_utils = require('utils.progress')
+
+  local progress = progress_utils.create({
+    pending_ms = 500,
+    client_name = 'stenfo',
+    -- run_all targets background buffers; sample the client from the target,
+    -- not whatever buffer happens to be current
+    bufnr = buf,
+  })
+
   running_bufs[buf] = true
 
-  local progress
   local settled = false
   local timeout_timer
 
@@ -77,10 +87,7 @@ function M.run(opts)
     settled = true
 
     Snacks.util.stop(timeout_timer)
-    -- Still nil when a require below threw, leaving only the timeout to release the lock
-    if progress then
-      progress:finish()
-    end
+    progress:finish()
     running_bufs[buf] = nil
     finish(ok, err)
   end
@@ -94,23 +101,14 @@ function M.run(opts)
     cleanup(false, 'Timed out')
   end, TIMEOUT_MS)
 
-  local conform = require('conform')
-  local progress_utils = require('utils.progress')
-
-  progress = progress_utils.create({
-    pending_ms = 500,
-    client_name = 'stenfo',
-    -- run_all targets background buffers; sample the client from the target,
-    -- not whatever buffer happens to be current
-    bufnr = buf,
-  })
-
+  -- :update writes only unsaved changes, under pcall: an unwritable buffer (E32, E45, E212) would
+  -- otherwise throw out of the async pipeline and leak the buffer lock
   local function write()
-    if not save then
+    if not save or not vim.api.nvim_buf_is_valid(buf) then
       return true
     end
 
-    local ok, err = engine.write(buf)
+    local ok, err = pcall(vim.api.nvim_buf_call, buf, vim.cmd.update)
     if not ok then
       Notifier.error('Write failed: ' .. tostring(err), { title = 'Style Enforcer' })
     end

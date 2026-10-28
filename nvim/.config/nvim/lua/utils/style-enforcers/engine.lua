@@ -94,17 +94,34 @@ function M.execute_command(opts, command, argument)
   end, opts.bufnr)
 end
 
---- Write the buffer if it has unsaved changes, returning ok, err rather than throwing: an
---- unwritable buffer (E32, E45, E212) would escape the async pipeline and leak the buffer lock
---- @param bufnr integer
---- @return boolean ok
---- @return string? err
-function M.write(bufnr)
-  if not vim.api.nvim_buf_is_valid(bufnr) then
-    return true
-  end
+--- Send a request for a runner and pass the reply to on_result while it still applies: a server
+--- error ends the runner, and so does an edit made while the request was in flight (typing on
+--- after <A-s>), since edits built from the reply's unversioned positions would land shifted and
+--- corrupt the text
+--- @param opts utils.style-enforcers.RunnerOpts
+--- @param method vim.lsp.protocol.Method.ClientToServer.Request
+--- @param params table
+--- @param on_result fun(result: any)
+--- @return nil
+function M.request(opts, method, params, on_result)
+  local bufnr = opts.bufnr
+  -- changedtick rather than the reply's ctx.version, which an autoread reload leaves unchanged
+  local changedtick = vim.api.nvim_buf_get_changedtick(bufnr)
 
-  return pcall(vim.api.nvim_buf_call, bufnr, vim.cmd.update)
+  opts.client:request(method, params, function(err, result)
+    if err then
+      return opts.on_done(false, err.message)
+    end
+
+    if
+      not vim.api.nvim_buf_is_valid(bufnr)
+      or vim.api.nvim_buf_get_changedtick(bufnr) ~= changedtick
+    then
+      return opts.on_done(false, M.BUFFER_CHANGED)
+    end
+
+    on_result(result)
+  end, bufnr)
 end
 
 return M

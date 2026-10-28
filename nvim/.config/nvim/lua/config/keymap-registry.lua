@@ -1,35 +1,37 @@
 --- @class config.keymap-registry
 local M = {}
 
+--- Descs for Neovim's default maps, retitled in normal mode unless `mode` lists others
+--- @type table<string, { desc: string, mode?: string[] }>
 M.DESC_OVERRIDES = {
-  ['[<leader>'] = { desc = 'Add Empty Line Above Cursor', mode = { 'n' } },
-  [']<leader>'] = { desc = 'Add Empty Line Below Cursor', mode = { 'n' } },
-  ['grn'] = { desc = 'LSP: Rename', mode = { 'n' } },
-  ['grr'] = { desc = 'LSP: References', mode = { 'n' } },
-  ['gO'] = { desc = 'LSP: Document Symbol', mode = { 'n' } },
-  ['gri'] = { desc = 'LSP: Implementation', mode = { 'n' } },
-  ['grt'] = { desc = 'LSP: Type Definition', mode = { 'n' } },
+  ['[<leader>'] = { desc = 'Add Empty Line Above Cursor' },
+  [']<leader>'] = { desc = 'Add Empty Line Below Cursor' },
+  ['grn'] = { desc = 'LSP: Rename' },
+  ['grr'] = { desc = 'LSP: References' },
+  ['gO'] = { desc = 'LSP: Document Symbol' },
+  ['gri'] = { desc = 'LSP: Implementation' },
+  ['grt'] = { desc = 'LSP: Type Definition' },
   ['gra'] = { desc = 'LSP: Code Actions', mode = { 'n', 'x' } },
   ['<C-S>'] = { desc = 'LSP: Signature Help', mode = { 's', 'i' } },
-  ['gx'] = { desc = 'Open URL', mode = { 'n' } },
+  ['gx'] = { desc = 'Open URL' },
 
   -- Default mappings having descriptions like :help &-default, :help v_#-default,...
-  ['&'] = { desc = 'Repeat Last Substitute (Keep Flags)', mode = { 'n' } },
+  ['&'] = { desc = 'Repeat Last Substitute (Keep Flags)' },
   ['*'] = { desc = 'Search Forward for Selection', mode = { 'x' } },
   ['#'] = { desc = 'Search Backward for Selection', mode = { 'x' } },
   ['<C-W>'] = { desc = 'Delete Previous Word (New Undo Point)', mode = { 'i' } },
   ['<C-U>'] = { desc = 'Delete Text Before Cursor (New Undo Point)', mode = { 'i' } },
-  ['<C-L>'] = { desc = 'Redraw (Clear Search Highlight, Update Diffs)', mode = { 'n' } },
+  ['<C-L>'] = { desc = 'Redraw (Clear Search Highlight, Update Diffs)' },
   ['@'] = { desc = 'Execute Register on Each Selected Line', mode = { 'x' } },
   ['Q'] = { desc = 'Replay Last Macro on Each Selected Line', mode = { 'x' } },
-  [']d'] = { desc = 'Next Diagnostic', mode = { 'n' } },
-  ['[d'] = { desc = 'Previous Diagnostic', mode = { 'n' } },
-  [']D'] = { desc = 'Last Diagnostic', mode = { 'n' } },
-  ['[D'] = { desc = 'First Diagnostic', mode = { 'n' } },
-  [']b'] = { desc = 'Next Buffer', mode = { 'n' } },
-  ['[b'] = { desc = 'Previous Buffer', mode = { 'n' } },
-  [']B'] = { desc = 'Last Buffer', mode = { 'n' } },
-  ['[B'] = { desc = 'First Buffer', mode = { 'n' } },
+  [']d'] = { desc = 'Next Diagnostic' },
+  ['[d'] = { desc = 'Previous Diagnostic' },
+  [']D'] = { desc = 'Last Diagnostic' },
+  ['[D'] = { desc = 'First Diagnostic' },
+  [']b'] = { desc = 'Next Buffer' },
+  ['[b'] = { desc = 'Previous Buffer' },
+  [']B'] = { desc = 'Last Buffer' },
+  ['[B'] = { desc = 'First Buffer' },
 }
 
 --- Fold-key { key, desc } pairs: the which-key preset's z group, and the identity keymaps

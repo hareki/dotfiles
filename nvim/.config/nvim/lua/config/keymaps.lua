@@ -66,7 +66,7 @@ end
 -- while a buffer-local map on the same key (the gO outline in help, markdown and man) keeps its own
 local retitles = {}
 for lhs, spec in pairs(keymap_registry.DESC_OVERRIDES) do
-  for _, mode in ipairs(spec.mode) do
+  for _, mode in ipairs(spec.mode or { 'n' }) do
     retitles[mode] = retitles[mode] or {}
     -- Compared as keytrans() text: registry keys spell <leader>, lhsraw keeps <C-S> unsimplified
     retitles[mode][vim.fn.keytrans(vim.keycode(lhs))] = spec.desc

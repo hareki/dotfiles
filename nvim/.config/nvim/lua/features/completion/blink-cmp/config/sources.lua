@@ -118,9 +118,6 @@ M.default = {
     conventional_commits = {
       name = 'Conventional Commits',
       module = 'blink-cmp-conventional-commits',
-      --- @module 'blink-cmp-conventional-commits'
-      --- @type blink-cmp-conventional-commits.Options
-      opts = {},
     },
   },
 }

@@ -70,10 +70,10 @@ local function take_focus_target(tabpage)
   return vim.fs.joinpath(git_root, rel), view
 end
 
---- @param path string
+--- @param path string | nil
 --- @param view table | nil
 local function open_focus_target(path, view)
-  if vim.fn.filereadable(path) == 1 then
+  if path and vim.fn.filereadable(path) == 1 then
     vim.cmd.edit(vim.fn.fnameescape(path))
     if view then
       vim.fn.winrestview(view)
@@ -93,16 +93,6 @@ function M.restore_focus(args)
   end
 end
 
---- Synchronous restore_focus into the current window, for the exit path: a scheduled
---- edit would land after the session has been saved.
---- @param tabpage integer
-local function restore_focus_now(tabpage)
-  local path, view = take_focus_target(tabpage)
-  if path then
-    open_focus_target(path, view)
-  end
-end
-
 --- Close every codediff tab, for the exit path: a session saved with one restores it as an
 --- empty layout
 --- @return nil
@@ -113,7 +103,8 @@ function M.close_tabs()
       -- in codediff. A blank tab would be saved over the cwd session as an empty layout
       if #vim.api.nvim_list_tabpages() == 1 then
         vim.cmd.tabnew()
-        restore_focus_now(tab)
+        -- Synchronous, unlike restore_focus: a scheduled edit would land after the session save
+        open_focus_target(take_focus_target(tab))
       end
       -- Without the switch, tabclose would close whichever tabpage is current instead
       if pcall(vim.api.nvim_set_current_tabpage, tab) then

@@ -102,7 +102,12 @@ return {
       multicursor.setup(opts)
 
       multicursor.addKeymapLayer(function(layer_set)
-        layer_set({ 'n', 'x' }, '<leader>mx', multicursor.deleteCursor)
+        layer_set(
+          { 'n', 'x' },
+          '<leader>mx',
+          multicursor.deleteCursor,
+          { desc = 'Multicursor: Delete Cursor' }
+        )
 
         layer_set('n', '<esc>', function()
           if not multicursor.cursorsEnabled() then
@@ -110,7 +115,7 @@ return {
           else
             multicursor.clearCursors()
           end
-        end)
+        end, { desc = 'Multicursor: Enable or Clear Cursors' })
       end)
     end,
   },

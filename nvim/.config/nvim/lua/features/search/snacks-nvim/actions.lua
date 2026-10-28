@@ -76,19 +76,18 @@ end
 --- @param picker snacks.Picker
 --- @return nil
 function M.todo_to_trouble(picker)
-  local todo_args = { 'todo', 'toggle' }
   local keywords = picker
     --- @module "todo-comments"
     .opts --[[@as snacks.picker.todo.Config]]
     .keywords
 
-  if keywords and #keywords > 0 then
-    local tags = table.concat(keywords, ',')
-    vim.list_extend(todo_args, { 'filter', '=', '{tag = {' .. tags .. '}}' })
-  end
-
   picker:close()
-  vim.cmd.Trouble({ args = todo_args })
+  local trouble = require('trouble')
+  --- @diagnostic disable-next-line: missing-fields
+  trouble.toggle({
+    mode = 'todo',
+    filter = keywords and #keywords > 0 and { tag = keywords } or nil,
+  })
 end
 
 --- The tabs source's confirm: switch to the tabpage under the cursor

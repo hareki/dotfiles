@@ -40,7 +40,7 @@ return {
           win = {
             input = {
               keys = {
-                ['x'] = { 'scratch_delete', mode = { 'n' } },
+                ['x'] = { 'scratch_delete' },
               },
             },
           },
