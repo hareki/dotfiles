@@ -34,22 +34,16 @@ end
 --- @param item snacks.picker.Item
 --- @return snacks.picker.Item | false item The enriched item or false to filter out
 function M.keymap_transform(item)
-  local keymap_registry = require('config.keymap-registry')
-  local desc_overrides = keymap_registry.DESC_OVERRIDES
   local keymap = item.item
   local old_desc = keymap.desc
-  -- nvim_get_keymap reports the resolved lhs (mapleader as a literal space), while the registry
-  -- keys use <leader> notation; normalize before the lookup
+  -- nvim_get_keymap reports the resolved lhs (mapleader as a literal space), while which-key specs
+  -- keep <leader> notation; normalize before the lookup
   local lhs = keymap.lhs
   local leader = vim.g.mapleader
   if type(leader) == 'string' and leader ~= '' then
     lhs = lhs:gsub(vim.pesc(leader), '<leader>')
   end
-  local override_spec = desc_overrides[lhs]
-  local override_desc = override_spec
-    and vim.list_contains(override_spec.mode, keymap.mode)
-    and override_spec.desc
-  local new_desc = override_desc or keymap.desc or query_spec_desc(lhs, keymap.mode, keymap.buffer)
+  local new_desc = keymap.desc or query_spec_desc(lhs, keymap.mode, keymap.buffer)
 
   item.file = nil -- We're not showing the file column anyway
   item.item.desc = new_desc

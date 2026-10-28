@@ -10,10 +10,9 @@ function M.run(opts)
   local bufnr = opts.bufnr
   local oxfmt = opts.client
 
-  -- make_formatting_params reads tabSize/insertSpaces from the current buffer,
+  -- make_formatting_params reads the URI and tabSize/insertSpaces from the current buffer,
   -- which is not necessarily the target buffer (run_all formats in background)
   local params = vim.api.nvim_buf_call(bufnr, vim.lsp.util.make_formatting_params)
-  params.textDocument = { uri = vim.uri_from_bufnr(bufnr) }
   local changedtick = vim.api.nvim_buf_get_changedtick(bufnr)
 
   oxfmt:request('textDocument/formatting', params, function(err, result)

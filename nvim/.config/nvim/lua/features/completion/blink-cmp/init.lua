@@ -34,6 +34,10 @@ return {
       local sources = require('features.completion.blink-cmp.config.sources')
 
       return {
+        -- No completion source belongs in nvim-tree's live filter prompt
+        enabled = function()
+          return vim.bo.filetype ~= 'NvimTreeFilter'
+        end,
         signature = { enabled = true, window = { border = 'rounded' } },
         appearance = { kind_icons = Conf.icons.cmp_kinds },
 

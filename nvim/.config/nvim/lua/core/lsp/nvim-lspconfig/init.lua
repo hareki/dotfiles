@@ -84,9 +84,16 @@ return {
           })
         end, 'Code Actions')
 
+        local client = vim.lsp.get_client_by_id(args.data.client_id) --[[@as vim.lsp.Client]]
+
+        -- Neovim's own K is buffer-local, so config/keymaps.lua's retitle misses it; it also yields
+        -- to a filetype's 'keywordprg', which none of these servers' filetypes set
+        if client:supports_method('textDocument/hover') then
+          map('n', 'K', vim.lsp.buf.hover, 'Hover')
+        end
+
         -- Snacks.words only jumps between references a client highlights; buffers without one keep
         -- the ftplugin's ]] / [[ section jumps (typos_lsp highlights nothing but attaches to all)
-        local client = vim.lsp.get_client_by_id(args.data.client_id) --[[@as vim.lsp.Client]]
         if client:supports_method('textDocument/documentHighlight') then
           map('n', ']]', function()
             Snacks.words.jump(vim.v.count1)
@@ -98,8 +105,6 @@ return {
       end,
     })
 
-    -- Schedule vim.lsp.enable to yield to the UI, letting the buffer render before
-    -- LSP servers start matching and attaching.
     local servers = {
       'marksman', -- Markdown
       'lua_ls',
@@ -128,6 +133,8 @@ return {
       table.insert(servers, 'oxfmt')
     end
 
+    -- Deferred to yield to the UI, letting the buffer render before LSP servers start matching
+    -- and attaching
     vim.defer_fn(function()
       server_loader.load_all()
       vim.lsp.enable(servers)

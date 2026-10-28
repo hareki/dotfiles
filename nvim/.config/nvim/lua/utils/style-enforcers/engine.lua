@@ -1,8 +1,8 @@
 --- @class utils.style-enforcers.RunOpts
 --- @field bufnr integer
---- @field on_start fun(name: string, idx: integer, total: integer) | nil
---- @field on_done  fun(name: string, ok: boolean, err?: string) | nil Called after each enforcer
---- @field on_complete fun() | nil Called once when the run ends: after the last enforcer, or the first failed one
+--- @field on_start fun(name: string, idx: integer, total: integer)
+--- @field on_done fun(name: string, ok: boolean, err?: string) Called after each enforcer
+--- @field on_complete fun() Called once when the run ends: after the last enforcer, or the first failed one
 
 --- @class utils.style-enforcers.engine
 local M = {}
@@ -16,7 +16,6 @@ M.BUFFER_CHANGED = 'buffer changed while running'
 
 --- @class utils.style-enforcers.Entry
 --- @field name string LSP client the runner drives, doubling as the enforcer name
---- @field filetypes string[]
 --- @field runner utils.style-enforcers.Runner
 
 --- @type utils.style-enforcers.Entry[]
@@ -25,21 +24,18 @@ local entries = {}
 --- Register an enforcer driven by the LSP client `name`, skipping buffers that client isn't
 --- attached to; enforcers run in registration order
 --- @param name string
---- @param filetypes string[]
 --- @param runner utils.style-enforcers.Runner
 --- @return nil
-function M.register(name, filetypes, runner)
-  entries[#entries + 1] = { name = name, filetypes = filetypes, runner = runner }
+function M.register(name, runner)
+  entries[#entries + 1] = { name = name, runner = runner }
 end
 
---- Registered enforcers that apply to a buffer, in registration order
+--- Registered enforcers whose client is attached to a buffer, in registration order
 --- @param bufnr integer
 --- @return utils.style-enforcers.Entry[]
 local function entries_for_buf(bufnr)
-  local ft = vim.bo[bufnr].filetype
   return vim.tbl_filter(function(entry)
-    return vim.list_contains(entry.filetypes, ft)
-      and #vim.lsp.get_clients({ name = entry.name, bufnr = bufnr }) > 0
+    return #vim.lsp.get_clients({ name = entry.name, bufnr = bufnr }) > 0
   end, entries)
 end
 
@@ -50,28 +46,21 @@ end
 local function run_next(matched, opts, idx)
   local entry = matched[idx]
   if not entry then
-    if opts.on_complete then
-      opts.on_complete()
-    end
-    return
+    return opts.on_complete()
   end
 
-  if opts.on_start then
-    opts.on_start(entry.name, idx, #matched)
-  end
+  opts.on_start(entry.name, idx, #matched)
 
   --- @param ok boolean
   --- @param err? string
   local function on_done(ok, err)
-    if opts.on_done then
-      opts.on_done(entry.name, ok, err)
-    end
+    opts.on_done(entry.name, ok, err)
 
     -- A failed enforcer ends the run like a failed format step ends the pipeline (init.lua): after
     -- BUFFER_CHANGED, whoever is editing the buffer would race the remaining enforcers
     if ok then
       run_next(matched, opts, idx + 1)
-    elseif opts.on_complete then
+    else
       opts.on_complete()
     end
   end

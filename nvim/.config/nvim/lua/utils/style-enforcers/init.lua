@@ -3,28 +3,11 @@ local eslint = require('utils.style-enforcers.eslint')
 local oxfmt = require('utils.style-enforcers.oxfmt')
 local oxlint = require('utils.style-enforcers.oxlint')
 
-local filetypes = Conf.filetypes
-
--- The oxfmt LSP filetypes it should own (not astro/mdx, unsupported, or toml, taplo's). Registered
--- first: it runs before the lint-fix steps, so oxlint's on-disk fixAll sees formatted content
-engine.register(
-  'oxfmt',
-  filetypes.merge(
-    filetypes.JS, -- js/ts(x), no astro
-    filetypes.CSS, -- css/scss/less
-    { 'html' },
-    { 'markdown' }, -- no mdx
-    filetypes.JSON, -- json/jsonc/json5
-    { 'yaml' }
-  ),
-  oxfmt.run
-)
-
--- The eslint server also attaches to htmlangular (upstream filetypes),
--- so angular-eslint template fixes should run on save too
-engine.register('eslint', filetypes.merge(filetypes.JS_ALL, filetypes.ANGULAR), eslint.run)
-
-engine.register('oxlint', filetypes.JS_ALL, oxlint.run)
+-- In run order: oxfmt formats before the lint-fix steps, so oxlint's on-disk fixAll sees formatted
+-- content. Each step runs where its server is attached (lsp/oxfmt.lua narrows oxfmt's filetypes)
+engine.register('oxfmt', oxfmt.run)
+engine.register('eslint', eslint.run)
+engine.register('oxlint', oxlint.run)
 
 --- @class utils.style-enforcers
 local M = {}
@@ -162,7 +145,7 @@ function M.run(opts)
           end
         end,
         on_done = function(linter_name, linter_ok, lint_error)
-          if not linter_ok and lint_error then
+          if not linter_ok then
             had_lint_error = true
 
             if lint_error == engine.BUFFER_CHANGED then

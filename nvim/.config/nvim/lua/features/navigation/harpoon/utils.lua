@@ -73,16 +73,11 @@ M.show_picker = function()
       local item = list:get(harpoon_idx)
       if item then
         local filepath = item.value
-        -- Compare names exactly: vim.fn.bufnr() treats its argument as a file-pattern, so paths
-        -- with magic chars ("app/[slug]/page.tsx") can match an unrelated buffer
+        -- Exact lookup: vim.fn.bufnr() treats its argument as a file-pattern, so paths with magic
+        -- chars ("app/[slug]/page.tsx") can match an unrelated buffer; bufexists() matches names
+        -- exactly, and bufadd() then returns that buffer rather than creating one
         local abs = vim.fn.fnamemodify(filepath, ':p')
-        local buf
-        for _, b in ipairs(vim.api.nvim_list_bufs()) do
-          if vim.api.nvim_buf_get_name(b) == abs then
-            buf = b
-            break
-          end
-        end
+        local buf = vim.fn.bufexists(abs) == 1 and vim.fn.bufadd(abs) or nil
 
         items[#items + 1] = {
           harpoon_idx = harpoon_idx,

@@ -14,7 +14,6 @@
 - **[ripgrep](https://github.com/BurntSushi/ripgrep)**: grep for Snacks picker, and its file finder when fd is missing
 - **[fd](https://github.com/sharkdp/fd)**: file finder for Snacks picker
 - **[delta](https://github.com/dandavison/delta)**: diff previews in tiny-code-action.nvim
-- **[jq](https://jqlang.github.io/jq/)** (optional): JSON sorting code action in jsonls
 - **[lazygit](https://github.com/jesseduffield/lazygit)**: terminal UI for Git, opened through Snacks (`<A-g>`)
 - **[ImageMagick](https://imagemagick.org/)**: `magick` CLI for image rendering in Snacks (`image`)
 - **[Ghostty](https://ghostty.org/)**: terminal with kitty graphics protocol support, for Snacks (`image`)

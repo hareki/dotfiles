@@ -1,20 +1,10 @@
 -- Function-valued, so snacks sizes and centers the layouts per open, across terminal resizes
 local lg = UI.layout.picker_fn('lg')
 
---- The input + list column shared by every layout.
-local function input_list_box()
-  return {
-    box = 'vertical',
-    border = 'rounded',
-    title = '{title} {live}',
-    { win = 'input', height = 1, border = 'bottom' },
-    { win = 'list', border = 'none' },
-  }
-end
-
+--- The input + list column beside a preview window, arranged along `box`
 --- @param box 'horizontal' | 'vertical' Direction the list column and preview are arranged
---- @param preview table The preview window box (carries its own width/height split)
-local function frame(box, preview)
+--- @param split { width?: number, height?: number } The preview's share of the frame
+local function frame(box, split)
   return {
     cycle = true,
     layout = {
@@ -25,8 +15,20 @@ local function frame(box, preview)
       height = lg.height,
       border = 'none',
       box = box,
-      input_list_box(),
-      preview,
+      {
+        box = 'vertical',
+        border = 'rounded',
+        title = '{title} {live}',
+        { win = 'input', height = 1, border = 'bottom' },
+        { win = 'list', border = 'none' },
+      },
+      {
+        win = 'preview',
+        title = Conf.picker.PREVIEW_TITLE,
+        width = split.width,
+        height = split.height,
+        border = 'rounded',
+      },
     },
   }
 end
@@ -34,18 +36,7 @@ end
 --- @class features.search.snacks.layouts
 local M = {}
 
-M.preview_right = frame('horizontal', {
-  win = 'preview',
-  title = Conf.picker.PREVIEW_TITLE,
-  width = 0.5,
-  border = 'rounded',
-})
-
-M.preview_below = frame('vertical', {
-  win = 'preview',
-  title = Conf.picker.PREVIEW_TITLE,
-  height = 0.5,
-  border = 'rounded',
-})
+M.preview_right = frame('horizontal', { width = 0.5 })
+M.preview_below = frame('vertical', { height = 0.5 })
 
 return M

@@ -1,7 +1,7 @@
 --- @class utils.progress.CreateOpts
---- @field client_name  string?         -- Label that Noice prints
---- @field bufnr        integer?        -- Buffer whose LSP client id is sampled (fallback: current)
---- @field pending_ms   integer?        -- Delay (in ms) before the first message is shown
+--- @field client_name  string          -- Label that Noice prints
+--- @field bufnr        integer         -- Buffer whose LSP client id is sampled
+--- @field pending_ms   integer         -- Delay (in ms) before the first message is shown
 
 --- @class utils.progress.Handle
 --- @field token          string
@@ -12,19 +12,19 @@
 --- @field _cached_title  string | nil
 --- @field _cached_perc   number | nil
 --- @field _timer         uv.uv_timer_t | nil
---- @field start          fun(self: utils.progress.Handle, title?: string, percentage?: number)
+--- @field start          fun(self: utils.progress.Handle, title: string)
 --- @field report         fun(self: utils.progress.Handle, title?: string, percentage?: number)
---- @field finish         fun(self: utils.progress.Handle, title?: string)
+--- @field finish         fun(self: utils.progress.Handle)
 
 --- @class utils.progress
 local M = {}
 
---- @param bufnr integer | nil
+--- @param bufnr integer
 --- @return integer | nil
 local function get_valid_client_id(bufnr)
   -- Noice drops progress whose client id isn't a live client (there's no anonymous id), so fall
   -- back to any running client, or nil when none runs
-  local client = vim.lsp.get_clients({ bufnr = bufnr or 0 })[1] or vim.lsp.get_clients()[1]
+  local client = vim.lsp.get_clients({ bufnr = bufnr })[1] or vim.lsp.get_clients()[1]
   return client and client.id
 end
 
@@ -79,11 +79,10 @@ function ProgressHandle:_close_timer()
 end
 
 --- Start the progress notification (sends 'begin' kind)
---- @param title? string
---- @param percentage? number Initial percentage (0-100)
+--- @param title string
 --- @return nil
-function ProgressHandle:start(title, percentage)
-  self:_queue_or_send('begin', title, percentage)
+function ProgressHandle:start(title)
+  self:_queue_or_send('begin', title)
 end
 
 --- Update the progress notification (sends 'report' kind)
@@ -96,51 +95,37 @@ end
 
 --- Complete the progress notification (sends 'end' kind)
 --- Cancels any pending timer and closes the progress display.
---- @param title? string Final title to display
 --- @return nil
-function ProgressHandle:finish(title)
+function ProgressHandle:finish()
   self:_close_timer()
-  self:_queue_or_send('end', title, nil) -- Percentage is not sent for the `end` kind
+  self:_queue_or_send('end')
   -- With the timer gone nothing flushes the pending cache, so clear the flag and let a reused
   -- handle send straight to Noice
   self._pending = false
 end
 
 --- Create a new progress handle for showing LSP-style progress notifications
---- Supports delayed display via pending_ms to avoid flicker for fast operations.
---- @param opts utils.progress.CreateOpts | nil
+--- Delays display by pending_ms to avoid flicker for fast operations.
+--- @param opts utils.progress.CreateOpts
 --- @return utils.progress.Handle handle
 function M.create(opts)
-  opts = opts or {}
-
-  local pending_ms = opts.pending_ms or 0
-  local token = 'token:' .. vim.uv.hrtime()
-  local client_name = opts.client_name or 'progress'
-  local client_id = get_valid_client_id(opts.bufnr)
-
   --- @type utils.progress.Handle
   local handle = setmetatable({
-    token = token,
-    client_id = client_id,
-    client_name = client_name,
-    _pending = pending_ms > 0,
-    _cached_kind = nil,
-    _cached_title = nil,
-    _cached_perc = nil,
-    _timer = nil,
+    token = 'token:' .. vim.uv.hrtime(),
+    client_id = get_valid_client_id(opts.bufnr),
+    client_name = opts.client_name,
+    _pending = true,
   }, ProgressHandle)
 
-  if pending_ms > 0 then
-    handle._timer = vim.defer_fn(function()
-      handle._timer = nil
-      handle._pending = false
+  handle._timer = vim.defer_fn(function()
+    handle._timer = nil
+    handle._pending = false
 
-      -- 'end' cached during the pending window means abort: show nothing.
-      if handle._cached_kind and handle._cached_kind ~= 'end' then
-        ProgressHandle._send(handle, handle._cached_kind, handle._cached_title, handle._cached_perc)
-      end
-    end, pending_ms)
-  end
+    -- 'end' cached during the pending window means abort: show nothing.
+    if handle._cached_kind and handle._cached_kind ~= 'end' then
+      ProgressHandle._send(handle, handle._cached_kind, handle._cached_title, handle._cached_perc)
+    end
+  end, opts.pending_ms)
 
   return handle
 end

@@ -44,7 +44,6 @@ return {
           zindex = 999,
         },
         confirm = {
-          timeout = false,
           position = { row = '50%' },
           win_options = {
             winhighlight = {
@@ -123,7 +122,6 @@ return {
               return false -- Rewrite-only hook; fall through to the default error route
             end,
           },
-          opts = {}, -- No view: this route never displays, it only mutates the message
         },
       },
     },

@@ -79,11 +79,6 @@ M.default = {
     buffer = {
       max_items = 3,
       score_offset = -10,
-      should_show_items = function()
-        local filetype = vim.bo.filetype
-        -- NvimTree live_filter has a blank filetype
-        return filetype ~= '' and filetype ~= 'NvimTree'
-      end,
     },
 
     minuet = {

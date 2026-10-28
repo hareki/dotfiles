@@ -33,11 +33,10 @@ local names = {
   c = 'Command', -- Also Ex mode (cv) and overstrike (cr)
 }
 
---- Resolve the mode a `mode()` code is colored as
---- @param mode? string The `mode()` code (default: the current mode)
+--- Resolve the mode the current `mode()` code is colored as
 --- @return utils.ui.mode.Name name
-function M.name(mode)
-  mode = mode or vim.api.nvim_get_mode().mode
+function M.name()
+  local mode = vim.api.nvim_get_mode().mode
   -- Fallback for codes newer than this table; without it, lualine's mode pill would
   -- crash the statusline on every redraw
   return names[mode] or names[mode:sub(1, 1)] or 'Normal'

@@ -183,6 +183,8 @@ M.g = {
   { 'g;', desc = 'Go to [count] Older Position in Change List', icon = Conf.icons.navigation.LEFT },
   { 'gN', desc = 'Search Backwards and Select' },
   { 'gT', desc = 'Go to Previous Tab Page' },
+  { 'g`', desc = 'Go to Mark Exact Position (Keep Jumplist)' },
+  { "g'", desc = 'Go to Mark Line (Keep Jumplist)' },
   { 'gf', desc = 'Go to File Under Cursor' },
   { 'gn', desc = 'Search Forwards and Select' },
   { 'gt', desc = 'Go to Next Tab Page' },

@@ -101,9 +101,6 @@ return {
     'hareki/nvim-tree.lua',
     -- Load before LSP starts, or diagnostics published earlier never show in the tree
     event = 'VeryLazy',
-    dependencies = {
-      'echasnovski/mini.icons',
-    },
     keys = {
       {
         '<leader>e',

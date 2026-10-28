@@ -30,7 +30,7 @@ return {
   {
     'MeanderingProgrammer/render-markdown.nvim',
     ft = Conf.filetypes.MARKDOWN,
-    dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' },
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
     keys = {
       {
         'yom',

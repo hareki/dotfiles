@@ -62,13 +62,11 @@ M.side_panel = {
     WIDTH = 0.3,
     HEIGHT = 1,
     MIN_WIDTH = 35,
-    MIN_HEIGHT = 20,
   },
   md = {
     WIDTH = 0.35,
     HEIGHT = 1,
     MIN_WIDTH = 40,
-    MIN_HEIGHT = 20,
   },
 }
 

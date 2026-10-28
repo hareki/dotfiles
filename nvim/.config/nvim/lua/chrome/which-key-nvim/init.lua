@@ -18,12 +18,6 @@ return {
     end,
 
     opts = function(_, opts)
-      local desc_override_specs = {}
-      local keymap_registry = require('config.keymap-registry')
-      for lhs, spec in pairs(keymap_registry.DESC_OVERRIDES) do
-        table.insert(desc_override_specs, { lhs, desc = spec.desc, mode = spec.mode })
-      end
-
       -- Merge in the base scalar config. The list fields (spec, icons.rules) are appended
       -- separately below, since tbl_deep_extend replaces arrays instead of concatenating.
       opts = vim.tbl_deep_extend('force', opts, {
@@ -63,7 +57,6 @@ return {
         { '<leader>q', group = 'Quit', mode = { 'n', 'v' } },
         { '<leader>s', group = 'Search', mode = { 'n', 'v' } },
       })
-      vim.list_extend(opts.spec, desc_override_specs)
 
       -- <auto> skips single-letter builtin prefixes, so plugins needing one (Mini Surround's `l`)
       -- add a manual trigger via UI.which_key({ triggers = ... })

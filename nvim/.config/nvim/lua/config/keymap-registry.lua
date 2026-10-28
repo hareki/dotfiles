@@ -11,10 +11,7 @@ M.DESC_OVERRIDES = {
   ['grt'] = { desc = 'LSP: Type Definition', mode = { 'n' } },
   ['gra'] = { desc = 'LSP: Code Actions', mode = { 'n', 'x' } },
   ['<C-S>'] = { desc = 'LSP: Signature Help', mode = { 's', 'i' } },
-  ['K'] = { desc = 'LSP: Hover', mode = { 'n' } },
   ['gx'] = { desc = 'Open URL', mode = { 'n' } },
-  ['g`'] = { desc = 'Go to Mark Exact Position (Keep Jumplist)', mode = { 'n' } },
-  ["g'"] = { desc = 'Go to Mark Line (Keep Jumplist)', mode = { 'n' } },
 
   -- Default mappings having descriptions like :help &-default, :help v_#-default,...
   ['&'] = { desc = 'Repeat Last Substitute (Keep Flags)', mode = { 'n' } },
@@ -25,6 +22,8 @@ M.DESC_OVERRIDES = {
   ['<C-L>'] = { desc = 'Redraw (Clear Search Highlight, Update Diffs)', mode = { 'n' } },
   ['@'] = { desc = 'Execute Register on Each Selected Line', mode = { 'x' } },
   ['Q'] = { desc = 'Replay Last Macro on Each Selected Line', mode = { 'x' } },
+  [']d'] = { desc = 'Next Diagnostic', mode = { 'n' } },
+  ['[d'] = { desc = 'Previous Diagnostic', mode = { 'n' } },
   [']D'] = { desc = 'Last Diagnostic', mode = { 'n' } },
   ['[D'] = { desc = 'First Diagnostic', mode = { 'n' } },
   [']b'] = { desc = 'Next Buffer', mode = { 'n' } },

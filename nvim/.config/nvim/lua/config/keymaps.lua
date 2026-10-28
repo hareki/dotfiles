@@ -1,24 +1,17 @@
+local keymap_registry = require('config.keymap-registry')
+
 local del = vim.keymap.del
 local map = vim.keymap.set
 
 --- @module 'utils.style-enforcers'
 local style_enforcers = Defer.on_exported_call('utils.style-enforcers')
 
-local function open_line_diagnostics()
-  vim.cmd.EagleWinLineDiagnostic()
-end
-
 local function diagnostic_goto(next, severity)
   local direction = next and 1 or -1
-  severity = severity and vim.diagnostic.severity[severity]
+  severity = vim.diagnostic.severity[severity]
 
   return function()
-    -- on_jump runs scheduled, and only once the jump succeeded
-    vim.diagnostic.jump({
-      severity = severity,
-      count = direction * vim.v.count1,
-      on_jump = open_line_diagnostics,
-    })
+    vim.diagnostic.jump({ severity = severity, count = direction * vim.v.count1 })
   end
 end
 
@@ -67,6 +60,26 @@ for _, key in ipairs({
   '[<C-T>',
 }) do
   pcall(del, 'n', key)
+end
+
+-- Retitle Neovim's own maps in place: which-key and the keymaps picker read the desc off the map,
+-- while a buffer-local map on the same key (the gO outline in help, markdown and man) keeps its own
+local retitles = {}
+for lhs, spec in pairs(keymap_registry.DESC_OVERRIDES) do
+  for _, mode in ipairs(spec.mode) do
+    retitles[mode] = retitles[mode] or {}
+    -- Compared as keytrans() text: registry keys spell <leader>, lhsraw keeps <C-S> unsimplified
+    retitles[mode][vim.fn.keytrans(vim.keycode(lhs))] = spec.desc
+  end
+end
+for mode, descs in pairs(retitles) do
+  for _, keymap in ipairs(vim.api.nvim_get_keymap(mode)) do
+    local desc = descs[vim.fn.keytrans(keymap.lhsraw)]
+    if desc then
+      keymap.desc = desc
+      vim.fn.mapset(mode, false, keymap)
+    end
+  end
 end
 
 map('n', 'Q', '<cmd>q<cr>', { desc = 'Close Window' })
@@ -148,10 +161,16 @@ map('n', '<leader>\\', '<cmd>vsplit<cr>', { desc = 'Split Window Right' })
 map('n', '<C-o>', jumplist('<C-o>'), { expr = true, desc = 'Jumplist Back' })
 map('n', '<C-i>', jumplist('<C-i>'), { expr = true, desc = 'Jumplist Forward' })
 
--- Diagnostics
+-- Diagnostics: every jump opens the line's diagnostics, Neovim's own count-aware ]d/[d/]D/[D
+-- included; on_jump runs scheduled, and only once the jump succeeded
+vim.diagnostic.config({
+  jump = {
+    on_jump = function()
+      vim.cmd.EagleWinLineDiagnostic()
+    end,
+  },
+})
 map('n', '<leader>cd', vim.diagnostic.open_float, { desc = 'Line Diagnostics' })
-map('n', ']d', diagnostic_goto(true), { desc = 'Next Diagnostic' })
-map('n', '[d', diagnostic_goto(false), { desc = 'Previous Diagnostic' })
 map('n', ']e', diagnostic_goto(true, 'ERROR'), { desc = 'Next Error' })
 map('n', '[e', diagnostic_goto(false, 'ERROR'), { desc = 'Previous Error' })
 map('n', ']w', diagnostic_goto(true, 'WARN'), { desc = 'Next Warning' })

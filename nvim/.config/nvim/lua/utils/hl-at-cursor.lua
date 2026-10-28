@@ -43,7 +43,6 @@ local function open_popup(lines, row0, col0)
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
   vim.bo[buf].bufhidden = 'wipe'
-  vim.bo[buf].buftype = 'nofile'
   vim.bo[buf].modifiable = false
 
   local maxw = 0
