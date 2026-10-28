@@ -1,0 +1,14 @@
+{
+  "enabledPlugins": {
+    "nvim-lua-lsp@dotfiles": true,
+    "lua-lsp@claude-plugins-official": false
+  },
+  "extraKnownMarketplaces": {
+    "dotfiles": {
+      "source": {
+        "source": "directory",
+        "path": "./nvim/.config/nvim/.claude/marketplace"
+      }
+    }
+  }
+}

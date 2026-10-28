@@ -4,9 +4,9 @@
 
 Personal Neovim 0.12+ configuration using the **lazy.nvim** plugin manager.
 
-## LuaLS Diagnostics Caveat
+## LuaLS Diagnostics
 
-The LuaLS diagnostics surfaced to you come from Claude Code's own server. It roots at the session's working directory when it starts (on the first Lua file touched), and only when rooted at the dotfiles root does it read Neovim's runtime and plugin libraries from the root `.luarc.json`. When it flags `vim` itself as an undefined global, it runs without them (rooted in `nvim/.config/nvim`, or on a scratch file outside the repo), and its `undefined-global` reports (`vim`, `Snacks`, and in scratch files the [Globals](#globals-luaconfigglobalslua) below), `undefined-doc-name` and `undefined-field` on `vim` or plugin names and types are **false positives**: ignore them.
+The LuaLS diagnostics surfaced to you come from Claude Code's server, run by the `nvim-lua-lsp@dotfiles` plugin (`.claude/marketplace/.claude-plugin/marketplace.json`), which this project's and the dotfiles root's `.claude/settings.json` enable in place of the official `lua-lsp`. Its `settings` give it LuaJIT, Neovim's runtime and the lazy plugin dir wherever it roots, so its reports are real, except in scratch files outside the repo, where it flags the [Globals](#globals-luaconfigglobalslua) below as undefined. When it flags `vim` itself as an undefined global, the session runs the official `lua-lsp` instead (started outside the dotfiles), and its `undefined-global`, `undefined-doc-name` and `undefined-field` reports on `vim` or plugin names and types are **false positives**: ignore them.
 
 ## Code Style
 
