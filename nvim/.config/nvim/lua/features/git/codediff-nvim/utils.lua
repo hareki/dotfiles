@@ -86,11 +86,9 @@ end
 --- @param args { data: { tabpage: integer } }
 function M.restore_focus(args)
   local path, view = take_focus_target(args.data.tabpage)
-  if path then
-    vim.schedule(function()
-      open_focus_target(path, view)
-    end)
-  end
+  vim.schedule(function()
+    open_focus_target(path, view)
+  end)
 end
 
 --- Close every codediff tab, for the exit path: a session saved with one restores it as an

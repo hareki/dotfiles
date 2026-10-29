@@ -24,9 +24,7 @@ M.default = {
   ['<Space>'] = {
     function(cmp)
       -- Force reset the completion context when typing too fast
-      vim.defer_fn(function()
-        cmp.hide()
-      end, 20)
+      vim.defer_fn(cmp.hide, 20)
     end,
     'fallback',
   },

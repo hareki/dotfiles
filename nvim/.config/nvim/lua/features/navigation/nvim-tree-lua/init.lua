@@ -249,8 +249,8 @@ return {
           map('n', 'r', api.fs.rename, 'Rename')
 
           map('n', 'R', function()
-            local ok, node = pcall(api.tree.get_node_under_cursor)
-            if not ok or not node then
+            local node = api.tree.get_node_under_cursor()
+            if not node then
               return
             end
 

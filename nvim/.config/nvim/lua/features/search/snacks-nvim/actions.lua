@@ -86,7 +86,7 @@ function M.todo_to_trouble(picker)
   --- @diagnostic disable-next-line: missing-fields
   trouble.toggle({
     mode = 'todo',
-    filter = keywords and #keywords > 0 and { tag = keywords } or nil,
+    filter = keywords and { tag = keywords },
   })
 end
 

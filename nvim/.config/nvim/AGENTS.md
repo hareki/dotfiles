@@ -96,7 +96,7 @@ Size floats through `UI.layout` (`utils/ui/layout.lua`, whose annotations docume
 
 ## LSP Setup
 
-Uses native `vim.lsp.enable()` / `vim.lsp.config()` (not `lspconfig[server].setup()`). Each `core/lsp/nvim-lspconfig/lsp/{server}.lua` returns `{ opts = table|function, setup = function? }`, **not a lazy.nvim spec or a raw `vim.lsp.Config`**: `nvim-lspconfig/utils/server-loader.lua` loads every file, resolving `opts` right away (so it stays a plain table unless it needs logic), then calls `vim.lsp.config(name, opts)` and `setup()` if present. General LSP keymaps live in `nvim-lspconfig/init.lua`, not server files.
+Uses native `vim.lsp.enable()` / `vim.lsp.config()` (not `lspconfig[server].setup()`). Each `core/lsp/nvim-lspconfig/lsp/{server}.lua` returns `{ opts = table, setup = function? }`, **not a lazy.nvim spec or a raw `vim.lsp.Config`**: `nvim-lspconfig/utils/server-loader.lua` requires every file only once nvim-lspconfig loads (so computed values are plain file-level locals), then calls `vim.lsp.config(name, opts)` and `setup()` if present. General LSP keymaps live in `nvim-lspconfig/init.lua`, not server files.
 
 Enable a server in the `servers` list in `nvim-lspconfig/init.lua`; add a `lsp/{server}.lua` only to override nvim-lspconfig's defaults. Servers that drive style-enforcer steps (`eslint`, `oxlint`, `oxfmt`) are also registered in `utils/style-enforcers/init.lua` under their server id, which limits each step to buffers that server is attached to.
 

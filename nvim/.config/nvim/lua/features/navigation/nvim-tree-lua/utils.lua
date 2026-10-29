@@ -69,8 +69,8 @@ end
 --- @return function action
 function M.create_node_action(folder_action)
   return function()
-    local ok, node = pcall(api.tree.get_node_under_cursor)
-    if not ok or not node then
+    local node = api.tree.get_node_under_cursor()
+    if not node then
       return
     end
 

@@ -9,7 +9,6 @@ return {
       DropBarKindDir = { fg = palette.overlay2 },
       DropBarKindDirMenu = { fg = palette.blue },
       DropBarKindFileBar = { fg = palette.blue, bold = true },
-      DropBarKindFileBarNC = { link = 'DropBarKindFileBar' },
 
       DropBarIconUIIndicator = { fg = palette.blue },
 
@@ -48,6 +47,7 @@ return {
 
     opts = function()
       local dropbar_utils = require('chrome.dropbar-nvim.utils')
+      local path_utils = require('utils.path')
 
       -- Static title bars for plugin UI buffers, by filetype
       local titles = {
@@ -118,10 +118,7 @@ return {
                 local syms = sources.path.get_symbols(b, w, cursor)
                 if #syms > 0 then
                   -- Set a different highlight group for the last item (the file name) to avoid affecting other places
-                  local last = syms[#syms]
-                  local hl = (w == vim.api.nvim_get_current_win()) and 'DropBarKindFileBar'
-                    or 'DropBarKindFileBarNC'
-                  last.name_hl = hl
+                  syms[#syms].name_hl = 'DropBarKindFileBar'
                 end
                 return syms
               end,
@@ -138,10 +135,7 @@ return {
           path = {
             -- The path is walked up from the file, so this keeps its innermost segments
             max_depth = 5,
-            relative_to = function()
-              local path_utils = require('utils.path')
-              return path_utils.get_initial_path()
-            end,
+            relative_to = path_utils.get_initial_path,
 
             filter = function(name)
               return name ~= '.DS_Store'

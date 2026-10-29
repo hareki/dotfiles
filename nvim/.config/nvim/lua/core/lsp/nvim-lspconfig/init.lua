@@ -14,10 +14,7 @@ return {
     --- @param opts? vim.diagnostic.Opts Display options to pass to |vim.diagnostic.show()|
     --- @diagnostic disable-next-line: duplicate-set-field
     vim.diagnostic.set = function(namespace, bufnr, diagnostics, opts)
-      if diagnostics and #diagnostics > 0 then
-        range_fix.apply(bufnr, diagnostics)
-      end
-
+      range_fix.apply(bufnr, diagnostics)
       return original_set(namespace, bufnr, diagnostics, opts)
     end
 
@@ -125,7 +122,7 @@ return {
 
     -- eslint vs oxlint are mutually exclusive; selected by Project.linter
     -- (defaults to eslint when no .neovimrc.json is present).
-    table.insert(servers, Project.linter == 'oxlint' and 'oxlint' or 'eslint')
+    table.insert(servers, Project.linter)
 
     -- When oxfmt is the selected formatter, run it as an LSP server (see
     -- utils/style-enforcers/oxfmt.lua) instead of spawning the CLI.

@@ -1,6 +1,5 @@
 return {
   'hareki/comment.nvim',
-  main = 'Comment',
   dependencies = { 'JoosepAlviste/nvim-ts-context-commentstring' },
   keys = {
     { 'gc', mode = { 'n', 'x' }, desc = 'Toggle Comment Linewise' },

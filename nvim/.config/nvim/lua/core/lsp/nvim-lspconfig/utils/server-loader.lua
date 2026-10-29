@@ -10,12 +10,7 @@ function M.load_all()
     local server_name = modname:match('[^.]+$')
     local config = require(modname)
 
-    local opts = config.opts
-    if type(opts) == 'function' then
-      opts = opts()
-    end
-
-    vim.lsp.config(server_name, opts)
+    vim.lsp.config(server_name, config.opts)
 
     if config.setup then
       config.setup()

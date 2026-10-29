@@ -81,9 +81,7 @@ local function catppuccin(register, plugin_name)
     {
       plugin_name,
       optional = true,
-      opts = function()
-        apply()
-      end,
+      opts = apply,
     },
   }
 end
