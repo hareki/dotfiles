@@ -15,10 +15,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/mattpocock/skills.git",
       "skillPath": "skills/engineering/setup-matt-pocock-skills/SKILL.md",
-      "skillFolderHash": "aafaabf96fa3945d8a4069317a7a6d36b7169670",
-      "pluginName": "mattpocock-skills",
+      "skillFolderHash": "b644b684781fd5baae57f6be000a180a4d4448d7",
       "installedAt": "2026-06-01T12:44:10.770Z",
-      "updatedAt": "2026-10-14T03:21:05.575Z"
+      "updatedAt": "2026-10-29T04:50:44.350Z"
     },
     "improve-codebase-architecture": {
       "source": "mattpocock/skills",
@@ -45,9 +44,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/obra/superpowers.git",
       "skillPath": "skills/requesting-code-review/SKILL.md",
-      "skillFolderHash": "5fcdadfccd8c90987a11969d2f8c844820fee6e1",
+      "skillFolderHash": "f4a6749898702895ea4fd57c7f186cf43205b99a",
       "installedAt": "2026-06-01T13:18:32.599Z",
-      "updatedAt": "2026-10-06T08:36:55.001Z"
+      "updatedAt": "2026-10-29T04:50:46.603Z"
     },
     "skill-creator": {
       "source": "anthropics/skills",
@@ -331,9 +330,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/miqdadbadjuber/anti-slop.git",
       "skillPath": "skills/antislop/SKILL.md",
-      "skillFolderHash": "8e52b234b678a02905a048b7f77ec8c963705098",
+      "skillFolderHash": "8a707245093277b722a72215974268e747256bff",
       "installedAt": "2026-10-24T03:51:15.760Z",
-      "updatedAt": "2026-10-24T03:51:15.760Z"
+      "updatedAt": "2026-10-29T04:50:49.047Z"
     },
     "antislop-copywriting": {
       "source": "miqdadbadjuber/anti-slop",
@@ -349,9 +348,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/miqdadbadjuber/anti-slop.git",
       "skillPath": "skills/antislop-human/SKILL.md",
-      "skillFolderHash": "e3ffb8c35d20034919b4c85e6858c02c7ed9ba2a",
+      "skillFolderHash": "fb3d01f0345b584e4c60ea20611a1a6cf657892b",
       "installedAt": "2026-10-24T03:51:15.762Z",
-      "updatedAt": "2026-10-24T03:51:15.762Z"
+      "updatedAt": "2026-10-29T04:50:51.298Z"
     },
     "antislop-layoutmobile": {
       "source": "miqdadbadjuber/anti-slop",
@@ -367,9 +366,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/miqdadbadjuber/anti-slop.git",
       "skillPath": "skills/antislop-ui/SKILL.md",
-      "skillFolderHash": "d2fb2eebe99d74f4cab2d216b78dd5dee735b9a0",
+      "skillFolderHash": "588bd30e4e07e599a463e8d719eeb4222d950ed1",
       "installedAt": "2026-10-24T03:51:15.763Z",
-      "updatedAt": "2026-10-24T03:51:15.763Z"
+      "updatedAt": "2026-10-29T04:50:53.634Z"
     }
   },
   "dismissed": {
