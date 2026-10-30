@@ -5,9 +5,7 @@ return {
     'snacks.nvim',
     -- Startup hook in place of `init`, which lazy.nvim runs for a single fragment only:
     -- opts resolve right before snacks' setup(), and returning nil keeps the merged opts
-    opts = function()
-      lazygit.setup()
-    end,
+    opts = lazygit.setup,
   },
 
   {

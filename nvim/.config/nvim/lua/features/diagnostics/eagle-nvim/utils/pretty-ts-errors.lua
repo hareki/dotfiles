@@ -1,10 +1,11 @@
 --- @class features.diagnostics.eagle.utils.pretty-ts-errors
 local M = {}
 
+local EXECUTABLE = 'pretty-ts-errors-markdown'
+local MAX_CACHE_ENTRIES = 512
+
 M.state = {
-  executable_path = 'pretty-ts-errors-markdown',
   cli_unavailable = false, -- Set on spawn failure so we never re-pay a failed spawn
-  max_cache_entries = 512,
   cache = {}, -- key -> { value, from_cli, hits }
   cache_size = 0,
 }
@@ -44,7 +45,7 @@ local function compute_cache_key(diagnostic)
 end
 
 local function maybe_evict_cache()
-  if M.state.cache_size <= M.state.max_cache_entries then
+  if M.state.cache_size <= MAX_CACHE_ENTRIES then
     return
   end
   local lowest_key, lowest_hits
@@ -95,7 +96,7 @@ local function spawn_cli(json_text)
     return nil
   end
 
-  local cmd = { M.state.executable_path, '-i', json_text }
+  local cmd = { EXECUTABLE, '-i', json_text }
   local ok, handle = pcall(vim.system, cmd, { text = true })
   return ok and handle or nil
 end
@@ -113,7 +114,7 @@ local function collect_cli(handle, json_text)
   -- vim.system also throws for a JSON arg past the OS arg limit, which this stdin form handles,
   -- so latch cli_unavailable only when the stdin form throws too
   local ok, result = pcall(function()
-    return vim.system({ M.state.executable_path }, { text = true, stdin = json_text }):wait()
+    return vim.system({ EXECUTABLE }, { text = true, stdin = json_text }):wait()
   end)
   if not ok then
     M.state.cli_unavailable = true

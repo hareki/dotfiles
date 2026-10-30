@@ -12,6 +12,7 @@ M.DESC_OVERRIDES = {
   ['gri'] = { desc = 'LSP: Implementation' },
   ['grt'] = { desc = 'LSP: Type Definition' },
   ['gra'] = { desc = 'LSP: Code Actions', mode = { 'n', 'x' } },
+  ['grx'] = { desc = 'LSP: Run Code Lens' },
   ['<C-S>'] = { desc = 'LSP: Signature Help', mode = { 's', 'i' } },
   ['gx'] = { desc = 'Open URL' },
 
@@ -28,10 +29,19 @@ M.DESC_OVERRIDES = {
   ['[d'] = { desc = 'Previous Diagnostic' },
   [']D'] = { desc = 'Last Diagnostic' },
   ['[D'] = { desc = 'First Diagnostic' },
+  ['<C-W>d'] = { desc = 'Show Diagnostics Under Cursor' },
+  ['<C-W><C-D>'] = { desc = 'Show Diagnostics Under Cursor' },
   [']b'] = { desc = 'Next Buffer' },
   ['[b'] = { desc = 'Previous Buffer' },
   [']B'] = { desc = 'Last Buffer' },
   ['[B'] = { desc = 'First Buffer' },
+  [']n'] = { desc = 'Select Next Node', mode = { 'x' } },
+  ['[n'] = { desc = 'Select Previous Node', mode = { 'x' } },
+  [']N'] = { desc = 'Expand Selection to Next Node', mode = { 'x' } },
+  ['[N'] = { desc = 'Expand Selection to Previous Node', mode = { 'x' } },
+  ['gc'] = { desc = 'Comment Block', mode = { 'o' } },
+  ['<Tab>'] = { desc = 'Next Snippet Placeholder', mode = { 'i', 's' } },
+  ['<S-Tab>'] = { desc = 'Previous Snippet Placeholder', mode = { 'i', 's' } },
 }
 
 --- Fold-key { key, desc } pairs: the which-key preset's z group, and the identity keymaps

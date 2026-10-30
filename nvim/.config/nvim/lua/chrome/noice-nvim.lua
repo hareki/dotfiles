@@ -61,6 +61,9 @@ return {
           max_lifetime = 30 * 1000,
         },
         hover = {
+          -- Mute "No information available": noice asks each client separately and notifies for
+          -- every one with no hover at the cursor, even when another client answered
+          silent = true,
           opts = { border = 'rounded' },
         },
 
@@ -85,15 +88,6 @@ return {
           opts = {
             skip = true,
           },
-        },
-
-        -- Ignore "No information available": a filetype can have several LSP clients
-        {
-          filter = {
-            event = 'notify',
-            find = '^No information available$',
-          },
-          opts = { skip = true },
         },
 
         -- Mute trouble's "parser missing" warning for allowlisted pseudo-languages; real misses

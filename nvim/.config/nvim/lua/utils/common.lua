@@ -12,22 +12,6 @@ function M.noautocmd(fn)
   end
 end
 
-local function repaint_render_markdown(win_id)
-  if not vim.api.nvim_win_is_valid(win_id) then
-    return
-  end
-
-  -- render-markdown anti-conceals the cursor row only while its buffer is current, and the
-  -- eventless switch gave it no reason to redraw, so the row it left behind stays raw
-  local render_md = require('render-markdown')
-  render_md.render({ buf = vim.api.nvim_win_get_buf(win_id), win = win_id })
-end
-
-local function is_markdown_buf(win_id)
-  local buf = vim.api.nvim_win_get_buf(win_id)
-  return vim.list_contains(Conf.filetypes.MARKDOWN, vim.bo[buf].filetype)
-end
-
 --- Focus a window without triggering autocommands
 --- If current window is a floating markdown preview, repaint it after focus change.
 --- @param win integer | nil Window handle to focus (0/nil returns false)
@@ -38,14 +22,19 @@ function M.focus_win(win)
   end
 
   local src = vim.api.nvim_get_current_win()
-  local need_repaint = Snacks.util.is_float(src) and is_markdown_buf(src)
+  local src_buf = vim.api.nvim_win_get_buf(src)
+  local need_repaint = Snacks.util.is_float(src)
+    and vim.list_contains(Conf.filetypes.MARKDOWN, vim.bo[src_buf].filetype)
 
   M.noautocmd(function()
     vim.api.nvim_set_current_win(win)
   end)
 
   if need_repaint then
-    repaint_render_markdown(src)
+    -- render-markdown anti-conceals the cursor row only while its buffer is current, and the
+    -- eventless switch gave it no reason to redraw, so the row it left behind stays raw
+    local render_md = require('render-markdown')
+    render_md.render({ buf = src_buf, win = src })
   end
 
   return true

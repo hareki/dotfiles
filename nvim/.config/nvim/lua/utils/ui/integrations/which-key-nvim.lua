@@ -48,14 +48,4 @@ local function which_key(config)
   }
 end
 
---- @class utils.ui.which_key
---- @overload fun(config: { specs?: wk.Spec, rules?: wk.IconRule | wk.IconRule[], triggers?: wk.Spec }): table
-
---- @type utils.ui.which_key
-local M = setmetatable({}, {
-  __call = function(_, config)
-    return which_key(config)
-  end,
-})
-
-return M
+return which_key

@@ -15,7 +15,6 @@ local function create_empty_comp(cond)
   return {
     empty_func,
     color = { fg = 'none', bg = 'none' },
-    padding = { left = 0, right = 0 },
     separator = { left = '', right = '' },
     cond = cond,
   }
@@ -71,7 +70,6 @@ function M.create_styling_wrapper(opts)
       color = { fg = palette[opts.color], bg = palette.surface0 },
       separator = M.separator,
       icon = { opts.icon .. ' ', color = { fg = palette.base, bg = palette[opts.color] } },
-      padding = { left = 0, right = 0 },
     }, extra)
   else
     local text_color = opts.color and palette[opts.color] or palette.subtext0
@@ -119,7 +117,7 @@ end
 function M.flatten_section(...)
   local result = {}
   for _, item in ipairs({ ... }) do
-    if vim.islist(item) and #item > 0 and type(item[1]) == 'table' then
+    if vim.islist(item) and type(item[1]) == 'table' then
       vim.list_extend(result, item)
     else
       table.insert(result, item)

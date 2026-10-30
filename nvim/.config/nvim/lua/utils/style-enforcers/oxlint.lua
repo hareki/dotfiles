@@ -7,7 +7,7 @@ local M = {}
 --- @param opts utils.style-enforcers.RunnerOpts
 --- @return nil
 function M.run(opts)
-  local document = { uri = vim.uri_from_bufnr(opts.bufnr) }
+  local document = vim.lsp.util.make_text_document_params(opts.bufnr)
 
   -- oxc.fixAll replays the fixes of the server's last lint as an unversioned edit, and the format
   -- step's didChange doesn't re-lint (a diagnostic pull or a save does), so stale fixes would land

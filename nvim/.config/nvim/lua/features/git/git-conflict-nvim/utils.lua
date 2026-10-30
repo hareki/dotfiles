@@ -140,7 +140,6 @@ local function schedule_cursor_check(bufnr)
     state.timer = vim.uv.new_timer()
   end
 
-  state.timer:stop()
   state.timer:start(
     CURSOR_DEBOUNCE_MS,
     0,

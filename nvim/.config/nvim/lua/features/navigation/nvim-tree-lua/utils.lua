@@ -191,7 +191,7 @@ end
 function M.toggle_preview(force_state)
   local tree_win = api.tree.winid()
 
-  if not tree_win or not vim.api.nvim_win_is_valid(tree_win) then
+  if not tree_win then
     return
   end
 

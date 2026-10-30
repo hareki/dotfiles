@@ -52,16 +52,17 @@ return {
       { 'p', '<Plug>(YankyPutAfter)', desc = 'Put Text' },
       { 'k', '"+<Plug>(YankyPutAfter)', mode = { 'n', 'x' }, desc = 'Put from System Clipboard' },
 
-      -- Putting text in visual mode without overwriting the yank register
+      -- Putting text in visual mode without overwriting the yank register: yanky's x-mode put runs
+      -- Visual P (:help v_P) over the selection, keeping a typed `"x` prefix
       {
         'p',
-        '"_d<Plug>(YankyPutBefore)',
+        '<Plug>(YankyPutBefore)',
         mode = { 'x' },
         desc = 'Put Text',
       },
       {
         'P',
-        '"_d"0<Plug>(YankyPutBefore)',
+        '"0<Plug>(YankyPutBefore)',
         mode = { 'x' },
         desc = 'Put Text from Register 0',
       },

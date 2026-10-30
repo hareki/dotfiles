@@ -214,7 +214,7 @@ function M.hover_image()
       return
     end
 
-    local ext = vim.fn.fnamemodify(src, ':e')
+    local ext = vim.fs.ext(src)
     if ext == '' then
       ext = 'png'
     end
@@ -233,7 +233,7 @@ local audio_extensions =
 --- @param path string
 --- @return boolean
 local function is_audio(path)
-  return vim.list_contains(audio_extensions, vim.fn.fnamemodify(path, ':e'):lower())
+  return vim.list_contains(audio_extensions, vim.fs.ext(path):lower())
 end
 
 --- Whether `path` opens as a rendered view (snacks.image's viewer or the audio page)
@@ -395,7 +395,7 @@ function M.preview_file(ctx)
     vim.bo[buf].filetype = ''
   end)
 
-  ctx.preview:set_title(ctx.item.preview_title or ctx.item.title or vim.fn.fnamemodify(path, ':t'))
+  ctx.preview:set_title(ctx.item.preview_title or ctx.item.title or vim.fs.basename(path))
   render_audio_page(buf, path)
 end
 

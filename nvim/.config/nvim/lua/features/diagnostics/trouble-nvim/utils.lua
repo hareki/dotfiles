@@ -22,7 +22,7 @@ function M.toggle_focus()
   local preview_manager = require('trouble.view.preview')
   local preview = preview_manager.preview
 
-  if not preview_manager.is_open() or not preview then
+  if not preview then
     return
   end
 
@@ -46,9 +46,7 @@ function M.toggle_focus()
 
   map('n', 'q', function()
     common.focus_win(trouble_win)
-    if vim.api.nvim_win_is_valid(preview.win) then
-      vim.api.nvim_win_close(preview.win, true)
-    end
+    preview_manager.close()
   end, 'Close Preview')
 end
 

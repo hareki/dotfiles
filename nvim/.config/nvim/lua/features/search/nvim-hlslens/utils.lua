@@ -41,11 +41,7 @@ function M.search_text_handler(render, position_list, nearest, index, relative_i
     end
   end
 
-  local pos = position_list[index]
-  if not pos then
-    return
-  end
-  local line_number, column = unpack(pos)
+  local line_number, column = unpack(position_list[index])
   if nearest then
     local count = #position_list
     if indicator ~= '' then
