@@ -63,13 +63,7 @@ return {
       {
         'P',
         '"0<Plug>(YankyPutBefore)',
-        mode = { 'x' },
-        desc = 'Put Text from Register 0',
-      },
-
-      {
-        'P',
-        '"0<Plug>(YankyPutBefore)',
+        mode = { 'n', 'x' },
         desc = 'Put Text from Register 0',
       },
 

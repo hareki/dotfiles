@@ -34,17 +34,8 @@ local function resolve_dimensions(dimensions)
     height = math.max(height + height_offset, 1)
   end
 
-  local min_width = dimensions.MIN_WIDTH
-  if min_width and width < min_width then
-    width = min_width
-  end
-
-  local min_height = dimensions.MIN_HEIGHT
-  if min_height and height < min_height then
-    height = min_height
-  end
-
-  return math.floor(width), math.floor(height)
+  return math.floor(math.max(width, dimensions.MIN_WIDTH or 0)),
+    math.floor(math.max(height, dimensions.MIN_HEIGHT or 0))
 end
 
 --- Compute width/height for a side panel or side preview size preset

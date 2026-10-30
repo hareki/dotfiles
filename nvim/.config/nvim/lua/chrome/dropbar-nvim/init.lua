@@ -47,7 +47,6 @@ return {
 
     opts = function()
       local dropbar_utils = require('chrome.dropbar-nvim.utils')
-      local path_utils = require('utils.path')
 
       -- Static title bars for plugin UI buffers, by filetype
       local titles = {
@@ -135,7 +134,6 @@ return {
           path = {
             -- The path is walked up from the file, so this keeps its innermost segments
             max_depth = 5,
-            relative_to = path_utils.get_initial_path,
 
             filter = function(name)
               return name ~= '.DS_Store'

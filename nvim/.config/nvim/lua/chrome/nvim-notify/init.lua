@@ -49,7 +49,7 @@ return {
           })
         end,
 
-        render = function(bufnr, notif, hl, _)
+        render = function(bufnr, notif, hl)
           local title = notif.title[1]
           if notif.duplicates then
             title = string.format('%s (x%d)', title, #notif.duplicates)

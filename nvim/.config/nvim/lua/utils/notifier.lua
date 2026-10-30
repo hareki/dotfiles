@@ -4,20 +4,13 @@
 --- @class utils.notifier
 local M = {}
 
---- @alias utils.notifier.NotifierOpts { level?: number, title?: string, default_hl?: string, height_offset?: integer }
+--- @alias utils.notifier.NotifierOpts { title?: string, height_offset?: integer }
 
 --- @alias utils.notifier.MessageTuple { [1]: string, [2]?: string }
 --- @alias utils.notifier.MessageChunk string | utils.notifier.MessageTuple
 --- @alias utils.notifier.Message string | string[] | utils.notifier.MessageChunk[]
 
 local highlight_ns = vim.api.nvim_create_namespace('trouble_notify_hl')
-
-local function apply_win_opts(win)
-  local w = vim.wo[win]
-  w.conceallevel = 3
-  w.concealcursor = 'n'
-  w.spell = false
-end
 
 --- Whether tbl is a chunk list ({ 'txt', { 'txt', 'hl' }, ... }), which needs at least one
 --- {text, hl} tuple: a table of bare strings is a string[] message, joined as markdown
@@ -43,12 +36,10 @@ end
 
 --- Flatten a tuple-list and build an on_open that restores highlights.
 --- @param chunks table  list of strings *or* {text, hl} tuples
---- @param opts   table { default_hl?: string }
+--- @param default_hl string
 --- @return string plain     flattened text for vim.notify
 --- @return function on_open callback that reapplies extmarks
-local function normalize_message(chunks, opts)
-  local default_hl = opts.default_hl or 'Normal'
-
+local function normalize_message(chunks, default_hl)
   local parts, regions = {}, {}
   local line, col = 0, 0
 
@@ -82,7 +73,6 @@ local function normalize_message(chunks, opts)
   --- @param win integer
   local function on_open(win)
     local buf = vim.api.nvim_win_get_buf(win)
-    apply_win_opts(win)
     vim.api.nvim_buf_clear_namespace(buf, highlight_ns, 0, -1)
     vim.schedule(function()
       if not vim.api.nvim_buf_is_valid(buf) then
@@ -105,10 +95,12 @@ local function normalize_message(chunks, opts)
 end
 
 --- Core notification function with rich highlighting and markdown support
---- @param msg string | table Plain message or tuple list like {{text, hl}, ...}
---- @param opts utils.notifier.NotifierOpts?
+--- @param level integer
+--- @param default_hl string Body highlight of a chunk list's plain chunks
+--- @param msg utils.notifier.Message
+--- @param opts? utils.notifier.NotifierOpts
 --- @return any handle The notification record
-function M.notify(msg, opts)
+local function notify(level, default_hl, msg, opts)
   opts = opts or {}
   local is_markdown = not is_chunk_list(msg)
 
@@ -117,7 +109,6 @@ function M.notify(msg, opts)
     -- Strings/list-of-strings: fall back to Treesitter markdown
     msg = type(msg) == 'table' and table.concat(msg, '\n') or msg
     apply_highlight = function(win)
-      apply_win_opts(win)
       local bufnr = vim.api.nvim_win_get_buf(win)
       vim.bo[bufnr].filetype = 'markdown'
       local render_markdown = require('render-markdown')
@@ -130,11 +121,8 @@ function M.notify(msg, opts)
     end
   else
     --- @cast msg table
-    msg, apply_highlight = normalize_message(msg, opts)
+    msg, apply_highlight = normalize_message(msg, default_hl)
   end
-
-  -- Local autocmd_id closes over both on_open and on_close
-  local autocmd_id
 
   local function on_open(win)
     local buf = vim.api.nvim_win_get_buf(win)
@@ -142,9 +130,7 @@ function M.notify(msg, opts)
     apply_highlight(win)
 
     -- Relies on `nvim-notify` re-detecting filetype during duplicate render
-    autocmd_id = vim.api.nvim_create_autocmd({
-      'FileType',
-    }, {
+    vim.api.nvim_create_autocmd('FileType', {
       buffer = buf,
       callback = function()
         if vim.api.nvim_win_is_valid(win) then
@@ -160,31 +146,10 @@ function M.notify(msg, opts)
     end
   end
 
-  local function on_close()
-    if autocmd_id then
-      pcall(vim.api.nvim_del_autocmd, autocmd_id)
-      autocmd_id = nil
-    end
-  end
-
-  return vim.notify(msg, opts.level, {
+  return vim.notify(msg, level, {
     title = opts.title or 'Notifier',
     on_open = on_open,
-    on_close = on_close,
   })
-end
-
---- Notify at a level, with its body highlight unless opts overrides it
---- @param level integer
---- @param default_hl string
---- @param msg utils.notifier.Message
---- @param opts? utils.notifier.NotifierOpts
---- @return any handle The notification record
-local function notify_at(level, default_hl, msg, opts)
-  return M.notify(
-    msg,
-    vim.tbl_extend('force', { level = level, default_hl = default_hl }, opts or {})
-  )
 end
 
 --- Display an info-level notification with optional custom highlights
@@ -192,7 +157,7 @@ end
 --- @param opts? utils.notifier.NotifierOpts
 --- @return any handle The notification record
 function M.info(msg, opts)
-  return notify_at(vim.log.levels.INFO, 'NotifyINFOBody', msg, opts)
+  return notify(vim.log.levels.INFO, 'NotifyINFOBody', msg, opts)
 end
 
 --- Display a warning-level notification with optional custom highlights
@@ -200,7 +165,7 @@ end
 --- @param opts? utils.notifier.NotifierOpts
 --- @return any handle The notification record
 function M.warn(msg, opts)
-  return notify_at(vim.log.levels.WARN, 'NotifyWARNBody', msg, opts)
+  return notify(vim.log.levels.WARN, 'NotifyWARNBody', msg, opts)
 end
 
 --- Display an error-level notification with optional custom highlights
@@ -208,7 +173,7 @@ end
 --- @param opts? utils.notifier.NotifierOpts
 --- @return any handle The notification record
 function M.error(msg, opts)
-  return notify_at(vim.log.levels.ERROR, 'NotifyERRORBody', msg, opts)
+  return notify(vim.log.levels.ERROR, 'NotifyERRORBody', msg, opts)
 end
 
 --- Display a debug notification with vim.inspect output in a code block

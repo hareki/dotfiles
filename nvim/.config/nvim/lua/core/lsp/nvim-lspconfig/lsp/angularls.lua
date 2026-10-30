@@ -44,7 +44,7 @@ return {
     workspace_required = true,
 
     cmd = function(dispatchers, config)
-      local root_dir = (config and config.root_dir) or fn.getcwd()
+      local root_dir = config.root_dir
       local ngserver, ng_bundle = resolve_ngserver(root_dir)
 
       -- Project node_modules first so its own TypeScript/Angular versions win over the bundle; 13.x

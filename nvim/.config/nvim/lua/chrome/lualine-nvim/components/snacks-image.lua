@@ -5,33 +5,21 @@ local image_icon = Conf.icons.editor.IMAGE .. ' '
 
 -- vim.treesitter.query.get memoizes in a GC-weak cache, so after a collection it re-scans the
 -- runtimepath and recompiles the query, too slow for a per-redraw path: pin the answer here
---- @type table<string, boolean | 'no-parser'>
+--- @type table<string, boolean>
 local lang_has_images_query = {}
 
--- A parser installed mid-session takes effect on the next FileType (`:edit`), so
--- that is when a language's missing-parser answer gets looked up again
-vim.api.nvim_create_autocmd('FileType', {
-  group = vim.api.nvim_create_augroup('chrome.lualine.snacks-image', { clear = true }),
-  callback = function(args)
-    local lang = vim.treesitter.language.get_lang(args.match)
-    if lang and lang_has_images_query[lang] == 'no-parser' then
-      lang_has_images_query[lang] = nil
-    end
-  end,
-})
-
---- @param lang string
+--- @param lang string A language with a loaded parser
 --- @return boolean
 local function has_images_query(lang)
   local has = lang_has_images_query[lang]
   if has == nil then
-    -- query.get throws when snacks ships an `images` query for a language whose
-    -- parser isn't installed (vue, svelte, typst, ...); that would break every redraw
+    -- query.get throws on a query that doesn't parse against the installed grammar, and that
+    -- would break every redraw
     local ok, query = pcall(vim.treesitter.query.get, lang, 'images')
-    has = ok and query ~= nil or (not ok and 'no-parser')
+    has = ok and query ~= nil
     lang_has_images_query[lang] = has
   end
-  return has == true
+  return has
 end
 
 -- The images found in one buffer state. Cursor moves only test the cursor against them;
@@ -73,11 +61,8 @@ end
 --- @param buf integer
 --- @return boolean
 local function mermaid_has_content(buf)
-  if vim.api.nvim_buf_line_count(buf) > 1 then
-    return true
-  end
-  local first = vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1]
-  return first ~= nil and first ~= ''
+  return vim.api.nvim_buf_line_count(buf) > 1
+    or vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1] ~= ''
 end
 
 --- Returns true when `gi` would render an image at the current cursor position.
@@ -85,9 +70,8 @@ end
 --- @return boolean
 function M.cond()
   local buf = vim.api.nvim_get_current_buf()
-  local ft = vim.bo[buf].filetype
 
-  if ft == 'mermaid' then
+  if vim.bo[buf].filetype == 'mermaid' then
     return mermaid_has_content(buf)
   end
 
@@ -98,10 +82,11 @@ function M.cond()
     return false
   end
 
-  -- Skip buffers whose language has no snacks `images` query (json, yaml, help, ...):
-  -- nothing can match there, so don't pay the treesitter work below.
-  local lang = vim.treesitter.language.get_lang(ft)
-  if not lang or not has_images_query(lang) then
+  -- Nothing can match without a parser (snacks ships `images` queries for vue, svelte, typst, ...
+  -- installed or not) or without an `images` query (json, yaml, help, ...), so don't pay the
+  -- treesitter work below
+  local highlighter = vim.treesitter.highlighter.active[buf]
+  if not (highlighter and has_images_query(highlighter.tree:lang())) then
     return false
   end
 

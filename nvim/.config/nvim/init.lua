@@ -1,5 +1,11 @@
 vim.loader.enable(true)
 
+-- A lone directory argument is the project: adopt it as the cwd before anything reads it
+local first_arg = vim.fn.argv(0) --[[@as string]]
+if vim.fn.argc() == 1 and vim.fn.isdirectory(first_arg) == 1 then
+  vim.cmd.cd(first_arg)
+end
+
 require('config.globals')
 require('config.options')
 require('config.filetypes')

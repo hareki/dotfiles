@@ -27,7 +27,7 @@ local CONFLICT_SEARCH_RANGE = 500
 local CURSOR_DEBOUNCE_MS = 100
 
 -- Window-local 'winhighlight' remaps only these groups; nvim_win_set_hl_ns would break other
--- plugins' winhighlight redirects (nvim-tree's picker StatusLine), rendering them with defaults
+-- plugins' winhighlight redirects (nvim-tree's own groups), rendering them with defaults
 local conflict_winhl = table.concat({
   'DocumentHighlight:GitConflictDocumentHighlight',
   'GitSignsCurrentLineBlame:GitConflictBlame',
@@ -132,9 +132,6 @@ end
 
 local function schedule_cursor_check(bufnr)
   local state = M.state.bufs[bufnr]
-  if not state then
-    return
-  end
 
   if not state.timer then
     state.timer = vim.uv.new_timer()
@@ -144,9 +141,6 @@ local function schedule_cursor_check(bufnr)
     CURSOR_DEBOUNCE_MS,
     0,
     vim.schedule_wrap(function()
-      if not vim.api.nvim_buf_is_valid(bufnr) then
-        return
-      end
       -- Skip if user moved to a different buffer in the meantime; BufLeave
       -- already cleared winhl, and BufWinEnter will re-apply on return.
       if vim.api.nvim_get_current_buf() ~= bufnr then
@@ -197,9 +191,6 @@ function M.setup()
           buffer = bufnr,
           callback = function(args)
             local state = M.state.bufs[bufnr]
-            if not state then
-              return
-            end
 
             -- 'winhighlight' outlives a buffer swap in its window (nvim-tree, pickers), so clear it
             -- when the conflict buffer leaves; BufWinEnter/BufEnter/CursorMoved re-apply it

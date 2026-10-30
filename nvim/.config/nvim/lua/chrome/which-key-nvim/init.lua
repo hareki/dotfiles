@@ -17,55 +17,53 @@ return {
       vim.opt.timeoutlen = TIMEOUT_LEN
     end,
 
-    opts = function(_, opts)
-      -- Merge in the base scalar config. The list fields (spec, icons.rules) are appended
-      -- separately below, since tbl_deep_extend replaces arrays instead of concatenating.
-      opts = vim.tbl_deep_extend('force', opts, {
-        preset = 'modern',
-        delay = function(ctx)
-          return ctx.mode == 'o' and DELAY_O or DELAY
-        end,
-        win = {
-          padding = { 0, 4 },
+    opts = {
+      preset = 'modern',
+      delay = function(ctx)
+        return ctx.mode == 'o' and DELAY_O or DELAY
+      end,
+      win = {
+        padding = { 0, 4 },
+      },
+      plugins = {
+        -- Define the presets ourselves to unify the letter case
+        presets = {
+          operators = false,
+          motions = false,
+          text_objects = false,
+          windows = false,
+          nav = false,
+          z = false,
+          g = false,
         },
-        plugins = {
-          -- Define the presets ourselves to unify the letter case
-          presets = {
-            operators = false,
-            motions = false,
-            text_objects = false,
-            windows = false,
-            nav = false,
-            z = false,
-            g = false,
-          },
-        },
-        keys = {
-          scroll_down = '<S-PageDown>',
-          scroll_up = '<S-PageUp>',
-        },
-        icons = {
-          group = '',
-        },
-      })
+      },
+      keys = {
+        scroll_down = '<S-PageDown>',
+        scroll_up = '<S-PageUp>',
+      },
+      icons = {
+        group = '',
+      },
 
-      -- Append base group specs after any specs contributed by other plugins via UI.which_key()
-      opts.spec = vim.list_extend(opts.spec or {}, {
+      spec = {
         { '<leader>c', group = 'Code', mode = { 'n', 'v' } },
         { '<leader>f', group = 'Find', mode = { 'n', 'v' } },
         { '<leader>fg', group = 'Git: Find' },
         { '<leader>q', group = 'Quit', mode = { 'n', 'v' } },
         { '<leader>s', group = 'Search', mode = { 'n', 'v' } },
-      })
+      },
 
       -- <auto> skips single-letter builtin prefixes, so plugins needing one (Mini Surround's `l`)
       -- add a manual trigger via UI.which_key({ triggers = ... })
-      opts.triggers = opts.triggers or {}
-      table.insert(opts.triggers, { '<auto>', mode = 'nxso' })
+      triggers = {
+        { '<auto>', mode = 'nxso' },
+      },
+    },
 
-      -- Earlier rules win when several match (plugin > filetype > pattern); plugin rules come from
-      -- UI.which_key() and are prepended, so these generic ones are appended
-      opts.icons.rules = vim.list_extend(opts.icons.rules or {}, {
+    config = function(_, opts)
+      -- Earlier rules win when several match (plugin > filetype > pattern), so these generic ones
+      -- go after every UI.which_key() rule, whichever tier imported it
+      vim.list_extend(opts.icons.rules, {
         { pattern = 'terminal', icon = Conf.icons.editor.TERMINAL, color = 'green' },
         { pattern = 'plugin', icon = Conf.icons.tools.PLUGIN_MANAGER, color = 'orange' },
         { pattern = 'help', icon = Conf.icons.editor.HELP, color = 'blue' },
@@ -73,7 +71,9 @@ return {
         { pattern = 'undo', icon = Conf.icons.actions.UNDO, color = 'purple' },
         { pattern = 'diagnostic', icon = Conf.icons.editor.DIAGNOSTIC, color = 'blue' },
         { pattern = 'highlight', icon = Conf.icons.editor.HIGHLIGHT, color = 'blue' },
-        { pattern = 'git', icon = Conf.icons.git.GIT, color = 'red' },
+        -- Frontier-anchored so it stops matching 'digit', which leaves 'lazygit' to its own rule
+        { pattern = '%f[%a]git', icon = Conf.icons.git.GIT, color = 'red' },
+        { pattern = 'lazygit', icon = Conf.icons.git.GIT, color = 'red' },
         { pattern = 'window', icon = Conf.icons.editor.WINDOW, color = 'blue' },
         { pattern = 'keymaps', icon = Conf.icons.editor.KEYMAPS, color = 'orange' },
         { pattern = 'scroll up', icon = Conf.icons.navigation.SCROLL_UP },
@@ -91,7 +91,6 @@ return {
         { pattern = 'find', icon = Conf.icons.actions.FIND, color = 'blue' },
         { pattern = 'delete', icon = Conf.icons.actions.DELETE, color = 'red' },
         { pattern = 'paste', icon = Conf.icons.actions.PASTE, color = 'orange' },
-        { pattern = 'peek', icon = Conf.icons.actions.PEEK, color = 'yellow' },
         { pattern = 'reset', icon = Conf.icons.actions.RESET, color = 'red' },
         { pattern = 'prev', icon = Conf.icons.navigation.PREV },
         { pattern = 'backward', icon = Conf.icons.navigation.PREV },
@@ -121,10 +120,6 @@ return {
         { pattern = 'image', icon = Conf.icons.editor.IMAGE, color = 'green' },
       })
 
-      return opts
-    end,
-
-    config = function(_, opts)
       local which_key = require('which-key')
       which_key.setup(opts)
       local which_key_preset = require('chrome.which-key-nvim.preset')

@@ -4,7 +4,6 @@ return {
 
     return {
       GitSignsStagedAdd = { fg = sub_palette.green },
-      GitSignsStagedUntracked = { link = 'GitSignsStagedAdd' },
 
       GitSignsStagedChange = { fg = sub_palette.yellow },
       GitSignsStagedChangedelete = { link = 'GitSignsStagedChange' },

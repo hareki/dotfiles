@@ -257,22 +257,22 @@ function M.mark_and_prev()
   vim.api.nvim_feedkeys(vim.keycode('<Up>'), 'n', false)
 end
 
---- Replaces home directory with  icon and path separators with .
+--- Replaces the home directory with its icon and path separators with the collapsed icon
 --- @param path string The absolute path to format
 --- @return string formatted
 function M.format_root_label(path)
-  local home_icon = vim.trim(Conf.icons.file_tree.HOME)
+  local home = Conf.icons.file_tree.HOME
   local separator = Conf.icons.file_tree.COLLAPSED .. ' '
   -- Only shortens at a path boundary: /Users/foo2 is not under /Users/foo
   local short = vim.fn.fnamemodify(path, ':~')
 
   if short == '~' then
-    return home_icon .. ' '
+    return home
   end
 
   local formatted
   if vim.startswith(short, '~/') then
-    formatted = home_icon .. ' ' .. separator .. short:sub(3)
+    formatted = home .. separator .. short:sub(3)
   else
     -- If outside home, remove leading slash to avoid empty first component
     formatted = short:gsub('^/', '')

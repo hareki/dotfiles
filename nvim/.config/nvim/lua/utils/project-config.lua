@@ -11,9 +11,7 @@ local defaults = { linter = 'eslint', formatter = 'prettier' }
 --- Read and parse .neovimrc.json from the initial cwd, falling back to defaults.
 --- @return utils.project-config.Config
 function M.get()
-  local path_utils = require('utils.path')
-  local root = path_utils.get_initial_path()
-  local file = vim.fs.joinpath(root, '.neovimrc.json')
+  local file = vim.fs.joinpath(vim.fn.getcwd(), '.neovimrc.json')
 
   local stat = vim.uv.fs_stat(file)
   if not stat or stat.type ~= 'file' then

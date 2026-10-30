@@ -62,7 +62,6 @@ local function open_popup(lines, row0, col0)
   vim.bo[buf].filetype = 'markdown'
   vim.wo[win].conceallevel = 2
   vim.wo[win].wrap = false
-  vim.wo[win].signcolumn = 'no'
 
   return buf, win
 end
@@ -90,9 +89,6 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
     buffer = origin_buf,
     nested = true,
     callback = function()
-      if not vim.api.nvim_win_is_valid(win) then
-        return
-      end
       if vim.api.nvim_get_current_win() ~= origin_win then
         return
       end

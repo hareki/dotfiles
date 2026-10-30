@@ -1,6 +1,5 @@
 return {
   'christoomey/vim-tmux-navigator',
-  cmd = { 'TmuxNavigateLeft', 'TmuxNavigateDown', 'TmuxNavigateUp', 'TmuxNavigateRight' },
   init = function()
     -- Define my own keybindings
     vim.g.tmux_navigator_no_mappings = 1

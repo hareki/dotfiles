@@ -14,7 +14,6 @@ return {
   UI.catppuccin(function(palette)
     return {
       SnacksPickerPrompt = { fg = palette.blue },
-      SnacksPickerCursorLine = { bg = palette.surface0 },
       SnacksPickerPreviewCursorLine = { link = 'CursorLine' },
       SnacksPickerInputCursorLine = { bg = 'none', fg = palette.text },
       SnacksPickerListCursorLine = { link = 'ListCursorLine' },

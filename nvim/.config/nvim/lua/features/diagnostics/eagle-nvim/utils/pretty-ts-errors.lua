@@ -6,13 +6,9 @@ local MAX_CACHE_ENTRIES = 512
 
 M.state = {
   cli_unavailable = false, -- Set on spawn failure so we never re-pay a failed spawn
-  cache = {}, -- key -> { value, from_cli, hits }
+  cache = {}, -- key -> { value, from_cli }
   cache_size = 0,
 }
-
-local function trim_trailing_whitespace(text)
-  return (text:gsub('%s*$', ''))
-end
 
 --- Read a field of the raw LSP diagnostic that Neovim keeps under user_data.lsp
 local function lsp_field(diagnostic, key)
@@ -44,38 +40,15 @@ local function compute_cache_key(diagnostic)
   return table.concat(parts, '\31')
 end
 
-local function maybe_evict_cache()
-  if M.state.cache_size <= MAX_CACHE_ENTRIES then
-    return
-  end
-  local lowest_key, lowest_hits
-  for k, v in pairs(M.state.cache) do
-    if not lowest_hits or v.hits < lowest_hits then
-      lowest_hits, lowest_key = v.hits, k
-    end
-  end
-  if lowest_key then
-    M.state.cache[lowest_key] = nil
-    M.state.cache_size = M.state.cache_size - 1
-  end
-end
-
-local function cache_get(key)
-  local e = M.state.cache[key]
-  if e then
-    e.hits = e.hits + 1
-    return e
-  end
-end
-
---- @return { value: string, from_cli: boolean, hits: integer } entry
+--- @return { value: string, from_cli: boolean } entry
 local function cache_set(key, value, from_cli)
-  if not M.state.cache[key] then
-    M.state.cache_size = M.state.cache_size + 1
+  if M.state.cache_size >= MAX_CACHE_ENTRIES then
+    M.state.cache, M.state.cache_size = {}, 0
   end
-  local entry = { value = value, from_cli = from_cli, hits = 1 }
+
+  local entry = { value = value, from_cli = from_cli }
   M.state.cache[key] = entry
-  maybe_evict_cache()
+  M.state.cache_size = M.state.cache_size + 1
 
   return entry
 end
@@ -84,7 +57,7 @@ end
 --- @return string? markdown
 local function cli_markdown(result)
   if result and result.code == 0 and result.stdout and #result.stdout > 0 then
-    return trim_trailing_whitespace(result.stdout)
+    return vim.trim(result.stdout)
   end
 end
 
@@ -127,7 +100,7 @@ end
 -- Eagle formats a line's diagnostics one by one, so a miss spawns the CLI for all of the line's
 -- uncached same-source diagnostics at once: the popup waits for the slowest, not their sum
 --- @param diagnostic vim.Diagnostic The cache miss
---- @return table<string, { value: string, from_cli: boolean, hits: integer }> entries By cache key
+--- @return table<string, { value: string, from_cli: boolean }> entries By cache key
 local function format_line(diagnostic)
   local jobs = {}
 
@@ -172,12 +145,12 @@ local function strip_cli_header(md)
 end
 
 --- Pretty markdown for a TypeScript diagnostic via the pretty-ts-errors-markdown CLI, cached
---- (least-hit eviction past the cap); eagle calls it only for its `ts` source (eagle-nvim/init.lua)
+--- (wiped at the cap); eagle calls it only for its `ts` source (eagle-nvim/init.lua)
 --- @param diagnostic vim.Diagnostic
 --- @return string markdown
 function M.format(diagnostic)
   local key = compute_cache_key(diagnostic)
-  local entry = cache_get(key) or format_line(diagnostic)[key]
+  local entry = M.state.cache[key] or format_line(diagnostic)[key]
   local md = entry.value
 
   -- Only the CLI's markdown carries a header line; stripping the raw-message

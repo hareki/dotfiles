@@ -41,24 +41,19 @@ end
 --- @param picker snacks.Picker
 --- @return nil
 function M.toggle_preview_focus(picker)
-  local input_win = picker.layout.opts.wins.input.win
-  local preview_win = picker.layout.opts.wins.preview.win
-  local current_win = vim.api.nvim_get_current_win()
   local common = require('utils.common')
+  local preview_win = picker.preview.win.win
 
   -- No-op for pickers configured with `preview = false` (e.g. keymaps),
   -- where <Tab> is still bound globally but there is no window to focus
-  if preview_win == nil then
+  if not preview_win then
     return
   end
 
-  if current_win == preview_win then
-    common.focus_win(input_win)
+  if picker:current_win() == 'preview' then
+    common.focus_win(picker.input.win.win)
     UI.cursorline.set_cursorline(false, preview_win)
-    return
-  end
-
-  if common.focus_win(preview_win) then
+  elseif common.focus_win(preview_win) then
     UI.cursorline.set_cursorline(true, preview_win)
   end
 end

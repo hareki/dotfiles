@@ -27,15 +27,9 @@ function M.keymap_format(item, width)
     - col_count
     - 3
 
-  if package.loaded['which-key'] then
-    local wk_icons = require('which-key.icons')
-    local icon, hl = wk_icons.get({ keymap = k, desc = k.desc })
-    if icon then
-      ret[#ret + 1] = { align(icon, col_width.icon), hl }
-    else
-      ret[#ret + 1] = { align('', col_width.icon) }
-    end
-  end
+  local wk_icons = require('which-key.icons')
+  local icon, hl = wk_icons.get({ keymap = k, desc = k.desc })
+  ret[#ret + 1] = { align(icon or '', col_width.icon), hl }
   ret[#ret + 1] = { align(k.desc or '', desc_width, { align = 'left', truncate = true }) }
   ret[#ret + 1] = { ' ' }
 

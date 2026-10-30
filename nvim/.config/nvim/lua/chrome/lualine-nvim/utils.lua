@@ -45,55 +45,38 @@ local DEFAULTS = {
 --- @return table[] components Array of lualine components (main + margins for primary types)
 function M.create_styling_wrapper(opts)
   local palette = UI.catppuccin.get_palette()
-
-  local is_primary = vim.startswith(opts.type, 'primary')
   local defaults = DEFAULTS[opts.type]
-  local known_keys = {
-    type = true,
-    comp = true,
-    color = true,
-    icon = true,
-    margin = true,
-  }
 
-  local extra = {}
-  for k, v in pairs(opts) do
-    if not known_keys[k] then
-      extra[k] = v
-    end
+  local extra = vim.tbl_extend('force', {}, opts)
+  for _, key in ipairs({ 'type', 'comp', 'color', 'icon', 'margin' }) do
+    extra[key] = nil
   end
 
-  local main_comp
-  if is_primary then
-    main_comp = vim.tbl_extend('force', {
+  if not vim.startswith(opts.type, 'primary') then
+    local text_color = opts.color and palette[opts.color] or palette.subtext0
+    return {
+      vim.tbl_extend('force', {
+        [1] = opts.comp,
+        icon = opts.icon,
+        color = { fg = text_color, bg = 'none' },
+        padding = defaults.padding,
+      }, extra),
+    }
+  end
+
+  local margin = opts.margin or defaults.margin
+  local result = create_margins(margin.left, opts.cond)
+  table.insert(
+    result,
+    vim.tbl_extend('force', {
       [1] = opts.comp,
       color = { fg = palette[opts.color], bg = palette.surface0 },
       separator = M.separator,
       icon = { opts.icon .. ' ', color = { fg = palette.base, bg = palette[opts.color] } },
     }, extra)
-  else
-    local text_color = opts.color and palette[opts.color] or palette.subtext0
-    main_comp = vim.tbl_extend('force', {
-      [1] = opts.comp,
-      icon = opts.icon,
-      color = { fg = text_color, bg = 'none' },
-      padding = defaults.padding,
-    }, extra)
+  )
 
-    return { main_comp }
-  end
-
-  local margin = opts.margin or defaults.margin
-  local cond = opts.cond
-  local left_margins = create_margins(margin.left, cond)
-  local right_margins = create_margins(margin.right, cond)
-
-  local result = {}
-  vim.list_extend(result, left_margins)
-  table.insert(result, main_comp)
-  vim.list_extend(result, right_margins)
-
-  return result
+  return vim.list_extend(result, create_margins(margin.right, opts.cond))
 end
 
 --- Wrap a component module that exports `get` and optionally `color`, `icon` and `cond`

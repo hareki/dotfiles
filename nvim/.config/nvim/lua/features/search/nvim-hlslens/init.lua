@@ -17,12 +17,9 @@ return {
 
   {
     'kevinhwang91/nvim-hlslens',
+    -- Loaded before the first search leaves the cmdline, which is what the lens renders on
+    event = 'CmdlineEnter',
     keys = {
-      {
-        '<CR>',
-        mode = 'c',
-        desc = 'Execute Command Line',
-      },
       {
         'n',
         function()

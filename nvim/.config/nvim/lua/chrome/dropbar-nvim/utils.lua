@@ -13,9 +13,8 @@ end
 --- Filters out help files, terminals, and large files (>1MB).
 --- @param buf integer
 --- @param win integer
---- @param _ table | nil
 --- @return boolean
-function M.enable(buf, win, _)
+function M.enable(buf, win)
   if
     not vim.api.nvim_buf_is_valid(buf)
     or not vim.api.nvim_win_is_valid(win)

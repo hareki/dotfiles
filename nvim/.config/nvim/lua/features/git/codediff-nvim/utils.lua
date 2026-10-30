@@ -39,10 +39,10 @@ function M.remember_selection(args)
 end
 
 --- Snapshot the modified pane's scroll/cursor while its window is still alive
---- (TabLeave handler). The diff tab's windows close before CodeDiffClose fires.
+--- (TabClosedPre handler). The diff tab's windows close before CodeDiffClose fires.
 function M.capture_view()
   local tabpage = vim.api.nvim_get_current_tabpage()
-  views[tabpage] = modified_view(tabpage) or views[tabpage]
+  views[tabpage] = modified_view(tabpage)
 end
 
 --- Consume the remembered state of a codediff tab

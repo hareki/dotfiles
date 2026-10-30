@@ -12,21 +12,12 @@ local repo_cache = {
 
 --- Run a git command asynchronously, passing its trimmed output to `cb` on the main loop
 --- (via `vim.schedule`), where it may touch vim APIs and module state
---- @param cmd string The git command to execute (without 'git' prefix)
---- @param cwd string | nil The directory to run the command in (default: current)
+--- @param cwd string The directory to run the command in
+--- @param args string[] The git arguments
 --- @param cb fun(output: string | nil) Receives trimmed stdout, or nil on error or empty output
 --- @return nil
-local function exec_cmd_async(cmd, cwd, cb)
-  local args = vim.split(cmd, '%s+')
-  local git_cmd = { 'git' }
-
-  if cwd then
-    vim.list_extend(git_cmd, { '-C', cwd })
-  end
-
-  vim.list_extend(git_cmd, args)
-
-  vim.system(git_cmd, { text = true }, function(result)
+local function exec_cmd_async(cwd, args, cb)
+  vim.system(vim.list_extend({ 'git', '-C', cwd }, args), { text = true }, function(result)
     vim.schedule(function()
       local output = result.code == 0 and vim.trim(result.stdout or '') or ''
       cb(output ~= '' and output or nil)
@@ -85,57 +76,53 @@ local function resolve_repo_name(cwd)
     UI.statusline.refresh()
   end
 
-  exec_cmd_async('rev-parse --show-toplevel', nil, function(toplevel)
+  local toplevel = vim.fs.root(cwd, '.git')
+
+  -- Still in the cached name's repo: re-key the fast path and stop. A nil toplevel doesn't count:
+  -- outside a repo, nil == nil would keep a stale name from a previous directory
+  if repo_cache.name and toplevel and repo_cache.toplevel == toplevel then
+    repo_cache.last_cwd = cwd
+    release_pending()
+    return
+  end
+
+  exec_cmd_async(cwd, { 'config', '--get', 'remote.origin.url' }, function(url)
     if superseded() then
       return
     end
 
-    -- Still in the cached name's repo: re-key the fast path and stop. A nil toplevel doesn't count:
-    -- outside a repo, nil == nil would keep a stale name from a previous directory
-    if repo_cache.name and toplevel and repo_cache.toplevel == toplevel then
-      repo_cache.last_cwd = cwd
-      release_pending()
+    local repo_name = repo_name_from_url(url)
+    if repo_name then
+      finish(repo_name, toplevel)
       return
     end
 
-    exec_cmd_async('config --get remote.origin.url', nil, function(url)
+    local function finish_from_path()
+      local name = toplevel and get_repo_name_from_path(toplevel) or get_repo_name_from_path(cwd)
+      finish(name or 'Unknown', toplevel)
+    end
+
+    -- Worktrees of a bare repo show the bare repo's directory name (the toplevel's parent)
+    local parent_dir = toplevel and toplevel:match('(.+)/[^/]+$')
+    if not parent_dir then
+      finish_from_path()
+      return
+    end
+
+    exec_cmd_async(parent_dir, { 'rev-parse', '--is-bare-repository' }, function(is_bare)
       if superseded() then
         return
       end
 
-      local repo_name = repo_name_from_url(url)
-      if repo_name then
-        finish(repo_name, toplevel)
-        return
-      end
-
-      local function finish_from_path()
-        local name = toplevel and get_repo_name_from_path(toplevel) or get_repo_name_from_path(cwd)
-        finish(name or 'Unknown', toplevel)
-      end
-
-      -- Worktrees of a bare repo show the bare repo's directory name (the toplevel's parent)
-      local parent_dir = toplevel and toplevel:match('(.+)/[^/]+$')
-      if not parent_dir then
-        finish_from_path()
-        return
-      end
-
-      exec_cmd_async('rev-parse --is-bare-repository', parent_dir, function(is_bare)
-        if superseded() then
+      if is_bare == 'true' then
+        local parent_repo_name = get_repo_name_from_path(parent_dir)
+        if parent_repo_name then
+          finish(parent_repo_name, toplevel)
           return
         end
+      end
 
-        if is_bare == 'true' then
-          local parent_repo_name = get_repo_name_from_path(parent_dir)
-          if parent_repo_name then
-            finish(parent_repo_name, toplevel)
-            return
-          end
-        end
-
-        finish_from_path()
-      end)
+      finish_from_path()
     end)
   end)
 end

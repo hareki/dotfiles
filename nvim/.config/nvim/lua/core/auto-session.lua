@@ -39,20 +39,15 @@ return {
       --- @type AutoSession.Config
       return {
         suppressed_dirs = { '~/', '~/Downloads', '/' },
+        -- `nvim <symlink>` lands on the real path (init.lua's cd), so match its session by that
+        resolve_symlinks = true,
         no_restore_cmds = {
           --- @param is_startup boolean?
           function(is_startup)
-            -- Started on a directory that has no session yet: adopt it as the cwd
-            local dir = vim.api.nvim_buf_get_name(0)
-            if not is_startup or vim.fn.isdirectory(dir) == 0 then
+            -- Started on a directory that has no session yet
+            if not is_startup or vim.fn.isdirectory(vim.api.nvim_buf_get_name(0)) == 0 then
               return
             end
-
-            vim.cmd.cd({ args = { dir } })
-
-            -- AutoSession turns autosave off when the directory argument isn't the cwd yet
-            local auto_session_config = require('auto-session.config')
-            auto_session_config.auto_save = true
 
             -- Leftover buffer from opening a directory
             local buf = vim.api.nvim_get_current_buf()

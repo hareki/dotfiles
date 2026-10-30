@@ -55,9 +55,9 @@ return {
         callback = codediff_utils.remember_selection,
       })
 
-      -- The diff tab's windows are destroyed (tabclose) before CodeDiffClose fires,
-      -- so snapshot the modified pane's scroll/cursor while it is still alive.
-      vim.api.nvim_create_autocmd('TabLeave', {
+      -- The diff tab's windows are destroyed (tabclose) before CodeDiffClose fires, and all but the
+      -- current one before TabLeave, so snapshot the modified pane's scroll/cursor ahead of that
+      vim.api.nvim_create_autocmd('TabClosedPre', {
         group = group,
         callback = codediff_utils.capture_view,
       })

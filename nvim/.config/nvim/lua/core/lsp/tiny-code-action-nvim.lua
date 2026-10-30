@@ -1,7 +1,5 @@
 return {
   'rachartier/tiny-code-action.nvim',
-  event = 'LspAttach',
-
   opts = function()
     return {
       backend = 'delta',

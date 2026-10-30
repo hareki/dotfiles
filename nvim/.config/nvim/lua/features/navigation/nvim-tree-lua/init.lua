@@ -6,10 +6,8 @@ local api = Defer.on_index('nvim-tree.api')
 return {
   UI.catppuccin(function(palette)
     local sub_palette = UI.catppuccin.get_palette('latte')
-    local picker_bg = UI.color.blend_hex(palette.base, palette.blue)
 
     return {
-      NvimTreeSignColumn = { link = 'NormalFloat' },
       NvimTreeCursorLineNr = { link = 'CursorLine' },
       NvimTreeNormal = { link = 'Normal' },
       NvimTreeCutHL = { bg = palette.maroon, fg = palette.base },
@@ -18,11 +16,6 @@ return {
       NvimTreeGitStagedIcon = { fg = sub_palette.yellow },
       NvimTreeRootFolder = { fg = palette.overlay2 },
       NvimTreeGitMergeIcon = { fg = palette.yellow },
-      NvimTreeWindowPicker = {
-        bg = picker_bg,
-        bold = true,
-        fg = palette.blue,
-      },
     }
   end, 'nvim-tree.lua'),
 
@@ -87,12 +80,7 @@ return {
             }
           end
 
-          local preview = UI.layout.side_preview()
-
-          return {
-            width = preview.width,
-            height = preview.height,
-          }
+          return UI.layout.side_preview()
         end,
       }
     end,
@@ -170,6 +158,7 @@ return {
             },
             git_placement = 'after',
             diagnostics_placement = 'after',
+            bookmarks_placement = 'after',
             glyphs = {
               bookmark = vim.trim(Conf.icons.file_tree.SELECTED),
               folder = {

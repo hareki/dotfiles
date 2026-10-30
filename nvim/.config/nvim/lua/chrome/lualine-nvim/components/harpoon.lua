@@ -16,8 +16,6 @@ local cache = {
 --- @return nil
 function M.invalidate()
   cache.buf = -1
-  cache.length = -1
-  cache.text = nil
 end
 
 --- Harpoon indices text for the current buffer, cached by (buffer, list length): building the

@@ -33,7 +33,7 @@ end
 
 --- Run format and lint sequentially on a buffer with progress tracking
 --- Prevents concurrent operations on the same buffer with locks and timeout.
---- @param opts? { debug?: boolean, buf?: integer, save?: boolean, on_done?: fun(ok: boolean, err?: string) }
+--- @param opts? { debug?: boolean, buf?: integer, save?: boolean, on_done?: fun(ok: boolean) }
 --- @return nil
 function M.run(opts)
   opts = opts or {}
@@ -42,20 +42,8 @@ function M.run(opts)
   local save = opts.save ~= false
   local on_done = opts.on_done
 
-  local function finish(ok, err)
-    if on_done then
-      on_done(ok, err)
-    end
-  end
-
-  if not vim.api.nvim_buf_is_valid(buf) then
-    finish(false, 'Invalid buffer')
-    return
-  end
-
   if running_bufs[buf] then
     Notifier.warn('Formatting already in progress', { title = 'Style Enforcer' })
-    finish(false, 'Already in progress')
     return
   end
 
@@ -79,8 +67,7 @@ function M.run(opts)
   -- callback landing after the timeout can't double-report or clobber a newer run's lock on the
   -- same buffer
   --- @param ok boolean
-  --- @param err? string
-  local function cleanup(ok, err)
+  local function cleanup(ok)
     if settled then
       return
     end
@@ -89,7 +76,9 @@ function M.run(opts)
     Snacks.util.stop(timeout_timer)
     progress:finish()
     running_bufs[buf] = nil
-    finish(ok, err)
+    if on_done then
+      on_done(ok)
+    end
   end
 
   -- Auto-cleanup if something goes wrong
@@ -98,7 +87,7 @@ function M.run(opts)
       return
     end
     Notifier.warn('Formatting/linting timed out', { title = 'Style Enforcer' })
-    cleanup(false, 'Timed out')
+    cleanup(false)
   end, TIMEOUT_MS)
 
   -- :update writes only unsaved changes, under pcall: an unwritable buffer (E32, E45, E212) would
@@ -113,12 +102,12 @@ function M.run(opts)
       Notifier.error('Write failed: ' .. tostring(err), { title = 'Style Enforcer' })
     end
 
-    return ok, err
+    return ok
   end
 
   local function run_linters(formatted)
     if not vim.api.nvim_buf_is_valid(buf) then
-      cleanup(false, 'Buffer became invalid')
+      cleanup(false)
       return
     end
 
@@ -167,8 +156,7 @@ function M.run(opts)
             return
           end
 
-          local write_ok, write_err = write()
-          cleanup(write_ok and not had_lint_error, write_err)
+          cleanup(write() and not had_lint_error)
         end,
       })
     end)
@@ -176,7 +164,7 @@ function M.run(opts)
     if not ok then
       Notifier.error('Linter setup failed: ' .. tostring(err), { title = 'Style Enforcer' })
       write()
-      cleanup(false, err)
+      cleanup(false)
     end
   end
 
@@ -209,7 +197,7 @@ function M.run(opts)
         title = 'Formatting Failed',
       })
       write()
-      cleanup(false, format_error)
+      cleanup(false)
       return
     end
 

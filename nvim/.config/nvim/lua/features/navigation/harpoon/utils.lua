@@ -86,8 +86,6 @@ M.show_picker = function()
           name = vim.fs.basename(filepath),
           buftype = buf and vim.bo[buf].buftype or '',
           filetype = buf and vim.bo[buf].filetype or '',
-          -- Prefixed here, not in a transform: snacks re-runs transforms over these item tables on
-          -- every find(), so a mutating transform would re-prefix the text each time
           text = harpoon_idx .. ' ' .. filepath,
         }
       end
@@ -113,8 +111,7 @@ M.show_picker = function()
     return ret
   end
 
-  local items = build_harpoon_items()
-  if vim.tbl_isempty(items) then
+  if harpoon:list():length() == 0 then
     Notifier.info('Pin list is empty')
     return
   end
@@ -143,13 +140,12 @@ M.show_picker = function()
       end
     end)
 
-    picker.opts.items = build_harpoon_items()
     picker:refresh()
   end
 
   return Snacks.picker({
     title = 'Pinned Files',
-    items = items,
+    finder = build_harpoon_items,
     source = 'harpoon',
     format = harpoon_format,
     actions = {

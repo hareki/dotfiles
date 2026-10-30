@@ -26,11 +26,8 @@ aucmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
           and vim.fn.getbufvar(bufnr, '&modified') == 0
           and vim.api.nvim_buf_get_name(bufnr) ~= ''
         then
-          -- `silent!` on top of `pcall`: a file that no longer exists (branch
-          -- switch, agent deletion) *reports* E211 instead of raising it
-          pcall(function()
-            vim.cmd('silent! checktime ' .. bufnr)
-          end)
+          -- `silent!`: a file that no longer exists (branch switch, agent deletion) reports E211
+          vim.cmd('silent! checktime ' .. bufnr)
         end
       end
     end)
@@ -260,8 +257,6 @@ aucmd({ 'ModeChanged', 'ColorScheme' }, {
 aucmd('InsertEnter', {
   group = augroup('clear-hlsearch-on-insert'),
   callback = function()
-    if vim.v.hlsearch == 1 then
-      vim.schedule(UI.color.nohlsearch)
-    end
+    vim.schedule(UI.color.nohlsearch)
   end,
 })

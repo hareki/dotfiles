@@ -166,7 +166,6 @@ local M = {
     RENAME = '󰑕',
     DELETE = '󰗨',
     PASTE = '',
-    PEEK = '󰈈',
     FOLD = '',
     RESET = '󰑓',
     CUT = '',

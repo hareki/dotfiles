@@ -26,10 +26,7 @@ return {
   setup = function()
     vim.api.nvim_create_user_command('EslintLog', function()
       -- Iterating a ringbuf pops it, oldest first, so push the lines back for the next :EslintLog
-      local lines = {}
-      for line in log do
-        lines[#lines + 1] = line
-      end
+      local lines = vim.iter(log):totable()
       for _, line in ipairs(lines) do
         log:push(line)
       end

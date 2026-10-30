@@ -1,5 +1,3 @@
-local stdin_session = false
-
 return {
   'nvim-lualine/lualine.nvim',
 
@@ -10,26 +8,23 @@ return {
   init = function()
     local opt = vim.opt
 
-    -- Stdin sessions (`git diff | nvim -`) report argc 0 but aren't the starter page; StdinReadPre
-    -- fires between init() and VeryLazy, so flag them here and undo the starter-page hiding below
-    vim.api.nvim_create_autocmd('StdinReadPre', {
-      group = vim.api.nvim_create_augroup('chrome.lualine.stdin-statusline', { clear = true }),
+    -- An empty statusline till lualine loads, to prevent layout shifting
+    opt.statusline = ' '
+
+    if vim.fn.argc(-1) > 0 then
+      return
+    end
+
+    -- Hide it on the starter page until a real buffer shows; stdin sessions (`git diff | nvim -`)
+    -- report argc 0 too
+    opt.laststatus = 0
+    vim.api.nvim_create_autocmd({ 'StdinReadPre', 'BufReadPre', 'BufNewFile', 'TermOpen' }, {
+      group = vim.api.nvim_create_augroup('chrome.lualine.starter-statusline', { clear = true }),
       once = true,
       callback = function()
-        stdin_session = true
-        opt.statusline = ' '
         opt.laststatus = 3
       end,
     })
-
-    local has_cli_args = vim.fn.argc(-1) > 0
-    if has_cli_args then
-      -- Set an empty statusline till lualine loads to prevent layout shifting
-      opt.statusline = ' '
-    else
-      -- Hide the statusline on the starter page
-      opt.laststatus = 0
-    end
   end,
 
   opts = function()
@@ -57,15 +52,12 @@ return {
     local lualine_require = require('lualine_require')
     lualine_require.require = require
 
-    local theme_reset = {}
     local color_reset = { fg = palette.subtext1, bg = 'none' }
-    for _, section in ipairs({ 'normal', 'insert', 'visual', 'replace', 'inactive' }) do
-      theme_reset[section] = { a = color_reset, b = color_reset, c = color_reset }
-    end
 
     return {
       options = {
-        theme = theme_reset,
+        -- Modes without an entry fall back to normal
+        theme = { normal = { a = color_reset, b = color_reset, c = color_reset } },
         -- options.lua sets laststatus=3 (global statusline); don't derive this
         -- from vim.o.laststatus here, init() may have temporarily set it to 0
         globalstatus = true,
@@ -138,22 +130,10 @@ return {
 
   config = function(_, opts)
     local lualine = require('lualine')
+
+    -- lualine.setup turns laststatus on, starter page or not
+    local laststatus = vim.o.laststatus
     lualine.setup(opts)
-
-    -- lualine.setup turns laststatus back on; keep the starter page bare until a real buffer shows,
-    -- unless a session was restored before lualine loaded
-    local on_starter_page = vim.fn.argc(-1) == 0 and vim.v.this_session == '' and not stdin_session
-    if not on_starter_page then
-      return
-    end
-
-    vim.o.laststatus = 0
-    vim.api.nvim_create_autocmd({ 'BufReadPre', 'BufNewFile', 'TermOpen' }, {
-      group = vim.api.nvim_create_augroup('chrome.lualine.starter-statusline', {}),
-      once = true,
-      callback = function()
-        vim.o.laststatus = 3
-      end,
-    })
+    vim.o.laststatus = laststatus
   end,
 }
