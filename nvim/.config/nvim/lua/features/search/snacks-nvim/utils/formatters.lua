@@ -2,9 +2,8 @@
 local M = {}
 
 --- Format function for keymap picker (icon, description, buffer, lhs, mode)
---- Removes rhs and file columns from default format.
 --- @param item snacks.picker.Item
---- @param width integer Available width for formatting
+--- @param width integer
 --- @return snacks.picker.Highlight[] highlights
 function M.keymap_format(item, width)
   local ret = {} --- @type snacks.picker.Highlight[]
@@ -48,8 +47,7 @@ function M.keymap_format(item, width)
   return ret
 end
 
---- Format function for buffer picker with modified indicator
---- Removes buf number, buf type, and flags from default format.
+--- Format function for buffer picker: a modified indicator instead of buf number, type and flags
 --- @param item snacks.picker.Item
 --- @param picker snacks.Picker
 --- @return snacks.picker.Highlight[] highlights
@@ -66,8 +64,7 @@ function M.buffer_format(item, picker)
     })
   end
 
-  -- Formatted per visible row on every list render: getbufvar reads a hidden buffer's option
-  -- in place (~0.2us), where vim.bo switches into the autocmd window (~10us)
+  -- Runs per visible row on every render: vim.bo would switch into the autocmd window (~10us)
   if item.buf and vim.fn.getbufvar(item.buf, '&modified') == 1 then
     ret[#ret + 1] = { Conf.icons.file_status.MODIFIED, 'ModifiedIndicator' }
   end
@@ -75,8 +72,7 @@ function M.buffer_format(item, picker)
   return ret
 end
 
---- Format function for tabs picker (the tab's statusline name, e.g. "tab-2" or "codediff-2")
---- Followed by the buffer format of the tab's active window
+--- Format function for tabs picker: the tab's statusline name, then its active buffer's format
 --- @param item snacks.picker.Item
 --- @param picker snacks.Picker
 --- @return snacks.picker.Highlight[] highlights

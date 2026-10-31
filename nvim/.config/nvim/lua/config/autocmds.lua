@@ -9,17 +9,14 @@ local aucmd = vim.api.nvim_create_autocmd
 --- @module 'utils.common'
 local common = Defer.on_exported_call('utils.common')
 
--- Reload files changed on disk. Bare `:checktime` skips buffers not shown in a window (contra its
--- docs), so hidden buffers rewritten from outside would keep serving stale text
+-- Reload files changed on disk; bare `:checktime` skips hidden buffers (contra its docs)
 aucmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
   group = augroup('checktime'),
   callback = function()
-    -- `:checktime {bufnr}` reloads immediately, unlike the bare form, which waits for a harmless
-    -- moment when called from an autocmd; scheduling restores that guarantee
+    -- Scheduled: `:checktime {bufnr}` skips the bare form's wait for a harmless moment in autocmds
     vim.schedule(function()
       for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-        -- getbufvar rather than vim.bo, which reads a hidden buffer's option by switching
-        -- into the autocmd window (~10us per read, against ~0.2us)
+        -- getbufvar, since vim.bo switches into the autocmd window (~10us per read, against ~0.2us)
         if
           vim.api.nvim_buf_is_loaded(bufnr)
           and vim.fn.getbufvar(bufnr, '&buftype') == ''
@@ -43,8 +40,7 @@ local tabpages_to_equalize = {}
 aucmd({ 'VimResized' }, {
   group = resize_group,
   callback = function()
-    -- Every background tabpage is re-marked below, so starting over loses nothing
-    -- and drops the handles of tabpages closed while still pending
+    -- Every background tabpage is re-marked below, which also drops closed tabpages' handles
     tabpages_to_equalize = {}
 
     local current_tabpage = vim.api.nvim_get_current_tabpage()
@@ -54,8 +50,7 @@ aucmd({ 'VimResized' }, {
       end
     end
 
-    -- Leave the layout alone while the cmdline window is open: equalizing would
-    -- stretch it from its 'cmdwinheight' to an even share of the screen
+    -- Equalizing would stretch an open cmdline window past its 'cmdwinheight'
     if vim.fn.win_gettype() == 'command' then
       return
     end
@@ -179,8 +174,7 @@ aucmd('FileType', {
   group = markdown_group,
   pattern = { 'markdown' },
   callback = function(event)
-    -- The runtime ftplugin's visual-mode section jumps, whose own maps are disabled
-    -- (see g.no_markdown_maps in config/options.lua)
+    -- The ftplugin's visual-mode section jumps, disabled by g.no_markdown_maps (options.lua)
     local map = common.buf_mapper(event.buf)
     map(
       'x',
@@ -196,8 +190,7 @@ aucmd('FileType', {
     )
 
     local function set_window_options()
-      -- Local only: vim.wo also sets the window's global value, which every buffer
-      -- opened in (or split from) this window afterwards would inherit
+      -- Local only: vim.wo also sets the global value that later buffers and splits inherit
       vim.opt_local.wrap = true
     end
 
@@ -206,8 +199,7 @@ aucmd('FileType', {
       return
     end
 
-    -- A buffer loaded while hidden (an LSP bufload()) gets FileType and a first BufWinEnter in the
-    -- autocmd window, and FileType won't fire again, so wait for a real window's BufWinEnter
+    -- A hidden bufload() fires FileType and BufWinEnter in the autocmd window: wait for a real one
     vim.api.nvim_clear_autocmds({ group = markdown_group, buffer = event.buf })
     aucmd('BufWinEnter', {
       group = markdown_group,

@@ -3,8 +3,7 @@ local common = require('utils.common')
 --- @class utils.hl-at-cursor
 local M = {}
 
--- Closer of the open popup: only one may exist, or a second would fight the first over the
--- origin buffer's <Tab>/<Esc> keymaps and orphan the earlier float
+-- Closer of the open popup: a second would fight it over <Tab>/<Esc> and orphan the first float
 local close_active_popup
 
 local function collect_matches()
@@ -66,8 +65,7 @@ local function open_popup(lines, row0, col0)
   return buf, win
 end
 
---- Wire the popup's lifecycle: linked focus/close keys, and closing it once the cursor or
---- focus leaves the popup and its origin
+--- Wire the popup's lifecycle: linked focus/close keys, closing once cursor or focus leaves
 local function attach_lifecycle(buf, win, origin_buf, origin_win)
   -- Re-entering origin_win fires CursorMoved even though its cursor never moved
   local origin_pos = vim.api.nvim_win_get_cursor(origin_win)
@@ -82,8 +80,7 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
     pcall(vim.api.nvim_win_close, win, true)
   end
 
-  -- Nested, so closing the popup from these fires its WinClosed (link_popup's release) and the
-  -- markdown buffer's BufWipeout (render-markdown's eviction)
+  -- Nested, so the close fires WinClosed (link_popup's release) and BufWipeout (render-markdown's)
   vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
     group = augroup,
     buffer = origin_buf,
@@ -138,8 +135,7 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
   close_active_popup = close_popup
 end
 
---- Show all highlight groups affecting the cursor position in a Markdown popup.
---- Displays syntax groups, Tree-sitter captures, extmarks, and window matches.
+--- Show the syntax groups, Tree-sitter captures, extmarks and matches at the cursor in a popup
 --- @return nil
 function M.show()
   if close_active_popup then

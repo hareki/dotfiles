@@ -17,8 +17,7 @@ function M.tabs(_, ctx)
   local label_width = 0
 
   for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
-    -- The current tab's active window is the picker's own input float; use the window
-    -- the picker returns to instead
+    -- The current tab's active window is the picker's input float; use the one it returns to
     local win = tab == current_tab and ctx.picker.main or vim.api.nvim_tabpage_get_win(tab)
     local buf = vim.api.nvim_win_get_buf(win)
     local name = vim.api.nvim_buf_get_name(buf)

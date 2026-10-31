@@ -1,8 +1,7 @@
 --- @class config.lazy.utils
 local M = {}
 
---- Ensure lazy.nvim is installed, cloning from git if necessary
---- Adds lazy.nvim to the runtimepath after ensuring installation.
+--- Clone lazy.nvim if it's missing and add it to the runtimepath
 --- @return nil
 function M.ensure_lazy()
   local lazypath = vim.fs.joinpath(vim.fn.stdpath('data'), 'lazy', 'lazy.nvim')

@@ -44,8 +44,7 @@ M.DESC_OVERRIDES = {
   ['<S-Tab>'] = { desc = 'Previous Snippet Placeholder', mode = { 'i', 's' } },
 }
 
---- Fold-key { key, desc } pairs: the which-key preset's z group, and the identity keymaps
---- features/search/snacks-nvim/init.lua registers so they show up in Snacks.picker.keymaps
+--- Fold-key { key, desc } pairs shared by the which-key preset's z group and the keymaps picker
 M.FOLD_DESCS = {
   { 'za', 'Toggle Fold Under Cursor' },
   { 'zA', 'Toggle All Folds Under Cursor' },

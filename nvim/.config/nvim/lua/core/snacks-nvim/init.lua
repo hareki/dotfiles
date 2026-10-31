@@ -1,5 +1,4 @@
--- Base spec: feature-specific config lives in `snacks-nvim` fragments across the tiers
--- (see AGENTS.md "Split Plugins"), which lazy.nvim merges into this one
+-- Base spec: feature config lives in `snacks-nvim` fragments (AGENTS.md "Split Plugins")
 return {
   'hareki/snacks.nvim',
   lazy = false,

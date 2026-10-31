@@ -60,8 +60,7 @@ function M.close_on_focus_loss()
   M.close_all()
 end
 
---- Node action: files open (closing the float tree), or collapse their parent for 'collapse';
---- folders expand, collapse or toggle
+--- Node action applying `folder_action` to folders; files open or collapse their parent
 --- @param folder_action 'expand' | 'collapse' | 'toggle'
 --- @return function action
 function M.create_node_action(folder_action)
@@ -122,8 +121,7 @@ function M.switch_position(position)
   nvimtree.setup(M.state.opts)
 end
 
---- The tree's float geometry for the current size preset, its height halved to leave room for
---- the preview below ('collapse') or filling the whole popup ('expand')
+--- The tree's float geometry: height halved for the preview below, or the whole popup for 'expand'
 --- @param action 'expand' | 'collapse'
 --- @return utils.ui.layout.WinConfig tree
 --- @return integer preview_height Height of the preview below the collapsed tree
@@ -143,8 +141,7 @@ function M.float_geometry(action)
     preview_height
 end
 
---- Toggle the float tree between half and full height, re-applying width and position for
---- the current size preset (the popup widens while the preview shows)
+--- Toggle the float tree between half and full height, re-applying the preset's width and position
 --- @param action 'expand' | 'collapse'
 --- @return nil
 function M.toggle_tree_height(action)
@@ -163,8 +160,7 @@ function M.toggle_tree_height(action)
   vim.api.nvim_win_set_config(tree_win, vim.tbl_extend('force', cfg, geometry))
 end
 
---- Re-apply the tree geometry against the current screen dimensions, so the
---- tree tracks terminal resizes the way the snacks-powered popups do.
+--- Re-apply the tree geometry to the screen size, tracking resizes like the snacks popups do
 --- @return nil
 function M.resize()
   if not api.tree.is_visible() then
@@ -177,8 +173,7 @@ function M.resize()
     api.tree.resize()
   end
 
-  -- The preview is positioned relative to the tree, so it can only be laid out
-  -- once the tree has taken its new size
+  -- The preview is positioned relative to the tree, so lay it out once the tree has resized
   preview.resize()
 end
 
@@ -228,8 +223,7 @@ function M.open()
     M.switch_position('float')
   end
 
-  -- The preview watcher augroup is created on nvim-tree's TreeAttachedPost event
-  -- (see the nvim-tree spec), which fires per open since the tree buffer is bufhidden=wipe.
+  -- The preview watcher augroup is created on nvim-tree's TreeAttachedPost event (see the spec)
   api.tree.open()
 end
 
@@ -255,7 +249,7 @@ function M.mark_and_prev()
 end
 
 --- Replaces the home directory with its icon and path separators with the collapsed icon
---- @param path string The absolute path to format
+--- @param path string Absolute path
 --- @return string formatted
 function M.format_root_label(path)
   local home = Conf.icons.file_tree.HOME

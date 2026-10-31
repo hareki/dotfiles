@@ -3,9 +3,8 @@ local M = {}
 
 local detach_patched = false
 
---- A highlighter's destroy() hands its buffer back to regex syntax, sourcing syntax/<ft>.vim (~12 ms
---- for markdown) even from on_detach, where the buffer is going away: a reload takes on_reload
---- instead. So every wiped notification, popup and preview paid for syntax nothing would draw
+--- A highlighter's destroy() sources syntax/<ft>.vim (~12 ms for markdown) even from on_detach,
+--- where the buffer is going away (a reload takes on_reload), so wiped popups paid for nothing
 --- @return nil
 function M.skip_syntax_on_detach()
   if detach_patched then

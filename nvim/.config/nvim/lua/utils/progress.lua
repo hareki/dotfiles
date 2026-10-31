@@ -22,8 +22,7 @@ local M = {}
 --- @param bufnr integer
 --- @return integer | nil
 local function get_valid_client_id(bufnr)
-  -- Noice drops progress whose client id isn't a live client (there's no anonymous id), so fall
-  -- back to any running client, or nil when none runs
+  -- Noice drops progress without a live client id, so fall back to any running client
   local client = vim.lsp.get_clients({ bufnr = bufnr })[1] or vim.lsp.get_clients()[1]
   return client and client.id
 end
@@ -87,16 +86,14 @@ function ProgressHandle:report(title, percentage)
   self:_queue_or_send('report', title, percentage)
 end
 
---- Complete the progress notification (sends 'end' kind)
---- Cancels any pending timer and closes the progress display.
+--- Complete the progress notification (sends 'end' kind), stopping any pending timer
 --- @return nil
 function ProgressHandle:finish()
   Snacks.util.stop(self._timer)
   self:_queue_or_send('end')
 end
 
---- Create a new progress handle for showing LSP-style progress notifications
---- Delays display by pending_ms to avoid flicker for fast operations.
+--- Create an LSP-style progress handle, shown after pending_ms to spare fast operations a flicker
 --- @param opts utils.progress.CreateOpts
 --- @return utils.progress.Handle handle
 function M.create(opts)

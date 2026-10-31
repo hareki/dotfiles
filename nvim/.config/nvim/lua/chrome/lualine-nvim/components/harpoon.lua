@@ -18,8 +18,7 @@ function M.invalidate()
   cache.buf = -1
 end
 
---- Harpoon indices text for the current buffer, cached by (buffer, list length): building the
---- list item (plenary path normalization + cwd) on every statusline redraw is wasted work
+--- Harpoon indices for the current buffer, cached since list items need plenary path normalization
 --- @return string | nil formatted as "1 [3] 4" or nil if harpoon list is empty
 local function compute()
   local harpoon = require('harpoon')
@@ -68,7 +67,6 @@ function M.get()
   return cache.text
 end
 
---- Check if there are any harpooned files
 --- @return boolean has_harpooned_files
 function M.cond()
   return compute() ~= nil

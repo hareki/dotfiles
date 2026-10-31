@@ -3,10 +3,9 @@
 --- (eagle's popup) return it there too; end such ranges on their own line instead
 local M = {}
 
---- End a diagnostic that stops at column 0 of the next line at its own line's end instead,
---- pulling a start past that end back onto the last character so it still underlines one
+--- End the range on its own line, pulling a start past that end back so it still underlines one
 --- @param line string | false The line text for bounds checking, false when the line is gone
---- @param diagnostic vim.Diagnostic The diagnostic to fix in-place
+--- @param diagnostic vim.Diagnostic Fixed in place
 --- @return nil
 local function fix_diagnostic_range(line, diagnostic)
   if not line then
@@ -20,23 +19,19 @@ local function fix_diagnostic_range(line, diagnostic)
 
   diagnostic.end_lnum = diagnostic.lnum
 
-  -- Only shift backward if col is out of bounds (pointing past the line end)
   if diagnostic.col >= line_len then
     diagnostic.col = math.max(0, line_len - 1)
   end
   diagnostic.end_col = line_len
 end
 
---- Fix all diagnostic ranges in a list
---- Fetches lines (once per unique lnum) only for diagnostics whose range needs fixing.
 --- @param bufnr integer
---- @param diagnostics vim.Diagnostic[] List of diagnostics to fix in-place
+--- @param diagnostics vim.Diagnostic[] Fixed in place
 --- @return nil
 local function apply(bufnr, diagnostics)
   local line_cache = {}
   for _, diagnostic in ipairs(diagnostics) do
-    -- Only ranges ending at column 0 of the next line are fixed, so most
-    -- diagnostics never need their line text
+    -- Only column-0 ends are fixed, so most diagnostics never need their line text
     local lnum = diagnostic.lnum
     if diagnostic.end_col == 0 and diagnostic.end_lnum == lnum + 1 then
       if line_cache[lnum] == nil then
@@ -56,7 +51,7 @@ function M.setup()
   --- @param namespace integer
   --- @param bufnr integer
   --- @param diagnostics vim.Diagnostic[]
-  --- @param opts? vim.diagnostic.Opts Display options to pass to |vim.diagnostic.show()|
+  --- @param opts? vim.diagnostic.Opts
   --- @diagnostic disable-next-line: duplicate-set-field
   vim.diagnostic.set = function(namespace, bufnr, diagnostics, opts)
     apply(bufnr, diagnostics)

@@ -6,8 +6,7 @@ local picker = Defer.on_exported_call('snacks.picker')
 return {
   {
     'snacks.nvim',
-    -- Startup hook in place of `init`, which lazy.nvim runs for a single fragment only:
-    -- opts resolve right before snacks' setup(), and returning nil keeps the merged opts
+    -- Startup hook: lazy.nvim runs `init` for one fragment only (see AGENTS.md "Split Plugins")
     opts = lazygit.setup,
   },
 
@@ -27,8 +26,7 @@ return {
       lazygit = { enabled = true, configure = false },
 
       styles = {
-        -- Snacks.lazygit opens a Snacks terminal, so the border and zindex come from
-        -- styles.terminal in core/snacks-nvim/init.lua
+        -- Snacks.lazygit opens a Snacks terminal: border and zindex come from styles.terminal
         lazygit = vim.tbl_extend('force', UI.layout.popup_fn('full'), {
           backdrop = false,
           title = ' Git Client ',

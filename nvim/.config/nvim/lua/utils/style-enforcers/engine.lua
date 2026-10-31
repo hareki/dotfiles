@@ -7,8 +7,7 @@
 --- @class utils.style-enforcers.engine
 local M = {}
 
---- Error a runner reports when the buffer was edited while its request was in flight,
---- so the result no longer applies to it
+--- Error a runner reports when the buffer was edited while its request was in flight
 M.BUFFER_CHANGED = 'buffer changed while running'
 
 --- @alias utils.style-enforcers.engine.RunnerOpts { bufnr: integer, client: vim.lsp.Client, on_done: fun(ok: boolean, err?: string) }
@@ -21,8 +20,7 @@ M.BUFFER_CHANGED = 'buffer changed while running'
 --- @type utils.style-enforcers.engine.Entry[]
 local entries = {}
 
---- Register an enforcer driven by the LSP client `name`, skipping buffers that client isn't
---- attached to; enforcers run in registration order
+--- Register an enforcer for buffers with the LSP client `name` attached, run in registration order
 --- @param name string
 --- @param runner utils.style-enforcers.engine.Runner
 --- @return nil
@@ -65,8 +63,7 @@ local function run_next(matched, opts, idx)
     end
   end
 
-  -- Looked up again rather than kept from the match: it may have detached while the
-  -- earlier enforcers ran
+  -- Looked up again rather than kept from the match: it may have detached meanwhile
   local client = vim.lsp.get_clients({ name = entry.name, bufnr = opts.bufnr })[1]
   if not client then
     return on_done(false, entry.name .. ' client missing')
@@ -94,10 +91,8 @@ function M.execute_command(opts, command, argument)
   end, opts.bufnr)
 end
 
---- Send a request for a runner and pass the reply to on_result while it still applies: a server
---- error ends the runner, and so does an edit made while the request was in flight (typing on
---- after <A-s>), since edits built from the reply's unversioned positions would land shifted and
---- corrupt the text
+--- Send a request for a runner and pass the reply to on_result, unless the server errors or the
+--- buffer changed in flight: edits from the reply's unversioned positions would corrupt the text
 --- @param opts utils.style-enforcers.engine.RunnerOpts
 --- @param method vim.lsp.protocol.Method.ClientToServer.Request
 --- @param params table

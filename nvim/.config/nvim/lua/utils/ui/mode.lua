@@ -37,8 +37,7 @@ local names = {
 --- @return utils.ui.mode.Name name
 function M.name()
   local mode = vim.api.nvim_get_mode().mode
-  -- Fallback for codes newer than this table; without it, lualine's mode pill would
-  -- crash the statusline on every redraw
+  -- Fallback for codes newer than this table, which would crash lualine's mode pill on every redraw
   return names[mode] or names[mode:sub(1, 1)] or 'Normal'
 end
 

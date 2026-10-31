@@ -61,8 +61,7 @@ local function build_hover_src(original_src, ext, content)
     if not stat then
       return nil
     end
-    -- Include nsec + size so a second edit within the same second doesn't
-    -- collide with a stale cache entry.
+    -- Include nsec + size so a second edit within the same second can't hit a stale cache entry
     local key = table.concat({
       original_src,
       tostring(stat.mtime.sec),
@@ -120,8 +119,7 @@ local function open(source_buf, src)
     max_width = lg.width - 2,
     -- Reserve 2 rows so the image scales down rather than overflowing the bottom row
     max_height = lg.height - 2,
-    -- Open the window only once snacks reports the image's cell dims; opening it upfront would
-    -- flash the full `lg` frame before snapping to the image size
+    -- Open the window once snacks reports the image's cell dims, or the full `lg` frame flashes
     on_update_pre = function(self)
       local current = M.state.hover
       if not current then
@@ -203,8 +201,7 @@ function M.hover_image()
       return
     end
 
-    -- Remote images: snacks downloads URLs itself, while the local-copy step
-    -- below would fail filereadable() and silently drop the hover
+    -- Snacks downloads URLs itself; the local-copy step below would silently drop the hover
     if Snacks.image.convert.is_uri(src) then
       open(source_buf, src)
       return
@@ -233,7 +230,6 @@ local function is_audio(path)
 end
 
 --- Whether `path` opens as a rendered view (snacks.image's viewer or the audio page)
---- rather than as its own bytes
 --- @param path string
 --- @return boolean
 function M.is_media(path)
@@ -373,8 +369,7 @@ local function render_audio_page(buf, path)
   end)
 end
 
---- The picker's file previewer, showing audio as its info page instead of "binary file", the
---- way snacks' own previewer hands images and videos to snacks.image
+--- The picker's file previewer, showing audio as its info page instead of "binary file"
 --- @param ctx snacks.picker.preview.ctx
 function M.preview_file(ctx)
   local path = Snacks.picker.util.path(ctx.item)
@@ -382,11 +377,9 @@ function M.preview_file(ctx)
     return Snacks.picker.preview.file(ctx)
   end
 
-  -- A fresh scratch buffer per item, wiped once the next item replaces it, so a probe that
-  -- reports late finds its buffer unloaded
+  -- A fresh scratch buffer per item, wiped by the next one, so a late probe finds it unloaded
   local buf = ctx.preview:scratch()
-  -- Without a filetype, as on the audio buffer: render-markdown looks its parser up by
-  -- filetype, and scratch()'s `snacks_picker_preview` names a language with no parser
+  -- No filetype: render-markdown looks its parser up by it, and `snacks_picker_preview` has none
   common.noautocmd(function()
     vim.bo[buf].filetype = ''
   end)

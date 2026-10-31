@@ -49,8 +49,7 @@ return {
       { 'p', '<Plug>(YankyPutAfter)', desc = 'Put Text' },
       { 'k', '"+<Plug>(YankyPutAfter)', mode = { 'n', 'x' }, desc = 'Put from System Clipboard' },
 
-      -- Putting text in visual mode without overwriting the yank register: yanky's x-mode put runs
-      -- Visual P (:help v_P) over the selection, keeping a typed `"x` prefix
+      -- yanky's x-mode put runs Visual P (:help v_P), keeping the register and a typed `"x` prefix
       {
         'p',
         '<Plug>(YankyPutBefore)',
@@ -118,8 +117,7 @@ return {
           -- prefix, it overwrites register 0 (P's source) and skips the small delete register
           local register = vim.v.register == '"' and '' or '"' .. vim.v.register
 
-          -- Trimming only makes sense for a single line; with a count, fall
-          -- back to native linewise semantics so 3dd still deletes 3 lines
+          -- With a count, stay native linewise so 3dd still deletes 3 lines
           if vim.v.count1 > 1 then
             vim.cmd.normal({ register .. vim.v.count1 .. 'dd', bang = true })
             return

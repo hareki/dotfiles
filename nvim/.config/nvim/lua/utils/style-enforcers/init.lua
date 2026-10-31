@@ -31,8 +31,7 @@ local function formatter_names(formatters, uses_lsp)
   return table.concat(names, ', ')
 end
 
---- Run format and lint sequentially on a buffer with progress tracking
---- Prevents concurrent operations on the same buffer with locks and timeout.
+--- Run format and lint sequentially on a buffer with progress, under a per-buffer lock and timeout
 --- @param opts? { debug?: boolean, buf?: integer, save?: boolean, on_done?: fun(ok: boolean) }
 --- @return nil
 function M.run(opts)
@@ -53,8 +52,7 @@ function M.run(opts)
   local progress = progress_utils.create({
     pending_ms = 500,
     client_name = 'stenfo',
-    -- run_all targets background buffers; sample the client from the target,
-    -- not whatever buffer happens to be current
+    -- run_all targets background buffers, so sample the client from the target
     bufnr = buf,
   })
 
@@ -63,9 +61,7 @@ function M.run(opts)
   local settled = false
   local timeout_timer
 
-  -- Single completion point, ending the progress, firing on_done and releasing the lock once, so a
-  -- callback landing after the timeout can't double-report or clobber a newer run's lock on the
-  -- same buffer
+  -- Runs once, so a callback after the timeout can't double-report or clobber a newer run's lock
   --- @param ok boolean
   local function cleanup(ok)
     if settled then
@@ -81,7 +77,6 @@ function M.run(opts)
     end
   end
 
-  -- Auto-cleanup if something goes wrong
   timeout_timer = vim.defer_fn(function()
     if settled then
       return
@@ -90,8 +85,7 @@ function M.run(opts)
     cleanup(false)
   end, TIMEOUT_MS)
 
-  -- :update writes only unsaved changes, under pcall: an unwritable buffer (E32, E45, E212) would
-  -- otherwise throw out of the async pipeline and leak the buffer lock
+  -- Under pcall: an unwritable buffer (E32, E45, E212) would throw and leak the buffer lock
   local function write()
     if not save or not vim.api.nvim_buf_is_valid(buf) then
       return true
@@ -202,8 +196,7 @@ function M.run(opts)
   end)
 end
 
---- Run format+lint on all modified listed buffers
---- Shows a summary notification with success/error counts and file paths.
+--- Run format+lint on all modified listed buffers, then notify a summary of counts and paths
 --- @param debug boolean | nil Enable verbose error messages
 --- @return nil
 function M.run_all(debug)
@@ -287,8 +280,7 @@ function M.run_all(debug)
     end
   end
 
-  -- Preset the counter: a buffer with no formatter or linter completes synchronously in M.run, so
-  -- a live-incremented counter could hit zero mid-loop and fire a premature partial summary
+  -- Preset the counter: synchronous completions could hit zero mid-loop and fire a partial summary
   local pending_count = #to_run
 
   for _, buf in ipairs(to_run) do

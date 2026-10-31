@@ -76,8 +76,7 @@ function M.get_buf_keymap(buf, mode, lhs)
   end)
 end
 
---- Reinstate a mapping captured by get_buf_keymap; mapset() keeps its Lua
---- callback, desc and flags intact
+--- Reinstate a mapping captured by get_buf_keymap; mapset() keeps its callback, desc and flags
 --- @param buf integer
 --- @param mode string
 --- @param map table
@@ -92,8 +91,7 @@ end
 --- @field rhs string | function
 --- @field opts vim.keymap.set.Opts
 
---- Popup overrides per buffer-local key, oldest first; `base` is the buffer's own
---- mapping from before the first override (nil when the key was unmapped)
+--- Popup overrides per buffer-local key, oldest first; `base` is the buffer's own mapping, if any
 --- @type table<string, { base: table?, layers: utils.common.KeymapLayer[] }>
 local override_stacks = {}
 
@@ -247,8 +245,7 @@ function M.link_popup(popup_win, opts)
     pattern = tostring(popup_win),
     callback = release,
   })
-  -- A popup closed inside a non-nested autocmd (eagle closes on CmdlineEnter) fires no
-  -- WinClosed, so also check whenever Nvim is about to wait for input
+  -- A popup closed inside a non-nested autocmd (eagle's CmdlineEnter) fires no WinClosed
   vim.api.nvim_create_autocmd('SafeState', {
     group = group,
     callback = function()

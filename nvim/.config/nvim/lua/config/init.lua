@@ -1,5 +1,4 @@
--- Cross-references between config modules must use require directly, not the
--- Conf global, which is only assigned after this module finishes loading
+-- Config modules must require each other directly: Conf is assigned only after this module loads
 --- @class config
 local M = {}
 

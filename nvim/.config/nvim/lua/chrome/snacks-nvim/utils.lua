@@ -17,8 +17,7 @@ M.state = {
 --- @return nil
 local function map_close(win)
   local buf = win.buf
-  -- Leave buffers that already spend `q` themselves (help, quickfix) alone
-  -- rather than clobbering a mapping we would then have to restore
+  -- Leave buffers that already spend `q` (help, quickfix) alone, rather than restore their map
   if not buf or M.state.mapped[buf] or common.get_buf_keymap(buf, 'n', 'q') then
     return
   end
@@ -61,15 +60,13 @@ end
 function M.on_open(win)
   map_close(win)
 
-  -- The zen style sets fixbuf = false, so jumping to a definition or opening
-  -- another file swaps the popup's buffer; each one needs its own mapping
+  -- Zen's fixbuf = false lets a jump swap the popup's buffer, and each one needs its own mapping
   win:on('BufWinEnter', function()
     map_close(win)
   end)
 end
 
---- Toggle the popup over the current window, captured here since Snacks builds the backdrop only
---- once the popup has taken focus
+--- Toggle the popup over the current window, captured here since the backdrop is built after focus
 --- @return nil
 function M.toggle()
   local parent = vim.api.nvim_get_current_win()

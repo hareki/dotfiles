@@ -9,8 +9,7 @@ local M = {}
 function M.run(opts)
   local bufnr = opts.bufnr
 
-  -- make_formatting_params reads the URI and tabSize/insertSpaces from the current buffer,
-  -- which is not necessarily the target buffer (run_all formats in background)
+  -- make_formatting_params reads the current buffer, and run_all formats in the background
   local params = vim.api.nvim_buf_call(bufnr, vim.lsp.util.make_formatting_params)
 
   engine.request(opts, 'textDocument/formatting', params, function(result)

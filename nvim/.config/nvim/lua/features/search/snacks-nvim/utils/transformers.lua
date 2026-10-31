@@ -11,11 +11,10 @@ local filtered_descriptions = {
 --- @param lhs string
 --- @param mode string
 --- @param buffer? number
---- @return string? # The description of the first matching spec, or nil if not found
+--- @return string? desc
 local function query_spec_desc(lhs, mode, buffer)
   local wk_config = require('which-key.config')
-  -- nvim_get_keymap reports the resolved lhs (mapleader as a literal space), while which-key specs
-  -- keep <leader> notation; normkey brings both to one spelling
+  -- nvim_get_keymap resolves mapleader while which-key specs keep <leader>; normkey unifies them
   local normkey = Snacks.util.normkey
   lhs = normkey(lhs)
 
@@ -33,10 +32,9 @@ local function query_spec_desc(lhs, mode, buffer)
   return nil
 end
 
---- Transform function for keymap picker to enrich with which-key descriptions
---- Looks up descriptions from which-key config and filters unwanted mappings.
+--- Transform function for keymap picker: fill missing descs from which-key, filter unwanted maps
 --- @param item snacks.picker.Item
---- @return snacks.picker.Item | false item The enriched item or false to filter out
+--- @return snacks.picker.Item | false item false to filter it out
 function M.keymap_transform(item)
   local keymap = item.item
   item.file = nil -- We're not showing the file column anyway

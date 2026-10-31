@@ -54,8 +54,7 @@ return {
     opts = function()
       return {
         focus_after_send = true,
-        -- With $TMUX set, Claude wraps OSC 52 copies in tmux's DCS passthrough, which nvim's
-        -- :terminal doesn't speak, so the base64 lands in the grid as literal text
+        -- With $TMUX set, Claude's OSC 52 comes DCS-wrapped, which nvim's :terminal paints as text
         env = { TMUX = '' },
         terminal = {
           --- @module "snacks"

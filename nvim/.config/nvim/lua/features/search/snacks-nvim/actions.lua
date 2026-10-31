@@ -18,7 +18,6 @@ function M.toggle_preview(picker)
   end
 end
 
---- Move the list cursor by half a page
 --- @param picker snacks.Picker
 --- @param direction 1 | -1 Down or up, flipped by the list itself for reversed layouts
 local function move_half_page(picker, direction)
@@ -44,8 +43,7 @@ function M.toggle_preview_focus(picker)
   local common = require('utils.common')
   local preview_win = picker.preview.win.win
 
-  -- No-op for pickers configured with `preview = false` (e.g. keymaps),
-  -- where <Tab> is still bound globally but there is no window to focus
+  -- No-op for pickers with `preview = false` (e.g. keymaps), where <Tab> is still bound
   if not preview_win then
     return
   end
@@ -66,8 +64,7 @@ function M.snacks_to_trouble(picker)
   trouble_sources.open(picker)
 end
 
---- The todo_comments source's snacks_to_trouble: opens Trouble's own todo view,
---- filtered to the picker's keywords
+--- The todo_comments source's snacks_to_trouble: Trouble's todo view, filtered to its keywords
 --- @param picker snacks.Picker
 --- @return nil
 function M.todo_to_trouble(picker)
@@ -90,8 +87,7 @@ end
 --- @param item? snacks.picker.Item The item under the cursor
 --- @return nil
 function M.tab_switch(picker, item)
-  -- Leave insert mode first, or the stopinsert picker:close() queues lands in the target tab's
-  -- window and moves its cursor
+  -- Leave insert mode first, or picker:close()'s stopinsert moves the target tab's cursor
   picker:norm(function()
     picker:close()
     if item and vim.api.nvim_tabpage_is_valid(item.tab) then
@@ -100,15 +96,13 @@ function M.tab_switch(picker, item)
   end)
 end
 
---- Close the current tabpage, which hosts the picker's floats, and resume the picker in the
---- tabpage nvim lands on (the next one, or the previous one when it was the last)
+--- Close the tabpage hosting the picker's floats and resume the picker where nvim lands
 --- @param picker snacks.Picker
 --- @return nil
 local function close_current_tab(picker)
   local insert = vim.fn.mode():sub(1, 1) == 'i'
 
-  -- Leave insert mode first, or the stopinsert picker:close() queues lands in the window the
-  -- tabclose leaves current
+  -- Leave insert mode first, or picker:close()'s stopinsert lands where the tabclose leaves us
   picker:norm(function()
     picker.list:set_selected() -- Don't resume with the closed tabs still selected
     picker:close()

@@ -15,8 +15,7 @@ return {
       return
     end
 
-    -- Hide it on the starter page until a real buffer shows; stdin sessions (`git diff | nvim -`)
-    -- report argc 0 too
+    -- Hide it on the starter page; stdin sessions (`git diff | nvim -`) report argc 0 too
     opt.laststatus = 0
     vim.api.nvim_create_autocmd({ 'StdinReadPre', 'BufReadPre', 'BufNewFile', 'TermOpen' }, {
       group = vim.api.nvim_create_augroup('chrome.lualine.starter-statusline', { clear = true }),
@@ -58,8 +57,7 @@ return {
       options = {
         -- Modes without an entry fall back to normal
         theme = { normal = { a = color_reset, b = color_reset, c = color_reset } },
-        -- options.lua sets laststatus=3 (global statusline); don't derive this
-        -- from vim.o.laststatus here, init() may have temporarily set it to 0
+        -- Not derived from vim.o.laststatus, which init() may have temporarily set to 0
         globalstatus = true,
         refresh = { refresh_time = 33 }, -- ~30fps
         padding = { left = 0, right = 0 },

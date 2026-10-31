@@ -33,18 +33,15 @@ function M.search_highlighted()
   return vim.v.hlsearch == 1 and vim.fn.getreg('/') ~= ''
 end
 
---- Clear search highlight and bring Snacks word highlights back now, not on the next cursor
---- move (Snacks.words hides them while search matches show, see core/lsp/snacks-nvim.lua)
+--- Clear search highlight and bring Snacks word highlights back now, not on the next cursor move
 --- @return nil
 function M.nohlsearch()
-  -- :nohlsearch redraws every window even when highlighting is already off, and the global
-  -- <Esc> calls this on every press
+  -- :nohlsearch redraws every window even with highlighting off, and <Esc> calls this per press
   if vim.v.hlsearch == 0 then
     return
   end
 
-  -- With no search highlighted nothing was hidden, and update() would only clear
-  -- and re-request reference highlights that are already current
+  -- With no search highlighted nothing was hidden, so update() would only re-request references
   local was_highlighted = M.search_highlighted()
   vim.cmd.nohlsearch()
   if was_highlighted then

@@ -4,8 +4,7 @@ local M = {}
 -- Single-slot memo: the statusline re-formats the same branch on every redraw
 local last_format = { branch = nil, result = nil }
 
---- Shorten a ClickUp task branch to its CU-ID, which may lead (`CU-<id>_<task>`)
---- or trail (`<task>_CU-<id>`); other branch names pass through unchanged
+--- Shorten a ClickUp branch (`CU-<id>_<task>` or `<task>_CU-<id>`) to its CU-ID, others unchanged
 --- @param branch_name string
 --- @return string formatted
 function M.format(branch_name)

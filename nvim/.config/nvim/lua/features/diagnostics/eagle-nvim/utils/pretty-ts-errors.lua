@@ -69,8 +69,7 @@ local function cli_markdown(result)
   end
 end
 
---- Start the CLI on one input without waiting for it, through stdin: a long JSON argument would
---- pass the OS arg limit
+--- Start the CLI without waiting for it, through stdin: a long JSON argument could hit ARG_MAX
 --- @param json_text string
 --- @return vim.SystemObj? handle nil when the CLI is unavailable
 local function spawn_cli(json_text)

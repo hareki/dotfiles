@@ -10,8 +10,7 @@ return {
   UI.which_key({
     specs = { prefix, group = 'Mini Surround', mode = { 'n', 'x' } },
     rules = { pattern = 'mini.surround', icon = Conf.icons.tools.SURROUND, color = 'purple' },
-    -- `l` is a single-letter builtin which-key never auto-triggers; register it
-    -- manually so pressing `l` holds the prefix instead of moving the cursor right.
+    -- which-key never auto-triggers the single-letter builtin `l`, which would move the cursor
     triggers = { prefix, mode = { 'n', 'x' } },
   }),
 

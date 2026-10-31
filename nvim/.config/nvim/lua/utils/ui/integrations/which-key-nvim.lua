@@ -1,5 +1,4 @@
---- A which-key.nvim spec fragment adding group specs, icon rules (ahead of the generic ones the
---- base spec's `config` appends) and/or manual triggers (for single-letter builtins like `l`)
+--- A which-key.nvim spec fragment adding group specs, icon rules and/or manual triggers
 --- @module 'which-key'
 --- @param config { specs?: wk.Spec, rules?: wk.IconRule | wk.IconRule[], triggers?: wk.Spec }
 --- @return table spec

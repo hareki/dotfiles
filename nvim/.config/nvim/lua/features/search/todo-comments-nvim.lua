@@ -16,8 +16,7 @@ return {
       '<leader>ft',
       function()
         Snacks.picker.todo_comments({
-          -- The snacks source builds the regex verbatim from these strings
-          -- (no alias expansion), so FIX and its alts must be listed explicitly
+          -- The snacks source doesn't expand aliases, so FIX and its alts must be listed
           keywords = { 'TODO', 'FIX', 'FIXME', 'BUG', 'FIXIT', 'ISSUE', 'HACK' },
         })
       end,

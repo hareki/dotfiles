@@ -1,4 +1,3 @@
--- Ring buffer: the oldest line drops out once full, in O(1)
 local log = vim.ringbuf(200)
 
 --- @param line string

@@ -33,8 +33,7 @@ function M.remember_selection(args)
   selected[args.data.tabpage] = args.data.path
 end
 
---- Snapshot the modified pane's scroll/cursor while its window is still alive
---- (TabClosedPre handler). The diff tab's windows close before CodeDiffClose fires.
+--- Snapshot the modified pane's scroll/cursor while its window is alive (TabClosedPre handler)
 function M.capture_view()
   local tabpage = vim.api.nvim_get_current_tabpage()
   views[tabpage] = modified_view(tabpage)
@@ -53,8 +52,7 @@ local function take_focus_target(tabpage)
     return
   end
 
-  -- git_root is immutable per session; modified_path is not reliably absolute,
-  -- so resolve against git_root from the still-alive session.
+  -- modified_path is not reliably absolute, so resolve it against the session's git_root
   local lifecycle = require('codediff.ui.lifecycle')
   local ctx = lifecycle.get_git_context(tabpage)
   local git_root = ctx and ctx.git_root
@@ -76,8 +74,7 @@ local function open_focus_target(path, view)
   end
 end
 
---- Open the last-focused file in the initial tab and restore its scroll position,
---- so quitting feels like simply turning codediff off (CodeDiffClose handler).
+--- Open the last-focused file in the initial tab at its scroll position (CodeDiffClose handler)
 --- @param args { data: { tabpage: integer } }
 function M.restore_focus(args)
   local path, view = take_focus_target(args.data.tabpage)
@@ -86,8 +83,7 @@ function M.restore_focus(args)
   end)
 end
 
---- Close every codediff tab, for the exit path: a session saved with one restores it as an
---- empty layout
+--- Close every codediff tab for the exit path: a saved one restores as an empty layout
 --- @return nil
 function M.close_tabs()
   for _, tab in ipairs(vim.tbl_filter(M.is_codediff_tab, vim.api.nvim_list_tabpages())) do

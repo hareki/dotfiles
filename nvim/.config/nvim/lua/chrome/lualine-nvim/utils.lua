@@ -42,7 +42,7 @@ local DEFAULTS = {
 
 --- Create lualine components with consistent styling
 --- @param opts { type: 'primary-left' | 'primary-right' | 'secondary-left' | 'secondary-right', comp: string | function, color: string, icon: string, margin?: {left: number, right: number}, [string]: any }
---- @return table[] components Array of lualine components (main + margins for primary types)
+--- @return table[] components The main component, plus margins for primary types
 function M.create_styling_wrapper(opts)
   local palette = UI.catppuccin.get_palette()
   local defaults = DEFAULTS[opts.type]

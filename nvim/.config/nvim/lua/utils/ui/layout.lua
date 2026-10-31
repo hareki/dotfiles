@@ -1,8 +1,7 @@
 --- @class utils.ui.layout
 local M = {}
 
---- The config.size.popup presets plus 'input', which is sized here rather than
---- in config.size and so is not a key of that table
+--- The config.size.popup presets plus 'input', which is sized here
 --- @alias utils.ui.layout.PopupSize config.size.PopupPreset | 'input'
 
 --- Top-left cell that centers a window of the given size on the screen
@@ -20,8 +19,7 @@ local computed_input_size = {
   width = 60,
 }
 
---- Resolve a dimensions preset (fractions of the screen) into whole width/height cells, applying
---- its offsets and minimums
+--- Resolve a dimensions preset (screen fractions) into whole cells, with offsets and minimums
 --- @param dimensions config.size.Dimensions
 --- @return integer width Width in columns
 --- @return integer height Height in rows
@@ -49,8 +47,7 @@ function M.side_size(category, variant)
   return resolve_dimensions(Conf.size[category][variant])
 end
 
---- Geometry of the side preview float, docked left of the side panel it's relative to:
---- vertically centered, with a 3-column gap that fits its border
+--- Geometry of the side preview float: left of the side panel, centered, with a 3-column gap
 --- @return { width: integer, height: integer, row: integer, col: integer } geometry
 function M.side_preview()
   local width, height = M.side_size('side_preview', 'md')
@@ -59,8 +56,7 @@ function M.side_preview()
   return { width = width, height = height, row = row, col = -width - 3 }
 end
 
---- Height cap for inline popups (gitsigns, eagle, nvim-notify, hl-at-cursor); pass the
---- function itself so the cap follows terminal resizes
+--- Height cap for inline popups; pass the function itself so it follows terminal resizes
 --- @return integer max_height Height in rows
 function M.inline_max_height()
   return math.floor(vim.o.lines * Conf.size.inline_popup.MAX_HEIGHT)
@@ -129,8 +125,7 @@ function M.popup_fn(size)
   }
 end
 
---- Like M.popup_fn, for a snacks picker layout: its size counts the borders of the windows it
---- draws inside, so it gets 2 more cells per dimension to match a window of the same preset
+--- Like M.popup_fn, for a snacks picker layout: 2 more cells, as its size counts inner borders
 --- @param size utils.ui.layout.PopupSize
 --- @return utils.ui.layout.WinConfigFn config Window config resolved per call
 function M.picker_fn(size)

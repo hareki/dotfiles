@@ -53,16 +53,14 @@ return {
         { '<leader>s', group = 'Search', mode = { 'n', 'v' } },
       },
 
-      -- <auto> skips single-letter builtin prefixes, so plugins needing one (Mini Surround's `l`)
-      -- add a manual trigger via UI.which_key({ triggers = ... })
+      -- <auto> skips single-letter builtins; plugins needing one use UI.which_key({ triggers })
       triggers = {
         { '<auto>', mode = 'nxso' },
       },
     },
 
     config = function(_, opts)
-      -- Earlier rules win when several match (plugin > filetype > pattern), so these generic ones
-      -- go after every UI.which_key() rule, whichever tier imported it
+      -- Earlier rules win, so these generic ones go after every tier's UI.which_key() rules
       vim.list_extend(opts.icons.rules, {
         { pattern = 'terminal', icon = Conf.icons.editor.TERMINAL, color = 'green' },
         { pattern = 'plugin', icon = Conf.icons.tools.PLUGIN_MANAGER, color = 'orange' },
@@ -103,8 +101,7 @@ return {
         { pattern = 'last', icon = Conf.icons.navigation.NEXT },
         { pattern = 'end', icon = Conf.icons.navigation.NEXT },
         { pattern = 'cut', icon = Conf.icons.actions.CUT, color = 'yellow' },
-        -- Frontier-anchored to whole-word 'up' so it stops matching 'uppercase' /
-        -- 'group' (the latter would pre-empt the 'cycle' rule below)
+        -- Whole-word 'up', not 'uppercase' or 'group' (which would pre-empt 'cycle' below)
         { pattern = '%f[%a]up%f[%A]', icon = Conf.icons.navigation.UP },
         { pattern = 'low', icon = Conf.icons.navigation.DOWN },
         { pattern = 'down', icon = Conf.icons.navigation.DOWN },

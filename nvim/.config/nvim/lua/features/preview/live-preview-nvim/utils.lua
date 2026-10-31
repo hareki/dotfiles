@@ -9,8 +9,7 @@ M.state = {
   port = nil,
 }
 
--- Swap this file to change the preview pages' tab icon (any image type). It's inlined as a
--- data URI, so it never has to sit under the server's webroot
+-- Swap this file to change the pages' tab icon (any image type); it's inlined as a data URI
 local FAVICON_PATH = vim.fs.joinpath(
   vim.fn.stdpath('config'),
   'lua/features/preview/live-preview-nvim/assets/vscode-live-server.svg'
@@ -66,8 +65,7 @@ local function favicon_link()
   return string.format('<link rel="icon" href="data:%s;base64,%s">', mime, data)
 end
 
---- The port the preview server listens on, nil while none runs. Safe to poll on every statusline
---- redraw: it never loads the plugin, since no server exists before its main module is required
+--- The port the preview server listens on, nil while none runs; polling never loads the plugin
 --- @return integer?
 function M.running_port()
   local livepreview = package.loaded['livepreview']
@@ -104,8 +102,7 @@ function M.start()
   vim.cmd.LivePreview('start')
 end
 
---- Pick a previewable file with the Snacks file finder, which skips ignored files, unlike the
---- plugin's picker that walks the whole cwd synchronously (node_modules included)
+--- Pick a previewable file with the Snacks finder: the plugin's walks the whole cwd synchronously
 function M.pick()
   local actions = require('features.search.snacks-nvim.actions')
 
@@ -118,8 +115,7 @@ function M.pick()
       preview = actions.preview_shown.files,
     },
     confirm = function(picker, item, action)
-      -- From insert mode, jump defers opening the file to a later tick, where start would
-      -- still see the previous buffer
+      -- From insert mode, jump opens the file a tick later, so start would see the previous buffer
       picker:norm(function()
         Snacks.picker.actions.jump(picker, item, action)
         if item then
@@ -145,13 +141,11 @@ local function patch_template()
   end
 end
 
---- Refresh the statusline whenever the server starts or stops, so its indicator updates right
---- away instead of on lualine's next timed refresh
+--- Refresh the statusline when the server starts or stops, ahead of lualine's timed refresh
 local function patch_server_lifecycle()
   local livepreview = require('livepreview')
 
-  -- The command, the plugin's picker, start() itself and the exit hook all call these through the
-  -- module, so wrapping them reaches every start and stop
+  -- Every caller goes through the module, so wrapping these reaches every start and stop
   for _, name in ipairs({ 'start', 'close' }) do
     local fn = livepreview[name]
     livepreview[name] = function(...)
@@ -162,8 +156,7 @@ local function patch_server_lifecycle()
   end
 end
 
---- Apply `opts` to the plugin, keeping their port for start(), and patch its page template and
---- server lifecycle
+--- Apply `opts`, keeping their port for start(), and patch the page template and server lifecycle
 --- @param opts LivePreviewConfig
 function M.setup(opts)
   local livepreview_config = require('livepreview.config')

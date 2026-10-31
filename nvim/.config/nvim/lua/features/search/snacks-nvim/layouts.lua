@@ -2,15 +2,14 @@
 local lg = UI.layout.picker_fn('lg')
 
 --- The input + list column beside a preview window, arranged along `box`
---- @param box 'horizontal' | 'vertical' Direction the list column and preview are arranged
+--- @param box 'horizontal' | 'vertical'
 --- @param split { width?: number, height?: number } The preview's share of the frame
 local function frame(box, split)
   return {
     cycle = true,
     layout = {
       backdrop = false,
-      -- No max_width/max_height: they cannot be function-valued in snacks and
-      -- would pin resize-safe (callable) dimensions back to stale numbers
+      -- No max_width/max_height: snacks takes only numbers there, pinning these to stale sizes
       width = lg.width,
       height = lg.height,
       border = 'none',

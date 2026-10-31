@@ -9,9 +9,8 @@ local M = {}
 function M.run(opts)
   local document = vim.lsp.util.make_text_document_params(opts.bufnr)
 
-  -- oxc.fixAll replays the fixes of the server's last lint as an unversioned edit, and the format
-  -- step's didChange doesn't re-lint (a diagnostic pull or a save does), so stale fixes would land
-  -- at wrong positions and corrupt the text: pull first to re-lint the buffer as it is
+  -- oxc.fixAll replays the server's last lint as an unversioned edit, and the format step's
+  -- didChange doesn't re-lint, so pull diagnostics first or stale fixes would corrupt the text
   engine.request(opts, 'textDocument/diagnostic', { textDocument = document }, function()
     engine.execute_command(opts, 'oxc.fixAll', document)
   end)

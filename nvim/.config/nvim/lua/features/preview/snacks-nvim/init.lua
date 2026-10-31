@@ -3,8 +3,7 @@ local media = Defer.on_exported_call('features.preview.snacks-nvim.utils')
 return {
   {
     'snacks.nvim',
-    -- Startup hook in place of `init`, which lazy.nvim runs for a single fragment only:
-    -- opts resolve right before snacks' setup(), and returning nil keeps the merged opts
+    -- Startup hook: lazy.nvim runs `init` for one fragment only (see AGENTS.md "Split Plugins")
     opts = media.setup_audio_viewer,
   },
 

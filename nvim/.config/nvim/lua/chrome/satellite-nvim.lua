@@ -14,8 +14,7 @@ return {
 
   {
     'hareki/satellite.nvim',
-    -- Floating scrollbar reserves no layout space, so deferring it past
-    -- startup causes no layout shift (unlike dropbar/noice/lualine)
+    -- Reserves no layout space, so deferring it shifts nothing (unlike dropbar/noice/lualine)
     event = 'VeryLazy',
     opts = function()
       return {

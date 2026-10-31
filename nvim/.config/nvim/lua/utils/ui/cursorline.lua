@@ -3,7 +3,7 @@ local M = {}
 
 --- Show the full cursorline, or only the line number. Sets only what differs, since a same-value
 --- set of these options still redraws the whole window
---- @param enable boolean Whether to enable full cursorline
+--- @param enable boolean
 --- @param win integer
 --- @return nil
 function M.set_cursorline(enable, win)

@@ -33,8 +33,7 @@ return {
             return
           end
 
-          -- The float is up by now, and ufo shows only its own reused preview buffer in it,
-          -- so the map can stay on that buffer between peeks
+          -- ufo reuses one preview buffer across peeks, so the map can stay on it
           vim.keymap.set('n', '<Esc>', function()
             local ufo_preview = require('ufo.preview')
             ufo_preview.close()

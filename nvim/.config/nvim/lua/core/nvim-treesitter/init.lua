@@ -122,8 +122,7 @@ return {
       treesitter.install(missing, { summary = true })
     end
 
-    -- mdx reuses the markdown parser (handlebars => glimmer and htmlangular => angular are
-    -- registered by the plugin's own plugin/filetypes.lua)
+    -- The plugin's plugin/filetypes.lua registers handlebars and htmlangular, but not mdx
     vim.treesitter.language.register('markdown', 'mdx')
   end,
 }

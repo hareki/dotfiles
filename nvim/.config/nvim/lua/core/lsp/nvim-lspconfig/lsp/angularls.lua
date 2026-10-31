@@ -39,8 +39,7 @@ end
 
 return {
   opts = {
-    -- angularls's default filetypes include plain typescript/html, so without this ngserver would
-    -- spawn in single-file mode in every JS/TS/HTML project (its root markers scope it otherwise)
+    -- Its filetypes include plain ts/html, so ngserver would otherwise spawn in every such project
     workspace_required = true,
 
     cmd = function(dispatchers, config)
@@ -75,8 +74,7 @@ return {
         vim.list_extend(cmd, { '--angularCoreVersion', core_version })
       end
 
-      -- Spawn in the project so mise resolves `node` from the same config
-      -- (e.g. a .nvmrc) that picked the ngserver install above.
+      -- Spawn in the project so mise resolves `node` from the config that picked ngserver
       return vim.lsp.rpc.start(cmd, dispatchers, { cwd = root_dir })
     end,
   },

@@ -280,8 +280,7 @@ return {
         callback = tree.resize,
       })
 
-      -- Deferred like the Snacks pickers' check, so nvim-tree's own hops through a split
-      -- (removing a file shown in one) are back in the tree by the time it runs
+      -- Deferred like the Snacks pickers' check: nvim-tree hops through a split on file removal
       vim.api.nvim_create_autocmd('WinEnter', {
         group = vim.api.nvim_create_augroup(
           'features.navigation.nvim-tree.focus-loss',

@@ -10,8 +10,7 @@ return {
     init = function()
       vim.opt.sessionoptions = 'buffers,curdir,folds'
 
-      -- Registered here, ahead of the VimLeavePre auto-session sets up when it loads, so the
-      -- codediff tabs are gone before its exit save inspects the windows and buffers
+      -- Registered ahead of auto-session's VimLeavePre, so codediff tabs are gone before its save
       vim.api.nvim_create_autocmd('VimLeavePre', {
         group = vim.api.nvim_create_augroup('core.auto-session.close-codediff-tabs', {
           clear = true,
@@ -64,8 +63,7 @@ return {
         },
         pre_save_cmds = {
           function()
-            -- Only preserve visible buffers (buffers that are attached to windows, in any tabpage);
-            -- Snacks.bufdelete only goes through the listed ones
+            -- Keep buffers shown in any tabpage; Snacks.bufdelete only walks the listed ones
             Snacks.bufdelete({
               filter = function(buf)
                 return not vim.bo[buf].modified and #vim.fn.win_findbuf(buf) == 0

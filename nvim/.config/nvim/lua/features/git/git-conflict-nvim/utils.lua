@@ -68,8 +68,7 @@ end
 --- @param win integer
 --- @param in_conflict boolean
 local function apply_window_winhl(win, in_conflict)
-  -- Setting 'winhighlight', even to its current value, redraws the whole window, and the
-  -- cursor autocmd lands here on every move in a conflicted buffer
+  -- Setting 'winhighlight', even to its current value, redraws the whole window on every move here
   local winhl = in_conflict and conflict_winhl or ''
   if vim.wo[win].winhighlight ~= winhl then
     vim.wo[win].winhighlight = winhl
@@ -88,8 +87,7 @@ function M.setup()
     callback = function(event)
       local bufnr = event.data.buf
 
-      -- Detected fires on every parse of a conflicted buffer, and its state is only
-      -- set up below, after the keymaps and flag, so everything is already in place
+      -- Detected fires on every parse, and this state is set last, so the rest is already in place
       if M.state.autocmds[bufnr] then
         return
       end
@@ -113,8 +111,7 @@ function M.setup()
           buffer = bufnr,
           callback = function(args)
             -- 'winhighlight' outlives a buffer swap in its window (nvim-tree, pickers), so clear it
-            -- when the conflict buffer leaves; BufWinEnter/BufEnter/CursorMoved re-apply it, with
-            -- BufEnter covering a refocused window whose winhl BufLeave cleared
+            -- on BufLeave; BufEnter restores it in a refocused window that clear also hit
             local in_conflict = args.event ~= 'BufLeave' and cursor_in_conflict()
             apply_window_winhl(vim.api.nvim_get_current_win(), in_conflict)
           end,
@@ -131,8 +128,7 @@ function M.setup()
     end,
   })
 
-  -- Clean up state when buffers are deleted to prevent memory leak
-  -- (BufWipeout included: wiping an unlisted buffer never fires BufDelete)
+  -- Clean up deleted buffers' state; wiping an unlisted buffer never fires BufDelete
   vim.api.nvim_create_autocmd({ 'BufDelete', 'BufWipeout' }, {
     group = group,
     callback = function(event)
@@ -163,8 +159,7 @@ function M.setup()
         end
       end
 
-      -- Resolved fires on every parse (with default_mappings = false the
-      -- fork's mappings flag is never set), so only undo what Detected did
+      -- Resolved fires on every parse (its mappings flag stays unset): undo only what Detected did
       if not vim.b[bufnr].git_conflict then
         return
       end

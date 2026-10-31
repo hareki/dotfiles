@@ -70,8 +70,7 @@ return {
             })
           end
 
-          -- Set notification content; body coloring comes from the window's
-          -- winhl (Normal:Notify*Body), no extmark highlighting needed
+          -- Body coloring comes from the window's winhl (Normal:Notify*Body), not extmarks
           vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, notif.message)
         end,
       }

@@ -27,7 +27,7 @@ function M.setup_repeat()
     local last_obj = M.state.last_obj
     if last_obj then
       vim.api.nvim_feedkeys(
-        vim.keycode(last_obj), -- translate <Esc>, <CR> …
+        vim.keycode(last_obj),
         'x',
         false -- keycode() already escaped K_SPECIAL
       )

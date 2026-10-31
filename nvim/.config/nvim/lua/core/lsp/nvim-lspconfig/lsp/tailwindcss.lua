@@ -2,9 +2,8 @@ local util = require('lspconfig.util')
 
 return {
   opts = {
-    -- nvim-lspconfig's root_dir minus its closing `.git` fallback (meant for Tailwind v4 projects
-    -- without a tailwind.config.*), which started an idle server in every git repo; v4 projects
-    -- still match through the nearest package.json when it depends on tailwindcss
+    -- nvim-lspconfig's root_dir minus its closing `.git` fallback, which started an idle server in
+    -- every git repo; Tailwind v4 projects still match through a package.json with tailwindcss
     root_dir = function(bufnr, on_dir)
       local fname = vim.api.nvim_buf_get_name(bufnr)
       local markers = util.insert_package_json({

@@ -10,8 +10,7 @@ local npm_global_root = vim.fs.joinpath(plugin_root, 'lib/node_modules')
 
 return {
   opts = {
-    -- Parent-pid watchdog: vtsls exits cleanly (reaping its forked tsserver) when this pid dies
-    -- without completing the LSP shutdown handshake
+    -- Parent-pid watchdog: vtsls exits and reaps its tsserver if this pid dies without LSP shutdown
     cmd = { 'vtsls', '--stdio', '--clientProcessId', tostring(vim.uv.os_getpid()) },
     settings = {
       typescript = ts_config,

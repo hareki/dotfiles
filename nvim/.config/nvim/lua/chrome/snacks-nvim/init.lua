@@ -22,8 +22,7 @@ return {
           layout = {
             layout = {
               width = UI.layout.picker_fn('sm').width,
-              -- Neutralize the select preset's min_width=80/max_width=100,
-              -- which would otherwise clamp the function-valued width
+              -- The select preset's min_width=80/max_width=100 would clamp the function width
               min_width = 0,
               max_width = math.huge,
             },

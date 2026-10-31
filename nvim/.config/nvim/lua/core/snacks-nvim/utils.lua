@@ -3,8 +3,7 @@
 --- @class core.snacks.utils
 local M = {}
 
---- Whether `terminal` is on screen as a full-screen panel; `valid()` alone isn't enough, since
---- the coding agent hides its float (`hide = true`) instead of closing it
+--- Whether `terminal` is up as a full-screen panel; `valid()` alone misses the agent's hidden float
 --- @param terminal snacks.win
 --- @param full utils.ui.layout.WinConfig Resolved `full` preset to compare against
 --- @return boolean

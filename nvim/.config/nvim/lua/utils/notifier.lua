@@ -13,8 +13,8 @@ local highlight_ns = vim.api.nvim_create_namespace('trouble_notify_hl')
 
 --- Flatten a chunk list and build an on_open that restores highlights.
 --- @param chunks utils.notifier.MessageChunk[]
---- @return string plain     flattened text for vim.notify
---- @return function on_open callback that reapplies extmarks
+--- @return string plain
+--- @return function on_open
 local function normalize_message(chunks)
   local parts, regions = {}, {}
   local line, col = 0, 0
@@ -35,7 +35,6 @@ local function normalize_message(chunks)
   end
   local plain = table.concat(parts)
 
-  --- reapply the extmarks once the floating window opens
   --- @param win integer
   local function on_open(win)
     local buf = vim.api.nvim_win_get_buf(win)
@@ -60,7 +59,7 @@ local function normalize_message(chunks)
   return plain, on_open
 end
 
---- Core notification function with rich highlighting and markdown support
+--- Notify with a string rendered as markdown, or chunks keeping their highlight groups
 --- @param level integer
 --- @param msg utils.notifier.Message
 --- @param opts? utils.notifier.NotifierOpts
@@ -70,7 +69,6 @@ local function notify(level, msg, opts)
 
   local apply_highlight
   if type(msg) == 'string' then
-    -- Strings: fall back to Treesitter markdown
     apply_highlight = function(win)
       local bufnr = vim.api.nvim_win_get_buf(win)
       vim.bo[bufnr].filetype = 'markdown'
@@ -114,7 +112,6 @@ local function notify(level, msg, opts)
   })
 end
 
---- Display an info-level notification with optional custom highlights
 --- @param msg utils.notifier.Message
 --- @param opts? utils.notifier.NotifierOpts
 --- @return any handle The notification record
@@ -122,7 +119,6 @@ function M.info(msg, opts)
   return notify(vim.log.levels.INFO, msg, opts)
 end
 
---- Display a warning-level notification with optional custom highlights
 --- @param msg utils.notifier.Message
 --- @param opts? utils.notifier.NotifierOpts
 --- @return any handle The notification record
@@ -130,7 +126,6 @@ function M.warn(msg, opts)
   return notify(vim.log.levels.WARN, msg, opts)
 end
 
---- Display an error-level notification with optional custom highlights
 --- @param msg utils.notifier.Message
 --- @param opts? utils.notifier.NotifierOpts
 --- @return any handle The notification record
@@ -139,7 +134,7 @@ function M.error(msg, opts)
 end
 
 --- Display a debug notification with vim.inspect output in a code block
---- @param ... any Values to inspect and display
+--- @param ... any
 --- @return nil
 function M.inspect(...)
   local msg = ''

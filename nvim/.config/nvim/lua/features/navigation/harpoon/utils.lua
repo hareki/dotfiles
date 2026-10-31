@@ -22,8 +22,7 @@ function M.pin(index)
     return
   end
 
-  -- Check if new_item already exists at another index (the early
-  -- return above rules out `index`)
+  -- Check if new_item already exists at another index (the early return above rules out `index`)
   local _, old_index = list:get_by_value(new_item.value)
 
   -- replace_at also clears new_item from any other slot it held
@@ -59,7 +58,7 @@ function M.pin(index)
   end
 end
 
---- @return snacks.Picker | nil picker The picker instance, or nil if list is empty
+--- @return snacks.Picker | nil picker nil if the list is empty
 M.show_picker = function()
   local harpoon = require('harpoon')
   local formatters = require('features.search.snacks-nvim.utils.formatters')
@@ -73,9 +72,8 @@ M.show_picker = function()
       local item = list:get(harpoon_idx)
       if item then
         local filepath = item.value
-        -- Exact lookup: vim.fn.bufnr() treats its argument as a file-pattern, so paths with magic
-        -- chars ("app/[slug]/page.tsx") can match an unrelated buffer; bufexists() matches names
-        -- exactly, and bufadd() then returns that buffer rather than creating one
+        -- vim.fn.bufnr() takes a file-pattern, so magic chars ("app/[slug]/page.tsx") can match an
+        -- unrelated buffer; bufexists() is exact, and bufadd() then returns that same buffer
         local abs = vim.fn.fnamemodify(filepath, ':p')
         local buf = vim.fn.bufexists(abs) == 1 and vim.fn.bufadd(abs) or nil
 
@@ -116,8 +114,7 @@ M.show_picker = function()
     return
   end
 
-  -- The statusline refresh after a removal comes from the REMOVE extension that
-  -- the harpoon spec registers, which list:remove_at() emits
+  -- The statusline refresh after a removal comes from the harpoon spec's REMOVE extension
   local function remove_harpoon_item(picker)
     local selection = picker:selected({ fallback = true })
     if not selection[1] then
@@ -152,9 +149,7 @@ M.show_picker = function()
   })
 end
 
---- Invalidate the statusline's harpoon component and redraw it. Some mutations keep the list
---- length (replace_at, remove_at short of the last slot), so the component's (buf, length) cache
---- key misses them
+--- Invalidate and redraw the statusline's harpoon component, whose cache key misses some mutations
 --- @return nil
 function M.refresh_statusline()
   local harpoon_component = require('chrome.lualine-nvim.components.harpoon')

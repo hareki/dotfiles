@@ -10,10 +10,9 @@ local repo_cache = {
   pending_cwd = nil,
 }
 
---- Run a git command asynchronously, passing its trimmed output to `cb` on the main loop
---- (via `vim.schedule`), where it may touch vim APIs and module state
---- @param cwd string The directory to run the command in
---- @param args string[] The git arguments
+--- Run a git command asynchronously, calling `cb` on the main loop, where it may touch vim APIs
+--- @param cwd string
+--- @param args string[]
 --- @param cb fun(output: string | nil) Receives trimmed stdout, or nil on error or empty output
 --- @return nil
 local function exec_cmd_async(cwd, args, cb)
@@ -25,10 +24,9 @@ local function exec_cmd_async(cwd, args, cb)
   end)
 end
 
---- Extract the repository name from a git remote URL
---- Strips .git suffix and extracts the last path component.
+--- The last path component of a git remote URL, minus its .git suffix
 --- @param url string | nil
---- @return string | nil name The repository name, or nil if not extractable
+--- @return string | nil name
 local function repo_name_from_url(url)
   if not url then
     return nil
@@ -39,9 +37,8 @@ local function repo_name_from_url(url)
   return url:match('([^/]+)$')
 end
 
---- Async continuation of `M.get`'s cache-miss path; a cwd change between steps abandons the
---- chain, and the next render restarts it for the new cwd
---- @param cwd string The cwd this chain resolves for
+--- `M.get`'s async cache-miss path; a cwd change abandons the chain for the next render to restart
+--- @param cwd string
 local function resolve_repo_name(cwd)
   --- Mark this chain done, unless a chain for a newer cwd has taken over the slot
   local function release_pending()
@@ -108,7 +105,7 @@ end
 
 --- The repository name (remote URL => bare repo parent => toplevel dir => cwd name), never
 --- blocking a render: a miss returns the last known name while an async chain refreshes it
---- @return string name The repository name, or '' if not determinable
+--- @return string name '' if not determinable
 function M.get()
   local current_cwd = vim.uv.cwd()
 
@@ -123,15 +120,13 @@ function M.get()
     return placeholder
   end
 
-  -- A resolve for this cwd is already in flight; keep rendering the stale
-  -- value until it lands
+  -- A resolve for this cwd is already in flight; keep rendering the stale value
   if repo_cache.pending_cwd == current_cwd then
     return placeholder
   end
 
   repo_cache.pending_cwd = current_cwd
-  -- Kick the resolve outside the render path: even async spawn initiation
-  -- costs a few ms, which would still hitch the redraw that missed the cache
+  -- Resolve outside the render path: even an async spawn costs a few ms, hitching the redraw
   vim.schedule(function()
     resolve_repo_name(current_cwd)
   end)

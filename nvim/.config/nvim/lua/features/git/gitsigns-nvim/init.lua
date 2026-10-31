@@ -66,8 +66,7 @@ return {
         signs_staged = signs_staged,
 
         on_attach = function(buffer)
-          -- Media buffers hold a rendered view, not the file's bytes, so a diff against
-          -- git would mark every line changed
+          -- Media buffers hold a rendered view, so a git diff would mark every line changed
           if media.is_media(vim.api.nvim_buf_get_name(buffer)) then
             return false
           end
@@ -103,8 +102,7 @@ return {
             gs.nav_hunk('first', nav_opts)
           end, 'First Hunk')
 
-          -- Visual variants pass the selected line range so only those lines are
-          -- staged/reset (a <cmd> mapping would lose the range and hit the whole hunk)
+          -- Visual variants pass the selected range: a <cmd> mapping would hit the whole hunk
           map('n', '<leader>hs', gs.stage_hunk, 'Toggle Stage Hunk')
           map('v', '<leader>hs', function()
             gs.stage_hunk({ vim.fn.line('.'), vim.fn.line('v') })

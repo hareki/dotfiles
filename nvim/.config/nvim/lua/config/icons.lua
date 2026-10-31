@@ -58,8 +58,7 @@ local M = {
     FOLDER_EMPTY_OPEN = '',
     FOLDER_SYMLINK = '',
   },
-  -- PascalCase rather than CONSTANT_CASE: blink-cmp reads these as `kind_icons` keys, which must
-  -- match the LSP CompletionItemKind names verbatim (features/completion/blink-cmp/init.lua)
+  -- PascalCase: blink-cmp reads these as `kind_icons` keys, matching LSP CompletionItemKind names
   cmp_kinds = {
     -- lspkind.nvim codicon preset
     Class = '',

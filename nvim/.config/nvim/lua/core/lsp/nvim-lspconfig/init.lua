@@ -63,8 +63,7 @@ return {
         map({ 'n', 'x' }, '<leader>ca', function()
           local tiny_code_action = require('tiny-code-action')
           tiny_code_action.code_action({
-            -- Drop actions the server marked disabled (vtsls's non-applicable refactors); resolving
-            -- them for preview surfaces raw server errors
+            -- Drop disabled actions (vtsls's refactors): resolving them surfaces raw server errors
             filter = function(action)
               return action.disabled == nil
             end,
@@ -110,17 +109,14 @@ return {
     }
 
     -- eslint vs oxlint are mutually exclusive; selected by Project.linter
-    -- (defaults to eslint when no .neovimrc.json is present).
     table.insert(servers, Project.linter)
 
-    -- When oxfmt is the selected formatter, run it as an LSP server (see
-    -- utils/style-enforcers/oxfmt.lua) instead of spawning the CLI.
+    -- oxfmt runs as an LSP server (utils/style-enforcers/oxfmt.lua) instead of spawning the CLI
     if Project.formatter == 'oxfmt' then
       table.insert(servers, 'oxfmt')
     end
 
-    -- Deferred to yield to the UI, letting the buffer render before LSP servers start matching
-    -- and attaching
+    -- Deferred so the buffer renders before LSP servers start matching and attaching
     vim.defer_fn(function()
       server_loader.load_all()
       vim.lsp.enable(servers)

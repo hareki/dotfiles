@@ -144,8 +144,7 @@ return {
     end,
 
     config = function(_, opts)
-      -- Clear the placeholder before dropbar's own per-window enable check
-      -- runs, otherwise it reads back as already-claimed and never attaches
+      -- Clear the placeholder first: dropbar's enable check reads it as claimed and never attaches
       vim.opt.winbar = ''
       local dropbar = require('dropbar')
       dropbar.setup(opts)

@@ -5,7 +5,7 @@ local M = {}
 --- @param content string
 --- @param inner_hl string Highlight group for the pill content
 --- @param outer_hl string Highlight group for the pill caps
---- @return table[] chunks Virtual text chunks: space, left cap, content, right cap
+--- @return table[] chunks Space, left cap, content, right cap
 function M.virt_text(content, inner_hl, outer_hl)
   return {
     { ' ' },

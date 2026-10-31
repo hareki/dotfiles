@@ -56,13 +56,11 @@ return {
       },
       lsp = {
         progress = {
-          -- noice only closes a progress item on its 'end' or when the client exits, so a server
-          -- that never ends a token would leave its spinner up forever
+          -- Without a cap, a server that never ends a token would leave its spinner up forever
           max_lifetime = 30 * 1000,
         },
         hover = {
-          -- Mute "No information available": noice asks each client separately and notifies for
-          -- every one with no hover at the cursor, even when another client answered
+          -- noice notifies "No information available" per client, even when another answered
           silent = true,
           opts = { border = 'rounded' },
         },
@@ -104,8 +102,7 @@ return {
           opts = { skip = true },
         },
 
-        -- Rewrite the native E21 and its Lua-wrapped E5108 (+ traceback) as one concise message;
-        -- noice's default error route then displays it
+        -- Rewrite the native E21 and its Lua-wrapped E5108 (+ traceback) as one concise message
         {
           filter = {
             error = true,

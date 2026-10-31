@@ -3,8 +3,7 @@ local M = {}
 
 local image_icon = Conf.icons.editor.IMAGE .. ' '
 
--- vim.treesitter.query.get memoizes in a GC-weak cache, so after a collection it re-scans the
--- runtimepath and recompiles the query, too slow for a per-redraw path: pin the answer here
+-- query.get's GC-weak cache re-scans the runtimepath after a collection: pin the answer for redraws
 --- @type table<string, boolean>
 local lang_has_images_query = {}
 
@@ -13,8 +12,7 @@ local lang_has_images_query = {}
 local function has_images_query(lang)
   local has = lang_has_images_query[lang]
   if has == nil then
-    -- query.get throws on a query that doesn't parse against the installed grammar, and that
-    -- would break every redraw
+    -- query.get throws on a query the installed grammar can't parse, breaking every redraw
     local ok, query = pcall(vim.treesitter.query.get, lang, 'images')
     has = ok and query ~= nil
     lang_has_images_query[lang] = has
@@ -22,8 +20,7 @@ local function has_images_query(lang)
   return has
 end
 
--- The images found in one buffer state. Cursor moves only test the cursor against them;
--- the treesitter query reruns when the buffer or its text changes
+-- Images of one buffer state: cursor moves test against them, a buffer or text change requeries
 --- @class chrome.lualine.components.snacks-image.Cache
 --- @field buf integer
 --- @field tick integer
@@ -75,16 +72,13 @@ function M.cond()
     return mermaid_has_content(buf)
   end
 
-  -- `gi` is a normal-mode key, while every insert/replace keystroke bumps the changedtick and
-  -- would rerun the whole-buffer find() below (~2ms in an 850-line TSX file)
+  -- `gi` is normal-mode, and each insert keystroke would rerun the find() below (~2ms at 850 lines)
   local mode = vim.api.nvim_get_mode().mode:sub(1, 1)
   if mode == 'i' or mode == 'R' then
     return false
   end
 
-  -- Nothing can match without a parser (snacks ships `images` queries for vue, svelte, typst, ...
-  -- installed or not) or without an `images` query (json, yaml, help, ...), so don't pay the
-  -- treesitter work below
+  -- Nothing can match without a parser or an `images` query, so skip the treesitter work below
   local highlighter = vim.treesitter.highlighter.active[buf]
   if not (highlighter and has_images_query(highlighter.tree:lang())) then
     return false
@@ -96,8 +90,7 @@ function M.cond()
     cache.tick = tick
     cache.images = nil
 
-    -- `find` parses asynchronously, so no image shows until it lands;
-    -- refresh the statusline then if one turns out to cover the cursor
+    -- `find` parses asynchronously, so refresh the statusline if an image ends up under the cursor
     Snacks.image.doc.find(buf, function(images)
       -- The buffer may have changed during the async gap; this result is for an older state
       if cache.buf ~= buf or cache.tick ~= tick then

@@ -26,8 +26,7 @@ local function open_float(notif)
     string.format('Normal:%s,FloatBorder:%s', opened.highlights.body, opened.highlights.border)
 end
 
---- Show nvim-notify's notification history, newest first, with each message rendered as
---- markdown in the preview
+--- Show nvim-notify's history, newest first, with each message rendered as markdown in the preview
 --- @return snacks.Picker
 function M.show_picker()
   local notify = require('notify')

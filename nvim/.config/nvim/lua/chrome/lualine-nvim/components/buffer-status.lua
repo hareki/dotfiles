@@ -55,8 +55,7 @@ vim.api.nvim_create_autocmd('User', {
   pattern = { 'GitConflictDetected', 'GitConflictResolved' },
   callback = invalidate_cache,
 })
--- The readonly icon is derived from 'readonly'/'modifiable', which manual
--- :set toggles change without firing any of the buffer events above
+-- The readonly icon reads 'readonly'/'modifiable', which :set changes without a buffer event
 vim.api.nvim_create_autocmd('OptionSet', {
   group = group,
   pattern = { 'readonly', 'modifiable' },
@@ -118,7 +117,6 @@ local function get_current_unsaved()
   return result
 end
 
---- Count the loaded buffers, other than the current one, that match the predicate
 --- @param predicate fun(bufnr: integer): boolean
 --- @return integer
 local function count_other_loaded(predicate)
@@ -200,8 +198,7 @@ function M:update_status()
   for _, part in ipairs(PARTS) do
     local text = part[2]()
     if text ~= '' then
-      -- format_hl re-resolves the mode suffix (an nvim_get_mode call) per
-      -- group, so only pay it for parts that are actually shown
+      -- format_hl calls nvim_get_mode per group, so only pay it for parts that are shown
       result[#result + 1] = self:format_hl(self.highlight_groups[part[1]]) .. text
     end
   end
