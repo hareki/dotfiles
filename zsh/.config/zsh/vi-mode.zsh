@@ -5,36 +5,22 @@ bindkey -v
 KEYTIMEOUT=1
 
 # Change cursor shape for different vi modes.
-cursor_block() { echo -ne '\e[1 q'; }
-cursor_beam()  { echo -ne '\e[5 q'; }
-
 # https://gist.github.com/LukeSmithxyz/e62f26e55ea8b0ed41a65912fbebbe52
-_cursor_keymap_select() {
-  if [[ $KEYMAP == vicmd ]]; then
-    cursor_block
-  elif [[ $KEYMAP == (main|viins|'') ]]; then
-    cursor_beam
-  fi
-}
-_cursor_line_init() { cursor_beam }
+_cursor_shape() { [[ $KEYMAP == vicmd ]] && echo -ne '\e[1 q' || echo -ne '\e[5 q' }
 
 # Hooks, since `zle -N zle-line-init` would drop omz's `echoti smkx`, which Home/End need
 # outside tmux. The `_` prefix keeps zsh-autosuggestions from wrapping the hook widgets
 autoload -Uz add-zle-hook-widget
-add-zle-hook-widget keymap-select _cursor_keymap_select
-add-zle-hook-widget line-init _cursor_line_init
+add-zle-hook-widget keymap-select _cursor_shape
+add-zle-hook-widget line-init _cursor_shape
 
-osc52_copy() {
-  local data; data=$(printf %s "$1" | base64)
-  printf '\e]52;c;%s\a' "$data"
-}
+osc52_copy() { printf '\e]52;c;%s\a' "$(printf %s "$1" | base64)" }
 
 # `zle .$WIDGET` runs the builtin the invoked widget shadows. A cancelled yank (`h` then Esc)
 # skips the copy (the old yank would land on the clipboard) but exits 0, or zle would beep
 vi_yank_osc52() { if zle .$WIDGET; then osc52_copy "$CUTBUFFER"; fi }
 
 zle -N vi-yank vi_yank_osc52
-zle -N vi-yank-eol vi_yank_osc52
 zle -N vi-yank-whole-line vi_yank_osc52
 # Visual `x` deletes the selection and copies it the same way
 zle -N kill-region vi_yank_osc52

@@ -4,7 +4,7 @@
 # root-anchored patterns in stow/.stow-global-ignore
 sync-dots () {
   local failed=0
-  local -a dirs packages
+  local -a packages
   local dir
   # App settings exports that are imported by hand, not stowed into $HOME
   local -a ignored=(better-mouse simple-translate zen-browser)
@@ -23,15 +23,10 @@ sync-dots () {
       print "       sync-dots all   # sync every package directory in \$STOW_REPO"
       return 0
       ;;
-    all)
-      dirs=($packages)
-      ;;
-    *)
-      dirs=("$@")
-      ;;
+    all) set -- $packages ;;
   esac
 
-  for dir in $dirs; do
+  for dir in $@; do
     if [[ -d "$STOW_REPO/$dir" ]]; then
       print-header "Syncing $dir"
       stow -d "$STOW_REPO" -t "$HOME" "$dir" || { print -P "%F{red}==> Failed to sync $dir%f" >&2; failed=1; }

@@ -11,6 +11,8 @@ alias lg="lazygit"
 alias ez="nvim ~/.zshrc"
 alias eze="nvim ~/.zshenv"
 
+alias eza="eza --icons=always --color=always --no-user"
+alias fdt="fd --type dir --hidden --exclude .git"
 alias tree="eza --tree"
 alias submodule-update="git submodule update --init --recursive --remote"
 

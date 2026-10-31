@@ -8,10 +8,10 @@ layout = "landscape"
 input_bar = { header = "Dotfiles", prompt = "  ", border_type = "rounded" }
 
 [source]
-command = "fdt '^\\.config$' $HOME/Repositories/personal/dotfiles --exec zsh -c 'ls \"$1\"' _ {}"
+command = "fd --type dir --hidden --exclude .git '^\\.config$' $HOME/Repositories/personal/dotfiles --exec zsh -c 'ls \"$1\"' _ {}"
 
 [preview]
-command = "cd $HOME/Repositories/personal/dotfiles/{}/.config; eza --tree {}"
+command = "cd $HOME/Repositories/personal/dotfiles/{}/.config; eza --icons=always --color=always --no-user --tree {}"
 
 [keybindings]
 enter = "actions:edit"

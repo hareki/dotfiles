@@ -8,7 +8,7 @@ _tty_guard_tick() {
   # forked copies of this shell (zpty children run zle too) inherit the sched entry
   [[ $sysparams[pid] == $_tty_guard_pid ]] || return 0
   sched +2 _tty_guard_tick
-  zle && [[ -n $TTY ]] || return 0
+  zle || return 0
   local g
   g=$(command stty -f $TTY -g 2>/dev/null) || return 0
   local lflag=${${g#*:lflag=}%%:*}

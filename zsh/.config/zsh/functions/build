@@ -3,7 +3,7 @@
 build() {
   local -a targets=(atuin eza television worktrunk lazygit fzf tmux)
   local target failed=0
-  # In the toolchains' own dirs, mise would shim every binary (~50ms per call) and a go
+  # In the toolchains' own dirs, mise would shim every binary (~25ms per call) and a go
   # upgrade would strand them; PATH puts this dir ahead of the mise shims instead
   local -x CARGO_INSTALL_ROOT=~/.local/opt GOBIN=~/.local/opt/bin
 

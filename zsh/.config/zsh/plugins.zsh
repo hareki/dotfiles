@@ -13,29 +13,12 @@ _evalcache() {
   local cache="$ZSH_EVALCACHE_DIR/init-${${(j:-:)@}//[^A-Za-z0-9_.-]/_}.sh"
   if [[ ! -s $cache ]]; then
     mkdir -p "$ZSH_EVALCACHE_DIR"
-    # Shells started together (tmuxinator) would all rebuild a cold cache and clobber
-    # each other's files; -i, since flock's default retry interval is a full second
-    local lock="$ZSH_EVALCACHE_DIR/.lock" fd
-    : >>"$lock"
-    zmodload -F zsh/system b:zsystem
-    if ! zsystem flock -t 10 -i 0.05 -f fd "$lock"; then
-      # Timed out (a rebuild is wedged): run uncached instead of racing it.
-      print -u2 "_evalcache: lock timeout, sourcing '$*' uncached"
-      source <("$@")
-      return
-    fi
-    {
-      if [[ ! -s $cache ]]; then
-        # Dot-prefixed temps (`rm init-*` skips them) are moved in whole, so no shell
-        # reads or SIGBUSes on a half-written file; two-arg zcompile survives the rename
-        local tmp="${cache:h}/.${cache:t}.$$"
-        "$@" >"$tmp" || { rm -f "$tmp"; print -u2 "_evalcache: '$*' failed"; return 1 }
-        mv -f "$tmp" "$cache"
-        zcompile "$tmp.zwc" "$cache" && mv -f "$tmp.zwc" "$cache.zwc"
-      fi
-    } always {
-      exec {fd}>&-
-    }
+    # Per-shell temps are moved in whole, so shells started together (tmuxinator) can't
+    # clobber or half-read them; `rm init-*` skips the dot, and two-arg zcompile survives mv
+    local tmp="${cache:h}/.${cache:t}.$$"
+    "$@" >"$tmp" || { rm -f "$tmp"; print -u2 "_evalcache: '$*' failed"; return 1 }
+    mv -f "$tmp" "$cache"
+    zcompile "$tmp.zwc" "$cache" && mv -f "$tmp.zwc" "$cache.zwc"
   fi
   source "$cache"
 }
@@ -52,16 +35,22 @@ zstyle ':omz:update' mode auto
 # use (AddKeysToAgent)
 zstyle ':omz:plugins:ssh-agent' identities id_ed25519_personal
 zstyle ':omz:plugins:ssh-agent' quiet yes
+# A live inherited agent got it from the shell that found the agent, which spares this
+# shell the plugin's `ssh-add -l` + `ssh-keygen` check (~8ms)
+kill -0 $SSH_AGENT_PID 2>/dev/null && zstyle ':omz:plugins:ssh-agent' lazy yes
 
 zstyle ':antidote:bundle:*' zcompile 'yes'
+# zsh-defer re-runs the precmd hooks and repaints after each deferred plugin, but only the
+# last one needs that: autosuggestions starts from a precmd hook
+zstyle ':antidote:bundle:ohmyzsh/ohmyzsh' defer-options '-mpr'
+zstyle ':antidote:bundle:Aloxaf/fzf-tab' defer-options '-mpr'
 
 # Completion-only flags live here rather than in FZF_DEFAULT_OPTS, which zoxide's
 # `zi` and plain fzf read as well
 zstyle ':fzf-tab:*' fzf-flags --height=13 --max-width=75 --border-label=' Completions '
 zstyle ':fzf-tab:*' use-fzf-default-opts yes
 
-ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-# Wrap the widgets once at load instead of re-binding ~600 of them every precmd (~5ms);
+# Wrap the widgets once at load instead of re-binding ~210 of them every precmd (~8ms);
 # .zplugins loads it after every other widget-defining plugin, so none stays unwrapped
 ZSH_AUTOSUGGEST_MANUAL_REBIND=1
 
@@ -80,14 +69,9 @@ source ~/.zplugins.bundled.zsh
 # use-omz forks `scutil` for this in every shell that doesn't inherit it
 export SHORT_HOST
 
-# use-omz also expires the dump when omz's git HEAD moves (a ~9ms `git rev-parse` per
-# shell), but no omz dir on fpath holds `_*` files, so only an fpath change can stale it
-has-zcompdump-expired() {
-  [[ -r $ZSH_CACHE_DIR/zcompdump-metadata.zsh ]] && source $ZSH_CACHE_DIR/zcompdump-metadata.zsh
-  [[ "$fpath" != "$ZSH_COMPDUMP_FPATH" ]] || return 1
-  typeset -ga ZSH_COMPDUMP_FPATH=($fpath)
-  typeset -p ZSH_COMPDUMP_FPATH >| $ZSH_CACHE_DIR/zcompdump-metadata.zsh
-}
+# use-omz also expires the dump on omz's git HEAD (a ~9ms `git rev-parse` per shell) and on
+# fpath, but no omz dir holds `_*` files, and compinit checks their count and zsh's version
+has-zcompdump-expired() { false }
 
 # omz's lib/theme-and-appearance.zsh exports LS_COLORS, which eza would apply on top
 # of its theme.yml (EZA_CONFIG_DIR, set in .zshenv)
@@ -97,14 +81,13 @@ unset LS_COLORS
 # under this pattern, which outranks ':completion:*', so this must follow the bundle
 zstyle ':completion:*:*:*:*:*' menu no
 
-# omz URL-encodes $PWD with two subshell forks per prompt; cache the sequence per $PWD,
-# but still emit it every prompt so the terminal's cwd survives `reset` and tmux reattach
+# omz URL-encodes $HOST and $PWD with two subshell forks per prompt; do both in one per
+# $PWD change, but emit it every prompt so the cwd survives `reset` and tmux reattach
 if (( $+functions[omz_termsupport_cwd] )); then
-  functions -c omz_termsupport_cwd _omz_termsupport_cwd_orig
   omz_termsupport_cwd() {
     if [[ $PWD != $_termsupport_cwd_last ]]; then
       typeset -g _termsupport_cwd_last=$PWD
-      typeset -g _termsupport_cwd_seq=$(_omz_termsupport_cwd_orig)
+      typeset -g _termsupport_cwd_seq=$'\e]7;file://'$(omz_urlencode -P $HOST$PWD)$'\e\\'
     fi
     printf '%s' "$_termsupport_cwd_seq"
   }

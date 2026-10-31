@@ -17,9 +17,6 @@ source ~/.p10k.zsh
 __zsh_config_dir=$XDG_CONFIG_HOME/zsh
 source $__zsh_config_dir/plugins.zsh
 _evalcache /opt/homebrew/bin/brew shellenv
-# brew shellenv exports FPATH: child shells would inherit deferred fzf-tab's lib dir, and
-# use-omz rebuilds the dump (~185ms) whenever fpath differs from the last shell's
-typeset +x FPATH
 
 # Re-apply .zshenv's PATH order: brew shellenv prepends Homebrew (.zprofile has
 # already undone /etc/zprofile's path_helper in login shells)

@@ -2,13 +2,13 @@
 
 ![image](./assets/docs/demo.png)
 
-Feature-packed zsh setup with ~55ms to the first usable prompt (~25ms for `zsh -i -c exit`). Optimized via static plugin bundling, eval caching, bytecode compilation, and function autoloading.
+Feature-packed zsh setup with ~50ms to the first usable prompt (~25ms for `zsh -i -c exit`). Optimized via static plugin bundling, eval caching, bytecode compilation, and function autoloading.
 
 ## Core Ideas
 
 - [Antidote](https://github.com/mattmc3/antidote) for static plugin bundling with deferred loading
 - A small local `_evalcache` to cache expensive `eval` calls (brew, zoxide, atuin, wt, zsh-patina)
-- `zcompile` pre-compiles `.zshrc` to bytecode; functions autoload on first call
+- `zcompile` pre-compiles plugins and cached `eval` output to bytecode; functions autoload on first call
 - Vi mode with OSC52 clipboard integration (works over SSH)
 - Catppuccin Mocha theme applied across fzf, zsh-patina syntax highlighting, and eza
 
@@ -33,7 +33,7 @@ Feature-packed zsh setup with ~55ms to the first usable prompt (~25ms for `zsh -
 ├── options.zsh                     # Env vars, fzf theme/layout
 ├── evals.zsh                       # Tool init: zoxide, atuin, wt, zsh-patina
 ├── keymaps.zsh                     # Key bindings (Alt+F => atuin, etc.)
-├── vi-mode.zsh                     # Vi mode + OSC52 yank/paste
+├── vi-mode.zsh                     # Vi mode + OSC52 yank, clipboard paste
 ├── tty-guard.zsh                   # Self-heal for a tty re-cooked under zle
 ├── compdefs/                       # Custom completions, `#compdef`-tagged (one per command family)
 └── functions/                      # Autoloaded utility functions (one per file)
