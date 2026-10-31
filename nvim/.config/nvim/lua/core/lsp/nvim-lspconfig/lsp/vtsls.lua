@@ -1,3 +1,5 @@
+local typescript = require('core.lsp.nvim-lspconfig.utils.typescript')
+
 local ts_config = {
   updateImportsOnFileMove = { enabled = 'always' },
 }
@@ -12,6 +14,7 @@ return {
   opts = {
     -- Parent-pid watchdog: vtsls exits and reaps its tsserver if this pid dies without LSP shutdown
     cmd = { 'vtsls', '--stdio', '--clientProcessId', tostring(vim.uv.os_getpid()) },
+    root_dir = typescript.root_dir('vtsls'),
     settings = {
       typescript = ts_config,
       javascript = ts_config,
@@ -97,35 +100,6 @@ return {
   },
 
   setup = function()
-    vim.api.nvim_create_autocmd('LspAttach', {
-      group = vim.api.nvim_create_augroup('core.lsp.nvim-lspconfig.vtsls-attach', { clear = true }),
-      callback = function(args)
-        local client = vim.lsp.get_client_by_id(args.data.client_id)
-
-        if not (client and client.name == 'vtsls') then
-          return
-        end
-
-        --- @param action string
-        --- @return fun()
-        local function code_action(action)
-          return function()
-            vim.lsp.buf.code_action({
-              apply = true,
-              context = {
-                only = { action },
-                diagnostics = {},
-              },
-            })
-          end
-        end
-
-        local common = require('utils.common')
-        local map = common.buf_mapper(args.buf, { prefix = 'TypeScript LSP: ' })
-
-        map('n', '<leader>cu', code_action('source.removeUnused.ts'), 'Remove Unused Imports')
-        map('n', '<leader>ci', code_action('source.addMissingImports.ts'), 'Add Missing Imports')
-      end,
-    })
+    typescript.map_import_actions('vtsls', 'source.removeUnused.ts', 'source.addMissingImports.ts')
   end,
 }

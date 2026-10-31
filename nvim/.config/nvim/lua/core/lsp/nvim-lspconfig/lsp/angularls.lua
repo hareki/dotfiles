@@ -1,3 +1,5 @@
+local common = require('utils.common')
+
 local fs, uv = vim.fs, vim.uv
 
 -- lspconfig probes ngserver's deps from exepath(), but the mise shim's realpath is `mise` itself;
@@ -21,16 +23,7 @@ end
 --- @param root_dir string
 --- @return string
 local function get_angular_core_version(root_dir)
-  local package_json = fs.joinpath(root_dir, 'package.json')
-  local ok, content = pcall(vim.fn.readblob, package_json)
-  if not ok then
-    return ''
-  end
-
-  local ok_decode, json = pcall(vim.json.decode, content)
-  if not ok_decode or type(json) ~= 'table' then
-    return ''
-  end
+  local json = common.read_json(fs.joinpath(root_dir, 'package.json')) or {}
   local deps = json.dependencies or {}
   local dev_deps = json.devDependencies or {}
   local version = deps['@angular/core'] or dev_deps['@angular/core'] or ''

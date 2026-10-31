@@ -101,7 +101,8 @@ return {
       'html',
       'cssls',
       'css_variables',
-      'vtsls', -- TypeScript
+      'vtsls', -- TypeScript below 7
+      'tsc', -- TypeScript 7+ (utils/typescript.lua activates one of the two per project)
       'tailwindcss',
       'astro',
       'ember', -- Ember/Glimmer

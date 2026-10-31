@@ -18,7 +18,7 @@ The LuaLS diagnostics surfaced to you come from Claude Code's server, run by the
 - **Icons**: always import from `config/icons.lua` via the `Conf.icons` global, never hardcode icon strings
 - **File/dir names**: all file and directory names use `kebab-case` and stay dot-free, since Lua `require` treats a literal `.` as a path separator. Name a plugin's spec file/dir after its GitHub repo name (the part after `/`), with **every `.` replaced by `-`** (`noice.nvim` => `noice-nvim.lua`, `snacks.nvim` => `snacks-nvim/`, `mini.ai` => `mini-ai/`, `nvim-colorizer.lua` => `nvim-colorizer-lua.lua`, `nvim-tree.lua` => `nvim-tree-lua/`); a split plugin's fragments (see **Split Plugins**) reuse that name in every tier/domain dir (`core/snacks-nvim/`, `features/editing/snacks-nvim.lua`). Exception: when the repo name alone is meaninglessly generic, prefix the author instead (`catppuccin/nvim` becomes `catppuccin-nvim.lua`). **Keep the exact name** for 3rd-party-required files (`lazy-lock.json`, `snippets/package.json`) and for LSP server config files whose basename must equal the server id (`core/lsp/nvim-lspconfig/lsp/lua_ls.lua`, `typos_lsp.lua`).
 - **Comment spacing**: a space after the comment marker: `-- x` not `--x`, `--- @param` not `---@param` (leave `--` inside string literals and `--[[` block markers alone).
-- **Augroups**: the owning plugin's or helper module's namespace (as in **LuaLS class names**) plus a `kebab-case` purpose (`chrome.lualine.buffer-status-cache` from `chrome/lualine-nvim/components/buffer-status.lua`, `features.git.git-conflict.keymaps`, `core.lsp.nvim-lspconfig.vtsls-attach` from `lsp/vtsls.lua`); config-level autocmds use `config.autocmds.<purpose>`. For dynamic suffixes, concatenate after a hyphen: `'utils.hl-at-cursor.popup-' .. win`
+- **Augroups**: the owning plugin's or helper module's namespace (as in **LuaLS class names**) plus a `kebab-case` purpose (`chrome.lualine.buffer-status-cache` from `chrome/lualine-nvim/components/buffer-status.lua`, `features.git.git-conflict.keymaps`, `core.lsp.nvim-lspconfig.utils.typescript.attach-vtsls` from `nvim-lspconfig/utils/typescript.lua`); config-level autocmds use `config.autocmds.<purpose>`. For dynamic suffixes, concatenate after a hyphen: `'utils.hl-at-cursor.popup-' .. win`
 
 ## Commands
 
@@ -100,7 +100,9 @@ Uses native `vim.lsp.enable()` / `vim.lsp.config()` (not `lspconfig[server].setu
 
 Enable a server in the `servers` list in `nvim-lspconfig/init.lua`; add a `lsp/{server}.lua` only to override nvim-lspconfig's defaults. Servers that drive style-enforcer steps (`eslint`, `oxlint`, `oxfmt`) are also registered in `utils/style-enforcers/init.lua` under their server id, which limits each step to buffers that server is attached to.
 
-Server-specific `LspAttach` autocmds use an early-return guard on client name (see `lsp/vtsls.lua`).
+`vtsls` and `tsc` are both in `servers`, and `nvim-lspconfig/utils/typescript.lua` activates one per project from its TypeScript: `tsc` for 7+, `vtsls` otherwise. A project that declares 7+ without installing it gets neither, never `vtsls`'s bundled TypeScript.
+
+Server-specific `LspAttach` autocmds use an early-return guard on client name (see `nvim-lspconfig/utils/typescript.lua`).
 
 ## Forks
 
