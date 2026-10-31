@@ -113,7 +113,6 @@ function M.run(opts)
 
     -- The format step, when it ran, counts as one finished step of the progress
     local done_offset = formatted and 1 or 0
-    local had_lint_error = false
 
     local ok, err = pcall(function()
       engine.run_for_buf({
@@ -134,8 +133,6 @@ function M.run(opts)
         end,
         on_done = function(linter_name, linter_ok, lint_error)
           if not linter_ok then
-            had_lint_error = true
-
             if lint_error == engine.BUFFER_CHANGED then
               Notifier.warn(
                 string.format('Buffer changed while `%s` was running, skipped', linter_name),
@@ -151,12 +148,12 @@ function M.run(opts)
             end
           end
         end,
-        on_complete = function()
+        on_complete = function(all_ok)
           if settled then
             return
           end
 
-          cleanup(write() and not had_lint_error)
+          cleanup(write() and all_ok)
         end,
       })
     end)
@@ -311,7 +308,7 @@ function M.run_all(debug)
 
         pending_count = pending_count - 1
         if pending_count == 0 then
-          vim.schedule(show_results)
+          show_results()
         end
       end,
     })

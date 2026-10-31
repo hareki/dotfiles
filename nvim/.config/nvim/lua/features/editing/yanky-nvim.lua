@@ -1,6 +1,9 @@
 --- @class snacks.picker
 --- @field yanky fun(opts?: snacks.picker.Config | {}): snacks.Picker
 
+--- @module 'snacks.picker'
+local picker = Defer.on_exported_call('snacks.picker')
+
 return {
   UI.catppuccin(function(palette)
     return {
@@ -30,13 +33,7 @@ return {
   {
     'hareki/yanky.nvim',
     keys = {
-      {
-        '<leader>fy',
-        function()
-          Snacks.picker.yanky()
-        end,
-        desc = 'Open Yanky History',
-      },
+      { '<leader>fy', picker.yanky, desc = 'Open Yanky History' },
       { 'y', '<Plug>(YankyYank)', mode = { 'n', 'x' }, desc = 'Yank Text' },
       {
         'Y',
@@ -124,12 +121,12 @@ return {
           -- Trimming only makes sense for a single line; with a count, fall
           -- back to native linewise semantics so 3dd still deletes 3 lines
           if vim.v.count1 > 1 then
-            vim.cmd.normal({ args = { register .. vim.v.count1 .. 'dd' }, bang = true })
+            vim.cmd.normal({ register .. vim.v.count1 .. 'dd', bang = true })
             return
           end
 
-          vim.cmd.normal({ args = { '^' .. register .. 'dg_' }, bang = true }) -- Delete from first nonblank to last nonblank
-          vim.cmd.normal({ args = { [["_dd]] }, bang = true }) -- Remove remaining indent + newline (blackhole)
+          vim.cmd.normal({ '^' .. register .. 'dg_', bang = true }) -- Delete from first nonblank to last nonblank
+          vim.cmd.normal({ [["_dd]], bang = true }) -- Remove remaining indent + newline (blackhole)
         end,
         desc = 'Delete Line Trimmed',
       },

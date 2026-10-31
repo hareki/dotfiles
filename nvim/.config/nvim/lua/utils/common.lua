@@ -100,7 +100,7 @@ local override_stacks = {}
 --- Map keys on a buffer while a popup lives; overrides of a key stack, so releasing one in any
 --- order keeps the newest remaining one active, or restores the buffer's own mapping
 --- @param buf integer
---- @param maps { [1]: string | string[], [2]: string, [3]: string | function, [4]?: vim.keymap.set.Opts }[] Mode(s), lhs, rhs and opts of each override
+--- @param maps { [1]: string | string[], [2]: string, [3]: string | function, [4]: vim.keymap.set.Opts }[] Mode(s), lhs, rhs and opts of each override
 --- @return fun() release Undoes every override of this call; later calls are no-ops
 function M.override_buf_keymaps(buf, maps)
   --- @type { key: string, mode: string, lhs: string, layer: utils.common.KeymapLayer }[]
@@ -111,7 +111,7 @@ function M.override_buf_keymaps(buf, maps)
     if type(modes) == 'string' then
       modes = { modes }
     end
-    local layer = { rhs = rhs, opts = vim.tbl_extend('force', opts or {}, { buffer = buf }) }
+    local layer = { rhs = rhs, opts = vim.tbl_extend('force', opts, { buffer = buf }) }
 
     for _, mode in ipairs(modes) do
       local key = string.format('%d %s %s', buf, mode, lhs)

@@ -6,50 +6,21 @@ local M = {}
 
 --- @alias utils.notifier.NotifierOpts { title?: string, height_offset?: integer }
 
---- @alias utils.notifier.MessageTuple { [1]: string, [2]?: string }
---- @alias utils.notifier.MessageChunk string | utils.notifier.MessageTuple
---- @alias utils.notifier.Message string | string[] | utils.notifier.MessageChunk[]
+--- @alias utils.notifier.MessageChunk { [1]: string, [2]: string } Text and its highlight group
+--- @alias utils.notifier.Message string | utils.notifier.MessageChunk[]
 
 local highlight_ns = vim.api.nvim_create_namespace('trouble_notify_hl')
 
---- Whether tbl is a chunk list ({ 'txt', { 'txt', 'hl' }, ... }), which needs at least one
---- {text, hl} tuple: a table of bare strings is a string[] message, joined as markdown
-local function is_chunk_list(tbl)
-  if type(tbl) ~= 'table' then
-    return false
-  end
-
-  local has_tuple = false
-  for _, v in ipairs(tbl) do
-    if type(v) == 'table' then
-      if type(v[1]) ~= 'string' or (v[2] ~= nil and type(v[2]) ~= 'string') then
-        return false
-      end
-      has_tuple = true
-    elseif type(v) ~= 'string' then
-      return false
-    end
-  end
-
-  return has_tuple
-end
-
---- Flatten a tuple-list and build an on_open that restores highlights.
---- @param chunks table  list of strings *or* {text, hl} tuples
---- @param default_hl string
+--- Flatten a chunk list and build an on_open that restores highlights.
+--- @param chunks utils.notifier.MessageChunk[]
 --- @return string plain     flattened text for vim.notify
 --- @return function on_open callback that reapplies extmarks
-local function normalize_message(chunks, default_hl)
+local function normalize_message(chunks)
   local parts, regions = {}, {}
   local line, col = 0, 0
 
-  for _, item in ipairs(chunks) do
-    local text, group
-    if type(item) == 'string' then
-      text, group = item, default_hl
-    else -- {text, hl}
-      text, group = item[1], item[2] or default_hl
-    end
+  for _, chunk in ipairs(chunks) do
+    local text, group = chunk[1], chunk[2]
     table.insert(parts, text)
 
     local lines = vim.split(text, '\n', { plain = true })
@@ -96,18 +67,15 @@ end
 
 --- Core notification function with rich highlighting and markdown support
 --- @param level integer
---- @param default_hl string Body highlight of a chunk list's plain chunks
 --- @param msg utils.notifier.Message
 --- @param opts? utils.notifier.NotifierOpts
 --- @return any handle The notification record
-local function notify(level, default_hl, msg, opts)
+local function notify(level, msg, opts)
   opts = opts or {}
-  local is_markdown = not is_chunk_list(msg)
 
   local apply_highlight
-  if is_markdown then
-    -- Strings/list-of-strings: fall back to Treesitter markdown
-    msg = type(msg) == 'table' and table.concat(msg, '\n') or msg
+  if type(msg) == 'string' then
+    -- Strings: fall back to Treesitter markdown
     apply_highlight = function(win)
       local bufnr = vim.api.nvim_win_get_buf(win)
       vim.bo[bufnr].filetype = 'markdown'
@@ -120,8 +88,7 @@ local function notify(level, default_hl, msg, opts)
       })
     end
   else
-    --- @cast msg table
-    msg, apply_highlight = normalize_message(msg, default_hl)
+    msg, apply_highlight = normalize_message(msg)
   end
 
   local function on_open(win)
@@ -157,7 +124,7 @@ end
 --- @param opts? utils.notifier.NotifierOpts
 --- @return any handle The notification record
 function M.info(msg, opts)
-  return notify(vim.log.levels.INFO, 'NotifyINFOBody', msg, opts)
+  return notify(vim.log.levels.INFO, msg, opts)
 end
 
 --- Display a warning-level notification with optional custom highlights
@@ -165,7 +132,7 @@ end
 --- @param opts? utils.notifier.NotifierOpts
 --- @return any handle The notification record
 function M.warn(msg, opts)
-  return notify(vim.log.levels.WARN, 'NotifyWARNBody', msg, opts)
+  return notify(vim.log.levels.WARN, msg, opts)
 end
 
 --- Display an error-level notification with optional custom highlights
@@ -173,7 +140,7 @@ end
 --- @param opts? utils.notifier.NotifierOpts
 --- @return any handle The notification record
 function M.error(msg, opts)
-  return notify(vim.log.levels.ERROR, 'NotifyERRORBody', msg, opts)
+  return notify(vim.log.levels.ERROR, msg, opts)
 end
 
 --- Display a debug notification with vim.inspect output in a code block

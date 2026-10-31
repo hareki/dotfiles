@@ -109,7 +109,6 @@ function M.create(opts)
   }, ProgressHandle)
 
   handle._timer = vim.defer_fn(function()
-    handle._timer = nil
     handle._pending = false
 
     -- 'end' cached during the pending window means abort: show nothing.

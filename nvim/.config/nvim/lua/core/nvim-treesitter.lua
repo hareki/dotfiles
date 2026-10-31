@@ -110,13 +110,9 @@ return {
   config = function()
     local treesitter = require('nvim-treesitter')
 
-    local installed = {}
-    for _, lang in ipairs(treesitter.get_installed('parsers')) do
-      installed[lang] = true
-    end
-
+    local installed = treesitter.get_installed('parsers')
     local missing = vim.tbl_filter(function(lang)
-      return not installed[lang]
+      return not vim.list_contains(installed, lang)
     end, ensure_installed)
 
     if #missing > 0 then

@@ -60,7 +60,7 @@ aucmd({ 'VimResized' }, {
       return
     end
 
-    vim.cmd.wincmd({ args = { '=' } })
+    vim.cmd.wincmd('=')
   end,
 })
 
@@ -70,7 +70,7 @@ aucmd('TabEnter', {
     local tabpage = vim.api.nvim_get_current_tabpage()
     if tabpages_to_equalize[tabpage] then
       tabpages_to_equalize[tabpage] = nil
-      vim.cmd.wincmd({ args = { '=' } })
+      vim.cmd.wincmd('=')
     end
   end,
 })
@@ -98,19 +98,18 @@ aucmd('BufReadPre', {
   end,
 })
 
-aucmd('BufReadPost', {
+-- On BufWinEnter, not BufReadPost: that runs ahead of filetypedetect, and a hidden bufload() would
+-- spend the mark in the autocmd window, where this event fires too, so wait for a real window
+aucmd('BufWinEnter', {
   group = augroup('last-location'),
   callback = function(event)
     local buf = event.buf
 
-    -- BufReadPost runs before filetype detection (this autocmd is registered
-    -- ahead of filetypedetect), so vim.bo.filetype is still empty here
-    local ft = vim.bo[buf].filetype
-    if ft == '' then
-      ft = vim.filetype.match({ buf = buf }) or ''
-    end
-
-    if ft == 'gitcommit' or vim.b[buf].restored_last_position then
+    if
+      vim.b[buf].restored_last_position
+      or vim.bo[buf].filetype == 'gitcommit'
+      or vim.fn.win_gettype() == 'autocmd'
+    then
       return
     end
 
@@ -119,7 +118,7 @@ aucmd('BufReadPost', {
     local mark = vim.api.nvim_buf_get_mark(buf, '"')
     local lcount = vim.api.nvim_buf_line_count(buf)
     if mark[1] > 0 and mark[1] <= lcount then
-      pcall(vim.api.nvim_win_set_cursor, 0, mark)
+      vim.api.nvim_win_set_cursor(0, mark)
     end
   end,
 })

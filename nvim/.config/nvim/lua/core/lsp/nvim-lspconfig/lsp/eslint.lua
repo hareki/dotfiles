@@ -15,10 +15,10 @@ return {
         push(params.message .. (params.verbose or ''))
       end,
 
-      ['window/logMessage'] = function(err, params, ctx, cfg)
+      ['window/logMessage'] = function(err, params, ctx)
         local lvl = vim.lsp.protocol.MessageType[params.type] or tostring(params.type)
         push(string.format('[%s] %s', lvl, params.message))
-        return vim.lsp.handlers['window/logMessage'](err, params, ctx, cfg)
+        return vim.lsp.handlers['window/logMessage'](err, params, ctx)
       end,
     },
   },
@@ -34,8 +34,7 @@ return {
       local buf = vim.api.nvim_create_buf(false, true)
       vim.bo[buf].filetype = 'eslint-log'
       vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-      vim.cmd.split({ mods = { split = 'botright' }, range = { 15 } })
-      vim.api.nvim_win_set_buf(0, buf)
+      vim.api.nvim_open_win(buf, true, { split = 'below', win = -1, height = 15 })
     end, {})
 
     -- `:lsp restart` re-attaches every buffer the old client served

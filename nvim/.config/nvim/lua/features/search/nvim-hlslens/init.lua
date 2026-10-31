@@ -17,8 +17,9 @@ return {
 
   {
     'kevinhwang91/nvim-hlslens',
-    -- Loaded before the first search leaves the cmdline, which is what the lens renders on
-    event = 'CmdlineEnter',
+    -- Loaded before the first search leaves the cmdline, which is what the lens renders on;
+    -- escaped, since a bare `?` is an autocmd wildcard that would match `:` too
+    event = 'CmdlineEnter /,\\?',
     keys = {
       {
         'n',

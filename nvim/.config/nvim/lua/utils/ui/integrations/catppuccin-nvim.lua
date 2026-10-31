@@ -56,8 +56,7 @@ local function catppuccin(register, plugin_name)
     return {
       'catppuccin/nvim',
       opts = function(_, opts)
-        opts.custom_highlights =
-          vim.tbl_extend('error', opts.custom_highlights or {}, resolve(register))
+        opts.custom_highlights = vim.tbl_extend('error', opts.custom_highlights, resolve(register))
       end,
     }
   end

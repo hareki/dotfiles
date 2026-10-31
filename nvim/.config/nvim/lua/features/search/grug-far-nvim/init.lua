@@ -19,7 +19,7 @@ return {
         function()
           local grug = require('grug-far')
           local utils = require('features.search.grug-far-nvim.utils')
-          local ext = nil
+          local ext
 
           if vim.bo.buftype == '' then
             local name = vim.api.nvim_buf_get_name(0)
@@ -34,7 +34,7 @@ return {
             windowCreationCommand = geometry.window_creation_command,
             previewWindow = geometry.preview_window,
             prefills = {
-              filesFilter = ext and '*.' .. ext or nil,
+              filesFilter = ext and '*.' .. ext,
             },
           })
         end,

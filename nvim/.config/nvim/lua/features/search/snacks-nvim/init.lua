@@ -10,6 +10,9 @@ local formatters = Defer.on_exported_call('features.search.snacks-nvim.utils.for
 local finders = Defer.on_exported_call('features.search.snacks-nvim.utils.finders')
 local actions = Defer.on_exported_call('features.search.snacks-nvim.actions')
 
+--- @module 'snacks.picker'
+local picker = Defer.on_exported_call('snacks.picker')
+
 return {
   UI.catppuccin(function(palette)
     return {
@@ -54,13 +57,7 @@ return {
         end,
         desc = 'Find Text',
       },
-      {
-        '<leader>fb',
-        function()
-          Snacks.picker.buffers()
-        end,
-        desc = 'Find Buffers',
-      },
+      { '<leader>fb', picker.buffers, desc = 'Find Buffers' },
       {
         '<leader>f<Tab>',
         function()
@@ -68,28 +65,9 @@ return {
         end,
         desc = 'Find Tabs',
       },
-      {
-        '<leader>fk',
-        function()
-          Snacks.picker.keymaps()
-        end,
-        mode = { 'n', 'x' },
-        desc = 'Find Keymaps',
-      },
-      {
-        '<leader>fh',
-        function()
-          Snacks.picker.highlights()
-        end,
-        desc = 'Find Highlight Groups',
-      },
-      {
-        '<leader>fH',
-        function()
-          Snacks.picker.help()
-        end,
-        desc = 'Find Help Tags',
-      },
+      { '<leader>fk', picker.keymaps, mode = { 'n', 'x' }, desc = 'Find Keymaps' },
+      { '<leader>fh', picker.highlights, desc = 'Find Highlight Groups' },
+      { '<leader>fH', picker.help, desc = 'Find Help Tags' },
     },
 
     opts = {

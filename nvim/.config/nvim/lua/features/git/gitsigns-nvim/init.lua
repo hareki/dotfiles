@@ -81,7 +81,7 @@ return {
 
           map('n', ']h', function()
             if vim.wo.diff then
-              vim.cmd.normal({ args = { ']c' }, bang = true })
+              vim.cmd.normal({ ']c', bang = true })
             else
               gs.nav_hunk('next', nav_opts)
             end
@@ -89,7 +89,7 @@ return {
 
           map('n', '[h', function()
             if vim.wo.diff then
-              vim.cmd.normal({ args = { '[c' }, bang = true })
+              vim.cmd.normal({ '[c', bang = true })
             else
               gs.nav_hunk('prev', nav_opts)
             end

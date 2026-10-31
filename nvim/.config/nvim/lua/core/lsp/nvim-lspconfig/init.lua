@@ -7,16 +7,7 @@ return {
     local range_fix = require('core.lsp.nvim-lspconfig.utils.diagnostic-range-fix')
     local server_loader = require('core.lsp.nvim-lspconfig.utils.server-loader')
 
-    local original_set = vim.diagnostic.set
-    --- @param namespace integer
-    --- @param bufnr integer
-    --- @param diagnostics vim.Diagnostic[]
-    --- @param opts? vim.diagnostic.Opts Display options to pass to |vim.diagnostic.show()|
-    --- @diagnostic disable-next-line: duplicate-set-field
-    vim.diagnostic.set = function(namespace, bufnr, diagnostics, opts)
-      range_fix.apply(bufnr, diagnostics)
-      return original_set(namespace, bufnr, diagnostics, opts)
-    end
+    range_fix.setup()
 
     vim.diagnostic.config({
       severity_sort = true,

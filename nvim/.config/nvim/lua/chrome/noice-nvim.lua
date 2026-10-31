@@ -98,7 +98,7 @@ return {
             find = 'nvim%-treesitter parser missing',
             cond = function(message)
               local lang = message:content():match('parser missing `([^`]+)`')
-              return lang ~= nil and vim.tbl_contains(trouble_ignored_parsers, lang)
+              return vim.list_contains(trouble_ignored_parsers, lang)
             end,
           },
           opts = { skip = true },
@@ -123,7 +123,7 @@ return {
     config = function(_, opts)
       -- HACK: noice shows messages from before it was enabled, so clear them in the Lazy install UI
       if vim.bo.filetype == 'lazy' then
-        vim.cmd.messages({ args = { 'clear' } })
+        vim.cmd.messages('clear')
       end
 
       local noice = require('noice')

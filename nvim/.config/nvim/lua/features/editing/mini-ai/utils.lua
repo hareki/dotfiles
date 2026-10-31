@@ -53,7 +53,7 @@ function M.buffer(ai_type)
     start_line, end_line = first_nonblank, last_nonblank
   end
 
-  local last_line = vim.api.nvim_buf_get_lines(bufnr, end_line - 1, end_line, false)[1] or ''
+  local last_line = vim.api.nvim_buf_get_lines(bufnr, end_line - 1, end_line, false)[1]
   local to_col = math.max(#last_line, 1)
   return { from = { line = start_line, col = 1 }, to = { line = end_line, col = to_col } }
 end

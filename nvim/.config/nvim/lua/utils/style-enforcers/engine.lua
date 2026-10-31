@@ -2,7 +2,7 @@
 --- @field bufnr integer
 --- @field on_start fun(name: string, idx: integer, total: integer)
 --- @field on_done fun(name: string, ok: boolean, err?: string) Called after each enforcer
---- @field on_complete fun() Called once when the run ends: after the last enforcer, or the first failed one
+--- @field on_complete fun(ok: boolean) Called once when the run ends: after the last enforcer, or the first failed one
 
 --- @class utils.style-enforcers.engine
 local M = {}
@@ -46,7 +46,7 @@ end
 local function run_next(matched, opts, idx)
   local entry = matched[idx]
   if not entry then
-    return opts.on_complete()
+    return opts.on_complete(true)
   end
 
   opts.on_start(entry.name, idx, #matched)
@@ -61,7 +61,7 @@ local function run_next(matched, opts, idx)
     if ok then
       run_next(matched, opts, idx + 1)
     else
-      opts.on_complete()
+      opts.on_complete(false)
     end
   end
 

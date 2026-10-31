@@ -1,19 +1,10 @@
+--- @module 'snacks.picker'
+local picker = Defer.on_exported_call('snacks.picker')
+
 return {
   'snacks.nvim',
   keys = {
-    {
-      '<leader>fd',
-      function()
-        Snacks.picker.diagnostics_buffer()
-      end,
-      desc = 'Find Diagnostics Buffer',
-    },
-    {
-      '<leader>fD',
-      function()
-        Snacks.picker.diagnostics()
-      end,
-      desc = 'Find Diagnostics',
-    },
+    { '<leader>fd', picker.diagnostics_buffer, desc = 'Find Diagnostics Buffer' },
+    { '<leader>fD', picker.diagnostics, desc = 'Find Diagnostics' },
   },
 }

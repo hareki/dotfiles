@@ -5,12 +5,6 @@ local utils = require('features.completion.blink-cmp.utils')
 
 local extra_words_path =
   vim.fs.joinpath(vim.fn.stdpath('config'), 'lua/features/completion/blink-cmp/words')
-local word_paths = {
-  builtin = '/usr/share/dict/words',
-  google = vim.fs.joinpath(extra_words_path, 'google-10000-english-usa-no-swears-long.txt'),
-  monkeytype = vim.fs.joinpath(extra_words_path, 'monkeytype-commonly-misspelled.txt'),
-  my_words = vim.fs.joinpath(extra_words_path, 'my-words.txt'),
-}
 
 M.default = {
   default = {
@@ -42,10 +36,10 @@ M.default = {
       score_offset = -15,
       opts = {
         paths = {
-          word_paths.my_words,
-          word_paths.google,
-          word_paths.monkeytype,
-          word_paths.builtin,
+          vim.fs.joinpath(extra_words_path, 'my-words.txt'),
+          vim.fs.joinpath(extra_words_path, 'google-10000-english-usa-no-swears-long.txt'),
+          vim.fs.joinpath(extra_words_path, 'monkeytype-commonly-misspelled.txt'),
+          '/usr/share/dict/words',
         },
         spellsuggest = true,
       },

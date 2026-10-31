@@ -1,34 +1,15 @@
+--- @module 'snacks.picker'
+local picker = Defer.on_exported_call('snacks.picker')
+--- @module 'snacks.scratch'
+local scratch = Defer.on_exported_call('snacks.scratch')
+
 return {
   'snacks.nvim',
   keys = {
-    {
-      '<leader>fR',
-      function()
-        Snacks.picker.registers()
-      end,
-      desc = "Find Registers' Contents",
-    },
-    {
-      '<leader>fu',
-      function()
-        Snacks.picker.undo()
-      end,
-      desc = 'Open Undo History',
-    },
-    {
-      '<leader>.',
-      function()
-        Snacks.scratch()
-      end,
-      desc = 'Toggle Scratch Buffer',
-    },
-    {
-      '<leader>f.',
-      function()
-        Snacks.scratch.select()
-      end,
-      desc = 'Select Scratch Buffer',
-    },
+    { '<leader>fR', picker.registers, desc = "Find Registers' Contents" },
+    { '<leader>fu', picker.undo, desc = 'Open Undo History' },
+    { '<leader>.', scratch.open, desc = 'Toggle Scratch Buffer' },
+    { '<leader>f.', scratch.select, desc = 'Select Scratch Buffer' },
   },
 
   opts = {

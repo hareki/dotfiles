@@ -1,5 +1,8 @@
 local lazygit = Defer.on_exported_call('features.git.snacks-nvim.utils')
 
+--- @module 'snacks.picker'
+local picker = Defer.on_exported_call('snacks.picker')
+
 return {
   {
     'snacks.nvim',
@@ -11,13 +14,7 @@ return {
   {
     'snacks.nvim',
     keys = {
-      {
-        '<leader>fgb',
-        function()
-          Snacks.picker.git_branches()
-        end,
-        desc = 'Find Git Branches',
-      },
+      { '<leader>fgb', picker.git_branches, desc = 'Find Git Branches' },
       {
         '<A-g>',
         lazygit.toggle,

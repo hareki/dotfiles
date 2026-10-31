@@ -27,7 +27,7 @@ local function scroll_center(motion)
     local cursor_line = vim.fn.line('.')
 
     if last_line - cursor_line >= math.floor(win_height / 2) then
-      vim.cmd.normal({ args = { 'zz' }, bang = true })
+      vim.cmd.normal({ 'zz', bang = true })
     end
   end
 end

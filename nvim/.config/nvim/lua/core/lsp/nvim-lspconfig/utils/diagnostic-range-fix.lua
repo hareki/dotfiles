@@ -32,7 +32,7 @@ end
 --- @param bufnr integer
 --- @param diagnostics vim.Diagnostic[] List of diagnostics to fix in-place
 --- @return nil
-function M.apply(bufnr, diagnostics)
+local function apply(bufnr, diagnostics)
   local line_cache = {}
   for _, diagnostic in ipairs(diagnostics) do
     -- Only ranges ending at column 0 of the next line are fixed, so most
@@ -46,6 +46,21 @@ function M.apply(bufnr, diagnostics)
 
       fix_diagnostic_range(line_cache[lnum], diagnostic)
     end
+  end
+end
+
+--- Pass every diagnostic set from here on through the range fix
+--- @return nil
+function M.setup()
+  local original_set = vim.diagnostic.set
+  --- @param namespace integer
+  --- @param bufnr integer
+  --- @param diagnostics vim.Diagnostic[]
+  --- @param opts? vim.diagnostic.Opts Display options to pass to |vim.diagnostic.show()|
+  --- @diagnostic disable-next-line: duplicate-set-field
+  vim.diagnostic.set = function(namespace, bufnr, diagnostics, opts)
+    apply(bufnr, diagnostics)
+    return original_set(namespace, bufnr, diagnostics, opts)
   end
 end
 

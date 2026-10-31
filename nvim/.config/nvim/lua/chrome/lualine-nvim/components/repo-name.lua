@@ -19,7 +19,7 @@ local repo_cache = {
 local function exec_cmd_async(cwd, args, cb)
   vim.system(vim.list_extend({ 'git', '-C', cwd }, args), { text = true }, function(result)
     vim.schedule(function()
-      local output = result.code == 0 and vim.trim(result.stdout or '') or ''
+      local output = result.code == 0 and vim.trim(result.stdout) or ''
       cb(output ~= '' and output or nil)
     end)
   end)
@@ -37,13 +37,6 @@ local function repo_name_from_url(url)
   url = url:gsub('%.git$', '')
 
   return url:match('([^/]+)$')
-end
-
---- Returns the last component of the path (directory/file name).
---- @param path string
---- @return string | nil name The last path component, or nil if invalid
-local function get_repo_name_from_path(path)
-  return path:match('([^/\\]+)$')
 end
 
 --- Async continuation of `M.get`'s cache-miss path; a cwd change between steps abandons the
@@ -97,32 +90,18 @@ local function resolve_repo_name(cwd)
       return
     end
 
-    local function finish_from_path()
-      local name = toplevel and get_repo_name_from_path(toplevel) or get_repo_name_from_path(cwd)
-      finish(name or 'Unknown', toplevel)
-    end
-
-    -- Worktrees of a bare repo show the bare repo's directory name (the toplevel's parent)
-    local parent_dir = toplevel and toplevel:match('(.+)/[^/]+$')
-    if not parent_dir then
-      finish_from_path()
+    local path_name = vim.fs.basename(toplevel or cwd)
+    if not toplevel then
+      finish(path_name, toplevel)
       return
     end
 
+    -- Worktrees of a bare repo show the bare repo's directory name (the toplevel's parent)
+    local parent_dir = vim.fs.dirname(toplevel)
     exec_cmd_async(parent_dir, { 'rev-parse', '--is-bare-repository' }, function(is_bare)
-      if superseded() then
-        return
+      if not superseded() then
+        finish(is_bare == 'true' and vim.fs.basename(parent_dir) or path_name, toplevel)
       end
-
-      if is_bare == 'true' then
-        local parent_repo_name = get_repo_name_from_path(parent_dir)
-        if parent_repo_name then
-          finish(parent_repo_name, toplevel)
-          return
-        end
-      end
-
-      finish_from_path()
     end)
   end)
 end
@@ -137,7 +116,7 @@ function M.get()
     return repo_cache.name
   end
 
-  local placeholder = repo_cache.name or get_repo_name_from_path(current_cwd or '') or ''
+  local placeholder = repo_cache.name or vim.fs.basename(current_cwd) or ''
 
   -- cwd can be nil (e.g. the directory was deleted); nothing to resolve then
   if not current_cwd then

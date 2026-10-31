@@ -62,7 +62,7 @@ function M.toggle()
   end
 
   local file = target_file()
-  state.win = Snacks.lazygit(file and { args = { '--file', file } } or nil)
+  state.win = Snacks.lazygit(file and { args = { '--file', file } })
 end
 
 --- Hide every visible Snacks terminal and refocus the last editing window for `nvim --remote`

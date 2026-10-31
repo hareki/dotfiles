@@ -6,7 +6,6 @@ return {
       picker = {
         'snacks',
         opts = {
-          source = 'buffer',
           win = {
             preview = {
               title = Conf.picker.PREVIEW_TITLE,

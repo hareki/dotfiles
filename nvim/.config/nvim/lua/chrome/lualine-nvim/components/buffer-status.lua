@@ -85,7 +85,7 @@ local function get_current_unsaved()
   elseif ft == '' then
     is_ignored = bo.buftype == 'nofile' or bo.buftype == 'prompt'
   else
-    is_ignored = IGNORE_FILETYPES[ft] or false
+    is_ignored = IGNORE_FILETYPES[ft]
   end
 
   if is_ignored then
@@ -158,11 +158,7 @@ end
 
 --- @return string
 local function get_current_conflict()
-  local bufnr = vim.api.nvim_get_current_buf()
-  if vim.b[bufnr].git_conflict then
-    return unmerged_icon
-  end
-  return ''
+  return vim.b.git_conflict and unmerged_icon or ''
 end
 
 --- Get global conflict flag (count of other conflicted buffers)

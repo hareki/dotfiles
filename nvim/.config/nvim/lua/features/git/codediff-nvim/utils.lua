@@ -12,13 +12,8 @@ local views = {}
 function M.is_codediff_tab(tabpage)
   -- Requiring codediff (lazy, cmd = 'CodeDiff') would force-load it from every caller (statusline
   -- redraws, git-conflict scans), and while it isn't loaded there are no sessions
-  local package_utils = require('utils.package')
-  if not package_utils.is_loaded('codediff.nvim') then
-    return false
-  end
-
-  local lifecycle = require('codediff.ui.lifecycle')
-  return lifecycle.get_session(tabpage) ~= nil
+  local lifecycle = package.loaded['codediff.ui.lifecycle']
+  return lifecycle ~= nil and lifecycle.get_session(tabpage) ~= nil
 end
 
 --- Save the modified pane's view; it maps 1:1 to the working file's lines.

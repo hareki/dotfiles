@@ -53,48 +53,28 @@ local function cache_set(key, value, from_cli)
   return entry
 end
 
---- @param result? vim.SystemCompleted
+--- @param result vim.SystemCompleted
 --- @return string? markdown
 local function cli_markdown(result)
-  if result and result.code == 0 and result.stdout and #result.stdout > 0 then
+  if result.code == 0 and result.stdout ~= '' then
     return vim.trim(result.stdout)
   end
 end
 
---- Start the CLI on one input without waiting for it
+--- Start the CLI on one input without waiting for it, through stdin: a long JSON argument would
+--- pass the OS arg limit
 --- @param json_text string
---- @return vim.SystemObj? handle nil when the spawn failed or the CLI is unavailable
+--- @return vim.SystemObj? handle nil when the CLI is unavailable
 local function spawn_cli(json_text)
   if M.state.cli_unavailable then
     return nil
   end
 
-  local cmd = { EXECUTABLE, '-i', json_text }
-  local ok, handle = pcall(vim.system, cmd, { text = true })
-  return ok and handle or nil
-end
-
---- Wait for a spawn_cli run, retrying through stdin when the argument form failed
---- @param handle? vim.SystemObj
---- @param json_text string
---- @return string? markdown
-local function collect_cli(handle, json_text)
-  local markdown = handle and cli_markdown(handle:wait())
-  if markdown or M.state.cli_unavailable then
-    return markdown
+  local ok, handle = pcall(vim.system, { EXECUTABLE }, { text = true, stdin = json_text })
+  if ok then
+    return handle
   end
-
-  -- vim.system also throws for a JSON arg past the OS arg limit, which this stdin form handles,
-  -- so latch cli_unavailable only when the stdin form throws too
-  local ok, result = pcall(function()
-    return vim.system({ EXECUTABLE }, { text = true, stdin = json_text }):wait()
-  end)
-  if not ok then
-    M.state.cli_unavailable = true
-    return nil
-  end
-
-  return cli_markdown(result)
+  M.state.cli_unavailable = true
 end
 
 -- Eagle formats a line's diagnostics one by one, so a miss spawns the CLI for all of the line's
@@ -110,22 +90,19 @@ local function format_line(diagnostic)
       return
     end
 
-    local json_text = vim.json.encode(build_cli_input(d))
-    jobs[key] = { message = d.message, json_text = json_text, handle = spawn_cli(json_text) }
+    jobs[key] = { message = d.message, handle = spawn_cli(vim.json.encode(build_cli_input(d))) }
   end
 
   spawn(diagnostic)
-  if diagnostic.bufnr then
-    for _, d in ipairs(vim.diagnostic.get(diagnostic.bufnr, { lnum = diagnostic.lnum })) do
-      if d.source == diagnostic.source then
-        spawn(d)
-      end
+  for _, d in ipairs(vim.diagnostic.get(diagnostic.bufnr, { lnum = diagnostic.lnum })) do
+    if d.source == diagnostic.source then
+      spawn(d)
     end
   end
 
   local entries = {}
   for key, job in pairs(jobs) do
-    local markdown = collect_cli(job.handle, job.json_text)
+    local markdown = job.handle and cli_markdown(job.handle:wait())
     entries[key] = cache_set(key, markdown or job.message, markdown ~= nil)
   end
 

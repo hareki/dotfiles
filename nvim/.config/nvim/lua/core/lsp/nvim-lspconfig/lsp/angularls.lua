@@ -1,4 +1,4 @@
-local fn, fs, uv = vim.fn, vim.fs, vim.uv
+local fs, uv = vim.fs, vim.uv
 
 -- lspconfig probes ngserver's deps from exepath(), but the mise shim's realpath is `mise` itself;
 -- spawn the install `mise which` picks (the npm store is the package realpath's grandparent)
@@ -15,15 +15,15 @@ local function resolve_ngserver(root_dir)
   local bin = vim.trim(which.stdout)
   local pkg = fs.joinpath(fs.dirname(fs.dirname(bin)), '@angular', 'language-server')
   local real = uv.fs_realpath(pkg)
-  return bin, real and fs.dirname(fs.dirname(real)) or nil
+  return bin, real and fs.dirname(fs.dirname(real))
 end
 
 --- @param root_dir string
 --- @return string
 local function get_angular_core_version(root_dir)
   local package_json = fs.joinpath(root_dir, 'package.json')
-  local ok, content = pcall(fn.readblob, package_json)
-  if not ok or not content then
+  local ok, content = pcall(vim.fn.readblob, package_json)
+  if not ok then
     return ''
   end
 

@@ -209,7 +209,7 @@ function M.hover_image()
 
     -- Remote images: snacks downloads URLs itself, while the local-copy step
     -- below would fail filereadable() and silently drop the hover
-    if src:find('^%w%w+://') then
+    if Snacks.image.convert.is_uri(src) then
       open(source_buf, src)
       return
     end
