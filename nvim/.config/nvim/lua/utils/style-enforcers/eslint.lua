@@ -4,7 +4,7 @@ local engine = require('utils.style-enforcers.engine')
 local M = {}
 
 --- Run eslint.applyAllFixes on a buffer through the eslint language server
---- @param opts utils.style-enforcers.RunnerOpts
+--- @param opts utils.style-enforcers.engine.RunnerOpts
 --- @return nil
 function M.run(opts)
   engine.execute_command(opts, 'eslint.applyAllFixes', {

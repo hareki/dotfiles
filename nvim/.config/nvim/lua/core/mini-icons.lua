@@ -39,7 +39,6 @@ return {
         },
         filetype = {
           env = { glyph = icons.DOTENV, hl = 'MiniIconsYellow' },
-          dotenv = { glyph = icons.DOTENV, hl = 'MiniIconsYellow' },
           sql = { glyph = icons.SQL, hl = 'MiniIconsYellow' },
           text = { glyph = icons.TEXT, hl = 'MiniIconsGrey' },
           handlebars = { glyph = icons.HANDLEBARS, hl = 'MiniIconsOrange' },

@@ -36,7 +36,7 @@ return {
     config = function(_, opts)
       -- PERF: Disable satellite mouse handler by occupying the keymap
       vim.keymap.set(
-        { 'n', 'v', 'o', 'i' },
+        'n',
         '<leftmouse>',
         '<leftmouse>',
         { desc = 'Disable Satellite Mouse Handler' }

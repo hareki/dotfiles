@@ -1,4 +1,4 @@
---- @class utils.style-enforcers.RunOpts
+--- @class utils.style-enforcers.engine.RunOpts
 --- @field bufnr integer
 --- @field on_start fun(name: string, idx: integer, total: integer)
 --- @field on_done fun(name: string, ok: boolean, err?: string) Called after each enforcer
@@ -11,20 +11,20 @@ local M = {}
 --- so the result no longer applies to it
 M.BUFFER_CHANGED = 'buffer changed while running'
 
---- @alias utils.style-enforcers.RunnerOpts { bufnr: integer, client: vim.lsp.Client, on_done: fun(ok: boolean, err?: string) }
---- @alias utils.style-enforcers.Runner fun(opts: utils.style-enforcers.RunnerOpts)
+--- @alias utils.style-enforcers.engine.RunnerOpts { bufnr: integer, client: vim.lsp.Client, on_done: fun(ok: boolean, err?: string) }
+--- @alias utils.style-enforcers.engine.Runner fun(opts: utils.style-enforcers.engine.RunnerOpts)
 
---- @class utils.style-enforcers.Entry
+--- @class utils.style-enforcers.engine.Entry
 --- @field name string LSP client the runner drives, doubling as the enforcer name
---- @field runner utils.style-enforcers.Runner
+--- @field runner utils.style-enforcers.engine.Runner
 
---- @type utils.style-enforcers.Entry[]
+--- @type utils.style-enforcers.engine.Entry[]
 local entries = {}
 
 --- Register an enforcer driven by the LSP client `name`, skipping buffers that client isn't
 --- attached to; enforcers run in registration order
 --- @param name string
---- @param runner utils.style-enforcers.Runner
+--- @param runner utils.style-enforcers.engine.Runner
 --- @return nil
 function M.register(name, runner)
   entries[#entries + 1] = { name = name, runner = runner }
@@ -32,7 +32,7 @@ end
 
 --- Registered enforcers whose client is attached to a buffer, in registration order
 --- @param bufnr integer
---- @return utils.style-enforcers.Entry[]
+--- @return utils.style-enforcers.engine.Entry[]
 local function entries_for_buf(bufnr)
   return vim.tbl_filter(function(entry)
     return #vim.lsp.get_clients({ name = entry.name, bufnr = bufnr }) > 0
@@ -40,8 +40,8 @@ local function entries_for_buf(bufnr)
 end
 
 --- Run the matched enforcers sequentially
---- @param matched utils.style-enforcers.Entry[]
---- @param opts utils.style-enforcers.RunOpts
+--- @param matched utils.style-enforcers.engine.Entry[]
+--- @param opts utils.style-enforcers.engine.RunOpts
 --- @param idx integer
 local function run_next(matched, opts, idx)
   local entry = matched[idx]
@@ -76,14 +76,14 @@ local function run_next(matched, opts, idx)
 end
 
 --- Run every registered enforcer that applies to the buffer
---- @param opts utils.style-enforcers.RunOpts
+--- @param opts utils.style-enforcers.engine.RunOpts
 --- @return nil
 function M.run_for_buf(opts)
   run_next(entries_for_buf(opts.bufnr), opts, 1)
 end
 
 --- Send a workspace/executeCommand for a runner, reporting the server's error to its on_done
---- @param opts utils.style-enforcers.RunnerOpts
+--- @param opts utils.style-enforcers.engine.RunnerOpts
 --- @param command string
 --- @param argument table The command's only argument
 --- @return nil
@@ -98,7 +98,7 @@ end
 --- error ends the runner, and so does an edit made while the request was in flight (typing on
 --- after <A-s>), since edits built from the reply's unversioned positions would land shifted and
 --- corrupt the text
---- @param opts utils.style-enforcers.RunnerOpts
+--- @param opts utils.style-enforcers.engine.RunnerOpts
 --- @param method vim.lsp.protocol.Method.ClientToServer.Request
 --- @param params table
 --- @param on_result fun(result: any)

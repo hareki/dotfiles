@@ -67,6 +67,9 @@ return {
           return
         end
 
+        local utils = require('core.nvim-treesitter.utils')
+        utils.skip_syntax_on_detach()
+
         pcall(vim.treesitter.start, args.buf, lang)
       end,
     })

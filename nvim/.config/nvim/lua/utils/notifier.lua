@@ -25,17 +25,12 @@ local function normalize_message(chunks)
 
     local lines = vim.split(text, '\n', { plain = true })
     for i, line_text in ipairs(lines) do
-      local byte_len = #line_text
-      if i == 1 then
-        -- First line: continues current line
-        regions[#regions + 1] = { line, col, col + byte_len, group }
-        col = col + byte_len
-      else
-        -- Subsequent lines: new line starts at col 0
-        line = line + 1
-        regions[#regions + 1] = { line, 0, byte_len, group }
-        col = byte_len
+      -- The first part continues the current line, the others start a new one
+      if i > 1 then
+        line, col = line + 1, 0
       end
+      regions[#regions + 1] = { line, col, col + #line_text, group }
+      col = col + #line_text
     end
   end
   local plain = table.concat(parts)

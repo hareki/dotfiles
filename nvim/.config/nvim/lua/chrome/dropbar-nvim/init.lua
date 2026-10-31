@@ -27,11 +27,8 @@ return {
     event = 'VeryLazy',
 
     init = function()
-      local has_cli_args = vim.fn.argc(-1) > 0
-      if has_cli_args then
-        -- Reserve a winbar line till dropbar loads to prevent layout shifting
-        vim.opt.winbar = ' '
-      end
+      -- Reserve a winbar line till dropbar loads to prevent layout shifting
+      vim.opt.winbar = ' '
     end,
 
     keys = {

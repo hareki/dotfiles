@@ -20,14 +20,14 @@ local computed_input_size = {
   width = 60,
 }
 
---- Resolve a dimensions preset into whole width/height cells: fractions of the
---- screen when <= 1, absolute values otherwise, then offsets and minimums
+--- Resolve a dimensions preset (fractions of the screen) into whole width/height cells, applying
+--- its offsets and minimums
 --- @param dimensions config.size.Dimensions
 --- @return integer width Width in columns
 --- @return integer height Height in rows
 local function resolve_dimensions(dimensions)
-  local width = dimensions.WIDTH <= 1 and vim.o.columns * dimensions.WIDTH or dimensions.WIDTH
-  local height = dimensions.HEIGHT <= 1 and vim.o.lines * dimensions.HEIGHT or dimensions.HEIGHT
+  local width = vim.o.columns * dimensions.WIDTH
+  local height = vim.o.lines * dimensions.HEIGHT
 
   local height_offset = dimensions.HEIGHT_OFFSET
   if height_offset then

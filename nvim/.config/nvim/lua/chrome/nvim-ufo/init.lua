@@ -63,5 +63,13 @@ return {
         },
       }
     end,
+
+    config = function(_, opts)
+      local ufo = require('ufo')
+      local utils = require('chrome.nvim-ufo.utils')
+
+      utils.skip_stale_scan_without_folds()
+      ufo.setup(opts)
+    end,
   },
 }

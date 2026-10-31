@@ -52,13 +52,7 @@ M.cmdline = {
   preset = 'inherit',
   ['<Tab>'] = { 'show', 'select_next', 'fallback' },
   ['<Esc>'] = {
-    function(cmp)
-      if cmp.is_menu_visible() then
-        cmp.hide()
-
-        return true
-      end
-    end,
+    'hide',
     -- 'fallback' won't cut it because of this bug in neovim
     -- https://github.com/neovim/neovim/issues/21585
     function()

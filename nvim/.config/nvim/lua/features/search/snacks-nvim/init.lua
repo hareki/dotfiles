@@ -179,6 +179,7 @@ return {
           },
 
           todo_comments = {
+            show_pattern = false,
             actions = {
               snacks_to_trouble = actions.todo_to_trouble,
             },

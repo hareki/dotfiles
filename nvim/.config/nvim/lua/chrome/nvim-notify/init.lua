@@ -33,6 +33,7 @@ return {
       return {
         stages = 'static',
         timeout = 2000,
+        fps = 10, -- The static stage animates nothing: this only polls the timeouts
 
         max_height = UI.layout.inline_max_height,
         max_width = UI.layout.inline_max_width,

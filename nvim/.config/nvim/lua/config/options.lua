@@ -48,9 +48,6 @@ opt.linebreak = true -- Wrap words, not characters (mid-word wrapping) when wrap
 -- Use typos-lsp for spell checking, datword for suggestions
 opt.spelllang = {}
 
--- Prevent changing cwd when navigating to files outside of cwd (e.g. going to definition)
-opt.viewoptions:remove('curdir')
-
 -- Diagonal hatch fill for deleted/filler lines in diff views (e.g. codediff)
 opt.fillchars:append({ diff = Conf.icons.fillchars.DIFF, eob = ' ', lastline = '.' })
 

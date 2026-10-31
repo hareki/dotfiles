@@ -48,4 +48,20 @@ function M.fold_text_handler(virt_text, lnum, end_lnum, width, truncate)
   return virt_text_result
 end
 
+--- ufo's post-render stale fold check reads every namespace's extmarks on each visible line before
+--- it looks at whether the line holds a fold, which took ~5 ms per pause with nothing folded
+--- @return nil
+function M.skip_stale_scan_without_folds()
+  local fold_buffer = require('ufo.model.foldbuffer')
+  local open_stale_folds = fold_buffer.openStaleFoldsByRange
+
+  function fold_buffer:openStaleFoldsByRange(...)
+    if self.foldedLineCount == 0 then
+      return false
+    end
+
+    return open_stale_folds(self, ...)
+  end
+end
+
 return M

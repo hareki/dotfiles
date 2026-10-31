@@ -126,17 +126,8 @@ M.show_picker = function()
 
     picker:norm(function()
       local list = harpoon:list()
-      local indices_to_remove = {}
       for _, item in ipairs(selection) do
-        table.insert(indices_to_remove, item.harpoon_idx)
-      end
-
-      table.sort(indices_to_remove, function(a, b)
-        return a > b
-      end)
-
-      for _, idx in ipairs(indices_to_remove) do
-        list:remove_at(idx)
+        list:remove_at(item.harpoon_idx)
       end
     end)
 
@@ -162,7 +153,8 @@ M.show_picker = function()
 end
 
 --- Invalidate the statusline's harpoon component and redraw it. Some mutations keep the list
---- length (replace_at, menu-save reorder), so the component's (buf, length) cache key misses them
+--- length (replace_at, remove_at short of the last slot), so the component's (buf, length) cache
+--- key misses them
 --- @return nil
 function M.refresh_statusline()
   local harpoon_component = require('chrome.lualine-nvim.components.harpoon')

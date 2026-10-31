@@ -30,17 +30,10 @@ function M.get()
     return defaults
   end
 
-  --- @type utils.project-config.Config
-  local cfg = { linter = defaults.linter, formatter = defaults.formatter }
-  if decoded.linter == 'oxlint' or decoded.linter == 'eslint' then
-    cfg.linter = decoded.linter
-  end
-
-  if decoded.formatter == 'oxfmt' or decoded.formatter == 'prettier' then
-    cfg.formatter = decoded.formatter
-  end
-
-  return cfg
+  return {
+    linter = decoded.linter == 'oxlint' and 'oxlint' or defaults.linter,
+    formatter = decoded.formatter == 'oxfmt' and 'oxfmt' or defaults.formatter,
+  }
 end
 
 return M

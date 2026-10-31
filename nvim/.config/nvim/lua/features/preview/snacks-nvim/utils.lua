@@ -152,10 +152,6 @@ local function open(source_buf, src)
         noautocmd = true,
       })
 
-      if Snacks.image.terminal.env().placeholders then
-        vim.wo[win].winblend = 0
-      end
-
       current.win = win
     end,
   })

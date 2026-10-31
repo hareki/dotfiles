@@ -4,7 +4,7 @@ local engine = require('utils.style-enforcers.engine')
 local M = {}
 
 --- Format a buffer in memory with the oxfmt language server's edits (no CLI spawn)
---- @param opts utils.style-enforcers.RunnerOpts
+--- @param opts utils.style-enforcers.engine.RunnerOpts
 --- @return nil
 function M.run(opts)
   local bufnr = opts.bufnr

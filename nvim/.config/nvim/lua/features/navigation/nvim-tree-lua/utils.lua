@@ -29,10 +29,7 @@ local manager = Defer.on_index('nvim-tree-preview.manager')
 --- 'lg' while the float tree shows the preview (wide enough for readable code), else 'vertical_sm'
 --- @return 'lg' | 'vertical_sm'
 local function compute_size()
-  if M.state.position == 'float' and M.state.preview_on_focus then
-    return 'lg'
-  end
-  return 'vertical_sm'
+  return M.state.preview_on_focus and 'lg' or 'vertical_sm'
 end
 
 --- Close the nvim-tree and preview windows, cleaning up watchers

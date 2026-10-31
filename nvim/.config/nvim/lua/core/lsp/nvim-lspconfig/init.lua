@@ -49,7 +49,6 @@ return {
         map('n', 'gr', function()
           Snacks.picker.lsp_references({
             include_current = true,
-            include_declaration = true,
           })
         end, 'Find References')
 
@@ -103,7 +102,6 @@ return {
       'html',
       'cssls',
       'css_variables',
-      'stylua', -- Lua formatter
       'vtsls', -- TypeScript
       'tailwindcss',
       'astro',

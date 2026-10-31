@@ -42,25 +42,15 @@ return {
       return keys
     end,
 
-    opts = function()
-      return {
-        settings = {
-          save_on_toggle = true,
-        },
-      }
-    end,
-
-    config = function(_, opts)
+    config = function()
       local harpoon = require('harpoon')
       local utils = require('features.navigation.harpoon.utils')
-      harpoon.setup(opts)
+      harpoon:setup()
 
-      -- Invalidate the statusline component on harpoon's mutation events
+      -- Invalidate the statusline component on the only mutations utils.lua makes
       harpoon:extend({
-        ADD = utils.refresh_statusline,
         REMOVE = utils.refresh_statusline,
         REPLACE = utils.refresh_statusline,
-        LIST_CHANGE = utils.refresh_statusline,
       })
     end,
   },

@@ -75,7 +75,6 @@ return {
         blink_cmp = true,
         dropbar = true, -- color_mode = false comes from catppuccin's defaults
         flash = true,
-        harpoon = true,
         ufo = true,
       },
     }

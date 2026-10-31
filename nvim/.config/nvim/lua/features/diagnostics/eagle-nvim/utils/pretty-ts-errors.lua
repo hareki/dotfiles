@@ -6,7 +6,7 @@ local MAX_CACHE_ENTRIES = 512
 
 M.state = {
   cli_unavailable = false, -- Set on spawn failure so we never re-pay a failed spawn
-  cache = {}, -- key -> { value, from_cli }
+  cache = {}, -- key -> markdown
   cache_size = 0,
 }
 
@@ -40,24 +40,32 @@ local function compute_cache_key(diagnostic)
   return table.concat(parts, '\31')
 end
 
---- @return { value: string, from_cli: boolean } entry
-local function cache_set(key, value, from_cli)
+local function cache_set(key, markdown)
   if M.state.cache_size >= MAX_CACHE_ENTRIES then
     M.state.cache, M.state.cache_size = {}, 0
   end
 
-  local entry = { value = value, from_cli = from_cli }
-  M.state.cache[key] = entry
+  M.state.cache[key] = markdown
   M.state.cache_size = M.state.cache_size + 1
+end
 
-  return entry
+-- Strip the first line (the header with links) + a single blank line after it.
+local function strip_cli_header(md)
+  local first_nl = md:find('\n', 1, true)
+  if not first_nl then
+    return md
+  end
+  local rest = md:sub(first_nl + 1)
+  rest = rest:gsub('^\r?\n', '', 1)
+
+  return rest
 end
 
 --- @param result vim.SystemCompleted
 --- @return string? markdown
 local function cli_markdown(result)
   if result.code == 0 and result.stdout ~= '' then
-    return vim.trim(result.stdout)
+    return strip_cli_header(vim.trim(result.stdout))
   end
 end
 
@@ -80,7 +88,7 @@ end
 -- Eagle formats a line's diagnostics one by one, so a miss spawns the CLI for all of the line's
 -- uncached same-source diagnostics at once: the popup waits for the slowest, not their sum
 --- @param diagnostic vim.Diagnostic The cache miss
---- @return table<string, { value: string, from_cli: boolean }> entries By cache key
+--- @return table<string, string> markdown By cache key
 local function format_line(diagnostic)
   local jobs = {}
 
@@ -100,25 +108,13 @@ local function format_line(diagnostic)
     end
   end
 
-  local entries = {}
+  local results = {}
   for key, job in pairs(jobs) do
-    local markdown = job.handle and cli_markdown(job.handle:wait())
-    entries[key] = cache_set(key, markdown or job.message, markdown ~= nil)
+    results[key] = job.handle and cli_markdown(job.handle:wait()) or job.message
+    cache_set(key, results[key])
   end
 
-  return entries
-end
-
--- Strip the first line (the header with links) + a single blank line after it.
-local function strip_cli_header(md)
-  local first_nl = md:find('\n', 1, true)
-  if not first_nl then
-    return md
-  end
-  local rest = md:sub(first_nl + 1)
-  rest = rest:gsub('^\r?\n', '', 1)
-
-  return rest
+  return results
 end
 
 --- Pretty markdown for a TypeScript diagnostic via the pretty-ts-errors-markdown CLI, cached
@@ -127,16 +123,7 @@ end
 --- @return string markdown
 function M.format(diagnostic)
   local key = compute_cache_key(diagnostic)
-  local entry = M.state.cache[key] or format_line(diagnostic)[key]
-  local md = entry.value
-
-  -- Only the CLI's markdown carries a header line; stripping the raw-message
-  -- fallback would delete the first line of the actual error text
-  if entry.from_cli then
-    md = strip_cli_header(md)
-  end
-
-  return md
+  return M.state.cache[key] or format_line(diagnostic)[key]
 end
 
 return M

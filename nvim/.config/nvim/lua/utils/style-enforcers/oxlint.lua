@@ -4,7 +4,7 @@ local engine = require('utils.style-enforcers.engine')
 local M = {}
 
 --- Run oxc.fixAll on a buffer through the oxlint language server
---- @param opts utils.style-enforcers.RunnerOpts
+--- @param opts utils.style-enforcers.engine.RunnerOpts
 --- @return nil
 function M.run(opts)
   local document = vim.lsp.util.make_text_document_params(opts.bufnr)

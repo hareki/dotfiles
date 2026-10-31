@@ -255,34 +255,32 @@ function M.run_all(debug)
     --- @param header string
     --- @param header_hl string
     --- @param paths string[]
-    --- @param ends_message boolean Whether no section follows this one
-    local function add_section(header, header_hl, paths, ends_message)
+    local function add_section(header, header_hl, paths)
       table.insert(chunks, { header, header_hl })
-      for index, path in ipairs(paths) do
+      for _, path in ipairs(paths) do
         local icon, icon_hl = mini_icons.get('file', path)
         local dir, file = split_path(path)
-        local is_last = ends_message and index == #paths
 
-        table.insert(chunks, { '  ' .. icon .. ' ', icon_hl })
+        table.insert(chunks, { '\n  ' .. icon .. ' ', icon_hl })
         if dir ~= '' then
           table.insert(chunks, { dir, 'SnacksPickerDir' })
         end
-        table.insert(chunks, { file .. (is_last and '' or '\n'), 'SnacksPickerFile' })
+        table.insert(chunks, { file, 'SnacksPickerFile' })
       end
     end
 
     -- Happy / mixed case: successes first
     if #success_paths > 0 then
-      add_section('Success:\n', 'DiagnosticSignOk', success_paths, not has_error)
+      add_section('Success:', 'DiagnosticSignOk', success_paths)
     end
 
     -- Failures, which also turn the summary into a warning
     if has_error then
       if #success_paths > 0 then
-        table.insert(chunks, { '\n', 'Normal' }) -- blank line between sections
+        table.insert(chunks, { '\n\n', 'Normal' }) -- blank line between sections
       end
 
-      add_section('Error:\n', 'Error', error_paths, true)
+      add_section('Error:', 'Error', error_paths)
       Notifier.warn(chunks, { title = 'Style Enforcer' })
     else
       Notifier.info(chunks, { title = 'Style Enforcer' })

@@ -12,7 +12,7 @@ local cache = {
 }
 
 --- Drop the cached text, for mutations the (buf, length) key can't detect (replace_at, a
---- same-length menu-save reorder); harpoon's extension events in the spec's `config` call it
+--- remove_at short of the last slot); harpoon's extension events in the spec's `config` call it
 --- @return nil
 function M.invalidate()
   cache.buf = -1
