@@ -4,8 +4,7 @@
 local -a projects=($XDG_CONFIG_HOME/tmuxinator/*.yml(N:t:r))
 
 if (( CURRENT == 2 )); then
-  # `tmuxinator commands` boots Ruby (>100ms); cache per shell since the
-  # command set can't change mid-session
+  # Cached per shell: `tmuxinator commands` boots Ruby (>100ms) and its list won't change
   (( $+_tmuxinator_commands )) || typeset -ga _tmuxinator_commands=(${(f)"$(tmuxinator commands zsh)"})
   _alternative \
     'commands:: _describe -t commands "tmuxinator subcommands" _tmuxinator_commands' \

@@ -1,8 +1,7 @@
 #!/bin/zsh
 
 yay() {
-  # The updaters are independent: one failing (a single brew cask is enough to fail
-  # `brew upgrade`) must not skip the rest, so failures are collected and reported last
+  # One failing updater (a single brew cask can fail `brew upgrade`) must not skip the rest
   local -a failed
 
   print-header "Updating Homebrew"

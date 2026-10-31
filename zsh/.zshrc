@@ -11,7 +11,6 @@ if [[ -n "$ZSH_DEBUGRC" ]]; then
   zmodload zsh/zprof
 fi
 
-# Run `p10k configure` or edit ~/.p10k.zsh directly to customize p10k prompt
 source ~/.p10k.zsh
 
 __zsh_config_dir=$XDG_CONFIG_HOME/zsh
@@ -22,7 +21,6 @@ for cfg in aliases vi-mode keymaps options evals tty-guard; do
   source $__zsh_config_dir/$cfg.zsh
 done
 
-# Autoload util functions when needed
 autoload -Uz $__zsh_config_dir/functions/*(.N:t)
 unset __zsh_config_dir cfg
 

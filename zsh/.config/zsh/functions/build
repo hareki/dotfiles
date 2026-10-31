@@ -3,8 +3,7 @@
 build() {
   local -a targets=(atuin eza television worktrunk lazygit fzf tmux)
   local target failed=0
-  # In the toolchains' own dirs, mise would shim every binary (~25ms per call) and a go
-  # upgrade would strand them; PATH puts this dir ahead of the mise shims instead
+  # Outside the toolchains' dirs, binaries skip mise's ~25ms shims and survive go upgrades
   local -x CARGO_INSTALL_ROOT=~/.local/opt GOBIN=~/.local/opt/bin
 
   case "$1" in
@@ -22,8 +21,7 @@ build() {
       done
       return $failed
       ;;
-    # A failed build keeps its artifacts for debugging and as the retry's cache, while
-    # `go install` leaves none in the repo (its build cache is the self-trimming GOCACHE)
+    # Failed builds keep their artifacts for debugging and retries; `go install` leaves none
     atuin)                    cargo install --locked --path crates/atuin && cargo clean ;;
     eza|television|worktrunk) cargo install --locked --path . && cargo clean ;;
     lazygit|fzf)              go install ;;

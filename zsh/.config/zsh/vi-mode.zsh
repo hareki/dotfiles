@@ -1,7 +1,6 @@
 bindkey -v
 
-# 10ms instead of 400ms, so <Esc> switches modes at once; real escape sequences still
-# match, since the terminal delivers them in one already-buffered burst
+# 10ms, so <Esc> switches modes at once; escape sequences still match, arriving in one burst
 KEYTIMEOUT=1
 
 # Change cursor shape for different vi modes.
@@ -45,12 +44,10 @@ bindkey -M visual 'k' vi-put-after
 bindkey -M vicmd  'h' vi-yank
 bindkey -M vicmd  'k' vi-put-after
 
-# Native visual-line-mode leaves mark==cursor, so nothing highlights on a single-line
-# buffer; a char-wise selection of the whole line does
+# Native visual-line-mode leaves mark==cursor, highlighting nothing on a single-line buffer
 select_whole_line() { zle .beginning-of-line; zle .visual-mode; zle .end-of-line }
 zle -N select-whole-line select_whole_line
 bindkey -M vicmd  'V' select-whole-line
 
-# Visual selection in Catppuccin Mocha Yellow (fg) on a shade between Surface1 and Surface2
-# (bg); the fg is set too, since a bg-only region style couldn't keep the text's own color
+# Catppuccin Mocha Yellow on a Surface1/Surface2 shade; bg alone can't keep the text's color
 zle_highlight=(region:bg=#4f5164,fg=#f9e2af)

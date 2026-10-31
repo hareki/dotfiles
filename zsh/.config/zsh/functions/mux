@@ -1,13 +1,11 @@
 #!/bin/zsh
 
-# Outside tmux, tmuxinator builds the layouts at 80x24 and they skew as the windows grow
-# on attach, so it runs from a throwaway session, sized to the terminal, that then closes
+# tmuxinator's 80x24 layouts skew on attach, so run it in a terminal-sized throwaway session
 mux() {
   if [[ -n $TMUX ]]; then
     tmuxinator start "$@"
   else
-    # One quoted string, since tmux would split an argument ending in `;` off as
-    # a separate command. On failure, keep the pane open so the error stays readable
+    # One quoted string: tmux splits an argument ending in `;` off as a separate command
     tmux new-session zsh -c "tmuxinator start ${(j: :)${(q)@}} ||
       { print -P '%F{red}mux: tmuxinator failed, press any key to close%f'; read -sk1 }"
   fi

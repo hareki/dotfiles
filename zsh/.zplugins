@@ -1,5 +1,4 @@
-# Only the omz libs this config uses, not all of lib (~2ms per shell); plugins.zsh sets
-# the variables they read, since omz's own loader isn't used either
+# Only the omz libs this config uses, not all of lib (~2ms per shell)
 ohmyzsh/ohmyzsh path:lib/completion.zsh
 ohmyzsh/ohmyzsh path:lib/directories.zsh
 ohmyzsh/ohmyzsh path:lib/functions.zsh
@@ -13,7 +12,6 @@ ohmyzsh/ohmyzsh path:lib/vcs_info.zsh
 ohmyzsh/ohmyzsh path:plugins/ssh-agent kind:defer
 romkatv/powerlevel10k
 
-# autosuggestions goes last: with ZSH_AUTOSUGGEST_MANUAL_REBIND it wraps the widgets
-# that exist when it loads, and nothing afterwards
+# autosuggestions goes last: with ZSH_AUTOSUGGEST_MANUAL_REBIND it wraps only earlier widgets
 Aloxaf/fzf-tab kind:defer
 zsh-users/zsh-autosuggestions kind:defer

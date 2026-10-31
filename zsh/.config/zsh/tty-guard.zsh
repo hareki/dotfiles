@@ -5,7 +5,7 @@ zmodload zsh/sched
 zmodload -F zsh/system p:sysparams
 
 _tty_guard_tick() {
-  # forked copies of this shell (zpty children run zle too) inherit the sched entry
+  # Forked copies of this shell (zpty children run zle too) inherit the sched entry
   [[ $sysparams[pid] == $_tty_guard_pid ]] || return 0
   sched +2 _tty_guard_tick
   zle || return 0
@@ -17,7 +17,7 @@ _tty_guard_tick() {
   zle -M ''
 }
 
-# re-sourcing .zshrc must not stack a second ticker
+# Re-sourcing .zshrc must not stack a second ticker
 (( $+_tty_guard_pid )) || {
   typeset -g _tty_guard_pid=$sysparams[pid]
   sched +2 _tty_guard_tick

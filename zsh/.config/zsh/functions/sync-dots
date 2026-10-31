@@ -1,7 +1,6 @@
 #!/bin/zsh
 
-# Root-level package metadata (AGENTS.md, README.md, ...) is excluded via
-# root-anchored patterns in stow/.stow-global-ignore
+# Package metadata (AGENTS.md, README.md, ...) is excluded by stow/.stow-global-ignore
 sync-dots () {
   local failed=0 dir
   # App settings exports that are imported by hand, not stowed into $HOME

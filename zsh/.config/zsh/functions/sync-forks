@@ -6,8 +6,7 @@ sync-forks() {
   local owner=hareki
   # Fork names (not upstream ones) whose drift is accepted, so they are skipped instead of synced
   local -a ignored=(eagle.nvim mason-registry maple-font)
-  # Every state a sync can report, in the closing tally's order: how a fork's line
-  # puts it (ahead of the detail), then how the tally does
+  # Every reportable state in tally order: its phrase in a fork's line, then its tally label
   local -a states=(
     synced   '%F{green}synced%f with'        '%F{green}synced%f'
     none     'up to date'                    'up to date'
@@ -39,8 +38,7 @@ sync-forks() {
     return $(( ! $#opt_help ))
   fi
 
-  # Scoped to this call instead of `gh auth switch`, which would flip the active
-  # account under every other shell while this runs
+  # Scoped to this call: `gh auth switch` would flip the account under every other shell
   local -x GH_TOKEN
   GH_TOKEN=$(gh auth token --user $owner) || return 1
 
@@ -56,11 +54,9 @@ sync-forks() {
       }
     }' --jq '.data.repositoryOwner.repositories.nodes[]
       | .name, .defaultBranchRef.name, .parent.nameWithOwner, .defaultBranchRef.target.oid') || return 1
-  # gh prints a null field (an empty fork has no default branch) as an empty line, which
-  # unquoted (f) would drop, shifting every later name/branch/upstream/head group
+  # Quoted (f) keeps gh's empty line for a null field (empty fork), or later groups shift
   [[ -n $list ]] && forks=("${(@f)list}")
-  # The slots are pre-filled before anything reads them, and print blocks once they
-  # exceed the FIFO's buffer (8KB on macOS), so they are capped at the fork count
+  # Capped, as pre-filling the slots blocks once they exceed the FIFO's buffer (8KB on macOS)
   (( jobs > $#forks / 4 )) && jobs=$(( $#forks / 4 ))
 
   print-header "Syncing forks of $owner"
@@ -80,8 +76,7 @@ sync-forks() {
       read -u $slots
       {
         result=$(gh api -X POST repos/$owner/$name/merge-upstream -f branch=$branch --jq .merge_type 2>&1)
-        # On errors gh prints the raw body without a trailing newline, so its own
-        # "gh: <message> (HTTP <code>)" line ends up glued to the end of it
+        # gh's error body lacks a newline, so its "gh: <msg> (HTTP <code>)" line is glued on
         case $?,$result in
           0,none)         report=($name none '') ;;
           0,*)            report=($name synced "$upstream:$branch ($result)") ;;
@@ -89,13 +84,11 @@ sync-forks() {
           *)              report=($name failed "${result##*gh: }") ;;
         esac
 
-        # Only a clone of this very fork is pulled (not a same-named repo cloned from
-        # elsewhere), and only if it has the default branch locally
+        # Only this very fork's clone, not a same-named repo, and only if it has the branch
         dir=$REPOS_DIR/$name ref=refs/heads/$branch tracking=refs/remotes/origin/$branch
         if [[ -n $branch && $(git -C $dir remote get-url origin 2>/dev/null) == *[:/]$owner/$name(|.git) ]] \
           && git -C $dir show-ref -q --verify $ref; then
-          # When GitHub merged nothing, a clone that already has the listed head skips
-          # the fetch: an SSH round trip of ~3s that would bring nothing
+          # If GitHub merged nothing, a clone with the listed head skips the ~3s SSH fetch
           if [[ $report[2] != (none|conflict) || $(git -C $dir rev-parse -q --verify $tracking) != $oid ]] \
             && ! result=$(git -C $dir fetch -q origin $branch 2>&1); then
             report+=(unpulled "$result")
@@ -121,8 +114,7 @@ sync-forks() {
             fi
           fi
 
-          # The merge GitHub refused is started on the clone's up-to-date branch, so
-          # its conflicts are ready to resolve there
+          # Start the refused merge on the clone's up-to-date branch, ready to resolve there
           if [[ $report[2] == conflict ]] && (( ! $#opt_no_local_merge && ! $report[(Ie)unpulled] )); then
             if [[ $(git -C $dir symbolic-ref -q HEAD) != $ref ]]; then
               report+=(unmerged "$branch not checked out")
@@ -137,8 +129,7 @@ sync-forks() {
             elif git -C $dir merge-base --is-ancestor FETCH_HEAD $ref; then
               report+=(unpushed ${(D)dir})
             else
-              # --no-commit, so a merge git completes on its own still stops for a
-              # review, the same as a conflicting one
+              # --no-commit, so a clean merge still stops for review, like a conflicting one
               result=$(git -C $dir merge -q --no-commit FETCH_HEAD 2>&1)
               if git -C $dir rev-parse -q --verify MERGE_HEAD >/dev/null; then
                 report+=(merging ${(D)dir})
@@ -166,8 +157,7 @@ sync-forks() {
       # and API messages, and PROMPT_SUBST would run any $(...) in them
       parts+=("${(%)phrases[$state]}${detail:+ $detail}")
     done
-    # Synced and conflicting forks are listed again at the end, along with what
-    # happened to their clone, which is where a merge started there is resolved
+    # Synced and conflicting forks are listed again at the end, with their clone's outcome
     entry="https://github.com/$owner/$name${parts[2]:+: ${(j:, :)parts[2,-1]}}"
     case $report[2] in
       synced)   synced+=($entry) ;;
