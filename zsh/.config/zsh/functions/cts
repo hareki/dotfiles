@@ -5,21 +5,9 @@
 cts() {
   local file="claude-code/.claude/settings.json"
 
-  if [[ ! -d "$STOW_REPO" ]]; then
-    echo "STOW_REPO must be set to an existing directory." >&2
-    return 1
-  fi
-
   # `git ls-files -v` prefixes the path with a status letter:
   #   H = normal tracked file, S = skip-worktree already set.
-  local flag=${"$(git -C "$STOW_REPO" ls-files -v -- "$file")"[1]}
-
-  if [[ -z "$flag" ]]; then
-    print -P "%F{red}cts: '%F{blue}$file%F{red}' is not tracked in $STOW_REPO%f" >&2
-    return 1
-  fi
-
-  if [[ "$flag" == "S" ]]; then
+  if [[ $(git -C "$STOW_REPO" ls-files -v -- "$file") == S* ]]; then
     git -C "$STOW_REPO" update-index --no-skip-worktree -- "$file" || return 1
     print -P "%F{green}TRACKING ON%f => git now tracks %F{blue}$file%f"
     print -P "     commit your intended change, then run %F{green}cts%f again to resume ignoring model/effort churn"

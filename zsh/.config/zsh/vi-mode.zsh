@@ -51,6 +51,6 @@ select_whole_line() { zle .beginning-of-line; zle .visual-mode; zle .end-of-line
 zle -N select-whole-line select_whole_line
 bindkey -M vicmd  'V' select-whole-line
 
-# Visual selection in Catppuccin Mocha Surface1 (bg) and Yellow (fg); the fg is set too,
-# since a bg-only region style couldn't keep the text's own color
+# Visual selection in Catppuccin Mocha Yellow (fg) on a shade between Surface1 and Surface2
+# (bg); the fg is set too, since a bg-only region style couldn't keep the text's own color
 zle_highlight=(region:bg=#4f5164,fg=#f9e2af)

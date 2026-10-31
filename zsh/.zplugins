@@ -1,6 +1,5 @@
-getantidote/use-omz
-# Only the omz libs this config uses, not all of lib (~2ms per shell): use-omz stubs
-# the other libs' helpers (`omz`, clipcopy, ...) and sources their file on first call
+# Only the omz libs this config uses, not all of lib (~2ms per shell); plugins.zsh sets
+# the variables they read, since omz's own loader isn't used either
 ohmyzsh/ohmyzsh path:lib/completion.zsh
 ohmyzsh/ohmyzsh path:lib/directories.zsh
 ohmyzsh/ohmyzsh path:lib/functions.zsh

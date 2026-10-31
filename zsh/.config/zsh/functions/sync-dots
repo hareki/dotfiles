@@ -3,17 +3,10 @@
 # Root-level package metadata (AGENTS.md, README.md, ...) is excluded via
 # root-anchored patterns in stow/.stow-global-ignore
 sync-dots () {
-  local failed=0
-  local -a packages
-  local dir
+  local failed=0 dir
   # App settings exports that are imported by hand, not stowed into $HOME
   local -a ignored=(better-mouse simple-translate zen-browser)
-
-  if [[ ! -d "$STOW_REPO" ]]; then
-    echo "STOW_REPO must be set to an existing directory." >&2
-    return 1
-  fi
-  packages=("$STOW_REPO"/*(/N:t))
+  local -a packages=("$STOW_REPO"/*(/:t))
   packages=(${packages:|ignored})
 
   case "$1" in

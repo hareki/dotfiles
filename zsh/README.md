@@ -2,7 +2,7 @@
 
 ![image](./assets/docs/demo.png)
 
-Feature-packed zsh setup with ~50ms to the first usable prompt (~25ms for `zsh -i -c exit`). Optimized via static plugin bundling, eval caching, bytecode compilation, and function autoloading.
+Feature-packed zsh setup with ~45ms to the first usable prompt (~25ms for `zsh -i -c exit`). Optimized via static plugin bundling, eval caching, bytecode compilation, and function autoloading.
 
 ## Core Ideas
 
@@ -23,13 +23,12 @@ Feature-packed zsh setup with ~50ms to the first usable prompt (~25ms for `zsh -
 ## Config Structure
 
 ```
-.zshenv                             # All shells: XDG, secrets (keychain), PATH, mise shims
-.zprofile                           # Login: re-apply the PATH order after path_helper, skip /etc/zshrc
+.zshenv                             # All shells: XDG, secrets (keychain), PATH, mise shims, /etc rc handling
 .zshrc                              # Interactive: prompt, plugins, modules
 .zplugins                           # Antidote plugin manifest
 .config/zsh/
 ├── aliases.zsh                     # Shell aliases (lg, tree, ..., etc.)
-├── plugins.zsh                     # Antidote setup + plugin options
+├── plugins.zsh                     # Antidote setup, compinit, plugin options
 ├── options.zsh                     # Env vars, fzf theme/layout
 ├── evals.zsh                       # Tool init: zoxide, atuin, wt, zsh-patina
 ├── keymaps.zsh                     # Key bindings (Alt+F => atuin, etc.)

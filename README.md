@@ -25,7 +25,7 @@ stow -d "$STOW_REPO" -t ~ nvim
 ## Highlights
 
 - **[neovim](./nvim/.config/nvim/)**: From‑scratch Lua config. One plugin per file (`lua/{core,chrome,features}/**`), shared UI primitives (`lua/utils/ui/`) for consistent popup geometry. Aggressive lazy‑loading.
-- **[zsh](./zsh/)**: ~55ms to the first prompt via Antidote static bundling, a local `_evalcache`, `zcompile`, autoloaded functions. Clean layering: plugins => topic configs (aliases, vi-mode, keymaps, options, evals, tty-guard).
+- **[zsh](./zsh/)**: ~45ms to the first prompt via Antidote static bundling, a local `_evalcache`, `zcompile`, autoloaded functions. Clean layering: plugins => topic configs (aliases, vi-mode, keymaps, options, evals, tty-guard).
 - **[tmux](./tmux/)**: Layered setup: `tmux.conf` wires plugins, then splits into `options.conf` and `keymaps.conf`. Prefix is `M-d` (Alt+d).
 - **[ghostty](./ghostty/.config/ghostty/)**: Keybindings emit escape sequences consumed by tmux/ZSH/Neovim for seamless cross‑tool cohesion.
 

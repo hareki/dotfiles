@@ -16,20 +16,13 @@ source ~/.p10k.zsh
 
 __zsh_config_dir=$XDG_CONFIG_HOME/zsh
 source $__zsh_config_dir/plugins.zsh
-_evalcache /opt/homebrew/bin/brew shellenv
-
-# Re-apply .zshenv's PATH order: brew shellenv prepends Homebrew (.zprofile has
-# already undone /etc/zprofile's path_helper in login shells)
-path=($user_path $path)
 
 # Load configuration files, order matters
 for cfg in aliases vi-mode keymaps options evals tty-guard; do
   source $__zsh_config_dir/$cfg.zsh
 done
 
-# Autoload util functions when needed; compinit picks up the custom completions
-# in compdefs/ via their `#compdef` tag
-fpath=($__zsh_config_dir/{compdefs,functions} $fpath)
+# Autoload util functions when needed
 autoload -Uz $__zsh_config_dir/functions/*(.N:t)
 unset __zsh_config_dir cfg
 
