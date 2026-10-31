@@ -2,7 +2,7 @@
 
 ![image](./assets/docs/demo.png)
 
-Feature-packed zsh setup with ~45ms to the first usable prompt (~25ms for `zsh -i -c exit`). Optimized via static plugin bundling, eval caching, bytecode compilation, and function autoloading.
+Zsh setup that reaches the first usable prompt in ~45ms (~25ms for `zsh -i -c exit`) through static plugin bundling, eval caching, bytecode compilation, and function autoloading.
 
 ## Core Ideas
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Personal Neovim 0.12+ configuration using the **lazy.nvim** plugin manager.
+Personal Neovim 0.12+ configuration using the lazy.nvim plugin manager.
 
 ## LuaLS Diagnostics
 
@@ -104,4 +104,4 @@ Server-specific `LspAttach` autocmds use an early-return guard on client name (s
 
 ## Forks
 
-Minimal-diff plugin forks by `hareki` (list them with `rg -o --no-filename "'hareki/[^']+'" lua | sort -u`), plus the parser forks `tree-sitter-glimmer` and `tree-sitter-scss` registered in `core/nvim-treesitter/init.lua`. Updated via [wei/pull](https://github.com/wei/pull) (`.github/pull.yml`), except `eagle.nvim` and `tree-sitter-scss`, which have none.
+Minimal-diff plugin forks by `hareki` (list them with `rg -o --no-filename "'hareki/[^']+'" lua | sort -u`), plus the parser forks `tree-sitter-glimmer` and `tree-sitter-scss` registered in `core/nvim-treesitter/init.lua`. The `sync-forks` zsh function updates all of them except `eagle.nvim`, standing in for the suspended [wei/pull](https://github.com/wei/pull) app. Give a new fork the usual `.github/pull.yml` for when that app returns; only `eagle.nvim` and `tree-sitter-scss` lack one.

@@ -2,7 +2,7 @@
 
 ![image](./assets/docs/demo.png)
 
-**lazy.nvim** config built from scratch. Optimized for fast cold start, per-plugin isolation, consistent floating UX, and minimal-diff forks.
+lazy.nvim config built from scratch around fast cold starts, per-plugin isolation, a consistent floating UX, and minimal-diff forks.
 
 ## Requirements
 
@@ -31,7 +31,7 @@
 
 - One spec file or directory per plugin under `lua/{core,chrome,features}/`; snacks.nvim is split into per-feature fragments
 - On-demand loading via keymaps or `VeryLazy` event
-- Startup: ~38ms (no session or blank file) / ~80ms (opening file or directory with session) via `:Lazy profile`
+- Startup via `:Lazy profile`: ~28ms (no session or blank file) / ~47ms (a small Lua file, opened or restored from a session) / ~140ms (a TypeScript file)
 - Unified floating layout across Snacks picker and floating nvim-tree
 - **Tab** = toggle focus (list↔preview, float↔main); **`<C-t>`** = toggle side-panel mode
 
@@ -69,14 +69,14 @@ nvim-tree-lua/
 ### LSP & Formatting
 
 - Per-server configs in `lua/core/lsp/nvim-lspconfig/lsp/{server}.lua`
-- Tool installation (LSP servers, formatters, linters) is handled by [mise-en-place](https://mise.jdx.dev/) via `~/.config/mise/config.toml`
+- [mise-en-place](https://mise.jdx.dev/) installs the LSP servers, formatters and linters from `~/.config/mise/config.toml`
 - Async style-enforcement pipeline (formatters + linters) in `utils/style-enforcers/`
 
 ## Forks (author = hareki)
 
-- 24 minimal-diff forks; updated via [wei/pull](https://github.com/wei/pull)
+- 24 minimal-diff forks, updated by the `sync-forks` zsh function while [wei/pull](https://github.com/wei/pull) is suspended
 - Features toggleable: disabling custom bits reverts to upstream behavior
-- Enable unified UX by exposing layout hooks, focus toggles, preview coordination, UI tweaks and more.
+- Add the layout hooks, focus toggles, preview coordination and UI tweaks behind the consistent floating UX
 
 ## Code Style
 

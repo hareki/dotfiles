@@ -1,10 +1,8 @@
 # AGENTS.md
 
-This file provides guidance to AI coding agents (e.g. Claude Code) when working with code in this repository.
-
 ## Architecture
 
-This is a zsh dotfiles configuration targeting macOS with Homebrew. Files are deployed to `$HOME` via GNU stow using the `sync-dots` function (e.g., `sync-dots zsh`). Root-level package metadata (AGENTS.md, CLAUDE.md, README.md, assets) is excluded by root-anchored patterns in `stow/.stow-global-ignore`.
+This is a zsh dotfiles configuration targeting macOS with Homebrew. `sync-dots zsh` deploys these files to `$HOME` with GNU stow. Root-level package metadata (AGENTS.md, CLAUDE.md, README.md, assets) is excluded by root-anchored patterns in `stow/.stow-global-ignore`.
 
 ### Sourcing Order
 
@@ -38,9 +36,9 @@ The sourcing order of config modules matters: later files depend on earlier ones
 
 ### Plugin Management
 
-Plugins are declared in `.zplugins` and managed by **Antidote**. Antidote statically generates a bundled file (`.zplugins.bundled.zsh`) that is only regenerated when `.zplugins` changes. Many plugins use `kind:defer` for deferred loading.
+Plugins are declared in `.zplugins` and managed by Antidote. Antidote statically generates a bundled file (`.zplugins.bundled.zsh`) that is only regenerated when `.zplugins` changes. Many plugins use `kind:defer` for deferred loading.
 
-`.zplugins` lists only the omz lib files this config uses instead of all of `lib` (~2ms per shell), and omz's own loader isn't used either: `plugins.zsh` sets the `$ZSH` and `$ZSH_CACHE_DIR` that the libs and the updater read, and runs compinit and `tools/check_for_upgrade.sh` itself. Helpers from the other lib files (`omz`, `clipcopy`, `git_prompt_info`, ...) don't exist here, so a lib file that something starts to need has to be added to the list.
+`.zplugins` lists only the omz lib files this config uses instead of all of `lib` (~2ms per shell), and omz's own loader isn't used either: `plugins.zsh` sets the `$ZSH` and `$ZSH_CACHE_DIR` that the libs and the updater read, and runs compinit and `tools/check_for_upgrade.sh` itself. Helpers from the other lib files (`omz`, `clipcopy`, `git_prompt_info`, ...) don't exist here, so add a lib file to the list when something starts to need it.
 
 ### Performance Patterns
 
@@ -85,7 +83,7 @@ mux <project>         # tmuxinator start, from a throwaway session outside tmux 
 
 ## Conventions
 
-- New utility functions go in `.config/zsh/functions/` as standalone files (one function per file, filename = function name, no `.zsh` extension, since `autoload` looks the file up by function name). They are autoloaded automatically.
+- New utility functions go in `.config/zsh/functions/` as standalone files (one function per file, filename = function name, no `.zsh` extension, since `autoload` looks the file up by function name).
 - All custom completions go in `.config/zsh/compdefs/`, one file per command named `_<command>` (e.g. `_build`, `_tv`) whose first line is `#compdef <command>`. This covers both the autoloaded functions above and external commands. The file body _is_ the completion function, so it needs no wrapper and no trailing `compdef` call. The directory is on `fpath`, so compinit registers the tag and autoloads the body on first use. A command family may share one file, and a vendor script meant for `.zshrc` gets a compdef that sources it on first use (both: `_gcloud`).
 - **Stale completion dump.** `$ZSH_COMPDUMP` caches only the `command => function` mapping, and `plugins.zsh` rebuilds it when an `fpath` dir's mtime passes it. So:
   - Picked up on the next shell, no action needed: editing a compdef's body (bodies are autoloaded from `fpath` at completion time, never cached), and adding, deleting or renaming a compdef, here or in a third-party `fpath` dir.
@@ -94,5 +92,5 @@ mux <project>         # tmuxinator start, from a throwaway session outside tmux 
 - Aliases go in `.config/zsh/aliases.zsh`. Commands run through `$SHELL -c` (television's cables) spell out their flags, since only `.zshenv` reaches those shells and it stays free of aliases.
 - Interactive env vars / history overrides / fzf options go in `.config/zsh/options.zsh`. Tool init (`zoxide`, `atuin`, `wt`, `zsh-patina`) goes in `.config/zsh/evals.zsh`.
 - Plugin configuration (zstyles, env vars) goes in `.config/zsh/plugins.zsh`, before the bundle is sourced. Overrides of what the bundle itself sets go after it: redefinitions of a plugin function (e.g. `omz_termsupport_cwd`, which the bundle would overwrite) and zstyles omz sets under a more specific pattern (e.g. its `':completion:*:*:*:*:*' menu select`, which outranks any `':completion:*'` style).
-- Color theme is **Catppuccin Mocha** throughout (fzf, zsh-patina syntax highlighting, eza, etc.).
+- Color theme is Catppuccin Mocha throughout (fzf, zsh-patina syntax highlighting, eza, etc.).
 - Paths assume Homebrew at `/opt/homebrew/`.
