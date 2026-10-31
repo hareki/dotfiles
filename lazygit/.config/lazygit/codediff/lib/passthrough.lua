@@ -9,9 +9,6 @@ local styled = ansi.styled
 
 local function render_stat_line(line, p)
   local name, sep, rest = line:match('^(.-)(%s|%s)(.*)$')
-  if not name then
-    return nil
-  end
   local out = { styled({ fg = p.default_fg }, name), styled({ fg = p.decoration }, sep) }
   -- rest is like "12 +++---", "Bin 0 -> 1024 bytes", or just a count: runs of
   -- +, of - and of anything else, each in its own color.
@@ -53,7 +50,7 @@ function M.render_raw(lines, cols)
         .. styled({ fg = p.default_fg }, rest)
         .. ansi.eol
     elseif line:match('^%s.+%s|%s') then
-      out[#out + 1] = render_stat_line(line, p) or ansi.line({ fg = p.default_fg }, line)
+      out[#out + 1] = render_stat_line(line, p)
     elseif line:match('^ %d+ files? changed') then
       out[#out + 1] = ansi.line({ fg = p.decoration }, line)
     elseif diffparse.is_submodule_line(line) then

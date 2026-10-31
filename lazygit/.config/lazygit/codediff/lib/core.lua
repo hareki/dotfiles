@@ -13,13 +13,6 @@ local M = {}
 
 local LIMITS = {
   max_input_bytes = 2 * 1024 * 1024,
-  max_file_section_lines = 20000,
-  max_blob_bytes = 1024 * 1024,
-  -- Above this, a side is highlighted from its hunk fragments instead of the
-  -- full blob: a full-content treesitter parse is O(file bytes) per side no
-  -- matter how little of the file the diff shows, and a half-megabyte file
-  -- costs ~300ms per side before a single span is extracted.
-  max_highlight_blob_bytes = 256 * 1024,
   max_highlighted_lines = 8000,
   -- Wall-clock ceiling on span extraction for the whole render; past it the
   -- remaining rows and files fall back to tints. Generous enough that only a
@@ -30,17 +23,10 @@ local LIMITS = {
   -- time would otherwise spend the render's whole highlighting budget on
   -- emphasis; an ordinary change takes a few milliseconds, a large one tens.
   max_emphasis_ms = 100,
-  context_pad_rows = 1,
 }
 
-local uv = vim.uv
-
-local function hl_expired(ctx)
-  return uv.hrtime() > ctx.hl_deadline
-end
-
--- Merge a padded 0-based row range into the tail of `ranges` (they are built
--- in ascending order, so only the last one can overlap).
+-- Merge a 0-based row range into the tail of `ranges` (they are built in
+-- ascending order, so only the last one can overlap).
 local function push_range(ranges, s, e)
   local last = ranges[#ranges]
   if last and s <= last[2] + 1 then
@@ -50,9 +36,10 @@ local function push_range(ranges, s, e)
   end
 end
 
---- Merge the row ranges a file's hunks need on one side, with padding rows so
---- constructs straddling hunk edges are captured. 0-based inclusive ranges.
-local function needed_ranges(hunks, side, pad)
+--- Merge the row ranges a file's hunks need on one side. 0-based inclusive
+--- ranges. No padding is needed for a construct straddling a hunk's edge: a query
+--- window reports every node that reaches into it.
+local function needed_ranges(hunks, side)
   local ranges = {}
   for _, hunk in ipairs(hunks) do
     local start_row, count
@@ -61,7 +48,7 @@ local function needed_ranges(hunks, side, pad)
     else
       start_row, count = hunk.new_start - 1, hunk.new_count
     end
-    push_range(ranges, math.max(0, start_row - pad), start_row + math.max(count, 1) - 1 + pad)
+    push_range(ranges, math.max(0, start_row), start_row + math.max(count, 1) - 1)
   end
   return ranges
 end
@@ -76,14 +63,10 @@ end
 --
 -- `first_row` is where the hunk's fragment row 1 sits in whatever is being
 -- highlighted (hunk.span_base.old, see compute_spans).
-local function push_minus_ranges(ranges, hunk, pad, first_row)
+local function push_minus_ranges(ranges, hunk, first_row)
   for _, change in ipairs(hunk.changes) do
     if change.old_end > change.old_start then
-      push_range(
-        ranges,
-        math.max(0, first_row + change.old_start - 1 - pad),
-        first_row + change.old_end - 2 + pad
-      )
+      push_range(ranges, first_row + change.old_start - 1, first_row + change.old_end - 2)
     end
   end
 end
@@ -102,22 +85,15 @@ local FRAGMENT_BASE = { old = 0, new = 0 }
 -- The side-by-side layout keeps whole-hunk old ranges: its left context cells
 -- render from the old side, which the inline layout never does.
 local function compute_spans(file, langs_by_side, ctx)
-  local pad = LIMITS.context_pad_rows
   local minus_only = not ctx.split
 
-  -- Extraction needs a language, at least one row to spend it on, and a
-  -- deadline that has not passed. Stating that once keeps the call sites below
-  -- from restating it.
+  -- Extraction needs a language and at least one row to spend it on. Stating
+  -- that once keeps the call sites below from restating it.
   local function spans(lines, lang, ranges)
     if not lang or #ranges == 0 then
       return nil
     end
-    if hl_expired(ctx) then
-      ctx.hl_degraded = true
-      return nil
-    end
-    local rows, cut_short =
-      highlight.line_spans(table.concat(lines, '\n'), lang, ranges, ctx.hl_deadline)
+    local rows, cut_short = highlight.line_spans(lines, lang, ranges, ctx.hl_deadline)
     if cut_short then
       ctx.hl_degraded = true
     end
@@ -130,20 +106,20 @@ local function compute_spans(file, langs_by_side, ctx)
       hunk.spans = sides
       hunk.span_base = { old = hunk.old_start - 1, new = hunk.new_start - 1 }
     end
-    if file.need_old then
+    if not file.is_new then
       local ranges
       if minus_only then
         ranges = {}
         for _, hunk in ipairs(file.hunks) do
-          push_minus_ranges(ranges, hunk, pad, hunk.span_base.old)
+          push_minus_ranges(ranges, hunk, hunk.span_base.old)
         end
       else
-        ranges = needed_ranges(file.hunks, 'old', pad)
+        ranges = needed_ranges(file.hunks, 'old')
       end
       sides.old = spans(file.old_lines, langs_by_side.old, ranges)
     end
-    if file.need_new then
-      sides.new = spans(file.new_lines, langs_by_side.new, needed_ranges(file.hunks, 'new', pad))
+    if not file.is_deleted then
+      sides.new = spans(file.new_lines, langs_by_side.new, needed_ranges(file.hunks, 'new'))
     end
     return
   end
@@ -152,7 +128,7 @@ local function compute_spans(file, langs_by_side, ctx)
     local ranges
     if minus_only then
       ranges = {}
-      push_minus_ranges(ranges, hunk, pad, FRAGMENT_BASE.old)
+      push_minus_ranges(ranges, hunk, FRAGMENT_BASE.old)
     else
       ranges = { { 0, math.max(#hunk.frag_old - 1, 0) } }
     end
@@ -308,7 +284,7 @@ local function render_file(file, ctx)
     local full = file.content_mode == 'full'
     langs_by_side.new = langs.lang_for(
       display_path,
-      full and (file.need_new and file.new_lines or file.old_lines) or nil
+      full and (file.is_deleted and file.old_lines or file.new_lines) or nil
     )
     -- A rename may change the extension, and then the old side is a different
     -- language entirely (script.sh => script.py).
@@ -377,9 +353,7 @@ end
 ---   force_fragment  skip git blob lookups (repo-independent fixtures)
 ---   metadata  put an OSC 1717 record ahead of each row lazygit can act on
 ---             (see lib/osc1717.lua)
---- Returns the document, whether it may be cached, and the worktree files the
---- render consulted (blob.acquire), which a cached copy is only good for while
---- they are unchanged (blob.unchanged). It may not be cached when the
+--- Returns the document and whether it may be cached. It may not be when the
 --- wall-clock highlight deadline degraded the output -- caching would replay a
 --- transiently slow first render (cold parsers, query compilation) as
 --- tint-only for the daemon's lifetime, while a warm re-render may finish well
@@ -410,14 +384,14 @@ function M.render(input, opts)
     return input, false
   end
 
-  local consulted = blob.acquire(files, opts.cwd, LIMITS, opts.force_fragment)
+  blob.acquire(files, opts.cwd, opts.force_fragment)
 
   local ctx = {
     cols = opts.cols or 120,
     budget = LIMITS.max_highlighted_lines,
     split = opts.layout == 'side-by-side',
     metadata = opts.metadata,
-    hl_deadline = uv.hrtime() + LIMITS.max_highlight_ms * 1e6,
+    hl_deadline = vim.uv.hrtime() + LIMITS.max_highlight_ms * 1e6,
     hl_degraded = false, -- set once the deadline costs any row its spans
     num_w = nil, -- line-number gutter digits, set per file
   }
@@ -439,7 +413,7 @@ function M.render(input, opts)
       out[#out + 1] = chunk
     end
   end
-  return table.concat(out), not ctx.hl_degraded, consulted
+  return table.concat(out), not ctx.hl_degraded
 end
 
 return M

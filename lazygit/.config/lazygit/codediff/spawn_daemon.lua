@@ -20,7 +20,4 @@ local handle = vim.uv.spawn(vim.v.progpath, {
   detached = true,
 }, function() end)
 
-if handle then
-  handle:unref()
-end
 os.exit(handle and 0 or 1)

@@ -5,11 +5,11 @@ local M = {}
 local SKIP = { spell = true, nospell = true, conceal = true }
 local UNDERSCORE = string.byte('_')
 
---- Extract per-row highlight spans from a source string, mirroring
+--- Extract per-row highlight spans from source lines, mirroring
 --- vim.treesitter.highlighter semantics: injected trees are walked after their
 --- parent and later spans win ties, priorities from `#set! priority` respected.
 ---
---- content:    full source text
+--- lines:      full source, one string per row
 --- lang:       treesitter language (parser must be loadable)
 --- row_ranges: sorted, merged list of {start_row, end_row} (0-based, inclusive)
 ---             restricting extraction to the rows the diff actually shows
@@ -19,10 +19,26 @@ local UNDERSCORE = string.byte('_')
 ---             tints), so one pathological file cannot stall the whole render
 ---
 --- Returns rows: { [row0] = { {s1=col, e1=col_end_excl, capture, lang, prio, order}, ... } }
---- or nil when parsing is unavailable, plus whether the deadline cut the
---- collection short. Columns are 1-based and end-exclusive -- the form layout.lua
---- clips and sweeps in, so the renderer never has to rebase a span it was handed.
-function M.line_spans(content, lang, row_ranges, deadline)
+--- or nil when parsing is unavailable or the deadline has already passed, plus
+--- whether the deadline cost this call any of its rows. Columns are 1-based and
+--- end-exclusive -- the form layout.lua clips and sweeps in, so the renderer
+--- never has to rebase a span it was handed.
+function M.line_spans(lines, lang, row_ranges, deadline)
+  -- Checked between query windows, never inside one: the uv.hrtime call is
+  -- nothing next to a window's worth of captures. Once set, it also records
+  -- that some of the collection was skipped, which is what the caller is told.
+  local expired = false
+  local function past_deadline()
+    if not expired and vim.uv.hrtime() > deadline then
+      expired = true
+    end
+    return expired
+  end
+
+  if past_deadline() then
+    return nil, true
+  end
+  local content = table.concat(lines, '\n')
   local ok, parser = pcall(vim.treesitter.get_string_parser, content, lang)
   if not ok or not parser then
     return nil
@@ -81,65 +97,47 @@ function M.line_spans(content, lang, row_ranges, deadline)
     end
   end
 
-  -- Checked between query windows, never inside one: the uv.hrtime call is
-  -- nothing next to a window's worth of captures. Once set, it also records
-  -- that some of the collection was skipped, which is what the caller is told.
-  local expired = false
-  local function past_deadline()
-    if not expired and vim.uv.hrtime() > deadline then
-      expired = true
-    end
-    return expired
-  end
-
-  local function collect(langtree)
-    if past_deadline() then
-      return
-    end
+  local function collect(tree, langtree)
     local tree_lang = langtree:lang()
     local query_ok, query = pcall(vim.treesitter.query.get, tree_lang, 'highlights')
-    if query_ok and query then
-      local captures = query.captures
-      for _, tree in pairs(langtree:trees()) do
-        local root = tree:root()
-        -- An injected tree usually covers a fraction of the document. Querying
-        -- it over a window it does not reach is a full cursor setup for a
-        -- guaranteed-empty result, and a file with many injections (markdown
-        -- full of code blocks) would pay that once per hunk shown.
-        local tree_first, _, tree_last, _ = root:range()
-        for _, range in ipairs(row_ranges) do
-          if past_deadline() then
-            return
-          end
-          if range[1] <= tree_last and range[2] >= tree_first then
-            for id, node, metadata in query:iter_captures(root, content, range[1], range[2] + 1) do
-              local name = captures[id]
-              if not SKIP[name] and name:byte(1) ~= UNDERSCORE then
-                local meta = metadata[id]
-                local prio = tonumber(metadata.priority or (meta and meta.priority)) or default_prio
-                local sr, sc, er, ec
-                if meta and (meta.range or meta.offset) then
-                  -- A directive moved the capture: #trim! leaves a range,
-                  -- #offset! only the offsets (nvim 0.12), and get_range is
-                  -- what the highlighter itself resolves either with. Range6.
-                  local r = vim.treesitter.get_range(node, content, meta)
-                  sr, sc, er, ec = r[1], r[2], r[4], r[5]
-                else
-                  sr, sc, er, ec = node:range()
-                end
-                add_span(tree_lang, name, sr, sc, er, ec, prio)
-              end
+    if not query_ok or not query then
+      return
+    end
+    local captures = query.captures
+    local root = tree:root()
+    -- An injected tree usually covers a fraction of the document. Querying
+    -- it over a window it does not reach is a full cursor setup for a
+    -- guaranteed-empty result, and a file with many injections (markdown
+    -- full of code blocks) would pay that once per hunk shown.
+    local tree_first, _, tree_last, _ = root:range()
+    for _, range in ipairs(row_ranges) do
+      if past_deadline() then
+        return
+      end
+      if range[1] <= tree_last and range[2] >= tree_first then
+        for id, node, metadata in query:iter_captures(root, content, range[1], range[2] + 1) do
+          local name = captures[id]
+          if not SKIP[name] and name:byte(1) ~= UNDERSCORE then
+            local meta = metadata[id]
+            local prio = tonumber(metadata.priority or (meta and meta.priority)) or default_prio
+            local sr, sc, er, ec
+            if meta and (meta.range or meta.offset) then
+              -- A directive moved the capture: #trim! leaves a range,
+              -- #offset! only the offsets (nvim 0.12), and get_range is
+              -- what the highlighter itself resolves either with. Range6.
+              local r = vim.treesitter.get_range(node, content, meta)
+              sr, sc, er, ec = r[1], r[2], r[4], r[5]
+            else
+              sr, sc, er, ec = node:range()
             end
+            add_span(tree_lang, name, sr, sc, er, ec, prio)
           end
         end
       end
     end
-    for _, child in pairs(langtree:children()) do
-      collect(child)
-    end
   end
 
-  local walk_ok = pcall(collect, parser)
+  local walk_ok = pcall(parser.for_each_tree, parser, collect)
   if not walk_ok and not next(rows) then
     return nil
   end

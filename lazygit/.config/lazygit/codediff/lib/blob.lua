@@ -1,69 +1,31 @@
 local catfile = require('lib.catfile')
 local util = require('lib.util')
 
-local uv = vim.uv
-
 local M = {}
 
--- Resolved lazily: only the worktree-side fallback below needs it, and a commit
--- diff (the whole commits panel) never reaches that. Memoized because the
--- daemon outlives the request and a cwd's repo root cannot change -- which
--- holds for an answer git gave (a root, or "not a repository", recorded as
--- `false`), not for a git that failed to start or hung: remembering that would
--- leave the cwd without worktree content for as long as the daemon keeps
--- rendering in it.
---
--- Keyed by cwd rather than held in one slot, because the daemon is shared by
--- every lazygit the user has open (daemon.lua watches several owners): two of
--- them in different repos would alternate a single slot and pay `git rev-parse`
--- on every render. Cleared wholesale at a cap, like the other caches here.
-local ROOT_CACHE_MAX = 8
-local roots, n_roots = {}, 0
+-- What a file's hunks may add up to before the section renders with tints only.
+-- These bound what a render has to parse and draw, which is what the hunks hold
+-- rather than what the file does: a small change to a huge file is as cheap as
+-- any other, while a whole-file change costs ~0.6s per megabyte of it.
+local MAX_SECTION_LINES = 20000
+local MAX_SECTION_BYTES = 1024 * 1024
+-- Above this, a side is highlighted from its hunk fragments instead of the
+-- full blob: a full-content treesitter parse is O(file bytes) per side no
+-- matter how little of the file the diff shows, and a half-megabyte file
+-- costs ~300ms per side before a single span is extracted.
+local MAX_HIGHLIGHT_BLOB_BYTES = 256 * 1024
 
-local function worktree_root(cwd)
-  local hit = roots[cwd]
-  if hit ~= nil then
-    return hit or nil
-  end
-  local res = catfile.run({ 'git', 'rev-parse', '--show-toplevel' }, cwd)
-  if not res then
-    return nil
-  end
-  local root = res.code == 0 and res.stdout and vim.trim(res.stdout) or nil
-  if n_roots >= ROOT_CACHE_MAX then
-    roots, n_roots = {}, 0
-  end
-  roots[cwd] = root or false
-  n_roots = n_roots + 1
-  return root
-end
-
--- What a render that read a worktree file found there, as far as telling it
--- apart from a later version goes: the file itself (inode), its size and its
--- modification time to the nanosecond, or its absence.
-local function file_state(path)
-  local st = uv.fs_stat(path)
-  return st and table.concat({ st.ino, st.size, st.mtime.sec, st.mtime.nsec }, ':') or ''
-end
-
-local function read_worktree_file(path, limits)
+local function read_worktree_file(path)
   local f = io.open(path, 'rb')
   if not f then
     return nil
   end
   local size = f:seek('end')
   f:seek('set')
-  if size > limits.max_blob_bytes then
-    f:close()
-    return nil, true -- oversized
-  end
-  if size > limits.max_highlight_blob_bytes then
-    -- Worth showing but not worth a full-content parse: no content means the
-    -- file stays in fragment mode and is highlighted from its hunks.
-    f:close()
-    return nil
-  end
-  local content = f:read('*a')
+  -- Past the highlight cap it is worth showing but not worth a full-content
+  -- parse: no content means the file stays in fragment mode and is highlighted
+  -- from its hunks.
+  local content = size <= MAX_HIGHLIGHT_BLOB_BYTES and f:read('*a') or nil
   f:close()
   return content
 end
@@ -83,13 +45,13 @@ local function agrees_with_patch(file, old_lines, new_lines)
     local old_row, new_row = hunk.old_start, hunk.new_start
     for _, l in ipairs(hunk.lines) do
       if l.origin ~= '+' then
-        if file.need_old and old_lines[old_row] ~= l.text then
+        if not file.is_new and old_lines[old_row] ~= l.text then
           return false
         end
         old_row = old_row + 1
       end
       if l.origin ~= '-' then
-        if file.need_new and new_lines[new_row] ~= l.text then
+        if not file.is_deleted and new_lines[new_row] ~= l.text then
           return false
         end
         new_row = new_row + 1
@@ -102,39 +64,40 @@ end
 --- Attach full old/new file contents to each file block where possible.
 --- Sets file.content_mode = "full" | "fragment" | "plain", file.hunk_lines,
 --- and file.old_lines / file.new_lines in full mode.
+--- `cwd` is the worktree root: lazygit chdirs there before it runs anything, so
+--- a patch's paths name files under it.
 --- With `fragment_only`, files are classified but no git lookup is performed,
 --- so a render stays reproducible outside the repo it was captured from.
---- Returns the worktree files it consulted, as { path, state } records: the
---- diff names their content, but one can change between git writing the diff
---- and this reading it, so a render made from them is only as good as they are
---- unchanged (see M.unchanged).
-function M.acquire(files, cwd, limits, fragment_only)
+function M.acquire(files, cwd, fragment_only)
   -- Which sides does each file actually need?
   local requests = {} -- flat list of hashes for one batched cat-file call
   local slots = {} -- parallel list of {file, side}
   for _, file in ipairs(files) do
     file.content_mode = 'plain'
-    -- Rows this file's hunks show: the section cap below, and the caller's
+    -- Rows this file's hunks show: the section caps below, and the caller's
     -- highlighting budget, both spend it.
-    local hunk_lines = 0
+    local hunk_lines, hunk_bytes = 0, 0
     for _, hunk in ipairs(file.hunks) do
       hunk_lines = hunk_lines + #hunk.lines
+      for _, l in ipairs(hunk.lines) do
+        hunk_bytes = hunk_bytes + #l.text
+      end
     end
     file.hunk_lines = hunk_lines
     -- An oversized section renders with tints only. Classifying it here rather
     -- than after the fact keeps it from paying for a batched cat-file fetch, a
     -- size check and a line split whose result nothing then reads. A binary
     -- file has no hunks, so it never qualifies.
-    local eligible = #file.hunks > 0 and hunk_lines <= limits.max_file_section_lines
+    local eligible = #file.hunks > 0
+      and hunk_lines <= MAX_SECTION_LINES
+      and hunk_bytes <= MAX_SECTION_BYTES
     if eligible then
       file.content_mode = 'fragment'
-      file.need_old = not file.is_new
-      file.need_new = not file.is_deleted
-      if file.need_old and not is_zero_hash(file.old_hex) then
+      if not file.is_new and not is_zero_hash(file.old_hex) then
         requests[#requests + 1] = file.old_hex
         slots[#slots + 1] = { file = file, side = 'old' }
       end
-      if file.need_new and not is_zero_hash(file.new_hex) then
+      if not file.is_deleted and not is_zero_hash(file.new_hex) then
         requests[#requests + 1] = file.new_hex
         slots[#slots + 1] = { file = file, side = 'new' }
       end
@@ -142,103 +105,52 @@ function M.acquire(files, cwd, limits, fragment_only)
   end
 
   if fragment_only then
-    return {}
+    return
   end
 
   -- Blobs past the highlight cap are sized but never fetched: full-content
   -- highlighting is the only consumer of the bytes, and a full-file parse on
   -- something that large costs more than the render it decorates. The file
   -- keeps fragment mode and is highlighted from its hunks instead.
-  local infos, blobs = catfile.fetch(cwd, requests, limits.max_highlight_blob_bytes)
+  local blobs = catfile.fetch(cwd, requests, MAX_HIGHLIGHT_BLOB_BYTES)
   for i, slot in ipairs(slots) do
-    local rec = infos[i]
-    if rec and rec.type == 'blob' then
-      if rec.size > limits.max_blob_bytes then
-        slot.file[slot.side .. '_oversized'] = true
-      elseif blobs[i] then
-        slot.file[slot.side .. '_content'] = blobs[i]
-      else
-        -- catfile was handed the highlight cap and answers with the blobs it
-        -- judged worth reading, so a real object missing from that answer is
-        -- one it declined (too large) or could not frame. Reading its verdict
-        -- rather than re-deriving it from the size keeps the cap on one side of
-        -- the module boundary, and lands an unframed blob on the cautious
-        -- branch: the hash is real, so the worktree file below is not it.
-        slot.file.hl_skip = true
-      end
-    end
+    slot.file[slot.side .. '_content'] = blobs[i]
   end
 
-  local consulted = {}
   for _, file in ipairs(files) do
     if file.content_mode == 'fragment' then
       -- Worktree-side fallback: unstaged/untracked diffs have zero or
       -- odb-missing hashes on the new side; the file on disk is that side.
-      -- Not taken for a blob skipped by the highlight cap or the blob cap:
-      -- its hash is real, and the checked-out file may be another version
-      -- entirely.
-      local root = file.need_new
-          and not file.new_content
-          and not file.hl_skip
-          and not file.new_oversized
-          and file.new_path
-          and worktree_root(cwd)
-        or nil
-      if root then
-        local path = root .. '/' .. file.new_path
-        -- Taken before the read, so an edit landing between the two fails the
-        -- comparison rather than hiding behind a state taken after it.
-        consulted[#consulted + 1] = { path = path, state = file_state(path) }
-        local content, oversized = read_worktree_file(path, limits)
-        file.new_content = content
-        if oversized then
-          file.new_oversized = true
-        end
-      end
-      -- Oversized is per side: that side just has no full content and keeps
-      -- highlighting from its hunk fragments, whose cost is bounded by the
-      -- input caps rather than the blob size. Only a file whose every needed
-      -- side is oversized drops to plain, so a huge blob on one side cannot
-      -- disable the engine and highlighting for the other, fully visible side.
+      -- Not taken for a blob skipped by the highlight cap (false): its hash is
+      -- real, and the checked-out file may be another version entirely. Nor
+      -- when the old side is missing, since full content needs both.
       if
-        (not file.need_old or file.old_oversized) and (not file.need_new or file.new_oversized)
+        file.new_content == nil
+        and not file.is_deleted
+        and file.new_path
+        and (file.is_new or file.old_content)
       then
-        file.content_mode = 'plain'
-      else
-        local have_old = not file.need_old or file.old_content ~= nil
-        local have_new = not file.need_new or file.new_content ~= nil
-        if have_old and have_new then
-          local old_lines = file.old_content and util.split_lines(file.old_content) or {}
-          local new_lines = file.new_content and util.split_lines(file.new_content) or {}
-          -- Only content that matches the patch can carry full-file
-          -- highlighting. A worktree file edited since lazygit produced the
-          -- diff, a reversed diff or an odd hash would otherwise style rows
-          -- from text the file does not hold. Asking here, where the bytes'
-          -- provenance is known, leaves a file that disagrees in fragment mode
-          -- -- still highlighted, from its own hunks -- where asking per
-          -- rendered row could only drop that row's spans, and so left the
-          -- whole file tint-only.
-          if agrees_with_patch(file, old_lines, new_lines) then
-            file.content_mode = 'full'
-            file.old_lines, file.new_lines = old_lines, new_lines
-          end
+        file.new_content = read_worktree_file(cwd .. '/' .. file.new_path)
+      end
+      if (file.is_new or file.old_content) and (file.is_deleted or file.new_content) then
+        local old_lines = file.old_content and util.split_lines(file.old_content) or {}
+        local new_lines = file.new_content and util.split_lines(file.new_content) or {}
+        -- Only content that matches the patch can carry full-file
+        -- highlighting. A worktree file edited since lazygit produced the
+        -- diff, a reversed diff or an odd hash would otherwise style rows
+        -- from text the file does not hold. Asking here, where the bytes'
+        -- provenance is known, leaves a file that disagrees in fragment mode
+        -- -- still highlighted, from its own hunks -- where asking per
+        -- rendered row could only drop that row's spans, and so left the
+        -- whole file tint-only.
+        if agrees_with_patch(file, old_lines, new_lines) then
+          file.content_mode = 'full'
+          file.old_lines, file.new_lines = old_lines, new_lines
         end
       end
     end
     file.old_content, file.new_content = nil, nil
   end
-  return consulted
-end
-
---- Whether the worktree files a render consulted (M.acquire's records) still
---- hold what it read from them, so that it can stand in for a fresh one.
-function M.unchanged(consulted)
-  for _, entry in ipairs(consulted) do
-    if file_state(entry.path) ~= entry.state then
-      return false
-    end
-  end
-  return true
 end
 
 return M

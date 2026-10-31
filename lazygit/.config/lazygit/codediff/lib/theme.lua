@@ -24,13 +24,11 @@ M.palette = {
   filler_fg = 0x444444,
 }
 
---- Fully resolved attrs of a highlight group, or nil when it is undefined.
+--- Fully resolved attrs of a highlight group (empty when it is undefined), or
+--- nil for a name nvim refuses.
 local function get_hl(group)
   local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = group, link = false })
-  if ok and hl then
-    return hl
-  end
-  return nil
+  return ok and hl or nil
 end
 
 -- The catppuccin color each chrome entry is a copy of. catppuccin is loaded in
@@ -85,8 +83,17 @@ function M.load_diff_colors()
 end
 
 -- Nested by language then capture, so the lookup on the renderer's hot path
--- costs two table reads instead of a composite key built per segment.
-local cache = {}
+-- costs two table reads instead of a composite key built per segment. `false`
+-- records a capture the theme defines nothing for.
+local cache = vim.defaulttable(function(lang)
+  return vim.defaulttable(function(capture)
+    local hl = get_hl('@' .. capture .. '.' .. lang)
+    if hl and (hl.fg or hl.bold or hl.italic or hl.underline) then
+      return { fg = hl.fg, bold = hl.bold, italic = hl.italic, underline = hl.underline }
+    end
+    return false
+  end)
+end)
 
 --- Resolve a treesitter capture to highlight attrs. nvim maintains the default
 --- link chain for @capture groups itself (@function.call.lua => @function.call
@@ -97,24 +104,7 @@ local cache = {}
 --- The returned table is shared and must not be mutated: callers key their own
 --- memos on its identity.
 function M.attrs(capture, lang)
-  local by_capture = cache[lang]
-  if not by_capture then
-    by_capture = {}
-    cache[lang] = by_capture
-  end
-  local hit = by_capture[capture]
-  if hit ~= nil then
-    return hit or nil
-  end
-
-  local hl = get_hl('@' .. capture .. '.' .. lang)
-  local attrs = nil
-  if hl and (hl.fg or hl.bold or hl.italic or hl.underline) then
-    attrs = { fg = hl.fg, bold = hl.bold, italic = hl.italic, underline = hl.underline }
-  end
-
-  by_capture[capture] = attrs or false
-  return attrs
+  return cache[lang][capture] or nil
 end
 
 return M

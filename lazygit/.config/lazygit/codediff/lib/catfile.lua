@@ -1,5 +1,4 @@
--- Asking git for the objects a diff refers to, and running any other git call a
--- render makes under the same time bound (M.run).
+-- Asking git for the objects a diff refers to.
 --
 -- A render needs two answers about the same object list -- how big is it, and
 -- (only for the ones worth reading) what is in it -- and git's own startup is
@@ -9,31 +8,12 @@
 -- answers come back over its pipes.
 --
 -- Every failure mode -- no session, a dead one, a slow or malformed answer --
--- falls back to the one-shot `git cat-file` pair, so the worst case is the cost
--- this replaces and never a wrong render.
+-- gets one fresh session, and past that the render goes without the blobs, so
+-- the worst case is a file highlighted from its hunks and never a wrong render.
 
 local M = {}
 
 local READ_TIMEOUT_MS = 5000
--- vim.system's wait() reports a process it had to kill on timeout as this code.
-local TIMED_OUT = 124
-
---- Run git under the bound every git call a render makes is held to: a git hung
---- on a dead network mount or a stuck fsmonitor must fail the render, not wedge
---- the daemon's event loop (and with it every queued client). Returns
---- vim.system's result, or nil when git failed to start or ran out of time --
---- neither of which is an answer worth remembering.
-function M.run(args, cwd, stdin)
-  local ok, proc = pcall(vim.system, args, { cwd = cwd, stdin = stdin, text = false })
-  if not ok then
-    return nil
-  end
-  local res = proc:wait(READ_TIMEOUT_MS)
-  if res.code == TIMED_OUT then
-    return nil
-  end
-  return res
-end
 
 --- Sizes and types only: "<oid> <type> <size>\n" or "<name> missing\n" per
 --- input line, no payloads. Each record keeps its raw line as `header`: a
@@ -56,42 +36,42 @@ end
 
 --- The blobs worth streaming into the (long-lived) daemon's memory -- never a
 --- gitlink's commit object, never an oversized blob -- as indices into `infos`,
---- plus the exact byte count git's payload stream runs to for them. Shared by
---- both fetch paths: they must agree on what counts as fetchable, or the
---- fallback renders differently from the fast path. The index is enough for
---- either caller to recover the oid it has to ask for.
-local function select_wanted(infos, oids, max_bytes)
-  local wanted, expected = {}, 0
-  for i = 1, #oids do
+--- plus the exact byte count git's payload stream runs to for them, and the
+--- answer so far: `false` for each blob declined for its size.
+local function select_wanted(infos, n, max_bytes)
+  local wanted, expected, blobs = {}, 0, {}
+  for i = 1, n do
     local rec = infos[i]
-    if rec and rec.type == 'blob' and rec.size <= max_bytes then
-      wanted[#wanted + 1] = i
-      -- git repeats the info line, then the bytes and a newline
-      expected = expected + #rec.header + 1 + rec.size + 1
+    if rec and rec.type == 'blob' then
+      if rec.size <= max_bytes then
+        wanted[#wanted + 1] = i
+        -- git repeats the info line, then the bytes and a newline
+        expected = expected + #rec.header + 1 + rec.size + 1
+      else
+        blobs[i] = false
+      end
     end
   end
-  return wanted, expected
+  return wanted, expected, blobs
 end
 
---- Blobs out of a "<oid> <type> <size>\n<bytes>\n" stream, keyed by their index
---- in `infos` and read in `wanted` order. Each record must open with the header
---- `info` already reported: anything else means the stream has desynced, and
---- every record after it would be read out of the wrong bytes, so collection
---- stops there. Returns the blobs plus whether the whole stream framed as
---- promised, leaving the desync policy to the caller.
-local function parse_blobs(out, infos, wanted)
-  local blobs = {}
+--- Fill in `blobs` from a "<oid> <type> <size>\n<bytes>\n" stream, keyed by their
+--- index in `infos` and read in `wanted` order. Each record must open with the
+--- header `info` already reported: anything else means the stream has desynced,
+--- and every record after it would be read out of the wrong bytes, so the whole
+--- answer is refused (nil).
+local function parse_blobs(out, infos, wanted, blobs)
   local pos = 1
   for _, i in ipairs(wanted) do
     local header = infos[i].header
     if out:sub(pos, pos + #header) ~= header .. '\n' then
-      return blobs, false
+      return nil
     end
     pos = pos + #header + 1
     blobs[i] = out:sub(pos, pos + infos[i].size - 1)
     pos = pos + infos[i].size + 1
   end
-  return blobs, true
+  return blobs
 end
 
 -- ---------------------------------------------------------------- session ---
@@ -127,7 +107,7 @@ end
 local function ensure(cwd)
   for i, held in ipairs(sessions) do
     if held.cwd == cwd then
-      if not held.dead then
+      if not held.proc:is_closing() then
         table.remove(sessions, i)
         table.insert(sessions, 1, held)
         return held
@@ -137,7 +117,7 @@ local function ensure(cwd)
     end
   end
 
-  local s = { cwd = cwd, dead = false }
+  local s = { cwd = cwd }
   reset(s, false)
   local ok, proc = pcall(vim.system, { 'git', 'cat-file', '--batch-command', '--buffer' }, {
     cwd = cwd,
@@ -154,10 +134,8 @@ local function ensure(cwd)
         s.lines = s.lines + select(2, data:gsub('\n', ''))
       end
     end,
-  }, function()
-    s.dead = true
-  end)
-  if not ok or not proc then
+  })
+  if not ok then
     return nil
   end
   s.proc = proc
@@ -180,9 +158,9 @@ end
 --- process died or took too long.
 local function await(s, ready)
   local ok = vim.wait(READ_TIMEOUT_MS, function()
-    return s.dead or ready()
+    return s.proc:is_closing() or ready()
   end, 1)
-  if not ok or s.dead then
+  if not ok or s.proc:is_closing() then
     return nil
   end
   return table.concat(s.buf)
@@ -211,10 +189,10 @@ local function fetch_session(s, oids, max_bytes)
   end
 
   -- Only now, knowing the sizes, is anything asked for.
-  local wanted, expected = select_wanted(infos, oids, max_bytes)
+  local wanted, expected, blobs = select_wanted(infos, n, max_bytes)
   reset(s, false)
   if #wanted == 0 then
-    return infos, {}
+    return blobs
   end
   commands = {}
   for k = 1, #wanted do
@@ -230,78 +208,33 @@ local function fetch_session(s, oids, max_bytes)
   if not out or #out ~= expected then
     return nil
   end
-
-  -- A desync retires the session rather than being served partially: the
-  -- one-shot fallback below can still answer this render correctly.
-  local blobs, framed = parse_blobs(out, infos, wanted)
-  if not framed then
-    return nil
-  end
-  return infos, blobs
-end
-
--- --------------------------------------------------------------- fallback ---
-
-local function git_batch(args, oids, cwd)
-  local res = M.run(args, cwd, table.concat(oids, '\n') .. '\n')
-  if not res or res.code ~= 0 or not res.stdout then
-    return nil
-  end
-  return res.stdout
-end
-
-local function fetch_oneshot(cwd, oids, max_bytes)
-  local out = git_batch({ 'git', 'cat-file', '--batch-check' }, oids, cwd)
-  if not out then
-    return {}, {}
-  end
-  local infos = parse_info(out, #oids)
-  if not infos then
-    return {}, {}
-  end
-
-  local wanted = select_wanted(infos, oids, max_bytes)
-  if #wanted == 0 then
-    return infos, {}
-  end
-
-  -- The one caller that needs oid strings rather than indices: git_batch feeds
-  -- them to `cat-file --batch` on stdin.
-  local hashes = {}
-  for k = 1, #wanted do
-    hashes[k] = oids[wanted[k]]
-  end
-  out = git_batch({ 'git', 'cat-file', '--batch' }, hashes, cwd)
-  if not out then
-    return infos, {}
-  end
-
-  -- Records arrive in input order. There is nothing left to fall back to here,
-  -- so a desync keeps whatever framed correctly ahead of it.
-  local blobs = parse_blobs(out, infos, wanted)
-  return infos, blobs
+  return parse_blobs(out, infos, wanted, blobs)
 end
 
 -- ------------------------------------------------------------------- fetch ---
 
---- Type and size of every object in `oids`, plus the contents of those that are
---- blobs of at most `max_bytes`. Returns two lists parallel to `oids`:
----   infos[i] = { type, size, header }  nil when the object is missing or unreadable
----   blobs[i] = the bytes               nil when it was not one worth fetching
+--- The contents of the blobs in `oids` of at most `max_bytes`, as a list parallel
+--- to it:
+---   blobs[i] = the bytes
+---   blobs[i] = false  a blob too large to be worth reading
+---   blobs[i] = nil    no blob by that name: missing, or not a blob at all
 function M.fetch(cwd, oids, max_bytes)
   if #oids == 0 then
-    return {}, {}
+    return {}
   end
-  local s = ensure(cwd)
-  if s then
-    local ok, infos, blobs = pcall(fetch_session, s, oids, max_bytes)
-    if ok and infos and blobs then
-      return infos, blobs
+  for _ = 1, 2 do
+    local s = ensure(cwd)
+    if not s then
+      break
+    end
+    local blobs = fetch_session(s, oids, max_bytes)
+    if blobs then
+      return blobs
     end
     -- The session is only as trustworthy as its last answer.
     retire(s)
   end
-  return fetch_oneshot(cwd, oids, max_bytes)
+  return {}
 end
 
 return M

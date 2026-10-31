@@ -40,17 +40,12 @@ local function clip_to_width(s, limit)
     return clipped, #clipped
   end
 
-  local ok, count = pcall(vim.fn.strchars, s, 1)
-  if not ok then
-    local clipped = s:sub(1, limit)
-    return clipped, util.display_width(clipped)
-  end
   -- Cluster by cluster from there (see the note on skipcc and composing marks
   -- above), but only as far as the limit: what gets clipped away never has to
   -- be measured.
   local out = { s:sub(1, bulk) }
   w = bulk
-  for i = bulk, count - 1 do
+  for i = bulk, vim.fn.strchars(s, 1) - 1 do
     local text = vim.fn.strcharpart(s, i, 1, 1)
     local cw = util.display_width(text)
     if w + cw > limit then
@@ -75,14 +70,10 @@ local function clip_left_to_width(s, limit)
   if is_plain_ascii(s) then
     return '…' .. s:sub(#s - limit + 2), limit
   end
-  local ok, count = pcall(vim.fn.strchars, s, 1)
-  if not ok then
-    return clip_to_width(s, limit)
-  end
   -- Backwards from the tail, measuring only what survives the elision.
   local out = {}
   w = 0
-  for i = count - 1, 0, -1 do
+  for i = vim.fn.strchars(s, 1) - 1, 0, -1 do
     local text = vim.fn.strcharpart(s, i, 1, 1)
     local cw = util.display_width(text)
     if w + cw > limit - 1 then
@@ -165,47 +156,25 @@ end
 -- the hot path never builds a key string.
 --
 -- Bounded by the colorscheme rather than by anything a diff can contain, which
--- matters because the daemon serves requests for up to an hour. Weak keys so an
--- attrs table theme.attrs ever stopped handing out takes its styles with it.
+-- matters because the daemon serves requests for up to an hour. Keyed by the
+-- attrs, then the background (`false` for none).
 local NO_ATTRS = {}
-local styles = setmetatable({}, { __mode = 'k' })
-
-local function segment_sgr(attrs, bg)
-  local key = attrs or NO_ATTRS
-  local by_bg = styles[key]
-  if not by_bg then
-    by_bg = {}
-    styles[key] = by_bg
-  end
-  local bg_key = bg or false
-  local sgr = by_bg[bg_key]
-  if not sgr then
-    sgr = ansi.style({
-      fg = attrs and attrs.fg or palette.default_fg,
-      bg = bg,
-      bold = attrs and attrs.bold or false,
-      italic = attrs and attrs.italic or false,
-      underline = attrs and attrs.underline or false,
+local styles = vim.defaulttable(function(attrs)
+  return vim.defaulttable(function(bg)
+    return ansi.style({
+      fg = attrs.fg or palette.default_fg,
+      bg = bg or nil,
+      bold = attrs.bold,
+      italic = attrs.italic,
+      underline = attrs.underline,
     })
-    by_bg[bg_key] = sgr
-  end
-  return sgr
-end
+  end)
+end)
 
--- Same memo for the runs that carry a background but no syntax: row padding,
--- the side-by-side separator and the filler cells (whose whole rendered run is
--- fixed by its width).
-local fills = {}
-
-local function fill_sgr(bg)
-  local key = bg or false
-  local sgr = fills[key]
-  if not sgr then
-    sgr = ansi.style({ bg = bg })
-    fills[key] = sgr
-  end
-  return sgr
-end
+-- Same memo for the run that carries a background but no syntax: row padding.
+local fills = vim.defaulttable(function(bg)
+  return ansi.style({ bg = bg or nil })
+end)
 
 -- A filler run is as long as the cell, so unlike the style memos this one is
 -- keyed by something the daemon can keep being handed new values of (the view
@@ -249,7 +218,10 @@ end
 -- (`winners` at every boundary the sweep visits, `active` only as far as
 -- n_active). The exception is the stop_col break below, which would otherwise
 -- leave the tail of a longer previous row's winners readable, so it clears the
--- boundaries it is not going to write.
+-- boundaries it is not going to write. A row past this many boundaries (a
+-- minified line) gets its own winners instead: the scratch table would keep a
+-- reference to every span of it for as long as the daemon runs.
+local SCRATCH_BOUNDARIES = 1024
 local scratch_winners, scratch_active = {}, {}
 
 -- Winner per segment, resolved by a left-to-right sweep over the spans sorted
@@ -272,7 +244,7 @@ local scratch_winners, scratch_active = {}, {}
 -- be resolved for text nobody sees.
 local function segment_winners(spans, boundaries, nb, stop_col)
   local n_spans = #spans
-  local winners, active = scratch_winners, scratch_active
+  local winners, active = nb <= SCRATCH_BOUNDARIES and scratch_winners or {}, scratch_active
   local n_active, next_span = 0, 1
   for bi = 1, nb - 1 do
     local a = boundaries[bi]
@@ -424,7 +396,7 @@ local function emit_line(out, n, text, spans, line_type, emph_ranges, limit)
         truncated = true
       end
 
-      local sgr = segment_sgr(attrs, emph and emph_bg or line_bg)
+      local sgr = styles[attrs or NO_ATTRS][emph and emph_bg or line_bg or false]
       if sgr ~= prev then
         n = n + 1
         out[n] = sgr
@@ -459,38 +431,23 @@ end
 
 -- One format string per gutter width, so a row's numbers cost a single format
 -- call. %s right-aligns a number and leaves an absent one blank.
-local num_fmts = {}
-
-local function num_fmt(num_w)
-  local fmt = num_fmts[num_w]
-  if not fmt then
-    fmt = { pair = '%' .. num_w .. 's %' .. num_w .. 's ', single = '%' .. num_w .. 's ' }
-    num_fmts[num_w] = fmt
-  end
-  return fmt
-end
+local num_fmts = vim.defaulttable(function(num_w)
+  return { pair = '%' .. num_w .. 's %' .. num_w .. 's ', single = '%' .. num_w .. 's ' }
+end)
 
 -- The number takes its side's color and the bar stays decoration-colored; both
 -- carry the row's background so a tinted row reads as one block from its
 -- first cell. Context rows and filler cells share the untinted style.
-local gutters = {}
-
-local function gutter_sgr(line_type)
-  local key = line_type or 'context'
-  local g = gutters[key]
-  if not g then
-    local p = palette
-    local fg, bg = p.decoration, nil
-    if line_type == 'minus' then
-      fg, bg = p.minus_num, p.minus_bg
-    elseif line_type == 'plus' then
-      fg, bg = p.plus_num, p.plus_bg
-    end
-    g = { num = ansi.style({ fg = fg, bg = bg }), bar = ansi.style({ fg = p.decoration, bg = bg }) }
-    gutters[key] = g
+local gutters = vim.defaulttable(function(line_type)
+  local p = palette
+  local fg, bg = p.decoration, nil
+  if line_type == 'minus' then
+    fg, bg = p.minus_num, p.minus_bg
+  elseif line_type == 'plus' then
+    fg, bg = p.plus_num, p.plus_bg
   end
-  return g
-end
+  return { num = ansi.style({ fg = fg, bg = bg }), bar = ansi.style({ fg = p.decoration, bg = bg }) }
+end)
 
 -- Returns the new `out` index and the cells the gutter took ahead of the text.
 -- Reporting what was written rather than re-deriving it from num_w keeps the
@@ -503,7 +460,7 @@ local function emit_gutter(out, n, nums, line_type, record)
     n = n + 1
     out[n] = record
   end
-  local g = gutter_sgr(line_type)
+  local g = gutters[line_type or 'context']
   out[n + 1] = g.num
   out[n + 2] = nums
   out[n + 3] = g.bar
@@ -519,13 +476,13 @@ end
 --- 1717 record that leads the row (may be nil).
 function M.content_line(out, cell, old_no, new_no, cols, num_w)
   local line_type = cell.line_type
-  local nums = num_fmt(num_w).pair:format(old_no or '', new_no or '')
+  local nums = num_fmts[num_w].pair:format(old_no or '', new_no or '')
   local n, gutter_w = emit_gutter(out, #out, nums, line_type, cell.record)
   local col, line_bg
   n, col, line_bg = emit_line(out, n, cell.text, cell.spans, line_type, cell.emph, nil)
   local text_w = cols - gutter_w
   if line_bg and text_w > col then
-    out[n + 1] = fill_sgr(line_bg)
+    out[n + 1] = fills[line_bg]
     out[n + 2] = string.rep(' ', text_w - col)
     n = n + 2
   end
@@ -538,22 +495,21 @@ end
 -- lines as ╱ filler under a blank number). `record`, the OSC 1717 record for
 -- the side (may be nil), leads the cell. Returns the new `out` index.
 local function render_cell(out, n, cell, width, num_w)
-  local filler = cell.filler
-  local line_type = not filler and cell.line_type or nil
-  local nums = num_fmt(num_w).single:format(not filler and cell.lnum or '')
+  local line_type = cell.line_type
+  local nums = num_fmts[num_w].single:format(cell.lnum or '')
   local gutter_w
   n, gutter_w = emit_gutter(out, n, nums, line_type, cell.record)
   -- The gutter is never clipped: a cell too narrow for it overflows, which only
   -- a view a dozen cells wide can bring about.
   width = math.max(width - gutter_w, 1)
-  if filler then
+  if cell.filler then
     out[n + 1] = filler_run(width)
     return n + 1
   end
   local col, line_bg
   n, col, line_bg = emit_line(out, n, cell.text, cell.spans, line_type, cell.emph, width)
   if col < width then
-    out[n + 1] = fill_sgr(line_bg)
+    out[n + 1] = fills[line_bg or false]
     out[n + 2] = string.rep(' ', width - col)
     n = n + 2
   end
@@ -569,7 +525,7 @@ function M.split_line(out, left, right, cols, num_w)
   -- The separator is an untinted gutter bar, so it takes that memoized style
   -- rather than one built at require time: load_diff_colors() rewrites
   -- palette.decoration, and a style captured before it ran would be stale.
-  out[n + 1] = gutter_sgr(nil).bar
+  out[n + 1] = gutters.context.bar
   out[n + 2] = '│'
   n = render_cell(out, n + 2, right, right_w, num_w)
   out[n + 1] = ansi.eol

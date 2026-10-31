@@ -1,4 +1,4 @@
--- Persistent render daemon, started by client.sh as:
+-- Persistent render daemon, started by spawn_daemon.lua as:
 --   nvim --clean --headless -c "luafile daemon.lua"
 -- (-l would exit after running the script; -c keeps the server alive.)
 --
@@ -17,22 +17,15 @@ package.path = dir .. '/?.lua;' .. package.path
 
 local uv = vim.uv
 
--- The spawning render task's pty goes away right after we start; SIGHUP from
--- that teardown must not kill the daemon.
-uv.new_signal():start('sighup', function() end)
-
 -- Bootstrap owns the list of paths a render depends on, so the staleness check
 -- reads that list rather than re-deriving it, and reads *all* of it: a
--- dependency added there cannot be one the fingerprint forgot. Sorted because
--- pairs order is not stable, and the fingerprint is compared against itself.
+-- dependency added there cannot be one the fingerprint forgot.
 -- Guarded like the bootstrap call further down, because an error raised before
 -- the lifetime guards are armed would strand an nvim holding the socket
 -- forever; scripts_mtime() covers bootstrap.lua itself either way, so an
 -- editing mistake there still recycles the daemon.
 local ok_paths, bootstrap = pcall(require, 'lib.bootstrap')
-local paths = ok_paths and bootstrap.paths or {}
-local WATCHED_PATHS = vim.tbl_values(paths)
-table.sort(WATCHED_PATHS)
+local WATCHED_PATHS = ok_paths and bootstrap.paths or {}
 
 -- The client owns the socket name and hands it down through the spawner's
 -- environment. Deriving it a second time here would be the same cross-process
@@ -58,6 +51,11 @@ local ORPHANED_GRACE_MS = 10 * 1000
 -- second lazygit (see want_owner).
 local OWNER_ASK_INTERVAL_MS = 30 * 1000
 local POLL_MS = 3000
+-- codediff's native diff engine leaks (libvscode-diff/src/myers.c frees only the
+-- winning path of its search): ~14MB per render of a rewrite-heavy commit, and
+-- next to nothing for a small one. No collection here can reach that, so a
+-- lazygit left open would grow the daemon without bound; past this it recycles.
+local MAX_RSS_BYTES = 512 * 1024 * 1024
 
 -- Microseconds, not seconds: a whole-second resolution lets an edit that lands
 -- in the same second as the snapshot go unnoticed for the daemon's lifetime.
@@ -88,7 +86,7 @@ end
 -- comparison, which would silently never trigger a reload.
 local function fingerprint()
   local parts = { mtime_of(vim.v.progpath), scripts_mtime() }
-  for _, path in ipairs(WATCHED_PATHS) do
+  for _, path in pairs(WATCHED_PATHS) do
     parts[#parts + 1] = mtime_of(path)
   end
   return table.concat(parts, ':')
@@ -109,12 +107,12 @@ local pipe_ino = nil
 -- os.exit skips nvim's own socket cleanup, so unlink here -- but only while the
 -- path is still *ours*: it is shared by every daemon, and a successor may
 -- already have bound its own at the same name.
-local function shutdown(code)
-  local st = pipe_ino and uv.fs_stat(PIPE_PATH)
+local function shutdown()
+  local st = uv.fs_stat(PIPE_PATH)
   if st and st.ino == pipe_ino then
-    pcall(os.remove, PIPE_PATH)
+    os.remove(PIPE_PATH)
   end
-  os.exit(code or 0)
+  os.exit(0)
 end
 
 local poll = assert(uv.new_timer())
@@ -124,11 +122,10 @@ poll:start(POLL_MS, POLL_MS, function()
       watched[pid] = nil
     end
   end
-  local idle = uv.now() - last_request
-  if saw_owner and next(watched) == nil and idle > ORPHANED_GRACE_MS then
-    shutdown()
-  end
-  if idle > (saw_owner and IDLE_WITH_OWNER_MS or IDLE_NO_OWNER_MS) then
+  local limit = not saw_owner and IDLE_NO_OWNER_MS
+    or next(watched) and IDLE_WITH_OWNER_MS
+    or ORPHANED_GRACE_MS
+  if uv.now() - last_request > limit then
     shutdown()
   end
 end)
@@ -138,68 +135,48 @@ end)
 -- updated underneath us) would otherwise abort the -c luafile, leaving a daemon
 -- that answers nothing and never exits while every subsequent render spawns
 -- another one.
-local ok_boot, core, blob = pcall(function()
+local ok_boot, core = pcall(function()
   bootstrap.setup()
-  return require('lib.core'), require('lib.blob')
+  return require('lib.core')
 end)
 if not ok_boot then
-  shutdown(1)
+  os.exit(1)
 end
 
 -- Rendered-output cache: browsing commits in lazygit re-requests the same diff
 -- every time the selection returns to it, and the expensive renders (large
 -- commits) are exactly the ones worth never paying twice. Keyed by the full
--- input plus everything else that shapes the output. A render that consulted
--- worktree files (an unstaged diff) is served again only while they are
--- unchanged: the diff names their content, but a file can change between git
--- writing the diff and the render reading it. A daemon recycle
+-- input plus everything else that shapes the output, which holds for an unstaged
+-- diff too: its index line names the worktree content it shows. A daemon recycle
 -- (parser/plugin/source updates) drops the cache with the process.
 -- Sized so the byte ceiling below stays the binding constraint rather than this
 -- count: a single file's diff renders to well under a megabyte, so 32 MB is
 -- room for dozens, and a commit-sized render still leaves room for twenty.
--- Eviction is an O(n) scan, trivial at this size.
+-- A lookup is an O(n) scan, trivial at this size.
 local CACHE_MAX = 24
 -- Rendered ANSI runs ~5-8x its input (tinted rows pad out to the full width),
 -- so a handful of large-commit renders can pin tens of MB for the daemon's
 -- lifetime; the byte ceiling bounds memory where the entry count cannot.
 local CACHE_MAX_BYTES = 32 * 1024 * 1024
-local cache_entries, cache_count, cache_bytes, cache_tick = {}, 0, 0, 0
+local cache, cache_bytes = {}, 0 -- least recently used first
 
 local function cache_get(key)
-  local e = cache_entries[key]
-  if not e or not blob.unchanged(e.consulted) then
-    return nil
+  for i, e in ipairs(cache) do
+    if e.key == key then
+      table.insert(cache, table.remove(cache, i))
+      return e.out
+    end
   end
-  cache_tick = cache_tick + 1
-  e.stamp = cache_tick
-  return e.out
 end
 
-local function cache_put(key, out, consulted)
+local function cache_put(key, out)
   if #out > CACHE_MAX_BYTES then
     return
   end
-  local prev = cache_entries[key]
-  if prev then
-    cache_bytes = cache_bytes - #prev.out
-  else
-    cache_count = cache_count + 1
-  end
-  cache_tick = cache_tick + 1
-  cache_entries[key] = { out = out, stamp = cache_tick, consulted = consulted }
+  cache[#cache + 1] = { key = key, out = out }
   cache_bytes = cache_bytes + #out
-  while cache_count > CACHE_MAX or cache_bytes > CACHE_MAX_BYTES do
-    -- Never left unset: the loop only runs with at least two entries cached.
-    local oldest_key --- @type string
-    local oldest = math.huge
-    for k, e in pairs(cache_entries) do
-      if e.stamp < oldest then
-        oldest_key, oldest = k, e.stamp
-      end
-    end
-    cache_bytes = cache_bytes - #cache_entries[oldest_key].out
-    cache_entries[oldest_key] = nil
-    cache_count = cache_count - 1
+  while #cache > CACHE_MAX or cache_bytes > CACHE_MAX_BYTES do
+    cache_bytes = cache_bytes - #table.remove(cache, 1).out
   end
 end
 
@@ -222,38 +199,17 @@ local function want_owner()
   return next(watched) == nil and now - owner_declined >= OWNER_ASK_INTERVAL_MS
 end
 
--- The output path is derived from the client's mktemp'd input path rather than
--- made by a second mktemp of its own, so this is the one file the daemon
--- creates: O_EXCL after an unlink, never O_TRUNC, means a name somebody else
--- planted in between (a symlink, on a /tmp shared with other users) fails the
--- render instead of being followed and written through.
+-- Opens the file the client made rather than creating one, in the private
+-- directory the client made for it. A client that lazygit killed mid-render has
+-- already removed that directory, and nobody is left to remove an output
+-- written after that, so a render that outlives its client has to fail here.
 local function write_output(path, data)
-  pcall(uv.fs_unlink, path)
-  -- A closure rather than pcall(uv.fs_open, ...): passing the function itself
-  -- hides the argument count, so LuaLS cannot tell the sync overload (an fd)
-  -- from the async one (a request handle).
-  local ok_open, fd = pcall(function()
-    return uv.fs_open(path, 'wx', 384) -- 0600
-  end)
-  if not ok_open or not fd then
+  local f = io.open(path, 'r+b')
+  if not f then
     return false
   end
-  local ok_write = pcall(function()
-    local off = 0
-    while off < #data do
-      -- sub() on the first pass would re-intern the whole render.
-      local written = uv.fs_write(fd, off == 0 and data or data:sub(off + 1), off)
-      if not written or written <= 0 then
-        error('short write')
-      end
-      off = off + written
-    end
-  end)
-  pcall(uv.fs_close, fd)
-  if not ok_write then
-    pcall(uv.fs_unlink, path)
-  end
-  return ok_write
+  local written = f:write(data)
+  return f:close() and written ~= nil
 end
 
 -- The cache key for rendering `input` with `opts`. Every option core.render is
@@ -272,8 +228,6 @@ end
 local function render_request(infile, outfile, opts)
   last_request = uv.now()
 
-  local stale = fingerprint() ~= generation
-
   local f = io.open(infile, 'rb')
   if not f then
     return 'err:input'
@@ -282,32 +236,20 @@ local function render_request(infile, outfile, opts)
   f:close()
 
   local key = cache_key(input, opts)
-  local rendered = not stale and cache_get(key) or nil
+  local rendered = cache_get(key)
   if not rendered then
-    local ok, result, cacheable, consulted = pcall(core.render, input, opts)
+    local ok, result, cacheable = pcall(core.render, input, opts)
     rendered = ok and result or input
     if ok and cacheable then
-      cache_put(key, rendered, consulted)
+      cache_put(key, rendered)
     end
   end
 
-  -- A client that lazygit killed mid-render has already run its cleanup, and
-  -- nobody is left to remove an output written after that. The client unlinks
-  -- its input before its output, so an input that is still there once the
-  -- output is on disk means that cleanup is still to come and takes the
-  -- output with it; one that is gone means the output is ours to remove.
-  if not uv.fs_stat(infile) then
-    return 'err:input'
-  end
   if not write_output(outfile, rendered) then
     return 'err:output'
   end
-  if not uv.fs_stat(infile) then
-    pcall(uv.fs_unlink, outfile)
-    return 'err:input'
-  end
 
-  if stale then
+  if fingerprint() ~= generation then
     -- Serve this request with the old world, then let the next spawn reload
     -- fresh parsers / nvim runtime.
     vim.defer_fn(shutdown, 50)
@@ -336,16 +278,18 @@ local pipe_server = assert(uv.new_pipe(false))
 local rendering = false
 local queue = {}
 
+-- nc only exits on this close, so whatever submit held off runs after it, with
+-- nobody waiting. A full cycle also re-arms the collector, and what it leaves
+-- resident is the daemon's real size, without a render's garbage in it.
 local function reply(client, message)
-  if client:is_closing() then
-    return
-  end
   client:write(message .. '\n', function()
-    client:shutdown(function()
-      if not client:is_closing() then
-        client:close()
+    client:close()
+    if not rendering then
+      collectgarbage('collect')
+      if uv.resident_set_memory() > MAX_RSS_BYTES then
+        shutdown()
       end
-    end)
+    end
   end)
 end
 
@@ -392,6 +336,9 @@ local function submit(request, client)
     return
   end
   rendering = true
+  -- Collecting inside a render is ~12% of the wall clock a client sees, and the
+  -- moment right after it is idle (see reply).
+  collectgarbage('stop')
   while queue[1] do
     local job = table.remove(queue, 1)
     local ok, status = pcall(dispatch, job.request)
@@ -405,45 +352,21 @@ local function on_connection(err)
     return
   end
   local client = assert(uv.new_pipe(false))
-  local accepted = pcall(function()
-    assert(pipe_server:accept(client))
-  end)
-  if not accepted then
+  if not pipe_server:accept(client) then
     client:close()
     return
   end
 
-  local chunks, bytes, done = {}, 0, false
-  local function abort()
-    done = true
-    client:close()
-  end
+  local buf = ''
   client:read_start(function(read_err, chunk)
-    if done then
-      return
-    end
-    local request = nil
-    if read_err then
-      return abort()
-    elseif chunk then
-      chunks[#chunks + 1] = chunk
-      bytes = bytes + #chunk
-      if chunk:find('\n', 1, true) then
-        local buf = table.concat(chunks)
-        request = buf:sub(1, buf:find('\n', 1, true) - 1)
-      elseif bytes > MAX_REQUEST_BYTES then
-        return abort()
-      end
-    else
-      -- nc half-closes its write side as soon as its own stdin ends, so EOF is
-      -- the other end of a request that arrived without its newline.
-      request = bytes > 0 and table.concat(chunks) or nil
-      if not request then
-        return abort()
-      end
+    buf = buf .. (chunk or '')
+    local request = buf:match('^([^\n]*)\n')
+    -- nc half-closes its write side as soon as its own stdin ends, so EOF is
+    -- the other end of a request that arrived without its newline.
+    if not request and not chunk and not read_err and buf ~= '' then
+      request = buf
     end
     if request then
-      done = true
       client:read_stop()
       -- Off the callback and onto the main loop: a render is nothing but calls
       -- (vim.fn, treesitter, vim.system) that a libuv callback is not allowed
@@ -451,6 +374,8 @@ local function on_connection(err)
       vim.schedule(function()
         submit(request, client)
       end)
+    elseif read_err or not chunk or #buf > MAX_REQUEST_BYTES then
+      client:close()
     end
   end)
 end
@@ -459,12 +384,7 @@ end
 -- one at the same moment). That one is serving, and this process has no
 -- transport of its own left to fall back on, so it exits rather than lingering
 -- as a daemon that answers nothing.
-local bound = pcall(function()
-  assert(pipe_server:bind(PIPE_PATH))
-  assert(pipe_server:listen(64, on_connection))
-end)
-if not bound then
-  pcall(pipe_server.close, pipe_server)
+if not (pipe_server:bind(PIPE_PATH) and pipe_server:listen(64, on_connection)) then
   os.exit(0)
 end
 pipe_ino = (uv.fs_stat(PIPE_PATH) or {}).ino

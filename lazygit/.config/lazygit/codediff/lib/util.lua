@@ -70,17 +70,14 @@ function M.display_form(s)
   return (s:gsub('%z', '^@'):gsub('[^\t]+', vim.fn.strtrans))
 end
 
---- Display width of a plain string; safe on invalid UTF-8.
+--- Display width of a string in its display form; safe on invalid UTF-8, and a
+--- NUL (which vimscript refuses) is the one byte that form never holds.
 --- Printable ASCII never has to cross into vimscript.
 function M.display_width(s)
   if M.is_plain_ascii(s) then
     return #s
   end
-  local ok, w = pcall(vim.fn.strdisplaywidth, s)
-  if ok then
-    return w
-  end
-  return #s
+  return vim.fn.strdisplaywidth(s)
 end
 
 --- Expand tabs to spaces relative to a starting visual column (0-based).

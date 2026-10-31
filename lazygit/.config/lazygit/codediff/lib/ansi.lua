@@ -36,9 +36,8 @@ function M.style(attrs)
   return ESC .. '[' .. table.concat(parts, ';') .. 'm'
 end
 
-M.reset = ESC .. '[0m'
 --- The end of every output row: no style carries over into the next one.
-M.eol = M.reset .. '\n'
+M.eol = ESC .. '[0m\n'
 
 local SGR = ESC .. '%[[%d;]*m'
 

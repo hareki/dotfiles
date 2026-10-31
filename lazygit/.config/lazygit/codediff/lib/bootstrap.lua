@@ -1,7 +1,5 @@
 local M = {}
 
-local done = false
-
 local data = vim.fn.stdpath('data')
 local config = vim.fn.stdpath('config')
 
@@ -36,11 +34,6 @@ M.paths = {
 --- @capture colors, codediff.nvim for the diff engine + highlight groups, and
 --- the same filetype=>language aliases the editor uses.
 function M.setup()
-  if done then
-    return
-  end
-  done = true
-
   -- This LuaJIT (arm64 macOS) cannot map a second machine-code area, so once
   -- the default one is full, the next trace flushes every compiled one: ~110
   -- full flushes per 76 renders of real diffs, a quarter of the render time.
@@ -99,12 +92,6 @@ function M.setup()
   -- drifting out of sync; guarded because a render must never fail over
   -- filetype detection alone.
   pcall(dofile, M.paths.filetype_rules)
-
-  -- Keep EPIPE as a write error instead of a fatal signal so the emitter can
-  -- exit cleanly when lazygit kills the render task mid-stream.
-  pcall(function()
-    vim.uv.new_signal():start('sigpipe', function() end)
-  end)
 end
 
 return M

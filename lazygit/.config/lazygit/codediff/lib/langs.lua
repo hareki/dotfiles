@@ -28,9 +28,6 @@ end
 --- Resolve a path (plus optional content lines) to a loadable treesitter
 --- language, or nil when the file should render without syntax highlighting.
 function M.lang_for(path, content_lines)
-  if not path then
-    return nil
-  end
   -- The daemon is per-user, not per-repo, and lives for up to an hour, so the
   -- path alone is not a safe key: content-based detection (shebangs) makes the
   -- same relative path resolve differently across repos, and between a render
@@ -38,8 +35,9 @@ function M.lang_for(path, content_lines)
   --
   -- Only a bounded fingerprint of the first line goes into the key. Embedding
   -- the line itself would let each of the cache's few hundred entries pin one,
-  -- and a first line can be the whole file (a minified bundle, up to
-  -- max_blob_bytes); the detectors only ever look at its head anyway.
+  -- and a first line can be the whole file (a minified bundle, up to the
+  -- highlight cap in lib/blob.lua); the detectors only ever look at its head
+  -- anyway.
   local sample = (content_lines and content_lines[1]) or ''
   local key = path .. '\0' .. #sample .. '\0' .. sample:sub(1, 256)
   local hit = cache[key]
@@ -56,12 +54,10 @@ function M.lang_for(path, content_lines)
     end
   end
 
-  local lang = parser_available(vim.treesitter.language.get_lang(ft) or ft)
-  if not lang and ft:find('.', 1, true) then
-    -- Dotted filetypes like "yaml.ansible": fall back to the base filetype.
-    local base = ft:match('^([^.]+)')
-    lang = parser_available(vim.treesitter.language.get_lang(base) or base)
-  end
+  -- A dotted filetype can name a language of its own with no parser installed
+  -- ("typescript.glimmer"), and then falls back to the base filetype.
+  local get_lang = vim.treesitter.language.get_lang
+  local lang = parser_available(get_lang(ft)) or parser_available(get_lang(ft:match('^[^.]+')))
 
   return remember(key, lang or false)
 end

@@ -145,7 +145,7 @@ local function parse_extended_header(file, line)
   elseif vim.startswith(line, '--- ') then
     -- Authoritative for this side, including the nil that /dev/null resolves
     -- to: the header is the diff's own answer for the side, where the path
-    -- pair new_file() reads off the diff line is only a guess (it mis-splits a
+    -- pair new_section() reads off the diff line is only a guess (it mis-splits a
     -- name containing " b/"). Letting that guess survive a header which
     -- refuted it is what forced consumers to ask whether the file was new or
     -- deleted before they could trust either path.
@@ -230,31 +230,16 @@ end
 function M.parse(lines)
   local blocks = {}
   local raw = nil
-  -- `state` already implies which of these two are set ("top": neither,
-  -- "hunk": both), but LuaLS cannot see that, so the branches below test them
-  -- alongside the state.
   --- @type table?
   local file = nil
   --- @type table?
   local hunk = nil
   local remaining_old, remaining_new = 0, 0
-  -- states: "top" | "header" | "hunk" | "combined"
-  local state = 'top'
 
-  local function flush_raw()
-    if raw then
-      blocks[#blocks + 1] = raw
-      raw = nil
-    end
-  end
-
-  local function flush_file()
-    if file then
-      blocks[#blocks + 1] = file
-      file = nil
-    end
-    hunk = nil
-    state = 'top'
+  -- At most one of raw and file is open: raw only grows while no section is.
+  local function flush()
+    blocks[#blocks + 1] = raw or file
+    raw, file, hunk = nil, nil, nil
   end
 
   local i = 1
@@ -267,22 +252,20 @@ function M.parse(lines)
       or vim.startswith(line, 'diff --cc ')
       or vim.startswith(line, 'diff --combined ')
     then
-      flush_file()
-      flush_raw()
+      flush()
       file = new_section(line)
-      state = file.kind == 'combined' and 'combined' or 'header'
-    elseif state == 'top' then
+    elseif not file then
       if not raw then
         raw = { kind = 'raw', lines = {} }
       end
       raw.lines[#raw.lines + 1] = line
-    elseif file and state == 'combined' then
+    elseif file.kind == 'combined' then
       if M.is_submodule_line(line) or M.commit_line(line) then
         consumed = false
       else
         file.lines[#file.lines + 1] = line
       end
-    elseif file and line:match('^@@ %-%d') and (state == 'header' or state == 'hunk') then
+    elseif line:match('^@@ %-%d') then
       local os_, oc, ns, nc, heading = line:match('^@@ %-(%d+),?(%d*) %+(%d+),?(%d*) @@ ?(.*)$')
       if os_ then
         hunk = {
@@ -295,15 +278,12 @@ function M.parse(lines)
         }
         remaining_old, remaining_new = hunk.old_count, hunk.new_count
         file.hunks[#file.hunks + 1] = hunk
-        state = 'hunk'
       else
         consumed = false
       end
-    elseif state == 'header' then
-      if not parse_extended_header(file, line) then
-        consumed = false
-      end
-    elseif hunk and state == 'hunk' then
+    elseif not hunk then
+      consumed = parse_extended_header(file, line)
+    else
       local origin = line:sub(1, 1)
       if line == '\\ No newline at end of file' then
         -- It marks the line before it, a side's last, which is always among
@@ -325,21 +305,18 @@ function M.parse(lines)
       else
         consumed = false
       end
-    else
-      consumed = false
     end
 
     if consumed then
       i = i + 1
     else
       -- Line does not belong to the open section: close it and reprocess the
-      -- same line from the top state.
-      flush_file()
+      -- same line with no section open.
+      flush()
     end
   end
 
-  flush_file()
-  flush_raw()
+  flush()
   return blocks
 end
 

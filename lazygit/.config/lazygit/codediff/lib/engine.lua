@@ -1,35 +1,22 @@
 local M = {}
 
--- codediff.nvim is required lazily and behind pcall: a missing or broken
--- plugin must only cost the changed words their emphasis, never break the
--- render. nil: not tried yet, false: unavailable. require memoizes successful
--- loads itself; the false is what keeps a broken plugin from being re-pcall'd
--- once per change for the daemon's lifetime.
-local diff_engine = nil
-
-local function diff_module()
-  if diff_engine == nil then
-    local ok, mod = pcall(require, 'codediff.core.diff')
-    diff_engine = ok and mod or false
-  end
-  return diff_engine or nil
-end
+-- Behind pcall: a missing or broken codediff.nvim must only cost the changed
+-- words their emphasis, never break the render. Every entry point runs
+-- bootstrap.setup(), which puts the plugin on the rtp, before it requires this
+-- module.
+local has_diff, diff = pcall(require, 'codediff.core.diff')
 
 -- Mirrors codediff's utf16_col_to_byte_col (ui/inline.lua): engine columns are
 -- 1-based UTF-16 code units, end-exclusive. codediff reaches the conversion
 -- through its own pre-0.11 compat shim; on the versions this renderer targets
 -- (vim.hl.priorities in lib/highlight.lua is already 0.11+) that shim is
 -- exactly this builtin, so call it rather than a private module of another
--- plugin. pcall: strict indexing rejects a column past the end of the line.
+-- plugin. Not strict: a column past the end of the line clamps to the end.
 local function utf16_col_to_byte_col(line, utf16_col)
   if utf16_col <= 1 then
     return utf16_col
   end
-  local ok, byte_idx = pcall(vim.str_byteindex, line, 'utf-16', utf16_col - 1, true)
-  if ok then
-    return byte_idx + 1
-  end
-  return utf16_col
+  return vim.str_byteindex(line, 'utf-16', utf16_col - 1, false) + 1
 end
 
 -- Byte index of the last byte of the UTF-8 sequence covering byte `i`.
@@ -37,8 +24,7 @@ local function char_last_byte(line, i)
   if i < 1 or i > #line then
     return i
   end
-  local ok, off = pcall(vim.str_utf_end, line, i)
-  return ok and (i + off) or i
+  return i + vim.str_utf_end(line, i)
 end
 
 local function by_start(a, b)
@@ -96,8 +82,7 @@ end
 -- change: the rows are CR-stripped): they are still drawn as changed, just
 -- without words picked out.
 local function emphasize(change, max_ms)
-  local diff = diff_module()
-  if not diff then
+  if not has_diff then
     return
   end
   local ok, result = pcall(diff.compute_diff, change.old_rows, change.new_rows, {
