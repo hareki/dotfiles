@@ -1,6 +1,6 @@
 {
   "permissions": {
-    "allow": ["mcp__codegraph__codegraph_explore"]
+    "allow": ["mcp__codegraph__*"]
   },
   "enabledPlugins": {
     "nvim-lua-lsp@dotfiles": true,
@@ -13,5 +13,17 @@
         "path": "./nvim/.config/nvim/.claude/marketplace"
       }
     }
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "codegraph prompt-hook"
+          }
+        ]
+      }
+    ]
   }
 }
