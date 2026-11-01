@@ -255,8 +255,8 @@ return {
           map('n', { '<CR>', 'e' }, tree.create_node_action('toggle'), 'Open File/Toggle Folder')
           map('n', 'g?', api.tree.toggle_help, 'Toggle Help')
 
-          map('n', '<C-n>', tree.mark_and_next, 'Bookmark and Next')
-          map('n', '<C-p>', tree.mark_and_prev, 'Bookmark and Previous')
+          map('n', '<C-n>', tree.create_mark_action('<Down>'), 'Bookmark and Next')
+          map('n', '<C-p>', tree.create_mark_action('<Up>'), 'Bookmark and Previous')
           map('n', 'M', api.filter.no_bookmark.toggle, 'Toggle Bookmark Filter')
           map('n', 'bd', api.marks.bulk.trash, 'Trash Bookmarked')
           map('n', 'bt', api.marks.bulk.delete, 'Delete Bookmarked')
@@ -307,7 +307,7 @@ return {
 
         vim.api.nvim_create_autocmd('BufEnter', {
           group = state.preview_watcher,
-          buffer = tree_bufnr,
+          buf = tree_bufnr,
           callback = function()
             tree.toggle_preview(state.preview_on_focus)
           end,

@@ -83,7 +83,7 @@ local function attach_lifecycle(buf, win, origin_buf, origin_win)
   -- Nested, so the close fires WinClosed (link_popup's release) and BufWipeout (render-markdown's)
   vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
     group = augroup,
-    buffer = origin_buf,
+    buf = origin_buf,
     nested = true,
     callback = function()
       if vim.api.nvim_get_current_win() ~= origin_win then

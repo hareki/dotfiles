@@ -20,17 +20,8 @@ M.state = {
 --- @module 'nvim-tree.api'
 local api = Defer.on_index('nvim-tree.api')
 
---- @module 'nvim-tree-preview'
-local preview = Defer.on_exported_call('nvim-tree-preview')
-
 --- @module 'nvim-tree-preview.manager'
-local manager = Defer.on_index('nvim-tree-preview.manager')
-
---- 'lg' while the float tree shows the preview (wide enough for readable code), else 'vertical_sm'
---- @return 'lg' | 'vertical_sm'
-local function compute_size()
-  return M.state.preview_on_focus and 'lg' or 'vertical_sm'
-end
+local preview = Defer.on_index('nvim-tree-preview.manager')
 
 --- Close the nvim-tree and preview windows, cleaning up watchers
 --- @return nil
@@ -126,7 +117,8 @@ end
 --- @return utils.ui.layout.WinConfig tree
 --- @return integer preview_height Height of the preview below the collapsed tree
 function M.float_geometry(action)
-  local size = UI.layout.popup(compute_size())
+  -- Wide enough for readable code while the float tree shows the preview
+  local size = UI.layout.popup(M.state.preview_on_focus and 'lg' or 'vertical_sm')
   -- Minus 1 for the space between the two windows
   local collapsed_height = math.floor(size.height / 2) - 1
   -- What the collapsed tree leaves, minus the 2 border rows between the windows
@@ -194,7 +186,7 @@ function M.toggle_preview(force_state)
     next_open = force_state
   end
 
-  -- Flip the flag before resizing, so compute_size() picks the target state's size preset
+  -- Flip the flag before resizing, so float_geometry() picks the target state's size preset
   M.state.preview_on_focus = next_open
   M.toggle_tree_height(next_open and 'collapse' or 'expand')
 
@@ -209,11 +201,11 @@ end
 --- @return nil
 function M.toggle_focus()
   -- No instance exists until the first preview has been opened
-  if not manager.instance then
+  if not preview.instance then
     return
   end
 
-  manager.instance:toggle_focus()
+  preview.instance:toggle_focus()
 end
 
 --- Open nvim-tree, back in the float position unless the side tree is already visible
@@ -234,18 +226,14 @@ function M.switch_to_side()
   api.tree.open()
 end
 
---- Toggle mark on current node and move to next line
---- @return nil
-function M.mark_and_next()
-  api.marks.toggle()
-  vim.api.nvim_feedkeys(vim.keycode('<Down>'), 'n', false)
-end
-
---- Toggle mark on current node and move to previous line
---- @return nil
-function M.mark_and_prev()
-  api.marks.toggle()
-  vim.api.nvim_feedkeys(vim.keycode('<Up>'), 'n', false)
+--- Node action toggling the mark on the current node, then moving the cursor with `key`
+--- @param key '<Down>' | '<Up>'
+--- @return function action
+function M.create_mark_action(key)
+  return function()
+    api.marks.toggle()
+    vim.api.nvim_feedkeys(vim.keycode(key), 'n', false)
+  end
 end
 
 --- Replaces the home directory with its icon and path separators with the collapsed icon
@@ -261,17 +249,8 @@ function M.format_root_label(path)
     return home
   end
 
-  local formatted
-  if vim.startswith(short, '~/') then
-    formatted = home .. separator .. short:sub(3)
-  else
-    -- If outside home, remove leading slash to avoid empty first component
-    formatted = short:gsub('^/', '')
-  end
-
-  formatted = formatted:gsub('/', separator)
-
-  return formatted
+  -- If outside home, remove leading slash to avoid empty first component
+  return (short:gsub('^~/', home .. separator):gsub('^/', ''):gsub('/', separator))
 end
 
 return M

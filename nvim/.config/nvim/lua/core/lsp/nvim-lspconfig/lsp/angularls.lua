@@ -21,13 +21,12 @@ local function resolve_ngserver(root_dir)
 end
 
 --- @param root_dir string
---- @return string
+--- @return string?
 local function get_angular_core_version(root_dir)
   local json = common.read_json(fs.joinpath(root_dir, 'package.json')) or {}
-  local deps = json.dependencies or {}
-  local dev_deps = json.devDependencies or {}
-  local version = deps['@angular/core'] or dev_deps['@angular/core'] or ''
-  return version:match('%d+%.%d+%.%d+') or ''
+  local version = vim.tbl_get(json, 'dependencies', '@angular/core')
+    or vim.tbl_get(json, 'devDependencies', '@angular/core')
+  return version and version:match('%d+%.%d+%.%d+')
 end
 
 return {
@@ -63,7 +62,7 @@ return {
       -- An empty --angularCoreVersion fails every semver gate (disabling @if/@for, @let, ...), so
       -- omit it and let the server detect the version (13.x ignores the flag)
       local core_version = get_angular_core_version(root_dir)
-      if core_version ~= '' then
+      if core_version then
         vim.list_extend(cmd, { '--angularCoreVersion', core_version })
       end
 

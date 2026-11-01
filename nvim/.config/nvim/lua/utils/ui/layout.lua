@@ -1,9 +1,6 @@
 --- @class utils.ui.layout
 local M = {}
 
---- The config.size.popup presets plus 'input', which is sized here
---- @alias utils.ui.layout.PopupSize config.size.PopupPreset | 'input'
-
 --- Top-left cell that centers a window of the given size on the screen
 --- @param width integer Window width in columns, border excluded
 --- @param height integer Window height in rows, border excluded
@@ -14,23 +11,13 @@ function M.center(width, height)
   return math.floor((vim.o.columns - width) / 2) - 1, math.floor((vim.o.lines - height) / 2) - 1
 end
 
-local computed_input_size = {
-  height = 1,
-  width = 60,
-}
-
 --- Resolve a dimensions preset (screen fractions) into whole cells, with offsets and minimums
 --- @param dimensions config.size.Dimensions
 --- @return integer width Width in columns
 --- @return integer height Height in rows
 local function resolve_dimensions(dimensions)
   local width = vim.o.columns * dimensions.WIDTH
-  local height = vim.o.lines * dimensions.HEIGHT
-
-  local height_offset = dimensions.HEIGHT_OFFSET
-  if height_offset then
-    height = math.max(height + height_offset, 1)
-  end
+  local height = vim.o.lines * dimensions.HEIGHT + (dimensions.HEIGHT_OFFSET or 0)
 
   return math.floor(math.max(width, dimensions.MIN_WIDTH or 0)),
     math.floor(math.max(height, dimensions.MIN_HEIGHT or 0))
@@ -75,27 +62,14 @@ end
 --- @field row      integer
 
 --- Compute a centered window configuration from a size preset
---- @param size utils.ui.layout.PopupSize
+--- @param size config.size.PopupPreset
 --- @return utils.ui.layout.WinConfig config
 function M.popup(size)
-  local window_w, window_h
-  local preset = Conf.size.popup[size] -- nil for 'input'
+  local preset = Conf.size.popup[size]
+  local width, height = resolve_dimensions(preset)
+  local col, row = M.center(width, height)
 
-  if size == 'input' then
-    window_w = computed_input_size.width
-    window_h = computed_input_size.height
-  else
-    window_w, window_h = resolve_dimensions(preset)
-  end
-
-  local col, row = M.center(window_w, window_h)
-
-  return {
-    width = window_w,
-    height = window_h,
-    col = col,
-    row = row + (preset and preset.ROW_OFFSET or 0),
-  }
+  return { width = width, height = height, col = col, row = row + (preset.ROW_OFFSET or 0) }
 end
 
 --- @class utils.ui.layout.WinConfigFn
@@ -106,7 +80,7 @@ end
 
 --- Like M.popup, but function-valued, so consumers size and center popups at open time, after
 --- any terminal resize (Snacks can't take callable max_width/max_height, so set no max fields)
---- @param size utils.ui.layout.PopupSize
+--- @param size config.size.PopupPreset
 --- @return utils.ui.layout.WinConfigFn config Window config resolved per call
 function M.popup_fn(size)
   return {
@@ -126,7 +100,7 @@ function M.popup_fn(size)
 end
 
 --- Like M.popup_fn, for a snacks picker layout: 2 more cells, as its size counts inner borders
---- @param size utils.ui.layout.PopupSize
+--- @param size config.size.PopupPreset
 --- @return utils.ui.layout.WinConfigFn config Window config resolved per call
 function M.picker_fn(size)
   local config = M.popup_fn(size)

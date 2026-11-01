@@ -34,74 +34,71 @@ local function close()
 
   pcall(vim.api.nvim_del_augroup_by_id, current.augroup)
   current.release_keymaps()
-  pcall(function()
-    current.placement:close()
-  end)
+  pcall(current.placement.close, current.placement)
   pcall(vim.api.nvim_win_close, current.win, true)
   if vim.api.nvim_buf_is_valid(current.buf) then
     vim.api.nvim_buf_delete(current.buf, { force = true })
   end
 end
 
---- A hover-unique src path, so the float gets its own kitty graphics ID (no size juggling with
---- an inline placement of the same image) and unsaved edits (`.mmd`) are re-hashed from the buffer
---- @param original_src string | nil  Resolved on-disk file (used when `content` is nil)
---- @param ext string  File extension without leading dot
---- @param content string | nil  Raw bytes to persist (e.g. live buffer text)
---- @return string?
-local function build_hover_src(original_src, ext, content)
+--- A hover-unique path, so the float gets its own kitty graphics ID (no size juggling with an
+--- inline placement of the same image)
+--- @param key string Hashed into the file name
+--- @param ext string File extension without leading dot
+--- @return string
+local function hover_path(key, ext)
   local cache = Snacks.image.config.cache
   vim.fn.mkdir(cache, 'p')
 
-  local hash
-  if content then
-    hash = vim.fn.sha256(content):sub(1, 12)
-  else
-    local stat = original_src and vim.uv.fs_stat(original_src)
-    if not stat then
-      return nil
-    end
-    -- Include nsec + size so a second edit within the same second can't hit a stale cache entry
-    local key = table.concat({
-      original_src,
-      tostring(stat.mtime.sec),
-      tostring(stat.mtime.nsec),
-      tostring(stat.size),
-    }, ':')
-    hash = vim.fn.sha256(key):sub(1, 12)
-  end
+  return vim.fs.joinpath(cache, vim.fn.sha256(key):sub(1, 12) .. '-hover.' .. ext)
+end
 
-  local out = vim.fs.joinpath(cache, hash .. '-hover.' .. ext)
-
+--- Hover copy of a mermaid buffer's text, keyed on it so unsaved edits are re-hashed
+--- @param text string
+--- @return string?
+local function hover_src_from_text(text)
+  local out = hover_path(text, 'mmd')
   if vim.fn.filereadable(out) == 1 then
     return out
   end
 
-  if content then
-    local fd = io.open(out, 'wb')
-    if not fd then
-      return nil
-    end
-    fd:write(content)
+  local fd = io.open(out, 'wb')
+  if fd then
+    fd:write(text)
     fd:close()
-  else
-    --- @cast original_src string
-    if not vim.uv.fs_copyfile(original_src, out) then
-      return nil
-    end
+    return out
+  end
+end
+
+--- Hover copy of an on-disk image
+--- @param src string
+--- @return string?
+local function hover_src_from_file(src)
+  local stat = vim.uv.fs_stat(src)
+  if not stat then
+    return nil
   end
 
-  return out
+  -- Include nsec + size so a second edit within the same second can't hit a stale cache entry
+  local key = table.concat({ src, stat.mtime.sec, stat.mtime.nsec, stat.size }, ':')
+  local ext = vim.fs.ext(src)
+  local out = hover_path(key, ext ~= '' and ext or 'png')
+
+  if vim.fn.filereadable(out) == 1 or vim.uv.fs_copyfile(src, out) then
+    return out
+  end
 end
 
 --- @param source_buf integer
---- @param src string
+--- @param src string? Nothing opens without one
 local function open(source_buf, src)
+  if not src then
+    return
+  end
+
   -- A second hover can arrive via the async at_cursor callback before the toggle guard sees the
   -- first; close it, or replacing `M.state.hover` would orphan its window, placement and <Esc> map
-  if M.state.hover then
-    close()
-  end
+  close()
 
   local lg = UI.layout.popup('lg')
 
@@ -122,10 +119,7 @@ local function open(source_buf, src)
     -- Open the window once snacks reports the image's cell dims, or the full `lg` frame flashes
     on_update_pre = function(self)
       local current = M.state.hover
-      if not current then
-        return
-      end
-      if vim.api.nvim_win_is_valid(current.win) then
+      if not current or vim.api.nvim_win_is_valid(current.win) then
         return
       end
 
@@ -168,7 +162,7 @@ local function open(source_buf, src)
     { 'CursorMoved', 'CursorMovedI', 'BufLeave', 'ModeChanged', 'BufWipeout' },
     {
       group = augroup,
-      buffer = source_buf,
+      buf = source_buf,
       callback = close,
     }
   )
@@ -183,39 +177,18 @@ function M.hover_image()
   local source_buf = vim.api.nvim_get_current_buf()
 
   if vim.bo.filetype == 'mermaid' then
-    local lines = vim.api.nvim_buf_get_lines(source_buf, 0, -1, false)
-    local content = table.concat(lines, '\n')
-    if content == '' then
-      return
+    local text = table.concat(vim.api.nvim_buf_get_lines(source_buf, 0, -1, false), '\n')
+    if text ~= '' then
+      open(source_buf, hover_src_from_text(text))
     end
-    local src = build_hover_src(nil, 'mmd', content)
-    if not src then
-      return
-    end
-    open(source_buf, src)
     return
   end
 
   Snacks.image.doc.at_cursor(function(src)
-    if not src then
-      return
+    if src then
+      -- Snacks downloads URLs itself; a local copy would silently drop the hover
+      open(source_buf, Snacks.image.convert.is_uri(src) and src or hover_src_from_file(src))
     end
-
-    -- Snacks downloads URLs itself; the local-copy step below would silently drop the hover
-    if Snacks.image.convert.is_uri(src) then
-      open(source_buf, src)
-      return
-    end
-
-    local ext = vim.fs.ext(src)
-    if ext == '' then
-      ext = 'png'
-    end
-    local hover_src = build_hover_src(src, ext, nil)
-    if not hover_src then
-      return
-    end
-    open(source_buf, hover_src)
   end)
 end
 

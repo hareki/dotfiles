@@ -136,7 +136,7 @@ aucmd('FileType', {
       pcall(vim.api.nvim_win_close, 0, true)
       pcall(vim.api.nvim_buf_delete, event.buf, { force = true })
     end, {
-      buffer = event.buf,
+      buf = event.buf,
       desc = 'Quit Buffer',
     })
   end,
@@ -189,27 +189,25 @@ aucmd('FileType', {
       'Jump to Previous Section'
     )
 
-    local function set_window_options()
-      -- Local only: vim.wo also sets the global value that later buffers and splits inherit
-      vim.opt_local.wrap = true
+    --- @return true? done Also deletes the BufWinEnter autocmd below
+    local function wrap_in_real_window()
+      if vim.fn.win_gettype() ~= 'autocmd' then
+        -- Local only: vim.wo also sets the global value that later buffers and splits inherit
+        vim.opt_local.wrap = true
+        return true
+      end
     end
 
-    if vim.fn.win_gettype() ~= 'autocmd' then
-      set_window_options()
+    if wrap_in_real_window() then
       return
     end
 
     -- A hidden bufload() fires FileType and BufWinEnter in the autocmd window: wait for a real one
-    vim.api.nvim_clear_autocmds({ group = markdown_group, buffer = event.buf })
+    vim.api.nvim_clear_autocmds({ group = markdown_group, buf = event.buf })
     aucmd('BufWinEnter', {
       group = markdown_group,
-      buffer = event.buf,
-      callback = function()
-        if vim.fn.win_gettype() ~= 'autocmd' then
-          set_window_options()
-          return true -- Done, delete this autocmd
-        end
-      end,
+      buf = event.buf,
+      callback = wrap_in_real_window,
     })
   end,
 })

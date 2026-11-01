@@ -6,7 +6,7 @@
 --- @field HEIGHT number
 --- @field WIDTH number
 
---- @alias config.size.PopupPreset 'full' | 'lg' | 'vertical_md' | 'vertical_sm' | 'sm'
+--- @alias config.size.PopupPreset 'full' | 'lg' | 'vertical_md' | 'vertical_sm' | 'sm' | 'input'
 
 --- @class config.size
 local M = {}
@@ -17,6 +17,7 @@ M.popup = {
     HEIGHT = 1,
     HEIGHT_OFFSET = -3, -- 2 for the top/bottom borders, 1 for the winbar, we cover the statusline
     ROW_OFFSET = -1, -- Off center by one row to cover the winbar
+    MIN_HEIGHT = 1,
   },
 
   lg = {
@@ -45,6 +46,13 @@ M.popup = {
     HEIGHT = 0.35,
     MIN_WIDTH = 60,
     MIN_HEIGHT = 10,
+  },
+
+  input = { -- Fixed size: no screen share, only the minimums
+    WIDTH = 0,
+    HEIGHT = 0,
+    MIN_WIDTH = 60,
+    MIN_HEIGHT = 1,
   },
 }
 

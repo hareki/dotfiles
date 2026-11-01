@@ -4,14 +4,10 @@
 local M = {}
 
 --- End the range on its own line, pulling a start past that end back so it still underlines one
---- @param line string | false The line text for bounds checking, false when the line is gone
+--- @param line string The line text for bounds checking
 --- @param diagnostic vim.Diagnostic Fixed in place
 --- @return nil
 local function fix_diagnostic_range(line, diagnostic)
-  if not line then
-    return
-  end
-
   local line_len = #line
 
   -- Only the vim-side range is rewritten: user_data.lsp goes back verbatim as code action context,
@@ -29,17 +25,14 @@ end
 --- @param diagnostics vim.Diagnostic[] Fixed in place
 --- @return nil
 local function apply(bufnr, diagnostics)
-  local line_cache = {}
   for _, diagnostic in ipairs(diagnostics) do
     -- Only column-0 ends are fixed, so most diagnostics never need their line text
     local lnum = diagnostic.lnum
     if diagnostic.end_col == 0 and diagnostic.end_lnum == lnum + 1 then
-      if line_cache[lnum] == nil then
-        local lines = vim.api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, false)
-        line_cache[lnum] = lines[1] or false -- false = no line found
+      local line = vim.api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, false)[1]
+      if line then
+        fix_diagnostic_range(line, diagnostic)
       end
-
-      fix_diagnostic_range(line_cache[lnum], diagnostic)
     end
   end
 end

@@ -23,8 +23,10 @@ M.default = {
   ['<PageDown>'] = { 'scroll_documentation_down' },
   ['<Space>'] = {
     function(cmp)
-      -- Force reset the completion context when typing too fast
-      vim.defer_fn(cmp.hide, 20)
+      -- A space with the next key already pending never reaches blink's own hide (TextChangedI
+      -- waits out typeahead), so the next word would continue this word's context. Not a 'hide'
+      -- entry: it returns true while the menu is open, which would swallow the space
+      cmp.hide()
     end,
     'fallback',
   },

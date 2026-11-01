@@ -12,16 +12,10 @@ function M.format(branch_name)
     return last_format.result
   end
 
-  local prefix
-  local remaining
+  local result = branch_name:match('^(CU%-%w+)_.+$')
+    or branch_name:match('^.+_(CU%-%w+)$')
+    or branch_name
 
-  if branch_name:match('^CU%-%w+') then
-    prefix, remaining = branch_name:match('^(CU%-%w+)_(.+)$')
-  else
-    remaining, prefix = branch_name:match('^(.*)_(CU%-%w+)$')
-  end
-
-  local result = (prefix and remaining ~= '') and prefix or branch_name
   last_format.branch = branch_name
   last_format.result = result
 

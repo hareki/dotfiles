@@ -83,7 +83,6 @@ M.show_picker = function()
           buf = buf,
           name = vim.fs.basename(filepath),
           buftype = buf and vim.bo[buf].buftype or '',
-          filetype = buf and vim.bo[buf].filetype or '',
           text = harpoon_idx .. ' ' .. filepath,
         }
       end

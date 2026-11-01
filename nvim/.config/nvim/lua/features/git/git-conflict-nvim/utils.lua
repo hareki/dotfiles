@@ -108,7 +108,7 @@ function M.setup()
         { 'CursorMoved', 'CursorMovedI', 'BufWinEnter', 'BufEnter', 'BufLeave' },
         {
           group = group,
-          buffer = bufnr,
+          buf = bufnr,
           callback = function(args)
             -- 'winhighlight' outlives a buffer swap in its window (nvim-tree, pickers), so clear it
             -- on BufLeave; BufEnter restores it in a refocused window that clear also hit

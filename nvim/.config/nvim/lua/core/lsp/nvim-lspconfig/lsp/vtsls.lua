@@ -33,6 +33,9 @@ return {
         experimental = {
           completion = {
             enableServerSideFuzzyMatch = true,
+            -- The fuzzy match filters nothing without a limit: a global completion sends every
+            -- auto-import (11 MB in a large repo), decoded on the main thread and kept by blink
+            entriesLimit = 200,
           },
         },
       },

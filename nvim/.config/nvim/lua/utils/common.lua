@@ -45,7 +45,7 @@ end
 --- @param opts? vim.keymap.set.Opts | { prefix?: string }
 --- @return fun(mode: string | string[], lhs: string | string[], rhs: string | function, desc: string) map
 function M.buf_mapper(buf, opts)
-  local base = vim.tbl_extend('force', opts or {}, { buffer = buf })
+  local base = vim.tbl_extend('force', opts or {}, { buf = buf })
   local prefix = base.prefix or ''
   base.prefix = nil
 
@@ -109,7 +109,7 @@ function M.override_buf_keymaps(buf, maps)
     if type(modes) == 'string' then
       modes = { modes }
     end
-    local layer = { rhs = rhs, opts = vim.tbl_extend('force', opts, { buffer = buf }) }
+    local layer = { rhs = rhs, opts = vim.tbl_extend('force', opts, { buf = buf }) }
 
     for _, mode in ipairs(modes) do
       local key = string.format('%d %s %s', buf, mode, lhs)
@@ -150,7 +150,7 @@ function M.override_buf_keymaps(buf, maps)
         elseif stack.base then
           restore_buf_keymap(buf, entry.mode, stack.base)
         else
-          pcall(vim.keymap.del, entry.mode, entry.lhs, { buffer = buf })
+          pcall(vim.keymap.del, entry.mode, entry.lhs, { buf = buf })
         end
       end
     end

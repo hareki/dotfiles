@@ -40,14 +40,9 @@ local function image_at(images, cursor)
     local range = image.range
     if
       range
-      and (
-        (
-          range[1] == range[3]
-          and cursor[1] == range[1]
-          and cursor[2] >= range[2]
-          and cursor[2] <= range[4]
-        ) or (range[1] ~= range[3] and cursor[1] >= range[1] and cursor[1] <= range[3])
-      )
+      and cursor[1] >= range[1]
+      and cursor[1] <= range[3]
+      and (range[1] ~= range[3] or (cursor[2] >= range[2] and cursor[2] <= range[4]))
     then
       return true
     end

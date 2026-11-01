@@ -19,21 +19,13 @@ local IGNORE_FILETYPES = {
 --- @field current_unsaved string | nil
 --- @field global_unsaved string | nil
 --- @field global_conflict string | nil
---- @field last_bufnr number
+--- @field last_bufnr integer | nil The buffer `current_unsaved` was computed for
 
 --- @type chrome.lualine.components.buffer-status.Cache
-local cache = {
-  current_unsaved = nil,
-  global_unsaved = nil,
-  global_conflict = nil,
-  last_bufnr = -1,
-}
+local cache = {}
 
 local function invalidate_cache()
-  cache.current_unsaved = nil
-  cache.global_unsaved = nil
-  cache.global_conflict = nil
-  cache.last_bufnr = -1
+  cache = {}
 end
 
 local group = vim.api.nvim_create_augroup('chrome.lualine.buffer-status-cache', { clear = true })
@@ -67,7 +59,7 @@ vim.api.nvim_create_autocmd('OptionSet', {
 local function get_current_unsaved()
   local bufnr = vim.api.nvim_get_current_buf()
 
-  if cache.last_bufnr == bufnr and cache.current_unsaved ~= nil then
+  if cache.last_bufnr == bufnr then
     return cache.current_unsaved
   end
 
@@ -78,16 +70,11 @@ local function get_current_unsaved()
 
   -- Terminals are always nomodifiable (a misleading padlock); empty-filetype nofile/prompt buffers
   -- are UI, while codediff:// views clear their filetype yet still earn the lock icon
-  local is_ignored
-  if bo.buftype == 'terminal' then
-    is_ignored = true
-  elseif ft == '' then
-    is_ignored = bo.buftype == 'nofile' or bo.buftype == 'prompt'
-  else
-    is_ignored = IGNORE_FILETYPES[ft]
-  end
-
-  if is_ignored then
+  if
+    bo.buftype == 'terminal'
+    or (ft == '' and (bo.buftype == 'nofile' or bo.buftype == 'prompt'))
+    or IGNORE_FILETYPES[ft]
+  then
     cache.current_unsaved = ''
     cache.last_bufnr = bufnr
     return ''

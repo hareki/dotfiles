@@ -5,19 +5,18 @@ local M = {}
 --- @param direction 'n' | 'N'
 --- @return nil
 function M.navigate(direction)
-  local ok = pcall(function()
-    local hlslens = require('hlslens')
-
-    vim.cmd.normal({ vim.v.count1 .. direction, bang = true })
-    hlslens.start()
-  end)
+  local ok = pcall(vim.cmd.normal, { vim.v.count1 .. direction, bang = true })
 
   if not ok then
     local search_text = vim.fn.getreg('/')
     Notifier.warn(string.format('`%s` is not found', search_text), {
       title = 'nvim-hlslens',
     })
+    return
   end
+
+  local hlslens = require('hlslens')
+  hlslens.start()
 end
 
 --- Lens with direction arrows and a pill-shaped match position, adapted from

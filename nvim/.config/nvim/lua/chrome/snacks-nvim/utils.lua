@@ -25,7 +25,7 @@ local function map_close(win)
   M.state.mapped[buf] = true
   vim.keymap.set('n', 'q', function()
     win:close()
-  end, { buffer = buf, nowait = true, desc = 'Close Zen Mode' })
+  end, { buf = buf, nowait = true, desc = 'Close Zen Mode' })
 end
 
 --- Screen rect of the parent's whole frame, winbar row included, so the backdrop hides its
@@ -90,7 +90,7 @@ end
 --- @return nil
 function M.on_close()
   for buf in pairs(M.state.mapped) do
-    pcall(vim.keymap.del, 'n', 'q', { buffer = buf })
+    pcall(vim.keymap.del, 'n', 'q', { buf = buf })
   end
 
   M.state.mapped = {}

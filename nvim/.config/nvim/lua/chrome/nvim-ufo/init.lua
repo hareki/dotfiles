@@ -38,7 +38,7 @@ return {
             local ufo_preview = require('ufo.preview')
             ufo_preview.close()
           end, {
-            buffer = vim.api.nvim_win_get_buf(preview_win_id),
+            buf = vim.api.nvim_win_get_buf(preview_win_id),
             desc = 'Close Fold Preview',
           })
         end,

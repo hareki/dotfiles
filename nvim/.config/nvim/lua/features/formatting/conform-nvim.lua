@@ -9,27 +9,35 @@ return {
         -- prettier's glimmer parser breaks Express handlebars, so the html server formats it
         handlebars = { lsp_format = 'fallback' },
       },
+
+      formatters = {
+        prettier = {
+          -- prettier infers angular only for *.component.html; html mangles app.html's @if/@for
+          options = { ft_parsers = { htmlangular = 'angular' } },
+          -- oxfmt projects format through its server (utils/style-enforcers/oxfmt.lua), leaving the
+          -- filetypes it doesn't serve (lsp/oxfmt.lua) unformatted rather than prettier-styled
+          condition = function(_, ctx)
+            local in_oxfmt_project = false
+            vim.lsp.config.oxfmt.root_dir(ctx.buf, function(root)
+              in_oxfmt_project = root ~= nil
+            end)
+            return not in_oxfmt_project
+          end,
+        },
+      },
     }
 
-    -- oxfmt already runs as an LSP server
-    if Project.formatter == 'prettier' then
-      local prettier_filetypes = Conf.filetypes.merge(
-        Conf.filetypes.JS_ALL,
-        Conf.filetypes.CSS,
-        { 'html' },
-        Conf.filetypes.ANGULAR,
-        Conf.filetypes.MARKDOWN,
-        Conf.filetypes.JSON,
-        { 'yaml' }
-      )
-      for _, ft in ipairs(prettier_filetypes) do
-        opts.formatters_by_ft[ft] = { 'prettier' }
-      end
-
-      -- prettier infers angular only for *.component.html; html mangles app.html's @if/@for blocks
-      opts.formatters = {
-        prettier = { options = { ft_parsers = { htmlangular = 'angular' } } },
-      }
+    local prettier_filetypes = Conf.filetypes.merge(
+      Conf.filetypes.JS_ALL,
+      Conf.filetypes.CSS,
+      { 'html' },
+      Conf.filetypes.ANGULAR,
+      Conf.filetypes.MARKDOWN,
+      Conf.filetypes.JSON,
+      { 'yaml' }
+    )
+    for _, ft in ipairs(prettier_filetypes) do
+      opts.formatters_by_ft[ft] = { 'prettier' }
     end
 
     return opts

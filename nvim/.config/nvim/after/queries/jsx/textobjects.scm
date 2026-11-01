@@ -6,12 +6,5 @@
 
 (jsx_element
   (jsx_opening_element)
-  .
-  (_) @tag.inner
-  .
-  (jsx_closing_element))
-
-(jsx_element
-  (jsx_opening_element)
   _+ @tag.inner
   (jsx_closing_element))

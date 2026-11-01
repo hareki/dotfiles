@@ -113,25 +113,17 @@ function M.get()
     return repo_cache.name
   end
 
-  local placeholder = repo_cache.name or vim.fs.basename(current_cwd) or ''
-
-  -- cwd can be nil (e.g. the directory was deleted); nothing to resolve then
-  if not current_cwd then
-    return placeholder
+  -- cwd can be nil (e.g. the directory was deleted), leaving nothing to resolve, and a resolve in
+  -- flight for this cwd keeps rendering the stale value
+  if current_cwd and repo_cache.pending_cwd ~= current_cwd then
+    repo_cache.pending_cwd = current_cwd
+    -- Resolve outside the render path: even an async spawn costs a few ms, hitching the redraw
+    vim.schedule(function()
+      resolve_repo_name(current_cwd)
+    end)
   end
 
-  -- A resolve for this cwd is already in flight; keep rendering the stale value
-  if repo_cache.pending_cwd == current_cwd then
-    return placeholder
-  end
-
-  repo_cache.pending_cwd = current_cwd
-  -- Resolve outside the render path: even an async spawn costs a few ms, hitching the redraw
-  vim.schedule(function()
-    resolve_repo_name(current_cwd)
-  end)
-
-  return placeholder
+  return repo_cache.name or vim.fs.basename(current_cwd) or ''
 end
 
 M.icon = Conf.icons.file_tree.FOLDER

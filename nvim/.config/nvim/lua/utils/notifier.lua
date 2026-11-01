@@ -91,7 +91,7 @@ local function notify(level, msg, opts)
 
     -- Relies on `nvim-notify` re-detecting filetype during duplicate render
     vim.api.nvim_create_autocmd('FileType', {
-      buffer = buf,
+      buf = buf,
       callback = function()
         if vim.api.nvim_win_is_valid(win) then
           apply_highlight(win)

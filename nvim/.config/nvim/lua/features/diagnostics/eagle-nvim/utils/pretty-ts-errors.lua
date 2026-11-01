@@ -51,14 +51,7 @@ end
 
 -- Strip the first line (the header with links) + a single blank line after it.
 local function strip_cli_header(md)
-  local first_nl = md:find('\n', 1, true)
-  if not first_nl then
-    return md
-  end
-  local rest = md:sub(first_nl + 1)
-  rest = rest:gsub('^\r?\n', '', 1)
-
-  return rest
+  return (md:gsub('^[^\n]*\n', ''):gsub('^\r?\n', ''))
 end
 
 --- @param result vim.SystemCompleted

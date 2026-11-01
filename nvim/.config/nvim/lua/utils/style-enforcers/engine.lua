@@ -1,5 +1,6 @@
 --- @class utils.style-enforcers.engine.RunOpts
 --- @field bufnr integer
+--- @field enforcers utils.style-enforcers.engine.Entry[] In run order
 --- @field on_start fun(name: string, idx: integer, total: integer)
 --- @field on_done fun(name: string, ok: boolean, err?: string) Called after each enforcer
 --- @field on_complete fun(ok: boolean) Called once when the run ends: after the last enforcer, or the first failed one
@@ -16,26 +17,6 @@ M.BUFFER_CHANGED = 'buffer changed while running'
 --- @class utils.style-enforcers.engine.Entry
 --- @field name string LSP client the runner drives, doubling as the enforcer name
 --- @field runner utils.style-enforcers.engine.Runner
-
---- @type utils.style-enforcers.engine.Entry[]
-local entries = {}
-
---- Register an enforcer for buffers with the LSP client `name` attached, run in registration order
---- @param name string
---- @param runner utils.style-enforcers.engine.Runner
---- @return nil
-function M.register(name, runner)
-  entries[#entries + 1] = { name = name, runner = runner }
-end
-
---- Registered enforcers whose client is attached to a buffer, in registration order
---- @param bufnr integer
---- @return utils.style-enforcers.engine.Entry[]
-local function entries_for_buf(bufnr)
-  return vim.tbl_filter(function(entry)
-    return #vim.lsp.get_clients({ name = entry.name, bufnr = bufnr }) > 0
-  end, entries)
-end
 
 --- Run the matched enforcers sequentially
 --- @param matched utils.style-enforcers.engine.Entry[]
@@ -72,11 +53,15 @@ local function run_next(matched, opts, idx)
   entry.runner({ bufnr = opts.bufnr, client = client, on_done = on_done })
 end
 
---- Run every registered enforcer that applies to the buffer
+--- Run the enforcers whose client is attached to the buffer
 --- @param opts utils.style-enforcers.engine.RunOpts
 --- @return nil
 function M.run_for_buf(opts)
-  run_next(entries_for_buf(opts.bufnr), opts, 1)
+  local matched = vim.tbl_filter(function(entry)
+    return #vim.lsp.get_clients({ name = entry.name, bufnr = opts.bufnr }) > 0
+  end, opts.enforcers)
+
+  run_next(matched, opts, 1)
 end
 
 --- Send a workspace/executeCommand for a runner, reporting the server's error to its on_done

@@ -107,15 +107,11 @@ return {
       'astro',
       'ember', -- Ember/Glimmer
       'angularls',
+      -- These three start only in projects that configure them (root_dir + workspace_required)
+      'eslint',
+      'oxlint',
+      'oxfmt', -- Instead of spawning the CLI (utils/style-enforcers/oxfmt.lua)
     }
-
-    -- eslint vs oxlint are mutually exclusive; selected by Project.linter
-    table.insert(servers, Project.linter)
-
-    -- oxfmt runs as an LSP server (utils/style-enforcers/oxfmt.lua) instead of spawning the CLI
-    if Project.formatter == 'oxfmt' then
-      table.insert(servers, 'oxfmt')
-    end
 
     -- Deferred so the buffer renders before LSP servers start matching and attaching
     vim.defer_fn(function()

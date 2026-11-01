@@ -4,6 +4,9 @@ local filetypes = Conf.filetypes
 -- handlebars, where conform's LSP fallback would format after the html server (see html.lua)
 return {
   opts = {
+    -- Upstream's root_dir answers nil outside an oxfmt project, which starts a rootless server
+    workspace_required = true,
+
     filetypes = filetypes.merge(
       filetypes.JS, -- No astro
       filetypes.CSS,

@@ -46,7 +46,6 @@ Plugins are lazy by default (`defaults.lazy = true`). Only catppuccin, snacks.nv
   - Spec registration: `UI.catppuccin(fn, plugin_name?)`, `UI.which_key({ specs?, rules?, triggers? })`
   - Helpers: `UI.layout.*` (see **Popup Sizing**), `UI.color.blend_hex()`, `UI.pill.virt_text()`, `UI.cursorline.set_cursorline()`, `UI.mode.name()` / `UI.mode.colors` (the per-mode palette shared by lualine's mode pill and the cursor line number)
   - Integration helpers: `UI.catppuccin.get_palette('ext')`, `UI.statusline.enabled()` / `UI.statusline.refresh()`
-- `Project` (`utils.project-config`): `Project.linter` (`'eslint'` default, or `'oxlint'`) and `Project.formatter` (`'prettier'` default, or `'oxfmt'`), overridden per project by `.neovimrc.json` in the initial cwd
 - `Snacks` (set by snacks.nvim at runtime): `Snacks.picker.*`, `Snacks.terminal.*`, etc.
 
 ## Plugin Spec Conventions
@@ -98,7 +97,9 @@ Size floats through `UI.layout` (`utils/ui/layout.lua`, whose annotations docume
 
 Uses native `vim.lsp.enable()` / `vim.lsp.config()` (not `lspconfig[server].setup()`). Each `core/lsp/nvim-lspconfig/lsp/{server}.lua` returns `{ opts = table, setup = function? }`, **not a lazy.nvim spec or a raw `vim.lsp.Config`**: `nvim-lspconfig/utils/server-loader.lua` requires every file only once nvim-lspconfig loads (so computed values are plain file-level locals), then calls `vim.lsp.config(name, opts)` and `setup()` if present. General LSP keymaps live in `nvim-lspconfig/init.lua`, not server files.
 
-Enable a server in the `servers` list in `nvim-lspconfig/init.lua`; add a `lsp/{server}.lua` only to override nvim-lspconfig's defaults. Servers that drive style-enforcer steps (`eslint`, `oxlint`, `oxfmt`) are also registered in `utils/style-enforcers/init.lua` under their server id, which limits each step to buffers that server is attached to.
+Enable a server in the `servers` list in `nvim-lspconfig/init.lua`; add a `lsp/{server}.lua` only to override nvim-lspconfig's defaults. Servers that drive style-enforcer steps (`eslint`, `oxlint`, `oxfmt`) are also listed in `utils/style-enforcers/init.lua` under their server id, which limits each step to buffers that server is attached to.
+
+`eslint`, `oxlint` and `oxfmt` are always in `servers` and pick their projects per buffer: `root_dir` looks for each tool's own config, and `workspace_required` keeps them off everywhere else. conform's prettier `condition` asks oxfmt's `root_dir`, so oxfmt projects never run prettier.
 
 `vtsls` and `tsc` are both in `servers`, and `nvim-lspconfig/utils/typescript.lua` activates one per project from its TypeScript: `tsc` for 7+, `vtsls` otherwise. A project that declares 7+ without installing it gets neither, never `vtsls`'s bundled TypeScript.
 

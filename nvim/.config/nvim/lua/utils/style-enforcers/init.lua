@@ -5,9 +5,12 @@ local oxlint = require('utils.style-enforcers.oxlint')
 
 -- In run order: oxfmt formats before the lint-fix steps, so oxlint's fixAll sees formatted
 -- content. Each step runs where its server is attached (lsp/oxfmt.lua narrows oxfmt's filetypes)
-engine.register('oxfmt', oxfmt.run)
-engine.register('eslint', eslint.run)
-engine.register('oxlint', oxlint.run)
+--- @type utils.style-enforcers.engine.Entry[]
+local enforcers = {
+  { name = 'oxfmt', runner = oxfmt.run },
+  { name = 'eslint', runner = eslint.run },
+  { name = 'oxlint', runner = oxlint.run },
+}
 
 --- @class utils.style-enforcers
 local M = {}
@@ -111,6 +114,7 @@ function M.run(opts)
     local ok, err = pcall(function()
       engine.run_for_buf({
         bufnr = buf,
+        enforcers = enforcers,
         on_start = function(linter_name, idx, total)
           if settled then
             return
@@ -200,18 +204,16 @@ end
 --- @param debug boolean | nil Enable verbose error messages
 --- @return nil
 function M.run_all(debug)
-  local all_buffers = vim.tbl_map(function(info)
-    return info.bufnr
-  end, vim.fn.getbufinfo({ buflisted = 1, bufmodified = 1 }))
+  local modified = vim.fn.getbufinfo({ buflisted = 1, bufmodified = 1 })
 
-  if #all_buffers == 0 then
+  if #modified == 0 then
     Notifier.warn('No buffers to format', { title = 'Style Enforcer' })
     return
   end
 
-  local to_run = vim.tbl_filter(function(buf)
-    return not running_bufs[buf]
-  end, all_buffers)
+  local to_run = vim.tbl_filter(function(info)
+    return not running_bufs[info.bufnr]
+  end, modified)
 
   if #to_run == 0 then
     Notifier.warn('All buffers are already being formatted', { title = 'Style Enforcer' })
@@ -222,24 +224,8 @@ function M.run_all(debug)
   local success_paths = {}
   local error_paths = {}
 
-  local function buf_display_path(bufnr)
-    local name = vim.api.nvim_buf_get_name(bufnr)
-    if name == '' then
-      return '[No Name]'
-    end
-    return vim.fn.fnamemodify(name, ':.')
-  end
-
   local function show_results()
     local mini_icons = require('mini.icons')
-
-    local function split_path(path)
-      local dir, file = path:match('^(.*/)(.*)')
-      if not dir then
-        return '', path -- No directory, just filename
-      end
-      return dir, file
-    end
 
     -- Build message as tuple list: { {text, hl}, {text, hl}, ... }
     local chunks = {}
@@ -252,7 +238,7 @@ function M.run_all(debug)
       table.insert(chunks, { header, header_hl })
       for _, path in ipairs(paths) do
         local icon, icon_hl = mini_icons.get('file', path)
-        local dir, file = split_path(path)
+        local dir, file = path:match('^(.-)([^/]*)$')
 
         table.insert(chunks, { '\n  ' .. icon .. ' ', icon_hl })
         if dir ~= '' then
@@ -283,12 +269,12 @@ function M.run_all(debug)
   -- Preset the counter: synchronous completions could hit zero mid-loop and fire a partial summary
   local pending_count = #to_run
 
-  for _, buf in ipairs(to_run) do
-    local display_path = buf_display_path(buf)
+  for _, info in ipairs(to_run) do
+    local display_path = info.name == '' and '[No Name]' or vim.fn.fnamemodify(info.name, ':.')
 
     M.run({
       debug = debug,
-      buf = buf,
+      buf = info.bufnr,
       on_done = function(ok)
         if ok then
           table.insert(success_paths, display_path)
