@@ -13,7 +13,7 @@ PROMPT_EOL_MARK=''
 setopt combining_chars
 disable log
 
-setopt auto_cd auto_pushd pushd_ignore_dups pushdminus
+setopt auto_cd
 
 # Bold cyan directories in `ls -G`
 export LSCOLORS=Gxfxcxdxbxegedabagacad

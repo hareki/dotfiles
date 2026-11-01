@@ -20,7 +20,7 @@ unsetopt global_rcs
 # The SDK dir adds `gcloud components install` binaries (Homebrew links only core commands)
 typeset -U path
 path=(
-  ~/.local/bin/shims ~/.local/opt/bin ~/.local/share/mise/shims ~/.local/bin
+  ~/.local/bin/shims ~/.local/opt/bin ~/.local/share/mise/shims
   /opt/homebrew/bin /opt/homebrew/sbin /opt/homebrew/share/google-cloud-sdk/bin
   $path
 )

@@ -17,8 +17,5 @@ _tty_guard_tick() {
   zle -M ''
 }
 
-# Re-sourcing .zshrc must not stack a second ticker
-(( $+_tty_guard_pid )) || {
-  typeset -g _tty_guard_pid=$sysparams[pid]
-  sched +2 _tty_guard_tick
-}
+_tty_guard_pid=$sysparams[pid]
+sched +2 _tty_guard_tick

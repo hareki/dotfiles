@@ -1,6 +1,3 @@
-# Emit beam cursor to override Neovim's :terminal default cursor block
-[[ -t 1 ]] && print -n $'\e[5 q'
-
 # Profile shell startup time
 # zsh-bench would be more accurate, but I just care about startup time
 if [[ -n "$ZSH_DEBUGRC" ]]; then

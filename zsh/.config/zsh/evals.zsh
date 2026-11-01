@@ -33,7 +33,7 @@ if [[ -z $ATUIN_SESSION || $ATUIN_SHLVL != $SHLVL ]]; then
   export ATUIN_SESSION ATUIN_SHLVL=$SHLVL
 fi
 # Drop the init's per-shell `prepare-search-index`, a no-op unless search_mode = daemon-fuzzy
-_evalcache sh -c 'atuin init zsh --disable-up-arrow | grep -v prepare-search-index'
+_evalcache sh -c 'atuin init zsh --disable-up-arrow --disable-ai | grep -v prepare-search-index'
 # The init prepends its strategy, a process per fetch (~10-25ms); zsh's history answers
 # in-process, and atuin still covers what the history file has dropped
 ZSH_AUTOSUGGEST_STRATEGY=(history atuin completion)

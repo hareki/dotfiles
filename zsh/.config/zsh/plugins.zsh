@@ -24,11 +24,9 @@ typeset -U fpath
 fpath=(/opt/homebrew/opt/antidote/share/antidote/functions $fpath)
 autoload -Uz antidote
 
-# `brew shellenv zsh` written out, minus its `export PATH`: .zshenv has those dirs
+# The lines of `brew shellenv zsh` that anything reads; .zshenv has its PATH dirs
 export HOMEBREW_PREFIX=/opt/homebrew
-export HOMEBREW_CELLAR=$HOMEBREW_PREFIX/Cellar HOMEBREW_REPOSITORY=$HOMEBREW_PREFIX
 fpath[1,0]=/opt/homebrew/share/zsh/site-functions
-export FPATH INFOPATH=/opt/homebrew/share/info:$INFOPATH
 # The empty entry keeps man's default dirs, which cover Homebrew's, in the search
 [[ -z $MANPATH ]] || manpath=('' $manpath)
 
@@ -41,6 +39,8 @@ fi
 source ~/.zplugins.bundled.zsh
 
 zstyle ':omz:update' mode auto
+# Otherwise an update prints a banner and the changelog above the first prompt
+zstyle ':omz:update' verbose silent
 source $ZSH/tools/check_for_upgrade.sh
 
 # omz's paste magic replays every pasted character through the widget chain (~330ms per 2KB)
@@ -51,6 +51,10 @@ zle -N bracketed-paste bracketed-paste-url-magic
 # omz forks twice per prompt for an OSC 7 nothing reads: Ghostty's shell integration reports
 # the cwd itself, tmux keeps it in an unused #{pane_path}, and nvim's terminal drops it
 add-zsh-hook -d precmd omz_termsupport_cwd
+
+# p10k dumps its state and instant prompt (~5ms) at each shell's first prompt and in each dir
+# new to that shell. With the instant prompt off, only a changed cache needs dumping
+_p9k_should_dump() { (( __p9k_dumps_enabled && _p9k__state_dump_scheduled && ! _p9k__state_dump_fd )) }
 
 # Queued last, so it wraps the deferred plugins' widgets. +s fetches a suggestion for anything
 # typed ahead. The plugin's precmd hook alone would wait for the next prompt
