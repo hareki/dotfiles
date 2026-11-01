@@ -6,13 +6,6 @@ ZSH_CACHE_DIR="$HOME/.cache/zsh"
 # Settle p10k's SSH check as local, or it forks `who -m` (~2.5ms) in every shell on a new tty
 [[ -n $SSH_CLIENT$SSH_TTY$SSH_CONNECTION ]] || export P9K_SSH=0 _P9K_SSH_TTY=$TTY
 
-# The personal identity loads up front; ~/.ssh/config's AddKeysToAgent adds the rest on use
-zstyle ':omz:plugins:ssh-agent' identities id_ed25519_personal
-# A live inherited agent has the identity: no `ssh-add -l` + `ssh-keygen` check (~8ms)
-kill -0 $SSH_AGENT_PID 2>/dev/null && zstyle ':omz:plugins:ssh-agent' lazy yes
-# The plugin names its env file after this; exported to spare child shells the fork
-[[ -n $SHORT_HOST ]] || export SHORT_HOST=$(scutil --get LocalHostName)
-
 zstyle ':antidote:bundle:*' zcompile 'yes'
 # Skip zsh-defer's precmd re-run and repaint. Only autosuggestions starts from a precmd hook,
 # and the end of this file starts it directly

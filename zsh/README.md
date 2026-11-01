@@ -18,7 +18,6 @@ Zsh setup that reaches the first usable prompt in ~45ms (~25ms for `zsh -i -c ex
 - **[zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)**: History-based command suggestions (deferred)
 - **zsh-patina (Homebrew binary)**: Real-time syntax highlighting (eager)
 - **[fzf-tab](https://github.com/Aloxaf/fzf-tab)**: Fuzzy tab completion (deferred)
-- **ohmyzsh ssh-agent**: Auto-load SSH keys (deferred)
 
 ## Config Structure
 
