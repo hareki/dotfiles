@@ -28,8 +28,9 @@ Zsh setup that reaches the first usable prompt in ~45ms (~25ms for `zsh -i -c ex
 .zplugins                           # Antidote plugin manifest
 .config/zsh/
 ├── aliases.zsh                     # Shell aliases (lg, tree, ..., etc.)
-├── plugins.zsh                     # Antidote setup, compinit, plugin options
+├── plugins.zsh                     # Antidote setup, plugin options
 ├── options.zsh                     # Env vars, fzf theme/layout
+├── completion.zsh                  # compinit and the completion dump
 ├── evals.zsh                       # Tool init: zoxide, atuin, wt, zsh-patina
 ├── keymaps.zsh                     # Key bindings (Alt+F => atuin, etc.)
 ├── vi-mode.zsh                     # Vi mode + OSC52 yank, clipboard paste

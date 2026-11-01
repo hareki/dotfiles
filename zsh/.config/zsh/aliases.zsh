@@ -1,4 +1,4 @@
-# Replace omz's global aliases, which zsh-patina colors as unknown commands (`..` is auto_cd)
+# `..` itself is auto_cd
 alias ...="cd ../.."
 alias ....="cd ../../.."
 
@@ -10,6 +10,8 @@ alias lg="lazygit"
 alias ez="nvim ~/.zshrc"
 alias eze="nvim ~/.zshenv"
 
+alias ls="ls -G"
+alias l="ls -lah"
 alias eza="eza --icons=always --color=always --no-user"
 alias fdt="fd --type dir --hidden --exclude .git"
 alias tree="eza --tree"

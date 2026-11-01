@@ -50,4 +50,4 @@ zle -N select-whole-line select_whole_line
 bindkey -M vicmd  'V' select-whole-line
 
 # Catppuccin Mocha Yellow on a Surface1/Surface2 shade; bg alone can't keep the text's color
-zle_highlight=(region:bg=#4f5164,fg=#f9e2af)
+zle_highlight=(region:bg=#4f5164,fg=#f9e2af paste:none)

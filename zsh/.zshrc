@@ -17,11 +17,11 @@ __zsh_config_dir=$XDG_CONFIG_HOME/zsh
 source $__zsh_config_dir/plugins.zsh
 
 # Load configuration files, order matters
-for cfg in aliases vi-mode keymaps options evals tty-guard; do
+for cfg in aliases vi-mode keymaps options completion evals tty-guard; do
   source $__zsh_config_dir/$cfg.zsh
 done
 
-autoload -Uz $__zsh_config_dir/functions/*(.N:t)
+autoload -Uz $__zsh_config_dir/functions/*(.N)
 unset __zsh_config_dir cfg
 
 if [[ -n "$ZSH_DEBUGRC" ]]; then

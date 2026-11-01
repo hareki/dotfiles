@@ -86,28 +86,29 @@ sync-forks() {
 
         # Only this very fork's clone, not a same-named repo, and only if it has the branch
         dir=$REPOS_DIR/$name ref=refs/heads/$branch tracking=refs/remotes/origin/$branch
-        if [[ -n $branch && $(git -C $dir remote get-url origin 2>/dev/null) == *[:/]$owner/$name(|.git) ]] \
-          && git -C $dir show-ref -q --verify $ref; then
+        if cd -q $dir 2>/dev/null \
+          && [[ $(git remote get-url origin 2>/dev/null) == *[:/]$owner/$name(|.git) ]] \
+          && git show-ref -q --verify $ref; then
           # If GitHub merged nothing, a clone with the listed head skips the ~3s SSH fetch
-          if [[ $report[2] != (none|conflict) || $(git -C $dir rev-parse -q --verify $tracking) != $oid ]] \
-            && ! result=$(git -C $dir fetch -q origin $branch 2>&1); then
+          if [[ $report[2] != (none|conflict) || $(git rev-parse -q --verify $tracking) != $oid ]] \
+            && ! result=$(git fetch -q origin $branch 2>&1); then
             report+=(unpulled "$result")
           # Nothing to pull: level with origin, or only ahead of it with unpushed commits
-          elif git -C $dir merge-base --is-ancestor $tracking $ref; then
+          elif git merge-base --is-ancestor $tracking $ref; then
             :
-          elif ! git -C $dir merge-base --is-ancestor $ref $tracking; then
+          elif ! git merge-base --is-ancestor $ref $tracking; then
             report+=(unpulled "diverged from origin/$branch")
           # Not checked out here, so only the ref has to move. Git refuses that while
           # another worktree has the branch checked out or is rebasing it
-          elif [[ $(git -C $dir symbolic-ref -q HEAD) != $ref ]]; then
+          elif [[ $(git symbolic-ref -q HEAD) != $ref ]]; then
             move=(fetch -q . $tracking:$ref)
-          elif [[ -n $(git -C $dir status --porcelain -uno) ]]; then
+          elif [[ -n $(git status --porcelain -uno) ]]; then
             report+=(unpulled "local changes")
           else
             move=(merge -q --ff-only $tracking)
           fi
           if (( $#move )); then
-            if result=$(git -C $dir $move 2>&1); then
+            if result=$(git $move 2>&1); then
               report+=(pulled "$branch in ${(D)dir}")
             else
               report+=(unpulled "$result")
@@ -116,22 +117,22 @@ sync-forks() {
 
           # Start the refused merge on the clone's up-to-date branch, ready to resolve there
           if [[ $report[2] == conflict ]] && (( ! $#opt_no_local_merge && ! $report[(Ie)unpulled] )); then
-            if [[ $(git -C $dir symbolic-ref -q HEAD) != $ref ]]; then
+            if [[ $(git symbolic-ref -q HEAD) != $ref ]]; then
               report+=(unmerged "$branch not checked out")
             # Most likely started by an earlier run, and not concluded yet
-            elif git -C $dir rev-parse -q --verify MERGE_HEAD >/dev/null; then
+            elif git rev-parse -q --verify MERGE_HEAD >/dev/null; then
               report+=(merging ${(D)dir})
-            elif [[ -n $(git -C $dir status --porcelain -uno) ]]; then
+            elif [[ -n $(git status --porcelain -uno) ]]; then
               report+=(unmerged "local changes")
-            elif ! result=$(git -C $dir fetch -q https://github.com/$upstream.git $branch 2>&1); then
+            elif ! result=$(git fetch -q https://github.com/$upstream.git $branch 2>&1); then
               report+=(unmerged "$result")
             # An earlier run's merge, concluded but not pushed yet
-            elif git -C $dir merge-base --is-ancestor FETCH_HEAD $ref; then
+            elif git merge-base --is-ancestor FETCH_HEAD $ref; then
               report+=(unpushed ${(D)dir})
             else
               # --no-commit, so a clean merge still stops for review, like a conflicting one
-              result=$(git -C $dir merge -q --no-commit FETCH_HEAD 2>&1)
-              if git -C $dir rev-parse -q --verify MERGE_HEAD >/dev/null; then
+              result=$(git merge -q --no-commit FETCH_HEAD 2>&1)
+              if git rev-parse -q --verify MERGE_HEAD >/dev/null; then
                 report+=(merging ${(D)dir})
               else
                 report+=(unmerged "$result")

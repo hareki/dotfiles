@@ -1,17 +1,12 @@
-# Only the omz libs this config uses, not all of lib (~2ms per shell)
+# Only the omz libs this config uses, not all of lib (~5ms per shell)
 ohmyzsh/ohmyzsh path:lib/completion.zsh
-ohmyzsh/ohmyzsh path:lib/directories.zsh
 ohmyzsh/ohmyzsh path:lib/functions.zsh
 ohmyzsh/ohmyzsh path:lib/grep.zsh
 ohmyzsh/ohmyzsh path:lib/history.zsh
 ohmyzsh/ohmyzsh path:lib/key-bindings.zsh
 ohmyzsh/ohmyzsh path:lib/misc.zsh
 ohmyzsh/ohmyzsh path:lib/termsupport.zsh
-ohmyzsh/ohmyzsh path:lib/theme-and-appearance.zsh
-ohmyzsh/ohmyzsh path:lib/vcs_info.zsh
 ohmyzsh/ohmyzsh path:plugins/ssh-agent kind:defer
 romkatv/powerlevel10k
-
-# autosuggestions goes last: with ZSH_AUTOSUGGEST_MANUAL_REBIND it wraps only earlier widgets
 Aloxaf/fzf-tab kind:defer
 zsh-users/zsh-autosuggestions kind:defer

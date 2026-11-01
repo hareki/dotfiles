@@ -13,6 +13,11 @@ PROMPT_EOL_MARK=''
 setopt combining_chars
 disable log
 
+setopt auto_cd auto_pushd pushd_ignore_dups pushdminus
+
+# Bold cyan directories in `ls -G`
+export LSCOLORS=Gxfxcxdxbxegedabagacad
+
 # FZF Catppuccin Mocha color
 export FZF_DEFAULT_OPTS=" \
 --border=rounded --layout=reverse --cycle --info=inline-right --info-command='echo \"\${FZF_MATCH_COUNT}/\${FZF_TOTAL_COUNT} \"' --pointer='' --highlight-line \
