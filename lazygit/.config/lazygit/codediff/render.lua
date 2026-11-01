@@ -8,7 +8,7 @@ local script = debug.getinfo(1, 'S').source:sub(2)
 local dir = vim.fn.fnamemodify(script, ':p:h')
 package.path = dir .. '/?.lua;' .. package.path
 
-local input = io.read('*a') or ''
+local input = io.read('*a')
 
 require('lib.bootstrap').setup()
 local rendered = require('lib.core').render(input, {
@@ -20,5 +20,3 @@ local rendered = require('lib.core').render(input, {
 })
 
 io.write(rendered)
-io.flush()
-os.exit(0)

@@ -6,8 +6,9 @@ local util = require('lib.util')
 local M = {}
 
 local styled = ansi.styled
+local p = theme.palette
 
-local function render_stat_line(line, p)
+local function render_stat_line(line)
   local name, sep, rest = line:match('^(.-)(%s|%s)(.*)$')
   local out = { styled({ fg = p.default_fg }, name), styled({ fg = p.decoration }, sep) }
   -- rest is like "12 +++---", "Bin 0 -> 1024 bytes", or just a count: runs of
@@ -27,7 +28,6 @@ end
 --- Style non-diff content (commit header, message, --stat, submodule logs).
 --- Needed because we ask git for uncolored output (colorArg: never).
 function M.render_raw(lines, cols)
-  local p = theme.palette
   local out = {}
   for _, raw in ipairs(lines) do
     -- A commit message or a submodule log is content like any diff row is.
@@ -50,7 +50,7 @@ function M.render_raw(lines, cols)
         .. styled({ fg = p.default_fg }, rest)
         .. ansi.eol
     elseif line:match('^%s.+%s|%s') then
-      out[#out + 1] = render_stat_line(line, p)
+      out[#out + 1] = render_stat_line(line)
     elseif line:match('^ %d+ files? changed') then
       out[#out + 1] = ansi.line({ fg = p.decoration }, line)
     elseif diffparse.is_submodule_line(line) then
@@ -69,7 +69,6 @@ end
 --- Combined (merge) diffs (diffparse's "combined" blocks) are shown with simple
 --- prefix tinting only.
 function M.render_combined(block)
-  local p = theme.palette
   local title = util.display_form(block.path or 'merge diff')
   local out = { ansi.line({ fg = p.default_fg, bold = true }, title) }
   for _, raw in ipairs(block.lines) do

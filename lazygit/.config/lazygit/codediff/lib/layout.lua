@@ -4,7 +4,6 @@ local util = require('lib.util')
 
 local M = {}
 
-local TAB_WIDTH = 4
 local FILLER_CHAR = '╱' -- codediff's diff.filler_text default
 
 local palette = theme.palette
@@ -17,8 +16,8 @@ local is_plain_ascii = util.is_plain_ascii
 -- combining mark measures one cell but contributes nothing to the character it
 -- attaches to, so summing standalone widths overstates decomposed text (macOS
 -- stores filenames NFD) and the caller's layout arithmetic breaks apart.
--- strcharpart's skipcc argument yields a base character together with its
--- composing marks, and both clip functions below walk in those terms.
+-- printf's %S and strcharpart's skipcc argument both take a base character
+-- together with its composing marks, which is what both clip functions go by.
 --
 -- Clip a string to at most `limit` display cells (UTF-8 aware). Returns the
 -- clipped string and its display width.
@@ -31,30 +30,15 @@ local function clip_to_width(s, limit)
   -- can only attach to the byte immediately before the first non-ASCII one, so
   -- everything ahead of that byte is taken (or cut) in bulk. Every row of a
   -- side-by-side diff is clipped to its cell, and a source line whose one
-  -- non-ASCII byte sits past the cell edge is then answered without walking a
-  -- single cluster. An all-ASCII string is that case with nothing after it.
+  -- non-ASCII byte sits past the cell edge is then answered without a call into
+  -- vimscript. An all-ASCII string is that case with nothing after it.
   local nonascii = util.first_non_ascii(s)
-  local bulk = nonascii and math.max(nonascii - 2, 0) or limit
-  if bulk >= limit then
-    local clipped = s:sub(1, limit)
-    return clipped, #clipped
+  if not nonascii or nonascii - 2 >= limit then
+    return s:sub(1, limit), limit
   end
 
-  -- Cluster by cluster from there (see the note on skipcc and composing marks
-  -- above), but only as far as the limit: what gets clipped away never has to
-  -- be measured.
-  local out = { s:sub(1, bulk) }
-  w = bulk
-  for i = bulk, vim.fn.strchars(s, 1) - 1 do
-    local text = vim.fn.strcharpart(s, i, 1, 1)
-    local cw = util.display_width(text)
-    if w + cw > limit then
-      break
-    end
-    out[#out + 1] = text
-    w = w + cw
-  end
-  return table.concat(out), w
+  local clipped = vim.call('printf', '%.*S', limit, s)
+  return clipped, util.display_width(clipped)
 end
 
 -- Same, but keeps the tail and marks the elision with a leading ellipsis --
@@ -216,11 +200,10 @@ end
 -- Reused across rows rather than allocated per row: this runs once for every
 -- row that has spans, and both tables are fully written before they are read
 -- (`winners` at every boundary the sweep visits, `active` only as far as
--- n_active). The exception is the stop_col break below, which would otherwise
--- leave the tail of a longer previous row's winners readable, so it clears the
--- boundaries it is not going to write. A row past this many boundaries (a
--- minified line) gets its own winners instead: the scratch table would keep a
--- reference to every span of it for as long as the daemon runs.
+-- n_active), and emit_line stops at the column the stop_col break below stops at.
+-- A row past this many boundaries (a minified line) gets its own winners instead:
+-- the scratch table would keep a reference to every span of it for as long as the
+-- daemon runs.
 local SCRATCH_BOUNDARIES = 1024
 local scratch_winners, scratch_active = {}, {}
 
@@ -249,9 +232,6 @@ local function segment_winners(spans, boundaries, nb, stop_col)
   for bi = 1, nb - 1 do
     local a = boundaries[bi]
     if stop_col and a > stop_col then
-      for k = bi, nb - 1 do
-        winners[k] = nil
-      end
       break
     end
     while next_span <= n_spans and spans[next_span].s1 <= a do
@@ -287,14 +267,13 @@ end
 -- SGR sequences are collapsed, and `limit` (when given) bounds the row to that
 -- many display cells.
 --
--- Segments are written straight into `out` from index `n` rather than
--- materialized first: a diff is tens of thousands of segments, and the
--- intermediate row table was pure garbage. Returns the new index, the ending
--- display column and the row's background.
+-- Segments are written straight into `out` rather than materialized first: a
+-- diff is tens of thousands of segments, and an intermediate row table would be
+-- pure garbage. Returns the ending display column and the row's background.
 --
 -- spans: 1-based byte spans from highlight.line_spans (may be nil)
 -- emph_ranges: 1-based {s, e-exclusive} byte ranges (may be nil)
-local function emit_line(out, n, text, spans, line_type, emph_ranges, limit)
+local function emit_line(out, text, spans, line_type, emph_ranges, limit)
   local p = palette
   local line_bg, emph_bg
   if line_type == 'minus' then
@@ -353,9 +332,6 @@ local function emit_line(out, n, text, spans, line_type, emph_ranges, limit)
   for bi = 1, nb - 1 do
     local a, b = boundaries[bi], boundaries[bi + 1]
     if b > a then
-      if limit and col >= limit then
-        break
-      end
       local span = winners and winners[bi]
       local attrs = span and theme.attrs(span.capture, span.lang) or nil
       local emph = false
@@ -381,38 +357,31 @@ local function emit_line(out, n, text, spans, line_type, emph_ranges, limit)
         -- The display form first, so what is measured and clipped is what is
         -- shown.
         local shown = respell and util.display_form(seg) or seg
-        expanded, next_col = util.expand_tabs(shown, TAB_WIDTH, col)
+        expanded, next_col = util.expand_tabs(shown, col)
       end
-      local truncated = false
-      if limit and next_col > limit then
-        if simple then
-          expanded = expanded:sub(1, limit - col)
-          next_col = col + #expanded
-        else
-          local clipped_w
-          expanded, clipped_w = clip_to_width(expanded, limit - col)
-          next_col = col + clipped_w
-        end
-        truncated = true
+      -- A clipped segment may leave a cell or two unfilled (a wide char that did
+      -- not fit), so this has to be the last one: resuming would splice the
+      -- line's tail onto its head.
+      local last = limit and next_col >= limit
+      if last then
+        local clipped_w
+        expanded, clipped_w = clip_to_width(expanded, limit - col)
+        next_col = col + clipped_w
       end
 
       local sgr = styles[attrs or NO_ATTRS][emph and emph_bg or line_bg or false]
       if sgr ~= prev then
-        n = n + 1
-        out[n] = sgr
+        out:put(sgr)
         prev = sgr
       end
-      n = n + 1
-      out[n] = expanded
+      out:put(expanded)
       col = next_col
-      if truncated then
-        -- A clipped segment may leave a cell or two unfilled (a wide char that
-        -- did not fit); resuming would splice the line's tail onto its head.
+      if last then
         break
       end
     end
   end
-  return n, col, line_bg
+  return col, line_bg
 end
 
 -- Line-number gutter ---------------------------------------------------------
@@ -449,23 +418,19 @@ local gutters = vim.defaulttable(function(line_type)
   return { num = ansi.style({ fg = fg, bg = bg }), bar = ansi.style({ fg = p.decoration, bg = bg }) }
 end)
 
--- Returns the new `out` index and the cells the gutter took ahead of the text.
+-- Returns the cells the gutter took ahead of the text.
 -- Reporting what was written rather than re-deriving it from num_w keeps the
 -- width in one place: the numbers are ASCII (a byte is a cell) and the bar is
 -- one cell, and a number wider than the gutter reserved widens both together
 -- instead of silently mis-padding the row. `record`, the OSC 1717 record of
 -- the row or cell (may be nil), goes ahead of it and takes no cells.
-local function emit_gutter(out, n, nums, line_type, record)
+local function emit_gutter(out, nums, line_type, record)
   if record then
-    n = n + 1
-    out[n] = record
+    out:put(record)
   end
   local g = gutters[line_type or 'context']
-  out[n + 1] = g.num
-  out[n + 2] = nums
-  out[n + 3] = g.bar
-  out[n + 4] = '│'
-  return n + 4, #nums + 1
+  out:put(g.num, nums, g.bar, '│')
+  return #nums + 1
 end
 
 --- Append one inline content row to `out`: both sides' line numbers, then the
@@ -477,43 +442,37 @@ end
 function M.content_line(out, cell, old_no, new_no, cols, num_w)
   local line_type = cell.line_type
   local nums = num_fmts[num_w].pair:format(old_no or '', new_no or '')
-  local n, gutter_w = emit_gutter(out, #out, nums, line_type, cell.record)
-  local col, line_bg
-  n, col, line_bg = emit_line(out, n, cell.text, cell.spans, line_type, cell.emph, nil)
+  local gutter_w = emit_gutter(out, nums, line_type, cell.record)
+  local col, line_bg = emit_line(out, cell.text, cell.spans, line_type, cell.emph, nil)
   local text_w = cols - gutter_w
   if line_bg and text_w > col then
-    out[n + 1] = fills[line_bg]
-    out[n + 2] = string.rep(' ', text_w - col)
-    n = n + 2
+    out:put(fills[line_bg], string.rep(' ', text_w - col))
   end
-  out[n + 1] = ansi.eol
+  out:put(ansi.eol)
 end
 
 -- Append one side-by-side cell of exactly `width` display cells: the side's
 -- line number, then the text, truncated when overlong. cell: { text, spans,
 -- line_type, emph, lnum, record } or { filler = true } (codediff renders absent
 -- lines as ╱ filler under a blank number). `record`, the OSC 1717 record for
--- the side (may be nil), leads the cell. Returns the new `out` index.
-local function render_cell(out, n, cell, width, num_w)
+-- the side (may be nil), leads the cell, unless it is `in_effect`, the record the
+-- row already carries: one lasts to the end of its row.
+local function render_cell(out, cell, width, num_w, in_effect)
   local line_type = cell.line_type
   local nums = num_fmts[num_w].single:format(cell.lnum or '')
-  local gutter_w
-  n, gutter_w = emit_gutter(out, n, nums, line_type, cell.record)
+  local record = cell.record ~= in_effect and cell.record or nil
+  local gutter_w = emit_gutter(out, nums, line_type, record)
   -- The gutter is never clipped: a cell too narrow for it overflows, which only
   -- a view a dozen cells wide can bring about.
   width = math.max(width - gutter_w, 1)
   if cell.filler then
-    out[n + 1] = filler_run(width)
-    return n + 1
+    out:put(filler_run(width))
+    return
   end
-  local col, line_bg
-  n, col, line_bg = emit_line(out, n, cell.text, cell.spans, line_type, cell.emph, width)
+  local col, line_bg = emit_line(out, cell.text, cell.spans, line_type, cell.emph, width)
   if col < width then
-    out[n + 1] = fills[line_bg or false]
-    out[n + 2] = string.rep(' ', width - col)
-    n = n + 2
+    out:put(fills[line_bg or false], string.rep(' ', width - col))
   end
-  return n
 end
 
 --- Append one side-by-side row to `out`: original cell, separator, modified cell.
@@ -521,14 +480,11 @@ function M.split_line(out, left, right, cols, num_w)
   local left_w = math.max(math.floor((cols - 1) / 2), 1)
   local right_w = math.max(cols - 1 - left_w, 1)
 
-  local n = render_cell(out, #out, left, left_w, num_w)
-  -- The separator is an untinted gutter bar, so it takes that memoized style
-  -- rather than one built at require time: load_diff_colors() rewrites
-  -- palette.decoration, and a style captured before it ran would be stale.
-  out[n + 1] = gutters.context.bar
-  out[n + 2] = '│'
-  n = render_cell(out, n + 2, right, right_w, num_w)
-  out[n + 1] = ansi.eol
+  render_cell(out, left, left_w, num_w)
+  -- The separator is an untinted gutter bar, so it takes that memoized style.
+  out:put(gutters.context.bar, '│')
+  render_cell(out, right, right_w, num_w, left.record)
+  out:put(ansi.eol)
 end
 
 return M

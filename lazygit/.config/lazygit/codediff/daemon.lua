@@ -1,55 +1,37 @@
 -- Persistent render daemon, started by spawn_daemon.lua as:
---   nvim --clean --headless -c "luafile daemon.lua"
--- (-l would exit after running the script; -c keeps the server alive.)
+--   nvim --clean -l daemon.lua
+-- Under -l an error anywhere in this file exits the process, so a broken renderer
+-- leaves no daemon that answers nothing while every render spawns another; the
+-- server lives in the wait at the bottom.
 --
 -- Renders arrive over a plain line protocol on a unix socket -- see the pipe
 -- section at the bottom.
 --
--- Lifetime: exits when every lazygit process registered as its owner is gone
--- (polled every few seconds), so quitting lazygit (or the nvim :terminal hosting
--- it) leaves no orphaned daemon. Idle timeouts back that up, and a change to the
--- nvim binary, to the renderer's own sources or to anything bootstrap loads
--- (parsers, plugins, filetype rules) recycles the daemon on the next request.
+-- Lifetime: exits once no lazygit is running (polled every few seconds), so
+-- quitting lazygit (or the nvim :terminal hosting it) leaves no orphaned daemon.
+-- An idle timeout backs that up, and a change to the nvim binary, to the
+-- renderer's own sources or to anything bootstrap loads (parsers, plugins,
+-- filetype rules) recycles the daemon after the next request.
 
 local script = debug.getinfo(1, 'S').source:sub(2)
 local dir = vim.fn.fnamemodify(script, ':p:h')
 package.path = dir .. '/?.lua;' .. package.path
 
-local uv = vim.uv
+local bootstrap = require('lib.bootstrap')
 
--- Bootstrap owns the list of paths a render depends on, so the staleness check
--- reads that list rather than re-deriving it, and reads *all* of it: a
--- dependency added there cannot be one the fingerprint forgot.
--- Guarded like the bootstrap call further down, because an error raised before
--- the lifetime guards are armed would strand an nvim holding the socket
--- forever; scripts_mtime() covers bootstrap.lua itself either way, so an
--- editing mistake there still recycles the daemon.
-local ok_paths, bootstrap = pcall(require, 'lib.bootstrap')
-local WATCHED_PATHS = ok_paths and bootstrap.paths or {}
+local uv = vim.uv
 
 -- The client owns the socket name and hands it down through the spawner's
 -- environment. Deriving it a second time here would be the same cross-process
 -- invariant spelled in two languages, kept in step by hand; without the handoff
--- there is nothing to serve, so this exits rather than guessing at a path no
--- client would be listening to.
-local PIPE_PATH = vim.env.CODEDIFF_PIPE
-if not PIPE_PATH or PIPE_PATH == '' then
-  os.exit(1)
-end
-local IDLE_WITH_OWNER_MS = 60 * 60 * 1000
-local IDLE_NO_OWNER_MS = 5 * 60 * 1000
--- Owners are registered on demand (a client walks its process tree only when
--- asked to), so an empty watch list also describes a live lazygit that has not
--- been asked yet. A short grace after the last request tells the two apart:
--- quitting lazygit still reaps the daemon within seconds, while a session whose
--- owner has not been registered yet keeps it alive by rendering at all.
-local ORPHANED_GRACE_MS = 10 * 1000
--- An answer that asks for the owner costs the client a process tree walk, so
--- this long passes between two of them. A client that found none (a manual pipe
--- into the renderer, a lazygit reached through some wrapper) would find none
--- again, and one that named a live owner is only asked again for the sake of a
--- second lazygit (see want_owner).
-local OWNER_ASK_INTERVAL_MS = 30 * 1000
+-- there is nothing to serve.
+local PIPE_PATH = assert(vim.env.CODEDIFF_PIPE)
+-- Read once: fingerprint() runs in a libuv callback, where vim.v raises.
+local PROGPATH = vim.v.progpath
+local IDLE_MS = 60 * 60 * 1000
+-- How long it may sit idle with no lazygit running. Long enough for a client run
+-- by hand to keep it warm, while quitting lazygit still reaps it within seconds.
+local IDLE_WITHOUT_LAZYGIT_MS = 10 * 1000
 local POLL_MS = 3000
 -- codediff's native diff engine leaks (libvscode-diff/src/myers.c frees only the
 -- winning path of its search): ~14MB per render of a rewrite-heavy commit, and
@@ -64,11 +46,11 @@ local function mtime_of(path)
   if not st then
     return 0
   end
-  return st.mtime.sec * 1000000 + math.floor((st.mtime.nsec or 0) / 1000)
+  return st.mtime.sec * 1000000 + math.floor(st.mtime.nsec / 1000)
 end
 
 -- Newest mtime across the renderer's own sources, so editing them recycles
--- the daemon on the next request instead of serving stale code.
+-- the daemon instead of it serving stale code.
 local function scripts_mtime()
   local latest = 0
   for _, d in ipairs({ dir, dir .. '/lib' }) do
@@ -83,10 +65,13 @@ end
 
 -- Everything whose change must recycle the daemon, in one value: listing the
 -- inputs once means a new one cannot be added to the snapshot but missed in the
--- comparison, which would silently never trigger a reload.
+-- comparison, which would silently never trigger a reload. Bootstrap owns the
+-- list of paths a render depends on, so this reads that list rather than
+-- re-deriving it, and reads *all* of it: a dependency added there cannot be one
+-- the fingerprint forgot.
 local function fingerprint()
-  local parts = { mtime_of(vim.v.progpath), scripts_mtime() }
-  for _, path in pairs(WATCHED_PATHS) do
+  local parts = { mtime_of(PROGPATH), scripts_mtime() }
+  for _, path in pairs(bootstrap.paths) do
     parts[#parts + 1] = mtime_of(path)
   end
   return table.concat(parts, ':')
@@ -94,13 +79,7 @@ end
 
 local generation = fingerprint()
 
-local watched = {}
-local saw_owner = false
 local last_request = uv.now()
--- When a client last answered the owner question at all, and when one last
--- answered that it found none.
-local owner_answered = -OWNER_ASK_INTERVAL_MS
-local owner_declined = -OWNER_ASK_INTERVAL_MS
 
 local pipe_ino = nil
 
@@ -115,33 +94,34 @@ local function shutdown()
   os.exit(0)
 end
 
-local poll = assert(uv.new_timer())
-poll:start(POLL_MS, POLL_MS, function()
-  for pid in pairs(watched) do
-    if not uv.kill(pid, 0) then
-      watched[pid] = nil
-    end
-  end
-  local limit = not saw_owner and IDLE_NO_OWNER_MS
-    or next(watched) and IDLE_WITH_OWNER_MS
-    or ORPHANED_GRACE_MS
-  if uv.now() - last_request > limit then
-    shutdown()
-  end
-end)
+-- Any lazygit will do: the daemon is shared, and a request says nothing about
+-- which one sent it. Watching one pid costs a syscall per poll where pgrep costs
+-- a spawn, so pgrep only speaks up once that pid is gone.
+local lazygit = nil
 
--- Bootstrapping happens only after the lifetime guards above are armed, and
--- behind a pcall: an error here (broken renderer source, a plugin dir being
--- updated underneath us) would otherwise abort the -c luafile, leaving a daemon
--- that answers nothing and never exits while every subsequent render spawns
--- another one.
-local ok_boot, core = pcall(function()
-  bootstrap.setup()
-  return require('lib.core')
-end)
-if not ok_boot then
-  os.exit(1)
-end
+-- Scheduled, because vim.system needs the main loop; a render holds that, so this
+-- never runs inside one.
+local poll = assert(uv.new_timer())
+poll:start(
+  POLL_MS,
+  POLL_MS,
+  vim.schedule_wrap(function()
+    local idle = uv.now() - last_request
+    if idle > IDLE_MS then
+      shutdown()
+    elseif idle > IDLE_WITHOUT_LAZYGIT_MS and not (lazygit and uv.kill(lazygit, 0)) then
+      vim.system({ 'pgrep', 'lazygit' }, { text = true }, function(result)
+        lazygit = tonumber(result.stdout:match('%d+'))
+        if not lazygit then
+          shutdown()
+        end
+      end)
+    end
+  end)
+)
+
+bootstrap.setup()
+local core = require('lib.core')
 
 -- Rendered-output cache: browsing commits in lazygit re-requests the same diff
 -- every time the selection returns to it, and the expensive renders (large
@@ -180,25 +160,6 @@ local function cache_put(key, out)
   end
 end
 
--- Whether this answer should ask the client for an owner pid. A request says
--- nothing about which lazygit sent it, so a second lazygit sharing the daemon
--- looks exactly like the one already watched: asking again once per interval is
--- what registers it, where asking only while watching nobody let the first
--- owner's exit take the daemon down under a session still using it. Inside the
--- interval the only thing worth a walk is an owner that has died since, which
--- is an empty watch list that a client's "found none" does not explain.
---
--- The throttle starts from a client's *answer*, not from the ask: a client that
--- lazygit terminated between its render and its answer must not leave the
--- daemon unowned for the whole interval, so the next render simply asks again.
-local function want_owner()
-  local now = uv.now()
-  if now - owner_answered >= OWNER_ASK_INTERVAL_MS then
-    return true
-  end
-  return next(watched) == nil and now - owner_declined >= OWNER_ASK_INTERVAL_MS
-end
-
 -- Opens the file the client made rather than creating one, in the private
 -- directory the client made for it. A client that lazygit killed mid-render has
 -- already removed that directory, and nobody is left to remove an output
@@ -232,7 +193,7 @@ local function render_request(infile, outfile, opts)
   if not f then
     return 'err:input'
   end
-  local input = f:read('*a') or ''
+  local input = f:read('*a')
   f:close()
 
   local key = cache_key(input, opts)
@@ -245,48 +206,31 @@ local function render_request(infile, outfile, opts)
     end
   end
 
-  if not write_output(outfile, rendered) then
-    return 'err:output'
-  end
-
-  if fingerprint() ~= generation then
-    -- Serve this request with the old world, then let the next spawn reload
-    -- fresh parsers / nvim runtime.
-    vim.defer_fn(shutdown, 50)
-  end
-  return 'ok'
+  return write_output(outfile, rendered) and 'ok' or 'err:output'
 end
 
 -- -------------------------------------------------------------------- pipe ---
--- lazygit starts a fresh client process for every diff it draws, so whatever
--- that client costs to start is paid on every keypress that moves the
--- selection. An `nvim --remote-expr` client would be ~36ms of startup before it
--- said a word; `nc -U` round-trips a line here in ~4ms, which is what keeps the
--- transport cheaper than the render it asks for.
---
 -- One request per connection, one line, tab separated, answered with one line:
 --   render\t<in>\t<out>\t<cols>\t<layout>\t<metadata>\t<cwd>
---                                    =>  ok | ok:owner | err:<why>
---   owner\t<pid>  (0: the client found none)      =>  ok
+--                                    =>  ok | err:<why>
 -- <metadata> is 1 when the render is to carry OSC 1717 records, 0 otherwise.
 -- cwd comes last because it is the only field that can legitimately contain a
 -- tab, so it simply takes the rest of the line.
 
-local MAX_REQUEST_BYTES = 8 * 1024
-
 local pipe_server = assert(uv.new_pipe(false))
 local rendering = false
-local queue = {}
 
--- nc only exits on this close, so whatever submit held off runs after it, with
--- nobody waiting. A full cycle also re-arms the collector, and what it leaves
--- resident is the daemon's real size, without a render's garbage in it.
+-- The client is on its way by the time this runs, so whatever submit held off
+-- runs after it, with nobody waiting: a full cycle, which also re-arms the
+-- collector, and then the checks that recycle the daemon. What the cycle leaves
+-- resident is the daemon's real size, without a render's garbage in it. A staler
+-- world served this one request, and the next spawn loads the fresh one.
 local function reply(client, message)
   client:write(message .. '\n', function()
     client:close()
     if not rendering then
       collectgarbage('collect')
-      if uv.resident_set_memory() > MAX_RSS_BYTES then
+      if uv.resident_set_memory() > MAX_RSS_BYTES or fingerprint() ~= generation then
         shutdown()
       end
     end
@@ -294,17 +238,6 @@ local function reply(client, message)
 end
 
 local function dispatch(request)
-  local pid = tonumber(request:match('^owner\t(%d+)$'))
-  if pid then
-    owner_answered = uv.now()
-    if pid > 0 then
-      watched[pid] = true
-      saw_owner = true
-    else
-      owner_declined = owner_answered
-    end
-    return 'ok'
-  end
   local infile, outfile, cols, layout, metadata, cwd =
     request:match('^render\t([^\t]*)\t([^\t]*)\t([^\t]*)\t([^\t]*)\t([01])\t(.*)$')
   if not infile then
@@ -312,38 +245,24 @@ local function dispatch(request)
   end
   -- The wire carries every field as a string; convert once here rather than at
   -- each use, so the cache key and the render see the same typed value.
-  local status = render_request(infile, outfile, {
+  return render_request(infile, outfile, {
     cwd = cwd,
     cols = tonumber(cols),
     layout = layout,
     metadata = metadata == '1',
   })
-  if status == 'ok' and want_owner() then
-    return 'ok:owner'
-  end
-  return status
 end
 
--- One render at a time. `vim.wait` inside the git object session pumps the
--- event loop, so a second client's request arrives *during* a render: queueing
--- it keeps two renders from interleaving on one Lua stack (and two voices off
--- the one `git cat-file` pipe). The fresh request is enqueued like any other
--- rather than run ahead of the loop -- when `rendering` is false the queue is
--- empty, so it is served first either way.
+-- One render at a time: a scheduled callback holds the main loop, and the wait
+-- on the git object session (lib/catfile.lua) takes fast events only, so a
+-- second client's request stays scheduled until this one has answered.
 local function submit(request, client)
-  queue[#queue + 1] = { request = request, client = client }
-  if rendering then
-    return
-  end
   rendering = true
   -- Collecting inside a render is ~12% of the wall clock a client sees, and the
   -- moment right after it is idle (see reply).
   collectgarbage('stop')
-  while queue[1] do
-    local job = table.remove(queue, 1)
-    local ok, status = pcall(dispatch, job.request)
-    reply(job.client, ok and status or 'err:internal')
-  end
+  local ok, status = pcall(dispatch, request)
+  reply(client, ok and status or 'err:internal')
   rendering = false
 end
 
@@ -361,11 +280,6 @@ local function on_connection(err)
   client:read_start(function(read_err, chunk)
     buf = buf .. (chunk or '')
     local request = buf:match('^([^\n]*)\n')
-    -- nc half-closes its write side as soon as its own stdin ends, so EOF is
-    -- the other end of a request that arrived without its newline.
-    if not request and not chunk and not read_err and buf ~= '' then
-      request = buf
-    end
     if request then
       client:read_stop()
       -- Off the callback and onto the main loop: a render is nothing but calls
@@ -374,7 +288,7 @@ local function on_connection(err)
       vim.schedule(function()
         submit(request, client)
       end)
-    elseif read_err or not chunk or #buf > MAX_REQUEST_BYTES then
+    elseif read_err or not chunk then
       client:close()
     end
   end)
@@ -387,4 +301,9 @@ end
 if not (pipe_server:bind(PIPE_PATH) and pipe_server:listen(64, on_connection)) then
   os.exit(0)
 end
-pipe_ino = (uv.fs_stat(PIPE_PATH) or {}).ino
+pipe_ino = uv.fs_stat(PIPE_PATH).ino
+
+-- -l exits when this file ends, and every way out from here is an os.exit.
+while true do
+  vim.wait(IDLE_MS, nil, IDLE_MS)
+end

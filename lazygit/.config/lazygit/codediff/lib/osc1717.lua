@@ -7,6 +7,7 @@
 -- until the end of its row, so a side-by-side row needs one per side only
 -- where its sides show different lines.
 
+local diffparse = require('lib.diffparse')
 local util = require('lib.util')
 
 local M = {}
@@ -33,28 +34,26 @@ function M.recorder(path)
   end
 end
 
---- The records for a hunk's rows, by side and fragment row (the rows
---- diffparse.hunk_rows reconstructs), numbered as lazygit numbers git's
---- patch: a context line by its new-file line on both sides, an added line by
---- its new-file line, and a deleted line by the new-file line it sits at and
+--- Give each side of a hunk the records of its rows, numbered as lazygit numbers
+--- git's patch: a context line by its new-file line on both sides, an added line
+--- by its new-file line, and a deleted line by the new-file line it sits at and
 --- its own old-file line.
-function M.hunk_records(hunk, record)
+function M.add_hunk_records(hunk, record)
   local old, new = {}, {}
-  local old_line, new_line = hunk.old_start, hunk.new_start
-  for _, line in ipairs(hunk.lines) do
-    if line.origin == ' ' then
-      local context = record('c', new_line)
-      old[#old + 1], new[#new + 1] = context, context
-      old_line, new_line = old_line + 1, new_line + 1
-    elseif line.origin == '-' then
-      old[#old + 1] = record('d', new_line, old_line)
-      old_line = old_line + 1
-    else
-      new[#new + 1] = record('a', new_line)
-      new_line = new_line + 1
+  local old_base, new_base = hunk.old.start - 1, hunk.new.start - 1
+  diffparse.walk_hunk(hunk, function(old_row, new_row)
+    local context = record('c', new_base + new_row)
+    old[old_row], new[new_row] = context, context
+  end, function(change)
+    local deleted_at = new_base + change.new_start
+    for row = change.old_start, change.old_end - 1 do
+      old[row] = record('d', deleted_at, old_base + row)
     end
-  end
-  return { old = old, new = new }
+    for row = change.new_start, change.new_end - 1 do
+      new[row] = record('a', new_base + row)
+    end
+  end)
+  hunk.old.records, hunk.new.records = old, new
 end
 
 return M

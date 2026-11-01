@@ -11,77 +11,59 @@
 -- gets one fresh session, and past that the render goes without the blobs, so
 -- the worst case is a file highlighted from its hunks and never a wrong render.
 
+local buffer = require('string.buffer')
+
 local M = {}
 
 local READ_TIMEOUT_MS = 5000
 
---- Sizes and types only: "<oid> <type> <size>\n" or "<name> missing\n" per
---- input line, no payloads. Each record keeps its raw line as `header`: a
---- payload response repeats it verbatim ahead of the bytes.
-local function parse_info(out, n)
-  local infos = {}
+--- Read an `info` answer ("<oid> <type> <size>\n" or "<name> missing\n" per
+--- object). Returns the blobs worth streaming into the (long-lived) daemon's
+--- memory -- never a gitlink's commit object, never an oversized blob -- the
+--- exact byte count git's payload stream runs to for them, and the answer so far:
+--- `false` for each blob declined for its size. Nil unless there is a line per
+--- object: the stream is not what we think it is.
+local function parse_info(out, n, max_bytes)
+  local wanted, expected, blobs = {}, 0, {}
   local i = 0
   for line in out:gmatch('([^\n]*)\n') do
     i = i + 1
     local kind, size = line:match('^%S+ (%S+) (%d+)$')
-    if kind then
-      infos[i] = { type = kind, size = tonumber(size), header = line }
-    end
-  end
-  if i ~= n then
-    return nil -- a line per object, or the stream is not what we think it is
-  end
-  return infos
-end
-
---- The blobs worth streaming into the (long-lived) daemon's memory -- never a
---- gitlink's commit object, never an oversized blob -- as indices into `infos`,
---- plus the exact byte count git's payload stream runs to for them, and the
---- answer so far: `false` for each blob declined for its size.
-local function select_wanted(infos, n, max_bytes)
-  local wanted, expected, blobs = {}, 0, {}
-  for i = 1, n do
-    local rec = infos[i]
-    if rec and rec.type == 'blob' then
-      if rec.size <= max_bytes then
-        wanted[#wanted + 1] = i
+    if kind == 'blob' then
+      size = tonumber(size)
+      if size <= max_bytes then
         -- git repeats the info line, then the bytes and a newline
-        expected = expected + #rec.header + 1 + rec.size + 1
+        local header_bytes = #line + 1
+        wanted[#wanted + 1] = { index = i, header_bytes = header_bytes, size = size }
+        expected = expected + header_bytes + size + 1
       else
         blobs[i] = false
       end
     end
   end
+  if i ~= n then
+    return nil
+  end
   return wanted, expected, blobs
 end
 
---- Fill in `blobs` from a "<oid> <type> <size>\n<bytes>\n" stream, keyed by their
---- index in `infos` and read in `wanted` order. Each record must open with the
---- header `info` already reported: anything else means the stream has desynced,
---- and every record after it would be read out of the wrong bytes, so the whole
---- answer is refused (nil).
-local function parse_blobs(out, infos, wanted, blobs)
-  local pos = 1
-  for _, i in ipairs(wanted) do
-    local header = infos[i].header
-    if out:sub(pos, pos + #header) ~= header .. '\n' then
-      return nil
-    end
-    pos = pos + #header + 1
-    blobs[i] = out:sub(pos, pos + infos[i].size - 1)
-    pos = pos + infos[i].size + 1
+--- Fill in `blobs` from the "<oid> <type> <size>\n<bytes>\n" stream of `wanted`,
+--- which runs to exactly the bytes parse_info worked out.
+local function parse_blobs(out, wanted, blobs)
+  for _, rec in ipairs(wanted) do
+    out:skip(rec.header_bytes)
+    blobs[rec.index] = out:get(rec.size)
+    out:skip(1)
   end
-  return blobs
 end
 
 -- ---------------------------------------------------------------- session ---
 
--- One live `git cat-file` per repo being served, most recently used first. A
--- single slot was enough while a daemon meant one lazygit, but it is shared by
--- every lazygit the user has open (daemon.lua watches several owners), and two
--- of them in different repos would alternate that slot and respawn git on every
--- render -- the ~8ms of startup this session exists to stop paying. Past the
--- cap the least recently used one is retired.
+-- One live `git cat-file` per repo being served, most recently used first. The
+-- daemon is shared by every lazygit the user has open, and two of them in
+-- different repos would otherwise respawn git on every render -- the ~8ms of
+-- startup this session exists to stop paying. Past the cap the least recently
+-- used one is retired.
 local SESSION_MAX = 2
 local sessions = {}
 
@@ -97,13 +79,6 @@ local function retire(s)
   end)
 end
 
--- Drop the previous phase's bytes before asking for the next. Counting lines is
--- only for the info phase; over a payload phase it would be a scan of every
--- blob the diff touches.
-local function reset(s, count_lines)
-  s.buf, s.bytes, s.lines, s.counting = {}, 0, 0, count_lines
-end
-
 local function ensure(cwd)
   for i, held in ipairs(sessions) do
     if held.cwd == cwd then
@@ -117,21 +92,15 @@ local function ensure(cwd)
     end
   end
 
-  local s = { cwd = cwd }
-  reset(s, false)
+  local s = { cwd = cwd, out = buffer.new() }
   local ok, proc = pcall(vim.system, { 'git', 'cat-file', '--batch-command', '--buffer' }, {
     cwd = cwd,
     stdin = true,
     stderr = false,
     text = false,
     stdout = function(_, data)
-      if not data then
-        return
-      end
-      s.buf[#s.buf + 1] = data
-      s.bytes = s.bytes + #data
-      if s.counting then
-        s.lines = s.lines + select(2, data:gsub('\n', ''))
+      if data then
+        s.out:put(data)
       end
     end,
   })
@@ -154,16 +123,15 @@ local function send(s, commands)
   return ok
 end
 
---- Collected output once `ready()` reports the response complete, or nil if the
---- process died or took too long.
+--- Whether `ready()` reported the response complete, rather than the process
+--- dying or taking too long. Fast events only: they are all that git's output and
+--- exit arrive as, and anything else this let in would be the next client's
+--- render, starting in the middle of this one (see submit in daemon.lua).
 local function await(s, ready)
   local ok = vim.wait(READ_TIMEOUT_MS, function()
     return s.proc:is_closing() or ready()
-  end, 1)
-  if not ok or s.proc:is_closing() then
-    return nil
-  end
-  return table.concat(s.buf)
+  end, 1, true)
+  return ok and not s.proc:is_closing()
 end
 
 local function fetch_session(s, oids, max_bytes)
@@ -173,42 +141,36 @@ local function fetch_session(s, oids, max_bytes)
   for i = 1, n do
     commands[i] = 'info ' .. oids[i] .. '\n'
   end
-  reset(s, true)
-  if not send(s, commands) then
+  local answered = send(s, commands)
+    and await(s, function()
+      return select(2, s.out:tostring():gsub('\n', '')) >= n
+    end)
+  if not answered then
     return nil
   end
-  local out = await(s, function()
-    return s.lines >= n
-  end)
-  if not out then
-    return nil
-  end
-  local infos = parse_info(out, n)
-  if not infos then
+  local wanted, expected, blobs = parse_info(s.out:get(), n, max_bytes)
+  if not wanted then
     return nil
   end
 
   -- Only now, knowing the sizes, is anything asked for.
-  local wanted, expected, blobs = select_wanted(infos, n, max_bytes)
-  reset(s, false)
   if #wanted == 0 then
     return blobs
   end
   commands = {}
-  for k = 1, #wanted do
-    commands[k] = 'contents ' .. oids[wanted[k]] .. '\n'
+  for k, rec in ipairs(wanted) do
+    commands[k] = 'contents ' .. oids[rec.index] .. '\n'
   end
-  if not send(s, commands) then
-    return nil
-  end
-  out = await(s, function()
-    return s.bytes >= expected
+  answered = send(s, commands) and await(s, function()
+    return #s.out >= expected
   end)
-  reset(s, false)
-  if not out or #out ~= expected then
+  if not answered or #s.out ~= expected then
     return nil
   end
-  return parse_blobs(out, infos, wanted, blobs)
+  parse_blobs(s.out, wanted, blobs)
+  -- Empty by now, but it would keep the capacity for as long as the session lives.
+  s.out:free()
+  return blobs
 end
 
 -- ------------------------------------------------------------------- fetch ---

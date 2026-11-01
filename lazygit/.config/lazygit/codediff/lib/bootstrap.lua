@@ -13,8 +13,6 @@ M.paths = {
   treesitter = vim.fs.joinpath(data, 'lazy/nvim-treesitter'),
   catppuccin = vim.fs.joinpath(data, 'lazy/catppuccin'),
   codediff = vim.fs.joinpath(data, 'lazy/codediff.nvim'),
-  -- Bumped whenever codediff.nvim (and its native diff library) updates.
-  codediff_version = vim.fs.joinpath(data, 'lazy/codediff.nvim/VERSION'),
   -- The editor's filetype-rules module that setup() sources below: its
   -- detection rules and ft => language aliases shape every render, so an edit
   -- must recycle the daemon like any renderer source.

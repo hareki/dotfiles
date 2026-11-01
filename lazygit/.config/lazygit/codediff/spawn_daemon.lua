@@ -9,14 +9,7 @@ local script = arg[0]
 local dir = vim.fn.fnamemodify(script, ':p:h')
 
 local handle = vim.uv.spawn(vim.v.progpath, {
-  -- fnameescape: the path lands in an Ex command line, where an unescaped
-  -- %, #, | or " would be expanded or would truncate the command.
-  args = {
-    '--clean',
-    '--headless',
-    '-c',
-    'luafile ' .. vim.fn.fnameescape(dir .. '/daemon.lua'),
-  },
+  args = { '--clean', '-l', dir .. '/daemon.lua' },
   detached = true,
 }, function() end)
 

@@ -24,18 +24,7 @@ local UNDERSCORE = string.byte('_')
 --- end-exclusive -- the form layout.lua clips and sweeps in, so the renderer
 --- never has to rebase a span it was handed.
 function M.line_spans(lines, lang, row_ranges, deadline)
-  -- Checked between query windows, never inside one: the uv.hrtime call is
-  -- nothing next to a window's worth of captures. Once set, it also records
-  -- that some of the collection was skipped, which is what the caller is told.
-  local expired = false
-  local function past_deadline()
-    if not expired and vim.uv.hrtime() > deadline then
-      expired = true
-    end
-    return expired
-  end
-
-  if past_deadline() then
+  if vim.uv.hrtime() > deadline then
     return nil, true
   end
   local content = table.concat(lines, '\n')
@@ -65,6 +54,8 @@ function M.line_spans(lines, lang, row_ranges, deadline)
   end
 
   local rows = {}
+  -- Whether some of the collection was skipped, which is what the caller is told.
+  local expired = false
   local seen = {}
   local order = 0
   local default_prio = vim.hl.priorities.treesitter
@@ -111,7 +102,10 @@ function M.line_spans(lines, lang, row_ranges, deadline)
     -- full of code blocks) would pay that once per hunk shown.
     local tree_first, _, tree_last, _ = root:range()
     for _, range in ipairs(row_ranges) do
-      if past_deadline() then
+      -- Between query windows, never inside one: the uv.hrtime call is nothing
+      -- next to a window's worth of captures.
+      if vim.uv.hrtime() > deadline then
+        expired = true
         return
       end
       if range[1] <= tree_last and range[2] >= tree_first then
@@ -137,10 +131,7 @@ function M.line_spans(lines, lang, row_ranges, deadline)
     end
   end
 
-  local walk_ok = pcall(parser.for_each_tree, parser, collect)
-  if not walk_ok and not next(rows) then
-    return nil
-  end
+  pcall(parser.for_each_tree, parser, collect)
   return rows, expired
 end
 

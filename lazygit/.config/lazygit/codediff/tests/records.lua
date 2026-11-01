@@ -27,20 +27,21 @@ local function expected_records(input)
     if block.kind == 'file' then
       local path = block.new_path or block.old_path
       for _, hunk in ipairs(block.hunks) do
-        records[#records + 1] = ('h;%d;;%s'):format(hunk.new_start, path)
-        local old, new = hunk.old_start, hunk.new_start
-        for _, line in ipairs(hunk.lines) do
-          if line.origin == ' ' then
-            records[#records + 1] = ('c;%d;;%s'):format(new, path)
-            old, new = old + 1, new + 1
-          elseif line.origin == '-' then
+        records[#records + 1] = ('h;%d;;%s'):format(hunk.new.start, path)
+        local old, new = hunk.old.start, hunk.new.start
+        diffparse.walk_hunk(hunk, function()
+          records[#records + 1] = ('c;%d;;%s'):format(new, path)
+          old, new = old + 1, new + 1
+        end, function(change)
+          for _ = change.old_start, change.old_end - 1 do
             records[#records + 1] = ('d;%d;%d;%s'):format(new, old, path)
             old = old + 1
-          else
+          end
+          for _ = change.new_start, change.new_end - 1 do
             records[#records + 1] = ('a;%d;;%s'):format(new, path)
             new = new + 1
           end
-        end
+        end)
       end
     end
   end
@@ -81,11 +82,9 @@ for _, path in ipairs(fixtures) do
 
   for _, layout in ipairs({ 'inline', 'side-by-side' }) do
     local function render(metadata)
-      return (
-        core.render(
-          input,
-          { cwd = dir, cols = 100, layout = layout, force_fragment = true, metadata = metadata }
-        )
+      return core.render(
+        input,
+        { cwd = dir, cols = 100, layout = layout, force_fragment = true, metadata = metadata }
       )
     end
 

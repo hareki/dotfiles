@@ -20,7 +20,7 @@ package.path = dir .. '/../?.lua;' .. package.path
 local opts =
   { iterations = 7, warmup = 2, layout = 'both', fragment = false, profile = false, json = nil }
 local files = {}
-for i = 1, #(arg or {}) do
+for i = 1, #arg do
   local a = arg[i]
   local key, value = a:match('^%-%-([%w_]+)=(.*)$')
   if key == 'iterations' or key == 'warmup' then
@@ -119,9 +119,12 @@ for _, path in ipairs(files) do
     prof = {}
     local samples = {}
     for _ = 1, opts.iterations do
+      -- The daemon's regime: no collection inside a render, a full one after it.
+      collectgarbage('stop')
       local t0 = vim.uv.hrtime()
       render(input, layout)
       samples[#samples + 1] = vim.uv.hrtime() - t0
+      collectgarbage('collect')
     end
     local med = median(samples)
     grand_total = grand_total + med

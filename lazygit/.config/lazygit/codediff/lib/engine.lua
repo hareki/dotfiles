@@ -1,5 +1,11 @@
 local M = {}
 
+-- Ceiling on the engine's time for one change's words. The engine runs on the
+-- same clock as span extraction, and a rewrite it cannot finish in time would
+-- otherwise spend the render's whole highlighting budget on emphasis; an ordinary
+-- change takes a few milliseconds, a large one tens.
+local MAX_EMPHASIS_MS = 100
+
 -- Behind pcall: a missing or broken codediff.nvim must only cost the changed
 -- words their emphasis, never break the render. Every entry point runs
 -- bootstrap.setup(), which puts the plugin on the rtp, before it requires this
@@ -7,11 +13,8 @@ local M = {}
 local has_diff, diff = pcall(require, 'codediff.core.diff')
 
 -- Mirrors codediff's utf16_col_to_byte_col (ui/inline.lua): engine columns are
--- 1-based UTF-16 code units, end-exclusive. codediff reaches the conversion
--- through its own pre-0.11 compat shim; on the versions this renderer targets
--- (vim.hl.priorities in lib/highlight.lua is already 0.11+) that shim is
--- exactly this builtin, so call it rather than a private module of another
--- plugin. Not strict: a column past the end of the line clamps to the end.
+-- 1-based UTF-16 code units, end-exclusive. Not strict: a column past the end of
+-- the line clamps to the end.
 local function utf16_col_to_byte_col(line, utf16_col)
   if utf16_col <= 1 then
     return utf16_col
@@ -31,17 +34,16 @@ local function by_start(a, b)
   return a.s < b.s
 end
 
--- Split one side of the char-level inner changes into per-row byte ranges:
--- { [row] = { {s, e}, ... } } with 1-based cols, e exclusive: the shape
--- layout.content_line takes for emphasis. Follows codediff's own per-side
--- semantics (ui/inline.lua): the original side widens an empty tail on the
--- end line to one byte, the modified side drops it. `lines` are the rows the
--- engine was given, and `offset` places them in the hunk fragment.
-local function side_char_ranges(inner_changes, side, lines, offset)
-  local rows = {}
+-- Split one side of the char-level inner changes into per-row byte ranges,
+-- written into `rows`: { [row] = { {s, e}, ... } } with 1-based cols, e exclusive:
+-- the shape layout.content_line takes for emphasis. Follows codediff's own
+-- per-side semantics (ui/inline.lua): the original side widens an empty tail on
+-- the end line to one byte, the modified side drops it. `lines` are the rows the
+-- engine was given, and `offset` places them among the side's rows.
+local function side_char_ranges(rows, inner_changes, side, lines, offset)
   for _, inner in ipairs(inner_changes) do
     local r = inner[side]
-    if r and not (r.start_line == r.end_line and r.start_col == r.end_col) then
+    if not (r.start_line == r.end_line and r.start_col == r.end_col) then
       for row = r.start_line, math.min(r.end_line, #lines) do
         local text = lines[row]
         local s = row == r.start_line and utf16_col_to_byte_col(text, r.start_col) or 1
@@ -70,45 +72,44 @@ local function side_char_ranges(inner_changes, side, lines, offset)
       end
     end
   end
-  for _, ranges in pairs(rows) do
-    table.sort(ranges, by_start)
+  for row = offset + 1, offset + #lines do
+    if rows[row] then
+      table.sort(rows[row], by_start)
+    end
   end
-  return rows
 end
 
 -- Fill in a change's char emphasis by running codediff's vscode-diff engine
--- over the change's own rows for at most `max_ms`. Left without any when the
--- engine is unavailable or timed out, or sees no difference at all (a CRLF-only
--- change: the rows are CR-stripped): they are still drawn as changed, just
--- without words picked out.
-local function emphasize(change, max_ms)
+-- over the change's own rows. Left without any when the engine is unavailable or
+-- timed out, or sees no difference at all (a CRLF-only change: the rows are
+-- CR-stripped): they are still drawn as changed, just without words picked out.
+local function emphasize(hunk, change)
   if not has_diff then
     return
   end
-  local ok, result = pcall(diff.compute_diff, change.old_rows, change.new_rows, {
-    max_computation_time_ms = max_ms,
+  local old_rows = vim.list_slice(hunk.old.rows, change.old_start, change.old_end - 1)
+  local new_rows = vim.list_slice(hunk.new.rows, change.new_start, change.new_end - 1)
+  local ok, result = pcall(diff.compute_diff, old_rows, new_rows, {
+    max_computation_time_ms = MAX_EMPHASIS_MS,
   })
-  if not ok or type(result) ~= 'table' or result.hit_timeout then
+  if not (ok and result) or result.hit_timeout then
     return
   end
 
   local inner_changes = {}
-  for _, line_change in ipairs(result.changes or {}) do
-    vim.list_extend(inner_changes, line_change.inner_changes or {})
+  for _, line_change in ipairs(result.changes) do
+    vim.list_extend(inner_changes, line_change.inner_changes)
   end
-  change.old_emph =
-    side_char_ranges(inner_changes, 'original', change.old_rows, change.old_start - 1)
-  change.new_emph =
-    side_char_ranges(inner_changes, 'modified', change.new_rows, change.new_start - 1)
+  side_char_ranges(hunk.old.emph, inner_changes, 'original', old_rows, change.old_start - 1)
+  side_char_ranges(hunk.new.emph, inner_changes, 'modified', new_rows, change.new_start - 1)
 end
 
---- Pick out the changed words within each of a hunk's changes
---- (diffparse.hunk_rows), giving the engine at most `max_ms` for any one of
---- them. A change with only one side has nothing to compare its words against.
-function M.emphasize(changes, max_ms)
-  for _, change in ipairs(changes) do
-    if #change.old_rows > 0 and #change.new_rows > 0 then
-      emphasize(change, max_ms)
+--- Pick out the changed words within each of a hunk's changes. A change with
+--- only one side has nothing to compare its words against.
+function M.emphasize(hunk)
+  for _, change in ipairs(hunk.changes) do
+    if change.old_end > change.old_start and change.new_end > change.new_start then
+      emphasize(hunk, change)
     end
   end
 end

@@ -59,9 +59,10 @@ gui:
       '*': '#b4befe'
 git:
   diffRenderers:
+    # Names on PATH rather than a path: see codediff/client.sh.
     - name: codediff
       colorArg: never
-      command: ~/.config/lazygit/codediff/client.sh
+      command: lazygit-codediff
     - name: codediff-split
       colorArg: never
-      command: ~/.config/lazygit/codediff/client.sh --layout=side-by-side
+      command: lazygit-codediff-split

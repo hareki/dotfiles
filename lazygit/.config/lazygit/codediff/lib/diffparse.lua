@@ -10,27 +10,16 @@ local function unquote_c_string(s)
   if s:sub(1, 1) ~= '"' or s:sub(-1) ~= '"' then
     return s
   end
-  local inner = s:sub(2, -2)
-  local out = {}
-  local i = 1
-  while i <= #inner do
-    local c = inner:sub(i, i)
-    if c == '\\' then
-      local oct = inner:match('^([0-7][0-7][0-7])', i + 1)
-      if oct then
-        out[#out + 1] = string.char(tonumber(oct, 8))
-        i = i + 4
-      else
-        local nxt = inner:sub(i + 1, i + 1)
-        out[#out + 1] = C_ESCAPES[nxt] or nxt
-        i = i + 2
+  -- An octal escape is exactly three digits. Anything else stands for itself,
+  -- and the digits the pattern took along behind it are plain text.
+  return (
+    s:sub(2, -2):gsub('\\(.?)([0-7]?[0-7]?)', function(c, rest)
+      if #rest == 2 and c:find('[0-7]') then
+        return string.char(tonumber(c .. rest, 8))
       end
-    else
-      out[#out + 1] = c
-      i = i + 1
-    end
-  end
-  return table.concat(out)
+      return (C_ESCAPES[c] or c) .. rest
+    end)
+  )
 end
 
 local function strip_path_prefix(path, prefixed)
@@ -63,18 +52,14 @@ local function new_section(diff_line)
   end
   local file = {
     kind = 'file',
-    old_path = nil,
-    new_path = nil,
-    old_hex = nil,
-    new_hex = nil,
-    old_mode = nil,
-    new_mode = nil,
     is_new = false,
     is_deleted = false,
     is_binary = false,
-    renamed_from = nil,
-    renamed_to = nil,
     hunks = {},
+    -- What the hunks hold, which is what lib/blob.lua's section caps and
+    -- lib/core.lua's highlighting budget go by.
+    hunk_lines = 0,
+    hunk_bytes = 0,
   }
   -- Whether this file's paths carry the a/ b/ (or mnemonic) prefixes: the diff
   -- line is the one place the form shows, and the ---/+++ headers of the same
@@ -146,9 +131,7 @@ local function parse_extended_header(file, line)
     -- Authoritative for this side, including the nil that /dev/null resolves
     -- to: the header is the diff's own answer for the side, where the path
     -- pair new_section() reads off the diff line is only a guess (it mis-splits a
-    -- name containing " b/"). Letting that guess survive a header which
-    -- refuted it is what forced consumers to ask whether the file was new or
-    -- deleted before they could trust either path.
+    -- name containing " b/").
     file.old_path = strip_path_prefix(line:sub(5), file.prefixed)
   elseif vim.startswith(line, '+++ ') then
     file.new_path = strip_path_prefix(line:sub(5), file.prefixed)
@@ -158,54 +141,68 @@ local function parse_extended_header(file, line)
   return true
 end
 
---- A hunk's rows as the patch has them: each side's fragment (the lines that
---- side shows, in order) and the changes between them -- each minus run paired
---- with the plus run that follows it -- as an ordered list of { old_start,
---- old_end, new_start, new_end } (1-based fragment rows, end exclusive) holding
---- the run's own rows in old_rows/new_rows and its per-row char emphasis in
---- old_emph/new_emph (empty until engine.emphasize fills them in). The layouts
---- draw their rows from these, and fragment mode highlights the fragments in
---- place of the blobs; one walk builds both, so a change's rows are fragment
---- rows by construction.
+-- One side of a hunk, from the two numbers of its @@ header; a count git left out
+-- is 1.
+local function new_side(start, count)
+  return {
+    start = tonumber(start),
+    count = count ~= '' and tonumber(count) or 1,
+    rows = {},
+    emph = {},
+  }
+end
+
+--- Add a line of the patch to `hunk`, and return the change left open after it.
+--- A hunk has an `old` and a `new` side, { start, count, rows, emph }: `rows` are
+--- the lines the side shows, in order, and whatever else is known about a row
+--- (engine's char emphasis, core's spans, osc1717's records) is keyed by the same
+--- 1-based row. hunk.changes pairs each minus run with the plus run that follows
+--- it, as an ordered list of { old_start, old_end, new_start, new_end } (rows, end
+--- exclusive). One walk builds both, so a change's rows are side rows by
+--- construction.
 ---
 --- The rows come from the patch rather than from the diff engine because they
 --- are what lazygit stages: the engine is free to slide a change along lines
 --- that read the same (a blank line or a brace on either end of a deleted
 --- block), and a row drawn as changed would then not be the line that staging
 --- it stages.
-function M.hunk_rows(hunk)
-  local frag_old, frag_new, changes = {}, {}, {}
-  local change = nil
-  for _, l in ipairs(hunk.lines) do
-    local origin, text = l.origin, l.text
-    if origin == ' ' then
-      change = nil
-      frag_old[#frag_old + 1] = text
-      frag_new[#frag_new + 1] = text
-    else
-      -- A minus line after plus lines opens the next change.
-      if not change or (origin == '-' and #change.new_rows > 0) then
-        change = {
-          old_start = #frag_old + 1,
-          new_start = #frag_new + 1,
-          old_rows = {},
-          new_rows = {},
-          old_emph = {},
-          new_emph = {},
-        }
-        changes[#changes + 1] = change
-      end
-      if origin == '-' then
-        frag_old[#frag_old + 1] = text
-        change.old_rows[#change.old_rows + 1] = text
-      else
-        frag_new[#frag_new + 1] = text
-        change.new_rows[#change.new_rows + 1] = text
-      end
-      change.old_end, change.new_end = #frag_old + 1, #frag_new + 1
+local function add_row(file, hunk, change, origin, text)
+  local old, new = hunk.old.rows, hunk.new.rows
+  file.hunk_lines = file.hunk_lines + 1
+  file.hunk_bytes = file.hunk_bytes + #text
+  if origin == ' ' then
+    old[#old + 1], new[#new + 1] = text, text
+    return nil
+  end
+  -- A minus line after plus lines opens the next change.
+  if not change or (origin == '-' and change.new_end > change.new_start) then
+    change = { old_start = #old + 1, new_start = #new + 1 }
+    hunk.changes[#hunk.changes + 1] = change
+  end
+  local rows = origin == '-' and old or new
+  rows[#rows + 1] = text
+  change.old_end, change.new_end = #old + 1, #new + 1
+  return change
+end
+
+--- Walk a hunk's rows in order, handing each run to the callback for it. Between
+--- changes the two sides' pointers advance in step, which is both the pairing
+--- the side-by-side layout draws and the numbering everything else prints -- so
+--- the bookkeeping lives here rather than once per caller.
+function M.walk_hunk(hunk, on_context, on_change)
+  local old_ptr, new_ptr = 1, 1
+  local function context_rows(count)
+    for _ = 1, count do
+      on_context(old_ptr, new_ptr)
+      old_ptr, new_ptr = old_ptr + 1, new_ptr + 1
     end
   end
-  return frag_old, frag_new, changes
+  for _, change in ipairs(hunk.changes) do
+    context_rows(change.new_start - new_ptr)
+    on_change(change)
+    old_ptr, new_ptr = change.old_end, change.new_end
+  end
+  context_rows(#hunk.new.rows - new_ptr + 1)
 end
 
 --- The hash and decorations of the "commit <hash> (refs)" line that opens a
@@ -234,7 +231,7 @@ function M.parse(lines)
   local file = nil
   --- @type table?
   local hunk = nil
-  local remaining_old, remaining_new = 0, 0
+  local change = nil
 
   -- At most one of raw and file is open: raw only grows while no section is.
   local function flush()
@@ -242,11 +239,16 @@ function M.parse(lines)
     raw, file, hunk = nil, nil, nil
   end
 
-  local i = 1
-  while i <= #lines do
-    local line = lines[i]
-    local consumed = true
+  -- A line that does not belong to the open section closes it.
+  local function raw_line(line)
+    if file then
+      flush()
+    end
+    raw = raw or { kind = 'raw', lines = {} }
+    raw.lines[#raw.lines + 1] = line
+  end
 
+  for _, line in ipairs(lines) do
     if
       vim.startswith(line, 'diff --git ')
       or vim.startswith(line, 'diff --cc ')
@@ -255,13 +257,10 @@ function M.parse(lines)
       flush()
       file = new_section(line)
     elseif not file then
-      if not raw then
-        raw = { kind = 'raw', lines = {} }
-      end
-      raw.lines[#raw.lines + 1] = line
+      raw_line(line)
     elseif file.kind == 'combined' then
       if M.is_submodule_line(line) or M.commit_line(line) then
-        consumed = false
+        raw_line(line)
       else
         file.lines[#file.lines + 1] = line
       end
@@ -269,50 +268,40 @@ function M.parse(lines)
       local os_, oc, ns, nc, heading = line:match('^@@ %-(%d+),?(%d*) %+(%d+),?(%d*) @@ ?(.*)$')
       if os_ then
         hunk = {
-          old_start = tonumber(os_),
-          old_count = oc ~= '' and tonumber(oc) or 1,
-          new_start = tonumber(ns),
-          new_count = nc ~= '' and tonumber(nc) or 1,
+          old = new_side(os_, oc),
+          new = new_side(ns, nc),
           heading = heading ~= '' and heading or nil,
-          lines = {},
+          changes = {},
         }
-        remaining_old, remaining_new = hunk.old_count, hunk.new_count
+        change = nil
         file.hunks[#file.hunks + 1] = hunk
       else
-        consumed = false
+        raw_line(line)
       end
     elseif not hunk then
-      consumed = parse_extended_header(file, line)
+      if not parse_extended_header(file, line) then
+        raw_line(line)
+      end
     else
       local origin = line:sub(1, 1)
+      local old_left = #hunk.old.rows < hunk.old.count
+      local new_left = #hunk.new.rows < hunk.new.count
       if line == '\\ No newline at end of file' then
         -- It marks the line before it, a side's last, which is always among
         -- the hunk's last rows: the note renders once, after the hunk.
-        if hunk.lines[1] then
+        if hunk.old.rows[1] or hunk.new.rows[1] then
           hunk.no_newline = true
         end
-      elseif origin == '-' and remaining_old > 0 then
-        hunk.lines[#hunk.lines + 1] = { origin = '-', text = line:sub(2) }
-        remaining_old = remaining_old - 1
-      elseif origin == '+' and remaining_new > 0 then
-        hunk.lines[#hunk.lines + 1] = { origin = '+', text = line:sub(2) }
-        remaining_new = remaining_new - 1
-      elseif (origin == ' ' or line == '') and (remaining_old > 0 or remaining_new > 0) then
+      elseif origin == '-' and old_left then
+        change = add_row(file, hunk, change, '-', line:sub(2))
+      elseif origin == '+' and new_left then
+        change = add_row(file, hunk, change, '+', line:sub(2))
+      elseif (origin == ' ' or line == '') and (old_left or new_left) then
         -- "" is an empty context line with the leading space trimmed.
-        hunk.lines[#hunk.lines + 1] = { origin = ' ', text = line:sub(2) }
-        remaining_old = remaining_old - 1
-        remaining_new = remaining_new - 1
+        change = add_row(file, hunk, change, ' ', line:sub(2))
       else
-        consumed = false
+        raw_line(line)
       end
-    end
-
-    if consumed then
-      i = i + 1
-    else
-      -- Line does not belong to the open section: close it and reprocess the
-      -- same line with no section open.
-      flush()
     end
   end
 

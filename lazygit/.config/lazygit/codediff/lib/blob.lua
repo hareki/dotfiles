@@ -36,34 +36,31 @@ local function is_zero_hash(hex)
   return hex == nil or hex:match('^0+$') ~= nil
 end
 
+local function side_agrees(side, lines)
+  for row, text in ipairs(side.rows) do
+    if lines[side.start + row - 1] ~= text then
+      return false
+    end
+  end
+  return true
+end
+
 --- Does the acquired content actually hold the lines the patch says it does?
---- Walks each hunk's rows against the side they were taken from, which is the
---- mapping full-content highlighting relies on: a diff row is styled from the
---- parsed line at the same number.
+--- Each side's rows against the file they were taken from, which is the mapping
+--- full-content highlighting relies on: a diff row is styled from the parsed line
+--- at the same number.
 local function agrees_with_patch(file, old_lines, new_lines)
   for _, hunk in ipairs(file.hunks) do
-    local old_row, new_row = hunk.old_start, hunk.new_start
-    for _, l in ipairs(hunk.lines) do
-      if l.origin ~= '+' then
-        if not file.is_new and old_lines[old_row] ~= l.text then
-          return false
-        end
-        old_row = old_row + 1
-      end
-      if l.origin ~= '-' then
-        if not file.is_deleted and new_lines[new_row] ~= l.text then
-          return false
-        end
-        new_row = new_row + 1
-      end
+    if not (side_agrees(hunk.old, old_lines) and side_agrees(hunk.new, new_lines)) then
+      return false
     end
   end
   return true
 end
 
 --- Attach full old/new file contents to each file block where possible.
---- Sets file.content_mode = "full" | "fragment" | "plain", file.hunk_lines,
---- and file.old_lines / file.new_lines in full mode.
+--- Sets file.content_mode = "full" | "fragment" | "plain", and file.old_lines /
+--- file.new_lines in full mode.
 --- `cwd` is the worktree root: lazygit chdirs there before it runs anything, so
 --- a patch's paths name files under it.
 --- With `fragment_only`, files are classified but no git lookup is performed,
@@ -74,30 +71,20 @@ function M.acquire(files, cwd, fragment_only)
   local slots = {} -- parallel list of {file, side}
   for _, file in ipairs(files) do
     file.content_mode = 'plain'
-    -- Rows this file's hunks show: the section caps below, and the caller's
-    -- highlighting budget, both spend it.
-    local hunk_lines, hunk_bytes = 0, 0
-    for _, hunk in ipairs(file.hunks) do
-      hunk_lines = hunk_lines + #hunk.lines
-      for _, l in ipairs(hunk.lines) do
-        hunk_bytes = hunk_bytes + #l.text
-      end
-    end
-    file.hunk_lines = hunk_lines
     -- An oversized section renders with tints only. Classifying it here rather
     -- than after the fact keeps it from paying for a batched cat-file fetch, a
     -- size check and a line split whose result nothing then reads. A binary
     -- file has no hunks, so it never qualifies.
     local eligible = #file.hunks > 0
-      and hunk_lines <= MAX_SECTION_LINES
-      and hunk_bytes <= MAX_SECTION_BYTES
+      and file.hunk_lines <= MAX_SECTION_LINES
+      and file.hunk_bytes <= MAX_SECTION_BYTES
     if eligible then
       file.content_mode = 'fragment'
-      if not file.is_new and not is_zero_hash(file.old_hex) then
+      if not is_zero_hash(file.old_hex) then
         requests[#requests + 1] = file.old_hex
         slots[#slots + 1] = { file = file, side = 'old' }
       end
-      if not file.is_deleted and not is_zero_hash(file.new_hex) then
+      if not is_zero_hash(file.new_hex) then
         requests[#requests + 1] = file.new_hex
         slots[#slots + 1] = { file = file, side = 'new' }
       end
@@ -138,11 +125,8 @@ function M.acquire(files, cwd, fragment_only)
         -- Only content that matches the patch can carry full-file
         -- highlighting. A worktree file edited since lazygit produced the
         -- diff, a reversed diff or an odd hash would otherwise style rows
-        -- from text the file does not hold. Asking here, where the bytes'
-        -- provenance is known, leaves a file that disagrees in fragment mode
-        -- -- still highlighted, from its own hunks -- where asking per
-        -- rendered row could only drop that row's spans, and so left the
-        -- whole file tint-only.
+        -- from text the file does not hold, so a file that disagrees stays in
+        -- fragment mode, still highlighted from its own hunks.
         if agrees_with_patch(file, old_lines, new_lines) then
           file.content_mode = 'full'
           file.old_lines, file.new_lines = old_lines, new_lines

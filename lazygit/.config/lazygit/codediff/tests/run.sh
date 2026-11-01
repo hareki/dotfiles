@@ -16,7 +16,6 @@ UPDATE="${1:-}"
 fail=0
 
 for diff_file in "$DIR"/fixtures/*.diff; do
-  [ -e "$diff_file" ] || { echo "no fixtures found"; exit 0; }
   for layout in inline side-by-side; do
     if [ "$layout" = "inline" ]; then
       golden="${diff_file%.diff}.out"

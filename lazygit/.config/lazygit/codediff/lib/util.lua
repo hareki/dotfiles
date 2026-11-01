@@ -1,5 +1,7 @@
 local M = {}
 
+local TAB_WIDTH = 4
+
 --- Split text into renderer lines: a trailing newline does not produce an empty
 --- last line, and a CRLF's carriage return is not part of the line's text.
 --- Normalizing here rather than in each caller is what keeps the patch text and
@@ -25,8 +27,8 @@ end
 
 -- Printable ASCII is exactly one display cell per byte, so a byte count is a
 -- display width and clipping by cells is clipping by bytes. Control bytes are
--- excluded deliberately: strdisplaywidth measures them as their two-cell ^X
--- form, which the byte count would not match.
+-- excluded deliberately: nvim shows them in their two-cell ^X form, which the
+-- byte count would not match.
 local NON_ASCII = '[^\32-\126]'
 
 --- True when every byte is printable ASCII (see NON_ASCII).
@@ -70,19 +72,14 @@ function M.display_form(s)
   return (s:gsub('%z', '^@'):gsub('[^\t]+', vim.fn.strtrans))
 end
 
---- Display width of a string in its display form; safe on invalid UTF-8, and a
---- NUL (which vimscript refuses) is the one byte that form never holds.
---- Printable ASCII never has to cross into vimscript.
-function M.display_width(s)
-  if M.is_plain_ascii(s) then
-    return #s
-  end
-  return vim.fn.strdisplaywidth(s)
-end
+--- Display width of a string in its display form. Not strdisplaywidth, which
+--- measures it as laid out in the current window: a double-width character that
+--- lands on the last column of this headless 80-column one counts a third cell.
+M.display_width = vim.api.nvim_strwidth
 
 --- Expand tabs to spaces relative to a starting visual column (0-based).
 --- Returns the expanded string and the resulting visual column.
-function M.expand_tabs(s, tab_width, start_col)
+function M.expand_tabs(s, start_col)
   if not s:find('\t', 1, true) then
     return s, start_col + M.display_width(s)
   end
@@ -100,7 +97,7 @@ function M.expand_tabs(s, tab_width, start_col)
     local chunk = s:sub(pos, tab - 1)
     out[#out + 1] = chunk
     col = col + M.display_width(chunk)
-    local pad = tab_width - (col % tab_width)
+    local pad = TAB_WIDTH - (col % TAB_WIDTH)
     out[#out + 1] = string.rep(' ', pad)
     col = col + pad
     pos = tab + 1
