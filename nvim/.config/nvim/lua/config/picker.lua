@@ -5,6 +5,5 @@ local icons = require('config.icons')
 local M = {}
 
 M.PROMPT_PREFIX = ' ' .. icons.actions.SEARCH .. ' '
-M.PREVIEW_TITLE = ''
 
 return M

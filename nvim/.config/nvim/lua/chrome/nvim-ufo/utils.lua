@@ -63,4 +63,23 @@ function M.skip_stale_scan_without_folds()
   end
 end
 
+--- ufo looks up each injected tree's folds query, a ~60 us runtimepath scan per miss, which markdown
+--- repeats for every inline region; it captures the function at load, so swap it in for that load
+--- @return nil
+function M.memoize_fold_query_lookup()
+  local query = vim.treesitter.query
+  local get_files = query.get_files
+  local files_by_lang = {}
+
+  local function memoized(lang, ...)
+    files_by_lang[lang] = files_by_lang[lang] or get_files(lang, ...)
+
+    return files_by_lang[lang]
+  end
+
+  query.get_files = memoized
+  require('ufo.provider.treesitter')
+  query.get_files = get_files
+end
+
 return M

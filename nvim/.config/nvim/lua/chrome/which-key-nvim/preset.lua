@@ -5,7 +5,7 @@ local keymap_registry = require('config.keymap-registry')
 --- @class chrome.which-key.preset
 local M = {}
 
-M.operators = {
+local operators = {
   preset = true,
   mode = { 'n', 'x' },
   { '!', desc = 'Run Program' },
@@ -25,7 +25,7 @@ M.operators = {
   { '~', desc = 'Toggle Case' },
 }
 
-M.motions = {
+local motions = {
   mode = { 'o', 'x', 'n' },
   preset = true,
   { '$', desc = 'Move to End of Line' },
@@ -53,7 +53,7 @@ M.motions = {
   { 'W', desc = 'Next WORD' },
 }
 
-M.text_objects = {
+local text_objects = {
   mode = { 'o', 'x' },
   preset = true,
   { 'a', group = 'Around' },
@@ -98,7 +98,7 @@ M.text_objects = {
   { 'i}', desc = 'Inner [{]}' },
 }
 
-M.windows = {
+local windows = {
   preset = true,
   mode = { 'n', 'x' },
   { '<c-w>', group = 'Window' },
@@ -126,7 +126,7 @@ M.windows = {
   { '<c-w>L', desc = 'Move Window to Far Right' },
 }
 
-M.z = {
+local z = {
   preset = true,
   { 'z<CR>', desc = 'Top This Line' },
   { 'z=', desc = 'Spelling Suggestions' },
@@ -146,10 +146,10 @@ M.z = {
 }
 
 for _, fold in ipairs(keymap_registry.FOLD_DESCS) do
-  table.insert(M.z, { fold[1], desc = fold[2] })
+  table.insert(z, { fold[1], desc = fold[2] })
 end
 
-M.nav = {
+local nav = {
   preset = true,
   mode = { 'n', 'x', 'o' },
   { 'H', desc = 'Home Line of Window (Top)' },
@@ -171,7 +171,7 @@ M.nav = {
   { ']{', desc = 'Next {' },
 }
 
-M.g = {
+local g = {
   preset = true,
   mode = { 'n', 'x', 'o' },
   { 'g%', desc = 'Cycle Backwards Through Results' },
@@ -193,7 +193,7 @@ M.g = {
 
 function M.setup()
   local wk = require('which-key')
-  wk.add({ M.operators, M.motions, M.text_objects, M.windows, M.z, M.nav, M.g })
+  wk.add({ operators, motions, text_objects, windows, z, nav, g })
 end
 
 return M

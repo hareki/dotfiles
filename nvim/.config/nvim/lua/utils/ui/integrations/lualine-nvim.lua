@@ -43,12 +43,6 @@ local M = {
   integration = resolve_integration(),
 }
 
---- Check if the lualine statusline is enabled (host integrations show their label instead)
---- @return boolean enabled
-function M.enabled()
-  return M.integration == nil
-end
-
 --- Refresh the lualine statusline if lualine is loaded
 --- @return nil
 function M.refresh()

@@ -40,15 +40,13 @@ return {
 
         icons = {
           folder_closed = Conf.icons.file_tree.FOLDER,
-          folder_open = Conf.icons.file_tree.FOLDER_EMPTY_OPEN,
+          folder_open = Conf.icons.file_tree.FOLDER_OPEN,
         },
 
         preview = {
           type = 'float',
           relative = 'win',
           border = 'rounded',
-          title = Conf.picker.PREVIEW_TITLE,
-          title_pos = 'center',
           -- Fractional row: trouble resolves it against the parent on every open, so centering
           -- survives resizes; a negative col counts from the panel's right edge, hence the shift
           position = { 0.5, side_preview.col - panel_cols },

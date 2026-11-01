@@ -13,8 +13,6 @@ function M.preview_geometry()
     preview_window = {
       row = preview.row,
       col = preview.col,
-      title = Conf.picker.PREVIEW_TITLE,
-      title_pos = 'center',
       width = preview.width,
       height = preview.height,
     },

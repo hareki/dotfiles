@@ -17,7 +17,6 @@ return {
 
     -- Prevent layout shifting (it hides the cmdline row)
     lazy = false,
-    priority = Conf.priority.CHROME,
 
     opts = {
       format = {

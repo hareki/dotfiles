@@ -68,6 +68,7 @@ return {
       local utils = require('chrome.nvim-ufo.utils')
 
       utils.skip_stale_scan_without_folds()
+      utils.memoize_fold_query_lookup()
       ufo.setup(opts)
     end,
   },

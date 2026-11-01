@@ -12,18 +12,16 @@ local function frame(box, split)
       -- No max_width/max_height: snacks takes only numbers there, pinning these to stale sizes
       width = lg.width,
       height = lg.height,
-      border = 'none',
       box = box,
       {
         box = 'vertical',
         border = 'rounded',
         title = '{title} {live}',
         { win = 'input', height = 1, border = 'bottom' },
-        { win = 'list', border = 'none' },
+        { win = 'list' },
       },
       {
         win = 'preview',
-        title = Conf.picker.PREVIEW_TITLE,
         width = split.width,
         height = split.height,
         border = 'rounded',

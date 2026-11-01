@@ -1,7 +1,7 @@
 return {
   'nvim-lualine/lualine.nvim',
 
-  enabled = UI.statusline.enabled,
+  enabled = not UI.statusline.integration, -- Host integrations show their label instead
 
   event = 'VeryLazy',
 
@@ -46,10 +46,6 @@ return {
     local wrap = lualine_utils.wrap_component
     local flatten = lualine_utils.flatten_section
     local separator = lualine_utils.separator
-
-    -- PERF: we don't need this lualine require madness
-    local lualine_require = require('lualine_require')
-    lualine_require.require = require
 
     local color_reset = { fg = palette.subtext1, bg = 'none' }
 

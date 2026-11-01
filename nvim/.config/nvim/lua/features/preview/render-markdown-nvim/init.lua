@@ -80,6 +80,7 @@ return {
       local utils = require('features.preview.render-markdown-nvim.utils')
 
       render_markdown.setup(opts)
+      utils.skip_conceal_line_pass()
 
       -- A wipe in a non-nested autocmd fires no BufWipeout, so each sweep catches the missed ones
       vim.api.nvim_create_autocmd('BufWipeout', {

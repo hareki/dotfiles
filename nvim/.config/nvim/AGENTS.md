@@ -33,7 +33,7 @@ The LuaLS diagnostics surfaced to you come from Claude Code's server, run by the
 - `chrome/`: visual layer (statusline, winbar, scrollbar, notifications, folds, decorations, which-key)
 - `features/{domain}/`: domain features (navigation, completion, git, editing, search, diagnostics, formatting, ai, preview)
 
-Plugins are lazy by default (`defaults.lazy = true`). Only catppuccin, snacks.nvim, auto-session (`priority = Conf.priority.CORE`) and noice.nvim (`Conf.priority.CHROME`) are eager (`lazy = false`); `priority` only orders those, so lazy specs leave it unset. The rest load on `event` (mostly `VeryLazy`), `ft`, `keys` or `cmd`, on first `require()` (mini.icons; conform.nvim from `utils/style-enforcers/`; tiny-code-action.nvim from the `<leader>ca` keymap), or as a dependency (nvim-treesitter-textobjects via mini.ai).
+Plugins are lazy by default (`defaults.lazy = true`). Only catppuccin, snacks.nvim, auto-session (`priority = Conf.priority.CORE`) and noice.nvim are eager (`lazy = false`); `priority` only puts the first three ahead of noice, so lazy specs leave it unset. The rest load on `event` (mostly `VeryLazy`), `ft`, `keys` or `cmd`, on first `require()` (mini.icons; conform.nvim from `utils/style-enforcers/`; tiny-code-action.nvim from the `<leader>ca` keymap), or as a dependency (nvim-treesitter-textobjects via mini.ai).
 
 `config/lazy/init.lua` imports `core` (**must stay first**), `core.lsp`, `chrome`, then each `features.{domain}`: lazy.nvim's `import` loads only direct `*.lua` files and `*/init.lua` modules, so `core/lsp/` and every new domain dir need their own entry.
 
@@ -45,7 +45,7 @@ Plugins are lazy by default (`defaults.lazy = true`). Only catppuccin, snacks.nv
 - `UI` (`utils.ui`, direct require):
   - Spec registration: `UI.catppuccin(fn, plugin_name?)`, `UI.which_key({ specs?, rules?, triggers? })`
   - Helpers: `UI.layout.*` (see **Popup Sizing**), `UI.color.blend_hex()`, `UI.pill.virt_text()`, `UI.cursorline.set_cursorline()`, `UI.mode.name()` / `UI.mode.colors` (the per-mode palette shared by lualine's mode pill and the cursor line number)
-  - Integration helpers: `UI.catppuccin.get_palette('ext')`, `UI.statusline.enabled()` / `UI.statusline.refresh()`
+  - Integration helpers: `UI.catppuccin.get_palette('ext')`, `UI.statusline.integration` / `UI.statusline.refresh()`
 - `Snacks` (set by snacks.nvim at runtime): `Snacks.picker.*`, `Snacks.terminal.*`, etc.
 
 ## Plugin Spec Conventions

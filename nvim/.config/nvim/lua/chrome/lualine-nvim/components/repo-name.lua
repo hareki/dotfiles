@@ -1,14 +1,12 @@
 --- @class chrome.lualine.components.repo-name
 local M = {}
 
--- `name`, `last_cwd` and `toplevel` are written together (in `finish`), so an abandoned resolve
--- can't pair a name with another repo's toplevel; `pending_cwd` is the cwd a resolve runs for
-local repo_cache = {
-  name = nil,
-  last_cwd = nil,
-  toplevel = nil,
-  pending_cwd = nil,
-}
+-- Name per cwd, false while it resolves. Keyed by cwd, so a resolve a `cd` left behind still lands
+-- in its own slot and needs no cancelling
+--- @type table<string, string | false>
+local names = {}
+-- Shown while the current cwd resolves
+local last_name
 
 --- Run a git command asynchronously, calling `cb` on the main loop, where it may touch vim APIs
 --- @param cwd string
@@ -37,93 +35,53 @@ local function repo_name_from_url(url)
   return url:match('([^/]+)$')
 end
 
---- `M.get`'s async cache-miss path; a cwd change abandons the chain for the next render to restart
+--- `M.get`'s async cache-miss path
 --- @param cwd string
 local function resolve_repo_name(cwd)
-  --- Mark this chain done, unless a chain for a newer cwd has taken over the slot
-  local function release_pending()
-    if repo_cache.pending_cwd == cwd then
-      repo_cache.pending_cwd = nil
-    end
-  end
-
-  -- A cwd that changed and changed back compares equal, which is correct
-  local function superseded()
-    if vim.uv.cwd() ~= cwd then
-      release_pending()
-      return true
-    end
-
-    return false
-  end
-
-  local function finish(name, toplevel)
-    repo_cache.name = name
-    repo_cache.last_cwd = cwd
-    repo_cache.toplevel = toplevel
-    release_pending()
-
+  local function finish(name)
+    names[cwd] = name
     UI.statusline.refresh()
   end
 
-  local toplevel = vim.fs.root(cwd, '.git')
-
-  -- Still in the cached name's repo: re-key the fast path and stop. A nil toplevel doesn't count:
-  -- outside a repo, nil == nil would keep a stale name from a previous directory
-  if repo_cache.name and toplevel and repo_cache.toplevel == toplevel then
-    repo_cache.last_cwd = cwd
-    release_pending()
-    return
-  end
-
   exec_cmd_async(cwd, { 'config', '--get', 'remote.origin.url' }, function(url)
-    if superseded() then
-      return
-    end
-
     local repo_name = repo_name_from_url(url)
     if repo_name then
-      finish(repo_name, toplevel)
+      finish(repo_name)
       return
     end
 
-    local path_name = vim.fs.basename(toplevel or cwd)
+    local toplevel = vim.fs.root(cwd, '.git')
     if not toplevel then
-      finish(path_name, toplevel)
+      finish(vim.fs.basename(cwd))
       return
     end
 
     -- Worktrees of a bare repo show the bare repo's directory name (the toplevel's parent)
     local parent_dir = vim.fs.dirname(toplevel)
     exec_cmd_async(parent_dir, { 'rev-parse', '--is-bare-repository' }, function(is_bare)
-      if not superseded() then
-        finish(is_bare == 'true' and vim.fs.basename(parent_dir) or path_name, toplevel)
-      end
+      finish(vim.fs.basename(is_bare == 'true' and parent_dir or toplevel))
     end)
   end)
 end
 
 --- The repository name (remote URL => bare repo parent => toplevel dir => cwd name), never
---- blocking a render: a miss returns the last known name while an async chain refreshes it
+--- blocking a render: a miss returns the last known name while an async chain resolves it
 --- @return string name '' if not determinable
 function M.get()
-  local current_cwd = vim.uv.cwd()
+  local cwd = vim.uv.cwd()
 
-  if repo_cache.name and repo_cache.last_cwd == current_cwd then
-    return repo_cache.name
-  end
-
-  -- cwd can be nil (e.g. the directory was deleted), leaving nothing to resolve, and a resolve in
-  -- flight for this cwd keeps rendering the stale value
-  if current_cwd and repo_cache.pending_cwd ~= current_cwd then
-    repo_cache.pending_cwd = current_cwd
+  -- cwd can be nil (e.g. the directory was deleted), leaving nothing to resolve
+  if cwd and names[cwd] == nil then
+    names[cwd] = false
     -- Resolve outside the render path: even an async spawn costs a few ms, hitching the redraw
     vim.schedule(function()
-      resolve_repo_name(current_cwd)
+      resolve_repo_name(cwd)
     end)
   end
 
-  return repo_cache.name or vim.fs.basename(current_cwd) or ''
+  last_name = cwd and names[cwd] or last_name
+
+  return last_name or vim.fs.basename(cwd) or ''
 end
 
 M.icon = Conf.icons.file_tree.FOLDER

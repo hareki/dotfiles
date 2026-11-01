@@ -66,12 +66,10 @@ M.side_preview = {
 M.side_panel = {
   sm = {
     WIDTH = 0.3,
-    HEIGHT = 1,
     MIN_WIDTH = 35,
   },
   md = {
     WIDTH = 0.35,
-    HEIGHT = 1,
     MIN_WIDTH = 40,
   },
 }

@@ -8,7 +8,7 @@ return {
         opts = {
           win = {
             preview = {
-              title = Conf.picker.PREVIEW_TITLE,
+              title = '', -- Drops the plugin's "Code Action Preview"
             },
           },
         },

@@ -71,8 +71,15 @@ local function catppuccin(register, plugin_name)
     {
       'catppuccin/nvim',
       opts = function()
-        local package_utils = require('utils.package')
-        package_utils.on_load(plugin_name, apply)
+        vim.api.nvim_create_autocmd('User', {
+          pattern = 'LazyLoad',
+          callback = function(event)
+            if event.data == plugin_name then
+              apply()
+              return true
+            end
+          end,
+        })
       end,
     },
     -- LazyLoad runs scheduled, after the loading keypress draws, so also apply as opts resolve,

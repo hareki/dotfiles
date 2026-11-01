@@ -27,7 +27,9 @@ end
 --- @param variant 'sm' | 'md'
 --- @return integer width Width in columns
 function M.side_panel_width(variant)
-  return (resolve_dimensions(Conf.size.side_panel[variant]))
+  local panel = Conf.size.side_panel[variant]
+
+  return math.floor(math.max(vim.o.columns * panel.WIDTH, panel.MIN_WIDTH))
 end
 
 --- Geometry of the side preview float: left of the side panel, centered, with a 3-column gap

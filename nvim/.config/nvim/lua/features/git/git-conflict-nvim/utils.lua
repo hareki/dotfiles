@@ -1,5 +1,4 @@
 local common = require('utils.common')
-local package_utils = require('utils.package')
 
 --- @module 'colorizer'
 local colorizer = Defer.on_exported_call('colorizer')
@@ -99,9 +98,9 @@ function M.setup()
 
       vim.b[bufnr].git_conflict = true
 
-      if package_utils.is_loaded('nvim-colorizer.lua') then
-        colorizer.detach_from_buffer(bufnr)
-      end
+      -- Colorizer serves a filetype list, so this buffer may not be attached: tell Resolved
+      vim.b[bufnr].git_conflict_colorized = package.loaded['colorizer'] ~= nil
+        and colorizer.detach_from_buffer(bufnr) ~= -1
       vim.diagnostic.enable(false, { bufnr = bufnr })
 
       M.state.autocmds[bufnr] = vim.api.nvim_create_autocmd(
@@ -165,7 +164,7 @@ function M.setup()
       end
       vim.b[bufnr].git_conflict = nil
 
-      if package_utils.is_loaded('nvim-colorizer.lua') then
+      if vim.b[bufnr].git_conflict_colorized then
         colorizer.attach_to_buffer(bufnr)
       end
       vim.diagnostic.enable(true, { bufnr = bufnr })

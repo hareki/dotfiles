@@ -98,7 +98,6 @@ return {
             -- The default's ModeChanged re-requests LSP symbols on every mode change (`yy`, `:`),
             -- when leaving insert mode is the only one that can follow a text change
             buf = {
-              { event = 'OptionSet', pattern = 'modified' },
               'FileChangedShellPost',
               'TextChanged',
               'InsertLeave',

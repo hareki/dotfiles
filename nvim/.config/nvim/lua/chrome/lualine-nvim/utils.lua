@@ -15,7 +15,6 @@ local function create_empty_comp(cond)
   return {
     empty_func,
     color = { fg = 'none', bg = 'none' },
-    separator = { left = '', right = '' },
     cond = cond,
   }
 end
