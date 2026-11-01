@@ -1,6 +1,27 @@
-_evalcache zoxide init zsh
-# Its hook would block every `cd` on `$(pwd)` plus zoxide's database write (~8ms)
-__zoxide_hook() { command zoxide add -- "$PWD" &! }
+# mroth/evalcache minus the md5 fork: keyed by args alone, so function body edits go stale
+_evalcache() {
+  local cache="$ZSH_CACHE_DIR/init-${${(j:-:)@}//[^A-Za-z0-9_.-]/_}.sh"
+  if [[ ! -s $cache ]]; then
+    # Per-shell temps are moved in whole, so shells started together (tmuxinator) can't
+    # clobber or half-read them; `rm init-*` skips the dot, and two-arg zcompile survives mv
+    local tmp="${cache:h}/.${cache:t}.$$"
+    "$@" >"$tmp" || { rm -f "$tmp"; print -u2 "_evalcache: '$*' failed"; return 1 }
+    mv -f "$tmp" "$cache"
+    zcompile "$tmp.zwc" "$cache" && mv -f "$tmp.zwc" "$cache.zwc"
+  fi
+  source "$cache"
+}
+
+# `yay` and `build` call this, since updated tools may emit different init output. The
+# _git digest from completion.zsh goes too, as nothing else notices a new _git or zsh
+_evalcache_clear() {
+  rm -f "$ZSH_CACHE_DIR"/init-*(N) "$ZSH_CACHE_DIR"/_git.zwc
+}
+
+# zoxide's own hook would block every `cd` on `$(pwd)` plus its database write (~8ms)
+_evalcache zoxide init zsh --hook none
+_zoxide_add() { command zoxide add -- "$PWD" &! }
+add-zsh-hook chpwd _zoxide_add
 
 # Mint atuin's simple-format UUIDv7 here, sparing its init an `atuin uuid` fork (~5.5ms)
 # per shell; atuin reads the session's start time back out of the timestamp
@@ -20,8 +41,5 @@ ZSH_AUTOSUGGEST_STRATEGY=(history atuin completion)
 _evalcache wt config shell init zsh
 
 # A cached `activate` can't start the daemon, so revive it here after a reboot or crash
-() {
-  local d=${TMPDIR:-/tmp}/zsh-patina
-  [[ -S $d/daemon.sock ]] && { kill -0 "$(<$d/daemon.lock)" } 2>/dev/null || zsh-patina start
-}
+{ kill -0 "$(<${TMPDIR:-/tmp}/zsh-patina/daemon.lock)" } 2>/dev/null || zsh-patina start
 _evalcache zsh-patina activate

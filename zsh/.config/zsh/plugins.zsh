@@ -6,25 +6,6 @@ ZSH_CACHE_DIR="$HOME/.cache/zsh"
 # Settle p10k's SSH check as local, or it forks `who -m` (~2.5ms) in every shell on a new tty
 [[ -n $SSH_CLIENT$SSH_TTY$SSH_CONNECTION ]] || export P9K_SSH=0 _P9K_SSH_TTY=$TTY
 
-# mroth/evalcache minus the md5 fork: keyed by args alone, so function body edits go stale
-_evalcache() {
-  local cache="$ZSH_CACHE_DIR/init-${${(j:-:)@}//[^A-Za-z0-9_.-]/_}.sh"
-  if [[ ! -s $cache ]]; then
-    # Per-shell temps are moved in whole, so shells started together (tmuxinator) can't
-    # clobber or half-read them; `rm init-*` skips the dot, and two-arg zcompile survives mv
-    local tmp="${cache:h}/.${cache:t}.$$"
-    "$@" >"$tmp" || { rm -f "$tmp"; print -u2 "_evalcache: '$*' failed"; return 1 }
-    mv -f "$tmp" "$cache"
-    zcompile "$tmp.zwc" "$cache" && mv -f "$tmp.zwc" "$cache.zwc"
-  fi
-  source "$cache"
-}
-
-# `yay` and `build` call this, since updated tools may emit different init output
-_evalcache_clear() {
-  rm -f "$ZSH_CACHE_DIR"/init-*(N)
-}
-
 # The personal identity loads up front; ~/.ssh/config's AddKeysToAgent adds the rest on use
 zstyle ':omz:plugins:ssh-agent' identities id_ed25519_personal
 # A live inherited agent has the identity: no `ssh-add -l` + `ssh-keygen` check (~8ms)
@@ -50,12 +31,14 @@ typeset -U fpath
 fpath=(/opt/homebrew/opt/antidote/share/antidote/functions $fpath)
 autoload -Uz antidote
 
-# Its `export PATH` repeats .zshenv's dirs, and any PATH assignment discards the command hash
-# the instant prompt filled (~1.3ms to refill). brew would take the shell name from its
-# parent, `sh` here, and only a zsh gets the fpath lines
-_evalcache sh -c '/opt/homebrew/bin/brew shellenv zsh | grep -v "^export PATH="'
-# A respelled line that slips past that filter would put Homebrew ahead of the shims
-[[ $path[1] == $user_path[1] ]] || path=($user_path $path)
+# `brew shellenv zsh` written out, minus its `export PATH`: .zshenv has those dirs, and any
+# PATH assignment discards the command hash the instant prompt filled (~1.3ms to refill)
+export HOMEBREW_PREFIX=/opt/homebrew
+export HOMEBREW_CELLAR=$HOMEBREW_PREFIX/Cellar HOMEBREW_REPOSITORY=$HOMEBREW_PREFIX
+fpath[1,0]=/opt/homebrew/share/zsh/site-functions
+export FPATH INFOPATH=/opt/homebrew/share/info:$INFOPATH
+# The empty entry keeps man's default dirs, which cover Homebrew's, in the search
+[[ -z $MANPATH ]] || manpath=('' $manpath)
 
 # Moved in only on success: a failed clone's empty bundle would count as fresh, never retried
 if [[ ! ~/.zplugins.bundled.zsh -nt ~/.zplugins ]]; then

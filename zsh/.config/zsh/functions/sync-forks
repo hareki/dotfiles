@@ -21,7 +21,7 @@ sync-forks() {
   )
   local -a opt_jobs=(-j 10) opt_help opt_no_local_merge forks report parts synced conflicted failed unpulled move summary
   local -A counts phrases
-  local jobs list name branch upstream oid result state detail msg label fifo slots dir ref tracking entry sep=$'\x1f'
+  local jobs list name branch upstream oid result state detail msg label dir ref tracking entry sep=$'\x1f'
   for state msg label in "${states[@]}"; do
     phrases[$state]=$msg
   done
@@ -56,24 +56,16 @@ sync-forks() {
       | .name, .defaultBranchRef.name, .parent.nameWithOwner, .defaultBranchRef.target.oid') || return 1
   # Quoted (f) keeps gh's empty line for a null field (empty fork), or later groups shift
   [[ -n $list ]] && forks=("${(@f)list}")
-  # Capped, as pre-filling the slots blocks once they exceed the FIFO's buffer (8KB on macOS)
-  (( jobs > $#forks / 4 )) && jobs=$(( $#forks / 4 ))
 
   print-header "Syncing forks of $owner"
-  # A FIFO semaphore, so a slow merge never stalls the free slots (zargs -P runs fixed
-  # batches, zsh's wait has no -n); the subshell owns its fd, so Ctrl-C leaks nothing
+  zmodload zsh/zselect
   {
-    fifo=$(mktemp -u) && mkfifo $fifo && exec {slots}<>$fifo || exit 1
-    rm $fifo
-    repeat $jobs print -u $slots
-
     for name branch upstream oid in "${forks[@]}"; do
       if (( $ignored[(Ie)$name] )); then
         print -r -- $name${sep}ignored
         continue
       fi
 
-      read -u $slots
       {
         result=$(gh api -X POST repos/$owner/$name/merge-upstream -f branch=$branch --jq .merge_type 2>&1)
         # gh's error body lacks a newline, so its "gh: <msg> (HTTP <code>)" line is glued on
@@ -143,8 +135,11 @@ sync-forks() {
         # One print, so reports can't interleave. Details may be empty or hold spaces
         # (hence $sep), and keep only their first line, as errors can run over several
         print -r -- ${(pj:$sep:)report%%$'\n'*}
-        print -u $slots
       } &
+      # Polled, so a slow merge never stalls the free slots: zargs -P runs fixed batches and
+      # zsh's wait has no -n. After the spawn, as a subshell's $jobstates lists its parent's
+      # jobs until it starts one of its own
+      while (( $#jobstates >= jobs )); do zselect -t 5; done
     done
     wait
   } | while IFS=$sep read -rA report; do
@@ -155,7 +150,7 @@ sync-forks() {
       (( ++counts[$state] ))
       [[ $state == unpulled ]] && unpulled+=("${(D)REPOS_DIR}/$name: $detail")
       # Only the fixed text goes through prompt expansion: $detail carries branch names
-      # and API messages, and PROMPT_SUBST would run any $(...) in them
+      # and API messages, where any % would read as an escape
       parts+=("${(%)phrases[$state]}${detail:+ $detail}")
     done
     # Synced and conflicting forks are listed again at the end, with their clone's outcome
@@ -167,7 +162,6 @@ sync-forks() {
     esac
     print -r -- ${(%):-"%F{blue}$name%f:"} ${(j:, :)parts}
   done
-  (( pipestatus[1] )) && return 1
 
   if (( $#synced )); then
     print -P "\n%F{green}==> Synced with upstream:%f"

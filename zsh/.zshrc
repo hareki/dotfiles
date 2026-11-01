@@ -13,16 +13,13 @@ fi
 
 source ~/.p10k.zsh
 
-__zsh_config_dir=$XDG_CONFIG_HOME/zsh
-source $__zsh_config_dir/plugins.zsh
-
 # Load configuration files, order matters
-for cfg in aliases vi-mode keymaps options completion evals tty-guard; do
-  source $__zsh_config_dir/$cfg.zsh
+for cfg in plugins aliases vi-mode keymaps options completion evals tty-guard; do
+  source $XDG_CONFIG_HOME/zsh/$cfg.zsh
 done
+unset cfg
 
-autoload -Uz $__zsh_config_dir/functions/*(.N)
-unset __zsh_config_dir cfg
+autoload -Uz $XDG_CONFIG_HOME/zsh/functions/*(.N)
 
 if [[ -n "$ZSH_DEBUGRC" ]]; then
   zprof

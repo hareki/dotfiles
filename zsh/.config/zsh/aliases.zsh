@@ -14,6 +14,7 @@ alias ls="ls -G"
 alias l="ls -lah"
 alias eza="eza --icons=always --color=always --no-user"
 alias fdt="fd --type dir --hidden --exclude .git"
+alias grep='grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv}'
 alias tree="eza --tree"
 alias submodule-update="git submodule update --init --recursive --remote"
 # The subshell keeps zsh-patina from coloring the assignment as a missing command

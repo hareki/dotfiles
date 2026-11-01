@@ -7,7 +7,7 @@ Zsh setup that reaches the first usable prompt in ~45ms (~25ms for `zsh -i -c ex
 ## Core Ideas
 
 - [Antidote](https://github.com/mattmc3/antidote) for static plugin bundling with deferred loading
-- A small local `_evalcache` to cache expensive `eval` calls (brew, zoxide, atuin, wt, zsh-patina)
+- A small local `_evalcache` to cache expensive `eval` calls (zoxide, atuin, wt, zsh-patina)
 - `zcompile` pre-compiles plugins and cached `eval` output to bytecode; functions autoload on first call
 - Vi mode with OSC52 clipboard integration (works over SSH)
 - Catppuccin Mocha theme applied across fzf, zsh-patina syntax highlighting, and eza

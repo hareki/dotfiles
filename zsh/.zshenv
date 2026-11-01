@@ -13,14 +13,14 @@ CLOUDSDK_PYTHON=/opt/homebrew/opt/python@3.13/libexec/bin/python
 [[ -n $ANTHROPIC_API_KEY ]] || export ANTHROPIC_API_KEY=$(security find-generic-password -a "$USER" -s "ANTHROPIC_API_KEY" -w)
 
 # Skip the global rcs (/etc/zshrc forks `locale`), but for /etc/zprofile's path_helper and
-# LANG, which deeper shells (tmux panes) inherit. Sourced here so user_path lands in front
+# LANG, which deeper shells (tmux panes) inherit. Sourced here so the dirs below land in front
 [[ -o login ]] && (( SHLVL == 1 )) && source /etc/zprofile
 unsetopt global_rcs
 
 # The SDK dir adds `gcloud components install` binaries (Homebrew links only core commands)
-typeset -a user_path=(
+typeset -U path
+path=(
   ~/.local/bin/shims ~/.local/opt/bin ~/.local/share/mise/shims ~/.local/bin
   /opt/homebrew/bin /opt/homebrew/sbin /opt/homebrew/share/google-cloud-sdk/bin
+  $path
 )
-typeset -U path
-path=($user_path $path)
