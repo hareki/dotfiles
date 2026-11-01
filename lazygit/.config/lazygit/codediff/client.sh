@@ -34,6 +34,11 @@ fi
 
 zmodload zsh/net/socket zsh/system zsh/files 2>/dev/null || exec cat
 
+# cat without the fork: a redirection on a function call stays in this process.
+pass() {
+  while sysread -o 1 -s 65536; do :; done
+}
+
 # $TMPDIR is trailing-slash-terminated on macOS but bare on most other systems.
 # This is the one place the socket name is derived: the daemon is handed the
 # result through CODEDIFF_PIPE at spawn time rather than rebuilding it in Lua.
@@ -41,26 +46,36 @@ TMP=${${TMPDIR:-/tmp}%/}
 PIPE=$TMP/lazygit-codediff-${USER:-u}.pipe
 
 # The two files handed to the daemon sit in a private directory, so nobody else
-# on a shared /tmp can plant a name in there for it to follow. The output exists
-# up front because the daemon only ever opens it (see write_output in
-# daemon.lua): once the cleanup below has run, a late render has nothing to
-# write to.
+# on a shared /tmp can plant a name in there for it to follow.
 WORK=$TMP/codediff.$$
-mkdir -m 700 "$WORK" 2>/dev/null || exec cat
+
+# lazygit's branch views run their `git log --graph` through here too, and the
+# renderer hands one back as it came (see core.render). Going through it means
+# git walks the whole history for the screenful lazygit reads, so a graph goes
+# straight through from its first bytes, and git stops where lazygit stops
+# reading. So does anything that has nowhere to be buffered.
+sysread -s 65536 first
+if [[ $first == '* '* ]] || ! mkdir -m 700 "$WORK" 2>/dev/null; then
+  syswrite -- "$first"
+  pass
+  exit 0
+fi
+
 IN=$WORK/in
 OUT=$WORK/out
-trap 'rm -rf "$WORK"' EXIT
+trap 'rm -f "$IN" "$OUT"; rmdir "$WORK"' EXIT
 # lazygit terminates a render task as soon as the selection moves on, and zsh
 # runs no EXIT trap for a signal that kills it.
 trap 'exit 1' HUP INT TERM PIPE
 
-# cat without the fork: a redirection on a function call stays in this process.
-pass() {
-  while sysread -o 1 -s 65536; do :; done
-}
-
-pass >"$IN"
+# The output exists up front because the daemon only ever opens it (see
+# write_output in daemon.lua): once the cleanup above has run, a late render has
+# nothing to write to.
 : >"$OUT"
+{
+  syswrite -- "$first"
+  pass
+} >"$IN"
 
 # Emit the render and exit if the daemon answers; returns so the caller can fall
 # further down the ladder if it did not.
@@ -72,9 +87,9 @@ pass >"$IN"
 answer=""
 serve() {
   zsocket "$PIPE" 2>/dev/null || return
-  print -ru $REPLY -- "render	$IN	$OUT	$COLUMNS	$LAYOUT	$META	$PWD"
+  print -ru $REPLY -- "$IN	$OUT	$COLUMNS	$LAYOUT	$META	$PWD"
   read -ru $REPLY answer
-  if [[ $answer == ok* ]]; then
+  if [[ $answer == ok ]]; then
     pass <"$OUT"
     exit 0
   fi
@@ -83,8 +98,10 @@ serve() {
 serve
 
 # The render failed. Everything from here down is a cold path, and only these
-# paths need the script's own directory.
+# paths need the script's own directory. They start nvim, which mise's shim only
+# falls through to, at ~75ms a start.
 DIR=${0:A:h}
+path=(${path:#*/mise/shims})
 
 # Only replace the socket when nothing is listening on it: unlinking a live
 # daemon's socket orphans it (it keeps running, unreachable, until its idle
@@ -95,17 +112,8 @@ DIR=${0:A:h}
 # when the pty closes after this render.
 if [[ -z $answer ]]; then
   rm -f "$PIPE"
-  # A failed spawn (uv.spawn returned nothing; the spawner exits 1) can never
-  # produce a socket: skip the wait loop and the doomed request, so a broken
-  # nvim binary or fork pressure costs nothing extra on every render.
+  # The spawner waits for the socket, and only says so if one is there to ask.
   if CODEDIFF_PIPE=$PIPE nvim --clean -l "$DIR/spawn_daemon.lua" >/dev/null 2>&1; then
-    # The pipe is bound once the daemon has bootstrapped its parsers, so its
-    # arrival is also the signal that a render will be answered rather than
-    # queued behind a second of startup.
-    repeat 40; do
-      [[ -e $PIPE ]] && break
-      sleep 0.05
-    done
     serve
   fi
 fi

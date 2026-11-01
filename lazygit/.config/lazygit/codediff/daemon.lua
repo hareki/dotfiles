@@ -13,8 +13,7 @@
 -- renderer's own sources or to anything bootstrap loads (parsers, plugins,
 -- filetype rules) recycles the daemon after the next request.
 
-local script = debug.getinfo(1, 'S').source:sub(2)
-local dir = vim.fn.fnamemodify(script, ':p:h')
+local dir = vim.fn.fnamemodify(arg[0], ':p:h')
 package.path = dir .. '/?.lua;' .. package.path
 
 local bootstrap = require('lib.bootstrap')
@@ -184,14 +183,14 @@ local function cache_key(input, opts)
   return table.concat(parts, '\0')
 end
 
---- Render `infile` to `outfile` with core.render `opts`, returning the status
---- line a client reads ("ok" or "err:<reason>").
+--- Render `infile` to `outfile` with core.render `opts`, returning whether the
+--- render reached `outfile`.
 local function render_request(infile, outfile, opts)
   last_request = uv.now()
 
   local f = io.open(infile, 'rb')
   if not f then
-    return 'err:input'
+    return false
   end
   local input = f:read('*a')
   f:close()
@@ -206,13 +205,12 @@ local function render_request(infile, outfile, opts)
     end
   end
 
-  return write_output(outfile, rendered) and 'ok' or 'err:output'
+  return write_output(outfile, rendered)
 end
 
 -- -------------------------------------------------------------------- pipe ---
 -- One request per connection, one line, tab separated, answered with one line:
---   render\t<in>\t<out>\t<cols>\t<layout>\t<metadata>\t<cwd>
---                                    =>  ok | err:<why>
+--   <in>\t<out>\t<cols>\t<layout>\t<metadata>\t<cwd>  =>  ok | err
 -- <metadata> is 1 when the render is to carry OSC 1717 records, 0 otherwise.
 -- cwd comes last because it is the only field that can legitimately contain a
 -- tab, so it simply takes the rest of the line.
@@ -239,9 +237,9 @@ end
 
 local function dispatch(request)
   local infile, outfile, cols, layout, metadata, cwd =
-    request:match('^render\t([^\t]*)\t([^\t]*)\t([^\t]*)\t([^\t]*)\t([01])\t(.*)$')
+    request:match('^([^\t]*)\t([^\t]*)\t([^\t]*)\t([^\t]*)\t([01])\t(.*)$')
   if not infile then
-    return 'err:request'
+    return false
   end
   -- The wire carries every field as a string; convert once here rather than at
   -- each use, so the cache key and the render see the same typed value.
@@ -261,8 +259,8 @@ local function submit(request, client)
   -- Collecting inside a render is ~12% of the wall clock a client sees, and the
   -- moment right after it is idle (see reply).
   collectgarbage('stop')
-  local ok, status = pcall(dispatch, request)
-  reply(client, ok and status or 'err:internal')
+  local ok, rendered = pcall(dispatch, request)
+  reply(client, ok and rendered and 'ok' or 'err')
   rendering = false
 end
 

@@ -31,14 +31,8 @@ end
 -- byte count would not match.
 local NON_ASCII = '[^\32-\126]'
 
---- True when every byte is printable ASCII (see NON_ASCII).
-function M.is_plain_ascii(s)
-  return not s:find(NON_ASCII)
-end
-
---- Byte index of the first non-printable-ASCII byte, or nil when there is none.
---- The same predicate as is_plain_ascii, for callers that need to know where
---- the bulk-addressable prefix ends rather than only whether there is one.
+--- Byte index of the first byte that is not printable ASCII (see NON_ASCII), or
+--- nil when every byte is.
 function M.first_non_ascii(s)
   return s:find(NON_ASCII)
 end

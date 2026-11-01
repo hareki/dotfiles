@@ -21,17 +21,6 @@ local LIMITS = {
   max_highlight_ms = 1000,
 }
 
--- Merge a 0-based row range into the tail of `ranges` (they are built in
--- ascending order, so only the last one can overlap).
-local function push_range(ranges, s, e)
-  local last = ranges[#ranges]
-  if last and s <= last[2] + 1 then
-    last[2] = math.max(last[2], e)
-  else
-    ranges[#ranges + 1] = { s, e }
-  end
-end
-
 -- The inline layout renders context rows from the new side, so old-side spans
 -- are only ever consulted for minus rows: restricting extraction to them makes
 -- the old side's cost scale with the deletions rather than with everything the
@@ -39,19 +28,19 @@ end
 -- side-by-side layout draws its left context cells from the old side, so it
 -- keeps whole hunks.
 --
--- 0-based inclusive, with `first_row` where the hunk's row 1 sits in whatever is
--- being highlighted. No padding is needed for a construct straddling a hunk's
--- edge: a query window reports every node that reaches into it. A row emitted
--- outside these ranges renders tinted but unstyled.
+-- 0-based and end-exclusive, with `first_row` where the hunk's row 1 sits in
+-- whatever is being highlighted. No padding is needed for a construct straddling
+-- a hunk's edge: a query window reports every node that reaches into it. A row
+-- emitted outside these ranges renders tinted but unstyled.
 local function push_drawn_ranges(ranges, hunk, name, first_row, minus_only)
   if minus_only and name == 'old' then
     for _, change in ipairs(hunk.changes) do
       if change.old_end > change.old_start then
-        push_range(ranges, first_row + change.old_start - 1, first_row + change.old_end - 2)
+        ranges[#ranges + 1] = { first_row + change.old_start - 1, first_row + change.old_end - 1 }
       end
     end
   elseif #hunk[name].rows > 0 then
-    push_range(ranges, first_row, first_row + #hunk[name].rows - 1)
+    ranges[#ranges + 1] = { first_row, first_row + #hunk[name].rows }
   end
 end
 
@@ -273,7 +262,6 @@ end
 ---   cwd    repo directory for blob lookups
 ---   cols   target width (COLUMNS)
 ---   layout "side-by-side" for the split view; anything else renders inline
----   force_fragment  skip git blob lookups (repo-independent fixtures)
 ---   metadata  put an OSC 1717 record ahead of each row lazygit can act on
 ---             (see lib/osc1717.lua)
 --- Returns the document and whether it may be cached. It may not be when the
@@ -294,8 +282,8 @@ function M.render(input, opts)
 
   -- Git's output rather than arbitrary text piped through: it has a diff
   -- section, or opens with the commit line of a `git show` that has none. What
-  -- is not goes back as it came, colors and all (lazygit sends its `git log
-  -- --graph --color=always` views through here too).
+  -- is not goes back as it came, colors and all: a log view of lazygit's, when
+  -- it is not the kind of graph client.sh sends straight through.
   local files = {}
   local looks_like_git = lines[1] ~= nil and diffparse.commit_line(lines[1]) ~= nil
   for _, block in ipairs(blocks) do
@@ -308,7 +296,7 @@ function M.render(input, opts)
     return input, false
   end
 
-  blob.acquire(files, opts.cwd, opts.force_fragment)
+  blob.acquire(files, opts.cwd)
 
   local ctx = {
     cols = opts.cols or 120,

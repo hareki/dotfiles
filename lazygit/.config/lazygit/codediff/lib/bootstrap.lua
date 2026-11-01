@@ -48,8 +48,6 @@ function M.setup()
   vim.opt.runtimepath:append(M.paths.catppuccin)
   vim.opt.runtimepath:append(M.paths.codediff)
 
-  vim.o.termguicolors = true
-
   -- Mirror the subset of the editor's catppuccin setup that affects the groups
   -- this renderer reads (Diff* backgrounds, @capture colors), so lazygit shows
   -- the same colors nvim does. The @capture overrides are loaded from the

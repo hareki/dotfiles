@@ -18,13 +18,12 @@ local M = {}
 local READ_TIMEOUT_MS = 5000
 
 --- Read an `info` answer ("<oid> <type> <size>\n" or "<name> missing\n" per
---- object). Returns the blobs worth streaming into the (long-lived) daemon's
---- memory -- never a gitlink's commit object, never an oversized blob -- the
---- exact byte count git's payload stream runs to for them, and the answer so far:
---- `false` for each blob declined for its size. Nil unless there is a line per
---- object: the stream is not what we think it is.
-local function parse_info(out, n, max_bytes)
-  local wanted, expected, blobs = {}, 0, {}
+--- object in `oids`). Returns the blobs worth streaming into the (long-lived)
+--- daemon's memory -- never a gitlink's commit object, never an oversized blob --
+--- and the exact byte count git's payload stream runs to for them. Nil unless
+--- there is a line per object: the stream is not what we think it is.
+local function parse_info(out, oids, max_bytes)
+  local wanted, expected = {}, 0
   local i = 0
   for line in out:gmatch('([^\n]*)\n') do
     i = i + 1
@@ -34,27 +33,27 @@ local function parse_info(out, n, max_bytes)
       if size <= max_bytes then
         -- git repeats the info line, then the bytes and a newline
         local header_bytes = #line + 1
-        wanted[#wanted + 1] = { index = i, header_bytes = header_bytes, size = size }
+        wanted[#wanted + 1] = { oid = oids[i], header_bytes = header_bytes, size = size }
         expected = expected + header_bytes + size + 1
-      else
-        blobs[i] = false
       end
     end
   end
-  if i ~= n then
+  if i ~= #oids then
     return nil
   end
-  return wanted, expected, blobs
+  return wanted, expected
 end
 
---- Fill in `blobs` from the "<oid> <type> <size>\n<bytes>\n" stream of `wanted`,
---- which runs to exactly the bytes parse_info worked out.
-local function parse_blobs(out, wanted, blobs)
+--- The blobs in the "<oid> <type> <size>\n<bytes>\n" stream of `wanted`, which
+--- runs to exactly the bytes parse_info worked out.
+local function parse_blobs(out, wanted)
+  local blobs = {}
   for _, rec in ipairs(wanted) do
     out:skip(rec.header_bytes)
-    blobs[rec.index] = out:get(rec.size)
+    blobs[rec.oid] = out:get(rec.size)
     out:skip(1)
   end
+  return blobs
 end
 
 -- ---------------------------------------------------------------- session ---
@@ -97,7 +96,6 @@ local function ensure(cwd)
     cwd = cwd,
     stdin = true,
     stderr = false,
-    text = false,
     stdout = function(_, data)
       if data then
         s.out:put(data)
@@ -135,31 +133,29 @@ local function await(s, ready)
 end
 
 local function fetch_session(s, oids, max_bytes)
-  local n = #oids
-
   local commands = {}
-  for i = 1, n do
-    commands[i] = 'info ' .. oids[i] .. '\n'
+  for i, oid in ipairs(oids) do
+    commands[i] = 'info ' .. oid .. '\n'
   end
   local answered = send(s, commands)
     and await(s, function()
-      return select(2, s.out:tostring():gsub('\n', '')) >= n
+      return select(2, s.out:tostring():gsub('\n', '')) >= #oids
     end)
   if not answered then
     return nil
   end
-  local wanted, expected, blobs = parse_info(s.out:get(), n, max_bytes)
+  local wanted, expected = parse_info(s.out:get(), oids, max_bytes)
   if not wanted then
     return nil
   end
 
   -- Only now, knowing the sizes, is anything asked for.
   if #wanted == 0 then
-    return blobs
+    return {}
   end
   commands = {}
   for k, rec in ipairs(wanted) do
-    commands[k] = 'contents ' .. oids[rec.index] .. '\n'
+    commands[k] = 'contents ' .. rec.oid .. '\n'
   end
   answered = send(s, commands) and await(s, function()
     return #s.out >= expected
@@ -167,7 +163,7 @@ local function fetch_session(s, oids, max_bytes)
   if not answered or #s.out ~= expected then
     return nil
   end
-  parse_blobs(s.out, wanted, blobs)
+  local blobs = parse_blobs(s.out, wanted)
   -- Empty by now, but it would keep the capacity for as long as the session lives.
   s.out:free()
   return blobs
@@ -175,11 +171,8 @@ end
 
 -- ------------------------------------------------------------------- fetch ---
 
---- The contents of the blobs in `oids` of at most `max_bytes`, as a list parallel
---- to it:
----   blobs[i] = the bytes
----   blobs[i] = false  a blob too large to be worth reading
----   blobs[i] = nil    no blob by that name: missing, or not a blob at all
+--- The contents of the blobs in `oids` of at most `max_bytes`, keyed by oid. A
+--- name left out is missing, not a blob at all, or too large to be worth reading.
 function M.fetch(cwd, oids, max_bytes)
   if #oids == 0 then
     return {}

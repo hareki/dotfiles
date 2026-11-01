@@ -70,13 +70,13 @@ end)
 --- Resolve a treesitter capture to highlight attrs. nvim maintains the default
 --- link chain for @capture groups itself (@function.call.lua => @function.call
 --- => @function, see :h treesitter-highlight-groups), so resolving the most
---- specific name is enough. Returns nil when the theme defines nothing (render
+--- specific name is enough. Returns false when the theme defines nothing (render
 --- with the default fg).
 ---
 --- The returned table is shared and must not be mutated: callers key their own
 --- memos on its identity.
 function M.attrs(capture, lang)
-  return cache[lang][capture] or nil
+  return cache[lang][capture]
 end
 
 return M

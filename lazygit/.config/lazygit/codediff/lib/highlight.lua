@@ -11,7 +11,7 @@ local UNDERSCORE = string.byte('_')
 ---
 --- lines:      full source, one string per row
 --- lang:       treesitter language (parser must be loadable)
---- row_ranges: sorted, merged list of {start_row, end_row} (0-based, inclusive)
+--- row_ranges: sorted list of {start_row, end_row} (0-based, end-exclusive)
 ---             restricting extraction to the rows the diff actually shows
 --- deadline:   vim.uv.hrtime() value; collection stops between query
 ---             windows once it passes, returning whatever was gathered so far
@@ -37,18 +37,14 @@ function M.line_spans(lines, lang, row_ranges, deadline)
   -- the single most expensive part of highlighting a large file. parse() takes
   -- the ranges themselves, so the rows between two hunks are skipped as well as
   -- those around the first and the last.
-  local parse_ranges = {}
-  for i, range in ipairs(row_ranges) do
-    parse_ranges[i] = { range[1], range[2] + 1 }
-  end
-  local parse_ok = pcall(parser.parse, parser, parse_ranges)
+  local parse_ok = pcall(parser.parse, parser, row_ranges)
   if not parse_ok then
     return nil
   end
 
   local needed = {}
   for _, range in ipairs(row_ranges) do
-    for r = range[1], range[2] do
+    for r = range[1], range[2] - 1 do
       needed[r] = true
     end
   end
@@ -108,8 +104,8 @@ function M.line_spans(lines, lang, row_ranges, deadline)
         expired = true
         return
       end
-      if range[1] <= tree_last and range[2] >= tree_first then
-        for id, node, metadata in query:iter_captures(root, content, range[1], range[2] + 1) do
+      if range[1] <= tree_last and range[2] > tree_first then
+        for id, node, metadata in query:iter_captures(root, content, range[1], range[2]) do
           local name = captures[id]
           if not SKIP[name] and name:byte(1) ~= UNDERSCORE then
             local meta = metadata[id]

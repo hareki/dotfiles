@@ -7,14 +7,13 @@ local M = {}
 -- hundred covers the files a session moves between; past that a render pays one
 -- vim.filetype.match again, which is what the entry cost to make.
 local CACHE_MAX = 512
-local cache, n_cached = {}, 0
+local cache = {}
 
 local function remember(key, lang)
-  if n_cached >= CACHE_MAX then
-    cache, n_cached = {}, 0
+  if vim.tbl_count(cache) >= CACHE_MAX then
+    cache = {}
   end
   cache[key] = lang
-  n_cached = n_cached + 1
   return lang or nil
 end
 

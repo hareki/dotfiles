@@ -30,16 +30,13 @@ local function char_last_byte(line, i)
   return i + vim.str_utf_end(line, i)
 end
 
-local function by_start(a, b)
-  return a.s < b.s
-end
-
 -- Split one side of the char-level inner changes into per-row byte ranges,
 -- written into `rows`: { [row] = { {s, e}, ... } } with 1-based cols, e exclusive:
--- the shape layout.content_line takes for emphasis. Follows codediff's own
--- per-side semantics (ui/inline.lua): the original side widens an empty tail on
--- the end line to one byte, the modified side drops it. `lines` are the rows the
--- engine was given, and `offset` places them among the side's rows.
+-- the shape layout.content_line takes for emphasis, and in the start order it
+-- relies on, which is the order the engine reports its changes in. Follows
+-- codediff's own per-side semantics (ui/inline.lua): the original side widens an
+-- empty tail on the end line to one byte, the modified side drops it. `lines` are
+-- the rows the engine was given, and `offset` places them among the side's rows.
 local function side_char_ranges(rows, inner_changes, side, lines, offset)
   for _, inner in ipairs(inner_changes) do
     local r = inner[side]
@@ -70,11 +67,6 @@ local function side_char_ranges(rows, inner_changes, side, lines, offset)
           row_ranges[#row_ranges + 1] = { s = s, e = e + 1 }
         end
       end
-    end
-  end
-  for row = offset + 1, offset + #lines do
-    if rows[row] then
-      table.sort(rows[row], by_start)
     end
   end
 end

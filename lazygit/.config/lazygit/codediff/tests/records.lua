@@ -7,8 +7,7 @@
 -- them (LineNumberOfLine and OldLineNumberOfLine in its pkg/commands/patch):
 -- that is what lazygit stages by. A render without records must carry none.
 
-local script = debug.getinfo(1, 'S').source:sub(2)
-local dir = vim.fn.fnamemodify(script, ':p:h')
+local dir = vim.fn.fnamemodify(arg[0], ':p:h')
 package.path = dir .. '/../?.lua;' .. package.path
 
 require('lib.bootstrap').setup()
@@ -82,10 +81,8 @@ for _, path in ipairs(fixtures) do
 
   for _, layout in ipairs({ 'inline', 'side-by-side' }) do
     local function render(metadata)
-      return core.render(
-        input,
-        { cwd = dir, cols = 100, layout = layout, force_fragment = true, metadata = metadata }
-      )
+      -- At /, as in run.sh: no repo, so the fixtures render from their own hunks.
+      return core.render(input, { cwd = '/', cols = 100, layout = layout, metadata = metadata })
     end
 
     local actual = rendered_records(render(true))

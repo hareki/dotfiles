@@ -22,7 +22,7 @@ local function unquote_c_string(s)
   )
 end
 
-local function strip_path_prefix(path, prefixed)
+local function strip_path_prefix(path)
   -- git appends a TAB (and diff(1) a TAB plus a timestamp) after the name
   -- whenever it contains a space. A real tab in a path is always C-quoted, so
   -- everything from the first raw tab is metadata.
@@ -31,13 +31,9 @@ local function strip_path_prefix(path, prefixed)
     return nil
   end
   path = unquote_c_string(path)
-  -- With diff.noPrefix (or empty src/dst prefixes) the headers carry bare
-  -- paths, and stripping would eat the first segment of a file genuinely under
-  -- a top-level a/, b/, w/ ... directory.
-  if not prefixed then
-    return path
-  end
   -- Standard prefixes: a/ b/ plus i/ w/ c/ o/ 1/ 2/ used by mnemonicPrefix.
+  -- lazygit asks for one on every diff it shows, whatever diff.noPrefix says
+  -- (ParseableDiffPrefixes), so a bare path never gets here.
   local stripped = path:match('^[abciwo12]/(.+)$')
   return stripped or path
 end
@@ -61,18 +57,9 @@ local function new_section(diff_line)
     hunk_lines = 0,
     hunk_bytes = 0,
   }
-  -- Whether this file's paths carry the a/ b/ (or mnemonic) prefixes: the diff
-  -- line is the one place the form shows, and the ---/+++ headers of the same
-  -- file always use the same setting. Only source prefixes can open the line
-  -- (a/ plus mnemonic i/ c/ o/ w/ and 1/); b/ and 2/ are destination-only, so
-  -- a bare path starting with b/ stays unprefixed.
-  file.prefixed = diff_line:match('^diff %-%-git "?[aciow1]/') ~= nil
   -- Path pair from the diff line for the common unquoted case; overridden by
   -- ---/+++ or rename headers when present.
-  local a, b = diff_line:match('^diff %-%-git a/(.-) b/(.+)$')
-  if a then
-    file.old_path, file.new_path = a, b
-  end
+  file.old_path, file.new_path = diff_line:match('^diff %-%-git a/(.-) b/(.+)$')
   return file
 end
 
@@ -132,9 +119,9 @@ local function parse_extended_header(file, line)
     -- to: the header is the diff's own answer for the side, where the path
     -- pair new_section() reads off the diff line is only a guess (it mis-splits a
     -- name containing " b/").
-    file.old_path = strip_path_prefix(line:sub(5), file.prefixed)
+    file.old_path = strip_path_prefix(line:sub(5))
   elseif vim.startswith(line, '+++ ') then
-    file.new_path = strip_path_prefix(line:sub(5), file.prefixed)
+    file.new_path = strip_path_prefix(line:sub(5))
   else
     return false
   end
@@ -289,9 +276,7 @@ function M.parse(lines)
       if line == '\\ No newline at end of file' then
         -- It marks the line before it, a side's last, which is always among
         -- the hunk's last rows: the note renders once, after the hunk.
-        if hunk.old.rows[1] or hunk.new.rows[1] then
-          hunk.no_newline = true
-        end
+        hunk.no_newline = true
       elseif origin == '-' and old_left then
         change = add_row(file, hunk, change, '-', line:sub(2))
       elseif origin == '+' and new_left then

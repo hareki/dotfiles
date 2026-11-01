@@ -4,16 +4,17 @@
 #   tests/run.sh           compare every fixtures/*.diff against its .out
 #   tests/run.sh --update  regenerate the golden .out files
 #
-# Renders use CODEDIFF_FORCE_FRAGMENT=1 (no git blob lookups) and a fixed width
-# so fixtures are reproducible outside the repos they were captured from. The
-# OSC 1717 records lazygit asks for are checked separately, against the
-# fixtures' own patches (see records.lua).
+# Renders run at / (no repo, so no blobs to find and no worktree to fall back on)
+# and a fixed width, so fixtures are reproducible outside the repos they were
+# captured from. The OSC 1717 records lazygit asks for are checked separately,
+# against the fixtures' own patches (see records.lua).
 set -u
 
 DIR=$(cd "$(dirname "$0")" && pwd)
 RENDER="$DIR/../render.lua"
 UPDATE="${1:-}"
 fail=0
+cd /
 
 for diff_file in "$DIR"/fixtures/*.diff; do
   for layout in inline side-by-side; do
@@ -24,7 +25,7 @@ for diff_file in "$DIR"/fixtures/*.diff; do
     fi
     # A failed render must not reach --update, which would record what little
     # it wrote as the new golden.
-    if ! actual=$(CODEDIFF_FORCE_FRAGMENT=1 CODEDIFF_LAYOUT="$layout" COLUMNS=100 nvim --clean -l "$RENDER" <"$diff_file" 2>/dev/null); then
+    if ! actual=$(CODEDIFF_LAYOUT="$layout" COLUMNS=100 nvim --clean -l "$RENDER" <"$diff_file" 2>/dev/null); then
       echo "BROKEN  $(basename "$diff_file") ($layout): the render failed"
       fail=1
       continue

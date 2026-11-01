@@ -13,8 +13,7 @@
 -- core.render only: the daemon is warm by the time a user sees a diff, so the
 -- nvim startup and bootstrap costs are deliberately outside the measurement.
 
-local script = debug.getinfo(1, 'S').source:sub(2)
-local dir = vim.fn.fnamemodify(script, ':p:h')
+local dir = vim.fn.fnamemodify(arg[0], ':p:h')
 package.path = dir .. '/../?.lua;' .. package.path
 
 local opts =
@@ -40,6 +39,17 @@ if #files == 0 then
   table.sort(files)
 end
 
+-- Fragment mode: no blobs from git, and no worktree to fall back on.
+local cwd = vim.fn.getcwd()
+if opts.fragment then
+  cwd = '/'
+  package.loaded['lib.catfile'] = {
+    fetch = function()
+      return {}
+    end,
+  }
+end
+
 require('lib.bootstrap').setup()
 local core = require('lib.core')
 
@@ -47,11 +57,12 @@ local core = require('lib.core')
 -- instrumenting them: the measured code stays exactly the shipped code.
 local prof = {}
 local function timed(name, fn)
-  return function(...)
-    local t0 = vim.uv.hrtime()
-    local a, b = fn(...)
+  local function finish(t0, ...)
     prof[name] = (prof[name] or 0) + (vim.uv.hrtime() - t0)
-    return a, b
+    return ...
+  end
+  return function(...)
+    return finish(vim.uv.hrtime(), fn(...))
   end
 end
 if opts.profile then
@@ -70,13 +81,9 @@ if opts.profile then
 end
 
 local layouts = opts.layout == 'both' and { 'inline', 'side-by-side' } or { opts.layout }
-local cwd = vim.fn.getcwd()
 
 local function render(input, layout)
-  return core.render(
-    input,
-    { cwd = cwd, cols = 120, layout = layout, force_fragment = opts.fragment }
-  )
+  return core.render(input, { cwd = cwd, cols = 120, layout = layout, metadata = true })
 end
 
 local function median(t)
