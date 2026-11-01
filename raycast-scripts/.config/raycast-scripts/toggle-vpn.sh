@@ -1,4 +1,4 @@
-#!/usr/bin/env -S LC_ALL=en_US.UTF-8 bash
+#!/bin/bash
 
 # @raycast.schemaVersion 1
 # @raycast.title Toggle VPN
@@ -6,12 +6,7 @@
 # @raycast.packageName Cloudflare WARP
 # @raycast.icon 🌐
 
-# LC_ALL is pinned in the shebang for the same reason as in
-# cycle-audio-output.sh.
-
 set -e
-
-export PATH="/usr/local/bin:$PATH"
 
 app_id=com.cloudflare.1dot1dot1dot1.macos
 
@@ -38,7 +33,7 @@ else
   # window's visibility from its last quit, so reset that first. `open -j`
   # would hide the window too, but it keeps the Flutter engine, and with it
   # the menu bar icon, from starting.
-  if ! pgrep -xq -U "$UID" "Cloudflare WARP"; then
+  if [[ -z $(lsappinfo find bundleid="$app_id") ]]; then
     defaults write "$app_id" flutter.warp_app_window_was_visible -bool false
     open -g -b "$app_id"
   fi

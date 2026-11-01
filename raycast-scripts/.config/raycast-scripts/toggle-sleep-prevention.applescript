@@ -23,5 +23,5 @@ end tell
 
 # Amphetamine silently ignores quit Apple Events (its sdef maps the application class to a missing NLApplication
 # class), so SIGTERM it once `end session` has run its own teardown.
-do shell script "pkill -x Amphetamine"
+do shell script "killall Amphetamine"
 return "Sleep prevention off"
