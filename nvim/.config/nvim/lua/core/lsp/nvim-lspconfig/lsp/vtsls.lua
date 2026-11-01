@@ -4,11 +4,10 @@ local ts_config = {
   updateImportsOnFileMove = { enabled = 'always' },
 }
 
--- PERF: Hardcode the mise tool root instead of resolving it with `mise where`,
--- since the version rarely changes anyway; packages are under lib/node_modules
-local plugin_root =
-  vim.fn.expand('~/.local/share/mise/installs/npm-styled-typescript-styled-plugin/1')
-local npm_global_root = vim.fs.joinpath(plugin_root, 'lib/node_modules')
+-- PERF: Hardcode the mise tool root instead of resolving it with `mise where`; `latest` follows
+-- upgrades, and tsserver looks for the plugin in <location>/node_modules
+local styled_plugin_root =
+  vim.fn.expand('~/.local/share/mise/installs/npm-styled-typescript-styled-plugin/latest')
 
 return {
   opts = {
@@ -25,7 +24,7 @@ return {
           globalPlugins = {
             {
               name = '@styled/typescript-styled-plugin',
-              location = npm_global_root,
+              location = styled_plugin_root,
               enableForWorkspaceTypeScriptVersions = true,
             },
           },

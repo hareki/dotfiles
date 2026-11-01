@@ -33,7 +33,7 @@ return {
           indent_markers = false,
           auto_open_on_cursor = true,
           position = 'right',
-          width = UI.layout.side_size('side_panel', 'sm'),
+          width = UI.layout.side_panel_width('sm'),
           view_mode = 'tree',
 
           icons = {

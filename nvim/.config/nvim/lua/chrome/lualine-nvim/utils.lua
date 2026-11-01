@@ -100,7 +100,7 @@ end
 function M.flatten_section(...)
   local result = {}
   for _, item in ipairs({ ... }) do
-    if vim.islist(item) and type(item[1]) == 'table' then
+    if vim.islist(item) then
       vim.list_extend(result, item)
     else
       table.insert(result, item)

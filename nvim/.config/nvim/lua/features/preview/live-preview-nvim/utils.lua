@@ -19,36 +19,15 @@ local FAVICON_PATH = vim.fs.joinpath(
 local TITLE_SCRIPT =
   "<script>document.title = decodeURIComponent(location.pathname.split('/').pop())</script>"
 
---- Whether something listens on `port` at `address` or a loopback/wildcard address, since macOS
---- lets a bind to `address` share the port with those (even taking a wildcard one's connections)
---- @param address string
---- @param port integer
---- @return boolean
-local function port_in_use(address, port)
-  for _, probe_address in ipairs({ address, '127.0.0.1', '::1', '0.0.0.0', '::' }) do
-    local tcp = assert(vim.uv.new_tcp())
-    -- libuv defers bind()'s EADDRINUSE, and getsockname() reports it without the listen() that
-    -- would open the wildcard addresses to incoming connections
-    local ok, _, err = tcp:bind(probe_address, port)
-    if ok then
-      _, _, err = tcp:getsockname()
-    end
-    tcp:close()
-    -- Other errors, e.g. EACCES or no IPv6 stack, aren't a listener
-    if err == 'EADDRINUSE' then
-      return true
-    end
-  end
-  return false
-end
-
---- The first port from `port` up that nothing listens on, else `port`
---- @param address string
+--- The first port from `port` up that nothing listens on, else `port`, by the same lsof check the
+--- plugin's start warns from; a bind can't tell, since macOS lets one share a port with a listener
 --- @param port integer
 --- @return integer
-local function free_port(address, port)
+local function free_port(port)
+  local livepreview_utils = require('livepreview.utils')
+
   for candidate = port, 65535 do
-    if not port_in_use(address, candidate) then
+    if #livepreview_utils.processes_listening_on_port(candidate) == 0 then
       return candidate
     end
   end
@@ -92,11 +71,10 @@ function M.start()
     return
   end
 
-  local address = livepreview_config.config.address --[[@as string]]
   livepreview_config.set({
     -- Keep a running server's port: the plugin closes and rebinds it in one tick, so its tabs,
     -- which reload as their socket closes, land on the new server
-    port = M.running_port() or free_port(address, M.state.port),
+    port = M.running_port() or free_port(M.state.port),
   })
 
   vim.cmd.LivePreview('start')

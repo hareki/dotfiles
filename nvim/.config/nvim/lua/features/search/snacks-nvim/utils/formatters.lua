@@ -52,12 +52,11 @@ end
 --- @param picker snacks.Picker
 --- @return snacks.picker.Highlight[] highlights
 function M.buffer_format(item, picker)
-  local ret = {} --- @type snacks.picker.Highlight[]
-  vim.list_extend(ret, Snacks.picker.format.filename(item, picker))
+  local ret = Snacks.picker.format.filename(item, picker)
 
   if item.name == '' and item.filetype ~= '' then
-    ret[#ret + 1] = { ' ' }
     vim.list_extend(ret, {
+      { ' ' },
       { '[', 'SnacksPickerDelim' },
       { item.filetype, 'SnacksPickerFileType' },
       { ']', 'SnacksPickerDelim' },

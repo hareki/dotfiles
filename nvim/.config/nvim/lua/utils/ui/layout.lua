@@ -23,21 +23,17 @@ local function resolve_dimensions(dimensions)
     math.floor(math.max(height, dimensions.MIN_HEIGHT or 0))
 end
 
---- Compute width/height for a side panel or side preview size preset
---- @overload fun(category: 'side_panel', variant: 'sm'|'md'): integer, integer
---- @overload fun(category: 'side_preview', variant: 'md'): integer, integer
---- @param category 'side_panel' | 'side_preview' Size category in config.size
---- @param variant string Variant key within the category
+--- Width of a side panel preset
+--- @param variant 'sm' | 'md'
 --- @return integer width Width in columns
---- @return integer height Height in rows
-function M.side_size(category, variant)
-  return resolve_dimensions(Conf.size[category][variant])
+function M.side_panel_width(variant)
+  return (resolve_dimensions(Conf.size.side_panel[variant]))
 end
 
 --- Geometry of the side preview float: left of the side panel, centered, with a 3-column gap
 --- @return { width: integer, height: integer, row: integer, col: integer } geometry
 function M.side_preview()
-  local width, height = M.side_size('side_preview', 'md')
+  local width, height = resolve_dimensions(Conf.size.side_preview)
   local _, row = M.center(width, height)
 
   return { width = width, height = height, row = row, col = -width - 3 }

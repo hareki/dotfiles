@@ -32,7 +32,7 @@ return {
     opts = function()
       local utils = require('features.diagnostics.trouble-nvim.utils')
       local side_preview = UI.layout.side_preview()
-      local panel_cols = UI.layout.side_size('side_panel', 'md')
+      local panel_cols = UI.layout.side_panel_width('md')
 
       return {
         auto_refresh = false,

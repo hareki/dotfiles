@@ -40,9 +40,9 @@ lazy.nvim config built from scratch around fast cold starts, per-plugin isolatio
 ### Central Modules (`lua/config/`)
 
 - `init.lua`: assembles the `Conf` global from the `config.*` tables below
-- `size.lua`: popup dimensions (`sm`, `lg`, `vertical_sm`, `vertical_md`, `full`)
+- `size.lua`: popup dimensions (`sm`, `lg`, `vertical_sm`, `vertical_md`, `full`, `input`)
 - `icons.lua`: all icons (diagnostics, git, file status, LSP kinds)
-- `globals.lua`: 6 project globals (`Defer`, `Notifier`, `Conf`, `UI`, `Project`, plus `Snacks` set by snacks.nvim)
+- `globals.lua`: 5 project globals (`Defer`, `Notifier`, `Conf`, `UI`, plus `Snacks` set by snacks.nvim)
 - `completion.lua`: completion tuning constants in `Conf.cmp` (AI item cap/timeout, ripgrep min keyword length)
 - `picker.lua`: shared picker UI constants
 - `keymap-registry.lua`: centralized keymap `desc` overrides

@@ -57,12 +57,10 @@ M.popup = {
 }
 
 M.side_preview = {
-  md = {
-    WIDTH = 0.5,
-    HEIGHT = 0.7,
-    MIN_WIDTH = 80,
-    MIN_HEIGHT = 15,
-  },
+  WIDTH = 0.5,
+  HEIGHT = 0.7,
+  MIN_WIDTH = 80,
+  MIN_HEIGHT = 15,
 }
 
 M.side_panel = {

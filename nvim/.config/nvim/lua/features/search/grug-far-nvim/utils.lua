@@ -6,7 +6,7 @@ local M = {}
 --- @return { window_creation_command: string, preview_window: table }
 function M.preview_geometry()
   local preview = UI.layout.side_preview()
-  local panel_cols = UI.layout.side_size('side_panel', 'md')
+  local panel_cols = UI.layout.side_panel_width('md')
 
   return {
     window_creation_command = panel_cols .. 'vsplit',

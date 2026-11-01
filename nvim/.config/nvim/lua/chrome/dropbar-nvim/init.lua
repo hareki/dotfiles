@@ -94,6 +94,16 @@ return {
         bar = {
           enable = dropbar_utils.enable,
           truncate = false,
+          update_events = {
+            -- The default's ModeChanged re-requests LSP symbols on every mode change (`yy`, `:`),
+            -- when leaving insert mode is the only one that can follow a text change
+            buf = {
+              { event = 'OptionSet', pattern = 'modified' },
+              'FileChangedShellPost',
+              'TextChanged',
+              'InsertLeave',
+            },
+          },
           sources = function(buf, win)
             -- Some ft/bt can slip through the enable check because their ft/bt are set later (E.g. grug-far)
             if dropbar_utils.is_ignored(buf) then

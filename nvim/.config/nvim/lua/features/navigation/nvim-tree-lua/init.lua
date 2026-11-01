@@ -43,7 +43,6 @@ return {
 
         keymaps = {
           ['q'] = tree.close_all,
-          ['<Tab>'] = tree.toggle_focus,
           ['<C-t>'] = tree.switch_to_side,
           ['B'] = function()
             api.tree.focus()
@@ -188,7 +187,7 @@ return {
           side = 'right',
           -- Width when not in float mode
           width = function()
-            return (UI.layout.side_size('side_panel', 'md'))
+            return UI.layout.side_panel_width('md')
           end,
 
           float = {

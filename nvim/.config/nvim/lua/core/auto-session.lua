@@ -55,10 +55,8 @@ return {
             vim.opt_local.number = false
             vim.opt_local.relativenumber = false
 
-            vim.schedule(function()
-              local api = require('nvim-tree.api')
-              api.tree.open()
-            end)
+            local api = require('nvim-tree.api')
+            api.tree.open()
           end,
         },
         pre_save_cmds = {

@@ -27,6 +27,7 @@ opt.pumborder = 'rounded' -- Rounded border around the popup menu (right-click +
 opt.wrap = false
 opt.mouse = 'a'
 opt.showmode = false -- Don't show the mode, since it's already in the status line
+opt.showcmd = false -- noice skips these messages, so nvim would send them per key for nothing
 opt.breakindent = true
 opt.swapfile = false
 opt.cursorline = true
