@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/hareki/lazygit/master/schema/config.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/hareki/lazygit/master/schema-master/config.json
 os:
   editPreset: 'nvim-remote'
   # Inside nvim's terminal, hand the file to the host instance. The expr call hides the
@@ -45,6 +45,11 @@ gui:
       - '#89b4fa'
     selectedLineBgColor:
       - '#313244'
+    # selectedLineBgColor stays dark for text to read on it, which hides the two-column diff selection bar
+    selectionBarBgColor:
+      - '#89b4fa'
+    selectionBarFgColor:
+      - '#1e1e2e'
     cherryPickedCommitBgColor:
       - '#45475a'
     cherryPickedCommitFgColor:
