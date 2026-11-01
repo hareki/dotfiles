@@ -106,6 +106,7 @@
   "theme": "custom:catppuccin-mocha",
   "editorMode": "vim",
   "preferredNotifChannel": "auto",
+  "idleCompaction": false,
   "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true
 }
