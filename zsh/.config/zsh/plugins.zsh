@@ -24,8 +24,7 @@ typeset -U fpath
 fpath=(/opt/homebrew/opt/antidote/share/antidote/functions $fpath)
 autoload -Uz antidote
 
-# `brew shellenv zsh` written out, minus its `export PATH`: .zshenv has those dirs, and any
-# PATH assignment discards the command hash the instant prompt filled (~1.3ms to refill)
+# `brew shellenv zsh` written out, minus its `export PATH`: .zshenv has those dirs
 export HOMEBREW_PREFIX=/opt/homebrew
 export HOMEBREW_CELLAR=$HOMEBREW_PREFIX/Cellar HOMEBREW_REPOSITORY=$HOMEBREW_PREFIX
 fpath[1,0]=/opt/homebrew/share/zsh/site-functions
@@ -48,11 +47,6 @@ source $ZSH/tools/check_for_upgrade.sh
 # for the sake of URLs; zsh's own widget quotes a pasted URL in one pass
 autoload -Uz bracketed-paste-url-magic
 zle -N bracketed-paste bracketed-paste-url-magic
-
-# p10k captures stdout until the first prompt is expanded, and any output costs it a `cat`
-# fork, so omz's title goes straight to the tty
-_title_to_tty() { omz_termsupport_precmd >$TTY }
-precmd_functions[(r)omz_termsupport_precmd]=_title_to_tty
 
 # omz forks twice per prompt for an OSC 7 nothing reads: Ghostty's shell integration reports
 # the cwd itself, tmux keeps it in an unused #{pane_path}, and nvim's terminal drops it
