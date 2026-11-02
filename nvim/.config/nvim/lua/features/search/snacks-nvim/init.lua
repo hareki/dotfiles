@@ -10,6 +10,9 @@ local formatters = Defer.on_exported_call('features.search.snacks-nvim.utils.for
 local finders = Defer.on_exported_call('features.search.snacks-nvim.utils.finders')
 local actions = Defer.on_exported_call('features.search.snacks-nvim.actions')
 
+--- @class snacks.picker
+--- @field tabs fun(opts?: snacks.picker.Config | {}): snacks.Picker
+
 --- @module 'snacks.picker'
 local picker = Defer.on_exported_call('snacks.picker')
 
@@ -58,13 +61,7 @@ return {
         desc = 'Find Text',
       },
       { '<leader>fb', picker.buffers, desc = 'Find Buffers' },
-      {
-        '<leader>f<Tab>',
-        function()
-          Snacks.picker.pick('tabs')
-        end,
-        desc = 'Find Tabs',
-      },
+      { '<leader>f<Tab>', picker.tabs, desc = 'Find Tabs' },
       { '<leader>fk', picker.keymaps, mode = { 'n', 'x' }, desc = 'Find Keymaps' },
       { '<leader>fh', picker.highlights, desc = 'Find Highlight Groups' },
       { '<leader>fH', picker.help, desc = 'Find Help Tags' },

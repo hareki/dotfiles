@@ -21,7 +21,9 @@ M.default = {
     border = 'rounded',
     max_height = vim.o.pumheight,
     draw = {
-      padding = { 1, 0 }, -- For some reason it already has 1 padding on the right
+      -- The label column keeps its gap before an empty label_description, which already leaves
+      -- slack on the right
+      padding = { 1, 0 },
       components = {
         label = {
           width = { fill = false, max = 20 },
