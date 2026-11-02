@@ -91,6 +91,24 @@ function M.create_node_action(folder_action)
   end
 end
 
+--- Open the clicked node like `<CR>`, for `<LeftRelease>`: the press already moved the cursor there
+--- @return nil
+function M.open_clicked_node()
+  -- A mapped release never reaches Nvim's own handling, which alone clears its click state: left
+  -- stale, the next click's release or drag would start a Visual selection
+  vim.api.nvim_feedkeys(vim.keycode('<LeftRelease>'), 'nx', false)
+
+  local mouse = vim.fn.getmousepos()
+
+  -- A press on the border or below the last node still lands the cursor on a node, so test the
+  -- mouse's line instead. The cursor's can't tell: a press inside 'scrolloff' scrolls it away
+  if vim.fn.screenpos(mouse.winid, mouse.line, 1).row ~= mouse.screenrow then
+    return
+  end
+
+  M.create_node_action('toggle')()
+end
+
 --- Switch nvim-tree between float and side panel positions
 --- @param position features.navigation.nvim-tree.utils.Position
 --- @return nil

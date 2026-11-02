@@ -252,6 +252,14 @@ return {
           map('n', '<Left>', tree.create_node_action('collapse'), 'Collapse Node')
           map('n', '<S-Left>', api.tree.collapse_all, 'Collapse All Nodes')
           map('n', { '<CR>', 'e' }, tree.create_node_action('toggle'), 'Open File/Toggle Folder')
+          map('n', '<LeftRelease>', tree.open_clicked_node, 'Open Clicked Node')
+          -- A repeated press would start a Visual selection
+          map(
+            'n',
+            { '<2-LeftMouse>', '<3-LeftMouse>', '<4-LeftMouse>' },
+            '<Nop>',
+            'Ignore Repeated Clicks'
+          )
           map('n', 'g?', api.tree.toggle_help, 'Toggle Help')
 
           map('n', '<C-n>', tree.create_mark_action('<Down>'), 'Bookmark and Next')
