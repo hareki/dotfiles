@@ -142,13 +142,11 @@ function M.float_geometry(action)
   -- What the collapsed tree leaves, minus the 2 border rows between the windows
   local preview_height = size.height - collapsed_height - 2
 
-  return {
-    width = size.width,
-    height = action == 'collapse' and collapsed_height or size.height,
-    col = size.col,
-    row = size.row,
-  },
-    preview_height
+  if action == 'collapse' then
+    size.height = collapsed_height
+  end
+
+  return size, preview_height
 end
 
 --- Toggle the float tree between half and full height, re-applying the preset's width and position

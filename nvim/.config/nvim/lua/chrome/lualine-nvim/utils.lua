@@ -4,29 +4,20 @@ local M = {}
 --- Shared separator for primary-style pill components
 M.separator = { left = Conf.icons.misc.PILL_LEFT, right = Conf.icons.misc.PILL_RIGHT }
 
-local function empty_func()
-  return ' '
-end
-
---- Create an empty component (1 margin unit)
---- @param cond function | nil Synced with the main component
---- @return table component
-local function create_empty_comp(cond)
-  return {
-    empty_func,
-    color = { fg = 'none', bg = 'none' },
-    cond = cond,
-  }
-end
-
---- Create margin components (empty_comp repeated n times)
+--- Create margin components: `count` empty cells
 --- @param count number
---- @param cond function | nil
+--- @param cond function | nil Synced with the main component
 --- @return table[] components
 local function create_margins(count, cond)
   local margins = {}
   for _ = 1, count do
-    table.insert(margins, create_empty_comp(cond))
+    table.insert(margins, {
+      function()
+        return ' '
+      end,
+      color = { fg = 'none', bg = 'none' },
+      cond = cond,
+    })
   end
 
   return margins

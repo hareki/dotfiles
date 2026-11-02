@@ -6,21 +6,7 @@
 
 (style_element) @tag.outer
 
-(element
+(_
   (start_tag)
   _+ @tag.inner
-  (end_tag))
-
-(script_element
-  (start_tag)
-  .
-  (_) @tag.inner
-  .
-  (end_tag))
-
-(style_element
-  (start_tag)
-  .
-  (_) @tag.inner
-  .
   (end_tag))

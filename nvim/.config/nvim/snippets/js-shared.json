@@ -51,7 +51,7 @@
     "description": "For-Of Loop"
   },
   "comment": {
-    "prefix": "/**",
+    "prefix": "jsdoc",
     "body": [
       "/**",
       " * ${1:What it does}.",

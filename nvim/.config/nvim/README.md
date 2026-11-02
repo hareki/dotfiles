@@ -17,9 +17,9 @@ lazy.nvim config built from scratch around fast cold starts, per-plugin isolatio
 - **[lazygit](https://github.com/jesseduffield/lazygit)**: terminal UI for Git, opened through Snacks (`<A-g>`)
 - **[ImageMagick](https://imagemagick.org/)**: `magick` CLI for image rendering in Snacks (`image`)
 - **[Ghostty](https://ghostty.org/)**: terminal with kitty graphics protocol support, for Snacks (`image`)
-- **C compiler**: builds nvim-treesitter parsers
+- **[tree-sitter CLI](https://github.com/tree-sitter/tree-sitter) + C compiler**: build nvim-treesitter parsers
 - **[Go](https://go.dev/)**: build step for cursortab.nvim (`cd server && go build`)
-- **[Node.js](https://nodejs.org/) + npm**: mise installs the Node-based LSP servers (vtsls, eslint-lsp, etc.), which the vtsls and angularls configs resolve from mise's install dirs
+- **[Node.js](https://nodejs.org/) + npm**: mise installs the Node-based LSP servers (vtsls, vscode-langservers-extracted, etc.), which the vtsls and angularls configs resolve from mise's install dirs
 
 ### Subscriptions & API Keys
 
@@ -69,7 +69,7 @@ nvim-tree-lua/
 ### LSP & Formatting
 
 - Per-server configs in `lua/core/lsp/nvim-lspconfig/lsp/{server}.lua`
-- [mise-en-place](https://mise.jdx.dev/) installs the LSP servers, formatters and linters from `~/.config/mise/config.toml`
+- [mise-en-place](https://mise.jdx.dev/) installs the Node-based servers, oxfmt, oxlint and prettier from `~/.config/mise/config.toml`; Homebrew provides lua-language-server, marksman, taplo, typos-lsp and stylua
 - Async style-enforcement pipeline (formatters + linters) in `utils/style-enforcers/`
 
 ## Forks (author = hareki)

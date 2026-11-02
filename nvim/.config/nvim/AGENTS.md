@@ -22,7 +22,7 @@ The LuaLS diagnostics surfaced to you come from Claude Code's server, run by the
 
 ## Commands
 
-- **Format**: run `stylua .` after editing Lua (check only: `stylua --check .`; config in `.stylua.toml`), installed via mise-en-place, on `$PATH`
+- **Format**: run `stylua .` after editing Lua (check only: `stylua --check .`; config in `.stylua.toml`), installed via Homebrew, on `$PATH`
 - No test suite or build system
 
 ## Architecture

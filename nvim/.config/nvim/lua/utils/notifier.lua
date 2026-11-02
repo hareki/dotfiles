@@ -101,8 +101,7 @@ local function notify(level, msg, opts)
     })
 
     if opts.height_offset then
-      local h = vim.api.nvim_win_get_height(win)
-      pcall(vim.api.nvim_win_set_height, win, h + opts.height_offset)
+      vim.api.nvim_win_set_height(win, vim.api.nvim_win_get_height(win) + opts.height_offset)
     end
   end
 

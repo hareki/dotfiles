@@ -41,8 +41,8 @@ local function close()
   end
 end
 
---- A hover-unique path, so the float gets its own kitty graphics ID (no size juggling with an
---- inline placement of the same image)
+--- A path unique to `key`, since Snacks caches images per path: placing an edited file by its own
+--- path would keep showing the old pixels
 --- @param key string Hashed into the file name
 --- @param ext string File extension without leading dot
 --- @return string

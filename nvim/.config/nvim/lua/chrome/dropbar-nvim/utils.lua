@@ -10,7 +10,8 @@ function M.is_ignored(buf)
   return IGNORED_FILETYPES[vim.bo[buf].filetype] == true or vim.bo[buf].buftype == 'terminal'
 end
 
---- Filters out help files, terminals, and large files (>1MB).
+--- Whether dropbar attaches: not to floats (zen's aside), windows whose winbar is already claimed,
+--- ignored buffers or files over 1MB
 --- @param buf integer
 --- @param win integer
 --- @return boolean

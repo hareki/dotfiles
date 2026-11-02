@@ -15,6 +15,10 @@ aucmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
   callback = function()
     -- Scheduled: `:checktime {bufnr}` skips the bare form's wait for a harmless moment in autocmds
     vim.schedule(function()
+      -- A reload rewrites the buffer's undo file, and that flush takes a third of the reload
+      local fsync = vim.go.fsync
+      vim.go.fsync = false
+
       for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
         -- getbufvar, since vim.bo switches into the autocmd window (~10us per read, against ~0.2us)
         if
@@ -27,6 +31,8 @@ aucmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
           vim.cmd('silent! checktime ' .. bufnr)
         end
       end
+
+      vim.go.fsync = fsync
     end)
   end,
 })

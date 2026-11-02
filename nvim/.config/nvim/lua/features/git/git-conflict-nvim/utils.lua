@@ -104,7 +104,7 @@ function M.setup()
       vim.diagnostic.enable(false, { bufnr = bufnr })
 
       M.state.autocmds[bufnr] = vim.api.nvim_create_autocmd(
-        { 'CursorMoved', 'CursorMovedI', 'BufWinEnter', 'BufEnter', 'BufLeave' },
+        { 'CursorMoved', 'CursorMovedI', 'BufEnter', 'BufLeave' },
         {
           group = group,
           buf = bufnr,
@@ -118,7 +118,7 @@ function M.setup()
       )
 
       -- The plugin parses, and fires this, inside a decoration provider's on_win, where changing
-      -- an option is unsafe; a buffer left by then gets its highlights from BufWinEnter on return
+      -- an option is unsafe; a buffer left by then gets its highlights from BufEnter on return
       vim.schedule(function()
         if M.state.autocmds[bufnr] and vim.api.nvim_get_current_buf() == bufnr then
           apply_window_winhl(vim.api.nvim_get_current_win(), cursor_in_conflict())

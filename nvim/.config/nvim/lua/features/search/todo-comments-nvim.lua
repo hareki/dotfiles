@@ -9,6 +9,8 @@ return {
   cmd = 'TodoTrouble',
   event = 'VeryLazy',
 
+  dependencies = { 'nvim-lua/plenary.nvim' },
+
   keys = {
     { ']t', todo_comments.jump_next, desc = 'Next Todo Comment' },
     { '[t', todo_comments.jump_prev, desc = 'Previous Todo Comment' },

@@ -6,16 +6,6 @@ local M = {}
 -- Closer of the open popup: a second would fight it over <Tab>/<Esc> and orphan the first float
 local close_active_popup
 
-local function collect_matches()
-  local groups = {}
-  for _, mm in ipairs(vim.fn.getmatches()) do
-    if mm.group and mm.group ~= '' then
-      table.insert(groups, mm.group)
-    end
-  end
-  return groups
-end
-
 --- Render the popup's markdown: a bold title per section, then its unique items or 'none'
 --- @param sections { [1]: string, [2]: string[] }[] Section titles and their list items
 --- @return string[]
@@ -174,7 +164,12 @@ function M.show()
         )
       end, vim.list_extend(items.semantic_tokens, items.extmarks)),
     },
-    { '4. Matches', vim.tbl_map(group_item, collect_matches()) },
+    {
+      '4. Matches',
+      vim.tbl_map(function(match)
+        return group_item(match.group)
+      end, vim.fn.getmatches()),
+    },
   })
 
   local buf, win = open_popup(lines, items.row, items.col)

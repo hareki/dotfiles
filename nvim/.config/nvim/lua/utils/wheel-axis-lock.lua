@@ -12,9 +12,8 @@ local sideways_streak = 0
 -- Set only by a tick that moved text: sideways ticks over text that fits must not block scrolling
 local panning = false
 
---- @param now number
-local function forget_ended_swipe(now)
-  if now - last_sideways_tick >= RELEASE_NS then
+local function forget_ended_swipe()
+  if vim.uv.hrtime() - last_sideways_tick >= RELEASE_NS then
     sideways_streak = 0
     panning = false
   end
@@ -44,6 +43,12 @@ end
 --- @return boolean
 local function can_pan(left)
   local win = vim.fn.getmousepos().winid
+  -- Terminal mode forwards a tick to a job that reads the mouse, which no API reveals, and a nested
+  -- editor has its own text to pan
+  if vim.fn.mode() == 't' and win == vim.api.nvim_get_current_win() then
+    return true
+  end
+
   if win == 0 or vim.wo[win].wrap then
     return false
   end
@@ -59,9 +64,8 @@ end
 --- @param left boolean
 --- @return boolean
 local function sideways(left)
-  local now = vim.uv.hrtime()
-  forget_ended_swipe(now)
-  last_sideways_tick = now
+  forget_ended_swipe()
+  last_sideways_tick = vim.uv.hrtime()
   sideways_streak = sideways_streak + 1
   if not panning and sideways_streak < ENGAGE_TICKS or not can_pan(left) then
     return false
@@ -85,7 +89,7 @@ end
 --- since a swipe that turns vertical keeps drifting sideways and so never reaches RELEASE_NS
 --- @return boolean
 function M.vertical()
-  forget_ended_swipe(vim.uv.hrtime())
+  forget_ended_swipe()
   local drift = panning and sideways_streak > 0
   sideways_streak = 0
   panning = drift

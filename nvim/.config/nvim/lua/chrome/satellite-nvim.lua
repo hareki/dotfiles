@@ -21,6 +21,7 @@ return {
         floating = true,
         winblend = 0,
         excluded_filetypes = {
+          'bigfile',
           'snacks_picker_list',
           'blink-cmp-menu',
           'blink-cmp-documentation',

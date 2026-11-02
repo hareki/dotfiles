@@ -38,7 +38,7 @@ end
 -- Drop a tick with <Ignore>: an empty expr result leaves it in vim.on_key's `typed`, glued to the
 -- next key, which then fails the exact matches in Snacks' picker list and multicursor
 local function map_wheel(key, desc, passes)
-  map({ 'n', 'x', 's', 'i' }, key, function()
+  map({ 'n', 'x', 's', 'i', 't' }, key, function()
     return passes() and key or '<Ignore>'
   end, { expr = true, desc = desc })
 end
