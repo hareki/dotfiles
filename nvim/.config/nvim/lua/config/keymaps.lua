@@ -6,6 +6,9 @@ local map = vim.keymap.set
 --- @module 'utils.style-enforcers'
 local style_enforcers = Defer.on_exported_call('utils.style-enforcers')
 
+--- @module 'utils.wheel-axis-lock'
+local wheel_axis_lock = Defer.on_exported_call('utils.wheel-axis-lock')
+
 local function diagnostic_goto(next, severity)
   local direction = next and 1 or -1
   severity = vim.diagnostic.severity[severity]
@@ -30,6 +33,14 @@ local function scroll_center(motion)
       vim.cmd.normal({ 'zz', bang = true })
     end
   end
+end
+
+-- Drop a tick with <Ignore>: an empty expr result leaves it in vim.on_key's `typed`, glued to the
+-- next key, which then fails the exact matches in Snacks' picker list and multicursor
+local function map_wheel(key, desc, passes)
+  map({ 'n', 'x', 's', 'i' }, key, function()
+    return passes() and key or '<Ignore>'
+  end, { expr = true, desc = desc })
 end
 
 -- Jumplist keys as no-ops in non-file buffers, decided per keypress: <C-i> is <Tab>, so a
@@ -128,6 +139,12 @@ end, { desc = 'Close Other Buffers' })
 map({ 'n', 'x' }, '<leader>qa', '<cmd>qa<cr>', { desc = 'Quit All' })
 map({ 'n', 'x' }, '<PageUp>', scroll_center('<C-u>'), { desc = 'Scroll Up and Center' })
 map({ 'n', 'x' }, '<PageDown>', scroll_center('<C-d>'), { desc = 'Scroll Down and Center' })
+
+-- Lock each trackpad swipe to one axis, as browsers do: terminals report every bit of drift
+map_wheel('<ScrollWheelUp>', 'Scroll Up', wheel_axis_lock.vertical)
+map_wheel('<ScrollWheelDown>', 'Scroll Down', wheel_axis_lock.vertical)
+map_wheel('<ScrollWheelLeft>', 'Scroll Left', wheel_axis_lock.left)
+map_wheel('<ScrollWheelRight>', 'Scroll Right', wheel_axis_lock.right)
 
 map('v', '<leader>t', "ygvgc']p", {
   remap = true,
