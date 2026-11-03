@@ -180,6 +180,7 @@ Writing the replies:
 
 - Write as the user, in first person, matching the thread's register: a terse reviewer gets a terse reply. No filler, no restating the comment, no thanking for every remark.
 - Each reply has to stand on its own, since it gets posted in its own thread.
+- Open every reply with one sentence that says where you stand: you agree, you disagree, or the problem is real but you'd fix it differently (`I'd leave it as is: ...`, `You're right about X, but ...`). The specifics follow it. A reply that is only facts leaves the reviewer to work out the verdict. A Fixed entry's `Fixed in <short SHA>` already says it.
 - Back answers and declines with specifics: what the code does and where (`path:line`), what you ran and what happened. A decline should let the reviewer check the reasoning, not just hear no.
 - Put doubt in the Note instead of overstating the reply.
 
