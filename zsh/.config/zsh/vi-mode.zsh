@@ -13,11 +13,9 @@ autoload -Uz add-zle-hook-widget
 add-zle-hook-widget keymap-select _cursor_shape
 add-zle-hook-widget line-init _cursor_shape
 
-osc52_copy() { printf '\e]52;c;%s\a' "$(printf %s "$1" | base64)" }
-
 # `zle .$WIDGET` runs the builtin the invoked widget shadows. A cancelled yank (`h` then Esc)
 # skips the copy (the old yank would land on the clipboard) but exits 0, or zle would beep
-vi_yank_osc52() { if zle .$WIDGET; then osc52_copy "$CUTBUFFER"; fi }
+vi_yank_osc52() { if zle .$WIDGET; then printf '\e]52;c;%s\a' "$(printf %s "$CUTBUFFER" | base64)"; fi }
 
 zle -N vi-yank vi_yank_osc52
 zle -N vi-yank-whole-line vi_yank_osc52

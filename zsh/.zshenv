@@ -8,9 +8,14 @@ export EZA_CONFIG_DIR="$XDG_CONFIG_HOME/eza"
 CLOUDSDK_PYTHON=/opt/homebrew/opt/python@3.13/libexec/bin/python
 [[ -x $CLOUDSDK_PYTHON ]] && export CLOUDSDK_PYTHON || unset CLOUDSDK_PYTHON
 
-# Use MacOS keychain to store secrets; skip when a parent shell already exported the value
-[[ -n $MERCURY_API_KEY ]] || export MERCURY_API_KEY=$(security find-generic-password -a "$USER" -s "MERCURY_API_KEY" -w)
-[[ -n $ANTHROPIC_API_KEY ]] || export ANTHROPIC_API_KEY=$(security find-generic-password -a "$USER" -s "ANTHROPIC_API_KEY" -w)
+# Use MacOS keychain to store secrets; skip when a parent shell already exported them. Both
+# lookups run at once, since each waits ~14ms on the keychain (~35ms back to back, ~20ms together)
+if [[ -z $MERCURY_API_KEY || -z $ANTHROPIC_API_KEY ]]; then
+  { read -r MERCURY_API_KEY <&3; read -r ANTHROPIC_API_KEY <&4 } \
+    3< <(security find-generic-password -a "$USER" -s MERCURY_API_KEY -w) \
+    4< <(security find-generic-password -a "$USER" -s ANTHROPIC_API_KEY -w)
+  export MERCURY_API_KEY ANTHROPIC_API_KEY
+fi
 
 # Skip the global rcs (/etc/zshrc forks `locale`), but for /etc/zprofile's path_helper and
 # LANG, which deeper shells (tmux panes) inherit. Sourced here so the dirs below land in front

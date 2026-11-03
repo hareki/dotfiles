@@ -35,7 +35,7 @@ The sourcing order of config modules matters: later files depend on earlier ones
 
 ### Plugin Management
 
-Plugins are declared in `.zplugins` and managed by Antidote. Antidote statically generates a bundled file (`.zplugins.bundled.zsh`) that is only regenerated when `.zplugins` changes. Most plugins use `kind:defer` for deferred loading.
+Plugins are declared in `.zplugins` and managed by Antidote. Antidote statically generates a bundled file (`.zplugins.bundled.zsh`) that is only regenerated when `.zplugins` changes. fzf-tab and zsh-autosuggestions load through `kind:defer`; the omz libs and p10k load eagerly.
 
 `.zplugins` lists only the omz lib files this config uses instead of all of `lib` (~5ms per shell), and omz's own loader isn't used either: `plugins.zsh` sets the `$ZSH` and `$ZSH_CACHE_DIR` that the libs and the updater read and runs `tools/check_for_upgrade.sh` itself, and `completion.zsh` runs compinit. Helpers from the other lib files (`omz`, `clipcopy`, `git_prompt_info`, ...) don't exist here, so add a lib file to the list when something starts to need it.
 
