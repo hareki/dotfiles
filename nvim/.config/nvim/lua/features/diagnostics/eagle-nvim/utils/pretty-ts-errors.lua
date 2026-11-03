@@ -4,9 +4,15 @@ local M = {}
 local EXECUTABLE = 'pretty-ts-errors-markdown'
 local MAX_CACHE_ENTRIES = 512
 
+--- @class features.diagnostics.eagle.utils.pretty-ts-errors.State
+--- @field cli_unavailable boolean Set on spawn failure so we never re-pay a failed spawn
+--- @field cache table<string, string> Markdown by diagnostic key
+--- @field cache_size integer Entries in `cache`, wiped with it at MAX_CACHE_ENTRIES
+
+--- @type features.diagnostics.eagle.utils.pretty-ts-errors.State
 M.state = {
-  cli_unavailable = false, -- Set on spawn failure so we never re-pay a failed spawn
-  cache = {}, -- key -> markdown
+  cli_unavailable = false,
+  cache = {},
   cache_size = 0,
 }
 

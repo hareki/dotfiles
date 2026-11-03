@@ -55,8 +55,8 @@ function ProgressHandle:_send(kind, title, percentage)
   })
 end
 
--- While pending, cache the latest state; an 'end' cached before the delay elapses aborts the
--- flush, so nothing shows. After the delay, events go straight to Noice
+-- While pending, cache the latest state; finish() closes the timer, so a run that ends inside the
+-- delay shows nothing. After the delay, events go straight to Noice
 --- @private
 --- @param kind       'begin' | 'report' | 'end'
 --- @param title      string | nil
@@ -108,7 +108,9 @@ function M.create(opts)
   handle._timer = vim.defer_fn(function()
     handle._pending = false
 
-    -- 'end' cached during the pending window means abort: show nothing.
+    -- 'end' cached during the pending window means abort: show nothing. finish() closes this
+    -- timer, so the flush sees 'end' only when the run ends in the event-loop iteration that
+    -- fires it: libuv runs timers after the poll, which queues that finish() ahead of this flush
     if handle._cached_kind and handle._cached_kind ~= 'end' then
       ProgressHandle._send(handle, handle._cached_kind, handle._cached_title, handle._cached_perc)
     end
