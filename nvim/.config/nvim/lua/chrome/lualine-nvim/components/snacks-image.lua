@@ -20,14 +20,18 @@ local function has_images_query(lang)
   return has
 end
 
--- Images of one buffer state: cursor moves test against them, a buffer or text change requeries
+-- Images on one cursor row of one buffer state: a whole-buffer query opens a tree-sitter cursor per
+-- markdown_inline tree, one per paragraph (3.3 ms per edit at 850 lines, 12 ms at 3000), while
+-- at_cursor's row-limited query costs 0.3 ms
 --- @class chrome.lualine.components.snacks-image.Cache
 --- @field buf integer
 --- @field tick integer
+--- @field row integer
 --- @field images snacks.image.match[] | nil nil while the query is in flight
 local cache = {
   buf = -1,
   tick = -1,
+  row = -1,
   images = nil,
 }
 
@@ -67,7 +71,7 @@ function M.cond()
     return mermaid_has_content(buf)
   end
 
-  -- `gi` is normal-mode, and each insert keystroke would rerun the find() below (~2ms at 850 lines)
+  -- `gi` is normal-mode, and each insert keystroke would rerun the find() below (0.3 ms at 850 lines)
   local mode = vim.api.nvim_get_mode().mode:sub(1, 1)
   if mode == 'i' or mode == 'R' then
     return false
@@ -80,15 +84,18 @@ function M.cond()
   end
 
   local tick = vim.api.nvim_buf_get_changedtick(buf)
-  if cache.buf ~= buf or cache.tick ~= tick then
+  local cursor = vim.api.nvim_win_get_cursor(0)
+  local row = cursor[1]
+  if cache.buf ~= buf or cache.tick ~= tick or cache.row ~= row then
     cache.buf = buf
     cache.tick = tick
+    cache.row = row
     cache.images = nil
 
     -- `find` parses asynchronously, so refresh the statusline if an image ends up under the cursor
     Snacks.image.doc.find(buf, function(images)
-      -- The buffer may have changed during the async gap; this result is for an older state
-      if cache.buf ~= buf or cache.tick ~= tick then
+      -- The buffer or cursor may have moved during the async gap; this result is for an older state
+      if cache.buf ~= buf or cache.tick ~= tick or cache.row ~= row then
         return
       end
 
@@ -99,10 +106,10 @@ function M.cond()
       then
         UI.statusline.refresh()
       end
-    end)
+    end, { from = row, to = row })
   end
 
-  return cache.images ~= nil and image_at(cache.images, vim.api.nvim_win_get_cursor(0))
+  return cache.images ~= nil and image_at(cache.images, cursor)
 end
 
 --- @return string

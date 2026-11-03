@@ -4,6 +4,9 @@
 --- @module 'todo-comments'
 local todo_comments = Defer.on_exported_call('todo-comments')
 
+--- @module 'snacks.picker'
+local picker = Defer.on_exported_call('snacks.picker')
+
 return {
   'folke/todo-comments.nvim',
   cmd = 'TodoTrouble',
@@ -24,13 +27,7 @@ return {
       end,
       desc = 'Find Todo/Fix/Hack Comments',
     },
-    {
-      '<leader>fT',
-      function()
-        Snacks.picker.todo_comments()
-      end,
-      desc = 'Find All Todo Comments',
-    },
+    { '<leader>fT', picker.todo_comments, desc = 'Find All Todo Comments' },
   },
 
   opts = function()

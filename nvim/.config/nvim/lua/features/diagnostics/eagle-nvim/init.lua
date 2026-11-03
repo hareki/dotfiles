@@ -39,11 +39,7 @@ return {
         },
       },
 
-      on_open = function(eagle_win, eagle_buf)
-        local map = common.buf_mapper(eagle_buf)
-        map({ 'n', 'x' }, '<PageUp>', '<C-u>', 'Scroll Up')
-        map({ 'n', 'x' }, '<PageDown>', '<C-d>', 'Scroll Down')
-
+      on_open = function(eagle_win)
         common.link_popup(eagle_win, {
           name = 'Eagle',
           modes = { 'n', 'x' },
