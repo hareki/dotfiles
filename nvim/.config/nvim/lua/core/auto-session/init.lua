@@ -20,6 +20,9 @@ return {
           codediff_utils.close_tabs()
         end,
       })
+
+      local utils = require('core.auto-session.utils')
+      utils.publish_tmux_server()
     end,
 
     keys = {

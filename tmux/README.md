@@ -11,6 +11,7 @@
 - Seamless pane navigation shared with Neovim via [vim-tmux-navigator](https://github.com/christoomey/vim-tmux-navigator)
 - Catppuccin Mocha theme with customized status bar
 - Image passthrough enabled for tools like [yazi](https://github.com/sxyazi/yazi) and [snacks.image](https://github.com/folke/snacks.nvim/blob/main/docs/image.md)
+- Manual snapshots with `tsave` / `trestore` (see [Snapshots](#snapshots))
 
 ## Plugins
 
@@ -18,6 +19,21 @@
 - **[tmux-yank](https://github.com/tmux-plugins/tmux-yank)**: System clipboard integration
 - **[tmux-catppuccin](https://github.com/catppuccin/tmux)** (fork): Catppuccin Mocha status bar and theming
 - **[vim-tmux-navigator](https://github.com/christoomey/vim-tmux-navigator)**: Seamless Neovim ↔ tmux pane navigation
+- **[tmux-resurrect](https://github.com/tmux-plugins/tmux-resurrect)**: Session snapshots, taken by hand only (no tmux-continuum)
+
+## Snapshots
+
+The zsh functions `tsave` and `trestore` drive tmux-resurrect:
+
+- **`tsave`**: snapshots every session, then quits each pane's nvim through its normal exit (so auto-session saves its session) and kills the server
+  - **`-c`/`--continue`**: snapshot only, leaving nvim and tmux running, like resurrect's own `prefix C-s`
+  - Nothing is quit or killed while an nvim holds work a kill would lose: unsaved buffers, a nested nvim in a terminal buffer, a suspended nvim, or one it can't reach. Pane nvims publish their RPC address as the `@nvim-server` pane option for this (nvim's `core/auto-session/utils.lua`)
+- **`trestore [<id>]`**: restores a snapshot into a fresh server, from inside tmux or from a plain terminal
+  - Without an id it restores `last`, the snapshot most recently saved or restored (also what `prefix C-r` restores)
+  - Ids are the snapshot's date and time (`2026-11-04_20-15-30`); `trestore <TAB>` and `trestore --list` show them newest first
+  - **`--force`**: restore into a server that already has panes (resurrect leaves those as they are)
+- **Expiry**: `scripts/resurrect-prune.sh`, resurrect's post-save hook, deletes snapshots 3 days after their last save. The snapshot `last` pointed to before a save survives that save, so a stray save can't take the one you meant to restore
+- **nvim relaunch**: nvim panes relaunch as bare `nvim` in nvim's directory, so auto-session reopens that directory's session. An `nvim <file>` pane comes back as its directory's session, not the file
 
 ## Config Structure
 
@@ -27,10 +43,13 @@
 ├── options.conf               # Terminal, mouse, true color, image passthrough
 ├── keymaps.conf               # All keybindings
 ├── typos.toml                 # typos-lsp allowlist (@thm_* palette vars)
-└── plugins/
-    ├── catppuccin.conf        # Theme: status bar layout, pane borders, icons
-    ├── yank.conf              # Clipboard bindings
-    └── vim-tmux-navigator.conf # Pane navigation keys
+├── plugins/
+│   ├── catppuccin.conf        # Theme: status bar layout, pane borders, icons
+│   ├── yank.conf              # Clipboard bindings
+│   ├── vim-tmux-navigator.conf # Pane navigation keys
+│   └── resurrect.conf         # Snapshot dir, expiry hook, nvim relaunch
+└── scripts/
+    └── resurrect-prune.sh     # Expires snapshots 3 days after their last save
 ```
 
 Plugins themselves are installed by TPM into `~/.tmux/plugins/` (pinned via

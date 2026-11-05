@@ -90,6 +90,8 @@ build <target>        # Build a local tool from source into ~/.local/opt/bin (at
 cts                   # Toggle git skip-worktree on claude-code settings.json (model/effort churn)
 ff                    # fastfetch with buffered output
 mux <project>         # tmuxinator start, from a throwaway session outside tmux so the layouts are built at the terminal's size
+tsave [-c|--continue] # tmux-resurrect snapshot, then quit every pane nvim cleanly and kill tmux (unless --continue); refuses while any nvim holds unsaved work
+trestore [<id>]       # Restore a snapshot (default: `last`) into a fresh tmux server; --list shows ids newest first, --force restores into a busy server
 ```
 
 ## Conventions

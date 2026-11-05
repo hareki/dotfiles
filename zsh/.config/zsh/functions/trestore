@@ -1,0 +1,111 @@
+#!/bin/zsh
+
+# Restores a tmux-resurrect snapshot the way `prefix C-r` does, from inside tmux or from a plain
+# terminal. Without an id it restores `last`: the snapshot most recently saved or restored.
+# Ids are the snapshot's date and time: 2026-11-04_20-15-30 is tmux_resurrect_20261104T201530.txt
+trestore() {
+  local force=0 list=0 id
+  while (( $# )); do
+    case $1 in
+      -h|--help)
+        print 'Usage: trestore [--force] [<id>]   # no id: the last snapshot saved or restored'
+        print '       trestore --list             # snapshot ids, newest first'
+        print '  --force: restore into a server that already has panes (resurrect keeps them as they are)'
+        return 0
+        ;;
+      --list) list=1 ;;
+      --force) force=1 ;;
+      -*)
+        print -u2 "trestore: unknown option: $1"
+        return 1
+        ;;
+      *)
+        if [[ -n $id ]]; then
+          print -u2 'trestore: one snapshot at a time'
+          return 1
+        fi
+        id=$1
+        ;;
+    esac
+    shift
+  done
+
+  local dir
+  if (( list )); then
+    zmodload zsh/datetime
+    dir=$(tmux show-option -gqv @resurrect-dir 2>/dev/null)
+    # Same path as @resurrect-dir in tmux/.config/tmux/plugins/resurrect.conf
+    dir=${dir:-$HOME/.local/share/tmux/resurrect}
+
+    local today yesterday noon
+    strftime -s today %Y%m%d $EPOCHSECONDS
+    # From today's noon, so a DST shift can't land on the wrong day
+    strftime -r -s noon '%Y%m%d %H' "$today 12"
+    strftime -s yesterday %Y%m%d $(( noon - 86400 ))
+
+    local last f ts epoch when s w mark
+    local -a lines sessions windows
+    last=$(readlink "$dir/last" 2>/dev/null)
+    for f in $dir/tmux_resurrect_*.txt(N.On); do
+      ts=${${f:t:r}#tmux_resurrect_}
+      strftime -r -s epoch %Y%m%dT%H%M%S $ts
+      case ${ts[1,8]} in
+        $today) strftime -s when 'today %H:%M' $epoch ;;
+        $yesterday) strftime -s when 'yesterday %H:%M' $epoch ;;
+        *) strftime -s when '%a %H:%M' $epoch ;;
+      esac
+
+      lines=(${(f)"$(<$f)"})
+      sessions=(${(u)${${(M)lines:#pane$'\t'*}#pane$'\t'}%%$'\t'*})
+      windows=(${(M)lines:#window$'\t'*})
+      s=s w=s mark=
+      (( $#sessions == 1 )) && s=
+      (( $#windows == 1 )) && w=
+      [[ ${f:t} == $last ]] && mark=', last'
+      print -r -- "${ts[1,4]}-${ts[5,6]}-${ts[7,8]}_${ts[10,11]}-${ts[12,13]}-${ts[14,15]}" \
+        " $when, $#sessions session$s, $#windows window$w$mark"
+    done
+    return 0
+  fi
+
+  # A lone pane is resurrect's cue to restore from scratch: the snapshot replaces it, then
+  # the placeholder session goes, but only when it is named `0`, and this tmux build names
+  # unnamed sessions session-<id>
+  local started=0
+  if ! tmux has-session 2>/dev/null; then
+    tmux new-session -d -s 0 || return 1
+    started=1
+  fi
+
+  local script file err
+  local -a panes
+  dir=$(tmux show-option -gqv @resurrect-dir)
+  script=$(tmux show-option -gqv @resurrect-restore-script-path)
+  panes=(${(f)"$(tmux list-panes -a -F '#{pane_id}')"})
+  [[ -n $id ]] && file=tmux_resurrect_${${id//-/}/_/T}.txt
+  if [[ -z $script ]]; then
+    err='tmux-resurrect is not loaded'
+  elif (( ! force && $#panes > 1 )); then
+    # Resurrect leaves existing panes alone and relaunches nothing in them
+    err='this server already has panes, so the restore would barely change it; use a fresh one, or --force'
+  elif [[ -n $file && ! -f $dir/$file ]]; then
+    err="no snapshot $id (trestore --list shows them)"
+  elif [[ -z $file && ! -e $dir/last ]]; then
+    err='no snapshot to restore'
+  fi
+  if [[ -n $err ]]; then
+    print -u2 "trestore: $err"
+    (( started )) && tmux kill-server
+    return 1
+  fi
+
+  [[ -n $file ]] && ln -fs $file "$dir/last"
+  (( $#panes == 1 )) && tmux rename-session -t $panes[1] 0
+
+  # A server job, like `prefix C-r`: a restore from scratch replaces the pane it started from
+  if [[ -n $TMUX ]]; then
+    tmux run-shell -b "$script"
+  else
+    tmux attach \; run-shell -b "$script"
+  fi
+}

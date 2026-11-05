@@ -1,0 +1,136 @@
+#!/bin/zsh
+
+# Snapshots every tmux session with tmux-resurrect, then quits each pane's nvim through its normal
+# exit (so auto-session saves its session) and kills the server; -c/--continue stops after the
+# snapshot. Pane nvims publish their RPC address as @nvim-server (nvim's core/auto-session/utils.lua),
+# and nothing is quit or killed while any nvim holds work a kill would lose
+tsave() {
+  zmodload zsh/datetime
+  zmodload -F zsh/stat b:zstat
+
+  local keep_running=0
+  case $1 in
+    -c|--continue) keep_running=1 ;;
+    -h|--help)
+      print 'Usage: tsave [-c|--continue]   # --continue: snapshot only, leave nvim and tmux running'
+      return 0
+      ;;
+    '') ;;
+    *)
+      print -u2 "tsave: unknown option: $1"
+      return 1
+      ;;
+  esac
+
+  local save dir
+  save=$(tmux show-option -gqv @resurrect-save-script-path 2>/dev/null)
+  if [[ -z $save ]]; then
+    print -u2 'tsave: no tmux server with tmux-resurrect loaded'
+    return 1
+  fi
+  dir=$(tmux show-option -gqv @resurrect-dir)
+
+  if (( ! keep_running )) && [[ -n $NVIM && -n $TMUX ]]; then
+    print -u2 'tsave: quitting the nvim this shell runs in would end tsave before the kill;'
+    print -u2 '  run it from a plain pane, or use --continue'
+    return 1
+  fi
+
+  # Resurrect names snapshots by the second, and a second save within one deletes itself
+  local prev now
+  prev=$(readlink "$dir/last")
+  strftime -s now %Y%m%dT%H%M%S $EPOCHSECONDS
+  [[ $prev == tmux_resurrect_$now.txt ]] && sleep 1
+
+  # save.sh exits 0 whatever happens: `last` (re)written from here on is the proof
+  local start=$EPOCHSECONDS
+  tmux run-shell "$save quiet"
+  if [[ ! -f $dir/last ]] || (( $(zstat +mtime "$dir/last") < start )); then
+    print -u2 'tsave: the snapshot was not saved, nothing quit or killed'
+    return 1
+  fi
+
+  local snap ts id
+  snap=$(readlink "$dir/last")
+  ts=${${snap:r}#tmux_resurrect_}
+  id="${ts[1,4]}-${ts[5,6]}-${ts[7,8]}_${ts[10,11]}-${ts[12,13]}-${ts[14,15]}"
+  if [[ $snap == $prev ]]; then
+    print "Unchanged since snapshot $id, its expiry restarts"
+  else
+    print "Saved snapshot $id"
+  fi
+  (( keep_running )) && return 0
+
+  # Nothing is quit until every pane checks out, so a refusal leaves everything running
+  local -a blocked panes ttys fields
+  local -A target_of tty_of cmd_of addr_of nvims_on
+  local line pane tty comm out
+  for line in ${(f)"$(tmux list-panes -a -F $'#{pane_id}\t#{session_name}:#{window_index}.#{pane_index}\t#{pane_tty}\t#{pane_current_command}\t#{@nvim-server}')"}; do
+    fields=("${(@ps:\t:)line}")
+    pane=$fields[1]
+    # Grouped sessions list their shared panes once per session
+    (( $+target_of[$pane] )) && continue
+    panes+=($pane)
+    target_of[$pane]=$fields[2]
+    tty_of[$pane]=${fields[3]#/dev/}
+    cmd_of[$pane]=$fields[4]
+    addr_of[$pane]=$fields[5]
+    ttys+=(-t ${fields[3]#/dev/})
+  done
+
+  # Every nvim TUI on a pane's tty: a suspended (Ctrl-Z) or background one dies with the server
+  ps -o tty=,comm= $ttys | while read -r tty comm; do
+    [[ ${comm:t} == nvim ]] && (( nvims_on[$tty]++ ))
+  done
+
+  local -a rpc=(timeout 2 /opt/homebrew/bin/nvim --headless --server)
+  local -a quit
+  for pane in $panes; do
+    if [[ $cmd_of[$pane] != nvim ]]; then
+      (( nvims_on[$tty_of[$pane]] )) && blocked+=("$target_of[$pane]: a suspended or background nvim")
+      continue
+    fi
+    if (( nvims_on[$tty_of[$pane]] > 1 )); then
+      blocked+=("$target_of[$pane]: a suspended or background nvim besides the running one")
+    elif [[ -z $addr_of[$pane] ]]; then
+      blocked+=("$target_of[$pane]: nvim isn't reachable (started before this config, or with --clean)")
+    # --headless: with a tty on any std stream, `--remote-expr` starts a UI instead
+    elif ! out=$($rpc $addr_of[$pane] --remote-expr "v:lua.require'core.auto-session.utils'.unsaved()" </dev/null 2>/dev/null); then
+      blocked+=("$target_of[$pane]: nvim didn't answer (waiting on a prompt?)")
+    elif [[ -n $out ]]; then
+      blocked+=("$target_of[$pane]: ${(j:, :)${(f)out}}")
+    else
+      quit+=($pane)
+    fi
+  done
+
+  if (( $#blocked )); then
+    print -u2 "tsave: snapshot $id kept, tmux left running:"
+    print -u2 -l -- "  "${^blocked}
+    return 1
+  fi
+
+  for pane in $quit; do
+    $rpc $addr_of[$pane] --remote-expr "v:lua.require'core.auto-session.utils'.quit()" </dev/null &>/dev/null
+  done
+
+  # A pane (or the whole server) that is gone has finished quitting too
+  local -a running
+  repeat 100; do
+    running=()
+    for pane in $quit; do
+      [[ $(tmux display-message -p -t $pane '#{pane_current_command}' 2>/dev/null) == nvim ]] &&
+        running+=($target_of[$pane])
+    done
+    (( $#running )) || break
+    sleep 0.1
+  done
+  if (( $#running )); then
+    print -u2 "tsave: snapshot $id kept, but nvim is still running in: ${(j:, :)running}"
+    print -u2 '  finish there, then run `tmux kill-server`: a new tsave would save the quit panes as plain shells'
+    return 1
+  fi
+
+  tmux kill-server 2>/dev/null
+  return 0
+}

@@ -1,0 +1,18 @@
+#compdef trestore
+
+# Keep `trestore --list`'s newest-first order: both zsh and fzf-tab sort matches by default
+zstyle ':completion:*:trestore:*' sort false
+
+# Each `<id>  <description>` line becomes `<id>:<description>`
+local -a snapshots=(${${(f)"$(trestore --list)"}/  /:})
+local -a options=(
+  '--force:Restore into a server that already has panes'
+  '--list:List snapshots, newest first'
+  '--help:Show usage info'
+)
+local ret=1
+
+_describe -t snapshots 'tmux snapshot' snapshots && ret=0
+# -o offers them only once the word starts with `-`
+_describe -o -t options 'option' options && ret=0
+return ret
