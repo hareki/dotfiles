@@ -1,9 +1,9 @@
 ---
 name: setup-tonomo-task
-description: Set up the Matt Pocock skills for one Tonomo Jira task only, with the docs in a tracked task folder and the instructions in the git-ignored .claude/CLAUDE.md.
+description: Set up the Matt Pocock skills for one Tonomo Jira task only, with the docs in a tracked task folder and the instructions in the git-ignored .claude/CLAUDE.md, then route the skills to run next.
 disable-model-invocation: true
 argument-hint: "[jira-url | jira-key]"
-allowed-tools: Read(~/.claude/skills/setup-matt-pocock-skills/**), Bash(git branch:*), Bash(git rev-parse:*), Bash(git check-ignore:*), Bash(git status:*), Bash(git add:*), Bash(git commit:*), mcp__plugin_atlassian_atlassian__getJiraIssue, mcp__plugin_atlassian_atlassian__listJiraIssueComments
+allowed-tools: Read(~/.claude/skills/**), Bash(git branch:*), Bash(git rev-parse:*), Bash(git check-ignore:*), Bash(git status:*), Bash(git add:*), Bash(git commit:*), mcp__plugin_atlassian_atlassian__getJiraIssue, mcp__plugin_atlassian_atlassian__listJiraIssueComments
 ---
 
 # Setup Tonomo Task
@@ -105,10 +105,21 @@ Stage `<KEY>-docs/agents/` alone and commit it as `docs(<KEY>): setup mattpocock
 
 If the branch name doesn't carry `<KEY>`, the task's branch isn't checked out: leave the commit to the user and say so in the report.
 
-## 6. Report
+## 6. Route the next skills
+
+Read [`ask-matt/SKILL.md`](../ask-matt/SKILL.md) and the [`PHASE-BOUNDARIES.md`](../ask-matt/PHASE-BOUNDARIES.md) beside it (user-invoked too, so read them as in step 2), and ask it about this task: the situation is what step 1 found, and the precondition it names is this setup, now done.
+
+- Start where the task stands: when `<KEY>-docs/` already holds a spec or tickets, the route picks up after them, such as at the first ticket not `Status: done`.
+- Give each skill on the route a line on what it does for this task, in the glossaries' terms and with `<KEY>-docs/` paths in place of `.scratch/` ones.
+- Where ask-matt offers a choice, such as `/implement` per ticket or `/implement-spec`, recommend one from what step 1 found about how the task ships, and name the other.
+- Make the context call at every boundary with the PHASE-BOUNDARIES.md tree. The first is `/clear`, because `.claude/CLAUDE.md` is read at session start.
+
+Done when the route runs from the next skill through `/retro`, you've read the SKILL.md of every skill on it, and every boundary names one of the five options with its reason.
+
+## 7. Report
 
 State what was written and the commit, then add:
 
 - What was tuned beyond the seeds: the related docs, and any convention added for this task.
 - Anything the ticket and related docs disagree on, which one you followed, and what they leave open.
-- That the user should `/clear` before the next skill, because `.claude/CLAUDE.md` is read at session start.
+- The route from step 6 as a numbered list, each item giving the context call and its reason, then the skill and its line.
