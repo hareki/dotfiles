@@ -2,9 +2,9 @@
 
 build() {
   local -a targets=(atuin eza television worktrunk lazygit fzf tmux)
-  local target failed=0
+  local target failed=0 root=~/.local/opt
   # Outside the toolchains' dirs, binaries skip mise's ~25ms shims and survive go upgrades
-  local -x CARGO_INSTALL_ROOT=~/.local/opt GOBIN=~/.local/opt/bin
+  local -x CARGO_INSTALL_ROOT=$root GOBIN=$root/bin
 
   case "$1" in
     --list) print -l $targets; return 0 ;;
@@ -30,10 +30,10 @@ build() {
       # distclean leaves autogen.sh's outputs and the .deps dirs (stale .Po files) behind
       brew install libevent utf8proc jemalloc \
         && sh autogen.sh \
-        && ./configure --enable-utf8proc --enable-jemalloc \
+        && ./configure --prefix=$root --enable-utf8proc --enable-jemalloc \
         && make clean \
         && make \
-        && sudo make install \
+        && make install \
         && make distclean \
         && rm -rf autom4te.cache aclocal.m4 configure configure~ Makefile.in etc \
           .deps compat/.deps fuzz/.deps
