@@ -13,6 +13,9 @@ yay() {
   print-header "Updating Mise"
   mise install && mise upgrade || failed+=(Mise)
 
+  print-header "Updating Skills"
+  skills update -g || failed+=(Skills)
+
   print-header "Updating TPM"
   ~/.tmux/plugins/tpm/bin/clean_plugins \
     && ~/.tmux/plugins/tpm/bin/install_plugins \
