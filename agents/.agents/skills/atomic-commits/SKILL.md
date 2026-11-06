@@ -1,7 +1,8 @@
 ---
 name: atomic-commits
-description: Split the current worktree (staged and unstaged) into a sequence of atomic commits whose messages match the repository's existing conventions, guarding the process with a snapshot so no change is lost or introduced. Invoke explicitly when you want pending work committed as clean, logically separated commits.
+description: Split the current worktree (staged and unstaged) into a sequence of atomic commits whose messages match the repository's existing conventions, guarding the process with a snapshot so no change is lost or introduced. Invoke explicitly when you want pending work committed as clean, logically separated commits. Pass `--fix` to commit the plan without waiting for approval.
 disable-model-invocation: true
+argument-hint: "[--fix]"
 allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git add:*), Bash(git commit:*), Bash(git reset:*), Bash(git write-tree:*), Bash(git rev-parse:*)
 ---
 
@@ -34,13 +35,16 @@ git log -10 --format='%s%n%n%b%n--------'       # whether/how bodies are used
 
 Infer and follow what the repo actually does, not a generic default: Conventional Commits prefixes (`feat`, `fix`, `chore`, `refactor`, `docs`, etc.) and scope notation if present, capitalization, imperative vs. past tense, typical subject length, and whether a body is usually included.
 
-## 3. Plan the commits, then get approval
+## 3. Plan the commits
 
 Group the changes into the smallest set of commits that each represent one coherent concern (one feature, fix, refactor, or cleanup), and order them so each builds on the last (prerequisites and refactors before the features that depend on them).
 
-Present the plan to the user before committing anything: the ordered list of commits, the proposed message for each, and which files (or hunks) go into each. Wait for approval. Do not start committing until the user signs off on the grouping and the order. If they want changes, revise and re-present.
+Present the plan to the user before committing anything: the ordered list of commits, the proposed message for each, and which files (or hunks) go into each. What happens next depends on the arguments:
 
-If some changes are too entangled to separate cleanly, say so and propose the best grouping rather than forcing artificial splits.
+- **Without `--fix`**: wait for the user to sign off on the grouping and the order before committing. If they want changes, revise and re-present.
+- **With `--fix`**: the plan is pre-approved. Present it, then continue straight to step 4 in the same turn.
+
+If some changes are too entangled to separate cleanly, say so in the plan and go with the best grouping rather than forcing artificial splits.
 
 ## 4. Stage and commit each group, in order
 
@@ -48,9 +52,9 @@ For each planned commit:
 
 - Whole files: `git add <file>...`
 - A file that spans multiple logical changes: `git add -p <file>` to stage only the relevant hunks. This only ever stages content; it cannot discard it.
-- Verify what you are about to commit with `git diff --staged`, then commit with the approved message.
+- Verify what you are about to commit with `git diff --staged`, then commit with its planned message.
 
-Write the message as exactly the approved content. For a body, pass it as additional `-m` arguments. Add nothing else (see Guardrails on attribution).
+Write the message exactly as planned. For a body, pass it as additional `-m` arguments. Add nothing else (see Guardrails on attribution).
 
 ## 5. Verify nothing was lost or added
 
@@ -67,7 +71,7 @@ If something goes wrong at any point, recover with `git reset --soft <ORIG_HEAD>
 
 ## Guardrails
 
-- **No attribution.** Never add a `Co-Authored-By` trailer or any Claude/AI attribution. The message is exactly the approved content, with nothing appended.
+- **No attribution.** Never add a `Co-Authored-By` trailer or any Claude/AI attribution. The message is exactly the planned content, with nothing appended.
 - **Commit only what is already there.** Never edit, create, reformat, or delete file contents to make a commit look cleaner. Introduce nothing new into the worktree; the snapshot check in step 5 exists to catch exactly this.
 - **Never run change-destroying commands.** `git reset --hard`, `git checkout -- <path>`, `git restore`, `git clean`, and `git stash` can all wipe uncommitted work and are not part of this workflow. The only resets used here are the mixed `git reset` (unstage) and `git reset --soft` (rollback), both of which preserve file content.
 - Do not `git push`, `git rebase`, or amend existing commits unless explicitly asked.
