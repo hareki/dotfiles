@@ -1,8 +1,8 @@
 ---
 name: address-pr-review
-description: Work through the review feedback on a GitHub pull request. Fetches every unresolved review comment with gh, verifies each one against the code, fixes the valid ones as one commit per comment (each carrying a `Review-Comment:` trailer that links the comment), and drafts a reply for every comment in REPLY.md for the user to review. Invoke explicitly with a PR link, or a link to a single review or comment.
+description: Work through the review feedback on a GitHub pull request. Fetches every unresolved review comment with gh, verifies each one against the code, fixes the valid ones as one commit per comment (each carrying a `Review-Comment:` trailer that links the comment), and drafts a reply for every comment in REPLY.md for the user to review. With `--fix`, it also settles the comments that would wait on the user's decision, taking the recommended option. Invoke explicitly with a PR link, or a link to a single review or comment.
 disable-model-invocation: true
-argument-hint: <pr-url | review-or-comment-url | pr-number>
+argument-hint: "[--fix] <pr-url | review-or-comment-url | pr-number>"
 allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git show:*), Bash(git rev-parse:*), Bash(git add:*), Bash(git commit:*), Bash(gh pr view:*)
 ---
 
@@ -15,9 +15,11 @@ Turn the review feedback on a pull request into two things:
 
 Nothing leaves the machine: do not push, post replies, or resolve threads. The user reviews the commits and the drafts first and decides what reviewers see.
 
+With `--fix` in the arguments, the run also settles the decisions it would otherwise leave to the user: each item that would go to Your call (step 3) gets the option you recommend instead, and REPLY.md lists those choices in their own section so the user can check them. The flag covers review decisions only; every other point where this skill stops to ask still applies.
+
 ## 1. Fetch the feedback
 
-Run the bundled script (it lives in this skill's directory) from the repo's working directory, with the link the user gave:
+Run the bundled script (it lives in this skill's directory) from the repo's working directory, with the link the user gave (without `--fix`):
 
 ```bash
 <skill-dir>/scripts/fetch-review.sh <link>
@@ -76,7 +78,8 @@ Then put each item in one bucket:
 - **Already addressed**: the code no longer has the problem (an outdated thread, or a later commit on the branch). The reply points to where.
 - **Question**: the reviewer asked something. Answer it from the code. If the answer turns out to be "that's a bug", it is also a Fix.
 - **Declined**: the claim is wrong, or right but not worth changing here (outside the PR's scope, against an established convention in the codebase, or costing more than it buys).
-- **Your call**: valid, but the fix is a product or design decision with no clear winner, or too large for this PR. Lay out the options instead of guessing. Keep this bucket small: when one option is clearly better, take it and fix it.
+- **Your call**: valid, but the fix is a product or design decision with no clear winner, or too large for this PR. Lay out the options instead of guessing. Keep this bucket small: when one option is clearly better, take it and fix it. With `--fix`, nothing lands here at triage: these items are Decided for you, and only a fix that fails verification (step 4) moves here.
+- **Decided for you** (`--fix` only): an item that would otherwise be Your call, settled with the option you recommend. When that option changes code, fix it like a Fix item; when it leaves the code as is (kept, or deferred to a follow-up), there is no commit. Keep the options you weighed and why you took this one for its REPLY.md entry.
 
 Duplicates (two reviewers, or a bot and a person, asking for the same change) become one fix that carries a trailer for each comment.
 
@@ -84,7 +87,7 @@ Order the fixes so changes that others build on come first, and items touching t
 
 ## 4. Fix each item in its own commit
 
-For each Fix item, in order:
+For each Fix item, and each Decided for you item that changes code, in order:
 
 1. Make the smallest change that fully addresses the comment. Stay inside its scope: no neighboring refactors and no other item folded in, so each commit can be reviewed and reverted alone. If you notice an unrelated problem along the way, note it for the final summary instead of fixing it silently.
 2. Verify it the way this repo verifies changes: the relevant tests, typecheck, and lint for the touched code. For a behavior bug, add or extend a test that would have caught it when the surrounding code is tested. If the fix cannot be made to pass, undo only your edits for this item (the worktree was clean before you started it, so `git restore <paths>` discards just your attempt) and move the item to Your call with what you found.
@@ -137,6 +140,22 @@ Every item gets exactly one entry. Sections go in this order, and empty ones are
 
 <reply written for the likeliest choice, with the part that depends on the decision marked>
 
+## Decided for you
+
+### `<path>:<line>` @<reviewer>
+
+<comment url>
+
+<quoted comment>
+
+**Decision:** <the options you weighed, the one you took, and why>
+
+`<short SHA>` <commit subject>
+
+**Draft reply:**
+
+<reply for the option taken>
+
 ## Questions
 
 ### `<path>:<line>` @<reviewer>
@@ -174,6 +193,8 @@ Every item gets exactly one entry. Sections go in this order, and empty ones are
 
 Use `originalLine` when `line` is null, just the path for a file-level comment, and a short description of the finding in place of `path:line` for items from a review body or conversation comment.
 
+A Decided for you entry has the commit line only when its decision changed code. Its draft reply then takes the Fixed shape, and otherwise the Declined one.
+
 `<quoted comment>` is the reviewer's comment copied verbatim as a blockquote (every line prefixed with `> `, code and suggestion blocks included), so the user can review each reply against what it answers without opening the link. Do not paraphrase or trim it. When the thread has replies, quote each comment in order, each opened with its author on its own line (`> **@<author>:**`), since the draft reply answers the whole conversation. For an item split out of a longer review body or conversation comment, quote just that finding's part, leaving out bot boilerplate such as collapsed sections and "Prompt for AI agents" blocks.
 
 Writing the replies:
@@ -190,10 +211,10 @@ Before reporting back:
 
 - `git status --short` shows nothing besides REPLY.md.
 - `git log --format='%h %s%n  %(trailers:key=Review-Comment,valueonly,separator=%x2C )' <start>..HEAD` shows one commit per fix, each with its link.
-- Every item from step 3 shows up exactly once, as a commit with its Fixed entry or as another REPLY.md entry. Nothing is silently dropped.
+- Every item from step 3 has exactly one REPLY.md entry, and every commit belongs to one Fixed or Decided for you entry. Nothing is silently dropped.
 - Run the broader checks (full tests, typecheck, lint) once on the final state when they are reasonably fast: per-fix checks miss interactions between fixes.
 
-Then give the user a short summary: the commits (short SHA and subject), what is waiting in REPLY.md with Your call items first, and anything unrelated you noticed but left alone. Pushing and posting the replies are theirs to do.
+Then give the user a short summary: the commits (short SHA and subject), what is waiting in REPLY.md with Your call items first, then Decided for you (each decision that changed code is its own commit, so the user can revert one they would have made differently), and anything unrelated you noticed but left alone. Pushing and posting the replies are theirs to do.
 
 ## Guardrails
 
