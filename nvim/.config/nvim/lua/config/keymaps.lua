@@ -136,7 +136,12 @@ map({ 'i', 'x', 'n', 's' }, '<C-S-End>', function()
   Notifier.info('Closed Other Buffers')
 end, { desc = 'Close Other Buffers' })
 
-map({ 'n', 'x' }, '<leader>qa', '<cmd>qa<cr>', { desc = 'Quit All' })
+-- In a Snacks terminal the first `qa` only closes it; elsewhere a second one would repeat the
+-- 'confirm' prompt after a Cancel
+map({ 'n', 'x' }, '<leader>qa', function()
+  return vim.b.snacks_terminal and '<cmd>qa<cr><cmd>qa<cr>' or '<cmd>qa<cr>'
+end, { expr = true, desc = 'Quit All' })
+
 map({ 'n', 'x' }, '<PageUp>', scroll_center('<C-u>'), { desc = 'Scroll Up and Center' })
 map({ 'n', 'x' }, '<PageDown>', scroll_center('<C-d>'), { desc = 'Scroll Down and Center' })
 
