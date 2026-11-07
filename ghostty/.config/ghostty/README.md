@@ -5,7 +5,7 @@ Catppuccin Mocha-themed terminal config with heavy keybinding remaps for seamles
 ## Core Ideas
 
 - Catppuccin Mocha theme with hidden macOS title bar
-- Font: [Maple Mono NF](https://github.com/subframe7536/maple-font) (SemiBold, 18.5pt) with ligatures
+- Font: [Maple Mono NF](https://github.com/subframe7536/maple-font) (SemiBold) with ligatures
 - `Cmd` key remapped extensively to send escape sequences for tmux, Neovim, and zsh integration
 - Shell integration: zsh with `no-cursor` (avoids conflicts with zsh vi-mode)
 - Copy-on-select enabled
