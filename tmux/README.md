@@ -28,6 +28,7 @@ The zsh functions `tsave` and `trestore` drive tmux-resurrect:
 - **`tsave`**: snapshots every session, then quits each pane's nvim through its normal exit (so auto-session saves its session) and kills the server
   - **`-c`/`--continue`**: snapshot only, leaving nvim and tmux running, like resurrect's own `prefix C-s`
   - Nothing is quit or killed while an nvim holds work a kill would lose: unsaved buffers, a nested nvim in a terminal buffer, a suspended nvim, or one it can't reach. Pane nvims publish their RPC address as the `@nvim-server` pane option for this (nvim's `core/auto-session/utils.lua`)
+  - From a pane nvim's terminal (`<A-t>`), it reruns itself from the tmux server so that nvim can quit too, and shows its report in view mode on that pane (`q` closes it)
 - **`trestore [<id>]`**: restores a snapshot into a fresh server, from inside tmux or from a plain terminal
   - Without an id it restores `last`, the snapshot most recently saved or restored (also what `prefix C-r` restores)
   - Ids are the snapshot's date and time (`2026-11-04_20-15-30`); `trestore <TAB>` and `trestore --list` show them newest first

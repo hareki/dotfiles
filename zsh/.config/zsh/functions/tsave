@@ -30,9 +30,14 @@ tsave() {
   fi
   dir=$(tmux show-option -gqv @resurrect-dir)
 
-  if (( ! keep_running )) && [[ -n $NVIM && -n $TMUX ]]; then
-    print -u2 'tsave: quitting the nvim this shell runs in would end tsave before the kill;'
-    print -u2 '  run it from a plain pane, or use --continue'
+  # In a pane nvim's terminal, quitting that nvim would end tsave before the kill, and the checks
+  # below would count their own RPC client as a nested nvim: rerun from the tmux server, outside
+  # every nvim, with the report in view mode on this pane. It returns only when tsave stops short
+  # of the kill, since a full run quits this shell's nvim first
+  if (( ! keep_running )) && [[ -n $NVIM && -n $TMUX_PANE ]]; then
+    local job="autoload -Uz ${(q)functions_source[tsave]} && tsave"
+    # run-shell shows stdout only, plus a "returned 1" line that `true` drops
+    tmux run-shell -t $TMUX_PANE "env -u NVIM zsh -fc ${(qq)job} 2>&1; true"
     return 1
   fi
 
