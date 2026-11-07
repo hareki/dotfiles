@@ -1,7 +1,49 @@
---- Keeps full-screen Snacks terminals (Lazygit, the coding agent) from stacking, so closing one
---- lands on the code; panels are detected by geometry (covering the `full` preset)
+--- Full-screen Snacks terminals (Lazygit, the coding agent): keeps them from stacking, so closing
+--- one lands on the code (panels are detected by geometry, covering the `full` preset), and pins
+--- them to Terminal mode
 --- @class core.snacks.utils
 local M = {}
+
+--- Window config that pins a panel to Terminal mode: its app takes every key and click itself, so
+--- Normal mode there only strands the cursor. Each panel merges it into its own config, since a
+--- Snacks style would lose `on_buf` to the claudecode.nvim fork's own `on_buf`
+--- @type snacks.win.Config
+M.terminal_mode = {
+  keys = {
+    -- Replaces Snacks' double <Esc> exit, which also swallows the second press (Claude's rewind,
+    -- Lazygit's nested popups); a buffer-local <Esc> also keeps the global <Esc><Esc> map from
+    -- holding every single press for 'timeoutlen'
+    term_normal = {
+      '<Esc>',
+      function()
+        return '<Esc>'
+      end,
+      mode = 't',
+      expr = true,
+      desc = 'Send Escape',
+    },
+  },
+
+  --- Clicks and scrolls the app can't take, like those on the border, still leave Terminal mode
+  --- @param self snacks.win
+  on_buf = function(self)
+    -- `show()` recreates this group right before calling `on_buf`, so nothing piles up
+    vim.api.nvim_create_autocmd('TermLeave', {
+      group = self.augroup,
+      buffer = self.buf,
+      callback = function()
+        -- Runs after the input that left: a click on another window has moved focus there by then
+        vim.schedule(function()
+          if
+            vim.api.nvim_get_current_buf() == self.buf and vim.api.nvim_get_mode().mode == 'nt'
+          then
+            vim.cmd.startinsert()
+          end
+        end)
+      end,
+    })
+  end,
+}
 
 --- Whether `terminal` is up as a full-screen panel; `valid()` alone misses the agent's hidden float
 --- @param terminal snacks.win

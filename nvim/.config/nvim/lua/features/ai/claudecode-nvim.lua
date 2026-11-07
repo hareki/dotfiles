@@ -52,6 +52,8 @@ return {
     },
 
     opts = function()
+      local fullscreen_panels = require('core.snacks-nvim.utils')
+
       return {
         focus_after_send = true,
         -- With $TMUX set, Claude's OSC 52 comes DCS-wrapped, which nvim's :terminal paints as text
@@ -59,10 +61,15 @@ return {
         terminal = {
           --- @module "snacks"
           --- @type snacks.win.Config | {}
-          snacks_win_opts = vim.tbl_extend('force', UI.layout.popup_fn('full'), {
-            title = ' Coding Agent ',
-            position = 'float',
-          }),
+          snacks_win_opts = vim.tbl_extend(
+            'force',
+            UI.layout.popup_fn('full'),
+            fullscreen_panels.terminal_mode,
+            {
+              title = ' Coding Agent ',
+              position = 'float',
+            }
+          ),
         },
       }
     end,
