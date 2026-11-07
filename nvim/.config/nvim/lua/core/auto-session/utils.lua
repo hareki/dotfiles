@@ -61,6 +61,9 @@ end
 function M.quit()
   vim.schedule(function()
     vim.cmd('qall!')
+    -- Still running: an ExitPre handler closed the current window, which aborts a quit. Snacks
+    -- closes its terminals there, so focus in one (tsave's own float terminal, Lazygit) lands here
+    vim.cmd('qall!')
   end)
   -- A nil result would reach --remote-expr as vim.NIL
   return ''
