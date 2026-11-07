@@ -2,7 +2,7 @@
 
 > Declarative, modular configs managed via [GNU Stow](https://www.gnu.org/software/stow/). Catppuccin Mocha everything. ☕
 
-Each top‑level directory mirrors its destination under `$HOME` (e.g. `nvim/` → `~/.config/nvim`, `zsh/` → shell startup, `tmux/` → `~/.config/tmux`).
+Each top‑level directory mirrors its destination under `$HOME` (e.g. `nvim/` => `~/.config/nvim`, `zsh/` => shell startup, `tmux/` => `~/.config/tmux`).
 
 ## Usage
 

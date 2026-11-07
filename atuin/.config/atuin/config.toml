@@ -7,7 +7,7 @@ show_tabs = false
 inline_height = 15
 max_width = 110
 
-# Update it with homebrew
+# Built from the hareki/atuin fork with `build atuin`, so a release check would only nag
 update_check = false
 show_numeric_shortcuts = false
 theme.name = "catppuccin-mocha-blue"

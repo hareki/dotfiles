@@ -68,7 +68,11 @@ nodes() {
 
 author='author { login __typename }'
 
-meta=$(graphql -f query='
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+
+# The four queries share nothing but the pull request, so they run at once
+graphql -f query='
   query($owner: String!, $repo: String!, $number: Int!) {
     viewer { login }
     repository(owner: $owner, name: $repo) {
@@ -79,8 +83,8 @@ meta=$(graphql -f query='
         headRepository { nameWithOwner }
       }
     }
-  }')
-threads=$(nodes reviewThreads "
+  }' >"$tmp/meta" &
+nodes reviewThreads "
   isResolved isOutdated path line startLine originalLine originalStartLine diffSide subjectType
   comments(first: 100) {
     totalCount
@@ -89,15 +93,16 @@ threads=$(nodes reviewThreads "
       originalCommit { oid }
       pullRequestReview { databaseId }
     }
-  }")
-reviews=$(nodes reviews "databaseId url state body submittedAt isMinimized $author")
-comments=$(nodes comments "databaseId url body createdAt isMinimized $author")
+  }" >"$tmp/threads" &
+nodes reviews "databaseId url state body submittedAt isMinimized $author" >"$tmp/reviews" &
+nodes comments "databaseId url body createdAt isMinimized $author" >"$tmp/comments" &
+for job in $(jobs -p); do wait "$job"; done
 
 jq -n \
-  --argjson meta "$meta" \
-  --slurpfile threads <(printf '%s\n' "$threads") \
-  --slurpfile reviews <(printf '%s\n' "$reviews") \
-  --slurpfile comments <(printf '%s\n' "$comments") \
+  --slurpfile meta "$tmp/meta" \
+  --slurpfile threads "$tmp/threads" \
+  --slurpfile reviews "$tmp/reviews" \
+  --slurpfile comments "$tmp/comments" \
   --arg scope "$scope" \
   --argjson target "$target" \
   --argjson number "$number" '
@@ -158,12 +163,12 @@ jq -n \
     }
   end) as $picked
   | {
-      pr: ($meta.data.repository.pullRequest | {
+      pr: ($meta[0].data.repository.pullRequest | {
         number: $number, url, title, state, isDraft, author: .author.login,
         baseRefName, headRefName, headRefOid, isCrossRepository,
         headRepository: .headRepository.nameWithOwner
       }),
-      viewer: $meta.data.viewer.login,
+      viewer: $meta[0].data.viewer.login,
       scope: $scope,
       threads: ($picked.threads | sort_by(.path, (.line // .originalLine // 0))),
       reviews: $picked.reviews,

@@ -44,7 +44,7 @@ Stop and ask the user, without changing anything, when:
 
 - the PR is merged or closed: fixing it means a follow-up branch, which is their call
 - the working directory is not a clone of the PR's repository (none of its remotes points at it)
-- the worktree has uncommitted changes (a leftover REPLY.md aside): they are the user's work, and each commit here must contain only its fix. Do not stash them.
+- the worktree has uncommitted changes (a leftover REPLY.md aside): they are the user's work, and each commit here must contain only its fix.
 
 Then get onto the PR head:
 
@@ -214,7 +214,7 @@ Before reporting back:
 - Every item from step 3 has exactly one REPLY.md entry, and every commit belongs to one Fixed or Decided for you entry. Nothing is silently dropped.
 - Run the broader checks (full tests, typecheck, lint) once on the final state when they are reasonably fast: per-fix checks miss interactions between fixes.
 
-Then give the user a short summary: the commits (short SHA and subject), what is waiting in REPLY.md with Your call items first, then Decided for you (each decision that changed code is its own commit, so the user can revert one they would have made differently), and anything unrelated you noticed but left alone. Pushing and posting the replies are theirs to do.
+Then give the user a short summary: the commits (short SHA and subject), what is waiting in REPLY.md with Your call items first, then Decided for you (each decision that changed code is its own commit, so the user can revert one they would have made differently), and anything unrelated you noticed but left alone.
 
 ## Guardrails
 

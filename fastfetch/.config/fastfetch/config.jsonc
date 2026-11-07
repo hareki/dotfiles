@@ -6,7 +6,6 @@
     "width": 1,
     "height": 1,
     "padding": {
-      "top": 0,
       "right": 0
     }
   },
@@ -17,11 +16,7 @@
     },
     "size": {
       "binaryPrefix": "jedec",
-      "maxPrefix": "GB",
-      "ndigits": 2
-    },
-    "freq": {
-      "ndigits": 2
+      "maxPrefix": "GB"
     },
     "constants": [
       "─────────────┬──────────────────────────────────────────────────",
@@ -74,12 +69,10 @@
       "type": "bluetooth"
     },
     {
-      "key": " ",
       "format": "{#1}{#separator}╰{$3}╯",
       "type": "custom"
     },
     {
-      "key": " ",
       "format": "{#1}{#separator}╭{$1}╮\u001b[38D Software ",
       "type": "custom"
     },
@@ -129,7 +122,6 @@
       "format": "Catppuccin Mocha"
     },
     {
-      "key": " ",
       "format": "{#1}{#separator}╰{$3}╯",
       "type": "custom"
     }

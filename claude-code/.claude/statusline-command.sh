@@ -14,17 +14,12 @@ subtext1='\033[38;2;186;194;222m' #bac2de
 blue='\033[38;2;137;180;250m' #89b4fa
 reset='\033[0m'
 
-# `jq` first on $PATH is a mise shim, which costs ~115ms per spawn against ~3ms
-# for the real binary. This script runs on every status line repaint.
-jq_bin=/opt/homebrew/bin/jq
-[ -x "$jq_bin" ] || jq_bin=jq
-
 # Every field the status line reads, in one jq pass. Joined on U+001F rather than
 # whitespace so that an absent field stays empty instead of collapsing into its
 # neighbour and shifting all the later ones. The `exec` here and in the git call
 # below saves a fork: with a redirect attached, bash keeps the subshell around.
 IFS=$'\037' read -r cwd used session_pct week_pct model_id display_name effort_level session_name <<<"$(
-  exec "$jq_bin" -r '[
+  exec jq -r '[
     .workspace.current_dir,
     .context_window.used_percentage,
     .rate_limits.five_hour.used_percentage,

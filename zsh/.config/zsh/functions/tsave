@@ -81,7 +81,7 @@ tsave() {
     tty_of[$pane]=${fields[3]#/dev/}
     cmd_of[$pane]=$fields[4]
     addr_of[$pane]=$fields[5]
-    ttys+=(-t ${fields[3]#/dev/})
+    ttys+=(-t $tty_of[$pane])
   done
 
   # Every nvim TUI on a pane's tty: a suspended (Ctrl-Z) or background one dies with the server
@@ -122,11 +122,14 @@ tsave() {
 
   # A pane (or the whole server) that is gone has finished quitting too
   local -a running
+  local -A cmd_now
   repeat 100; do
-    running=()
+    cmd_now=() running=()
+    tmux list-panes -a -F $'#{pane_id}\t#{pane_current_command}' 2>/dev/null | while IFS=$'\t' read -r pane comm; do
+      cmd_now[$pane]=$comm
+    done
     for pane in $quit; do
-      [[ $(tmux display-message -p -t $pane '#{pane_current_command}' 2>/dev/null) == nvim ]] &&
-        running+=($target_of[$pane])
+      [[ $cmd_now[$pane] == nvim ]] && running+=($target_of[$pane])
     done
     (( $#running )) || break
     sleep 0.1

@@ -44,7 +44,6 @@
   local red='#f38ba8' # red
   local yellow='#f9e2af' # yellow
   local blue='#89b4fa' # blue
-  local magenta='#eba0ac' # maroon
   local cyan='#94e2d5' # teal
   local white='#cdd6f4' # text
 
@@ -86,7 +85,7 @@
 
   # typeset -g POWERLEVEL9K_MULTILINE_FIRST_PROMPT_PREFIX=''
 
-  # Magenta prompt symbol if the last command succeeded.
+  # Green prompt symbol if the last command succeeded.
   typeset -g POWERLEVEL9K_PROMPT_CHAR_OK_{VIINS,VICMD,VIVIS}_FOREGROUND=$green
   # Red prompt symbol if the last command failed.
   typeset -g POWERLEVEL9K_PROMPT_CHAR_ERROR_{VIINS,VICMD,VIVIS}_FOREGROUND=$red
@@ -99,9 +98,6 @@
   # Prompt symbol in visual vi mode is the same as in command mode.
   typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIVIS_CONTENT_EXPANSION='❮'
   # typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIVIS_CONTENT_EXPANSION=''
-
-  # Prompt symbol in overwrite vi mode is the same as in command mode.
-  typeset -g POWERLEVEL9K_PROMPT_CHAR_OVERWRITE_STATE=false
 
   # Grey Python Virtual Environment.
   typeset -g POWERLEVEL9K_VIRTUALENV_FOREGROUND=$grey
@@ -164,19 +160,6 @@
   typeset -g POWERLEVEL9K_TIME_FOREGROUND=$grey
   # Format for the current time: 09:51:02. See `man 3 strftime`.
   typeset -g POWERLEVEL9K_TIME_FORMAT='%D{%I:%M:%S %p}'
-  # If set to true, time will update when you hit enter. This way prompts for the past
-  # commands will contain the start times of their commands rather than the end times of
-  # their preceding commands.
-  typeset -g POWERLEVEL9K_TIME_UPDATE_ON_COMMAND=false
-
-  # Transient prompt works similarly to the builtin transient_prompt option. It trims down prompt
-  # when accepting a command line. Supported values:
-  #
-  #   - off:      Don't change prompt when accepting a command line.
-  #   - always:   Trim down prompt when accepting a command line.
-  #   - same-dir: Trim down prompt when accepting a command line unless this is the first command
-  #               typed after changing current working directory.
-  typeset -g POWERLEVEL9K_TRANSIENT_PROMPT=off
 
   # Instant prompt mode.
   #

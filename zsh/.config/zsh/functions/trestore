@@ -4,31 +4,20 @@
 # terminal. Without an id it restores `last`: the snapshot most recently saved or restored.
 # Ids are the snapshot's date and time: 2026-11-04_20-15-30 is tmux_resurrect_20261104T201530.txt
 trestore() {
-  local force=0 list=0 id
-  while (( $# )); do
-    case $1 in
-      -h|--help)
-        print 'Usage: trestore [--force] [<id>]   # no id: the last snapshot saved or restored'
-        print '       trestore --list             # snapshot ids, newest first'
-        print '  --force: restore into a server that already has panes (resurrect keeps them as they are)'
-        return 0
-        ;;
-      --list) list=1 ;;
-      --force) force=1 ;;
-      -*)
-        print -u2 "trestore: unknown option: $1"
-        return 1
-        ;;
-      *)
-        if [[ -n $id ]]; then
-          print -u2 'trestore: one snapshot at a time'
-          return 1
-        fi
-        id=$1
-        ;;
-    esac
-    shift
-  done
+  local -a opt_help opt_list opt_force
+  # -E: options may follow the id (`trestore <id> --force`)
+  zparseopts -D -E -F -- h=opt_help -help=opt_help -list=opt_list -force=opt_force || return 1
+  if (( $#opt_help )); then
+    print 'Usage: trestore [--force] [<id>]   # no id: the last snapshot saved or restored'
+    print '       trestore --list             # snapshot ids, newest first'
+    print '  --force: restore into a server that already has panes (resurrect keeps them as they are)'
+    return 0
+  fi
+  if (( $# > 1 )); then
+    print -u2 'trestore: one snapshot at a time'
+    return 1
+  fi
+  local force=$#opt_force list=$#opt_list id=$1
 
   local dir
   if (( list )); then
@@ -68,12 +57,11 @@ trestore() {
     return 0
   fi
 
-  # A lone pane is resurrect's cue to restore from scratch: the snapshot replaces it, then
-  # the placeholder session goes, but only when it is named `0`, and this tmux build names
-  # unnamed sessions session-<id>
+  # Resurrect needs a server, and a lone pane is its cue to restore from scratch (the
+  # placeholder session is dropped by the hook in tmux/.config/tmux/plugins/resurrect.conf)
   local started=0
   if ! tmux has-session 2>/dev/null; then
-    tmux new-session -d -s 0 || return 1
+    tmux new-session -d || return 1
     started=1
   fi
 
@@ -100,7 +88,6 @@ trestore() {
   fi
 
   [[ -n $file ]] && ln -fs $file "$dir/last"
-  (( $#panes == 1 )) && tmux rename-session -t $panes[1] 0
 
   # A server job, like `prefix C-r`: a restore from scratch replaces the pane it started from
   if [[ -n $TMUX ]]; then

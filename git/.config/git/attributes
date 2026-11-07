@@ -1,2 +1,2 @@
-**/package.lock blink-ripgrep-ignore
-**/yarn.lock blink-ripgrep-ignore
+package-lock.json blink-ripgrep-ignore
+yarn.lock blink-ripgrep-ignore

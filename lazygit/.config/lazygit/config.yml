@@ -3,18 +3,18 @@ os:
   editPreset: 'nvim-remote'
   # Inside nvim's terminal, hand the file to the host instance. The expr call hides the
   # Snacks terminal floats (lazygit, terminal, coding agent) and refocuses the last editing
-  # window first, since --remote drops the file into whatever window is current.
+  # window first, since --remote drops the file into whatever window is current. The RPC
+  # clients name Homebrew's nvim: through mise's shim each one costs ~60ms more.
   edit: >
-    if [ -z "$NVIM" ]; then NVIM_INTEGRATION=lazygit nvim -- {{filename}}; else nvim --server "$NVIM" --remote-expr "v:lua.require'features.git.snacks-nvim.utils'.prepare_remote_edit()" && nvim --server "$NVIM" --remote {{filename}}; fi
+    if [ -z "$NVIM" ]; then NVIM_INTEGRATION=lazygit nvim -- {{filename}}; else /opt/homebrew/bin/nvim --server "$NVIM" --remote-expr "v:lua.require'features.git.snacks-nvim.utils'.prepare_remote_edit()" && /opt/homebrew/bin/nvim --server "$NVIM" --remote {{filename}}; fi
 
   editAtLine: >
-    if [ -z "$NVIM" ]; then NVIM_INTEGRATION=lazygit nvim +{{line}} -- {{filename}}; else nvim --server "$NVIM" --remote-expr "v:lua.require'features.git.snacks-nvim.utils'.prepare_remote_edit()" && nvim --server "$NVIM" --remote {{filename}} && nvim --server "$NVIM" --remote-send ":{{line}}<CR>"; fi
+    if [ -z "$NVIM" ]; then NVIM_INTEGRATION=lazygit nvim +{{line}} -- {{filename}}; else /opt/homebrew/bin/nvim --server "$NVIM" --remote-expr "v:lua.require'features.git.snacks-nvim.utils'.prepare_remote_edit()" && /opt/homebrew/bin/nvim --server "$NVIM" --remote {{filename}} && /opt/homebrew/bin/nvim --server "$NVIM" --remote-send ":{{line}}<CR>"; fi
 
   openDirInEditor: >
-    if [ -z "$NVIM" ]; then NVIM_INTEGRATION=lazygit nvim -- {{dir}}; else nvim --server "$NVIM" --remote-expr "v:lua.require'features.git.snacks-nvim.utils'.prepare_remote_edit()" && nvim --server "$NVIM" --remote {{dir}}; fi
+    if [ -z "$NVIM" ]; then NVIM_INTEGRATION=lazygit nvim -- {{dir}}; else /opt/homebrew/bin/nvim --server "$NVIM" --remote-expr "v:lua.require'features.git.snacks-nvim.utils'.prepare_remote_edit()" && /opt/homebrew/bin/nvim --server "$NVIM" --remote {{dir}}; fi
 
 gui:
-  showFileTree: true
   fileTreeSortOrder: foldersFirst
   sidePanelWidth: 38
   screenMode: half

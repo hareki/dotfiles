@@ -1,17 +1,14 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "env": {
-    "EDITOR": "nvim",
-    "NVIM_INTEGRATION": "claude-code"
+    "VISUAL": "nvim-claude"
   },
   "permissions": {
     "allow": [
       "Agent",
       "WebFetch",
       "Bash(grep:*)",
-      "Bash(grep -R:*)",
       "Bash(rg:*)",
-      "Bash(ripgrep:*)",
       "Bash(cat:*)",
       "Bash(head:*)",
       "Bash(tail:*)",
@@ -86,7 +83,6 @@
     "atlassian@claude-plugins-official": true,
     "figma@claude-plugins-official": true
   },
-  "syntaxHighlightingDisabled": false,
   "maxProseWidth": 100,
   "modelSettings": {
     "claude-fable-5-1": {
@@ -105,7 +101,6 @@
   "tui": "fullscreen",
   "theme": "custom:catppuccin-mocha",
   "editorMode": "vim",
-  "preferredNotifChannel": "auto",
   "idleCompaction": false,
   "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true

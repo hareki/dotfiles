@@ -42,6 +42,7 @@ minimum_release_age = "1d"
 compile = false
 
 [settings.shims]
-# Only claudecode.nvim pins jq, but mise shims every install, active or not, so everywhere
-# else `jq` paid ~70ms per call to fall through to Homebrew's binary.
-exclude = ["jq"]
+# Only project configs pin these (claudecode.nvim both, blink-ripgrep.nvim stylua), but mise
+# shims every install, active or not, so everywhere else each call paid ~70ms to fall through
+# to Homebrew's binary. `mise run`/`mise x` still put a project's pinned install on PATH.
+exclude = ["jq", "stylua"]

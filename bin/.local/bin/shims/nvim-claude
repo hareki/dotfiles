@@ -1,0 +1,6 @@
+#!/bin/sh
+# Claude Code's editor (VISUAL in claude-code/.claude/settings.json). It labels this nvim
+# with the Claude Code integration, where settings `env` would hand NVIM_INTEGRATION to every
+# process Claude starts. Claude adds `+<line>` only for a name matching \bnvim\b, and takes
+# any name containing "code" for VS Code
+NVIM_INTEGRATION=claude-code exec nvim "$@"
