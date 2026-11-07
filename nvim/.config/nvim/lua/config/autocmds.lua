@@ -99,8 +99,8 @@ aucmd('BufReadPre', {
   end,
 })
 
--- On BufWinEnter, not BufReadPost: that runs ahead of filetypedetect, and a hidden bufload() would
--- spend the mark in the autocmd window, where this event fires too, so wait for a real window
+-- Restore the last cursor position on BufWinEnter, as BufReadPost runs ahead of filetypedetect;
+-- a hidden bufload() would spend the mark in the autocmd window, where this event fires too
 aucmd('BufWinEnter', {
   group = augroup('last-location'),
   callback = function(event)
@@ -124,6 +124,7 @@ aucmd('BufWinEnter', {
   end,
 })
 
+-- Unlist these utility buffers and close them with `q`
 aucmd('FileType', {
   group = augroup('close-with-q'),
   pattern = {
@@ -172,6 +173,7 @@ aucmd('FileType', {
   end,
 })
 
+-- Wrap markdown lines and add visual-mode section jumps
 local markdown_group = augroup('markdown-defaults')
 -- Headings as matched by the runtime ftplugin's section jumps
 local markdown_heading = [[\%(^#\{1,5\}\s\+\S\|^\S.*\n^[=-]\+$\)]]
@@ -218,6 +220,7 @@ aucmd('FileType', {
   end,
 })
 
+-- Comment Ghostty config lines with `#`
 aucmd('FileType', {
   group = augroup('ghostty-defaults'),
   pattern = { 'ghostty' },
@@ -249,6 +252,7 @@ aucmd({ 'ModeChanged', 'ColorScheme' }, {
   end,
 })
 
+-- Clear search highlights on insert; scheduled, as autocmds restore the hlsearch state
 aucmd('InsertEnter', {
   group = augroup('clear-hlsearch-on-insert'),
   callback = function()
