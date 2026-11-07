@@ -10,16 +10,17 @@
 - Vi keybindings in copy mode with system clipboard integration
 - Seamless pane navigation shared with Neovim via [vim-tmux-navigator](https://github.com/christoomey/vim-tmux-navigator)
 - Catppuccin Mocha theme with customized status bar
-- Image passthrough enabled for tools like [yazi](https://github.com/sxyazi/yazi) and [snacks.image](https://github.com/folke/snacks.nvim/blob/main/docs/image.md)
+- Image passthrough enabled for [snacks.image](https://github.com/folke/snacks.nvim/blob/main/docs/image.md)
 - Manual snapshots with `tsave` / `trestore` (see [Snapshots](#snapshots))
 
 ## Plugins
 
 - **[TPM](https://github.com/tmux-plugins/tpm)**: Plugin manager
-- **[tmux-yank](https://github.com/tmux-plugins/tmux-yank)**: System clipboard integration
-- **[tmux-catppuccin](https://github.com/catppuccin/tmux)** (fork): Catppuccin Mocha status bar and theming
-- **[vim-tmux-navigator](https://github.com/christoomey/vim-tmux-navigator)**: Seamless Neovim ↔ tmux pane navigation
+- **[tmux-catppuccin](https://github.com/hareki/tmux-catppuccin)** (fork of [catppuccin/tmux](https://github.com/catppuccin/tmux)): Catppuccin Mocha status bar and theming
 - **[tmux-resurrect](https://github.com/tmux-plugins/tmux-resurrect)**: Session snapshots, taken by hand only (no tmux-continuum)
+- **[vim-tmux-navigator](https://github.com/christoomey/vim-tmux-navigator)**: Seamless Neovim ↔ tmux pane navigation. Its tmux half is bound directly in `plugins/vim-tmux-navigator.conf` rather than loaded through TPM
+
+The copy-mode yank keys need no plugin: tmux's `set-clipboard` sends each copy as OSC 52, and `copy-command` pipes it to `pbcopy`.
 
 ## Snapshots
 
@@ -42,12 +43,11 @@ The zsh functions `tsave` and `trestore` drive tmux-resurrect:
 .config/tmux/
 ├── tmux.conf                  # Entry point: sources everything + TPM plugins
 ├── options.conf               # Terminal, mouse, true color, image passthrough
-├── keymaps.conf               # All keybindings
+├── keymaps.conf               # Keybindings, except pane navigation
 ├── typos.toml                 # typos-lsp allowlist (@thm_* palette vars)
 ├── plugins/
-│   ├── catppuccin.conf        # Theme: status bar layout, pane borders, icons
-│   ├── yank.conf              # Clipboard bindings
-│   ├── vim-tmux-navigator.conf # Pane navigation keys
+│   ├── catppuccin.conf        # Theme: status bar layout, pane borders, icons, copy-mode and menu colors
+│   ├── vim-tmux-navigator.conf # Pane navigation keys, shared with Neovim
 │   └── resurrect.conf         # Snapshot dir, expiry hook, nvim relaunch
 └── scripts/
     └── resurrect-prune.sh     # Expires snapshots 3 days after their last save

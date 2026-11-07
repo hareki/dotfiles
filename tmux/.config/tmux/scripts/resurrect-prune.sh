@@ -7,9 +7,7 @@ prev=$(readlink "$dir/last")
 
 # Resurrect drops a save identical to `last` and keeps the older file:
 # restart that file's clock, since it is the layout being saved
-if [ -n "$prev" ] && cmp -s "$new" "$dir/$prev"; then
-  touch "$dir/$prev"
-fi
+cmp -s "$new" "$dir/last" && touch "$dir/last"
 
 # The previous `last` survives this save, so a stray save (prefix C-s in a fresh
 # server) can't take the snapshot you meant to restore with it
