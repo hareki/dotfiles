@@ -1,32 +1,10 @@
-"comment" = "#9399b2"
-"string" = "#a6e3a1"
-"keyword.operator.regexp" = "#f5c2e7"
-"constant.character" = "#f5c2e7"              # Escape characters
-"constant" = "#fab387"                        # Constants in general
-"variable.parameter" = "#eba0ac"
+# The scopes that differ from the built-in theme below. [metadata] has to stay last, since TOML
+# puts every key after a table header into that table
 "variable.other" = "#fab387"                  # Environment variables
 "punctuation.definition.variable" = "#fab387" # Variable punctuation
-"variable.function" = "#89b4fa"               # Commands
 "variable.language.tilde" = "#fab387"         # Home directory
-"keyword" = "#cba6f7"
-"source" = "#cdd6f4"                          # General foreground color
-"entity.name.function" = "#89b4fa"
-"punctuation.section" = "#9399b2"             # Braces
-"punctuation.terminator" = "#9399b2"          # Terminators (e.g. ";;" after a case item)
 "meta.group.expansion.history" = "#b4befe"
-
-# Variable assignments
-"storage" = "#f9e2af"
-"storage.modifier" = "#cba6f7"
-# Support terms (e.g. double braces, let)
-"support" = "#89b4fa"
-"keyword.operator" = "#94e2d5"
-
-
-# Reset command substitutions to the theme's default foreground color
-"meta.group.expansion.command.parens" = { foreground = "#cdd6f4" }
-
-# Dynamic items
 "dynamic.callable" = "#a6e3a1"
-"dynamic.callable.missing" = "#f38ba8"
-"dynamic.path" = { underline = true }
+
+[metadata]
+extends = "catppuccin-mocha"

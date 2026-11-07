@@ -48,7 +48,7 @@ The zsh functions `tsave` and `trestore` drive tmux-resurrect:
 ├── plugins/
 │   ├── catppuccin.conf        # Theme: status bar layout, pane borders, icons, copy-mode and menu colors
 │   ├── vim-tmux-navigator.conf # Pane navigation keys, shared with Neovim
-│   └── resurrect.conf         # Snapshot dir, expiry hook, nvim relaunch
+│   └── resurrect.conf         # Snapshot dir, expiry and restore hooks, nvim relaunch
 └── scripts/
     └── resurrect-prune.sh     # Expires snapshots 3 days after their last save
 ```

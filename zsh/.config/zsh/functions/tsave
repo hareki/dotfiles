@@ -121,16 +121,11 @@ tsave() {
   done
 
   # A pane (or the whole server) that is gone has finished quitting too
-  local -a running
-  local -A cmd_now
+  local -a running nvims
   repeat 100; do
-    cmd_now=() running=()
-    tmux list-panes -a -F $'#{pane_id}\t#{pane_current_command}' 2>/dev/null | while IFS=$'\t' read -r pane comm; do
-      cmd_now[$pane]=$comm
-    done
-    for pane in $quit; do
-      [[ $cmd_now[$pane] == nvim ]] && running+=($target_of[$pane])
-    done
+    nvims=(${(f)"$(tmux list-panes -a -f '#{==:#{pane_current_command},nvim}' -F '#{pane_id}' 2>/dev/null)"})
+    running=()
+    for pane in ${quit:*nvims}; do running+=($target_of[$pane]); done
     (( $#running )) || break
     sleep 0.1
   done

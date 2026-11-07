@@ -1,0 +1,6 @@
+#!/bin/sh
+# codegraph's npm launcher runs mise's node (npm-shim.js) only to spawnSync this platform bundle,
+# which brings its own node, and wait on it: ~25ms per call (~50ms through mise's shim), and a
+# ~49MB node idling behind every MCP server. This is the launcher codegraph's install.sh links
+# into ~/.local/bin. nvim's Claude Code settings run `codegraph prompt-hook` on every prompt
+exec "$HOME/.local/share/mise/installs/npm-colbymchenry-codegraph/latest/node_modules/.mise/node_modules/@colbymchenry/codegraph-darwin-arm64/bin/codegraph" "$@"

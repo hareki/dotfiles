@@ -2,5 +2,6 @@
 # Claude Code's editor (VISUAL in claude-code/.claude/settings.json). It labels this nvim
 # with the Claude Code integration, where settings `env` would hand NVIM_INTEGRATION to every
 # process Claude starts. Claude adds `+<line>` only for a name matching \bnvim\b, and takes
-# any name containing "code" for VS Code
-NVIM_INTEGRATION=claude-code exec nvim "$@"
+# any name containing "code" for VS Code. Homebrew's nvim, not mise's shim: the shim adds ~65ms
+# to every open, and a short edit starts too few tools for its toolset PATH to pay that back
+NVIM_INTEGRATION=claude-code exec /opt/homebrew/bin/nvim "$@"

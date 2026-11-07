@@ -22,6 +22,7 @@ trestore() {
   local dir
   if (( list )); then
     zmodload zsh/datetime
+    zmodload -F zsh/stat b:zstat
     dir=$(tmux show-option -gqv @resurrect-dir 2>/dev/null)
     # Same path as @resurrect-dir in tmux/.config/tmux/plugins/resurrect.conf
     dir=${dir:-$HOME/.local/share/tmux/resurrect}
@@ -32,9 +33,9 @@ trestore() {
     strftime -r -s noon '%Y%m%d %H' "$today 12"
     strftime -s yesterday %Y%m%d $(( noon - 86400 ))
 
-    local last f ts epoch when s w mark
-    local -a lines sessions windows
-    last=$(readlink "$dir/last" 2>/dev/null)
+    local f ts epoch when s w mark
+    local -a last lines sessions windows
+    zstat -L -A last +link $dir/last 2>/dev/null
     for f in $dir/tmux_resurrect_*.txt(N.On); do
       ts=${${f:t:r}#tmux_resurrect_}
       strftime -r -s epoch %Y%m%dT%H%M%S $ts

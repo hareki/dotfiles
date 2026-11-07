@@ -45,4 +45,5 @@ compile = false
 # Only project configs pin these (claudecode.nvim both, blink-ripgrep.nvim stylua), but mise
 # shims every install, active or not, so everywhere else each call paid ~70ms to fall through
 # to Homebrew's binary. `mise run`/`mise x` still put a project's pinned install on PATH.
+# nvim, which claudecode.nvim pins too, stays shimmed on purpose: zsh/AGENTS.md (**mise**)
 exclude = ["jq", "stylua"]

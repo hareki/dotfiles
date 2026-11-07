@@ -1,5 +1,5 @@
 #!/bin/bash
-# Claude Code status line — mirrors Powerlevel10k Pure/Catppuccin Mocha style
+# Claude Code status line: mirrors Powerlevel10k Pure/Catppuccin Mocha style
 
 input=$(</dev/stdin)
 # echo "$input" > /tmp/sl_debug.json # status line debug info
@@ -68,7 +68,7 @@ usage_segment() {
   printf "${color}%s %s%%${reset}" "$icon" "$pct"
 }
 
-# Model — short family name inferred from the model id
+# Model: short family name inferred from the model id
 # (display_name is verbose, e.g. "Opus 4.8 (1M context)")
 case "$model_id" in
   *haiku*)  model="Haiku";  model_color="$green" ;;
@@ -94,7 +94,7 @@ case "$effort_level" in
   *)         effort=$(printf '%s' "$effort_level" | awk '{print toupper(substr($0,1,1)) substr($0,2)}'); effort_color="$overlay1" ;;
 esac
 
-# Session name — custom name (--name / /rename) when set, otherwise the
+# Session name: custom name (--name / /rename) when set, otherwise the
 # auto-generated conversation title. The field is absent only when the session has
 # neither, i.e. exactly the default display name this line deliberately hides.
 [ -z "$session_name" ] && session_name="new session"
