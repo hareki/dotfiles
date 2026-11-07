@@ -62,7 +62,12 @@ function M.toggle()
   end
 
   local file = target_file()
-  state.win = Snacks.lazygit(file and { args = { '--file', file } })
+  state.win = Snacks.lazygit({
+    args = file and { '--file', file },
+    -- Here rather than in styles.lazygit, which would load core.snacks-nvim.utils at startup.
+    -- Snacks.lazygit opens a Snacks terminal: border and zindex come from styles.terminal
+    win = fullscreen_panels.win_config({ backdrop = false, title = ' Git Client ' }),
+  })
 end
 
 --- Hide every visible Snacks terminal and refocus the last editing window for `nvim --remote`

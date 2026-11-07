@@ -1,5 +1,4 @@
 local lazygit = Defer.on_exported_call('features.git.snacks-nvim.utils')
-local fullscreen_panels = require('core.snacks-nvim.utils')
 
 --- @module 'snacks.picker'
 local picker = Defer.on_exported_call('snacks.picker')
@@ -25,19 +24,6 @@ return {
 
     opts = {
       lazygit = { enabled = true, configure = false },
-
-      styles = {
-        -- Snacks.lazygit opens a Snacks terminal: border and zindex come from styles.terminal
-        lazygit = vim.tbl_extend(
-          'force',
-          UI.layout.popup_fn('full'),
-          fullscreen_panels.terminal_mode,
-          {
-            backdrop = false,
-            title = ' Git Client ',
-          }
-        ),
-      },
     },
   },
 }

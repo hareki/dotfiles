@@ -28,7 +28,6 @@ tsave() {
     print -u2 'tsave: no tmux server with tmux-resurrect loaded'
     return 1
   fi
-  dir=$(tmux show-option -gqv @resurrect-dir)
 
   # In a pane nvim's terminal, quitting that nvim would end tsave before the kill, and the checks
   # below would count their own RPC client as a nested nvim: rerun from the tmux server, outside
@@ -36,10 +35,12 @@ tsave() {
   # of the kill, since a full run quits this shell's nvim first
   if (( ! keep_running )) && [[ -n $NVIM && -n $TMUX_PANE ]]; then
     local job="autoload -Uz ${(q)functions_source[tsave]} && tsave"
-    # run-shell shows stdout only, plus a "returned 1" line that `true` drops
-    tmux run-shell -t $TMUX_PANE "env -u NVIM zsh -fc ${(qq)job} 2>&1; true"
+    # -E keeps the stderr run-shell drops, `true` drops its "returned 1" line, and without NVIM the
+    # rerun can't take this branch again, whatever environment the server gives its jobs
+    tmux run-shell -E -t $TMUX_PANE "env -u NVIM zsh -fc ${(qq)job}; true"
     return 1
   fi
+  dir=$(tmux show-option -gqv @resurrect-dir)
 
   # Resurrect names snapshots by the second, and a second save within one deletes itself
   local prev now

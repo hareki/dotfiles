@@ -61,15 +61,10 @@ return {
         terminal = {
           --- @module "snacks"
           --- @type snacks.win.Config | {}
-          snacks_win_opts = vim.tbl_extend(
-            'force',
-            UI.layout.popup_fn('full'),
-            fullscreen_panels.terminal_mode,
-            {
-              title = ' Coding Agent ',
-              position = 'float',
-            }
-          ),
+          snacks_win_opts = fullscreen_panels.win_config({
+            title = ' Coding Agent ',
+            position = 'float',
+          }),
         },
       }
     end,

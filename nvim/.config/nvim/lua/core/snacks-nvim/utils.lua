@@ -1,27 +1,19 @@
---- Full-screen Snacks terminals (Lazygit, the coding agent): keeps them from stacking, so closing
---- one lands on the code (panels are detected by geometry, covering the `full` preset), and pins
---- them to Terminal mode
+--- Full-screen Snacks terminals (Lazygit, the coding agent): builds their window config, pinned
+--- to Terminal mode, and keeps them from stacking, so closing one lands on the code (panels are
+--- detected by geometry, covering the `full` preset)
 --- @class core.snacks.utils
 local M = {}
 
---- Window config that pins a panel to Terminal mode: its app takes every key and click itself, so
---- Normal mode there only strands the cursor. Each panel merges it into its own config, since a
---- Snacks style would lose `on_buf` to the claudecode.nvim fork's own `on_buf`
+--- Pins a panel to Terminal mode: its app takes every key and click itself, so Normal mode there
+--- only strands the cursor
 --- @type snacks.win.Config
-M.terminal_mode = {
+local terminal_mode = {
   keys = {
     -- Replaces Snacks' double <Esc> exit, which also swallows the second press (Claude's rewind,
     -- Lazygit's nested popups); a buffer-local <Esc> also keeps the global <Esc><Esc> map from
-    -- holding every single press for 'timeoutlen'
-    term_normal = {
-      '<Esc>',
-      function()
-        return '<Esc>'
-      end,
-      mode = 't',
-      expr = true,
-      desc = 'Send Escape',
-    },
+    -- holding every single press for 'timeoutlen'. With `expr`, Snacks sends an rhs that names no
+    -- action as keys
+    term_normal = { '<Esc>', '<Esc>', mode = 't', expr = true, desc = 'Send Escape' },
   },
 
   --- Clicks and scrolls the app can't take, like those on the border, still leave Terminal mode
@@ -44,6 +36,15 @@ M.terminal_mode = {
     })
   end,
 }
+
+--- Window config of a full-screen panel: the `full` preset `hide_others` detects panels by, pinned
+--- to Terminal mode. A merge rather than a Snacks style, which would lose `on_buf` to the
+--- claudecode.nvim fork's own `on_buf`
+--- @param overrides snacks.win.Config|{} The panel's own options (title, position, backdrop)
+--- @return snacks.win.Config
+function M.win_config(overrides)
+  return vim.tbl_extend('force', UI.layout.popup_fn('full'), terminal_mode, overrides)
+end
 
 --- Whether `terminal` is up as a full-screen panel; `valid()` alone misses the agent's hidden float
 --- @param terminal snacks.win
