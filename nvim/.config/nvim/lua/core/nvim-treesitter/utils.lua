@@ -1,6 +1,46 @@
 --- @class core.nvim-treesitter.utils
 local M = {}
 
+--- @type string[]
+M.ensure_installed = {
+  'bash',
+  'c',
+  'diff',
+  'html',
+  'javascript',
+  'jsdoc',
+  'json',
+  'lua',
+  'luadoc',
+  'luap',
+  'markdown',
+  'markdown_inline',
+  'printf',
+  'python',
+  'query',
+  'regex',
+  'toml',
+  'tsx',
+  'typescript',
+  'vim',
+  'vimdoc',
+  'xml',
+  'yaml',
+  'css',
+  'scss',
+  'styled',
+  'zsh',
+  'gitcommit',
+  'astro',
+  'mermaid',
+  'angular',
+  'rust',
+  'go',
+  'ghostty',
+  'glimmer',
+  'applescript',
+}
+
 local detach_patched = false
 
 --- A highlighter's destroy() sources syntax/<ft>.vim (~12 ms for markdown) even from on_detach,

@@ -1,42 +1,3 @@
-local ensure_installed = {
-  'bash',
-  'c',
-  'diff',
-  'html',
-  'javascript',
-  'jsdoc',
-  'json',
-  'lua',
-  'luadoc',
-  'luap',
-  'markdown',
-  'markdown_inline',
-  'printf',
-  'python',
-  'query',
-  'regex',
-  'toml',
-  'tsx',
-  'typescript',
-  'vim',
-  'vimdoc',
-  'xml',
-  'yaml',
-  'css',
-  'scss',
-  'styled',
-  'zsh',
-  'gitcommit',
-  'astro',
-  'mermaid',
-  'angular',
-  'rust',
-  'go',
-  'ghostty',
-  'glimmer',
-  'applescript',
-}
-
 return {
   'nvim-treesitter/nvim-treesitter',
   branch = 'main',
@@ -112,11 +73,12 @@ return {
 
   config = function()
     local treesitter = require('nvim-treesitter')
+    local utils = require('core.nvim-treesitter.utils')
 
     local installed = treesitter.get_installed('parsers')
     local missing = vim.tbl_filter(function(lang)
       return not vim.list_contains(installed, lang)
-    end, ensure_installed)
+    end, utils.ensure_installed)
 
     if #missing > 0 then
       treesitter.install(missing, { summary = true })
