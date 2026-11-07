@@ -1,23 +1,24 @@
 [metadata]
 name = "dotfiles"
 description = "A channel to select dotfiles configs"
-requirements = ["fd", "eza", "nvim"]
+requirements = ["eza", "nvim"]
 
 [ui]
 layout = "landscape"
-input_bar = { header = "Dotfiles", prompt = "  ", border_type = "rounded" }
+input_bar = { header = "Dotfiles" }
 
 [source]
-command = "fd --type dir --hidden --exclude .git '^\\.config$' $HOME/Repositories/personal/dotfiles --exec zsh -c 'ls \"$1\"' _ {}"
+command = "cd $HOME/Repositories/personal/dotfiles && printf '%s\\n' */.config/*"
+display = "{split:/:-1}"
 
 [preview]
-command = "cd $HOME/Repositories/personal/dotfiles/{}/.config; eza --icons=always --color=always --no-user --tree {}"
+command = "cd $HOME/Repositories/personal/dotfiles/{split:/:0}/.config; eza --icons=always --color=always --no-user --tree {split:/:-1}"
 
 [keybindings]
 enter = "actions:edit"
 
 [actions.edit]
-description = "Open selected files in editor"
-command = "nvim $HOME/Repositories/personal/dotfiles/{}/.config/{}"
+description = "Open the config in Neovim"
+command = "nvim $HOME/Repositories/personal/dotfiles/{}"
 # Exiting television upon opening Neovim
 mode = "execute"

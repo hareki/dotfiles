@@ -5,23 +5,22 @@ requirements = ["fd", "eza", "nvim"]
 
 [ui]
 layout = "landscape"
-input_bar = { header = "Repositories", prompt = "  ", border_type = "rounded" }
+input_bar = { header = "Repositories" }
 
 [source]
 ansi = true
 # EZA_COLORS overrides only this command's directory (di) color to #cdd6f4 non-bold,
 # so the repo name is white while eza keeps the dimmed domain prefix (e.g. "personal/")
-command = "EZA_COLORS='di=38;2;205;214;244' fd --type dir --hidden --exclude .git --min-depth 2 --max-depth 2 --strip-cwd-prefix --base-directory $HOME/Repositories . --exec eza -d --color=always"
-output = "{strip_ansi}"
+command = "EZA_COLORS='di=38;2;205;214;244' fd --type dir --hidden --exclude .git --exact-depth 2 --strip-cwd-prefix --base-directory $HOME/Repositories . --exec-batch eza -1 -d --color=always"
 
 [preview]
-command = "eza --icons=always --color=always --no-user --tree --git-ignore --level 2 $HOME/Repositories/{strip_ansi}"
+command = "eza --icons=always --color=always --no-user --tree --git-ignore --level 2 $HOME/Repositories/{}"
 
 [keybindings]
 enter = "actions:edit"
 
 [actions.edit]
-description = "Open selected files in editor"
-command = "cd $HOME/Repositories/{strip_ansi} && nvim ."
+description = "Open the repository in Neovim"
+command = "cd $HOME/Repositories/{} && nvim ."
 # Exiting television upon opening Neovim
 mode = "execute"
