@@ -13,10 +13,11 @@ M.paths = {
   treesitter = vim.fs.joinpath(data, 'lazy/nvim-treesitter'),
   catppuccin = vim.fs.joinpath(data, 'lazy/catppuccin'),
   codediff = vim.fs.joinpath(data, 'lazy/codediff.nvim'),
-  -- The editor's filetype-rules module that setup() sources below: its
-  -- detection rules and ft => language aliases shape every render, so an edit
-  -- must recycle the daemon like any renderer source.
+  -- The editor's filetype rules and the ft => language aliases it adds, which
+  -- setup() sources below: together they decide which parser a path gets, so
+  -- an edit to either must recycle the daemon like any renderer source.
   filetype_rules = vim.fs.joinpath(config, 'lua/config/filetypes/init.lua'),
+  language_aliases = vim.fs.joinpath(config, 'lua/config/filetypes/languages.lua'),
   -- The editor's treesitter @capture overrides, which setup() hands to
   -- catppuccin below: they decide what a highlighted diff row looks like, so an
   -- edit must recycle the daemon like any renderer source.
@@ -80,14 +81,18 @@ function M.setup()
   -- nvim-treesitter's query files use.
   vim.cmd('runtime! plugin/filetypes.lua plugin/query_predicates.lua')
 
-  -- The editor's own vim.filetype.add() rules and its filetype => treesitter
-  -- language aliases (mdx, handlebars, htmlangular) live in the user config,
-  -- which --clean never loads, so a path with no builtin rule (a ghostty
-  -- config, a .mdx file) resolves to no filetype here and renders
-  -- unhighlighted. Sourcing the one module that owns both keeps them from
-  -- drifting out of sync; guarded because a render must never fail over
-  -- filetype detection alone.
+  -- The editor's own vim.filetype.add() rules and the filetype => treesitter
+  -- language aliases it adds to those (mdx => markdown) live in the user
+  -- config, which --clean never loads, so a path with no builtin rule (a
+  -- ghostty config) resolves to no filetype here, and an aliased one (a .mdx
+  -- file) to a language with no parser: both render unhighlighted. Sourcing
+  -- the modules the editor loads itself keeps them from drifting out of sync;
+  -- guarded because a render must never fail over filetype detection alone.
   pcall(dofile, M.paths.filetype_rules)
+  pcall(function()
+    local language_aliases = dofile(M.paths.language_aliases)
+    language_aliases.register()
+  end)
 end
 
 return M

@@ -58,7 +58,7 @@ return {
       treesitter.install(missing, { summary = true })
     end
 
-    -- The plugin's plugin/filetypes.lua registers handlebars and htmlangular, but not mdx
-    vim.treesitter.language.register('markdown', 'mdx')
+    local languages = require('config.filetypes.languages')
+    languages.register()
   end,
 }

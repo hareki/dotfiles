@@ -1,0 +1,16 @@
+diff --git a/docs/intro.mdx b/docs/intro.mdx
+index 3b18e51..9c2f7a4 100644
+--- a/docs/intro.mdx
++++ b/docs/intro.mdx
+@@ -1,9 +1,10 @@
+ import { Callout } from '../components/callout'
+ 
+ # Getting started
+ 
+-Install the package with `npm install`.
++Install the package with `pnpm add`, then read the **setup** notes.
+ 
+ ## Options
+ 
+ - `theme`: the color scheme
++- `layout`: *inline* or *split*, see [the layouts](./layouts.mdx)
