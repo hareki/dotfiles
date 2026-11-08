@@ -1,3 +1,5 @@
+local notify = Notifier.scoped('Pin')
+
 --- @class features.navigation.harpoon.utils
 local M = {}
 
@@ -13,11 +15,11 @@ function M.pin(index)
   local old_item = list:get(index)
 
   if old_item and old_item.value == new_item.value then
-    Notifier.warn({
+    notify.warn({
       { new_item.value, 'NotifyWARNTitle' },
       { '\nis already in slot ', 'Normal' },
       { tostring(index), 'NotifyWARNTitle' },
-    }, { title = 'Pin' })
+    })
 
     return
   end
@@ -29,32 +31,32 @@ function M.pin(index)
   list:replace_at(index, new_item)
 
   if old_index then
-    Notifier.warn({
+    notify.warn({
       { 'Moved ', 'Normal' },
       { new_item.value, 'NotifyWARNTitle' },
       { '\nfrom slot ', 'Normal' },
       { tostring(old_index), 'NotifyWARNTitle' },
       { ' to ', 'Normal' },
       { tostring(index), 'NotifyWARNTitle' },
-    }, { title = 'Pin' })
+    })
   elseif old_item then
     -- The early return above rules out the same item
-    Notifier.warn({
+    notify.warn({
       { 'Replaced ', 'Normal' },
       { old_item.value, 'NotifyWARNTitle' },
       { '\nwith ', 'Normal' },
       { new_item.value, 'NotifyWARNTitle' },
       { '\nfor slot ', 'Normal' },
       { tostring(index), 'NotifyWARNTitle' },
-    }, { title = 'Pin' })
+    })
   else
     -- Slot was empty, new file added
-    Notifier.info({
+    notify.info({
       { 'Added ', 'Normal' },
       { new_item.value, 'NotifyINFOTitle' },
       { '\ninto slot ', 'Normal' },
       { tostring(index), 'NotifyINFOTitle' },
-    }, { title = 'Pin' })
+    })
   end
 end
 
@@ -109,7 +111,7 @@ M.show_picker = function()
   end
 
   if harpoon:list():length() == 0 then
-    Notifier.info('Pin list is empty')
+    notify.info('Pin list is empty')
     return
   end
 

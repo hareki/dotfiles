@@ -12,7 +12,7 @@ function M.jump(direction)
   else
     local ok, err = pcall(vim.cmd[direction == 'next' and 'cnext' or 'cprev'])
     if not ok then
-      Notifier.error(err)
+      Notifier.error(err, { title = 'Quickfix' })
     end
   end
 end

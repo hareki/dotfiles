@@ -14,7 +14,7 @@ return {
         --- @diagnostic disable-next-line: param-type-mismatch A jsonls method, not in vim.lsp's list
         client:request('json/sort', params, function(err, edits)
           if err then
-            Notifier.error('Failed to sort JSON: ' .. err.message)
+            Notifier.error('Failed to sort JSON: ' .. err.message, { title = 'JSON LSP' })
           elseif edits then
             vim.lsp.util.apply_text_edits(edits, bufnr, client.offset_encoding)
           end
