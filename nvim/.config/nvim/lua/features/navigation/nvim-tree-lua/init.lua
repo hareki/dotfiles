@@ -181,7 +181,7 @@ return {
 
         on_attach = function(tree_bufnr)
           local keymap = require('utils.keymap')
-          local map = keymap.buf_mapper(tree_bufnr, { prefix = 'File Tree: ', nowait = true })
+          local map = keymap.buf_mapper(tree_bufnr, { prefix = UI_NAME .. ': ', nowait = true })
 
           map('n', '<C-t>', tree.switch_to_side, 'Switch to Side')
 
