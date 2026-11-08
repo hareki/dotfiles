@@ -24,13 +24,16 @@ git -C "$REPO" archive "$rev:$PREFIX" | tar -x -C "$NVIM_TEST_TMP/old/nvim" || e
 (cd "$CONFIG" && find . \( -name .git -o -name .codegraph \) -prune -o -type f -print |
   tar -cf - -T -) | tar -x -C "$NVIM_TEST_TMP/new/nvim" || exit 2
 
-for variant in old new; do
-  if ! nvim_test "$NVIM_TEST_TMP/$variant" "$variant" "$TESTS_DIR/lib/dump.lua" \
-    "$NVIM_TEST_TMP/$variant.txt"; then
-    echo "BROKEN the $variant boot failed"
-    exit 2
-  fi
-done
+# Side by side: each boot has its own config, cache and state dirs (tests/lib/env.sh)
+nvim_test "$NVIM_TEST_TMP/old" old "$TESTS_DIR/lib/dump.lua" "$NVIM_TEST_TMP/old.txt" &
+old_pid=$!
+nvim_test "$NVIM_TEST_TMP/new" new "$TESTS_DIR/lib/dump.lua" "$NVIM_TEST_TMP/new.txt" &
+new_pid=$!
+# Both waited for before any exit: the EXIT trap deletes the dirs they write to
+broken=false
+wait "$old_pid" || { echo 'BROKEN the old boot failed'; broken=true; }
+wait "$new_pid" || { echo 'BROKEN the new boot failed'; broken=true; }
+[ "$broken" = false ] || exit 2
 
 if [ -n "${NVIM_AB_KEEP:-}" ]; then
   mkdir -p "$NVIM_AB_KEEP"
