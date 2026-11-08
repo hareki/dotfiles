@@ -13,13 +13,13 @@ local M = {}
 local page_renders = {}
 
 -- Audio has no frame for snacks.image to render, and its bytes are no use as text
-local audio_extensions =
+local AUDIO_EXTENSIONS =
   { 'aac', 'aif', 'aiff', 'flac', 'm4a', 'mp3', 'oga', 'ogg', 'opus', 'wav', 'weba', 'wma' }
 
 --- @param path string
 --- @return boolean
 local function is_audio(path)
-  return vim.list_contains(audio_extensions, vim.fs.ext(path):lower())
+  return vim.list_contains(AUDIO_EXTENSIONS, vim.fs.ext(path):lower())
 end
 
 --- Whether `path` opens as a rendered view (snacks.image's viewer or the audio page)
@@ -32,7 +32,7 @@ end
 --- The page never redraws on mode changes or cursor moves: render every mode and the cursor line
 --- alike, without the debounce that drops ffprobe's late draw (read on a buffer's first draw)
 --- @type render.md.partial.UserConfig
-local page_render_config = {
+local PAGE_RENDER_CONFIG = {
   render_modes = true,
   anti_conceal = { enabled = false },
   win_options = { concealcursor = { rendered = 'nvic' } },
@@ -42,7 +42,7 @@ local page_render_config = {
 --- Draw the page with render-markdown, which only attaches by filetype (the page has none)
 --- @param buf integer
 local function draw_page(buf)
-  render_markdown.render({ buf = buf, config = page_render_config })
+  render_markdown.render({ buf = buf, config = PAGE_RENDER_CONFIG })
 end
 
 --- @param buf integer
@@ -185,7 +185,7 @@ end
 function M.setup_audio_viewer()
   local group =
     vim.api.nvim_create_augroup('features.preview.snacks-nvim.audio-viewer', { clear = true })
-  local pattern = string.format('*.{%s}', table.concat(audio_extensions, ','))
+  local pattern = string.format('*.{%s}', table.concat(AUDIO_EXTENSIONS, ','))
 
   vim.api.nvim_create_autocmd('BufReadCmd', {
     group = group,

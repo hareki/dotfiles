@@ -5,7 +5,7 @@ local builtin_keymaps = require('config.builtin-keymaps')
 --- @class chrome.which-key-nvim.preset
 local M = {}
 
-local operators = {
+local OPERATORS = {
   preset = true,
   mode = { 'n', 'x' },
   { '!', desc = 'Run Program' },
@@ -25,7 +25,7 @@ local operators = {
   { '~', desc = 'Toggle Case' },
 }
 
-local motions = {
+local MOTIONS = {
   mode = { 'o', 'x', 'n' },
   preset = true,
   { '$', desc = 'Move to End of Line' },
@@ -53,7 +53,7 @@ local motions = {
   { 'W', desc = 'Next WORD' },
 }
 
-local text_objects = {
+local TEXT_OBJECTS = {
   mode = { 'o', 'x' },
   preset = true,
   { 'a', group = 'Around' },
@@ -98,7 +98,7 @@ local text_objects = {
   { 'i}', desc = 'Inner [{]}' },
 }
 
-local windows = {
+local WINDOWS = {
   preset = true,
   mode = { 'n', 'x' },
   { '<c-w>', group = 'Window' },
@@ -126,7 +126,7 @@ local windows = {
   { '<c-w>L', desc = 'Move Window to Far Right' },
 }
 
-local z = {
+local Z = {
   preset = true,
   { 'z<CR>', desc = 'Top This Line' },
   { 'z=', desc = 'Spelling Suggestions' },
@@ -146,10 +146,10 @@ local z = {
 }
 
 for _, fold in ipairs(builtin_keymaps.FOLD_DESCS) do
-  table.insert(z, { fold[1], desc = fold[2] })
+  table.insert(Z, { fold[1], desc = fold[2] })
 end
 
-local nav = {
+local NAV = {
   preset = true,
   mode = { 'n', 'x', 'o' },
   { 'H', desc = 'Home Line of Window (Top)' },
@@ -171,7 +171,7 @@ local nav = {
   { ']{', desc = 'Next {' },
 }
 
-local g = {
+local G = {
   preset = true,
   mode = { 'n', 'x', 'o' },
   { 'g%', desc = 'Cycle Backwards Through Results' },
@@ -193,7 +193,7 @@ local g = {
 
 function M.setup()
   local wk = require('which-key')
-  wk.add({ operators, motions, text_objects, windows, z, nav, g })
+  wk.add({ OPERATORS, MOTIONS, TEXT_OBJECTS, WINDOWS, Z, NAV, G })
 end
 
 return M

@@ -1,10 +1,10 @@
-local prefix = 'Notification: '
+local PREFIX = 'Notification: '
 
 return {
   UI.which_key({
     rules = {
       {
-        pattern = prefix:lower() .. 'show history',
+        pattern = PREFIX:lower() .. 'show history',
         icon = Conf.icons.editor.SHOW_NOTIFICATION,
         color = 'yellow',
       },
@@ -23,7 +23,7 @@ return {
           local notify_utils = require('chrome.nvim-notify.utils')
           notify_utils.show_picker()
         end,
-        desc = prefix .. 'Show History',
+        desc = PREFIX .. 'Show History',
       },
     },
 

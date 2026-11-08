@@ -1,7 +1,7 @@
 --- @class chrome.lualine-nvim.components.snacks-image
 local M = {}
 
-local image_icon = Conf.icons.editor.IMAGE .. ' '
+local IMAGE_ICON = Conf.icons.editor.IMAGE .. ' '
 
 -- query.get's GC-weak cache re-scans the runtimepath after a collection: pin the answer for redraws
 --- @type table<string, boolean>
@@ -114,7 +114,7 @@ end
 
 --- @return string
 function M.get()
-  return image_icon
+  return IMAGE_ICON
 end
 
 M.color = 'green'

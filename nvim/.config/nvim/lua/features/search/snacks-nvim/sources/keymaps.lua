@@ -3,7 +3,7 @@
 --- @class features.search.snacks-nvim.sources.keymaps
 local M = {}
 
-local filtered_descriptions = {
+local FILTERED_DESCRIPTIONS = {
   'blink.cmp',
   'autopairs map key', -- nvim-autopairs
 }
@@ -48,7 +48,7 @@ function M.transform(item)
   end
 
   if keymap.desc then
-    for _, v in ipairs(filtered_descriptions) do
+    for _, v in ipairs(FILTERED_DESCRIPTIONS) do
       if keymap.desc:find(v, 1, true) then
         return false
       end

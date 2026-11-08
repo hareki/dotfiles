@@ -1,4 +1,4 @@
-local prefix = 'Live Preview: '
+local PREFIX = 'Live Preview: '
 
 return {
   UI.which_key({
@@ -16,12 +16,12 @@ return {
           local utils = require('features.preview.live-preview-nvim.utils')
           utils.start()
         end,
-        desc = prefix .. 'Start',
+        desc = PREFIX .. 'Start',
       },
       {
         '<leader>px',
         '<cmd>LivePreview close<cr>',
-        desc = prefix .. 'Stop',
+        desc = PREFIX .. 'Stop',
       },
       {
         '<leader>fP',
@@ -29,7 +29,7 @@ return {
           local utils = require('features.preview.live-preview-nvim.utils')
           utils.pick()
         end,
-        desc = prefix .. 'Find File',
+        desc = PREFIX .. 'Find File',
       },
     },
 

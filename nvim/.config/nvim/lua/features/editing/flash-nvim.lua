@@ -1,4 +1,4 @@
-local prefix = 'Flash: '
+local PREFIX = 'Flash: '
 
 --- @module 'flash'
 local flash = Defer.on_exported_call('flash')
@@ -23,41 +23,41 @@ return {
       {
         'f',
         mode = { 'n', 'x' },
-        desc = prefix .. 'Find Char',
+        desc = PREFIX .. 'Find Char',
       },
       {
         't',
         mode = { 'n', 'x' },
-        desc = prefix .. 'Till Char',
+        desc = PREFIX .. 'Till Char',
       },
       {
         'F',
         mode = { 'n', 'x' },
-        desc = prefix .. 'Find Char Backwards',
+        desc = PREFIX .. 'Find Char Backwards',
       },
       {
         'T',
         mode = { 'n', 'x' },
-        desc = prefix .. 'Till Char Backwards',
+        desc = PREFIX .. 'Till Char Backwards',
       },
       {
         ';',
         mode = { 'n', 'x' },
-        desc = prefix .. 'Repeat Char Motion',
+        desc = PREFIX .. 'Repeat Char Motion',
       },
       {
         ',',
         mode = { 'n', 'x' },
-        desc = prefix .. 'Repeat Char Motion Reversed',
+        desc = PREFIX .. 'Repeat Char Motion Reversed',
       },
-      { 's', flash.jump, mode = { 'n', 'x', 'o' }, desc = prefix .. 'Jump' },
-      { 'S', flash.treesitter, mode = { 'n', 'o', 'x' }, desc = prefix .. 'Treesitter' },
-      { 'r', flash.remote, mode = 'o', desc = prefix .. 'Remote' },
+      { 's', flash.jump, mode = { 'n', 'x', 'o' }, desc = PREFIX .. 'Jump' },
+      { 'S', flash.treesitter, mode = { 'n', 'o', 'x' }, desc = PREFIX .. 'Treesitter' },
+      { 'r', flash.remote, mode = 'o', desc = PREFIX .. 'Remote' },
       {
         'R',
         flash.treesitter_search,
         mode = { 'o', 'x' },
-        desc = prefix .. 'Treesitter Search',
+        desc = PREFIX .. 'Treesitter Search',
       },
       -- Simulate nvim-treesitter incremental selection
       {
@@ -71,7 +71,7 @@ return {
             },
           })
         end,
-        desc = prefix .. 'Treesitter Incremental Selection',
+        desc = PREFIX .. 'Treesitter Incremental Selection',
       },
     },
     opts = function()

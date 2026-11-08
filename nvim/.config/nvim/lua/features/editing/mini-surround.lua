@@ -1,4 +1,4 @@
-local prefix = 'l'
+local PREFIX = 'l'
 
 return {
   UI.catppuccin(function()
@@ -8,10 +8,10 @@ return {
   end, 'mini.surround'),
 
   UI.which_key({
-    specs = { prefix, group = 'Mini Surround', mode = { 'n', 'x' } },
+    specs = { PREFIX, group = 'Mini Surround', mode = { 'n', 'x' } },
     rules = { pattern = 'mini.surround', icon = Conf.icons.tools.SURROUND, color = 'purple' },
     -- which-key never auto-triggers the single-letter builtin `l`, which would move the cursor
-    triggers = { prefix, mode = { 'n', 'x' } },
+    triggers = { PREFIX, mode = { 'n', 'x' } },
   }),
 
   {
@@ -22,12 +22,12 @@ return {
         n_lines = 100,
         highlight_duration = 1000,
         mappings = {
-          add = prefix .. 'a',
-          delete = prefix .. 'd',
-          replace = prefix .. 'r',
-          find = prefix .. 'f',
-          find_left = prefix .. 'F',
-          highlight = prefix .. 'h',
+          add = PREFIX .. 'a',
+          delete = PREFIX .. 'd',
+          replace = PREFIX .. 'r',
+          find = PREFIX .. 'f',
+          find_left = PREFIX .. 'F',
+          highlight = PREFIX .. 'h',
         },
         custom_surroundings = {
           -- Revert default: left brackets leave no whitespace, right brackets add whitespace

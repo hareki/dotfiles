@@ -7,13 +7,13 @@ local M = {}
 
 --- Filetype => the tree-sitter language its text parses with
 --- @type table<string, string>
-local aliases = {
+local ALIASES = {
   mdx = 'markdown',
 }
 
 --- @return nil
 function M.register()
-  for filetype, language in pairs(aliases) do
+  for filetype, language in pairs(ALIASES) do
     vim.treesitter.language.register(language, filetype)
   end
 end

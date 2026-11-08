@@ -7,7 +7,7 @@ local M = {}
 --- Pins a panel to Terminal mode: its app takes every key and click itself, so Normal mode there
 --- only strands the cursor
 --- @type snacks.win.Config
-local terminal_mode = {
+local TERMINAL_MODE = {
   keys = {
     -- Replaces Snacks' double <Esc> exit, which also swallows the second press (Claude's rewind,
     -- Lazygit's nested popups); a buffer-local <Esc> also keeps the global <Esc><Esc> map from
@@ -43,7 +43,7 @@ local terminal_mode = {
 --- @param overrides snacks.win.Config|{} The panel's own options (title, position, backdrop)
 --- @return snacks.win.Config
 function M.win_config(overrides)
-  return vim.tbl_extend('force', UI.layout.popup_fn('full'), terminal_mode, overrides)
+  return vim.tbl_extend('force', UI.layout.popup_fn('full'), TERMINAL_MODE, overrides)
 end
 
 --- Whether `terminal` is up as a full-screen panel; `valid()` alone misses the agent's hidden float

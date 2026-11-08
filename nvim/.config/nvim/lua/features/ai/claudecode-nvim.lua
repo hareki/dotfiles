@@ -1,4 +1,4 @@
-local prefix = 'Coding Agent: '
+local PREFIX = 'Coding Agent: '
 
 return {
   UI.which_key({
@@ -19,35 +19,35 @@ return {
           fullscreen_panels.hide_others(terminal.get_active_terminal_bufnr())
           vim.cmd.ClaudeCode()
         end,
-        desc = prefix .. 'Toggle',
+        desc = PREFIX .. 'Toggle',
         mode = { 'n', 'x', 't', 'i' },
       },
       {
         '<leader>as',
         '<cmd>ClaudeCodeAdd %<cr>',
-        desc = prefix .. 'Add Current Buffer',
+        desc = PREFIX .. 'Add Current Buffer',
       },
       {
         '<leader>as',
         '<cmd>ClaudeCodeTreeAdd<cr>',
-        desc = prefix .. 'Add File',
+        desc = PREFIX .. 'Add File',
         ft = { 'NvimTree' },
       },
       {
         '<leader>as',
         '<cmd>ClaudeCodeSend<cr>',
         mode = 'v',
-        desc = prefix .. 'Add Selection',
+        desc = PREFIX .. 'Add Selection',
       },
       {
         '<leader>aa',
         '<cmd>ClaudeCodeDiffAccept<cr>',
-        desc = prefix .. 'Accept Diff',
+        desc = PREFIX .. 'Accept Diff',
       },
       {
         '<leader>ad',
         '<cmd>ClaudeCodeDiffDeny<cr>',
-        desc = prefix .. 'Deny Diff',
+        desc = PREFIX .. 'Deny Diff',
       },
     },
 

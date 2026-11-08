@@ -176,7 +176,7 @@ aucmd('FileType', {
 -- Wrap markdown lines and add visual-mode section jumps
 local markdown_group = augroup('markdown-defaults')
 -- Headings as matched by the runtime ftplugin's section jumps
-local markdown_heading = [[\%(^#\{1,5\}\s\+\S\|^\S.*\n^[=-]\+$\)]]
+local MARKDOWN_HEADING = [[\%(^#\{1,5\}\s\+\S\|^\S.*\n^[=-]\+$\)]]
 
 aucmd('FileType', {
   group = markdown_group,
@@ -187,13 +187,13 @@ aucmd('FileType', {
     map(
       'x',
       ']]',
-      string.format("<cmd>call search('%s', 'sW')<cr>", markdown_heading),
+      string.format("<cmd>call search('%s', 'sW')<cr>", MARKDOWN_HEADING),
       'Jump to Next Section'
     )
     map(
       'x',
       '[[',
-      string.format("<cmd>call search('%s', 'bsW')<cr>", markdown_heading),
+      string.format("<cmd>call search('%s', 'bsW')<cr>", MARKDOWN_HEADING),
       'Jump to Previous Section'
     )
 

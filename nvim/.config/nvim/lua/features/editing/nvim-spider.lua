@@ -1,4 +1,4 @@
-local prefix = 'Spider: '
+local PREFIX = 'Spider: '
 
 --- @module 'spider'
 local spider = Defer.on_exported_call('spider')
@@ -12,7 +12,7 @@ return {
         spider.motion('w')
       end,
       mode = { 'n', 'o', 'x' },
-      desc = prefix .. 'Word Forward',
+      desc = PREFIX .. 'Word Forward',
     },
     {
       'e',
@@ -20,7 +20,7 @@ return {
         spider.motion('e')
       end,
       mode = { 'n', 'o', 'x' },
-      desc = prefix .. 'Word End',
+      desc = PREFIX .. 'Word End',
     },
     {
       'b',
@@ -28,7 +28,7 @@ return {
         spider.motion('b')
       end,
       mode = { 'n', 'o', 'x' },
-      desc = prefix .. 'Word Backward',
+      desc = PREFIX .. 'Word Backward',
     },
   },
 }

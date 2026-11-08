@@ -19,12 +19,12 @@ local conflict_ns = vim.api.nvim_create_namespace('git-conflict')
 
 -- Window-local 'winhighlight' remaps only these groups; nvim_win_set_hl_ns would break other
 -- plugins' winhighlight redirects (nvim-tree's own groups), rendering them with defaults
-local conflict_winhl = table.concat({
+local CONFLICT_WINHL = table.concat({
   'DocumentHighlight:GitConflictDocumentHighlight',
   'GitSignsCurrentLineBlame:GitConflictBlame',
 }, ',')
 
-local keymaps = {
+local KEYMAPS = {
   { lhs = '<leader>co', rhs = '<Plug>(git-conflict-ours)', desc = 'Choose Ours' },
   { lhs = '<leader>ct', rhs = '<Plug>(git-conflict-theirs)', desc = 'Choose Theirs' },
   { lhs = '<leader>cb', rhs = '<Plug>(git-conflict-both)', desc = 'Choose Both' },
@@ -34,9 +34,9 @@ local keymaps = {
 }
 
 -- Tells the maps above apart from another plugin's map on the same keys
-local keymap_rhs = {}
-for _, map in ipairs(keymaps) do
-  keymap_rhs[map.rhs] = true
+local KEYMAP_RHS = {}
+for _, map in ipairs(KEYMAPS) do
+  KEYMAP_RHS[map.rhs] = true
 end
 
 --- @return boolean in_conflict
@@ -68,7 +68,7 @@ end
 --- @param in_conflict boolean
 local function apply_window_winhl(win, in_conflict)
   -- Setting 'winhighlight', even to its current value, redraws the whole window on every move here
-  local winhl = in_conflict and conflict_winhl or ''
+  local winhl = in_conflict and CONFLICT_WINHL or ''
   if vim.wo[win].winhighlight ~= winhl then
     vim.wo[win].winhighlight = winhl
   end
@@ -93,7 +93,7 @@ function M.setup()
       end
 
       local map = keymap.buf_mapper(bufnr, { prefix = 'Git Conflict: ' })
-      for _, entry in ipairs(keymaps) do
+      for _, entry in ipairs(KEYMAPS) do
         map('n', entry.lhs, entry.rhs, entry.desc)
       end
 
@@ -154,7 +154,7 @@ function M.setup()
       -- Delete only Detected's maps, whatever the flag says: codediff's merge view claims
       -- the same keys on this buffer and hands Detected's maps back once it lets go
       for _, map in ipairs(vim.api.nvim_buf_get_keymap(bufnr, 'n')) do
-        if keymap_rhs[map.rhs] then
+        if KEYMAP_RHS[map.rhs] then
           vim.api.nvim_buf_del_keymap(bufnr, 'n', map.lhs)
         end
       end

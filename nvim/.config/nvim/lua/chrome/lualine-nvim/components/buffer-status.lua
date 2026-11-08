@@ -1,6 +1,6 @@
 local component = require('lualine.component')
 local git_conflict = require('features.git.git-conflict-nvim.utils')
-local unmerged_icon = Conf.icons.git.UNMERGED .. ' '
+local UNMERGED_ICON = Conf.icons.git.UNMERGED .. ' '
 
 --- @class chrome.lualine-nvim.components.buffer-status : lualine.component
 local M = component:extend()
@@ -9,7 +9,7 @@ local M = component:extend()
 -- switching into the autocmd window (~10us per read, against ~0.2us). Booleans come back as 0/1
 local getbufvar = vim.fn.getbufvar
 
-local IGNORE_FILETYPES = {
+local IGNORED_FILETYPES = {
   NvimTree = true,
   lazy = true,
   trouble = true,
@@ -75,7 +75,7 @@ local function get_current_unsaved()
   if
     bo.buftype == 'terminal'
     or (ft == '' and (bo.buftype == 'nofile' or bo.buftype == 'prompt'))
-    or IGNORE_FILETYPES[ft]
+    or IGNORED_FILETYPES[ft]
   then
     cache.current_unsaved = ''
     cache.last_bufnr = bufnr
@@ -145,7 +145,7 @@ end
 
 --- @return string
 local function get_current_conflict()
-  return git_conflict.is_conflicted(vim.api.nvim_get_current_buf()) and unmerged_icon or ''
+  return git_conflict.is_conflicted(vim.api.nvim_get_current_buf()) and UNMERGED_ICON or ''
 end
 
 --- Get global conflict flag (count of other conflicted buffers)
@@ -153,7 +153,7 @@ end
 local function get_global_conflict()
   if cache.global_conflict == nil then
     local count = count_other_loaded(git_conflict.is_conflicted)
-    cache.global_conflict = count > 0 and unmerged_icon .. count .. ' ' or ''
+    cache.global_conflict = count > 0 and UNMERGED_ICON .. count .. ' ' or ''
   end
 
   return cache.global_conflict

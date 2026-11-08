@@ -1,7 +1,7 @@
 --- @class features.completion.blink-cmp.config.keymap
 local M = {}
 
-local ai_cmp_sources = { 'minuet' }
+local AI_CMP_SOURCES = { 'minuet' }
 
 M.default = {
   preset = 'none',
@@ -34,7 +34,7 @@ M.default = {
   ['<A-Space>'] = {
     function(cmp)
       if cmp.is_menu_visible() then
-        return cmp.show({ providers = ai_cmp_sources })
+        return cmp.show({ providers = AI_CMP_SOURCES })
       else
         return cmp.show()
       end
@@ -44,7 +44,7 @@ M.default = {
 
   ['<C-Space>'] = {
     function(cmp)
-      return cmp.show({ providers = ai_cmp_sources })
+      return cmp.show({ providers = AI_CMP_SOURCES })
     end,
     'fallback',
   },

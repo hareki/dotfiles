@@ -11,7 +11,7 @@
 --- @field diff_delete_word string
 
 --- Extension colors that complement the catppuccin palette
-local ext = {
+local EXT = {
   surface15 = '#4f5164', -- Between palette surface1 and surface2
   conflict_current = '#394841',
   conflict_current_label = '#57735b',
@@ -29,7 +29,7 @@ local ext = {
 --- @return utils.ui.catppuccin-nvim.Palette colors
 local function get_palette(name)
   if name == 'ext' then
-    return ext
+    return EXT
   end
 
   local palettes = require('catppuccin.palettes')

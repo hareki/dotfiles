@@ -15,7 +15,7 @@ M.colors = {
 
 -- `:help mode()` codes, matched in full first, then by their first character
 --- @type table<string, utils.ui.mode.Name>
-local names = {
+local NAMES = {
   n = 'Normal', -- Also operator-pending (no*), i_CTRL-O (niI) and terminal-normal (nt)
   v = 'Visual',
   V = 'Visual',
@@ -55,7 +55,7 @@ end
 function M.name()
   local mode = vim.api.nvim_get_mode().mode
   -- Fallback for codes newer than this table, which would crash lualine's mode pill on every redraw
-  return names[mode] or names[mode:sub(1, 1)] or 'Normal'
+  return NAMES[mode] or NAMES[mode:sub(1, 1)] or 'Normal'
 end
 
 return M

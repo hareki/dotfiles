@@ -1,4 +1,4 @@
-local trouble_ignored_parsers = { 'text' }
+local TROUBLE_IGNORED_PARSERS = { 'text' }
 
 return {
   UI.catppuccin(function(palette)
@@ -95,7 +95,7 @@ return {
             find = 'nvim%-treesitter parser missing',
             cond = function(message)
               local lang = message:content():match('parser missing `([^`]+)`')
-              return vim.list_contains(trouble_ignored_parsers, lang)
+              return vim.list_contains(TROUBLE_IGNORED_PARSERS, lang)
             end,
           },
           opts = { skip = true },

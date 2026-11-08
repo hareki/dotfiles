@@ -1,4 +1,4 @@
-local prefix = 'Debug Prints: '
+local PREFIX = 'Debug Prints: '
 
 --- @module 'debugprint'
 local debugprint = Defer.on_exported_call('debugprint')
@@ -18,22 +18,22 @@ return {
       {
         '<leader>f?',
         '<cmd>Debugprint search<cr>',
-        desc = prefix .. 'Find',
+        desc = PREFIX .. 'Find',
       },
       {
         '<leader>?r',
         '<cmd>Debugprint resetcounter<cr>',
-        desc = prefix .. 'Reset Counter',
+        desc = PREFIX .. 'Reset Counter',
       },
       {
         '<leader>?d',
         '<cmd>Debugprint delete<cr>',
-        desc = prefix .. 'Delete All',
+        desc = PREFIX .. 'Delete All',
       },
       {
         '<leader>?t',
         '<cmd>Debugprint commenttoggle<cr>',
-        desc = prefix .. 'Toggle Comments',
+        desc = PREFIX .. 'Toggle Comments',
       },
       {
         '<leader>?v',
@@ -42,7 +42,7 @@ return {
             variable = true,
           })
         end,
-        desc = prefix .. 'Put Variable Below',
+        desc = PREFIX .. 'Put Variable Below',
       },
       {
         '<leader>?V',
@@ -52,19 +52,19 @@ return {
             surround = true,
           })
         end,
-        desc = prefix .. 'Put Variable Surround',
+        desc = PREFIX .. 'Put Variable Surround',
       },
       {
         '<leader>?p',
         function()
           debugprint.debugprint({})
         end,
-        desc = prefix .. 'Put Plain Text Below',
+        desc = PREFIX .. 'Put Plain Text Below',
       },
-      { '[g', debugprint_ops.jump_prev_debug_print, desc = prefix .. 'Previous Print' },
-      { ']g', debugprint_ops.jump_next_debug_print, desc = prefix .. 'Next Print' },
-      { '[G', debugprint_ops.jump_first_debug_print, desc = prefix .. 'First Print' },
-      { ']G', debugprint_ops.jump_last_debug_print, desc = prefix .. 'Last Print' },
+      { '[g', debugprint_ops.jump_prev_debug_print, desc = PREFIX .. 'Previous Print' },
+      { ']g', debugprint_ops.jump_next_debug_print, desc = PREFIX .. 'Next Print' },
+      { '[G', debugprint_ops.jump_first_debug_print, desc = PREFIX .. 'First Print' },
+      { ']G', debugprint_ops.jump_last_debug_print, desc = PREFIX .. 'Last Print' },
     },
 
     opts = function()

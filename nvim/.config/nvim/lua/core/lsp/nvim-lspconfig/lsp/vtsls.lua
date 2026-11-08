@@ -1,12 +1,12 @@
 local typescript = require('core.lsp.nvim-lspconfig.utils.typescript')
 
-local ts_config = {
+local TS_CONFIG = {
   updateImportsOnFileMove = { enabled = 'always' },
 }
 
 -- PERF: Hardcode the mise tool root instead of resolving it with `mise where`; `latest` follows
 -- upgrades, and tsserver looks for the plugin in <location>/node_modules
-local styled_plugin_root =
+local STYLED_PLUGIN_ROOT =
   vim.fn.expand('~/.local/share/mise/installs/npm-styled-typescript-styled-plugin/latest')
 
 return {
@@ -15,8 +15,8 @@ return {
     cmd = { 'vtsls', '--stdio', '--clientProcessId', tostring(vim.uv.os_getpid()) },
     root_dir = typescript.root_dir('vtsls'),
     settings = {
-      typescript = ts_config,
-      javascript = ts_config,
+      typescript = TS_CONFIG,
+      javascript = TS_CONFIG,
       vtsls = {
         enableMoveToFileCodeAction = true,
         autoUseWorkspaceTsdk = true,
@@ -24,7 +24,7 @@ return {
           globalPlugins = {
             {
               name = '@styled/typescript-styled-plugin',
-              location = styled_plugin_root,
+              location = STYLED_PLUGIN_ROOT,
               enableForWorkspaceTypeScriptVersions = true,
             },
           },

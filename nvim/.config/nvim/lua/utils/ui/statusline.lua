@@ -7,7 +7,7 @@ local icons = require('config.icons')
 
 --- Host tools that launch nvim as their editor, keyed by the NVIM_INTEGRATION value they set
 --- @type table<string, utils.ui.statusline.Integration>
-local integrations = {
+local INTEGRATIONS = {
   lazygit = { icon = icons.git.LAZYGIT, color = 'blue', label = 'Lazygit' },
   git = { icon = icons.git.GIT, color = 'red', label = 'Git' },
   ['claude-code'] = { icon = icons.cmp_kinds.Claude, color = 'peach', label = 'Claude Code' },
@@ -21,9 +21,9 @@ local function resolve_integration()
     return nil
   end
 
-  local integration = integrations[name]
+  local integration = INTEGRATIONS[name]
   if not integration then
-    local names = vim.tbl_keys(integrations)
+    local names = vim.tbl_keys(INTEGRATIONS)
     table.sort(names)
     error(
       string.format(

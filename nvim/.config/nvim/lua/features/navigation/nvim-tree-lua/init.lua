@@ -1,4 +1,4 @@
-local ui_name = 'File Tree'
+local UI_NAME = 'File Tree'
 
 --- @module 'nvim-tree.api'
 local api = Defer.on_index('nvim-tree.api')
@@ -77,7 +77,7 @@ return {
           local tree = require('features.navigation.nvim-tree-lua.utils')
           tree.toggle()
         end,
-        desc = ui_name,
+        desc = UI_NAME,
       },
     },
 
@@ -169,7 +169,7 @@ return {
             quit_on_focus_loss = false,
             open_win_config = function()
               return vim.tbl_extend('force', tree.float_geometry('collapse'), {
-                title = string.format(' %s ', ui_name),
+                title = string.format(' %s ', UI_NAME),
                 title_pos = 'center',
                 border = 'rounded',
                 relative = 'editor',

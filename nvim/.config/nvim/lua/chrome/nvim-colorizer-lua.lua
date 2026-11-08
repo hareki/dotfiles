@@ -1,4 +1,4 @@
-local filetypes = Conf.filetypes.merge(
+local FILETYPES = Conf.filetypes.merge(
   Conf.filetypes.CSS,
   Conf.filetypes.JS,
   Conf.filetypes.ANGULAR,
@@ -7,10 +7,10 @@ local filetypes = Conf.filetypes.merge(
 
 return {
   'catgoose/nvim-colorizer.lua',
-  ft = filetypes,
+  ft = FILETYPES,
   opts = function()
     return {
-      filetypes = filetypes,
+      filetypes = FILETYPES,
       options = {
         parsers = {
           css = true, -- Preset: names, hex, rgb, hsl, oklch, css_var (narrowed below)
