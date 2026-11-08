@@ -1,4 +1,5 @@
-local lazygit = Defer.on_exported_call('features.git.snacks-nvim.utils')
+--- @module 'features.git.snacks-nvim.lazygit'
+local lazygit = Defer.on_exported_call('features.git.snacks-nvim.lazygit')
 
 --- @module 'snacks.picker'
 local picker = Defer.on_exported_call('snacks.picker')
@@ -7,7 +8,7 @@ return {
   {
     'snacks.nvim',
     -- Startup hook: lazy.nvim runs `init` for one fragment only (see AGENTS.md "Split Plugins")
-    opts = lazygit.setup,
+    opts = lazygit.track_last_focus,
   },
 
   {
