@@ -215,6 +215,8 @@ end
 
 t.test('<A-s> loads conform.nvim on the first press, then formats and saves', function()
   t.eq(package.loaded['conform'], nil, 'conform.nvim loaded before the first press')
+  -- conform.nvim defines it as it loads; until then lazy.nvim's stub stands in
+  t.eq(vim.fn.exists(':ConformInfo'), 2, ':ConformInfo before the first save')
   local buf = t.file('first.lua', UNFORMATTED)
   vim.bo[buf].modified = true
 
