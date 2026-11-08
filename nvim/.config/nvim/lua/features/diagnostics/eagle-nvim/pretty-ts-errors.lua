@@ -1,15 +1,15 @@
---- @class features.diagnostics.eagle-nvim.utils.pretty-ts-errors
+--- @class features.diagnostics.eagle-nvim.pretty-ts-errors
 local M = {}
 
 local EXECUTABLE = 'pretty-ts-errors-markdown'
 local MAX_CACHE_ENTRIES = 512
 
---- @class features.diagnostics.eagle-nvim.utils.pretty-ts-errors.State
+--- @class features.diagnostics.eagle-nvim.pretty-ts-errors.State
 --- @field cli_unavailable boolean Set on spawn failure so we never re-pay a failed spawn
 --- @field cache table<string, string> Markdown by diagnostic key
 --- @field cache_size integer Entries in `cache`, wiped with it at MAX_CACHE_ENTRIES
 
---- @type features.diagnostics.eagle-nvim.utils.pretty-ts-errors.State
+--- @type features.diagnostics.eagle-nvim.pretty-ts-errors.State
 local state = {
   cli_unavailable = false,
   cache = {},

@@ -1,12 +1,12 @@
 local common = require('utils.common')
 
---- @class chrome.snacks-nvim.utils
+--- @class chrome.snacks-nvim.zen
 local M = {}
 
---- @class chrome.snacks-nvim.utils.State
+--- @class chrome.snacks-nvim.zen.State
 --- @field mapped table<integer, true> Buffers currently holding the temporary `q` mapping
 
---- @type chrome.snacks-nvim.utils.State
+--- @type chrome.snacks-nvim.zen.State
 local state = {
   mapped = {},
 }

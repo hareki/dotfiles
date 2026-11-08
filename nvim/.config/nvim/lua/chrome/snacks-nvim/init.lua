@@ -1,4 +1,4 @@
-local zen = Defer.on_exported_call('chrome.snacks-nvim.utils')
+local zen = Defer.on_exported_call('chrome.snacks-nvim.zen')
 
 return {
   'snacks.nvim',
@@ -35,7 +35,7 @@ return {
       input = UI.layout.popup_fn('input'),
       zen = vim.tbl_extend('force', UI.layout.popup_fn('vertical_md'), {
         -- transparent = false drops winblend, so the backdrop is opaque and hides the window behind
-        -- the popup outright instead of dimming it; utils.lua anchors its geometry to that window
+        -- the popup outright instead of dimming it; zen.lua anchors its geometry to that window
         backdrop = { transparent = false, blend = 0 },
         border = 'rounded',
         title = ' Zen ',
