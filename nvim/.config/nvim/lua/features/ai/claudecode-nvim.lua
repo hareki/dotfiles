@@ -13,7 +13,7 @@ return {
       {
         '<A-a>',
         function()
-          local fullscreen_panels = require('core.snacks-nvim.utils')
+          local fullscreen_panels = require('core.snacks-nvim.fullscreen-panels')
           local terminal = require('claudecode.terminal')
 
           fullscreen_panels.hide_others(terminal.get_active_terminal_bufnr())
@@ -52,7 +52,7 @@ return {
     },
 
     opts = function()
-      local fullscreen_panels = require('core.snacks-nvim.utils')
+      local fullscreen_panels = require('core.snacks-nvim.fullscreen-panels')
 
       return {
         focus_after_send = true,

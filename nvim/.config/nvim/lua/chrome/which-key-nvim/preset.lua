@@ -2,7 +2,7 @@
 -- With letter case converted to CMOS 18th Edition
 local keymap_registry = require('config.keymap-registry')
 
---- @class chrome.which-key.preset
+--- @class chrome.which-key-nvim.preset
 local M = {}
 
 local operators = {

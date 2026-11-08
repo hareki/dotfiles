@@ -1,3 +1,5 @@
+local icons = require('config.icons')
+
 --- @class utils.ui.statusline.Integration
 --- @field icon string
 --- @field color string Catppuccin palette key for the label's foreground
@@ -6,9 +8,9 @@
 --- Host tools that launch nvim as their editor, keyed by the NVIM_INTEGRATION value they set
 --- @type table<string, utils.ui.statusline.Integration>
 local integrations = {
-  lazygit = { icon = Conf.icons.git.LAZYGIT, color = 'blue', label = 'Lazygit' },
-  git = { icon = Conf.icons.git.GIT, color = 'red', label = 'Git' },
-  ['claude-code'] = { icon = Conf.icons.cmp_kinds.Claude, color = 'peach', label = 'Claude Code' },
+  lazygit = { icon = icons.git.LAZYGIT, color = 'blue', label = 'Lazygit' },
+  git = { icon = icons.git.GIT, color = 'red', label = 'Git' },
+  ['claude-code'] = { icon = icons.cmp_kinds.Claude, color = 'peach', label = 'Claude Code' },
 }
 
 --- Resolve the host integration from NVIM_INTEGRATION, raising on an unknown value
@@ -42,6 +44,27 @@ local M = {
   -- Resolved on load (config.globals) so an invalid value aborts the boot before anything else runs
   integration = resolve_integration(),
 }
+
+local GROUP = 'StatusLineIntegration'
+
+--- The host label's highlight group, for catppuccin's custom_highlights; none standalone
+--- @param palette utils.ui.catppuccin-nvim.Palette
+--- @return table<string, vim.api.keyset.highlight> groups
+function M.highlights(palette)
+  if not M.integration then
+    return {}
+  end
+  return { [GROUP] = { fg = palette[M.integration.color] } }
+end
+
+--- The 'statusline' showing the host's label in place of lualine; nil standalone
+--- @return string? statusline
+function M.text()
+  if not M.integration then
+    return nil
+  end
+  return string.format(' %%#%s#%s %s', GROUP, M.integration.icon, M.integration.label)
+end
 
 --- Refresh the lualine statusline if lualine is loaded
 --- @return nil

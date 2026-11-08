@@ -1,3 +1,5 @@
+local size_config = require('config.size')
+
 --- @class utils.ui.layout
 local M = {}
 
@@ -27,15 +29,18 @@ end
 --- @param variant 'sm' | 'md'
 --- @return integer width Width in columns
 function M.side_panel_width(variant)
-  local panel = Conf.size.side_panel[variant]
+  local panel = size_config.side_panel[variant]
 
   return math.floor(math.max(vim.o.columns * panel.WIDTH, panel.MIN_WIDTH))
 end
 
---- Geometry of the side preview float: left of the side panel, centered, with a 3-column gap
+--- Geometry of the side preview float: left of the side panel, centered, with a 3-column gap.
+--- `col` and `row` are relative to the panel window's top-left cell, as nvim_open_win's
+--- `relative = 'win'` reads them; a plugin measuring a negative col from the panel's right edge
+--- (trouble) subtracts the panel width itself
 --- @return { width: integer, height: integer, row: integer, col: integer } geometry
 function M.side_preview()
-  local width, height = resolve_dimensions(Conf.size.side_preview)
+  local width, height = resolve_dimensions(size_config.side_preview)
   local _, row = M.center(width, height)
 
   return { width = width, height = height, row = row, col = -width - 3 }
@@ -44,13 +49,13 @@ end
 --- Height cap for inline popups; pass the function itself so it follows terminal resizes
 --- @return integer max_height Height in rows
 function M.inline_max_height()
-  return math.floor(vim.o.lines * Conf.size.inline_popup.MAX_HEIGHT)
+  return math.floor(vim.o.lines * size_config.inline_popup.MAX_HEIGHT)
 end
 
 --- Width counterpart of M.inline_max_height
 --- @return integer max_width Width in columns
 function M.inline_max_width()
-  return math.floor(vim.o.columns * Conf.size.inline_popup.MAX_WIDTH)
+  return math.floor(vim.o.columns * size_config.inline_popup.MAX_WIDTH)
 end
 
 --- @class utils.ui.layout.WinConfig
@@ -63,7 +68,7 @@ end
 --- @param size config.size.PopupPreset
 --- @return utils.ui.layout.WinConfig config
 function M.popup(size)
-  local preset = Conf.size.popup[size]
+  local preset = size_config.popup[size]
   local width, height = resolve_dimensions(preset)
   local col, row = M.center(width, height)
 

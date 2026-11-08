@@ -1,4 +1,4 @@
---- @class features.search.grug-far.utils
+--- @class features.search.grug-far-nvim.utils
 local M = {}
 
 -- grug-far passes previewWindow straight to nvim_open_win, so geometry must be plain numbers,

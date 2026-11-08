@@ -50,10 +50,11 @@ lazy.nvim config built from scratch around fast cold starts, per-plugin isolatio
 ### Utils (`lua/utils/`)
 
 - `ui/`: namespaces of the `UI` global
-  - `layout.popup(size)` / `layout.picker_fn(size)`, `color.blend_hex()`, `pill.virt_text()`, `cursorline.set_cursorline()`
-  - `integrations/`: `catppuccin(fn)` / `catppuccin.get_palette()`, `which_key({ specs?, rules?, triggers? })`, `statusline.refresh()`
-- `notifier.lua`: notification wrapper; supports markdown, tuple lists for custom highlight groups
-- `common.lua`: `buf_mapper()`, `link_popup()`, `override_buf_keymaps()`, `focus_win()`, `noautocmd()`
+  - `layout.popup(size)` / `layout.picker_fn(size)`, `color.blend_hex()`, `pill.virt_text()`, `cursorline.set_cursorline()` / `cursorline.focus()`
+  - `catppuccin(fn)` / `catppuccin.get_palette()`, `which_key({ specs?, rules?, triggers? })`, `statusline.refresh()`
+- `notifier.lua`: notification wrapper; supports markdown, tuple lists for custom highlight groups, `scoped(title)` and `*_once`
+- `popup.lua`: floats tied to a source window: `link(win, { close_on, keys, ... })`, `focus_win()`
+- `common.lua`: `buf_mapper()`, `get_buf_keymap()`, `noautocmd()`, `read_json()`
 - `lazy-require.lua`: `Defer.on_index()`, `Defer.on_exported_call()`
 
 ### Complex Plugin Structure
@@ -63,7 +64,7 @@ Plugins with state or more than a few lines of helper logic use the directory fo
 ```
 nvim-tree-lua/
   init.lua   -- lazy.nvim specs: UI.catppuccin, UI.which_key, then the plugin specs
-  utils.lua  -- helpers, plus the M.state = {} table when the plugin keeps state
+  utils.lua  -- helpers, plus a file-local state table when the plugin keeps state
 ```
 
 ### LSP & Formatting

@@ -1,4 +1,4 @@
---- @class features.preview.render-markdown.utils
+--- @class features.preview.render-markdown-nvim.utils
 local M = {}
 
 --- Evict wiped buffers from render-markdown.nvim's bufnr-keyed caches, which never evict, so

@@ -1,4 +1,4 @@
---- @class chrome.lualine.components.diff
+--- @class chrome.lualine-nvim.components.diff
 local M = {}
 
 M.symbols = {

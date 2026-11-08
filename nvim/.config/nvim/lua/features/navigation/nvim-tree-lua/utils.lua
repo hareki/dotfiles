@@ -1,16 +1,16 @@
---- @class features.navigation.nvim-tree.utils
+--- @class features.navigation.nvim-tree-lua.utils
 local M = {}
 
---- @alias features.navigation.nvim-tree.utils.Position  'side' | 'float'
+--- @alias features.navigation.nvim-tree-lua.utils.Position  'side' | 'float'
 
---- @class features.navigation.nvim-tree.utils.State
---- @field position features.navigation.nvim-tree.utils.Position
---- @field opts table | nil
+--- @class features.navigation.nvim-tree-lua.utils.State
+--- @field position features.navigation.nvim-tree-lua.utils.Position
+--- @field opts table | nil The opts setup() was given, re-fed to nvim-tree on a position switch
 --- @field preview_on_focus boolean
 --- @field preview_watcher integer | nil
 
---- @type features.navigation.nvim-tree.utils.State
-M.state = {
+--- @type features.navigation.nvim-tree-lua.utils.State
+local state = {
   position = 'float',
   opts = nil,
   preview_on_focus = false,
@@ -26,9 +26,9 @@ local preview = Defer.on_index('nvim-tree-preview.manager')
 --- Close the nvim-tree and preview windows, cleaning up watchers
 --- @return nil
 function M.close_all()
-  if M.state.preview_watcher then
-    vim.api.nvim_del_augroup_by_id(M.state.preview_watcher)
-    M.state.preview_watcher = nil
+  if state.preview_watcher then
+    vim.api.nvim_del_augroup_by_id(state.preview_watcher)
+    state.preview_watcher = nil
   end
 
   preview.unwatch()
@@ -40,7 +40,7 @@ end
 --- @return nil
 function M.close_on_focus_loss()
   if
-    M.state.position ~= 'float'
+    state.position ~= 'float'
     or Snacks.util.is_float()
     or vim.fn.getcmdwintype() ~= ''
     or not api.tree.is_visible()
@@ -71,7 +71,7 @@ function M.create_node_action(folder_action)
         return
       end
       api.node.open.edit()
-      if M.state.position == 'float' then
+      if state.position == 'float' then
         M.close_all()
       end
       return
@@ -110,24 +110,24 @@ function M.open_clicked_node()
 end
 
 --- Switch nvim-tree between float and side panel positions
---- @param position features.navigation.nvim-tree.utils.Position
+--- @param position features.navigation.nvim-tree-lua.utils.Position
 --- @return nil
-function M.switch_position(position)
-  if position == M.state.position then
+local function switch_position(position)
+  if position == state.position then
     return
   end
 
   local nvimtree = require('nvim-tree')
 
-  M.state.position = position
-  if M.state.opts ~= nil then
-    M.state.opts.view.float.enable = position == 'float'
+  state.position = position
+  if state.opts ~= nil then
+    state.opts.view.float.enable = position == 'float'
   end
 
   M.close_all()
   -- nvim-tree explicitly supports subsequent setup calls:
   -- https://github.com/nvim-tree/nvim-tree.lua/blob/b0b49552c9462900a882fe772993b01d780445fe/lua/nvim-tree.lua#L738
-  nvimtree.setup(M.state.opts)
+  nvimtree.setup(state.opts)
 end
 
 --- The tree's float geometry: height halved for the preview below, or the whole popup for 'expand'
@@ -136,7 +136,7 @@ end
 --- @return integer preview_height Height of the preview below the collapsed tree
 function M.float_geometry(action)
   -- Wide enough for readable code while the float tree shows the preview
-  local size = UI.layout.popup(M.state.preview_on_focus and 'lg' or 'vertical_sm')
+  local size = UI.layout.popup(state.preview_on_focus and 'lg' or 'vertical_sm')
   -- Minus 1 for the space between the two windows
   local collapsed_height = math.floor(size.height / 2) - 1
   -- What the collapsed tree leaves, minus the 2 border rows between the windows
@@ -153,7 +153,7 @@ end
 --- @param action 'expand' | 'collapse'
 --- @return nil
 function M.toggle_tree_height(action)
-  if M.state.position ~= 'float' then
+  if state.position ~= 'float' then
     return
   end
 
@@ -175,7 +175,7 @@ function M.resize()
     return
   end
 
-  if M.state.position == 'float' then
+  if state.position == 'float' then
     M.toggle_tree_height(preview.is_open() and 'collapse' or 'expand')
   else
     api.tree.resize()
@@ -203,7 +203,7 @@ function M.toggle_preview(force_state)
   end
 
   -- Flip the flag before resizing, so float_geometry() picks the target state's size preset
-  M.state.preview_on_focus = next_open
+  state.preview_on_focus = next_open
   M.toggle_tree_height(next_open and 'collapse' or 'expand')
 
   if not next_open then
@@ -227,19 +227,77 @@ end
 --- Open nvim-tree, back in the float position unless the side tree is already visible
 --- @return nil
 function M.open()
-  if M.state.position ~= 'float' and not api.tree.is_visible() then
-    M.switch_position('float')
+  if state.position ~= 'float' and not api.tree.is_visible() then
+    switch_position('float')
   end
 
-  -- The preview watcher augroup is created on nvim-tree's TreeAttachedPost event (see the spec)
+  -- The spec's TreeAttachedPost subscription starts watch_preview
   api.tree.open()
 end
 
 --- Reopen the tree as a side panel
 --- @return nil
 function M.switch_to_side()
-  M.switch_position('side')
+  switch_position('side')
   api.tree.open()
+end
+
+--- Open the tree, or close a focused float tree
+--- @return nil
+function M.toggle()
+  if api.tree.is_tree_buf() and state.position == 'float' then
+    M.close_all()
+    return
+  end
+
+  -- No reload: filesystem watchers keep it fresh, a sync reload stalls large repos
+  M.open()
+end
+
+--- Set nvim-tree up with `opts`, in the current position; a position switch re-runs it
+--- @param opts table nvim-tree's opts, less `view.float.enable`
+--- @return nil
+function M.setup(opts)
+  opts.view.float.enable = state.position == 'float'
+  state.opts = opts
+
+  local nvimtree = require('nvim-tree')
+  nvimtree.setup(opts)
+end
+
+--- Keep the preview following the tree buffer's focus while it is open; one watcher per tree buffer,
+--- since nvim-tree wipes it on close
+--- @param tree_bufnr integer
+--- @return nil
+function M.watch_preview(tree_bufnr)
+  state.preview_watcher =
+    vim.api.nvim_create_augroup('features.navigation.nvim-tree-lua.preview', { clear = true })
+
+  vim.api.nvim_create_autocmd('BufEnter', {
+    group = state.preview_watcher,
+    buffer = tree_bufnr,
+    callback = function()
+      M.toggle_preview(state.preview_on_focus)
+    end,
+  })
+end
+
+--- Where nvim-tree-preview draws, relative to the tree window: below a float tree, beside a side one
+--- @return { col: integer, row: integer, width: integer, height: integer } geometry
+function M.preview_geometry()
+  if state.position ~= 'float' then
+    return UI.layout.side_preview()
+  end
+
+  local geometry, preview_height = M.float_geometry('collapse')
+  local tree_win = api.tree.winid() --[[@as integer]]
+
+  return {
+    col = -1,
+    row = vim.api.nvim_win_get_config(tree_win).height + 1,
+    width = geometry.width,
+    height = preview_height,
+  }
 end
 
 --- Node action toggling the mark on the current node, then moving the cursor with `key`

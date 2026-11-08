@@ -31,11 +31,10 @@ return {
 
     opts = function()
       local tree = require('features.navigation.nvim-tree-lua.utils')
-      local state = tree.state
 
       return {
         show_title = false,
-        zindex = 50, -- The default value makes vim.ui.input behind the preview window
+        zindex = Conf.zindex.TREE_PREVIEW,
         image_preview = { enable = true },
         on_close = function()
           tree.toggle_tree_height('expand')
@@ -53,33 +52,16 @@ return {
 
         win_position = {
           col = function()
-            if state.position == 'float' then
-              return -1
-            end
-
-            return UI.layout.side_preview().col
+            return tree.preview_geometry().col
           end,
-
-          row = function(tree_win)
-            if state.position == 'float' then
-              local tree_cfg = vim.api.nvim_win_get_config(tree_win)
-              return tree_cfg.height + 1
-            end
-
-            return UI.layout.side_preview().row
+          row = function()
+            return tree.preview_geometry().row
           end,
         },
 
         calculate_win_size = function()
-          if state.position == 'float' then
-            local geometry, preview_height = tree.float_geometry('collapse')
-            return {
-              width = geometry.width,
-              height = preview_height,
-            }
-          end
-
-          return UI.layout.side_preview()
+          local geometry = tree.preview_geometry()
+          return { width = geometry.width, height = geometry.height }
         end,
       }
     end,
@@ -93,15 +75,7 @@ return {
         '<leader>e',
         function()
           local tree = require('features.navigation.nvim-tree-lua.utils')
-          local state = tree.state
-
-          if api.tree.is_tree_buf() and state.position == 'float' then
-            tree.close_all()
-            return
-          end
-
-          -- No reload: filesystem watchers keep it fresh, a sync reload stalls large repos
-          tree.open()
+          tree.toggle()
         end,
         desc = ui_name,
       },
@@ -109,9 +83,8 @@ return {
 
     opts = function()
       local tree = require('features.navigation.nvim-tree-lua.utils')
-      local state = tree.state
 
-      state.opts = {
+      return {
         hijack_cursor = true, -- Keep cursor on the first letter of filename
         actions = {
           open_file = {
@@ -191,7 +164,7 @@ return {
           end,
 
           float = {
-            enable = state.position == 'float',
+            -- `enable` is set by tree.setup() from the current position
             -- Replaced by tree.close_on_focus_loss, which spares floats
             quit_on_focus_loss = false,
             open_win_config = function()
@@ -271,17 +244,14 @@ return {
           map('n', '<A-r>', api.tree.reload, 'Refresh')
         end,
       }
-
-      return state.opts
     end,
 
     config = function(_, opts)
       local tree = require('features.navigation.nvim-tree-lua.utils')
-      local state = tree.state
 
       vim.api.nvim_create_autocmd('VimResized', {
         group = vim.api.nvim_create_augroup(
-          'features.navigation.nvim-tree.resize',
+          'features.navigation.nvim-tree-lua.resize',
           { clear = true }
         ),
         callback = tree.resize,
@@ -290,7 +260,7 @@ return {
       -- Deferred like the Snacks pickers' check: nvim-tree hops through a split on file removal
       vim.api.nvim_create_autocmd('WinEnter', {
         group = vim.api.nvim_create_augroup(
-          'features.navigation.nvim-tree.focus-loss',
+          'features.navigation.nvim-tree-lua.focus-loss',
           { clear = true }
         ),
         callback = function()
@@ -307,22 +277,9 @@ return {
 
       -- TreeAttachedPost fires per open (the buffer is bufhidden=wipe), matching the watcher's
       -- lifetime; tree.open() misses direct api.tree.open() calls, and on_attach runs for help too
-      events.subscribe(events.Event.TreeAttachedPost, function(tree_bufnr)
-        --- @cast tree_bufnr integer
-        state.preview_watcher =
-          vim.api.nvim_create_augroup('features.navigation.nvim-tree.preview', { clear = true })
+      events.subscribe(events.Event.TreeAttachedPost, tree.watch_preview)
 
-        vim.api.nvim_create_autocmd('BufEnter', {
-          group = state.preview_watcher,
-          buf = tree_bufnr,
-          callback = function()
-            tree.toggle_preview(state.preview_on_focus)
-          end,
-        })
-      end)
-
-      local nvim_tree = require('nvim-tree')
-      nvim_tree.setup(opts)
+      tree.setup(opts)
     end,
   },
 }

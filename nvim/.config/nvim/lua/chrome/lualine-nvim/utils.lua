@@ -1,4 +1,4 @@
---- @class chrome.lualine.utils
+--- @class chrome.lualine-nvim.utils
 local M = {}
 
 --- Shared separator for primary-style pill components

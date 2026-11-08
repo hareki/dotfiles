@@ -1,4 +1,4 @@
---- @class features.search.snacks.actions
+--- @class features.search.snacks-nvim.actions
 local M = {}
 
 --- Whether the preview is shown, for the sources that keep it across openings (their
@@ -40,7 +40,7 @@ end
 --- @param picker snacks.Picker
 --- @return nil
 function M.toggle_preview_focus(picker)
-  local common = require('utils.common')
+  local popup = require('utils.popup')
   local preview_win = picker.preview.win.win
 
   -- No-op for pickers with `preview = false` (e.g. keymaps), where <Tab> is still bound
@@ -49,10 +49,9 @@ function M.toggle_preview_focus(picker)
   end
 
   if picker:current_win() == 'preview' then
-    common.focus_win(picker.input.win.win)
-    UI.cursorline.set_cursorline(false, preview_win)
-  elseif common.focus_win(preview_win) then
-    UI.cursorline.set_cursorline(true, preview_win)
+    popup.focus_win(picker.input.win.win)
+  else
+    popup.focus_win(preview_win)
   end
 end
 
@@ -80,77 +79,6 @@ function M.todo_to_trouble(picker)
     mode = 'todo',
     filter = keywords and { tag = keywords },
   })
-end
-
---- The tabs source's confirm: switch to the tabpage under the cursor
---- @param picker snacks.Picker
---- @param item? snacks.picker.Item The item under the cursor
---- @return nil
-function M.tab_switch(picker, item)
-  -- Leave insert mode first, or picker:close()'s stopinsert moves the target tab's cursor
-  picker:norm(function()
-    picker:close()
-    if item and vim.api.nvim_tabpage_is_valid(item.tab) then
-      vim.api.nvim_set_current_tabpage(item.tab)
-    end
-  end)
-end
-
---- Close the tabpage hosting the picker's floats and resume the picker where nvim lands
---- @param picker snacks.Picker
---- @return nil
-local function close_current_tab(picker)
-  local insert = vim.fn.mode():sub(1, 1) == 'i'
-
-  -- Leave insert mode first, or picker:close()'s stopinsert lands where the tabclose leaves us
-  picker:norm(function()
-    picker.list:set_selected() -- Don't resume with the closed tabs still selected
-    picker:close()
-    vim.cmd.tabclose()
-
-    -- Focusing the resumed input runs its BufEnter startinsert!, which restores insert mode
-    local resumed = Snacks.picker.resume({ source = picker.opts.source })
-    if not resumed or insert then
-      return
-    end
-
-    -- Cancel that startinsert! so x can be repeated. The picker shows synchronously when resumed
-    -- with an empty pattern (the matcher's fast path), otherwise later, right before on_show runs
-    if resumed.shown then
-      vim.cmd.stopinsert()
-    else
-      resumed.opts.on_show = function()
-        vim.cmd.stopinsert()
-      end
-    end
-  end)
-end
-
---- Close the selected tabpages (or the one under the cursor), the tabs source's bufdelete
---- @param picker snacks.Picker
---- @return nil
-function M.tab_close(picker)
-  picker.preview:reset()
-  local current_tab = vim.api.nvim_get_current_tabpage()
-  local close_current = false
-
-  for _, item in ipairs(picker:selected({ fallback = true })) do
-    if item.tab == current_tab then
-      close_current = true -- Closing it takes the picker with it, so it goes last
-    elseif vim.api.nvim_tabpage_is_valid(item.tab) then
-      vim.cmd.tabclose(vim.api.nvim_tabpage_get_number(item.tab))
-    end
-  end
-
-  if close_current then
-    if #vim.api.nvim_list_tabpages() > 1 then
-      close_current_tab(picker)
-      return
-    end
-    Notifier.warn('Cannot close the last tab', { title = 'Snacks Picker' }) -- E784
-  end
-
-  picker:refresh()
 end
 
 return M

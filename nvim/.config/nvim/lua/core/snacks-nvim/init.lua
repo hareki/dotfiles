@@ -20,15 +20,11 @@ return {
     bigfile = { enabled = true },
 
     styles = {
-      float = {
-        -- Slightly higher than satellite.nvim scrollbar (51)
-        zindex = 52,
-      },
+      float = { zindex = Conf.zindex.FLOAT },
       terminal = vim.tbl_extend('force', UI.layout.popup_fn('lg'), {
         title = ' Terminal ',
         border = 'rounded',
-        -- Above pickers and nvim-tree; pickers only stack over floats below 100
-        zindex = 100,
+        zindex = Conf.zindex.PANEL,
       }),
     },
   },

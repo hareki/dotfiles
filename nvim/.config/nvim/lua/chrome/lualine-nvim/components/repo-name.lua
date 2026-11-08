@@ -1,4 +1,4 @@
---- @class chrome.lualine.components.repo-name
+--- @class chrome.lualine-nvim.components.repo-name
 local M = {}
 
 -- Name per cwd, false while it resolves. Keyed by cwd, so a resolve a `cd` left behind still lands

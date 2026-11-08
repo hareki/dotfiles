@@ -2,6 +2,9 @@ local engine = require('utils.style-enforcers.engine')
 local eslint = require('utils.style-enforcers.eslint')
 local oxfmt = require('utils.style-enforcers.oxfmt')
 local oxlint = require('utils.style-enforcers.oxlint')
+local notifier = require('utils.notifier')
+
+local notify = notifier.scoped('Style Enforcer')
 
 -- In run order: oxfmt formats before the lint-fix steps, so oxlint's fixAll sees formatted
 -- content. Each step runs where its server is attached (lsp/oxfmt.lua narrows oxfmt's filetypes)
@@ -45,7 +48,7 @@ function M.run(opts)
   local on_done = opts.on_done
 
   if running_bufs[buf] then
-    Notifier.warn('Formatting already in progress', { title = 'Style Enforcer' })
+    notify.warn('Formatting already in progress')
     return
   end
 
@@ -72,7 +75,8 @@ function M.run(opts)
     end
     settled = true
 
-    Snacks.util.stop(timeout_timer)
+    local snacks_util = require('snacks.util')
+    snacks_util.stop(timeout_timer)
     progress:finish()
     running_bufs[buf] = nil
     if on_done then
@@ -84,7 +88,7 @@ function M.run(opts)
     if settled then
       return
     end
-    Notifier.warn('Formatting/linting timed out', { title = 'Style Enforcer' })
+    notify.warn('Formatting/linting timed out')
     cleanup(false)
   end, TIMEOUT_MS)
 
@@ -96,7 +100,7 @@ function M.run(opts)
 
     local ok, err = pcall(vim.api.nvim_buf_call, buf, vim.cmd.update)
     if not ok then
-      Notifier.error('Write failed: ' .. tostring(err), { title = 'Style Enforcer' })
+      notify.error('Write failed: ' .. tostring(err))
     end
 
     return ok
@@ -132,15 +136,14 @@ function M.run(opts)
         on_done = function(linter_name, linter_ok, lint_error)
           if not linter_ok then
             if lint_error == engine.BUFFER_CHANGED then
-              Notifier.warn(
-                string.format('Buffer changed while `%s` was running, skipped', linter_name),
-                { title = 'Style Enforcer' }
+              notify.warn(
+                string.format('Buffer changed while `%s` was running, skipped', linter_name)
               )
             else
               local msg = debug and string.format('Linter %s error: %s', linter_name, lint_error)
                 or string.format('Linter used: %s', linter_name)
 
-              Notifier.warn(msg, {
+              notify.warn(msg, {
                 title = 'Linting Failed',
               })
             end
@@ -157,7 +160,7 @@ function M.run(opts)
     end)
 
     if not ok then
-      Notifier.error('Linter setup failed: ' .. tostring(err), { title = 'Style Enforcer' })
+      notify.error('Linter setup failed: ' .. tostring(err))
       write()
       cleanup(false)
     end
@@ -188,7 +191,7 @@ function M.run(opts)
           formatter_names(formatters, uses_lsp)
         )
 
-      Notifier.error(msg, {
+      notify.error(msg, {
         title = 'Formatting Failed',
       })
       write()
@@ -207,7 +210,7 @@ function M.run_all(debug)
   local modified = vim.fn.getbufinfo({ buflisted = 1, bufmodified = 1 })
 
   if #modified == 0 then
-    Notifier.warn('No buffers to format', { title = 'Style Enforcer' })
+    notify.warn('No buffers to format')
     return
   end
 
@@ -216,7 +219,7 @@ function M.run_all(debug)
   end, modified)
 
   if #to_run == 0 then
-    Notifier.warn('All buffers are already being formatted', { title = 'Style Enforcer' })
+    notify.warn('All buffers are already being formatted')
     return
   end
 
@@ -260,9 +263,9 @@ function M.run_all(debug)
       end
 
       add_section('Error:', 'Error', error_paths)
-      Notifier.warn(chunks, { title = 'Style Enforcer' })
+      notify.warn(chunks)
     else
-      Notifier.info(chunks, { title = 'Style Enforcer' })
+      notify.info(chunks)
     end
   end
 

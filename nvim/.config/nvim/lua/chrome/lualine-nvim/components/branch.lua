@@ -1,4 +1,4 @@
---- @class chrome.lualine.components.branch
+--- @class chrome.lualine-nvim.components.branch
 local M = {}
 
 -- Single-slot memo: the statusline re-formats the same branch on every redraw

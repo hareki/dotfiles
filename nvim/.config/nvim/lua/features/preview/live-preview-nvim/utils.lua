@@ -1,11 +1,11 @@
---- @class features.preview.live-preview.utils
+--- @class features.preview.live-preview-nvim.utils
 local M = {}
 
---- @class features.preview.live-preview.utils.State
+--- @class features.preview.live-preview-nvim.utils.State
 --- @field port integer? The configured port, since start() replaces livepreview.config's
 
---- @type features.preview.live-preview.utils.State
-M.state = {
+--- @type features.preview.live-preview-nvim.utils.State
+local state = {
   port = nil,
 }
 
@@ -74,7 +74,7 @@ function M.start()
   livepreview_config.set({
     -- Keep a running server's port: the plugin closes and rebinds it in one tick, so its tabs,
     -- which reload as their socket closes, land on the new server
-    port = M.running_port() or free_port(M.state.port),
+    port = M.running_port() or free_port(state.port),
   })
 
   vim.cmd.LivePreview('start')
@@ -141,7 +141,7 @@ function M.setup(opts)
 
   --- @diagnostic disable-next-line: param-type-mismatch Wrong type from live-preview
   livepreview_config.set(opts)
-  M.state.port = livepreview_config.config.port
+  state.port = livepreview_config.config.port
   patch_template()
   patch_server_lifecycle()
 end

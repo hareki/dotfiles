@@ -1,6 +1,6 @@
---- @alias utils.ui.catppuccin.Palette { rosewater: string, flamingo: string, pink: string, mauve: string, red: string, maroon: string, peach: string, yellow: string, green: string, teal: string, sky: string, sapphire: string, blue: string, lavender: string, text: string, subtext1: string, subtext0: string, overlay2: string, overlay1: string, overlay0: string, surface2: string, surface1: string, surface0: string, base: string, mantle: string, crust: string }
+--- @alias utils.ui.catppuccin-nvim.Palette { rosewater: string, flamingo: string, pink: string, mauve: string, red: string, maroon: string, peach: string, yellow: string, green: string, teal: string, sky: string, sapphire: string, blue: string, lavender: string, text: string, subtext1: string, subtext0: string, overlay2: string, overlay1: string, overlay0: string, surface2: string, surface1: string, surface0: string, base: string, mantle: string, crust: string }
 
---- @class utils.ui.catppuccin.Ext
+--- @class utils.ui.catppuccin-nvim.Ext
 --- @field surface15 string
 --- @field conflict_current string
 --- @field conflict_current_label string
@@ -24,9 +24,9 @@ local ext = {
 }
 
 --- Get a catppuccin color palette, or the extension colors when name is 'ext'
---- @overload fun(name: 'ext'): utils.ui.catppuccin.Ext
+--- @overload fun(name: 'ext'): utils.ui.catppuccin-nvim.Ext
 --- @param name? "frappe" | "latte" | "macchiato" | "mocha" Flavor name (default: "mocha")
---- @return utils.ui.catppuccin.Palette colors
+--- @return utils.ui.catppuccin-nvim.Palette colors
 local function get_palette(name)
   if name == 'ext' then
     return ext
@@ -37,10 +37,10 @@ local function get_palette(name)
   return palettes.get_palette(name or 'mocha')
 end
 
---- @alias utils.ui.catppuccin.Register fun(palette: utils.ui.catppuccin.Palette, extension: utils.ui.catppuccin.Ext): table<string, vim.api.keyset.highlight>
+--- @alias utils.ui.catppuccin-nvim.Register fun(palette: utils.ui.catppuccin-nvim.Palette, extension: utils.ui.catppuccin-nvim.Ext): table<string, vim.api.keyset.highlight>
 
 --- Resolve a register callback into its highlight table
---- @param register utils.ui.catppuccin.Register
+--- @param register utils.ui.catppuccin-nvim.Register
 --- @return table<string, vim.api.keyset.highlight> highlights
 local function resolve(register)
   return register(get_palette(), get_palette('ext'))
@@ -48,7 +48,7 @@ end
 
 --- A catppuccin spec fragment merging the highlights into custom_highlights, or, with
 --- plugin_name, applying them when lazy.nvim loads it (right before its setup() and after)
---- @param register utils.ui.catppuccin.Register
+--- @param register utils.ui.catppuccin-nvim.Register
 --- @param plugin_name? string lazy.nvim plugin name to defer the registration until it loads
 --- @return table spec A lazy.nvim spec: the catppuccin fragment, plus one on plugin_name if given
 local function catppuccin(register, plugin_name)
@@ -64,7 +64,8 @@ local function catppuccin(register, plugin_name)
   local function apply()
     -- `:colorscheme` wipes nvim_set_hl groups, while eager registers survive through
     -- catppuccin's custom_highlights; Snacks re-applies the groups it sets on ColorScheme
-    Snacks.util.set_hl(resolve(register))
+    local snacks_util = require('snacks.util')
+    snacks_util.set_hl(resolve(register))
   end
 
   return {
@@ -92,11 +93,11 @@ local function catppuccin(register, plugin_name)
   }
 end
 
---- @class utils.ui.catppuccin
---- @field get_palette fun(name?: "frappe" | "latte" | "macchiato" | "mocha" | "ext"): utils.ui.catppuccin.Palette | utils.ui.catppuccin.Ext
---- @overload fun(register: utils.ui.catppuccin.Register, plugin_name?: string): table
+--- @class utils.ui.catppuccin-nvim
+--- @field get_palette fun(name?: "frappe" | "latte" | "macchiato" | "mocha" | "ext"): utils.ui.catppuccin-nvim.Palette | utils.ui.catppuccin-nvim.Ext
+--- @overload fun(register: utils.ui.catppuccin-nvim.Register, plugin_name?: string): table
 
---- @type utils.ui.catppuccin
+--- @type utils.ui.catppuccin-nvim
 local M = setmetatable({
   get_palette = get_palette,
 }, {

@@ -1,4 +1,4 @@
---- @class features.diagnostics.trouble.utils
+--- @class features.diagnostics.trouble-nvim.utils
 local M = {}
 
 --- Jump to the next/previous item of the open trouble view, else of the quickfix list
@@ -28,12 +28,13 @@ function M.toggle_focus()
 
   local trouble_win = vim.api.nvim_get_current_win()
   local common = require('utils.common')
+  local popup = require('utils.popup')
   local map = common.buf_mapper(preview.buf)
 
-  common.focus_win(preview.win)
+  popup.focus_win(preview.win)
 
   map('n', '<Tab>', function()
-    common.focus_win(trouble_win)
+    popup.focus_win(trouble_win)
   end, 'Focus Trouble Window')
 
   map('n', '<CR>', function()
@@ -45,7 +46,7 @@ function M.toggle_focus()
   end, 'Jump to Item')
 
   map('n', 'q', function()
-    common.focus_win(trouble_win)
+    popup.focus_win(trouble_win)
     preview_manager.close()
   end, 'Close Preview')
 end

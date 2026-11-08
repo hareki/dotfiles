@@ -33,6 +33,23 @@ local names = {
   c = 'Command', -- Also Ex mode (cv) and overstrike (cr)
 }
 
+--- The highlight group of the current mode, one of those highlights() defines
+--- @return string group e.g. 'NormalMode'
+function M.group()
+  return M.name() .. 'Mode'
+end
+
+--- A `<Name>Mode` foreground group per mode, for catppuccin's custom_highlights
+--- @param palette utils.ui.catppuccin-nvim.Palette
+--- @return table<string, vim.api.keyset.highlight> groups
+function M.highlights(palette)
+  local groups = {}
+  for name, palette_key in pairs(M.colors) do
+    groups[name .. 'Mode'] = { fg = palette[palette_key] }
+  end
+  return groups
+end
+
 --- Resolve the mode the current `mode()` code is colored as
 --- @return utils.ui.mode.Name name
 function M.name()

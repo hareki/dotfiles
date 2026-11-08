@@ -4,193 +4,13 @@ local common = Defer.on_exported_call('utils.common')
 --- @module 'render-markdown'
 local render_markdown = Defer.on_exported_call('render-markdown')
 
---- @class features.preview.snacks.utils
+--- Audio files open as a read-only info page, in buffers and picker previews alike
+--- @class features.preview.snacks-nvim.audio-page
 local M = {}
 
---- @class features.preview.snacks.utils.HoverState
---- @field win integer
---- @field buf integer
---- @field placement snacks.image.Placement
---- @field augroup integer
---- @field release_keymaps fun()
-
---- @class features.preview.snacks.utils.State
---- @field hover features.preview.snacks.utils.HoverState? The open hover image popup
---- @field page_renders table<integer, table> Each audio page's latest render, by buffer
-
---- @type features.preview.snacks.utils.State
-M.state = {
-  hover = nil,
-  page_renders = {},
-}
-
-local function close()
-  local current = M.state.hover
-  if not current then
-    return
-  end
-
-  M.state.hover = nil
-
-  pcall(vim.api.nvim_del_augroup_by_id, current.augroup)
-  current.release_keymaps()
-  pcall(current.placement.close, current.placement)
-  pcall(vim.api.nvim_win_close, current.win, true)
-  if vim.api.nvim_buf_is_valid(current.buf) then
-    vim.api.nvim_buf_delete(current.buf, { force = true })
-  end
-end
-
---- A path unique to `key`, since Snacks caches images per path: placing an edited file by its own
---- path would keep showing the old pixels
---- @param key string Hashed into the file name
---- @param ext string File extension without leading dot
---- @return string
-local function hover_path(key, ext)
-  local cache = Snacks.image.config.cache
-  vim.fn.mkdir(cache, 'p')
-
-  return vim.fs.joinpath(cache, vim.fn.sha256(key):sub(1, 12) .. '-hover.' .. ext)
-end
-
---- Hover copy of a mermaid buffer's text, keyed on it so unsaved edits are re-hashed
---- @param text string
---- @return string?
-local function hover_src_from_text(text)
-  local out = hover_path(text, 'mmd')
-  if vim.fn.filereadable(out) == 1 then
-    return out
-  end
-
-  local fd = io.open(out, 'wb')
-  if fd then
-    fd:write(text)
-    fd:close()
-    return out
-  end
-end
-
---- Hover copy of an on-disk image
---- @param src string
---- @return string?
-local function hover_src_from_file(src)
-  local stat = vim.uv.fs_stat(src)
-  if not stat then
-    return nil
-  end
-
-  -- Include nsec + size so a second edit within the same second can't hit a stale cache entry
-  local key = table.concat({ src, stat.mtime.sec, stat.mtime.nsec, stat.size }, ':')
-  local ext = vim.fs.ext(src)
-  local out = hover_path(key, ext ~= '' and ext or 'png')
-
-  if vim.fn.filereadable(out) == 1 or vim.uv.fs_copyfile(src, out) then
-    return out
-  end
-end
-
---- @param source_buf integer
---- @param src string? Nothing opens without one
-local function open(source_buf, src)
-  if not src then
-    return
-  end
-
-  -- A second hover can arrive via the async at_cursor callback before the toggle guard sees the
-  -- first; close it, or replacing `M.state.hover` would orphan its window, placement and <Esc> map
-  close()
-
-  local lg = UI.layout.popup('lg')
-
-  local scratch = vim.api.nvim_create_buf(false, true)
-  vim.bo[scratch].bufhidden = 'wipe'
-
-  local augroup =
-    vim.api.nvim_create_augroup('features.preview.snacks.hover-image', { clear = true })
-
-  local placement = Snacks.image.placement.new(scratch, src, {
-    inline = false,
-    -- Shift the image 1 cell right; with `w = loc.width + 2` below, that pads 1 cell on each side
-    pos = { 1, 1 },
-    -- Reserve the 2 padding cells so the image scales down to fit the padded window
-    max_width = lg.width - 2,
-    -- Reserve 2 rows so the image scales down rather than overflowing the bottom row
-    max_height = lg.height - 2,
-    -- Open the window once snacks reports the image's cell dims, or the full `lg` frame flashes
-    on_update_pre = function(self)
-      local current = M.state.hover
-      if not current or vim.api.nvim_win_is_valid(current.win) then
-        return
-      end
-
-      -- Wipe leftover extmarks such as snacks' "<step> loading …" virt_text, which it never clears
-      -- once ready; the render() below re-sets the image's own
-      vim.api.nvim_buf_clear_namespace(scratch, -1, 0, -1)
-
-      local loc = self:state().loc
-      local w = loc.width + 2
-      local h = loc.height + 2
-      local col, row = UI.layout.center(w, h)
-
-      local win = vim.api.nvim_open_win(scratch, false, {
-        relative = 'editor',
-        width = w,
-        height = h,
-        col = col,
-        row = row,
-        border = 'rounded',
-        style = 'minimal',
-        focusable = false,
-        noautocmd = true,
-      })
-
-      current.win = win
-    end,
-  })
-
-  M.state.hover = {
-    win = -1, -- placeholder until on_update_pre opens the window
-    buf = scratch,
-    placement = placement,
-    augroup = augroup,
-    release_keymaps = common.override_buf_keymaps(source_buf, {
-      { 'n', '<Esc>', close, { desc = 'Close Hover Image' } },
-    }),
-  }
-
-  vim.api.nvim_create_autocmd(
-    { 'CursorMoved', 'CursorMovedI', 'BufLeave', 'ModeChanged', 'BufWipeout' },
-    {
-      group = augroup,
-      buf = source_buf,
-      callback = close,
-    }
-  )
-end
-
-function M.hover_image()
-  if M.state.hover then
-    close()
-    return
-  end
-
-  local source_buf = vim.api.nvim_get_current_buf()
-
-  if vim.bo.filetype == 'mermaid' then
-    local text = table.concat(vim.api.nvim_buf_get_lines(source_buf, 0, -1, false), '\n')
-    if text ~= '' then
-      open(source_buf, hover_src_from_text(text))
-    end
-    return
-  end
-
-  Snacks.image.doc.at_cursor(function(src)
-    if src then
-      -- Snacks downloads URLs itself; a local copy would silently drop the hover
-      open(source_buf, Snacks.image.convert.is_uri(src) and src or hover_src_from_file(src))
-    end
-  end)
-end
+--- Each audio page's latest render, by buffer
+--- @type table<integer, table>
+local page_renders = {}
 
 -- Audio has no frame for snacks.image to render, and its bytes are no use as text
 local audio_extensions =
@@ -316,7 +136,7 @@ local function render_audio_page(buf, path)
   -- A probe from an earlier render (an `:edit!` while it ran) must not append to the new page;
   -- changedtick can't tell, since nvim bumps it after the rendering BufReadCmd returns
   local render = {}
-  M.state.page_renders[buf] = render
+  page_renders[buf] = render
   vim.system({
     'ffprobe',
     '-v',
@@ -330,11 +150,11 @@ local function render_audio_page(buf, path)
     path,
   }, { text = true }, function(result)
     vim.schedule(function()
-      if M.state.page_renders[buf] ~= render then
+      if page_renders[buf] ~= render then
         return
       end
 
-      M.state.page_renders[buf] = nil
+      page_renders[buf] = nil
       if vim.api.nvim_buf_is_loaded(buf) then
         write_page(buf, -1, audio_details(path, result))
       end
@@ -364,7 +184,7 @@ end
 --- Open audio files as a read-only info page, the way snacks.image opens images and videos
 function M.setup_audio_viewer()
   local group =
-    vim.api.nvim_create_augroup('features.preview.snacks.audio-viewer', { clear = true })
+    vim.api.nvim_create_augroup('features.preview.snacks-nvim.audio-viewer', { clear = true })
   local pattern = string.format('*.{%s}', table.concat(audio_extensions, ','))
 
   vim.api.nvim_create_autocmd('BufReadCmd', {

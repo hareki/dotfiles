@@ -1,4 +1,4 @@
---- @class chrome.lualine.components.mode
+--- @class chrome.lualine-nvim.components.mode
 local M = {}
 
 local palette = UI.catppuccin.get_palette()

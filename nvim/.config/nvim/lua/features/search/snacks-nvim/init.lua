@@ -3,12 +3,13 @@ local sm = UI.layout.picker_fn('sm')
 
 local layouts = require('features.search.snacks-nvim.layouts')
 local keymap_registry = require('config.keymap-registry')
-local tab_component = require('chrome.lualine-nvim.components.tab')
+-- Required, not deferred: the highlight callback below reads its palette key at startup
+local tabs_source = require('features.search.snacks-nvim.sources.tabs')
 
-local transformers = Defer.on_exported_call('features.search.snacks-nvim.utils.transformers')
-local formatters = Defer.on_exported_call('features.search.snacks-nvim.utils.formatters')
-local finders = Defer.on_exported_call('features.search.snacks-nvim.utils.finders')
 local actions = Defer.on_exported_call('features.search.snacks-nvim.actions')
+local buffers = Defer.on_exported_call('features.search.snacks-nvim.sources.buffers')
+local keymaps = Defer.on_exported_call('features.search.snacks-nvim.sources.keymaps')
+local tabs = Defer.on_exported_call('features.search.snacks-nvim.sources.tabs')
 
 --- @class snacks.picker
 --- @field tabs fun(opts?: snacks.picker.Config | {}): snacks.Picker
@@ -24,7 +25,7 @@ return {
       SnacksPickerInputCursorLine = { bg = 'none', fg = palette.text },
       SnacksPickerListCursorLine = { link = 'ListCursorLine' },
       SnacksPickerKeymapLhs = { fg = palette.blue },
-      SnacksPickerTabName = { fg = palette[tab_component.color] },
+      SnacksPickerTabName = { fg = palette[tabs_source.LABEL_COLOR] },
       SnacksPickerSelected = { bg = 'none', fg = palette.text },
       SnacksPickerUnselected = { bg = 'none', fg = palette.text },
       SnacksPickerDir = { fg = palette.overlay1 },
@@ -122,8 +123,8 @@ return {
 
         sources = {
           buffers = {
-            format = formatters.buffer_format,
-            transform = transformers.buffer_transform,
+            format = buffers.format,
+            transform = buffers.transform,
             matcher = { sort_empty = true }, -- Required for sort to work with empty search
             -- Modified buffers first, then snacks' default order (score, text length, index)
             sort = { fields = { 'modified', 'score:desc', '#text', 'idx' } },
@@ -146,9 +147,9 @@ return {
           },
 
           keymaps = {
-            transform = transformers.keymap_transform,
+            transform = keymaps.transform,
             format = function(item)
-              return formatters.keymap_format(item, sm.width())
+              return keymaps.format(item, sm.width())
             end,
 
             layout = {
@@ -158,11 +159,11 @@ return {
           },
 
           tabs = {
-            finder = finders.tabs,
-            format = formatters.tab_format,
-            confirm = actions.tab_switch,
+            finder = tabs.finder,
+            format = tabs.format,
+            confirm = tabs.confirm,
             actions = {
-              tab_close = actions.tab_close,
+              tab_close = tabs.tab_close,
             },
             win = {
               input = {

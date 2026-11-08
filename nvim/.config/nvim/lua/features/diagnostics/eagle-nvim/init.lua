@@ -1,8 +1,8 @@
 --- @module 'eagle'
 local eagle = Defer.on_exported_call('eagle')
 
---- @module 'utils.common'
-local common = Defer.on_exported_call('utils.common')
+--- @module 'utils.popup'
+local popup = Defer.on_exported_call('utils.popup')
 
 return {
   'hareki/eagle.nvim',
@@ -40,7 +40,7 @@ return {
       },
 
       on_open = function(eagle_win)
-        common.link_popup(eagle_win, {
+        popup.link(eagle_win, {
           name = 'Eagle',
           modes = { 'n', 'x' },
           before_focus = eagle.ignore_next_cursor_move,

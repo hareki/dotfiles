@@ -1,16 +1,16 @@
---- @module 'core.snacks-nvim.utils'
-local fullscreen_panels = Defer.on_exported_call('core.snacks-nvim.utils')
+--- @module 'core.snacks-nvim.fullscreen-panels'
+local fullscreen_panels = Defer.on_exported_call('core.snacks-nvim.fullscreen-panels')
 
---- @class features.git.snacks.utils
+--- @class features.git.snacks-nvim.utils
 local M = {}
 
---- @class features.git.snacks.utils.State
+--- @class features.git.snacks-nvim.utils.State
 --- @field win snacks.win? The single Lazygit terminal window
 --- @field last_file string? Most recently focused normal-file path
 --- @field last_win integer? Most recently focused non-floating window showing a normal buffer
 
---- @type features.git.snacks.utils.State
-M.state = {
+--- @type features.git.snacks-nvim.utils.State
+local state = {
   win = nil,
   last_file = nil,
   last_win = nil,
@@ -24,14 +24,17 @@ local function target_file()
   if vim.bo[buf].buftype == '' and name ~= '' then
     return name
   end
-  return M.state.last_file
+  return state.last_file
 end
 
 --- Track the last focused normal buffer and its non-floating window, so `toggle` can fall back
 --- to that file from non-file buffers and `prepare_remote_edit` can land in a real editing window
 function M.setup()
   vim.api.nvim_create_autocmd({ 'WinEnter', 'BufEnter' }, {
-    group = vim.api.nvim_create_augroup('features.git.snacks.lazygit-last-focus', { clear = true }),
+    group = vim.api.nvim_create_augroup(
+      'features.git.snacks-nvim.lazygit-last-focus',
+      { clear = true }
+    ),
     callback = function(args)
       if vim.bo[args.buf].buftype ~= '' then
         return
@@ -39,12 +42,12 @@ function M.setup()
 
       local name = vim.api.nvim_buf_get_name(args.buf)
       if name ~= '' then
-        M.state.last_file = name
+        state.last_file = name
       end
 
       local win = vim.api.nvim_get_current_win()
       if not Snacks.util.is_float(win) then
-        M.state.last_win = win
+        state.last_win = win
       end
     end,
   })
@@ -53,7 +56,7 @@ end
 --- Toggle the single Lazygit instance, preselecting the file on first launch: Snacks.terminal
 --- keys instances on the full command (`--file <path>` included), so the window is held instead
 function M.toggle()
-  local state = M.state
+  local state = state
   fullscreen_panels.hide_others(state.win and state.win.buf)
 
   if state.win and state.win:buf_valid() then
@@ -64,7 +67,7 @@ function M.toggle()
   local file = target_file()
   state.win = Snacks.lazygit({
     args = file and { '--file', file },
-    -- Here rather than in styles.lazygit, which would load core.snacks-nvim.utils at startup.
+    -- Here rather than in styles.lazygit, which would load core.snacks-nvim.fullscreen-panels at startup.
     -- Snacks.lazygit opens a Snacks terminal: border and zindex come from styles.terminal
     win = fullscreen_panels.win_config({ backdrop = false, title = ' Git Client ' }),
   })
@@ -74,7 +77,7 @@ end
 --- files: closing a float nulls `prevwin`, so nvim alone would fall back to the top-left split
 function M.prepare_remote_edit()
   -- Snapshot before hiding: nvim's fallback landing fires WinEnter and would overwrite it
-  local win = M.state.last_win
+  local win = state.last_win
 
   for _, terminal in ipairs(Snacks.terminal.list()) do
     if terminal:valid() then

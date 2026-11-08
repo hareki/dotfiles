@@ -1,4 +1,4 @@
---- @class chrome.lualine.components.live-preview
+--- @class chrome.lualine-nvim.components.live-preview
 local M = {}
 
 --- @return string port e.g. "5500", empty (hiding the component) while no server runs

@@ -1,16 +1,17 @@
-local media = Defer.on_exported_call('features.preview.snacks-nvim.utils')
+local audio_page = Defer.on_exported_call('features.preview.snacks-nvim.audio-page')
+local hover_image = Defer.on_exported_call('features.preview.snacks-nvim.hover-image')
 
 return {
   {
     'snacks.nvim',
     -- Startup hook: lazy.nvim runs `init` for one fragment only (see AGENTS.md "Split Plugins")
-    opts = media.setup_audio_viewer,
+    opts = audio_page.setup_audio_viewer,
   },
 
   {
     'snacks.nvim',
     keys = {
-      { 'gi', media.hover_image, desc = 'Hover Image' },
+      { 'gi', hover_image.toggle, desc = 'Hover Image' },
     },
 
     opts = {
@@ -41,7 +42,7 @@ return {
 
       picker = {
         -- Stands in for snacks' file previewer wherever a source sets no previewer of its own
-        preview = media.preview_file,
+        preview = audio_page.preview_file,
       },
     },
   },

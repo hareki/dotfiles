@@ -5,6 +5,7 @@ local M = {}
 M.filetypes = require('config.filetypes.groups')
 M.icons = require('config.icons')
 M.priority = require('config.priority')
+M.zindex = require('config.zindex')
 M.picker = require('config.picker')
 M.size = require('config.size')
 -- Deferred: only lazy-loaded plugins' opts read it

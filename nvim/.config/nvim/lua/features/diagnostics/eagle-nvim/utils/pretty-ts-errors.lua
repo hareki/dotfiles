@@ -1,16 +1,16 @@
---- @class features.diagnostics.eagle.utils.pretty-ts-errors
+--- @class features.diagnostics.eagle-nvim.utils.pretty-ts-errors
 local M = {}
 
 local EXECUTABLE = 'pretty-ts-errors-markdown'
 local MAX_CACHE_ENTRIES = 512
 
---- @class features.diagnostics.eagle.utils.pretty-ts-errors.State
+--- @class features.diagnostics.eagle-nvim.utils.pretty-ts-errors.State
 --- @field cli_unavailable boolean Set on spawn failure so we never re-pay a failed spawn
 --- @field cache table<string, string> Markdown by diagnostic key
 --- @field cache_size integer Entries in `cache`, wiped with it at MAX_CACHE_ENTRIES
 
---- @type features.diagnostics.eagle.utils.pretty-ts-errors.State
-M.state = {
+--- @type features.diagnostics.eagle-nvim.utils.pretty-ts-errors.State
+local state = {
   cli_unavailable = false,
   cache = {},
   cache_size = 0,
@@ -47,12 +47,12 @@ local function compute_cache_key(diagnostic)
 end
 
 local function cache_set(key, markdown)
-  if M.state.cache_size >= MAX_CACHE_ENTRIES then
-    M.state.cache, M.state.cache_size = {}, 0
+  if state.cache_size >= MAX_CACHE_ENTRIES then
+    state.cache, state.cache_size = {}, 0
   end
 
-  M.state.cache[key] = markdown
-  M.state.cache_size = M.state.cache_size + 1
+  state.cache[key] = markdown
+  state.cache_size = state.cache_size + 1
 end
 
 -- Strip the first line (the header with links) + a single blank line after it.
@@ -72,7 +72,7 @@ end
 --- @param json_text string
 --- @return vim.SystemObj? handle nil when the CLI is unavailable
 local function spawn_cli(json_text)
-  if M.state.cli_unavailable then
+  if state.cli_unavailable then
     return nil
   end
 
@@ -80,7 +80,7 @@ local function spawn_cli(json_text)
   if ok then
     return handle
   end
-  M.state.cli_unavailable = true
+  state.cli_unavailable = true
 end
 
 -- Eagle formats a line's diagnostics one by one, so a miss spawns the CLI for all of the line's
@@ -92,7 +92,7 @@ local function format_line(diagnostic)
 
   local function spawn(d)
     local key = compute_cache_key(d)
-    if jobs[key] or M.state.cache[key] then
+    if jobs[key] or state.cache[key] then
       return
     end
 
@@ -121,7 +121,7 @@ end
 --- @return string markdown
 function M.format(diagnostic)
   local key = compute_cache_key(diagnostic)
-  return M.state.cache[key] or format_line(diagnostic)[key]
+  return state.cache[key] or format_line(diagnostic)[key]
 end
 
 return M

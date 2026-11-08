@@ -9,15 +9,6 @@ local style_enforcers = Defer.on_exported_call('utils.style-enforcers')
 --- @module 'utils.wheel-axis-lock'
 local wheel_axis_lock = Defer.on_exported_call('utils.wheel-axis-lock')
 
-local function diagnostic_goto(next, severity)
-  local direction = next and 1 or -1
-  severity = vim.diagnostic.severity[severity]
-
-  return function()
-    vim.diagnostic.jump({ severity = severity, count = direction * vim.v.count1 })
-  end
-end
-
 local function scroll_center(motion)
   local keys = vim.keycode(motion)
   return function()
@@ -183,23 +174,6 @@ map('n', '<leader>\\', '<cmd>vsplit<cr>', { desc = 'Split Window Right' })
 -- Jumplist
 map('n', '<C-o>', jumplist('<C-o>'), { expr = true, desc = 'Jumplist Back' })
 map('n', '<C-i>', jumplist('<C-i>'), { expr = true, desc = 'Jumplist Forward' })
-
--- Diagnostics: every jump opens the line's diagnostics, Neovim's own count-aware ]d/[d/]D/[D
--- included; on_jump runs scheduled, and only once the jump succeeded
-vim.diagnostic.config({
-  jump = {
-    on_jump = function()
-      vim.cmd.EagleWinLineDiagnostic()
-    end,
-  },
-})
-map('n', '<leader>cd', vim.diagnostic.open_float, { desc = 'Line Diagnostics' })
-map('n', ']e', diagnostic_goto(true, 'ERROR'), { desc = 'Next Error' })
-map('n', '[e', diagnostic_goto(false, 'ERROR'), { desc = 'Previous Error' })
-map('n', ']w', diagnostic_goto(true, 'WARN'), { desc = 'Next Warning' })
-map('n', '[w', diagnostic_goto(false, 'WARN'), { desc = 'Previous Warning' })
-map('n', ']i', diagnostic_goto(true, 'INFO'), { desc = 'Next Info' })
-map('n', '[i', diagnostic_goto(false, 'INFO'), { desc = 'Previous Info' })
 
 -- Buffer (Neovim's own ]b/[b/]B/[B take counts; config/keymap-registry.lua titles them)
 map(

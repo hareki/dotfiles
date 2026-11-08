@@ -61,7 +61,7 @@ end
 --- @return snacks.Picker | nil picker nil if the list is empty
 M.show_picker = function()
   local harpoon = require('harpoon')
-  local formatters = require('features.search.snacks-nvim.utils.formatters')
+  local buffers = require('features.search.snacks-nvim.sources.buffers')
 
   local function build_harpoon_items()
     local items = {}
@@ -104,7 +104,7 @@ M.show_picker = function()
     )
     ret[#ret + 1] = { idx_str .. '.', 'SnacksPickerIdx' }
     ret[#ret + 1] = { ' ' }
-    vim.list_extend(ret, formatters.buffer_format(item, picker))
+    vim.list_extend(ret, buffers.format(item, picker))
     return ret
   end
 
@@ -148,11 +148,65 @@ M.show_picker = function()
   })
 end
 
---- Invalidate and redraw the statusline's harpoon component, whose cache key misses some mutations
+--- @class features.navigation.harpoon.utils.StatusCache
+--- @field buf integer
+--- @field length integer
+--- @field text string | nil
+local status_cache = {
+  buf = -1,
+  length = -1,
+  text = nil,
+}
+
+--- The pin indices for the current buffer, "1 [3] 4" style, or nil while the list is empty. Cached
+--- by (buffer, list length), since list items need plenary path normalization and the statusline
+--- asks on every draw
+--- @return string | nil status
+function M.status()
+  local harpoon = require('harpoon')
+  local list = harpoon:list()
+  local length = list:length()
+  local buf = vim.api.nvim_get_current_buf()
+
+  if status_cache.buf == buf and status_cache.length == length then
+    return status_cache.text
+  end
+
+  local text = nil
+
+  if length > 0 then
+    local current_item = list.config.create_list_item(list.config)
+    local _, current_index = list:get_by_value(current_item.value)
+
+    local indices = {}
+    for i = 1, length do
+      local item = list:get(i)
+      if item then
+        if i == current_index then
+          indices[#indices + 1] = '[' .. i .. ']'
+        else
+          indices[#indices + 1] = tostring(i)
+        end
+      end
+    end
+
+    if #indices > 0 then
+      text = table.concat(indices, ' ')
+    end
+  end
+
+  status_cache.buf = buf
+  status_cache.length = length
+  status_cache.text = text
+
+  return text
+end
+
+--- Drop the cached status and redraw the statusline, for the mutations the (buffer, length) key
+--- can't detect (replace_at, a remove_at short of the last slot); the spec's harpoon extensions call it
 --- @return nil
 function M.refresh_statusline()
-  local harpoon_component = require('chrome.lualine-nvim.components.harpoon')
-  harpoon_component.invalidate()
+  status_cache.buf = -1
   UI.statusline.refresh()
 end
 

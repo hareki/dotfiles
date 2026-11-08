@@ -1,10 +1,13 @@
-local common = require('utils.common')
+local icons = require('config.icons')
+local layout = require('utils.ui.layout')
+local popup = require('utils.popup')
 
 --- @class utils.hl-at-cursor
 local M = {}
 
--- Closer of the open popup: a second would fight it over <Tab>/<Esc> and orphan the first float
-local close_active_popup
+--- Closer of the open popup: a second would fight it over <Tab>/<Esc> and orphan the first float
+--- @type fun()?
+local close_active
 
 --- Render the popup's markdown: a bold title per section, then its unique items or 'none'
 --- @param sections { [1]: string, [2]: string[] }[] Section titles and their list items
@@ -41,7 +44,7 @@ local function open_popup(lines, row0, col0)
     row = 1,
     col = 1,
     width = math.max(28, maxw + 2),
-    height = math.min(#lines, UI.layout.inline_max_height()),
+    height = math.min(#lines, layout.inline_max_height()),
     style = 'minimal',
     border = 'rounded',
     title = string.format(' Highlights (%d, %d) ', row0 + 1, col0 + 1),
@@ -55,85 +58,13 @@ local function open_popup(lines, row0, col0)
   return buf, win
 end
 
---- Wire the popup's lifecycle: linked focus/close keys, closing once cursor or focus leaves
-local function attach_lifecycle(buf, win, origin_buf, origin_win)
-  -- Re-entering origin_win fires CursorMoved even though its cursor never moved
-  local origin_pos = vim.api.nvim_win_get_cursor(origin_win)
-  local augroup = vim.api.nvim_create_augroup('utils.hl-at-cursor.popup-' .. win, { clear = true })
-
-  local function close_popup()
-    if close_active_popup == close_popup then
-      close_active_popup = nil
-    end
-    -- Deleted before the close, so the popup's WinClosed can't come back here
-    pcall(vim.api.nvim_del_augroup_by_id, augroup)
-    pcall(vim.api.nvim_win_close, win, true)
-  end
-
-  -- Nested, so the close fires WinClosed (link_popup's release) and BufWipeout (render-markdown's)
-  vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
-    group = augroup,
-    buf = origin_buf,
-    nested = true,
-    callback = function()
-      if vim.api.nvim_get_current_win() ~= origin_win then
-        return
-      end
-      if vim.deep_equal(vim.api.nvim_win_get_cursor(origin_win), origin_pos) then
-        return
-      end
-      close_popup()
-    end,
-  })
-
-  vim.api.nvim_create_autocmd('WinEnter', {
-    group = augroup,
-    nested = true,
-    callback = function()
-      local current = vim.api.nvim_get_current_win()
-      if current == win or current == origin_win then
-        return
-      end
-      close_popup()
-    end,
-  })
-
-  vim.api.nvim_create_autocmd('BufEnter', {
-    group = augroup,
-    nested = true,
-    callback = function(args)
-      if args.buf == buf or args.buf == origin_buf then
-        return
-      end
-      close_popup()
-    end,
-  })
-
-  vim.api.nvim_create_autocmd('WinClosed', {
-    group = augroup,
-    callback = function(args)
-      local target = tonumber(args.match)
-      if target == win or target == origin_win then
-        close_popup()
-      end
-    end,
-  })
-
-  -- <Esc> in the origin window also clears search highlights, as it does without the popup
-  common.link_popup(win, { name = 'Highlight Popup', esc_passthrough = true })
-
-  close_active_popup = close_popup
-end
-
 --- Show the syntax groups, Tree-sitter captures, extmarks and matches at the cursor in a popup
 --- @return nil
 function M.show()
-  if close_active_popup then
-    close_active_popup()
+  if close_active then
+    close_active()
   end
 
-  local origin_win = vim.api.nvim_get_current_win()
-  local origin_buf = vim.api.nvim_win_get_buf(origin_win)
   -- The current buffer at the cursor, with every group resolved through its links
   local items = vim.inspect_pos()
 
@@ -150,7 +81,7 @@ function M.show()
         return string.format(
           '- `@%s` %s `%s`',
           capture.capture,
-          Conf.icons.misc.ARROW,
+          icons.misc.ARROW,
           capture.hl_group_link
         )
       end, items.treesitter),
@@ -172,8 +103,17 @@ function M.show()
     },
   })
 
-  local buf, win = open_popup(lines, items.row, items.col)
-  attach_lifecycle(buf, win, origin_buf, origin_win)
+  local _, win = open_popup(lines, items.row, items.col)
+
+  -- <Esc> in the origin window also clears search highlights, as it does without the popup
+  close_active = popup.link(win, {
+    name = 'Highlight Popup',
+    esc_passthrough = true,
+    close_on = { cursor_moved = true, focus_left = true },
+    on_close = function()
+      close_active = nil
+    end,
+  })
 end
 
 return M

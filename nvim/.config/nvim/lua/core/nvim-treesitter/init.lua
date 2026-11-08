@@ -39,34 +39,8 @@ return {
       group = vim.api.nvim_create_augroup('core.nvim-treesitter.custom-parsers', { clear = true }),
       pattern = 'TSUpdate',
       callback = function()
-        local ts_parsers = require('nvim-treesitter.parsers')
-
-        local install_infos = {
-          glimmer = {
-            url = 'https://github.com/hareki/tree-sitter-glimmer',
-            queries = 'queries/glimmer',
-          },
-
-          scss = {
-            url = 'https://github.com/hareki/tree-sitter-scss',
-            branch = 'master',
-          },
-
-          ghostty = {
-            url = 'https://github.com/bezhermoso/tree-sitter-ghostty',
-            queries = 'queries/ghostty',
-          },
-
-          applescript = {
-            url = 'https://github.com/waddie/tree-sitter-applescript',
-            queries = 'queries',
-          },
-        }
-
-        for lang, install_info in pairs(install_infos) do
-          ts_parsers[lang] = ts_parsers[lang] or {}
-          ts_parsers[lang].install_info = install_info
-        end
+        local utils = require('core.nvim-treesitter.utils')
+        utils.register_custom_parsers()
       end,
     })
   end,
@@ -78,7 +52,7 @@ return {
     local installed = treesitter.get_installed('parsers')
     local missing = vim.tbl_filter(function(lang)
       return not vim.list_contains(installed, lang)
-    end, utils.ensure_installed)
+    end, utils.parser_names())
 
     if #missing > 0 then
       treesitter.install(missing, { summary = true })

@@ -1,7 +1,7 @@
 --- Full-screen Snacks terminals (Lazygit, the coding agent): builds their window config, pinned
 --- to Terminal mode, and keeps them from stacking, so closing one lands on the code (panels are
 --- detected by geometry, covering the `full` preset)
---- @class core.snacks.utils
+--- @class core.snacks-nvim.fullscreen-panels
 local M = {}
 
 --- Pins a panel to Terminal mode: its app takes every key and click itself, so Normal mode there
@@ -37,8 +37,8 @@ local terminal_mode = {
   end,
 }
 
---- Window config of a full-screen panel: the `full` preset `hide_others` detects panels by, pinned
---- to Terminal mode. A merge rather than a Snacks style, which would lose `on_buf` to the
+--- Window config of a full-screen panel: the `full` preset (which hide_others detects panels by),
+--- pinned to Terminal mode. A merge rather than a Snacks style, which would lose `on_buf` to the
 --- claudecode.nvim fork's own `on_buf`
 --- @param overrides snacks.win.Config|{} The panel's own options (title, position, backdrop)
 --- @return snacks.win.Config

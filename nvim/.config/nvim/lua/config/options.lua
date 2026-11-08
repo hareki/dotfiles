@@ -54,10 +54,9 @@ opt.spelllang = {}
 opt.fillchars:append({ diff = Conf.icons.fillchars.DIFF, eob = ' ', lastline = '.' })
 
 -- Host tools launching nvim as their editor (NVIM_INTEGRATION) show their label in place of lualine
-local integration = UI.statusline.integration
-if integration then
-  opt.statusline =
-    string.format(' %%#StatusLineIntegration#%s %s', integration.icon, integration.label)
+local host_statusline = UI.statusline.text()
+if host_statusline then
+  opt.statusline = host_statusline
 end
 
 opt.undofile = true

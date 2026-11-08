@@ -32,7 +32,7 @@ return {
       local hunk_delete = Conf.icons.git.HUNK_DELETE
       local utils = require('features.git.gitsigns-nvim.utils')
       local build_popup_navigation = utils.build_popup_navigation
-      local media = require('features.preview.snacks-nvim.utils')
+      local media = require('features.preview.snacks-nvim.audio-page')
 
       local signs_staged = {
         add = { text = hunk },

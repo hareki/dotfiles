@@ -30,7 +30,7 @@ local function frame(box, split)
   }
 end
 
---- @class features.search.snacks.layouts
+--- @class features.search.snacks-nvim.layouts
 local M = {}
 
 M.preview_right = frame('horizontal', { width = 0.5 })

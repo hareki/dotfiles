@@ -40,7 +40,7 @@ return {
       },
       views = {
         cmdline_popup = {
-          zindex = 999,
+          zindex = Conf.zindex.CMDLINE,
         },
         confirm = {
           position = { row = '50%' },

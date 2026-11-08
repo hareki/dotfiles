@@ -1,4 +1,4 @@
---- @class chrome.lualine.components.diagnostics
+--- @class chrome.lualine-nvim.components.diagnostics
 local M = {}
 
 M.symbols = {
@@ -11,13 +11,13 @@ M.sections = { 'error', 'warn', 'info' }
 
 -- The statusline redraws constantly, so even vim.diagnostic.count()'s store walk is cached. One
 -- slot suffices: globalstatus renders only the current buffer, so a per-buffer map would just grow
---- @class chrome.lualine.components.diagnostics.Cache
+--- @class chrome.lualine-nvim.components.diagnostics.Cache
 --- @field buf integer -1 while the slot is empty
 --- @field counts { error: integer?, warn: integer?, info: integer? } lualine reads a missing count as 0
 local cache = { buf = -1, counts = {} }
 
 vim.api.nvim_create_autocmd('DiagnosticChanged', {
-  group = vim.api.nvim_create_augroup('chrome.lualine.diagnostics-cache', { clear = true }),
+  group = vim.api.nvim_create_augroup('chrome.lualine-nvim.diagnostics-cache', { clear = true }),
   callback = function(event)
     if event.buf == cache.buf then
       cache.buf = -1

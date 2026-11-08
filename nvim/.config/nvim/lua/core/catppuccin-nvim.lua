@@ -81,19 +81,14 @@ return {
 
     -- Kept in their own module, which the lazygit codediff renderer also loads headlessly
     local treesitter_highlights = require('config.treesitter-highlights')
-    opts.custom_highlights =
-      vim.tbl_extend('error', opts.custom_highlights, treesitter_highlights(palette))
-
-    -- The host label config/options.lua shows in place of lualine
-    local integration = UI.statusline.integration
-    if integration then
-      opts.custom_highlights.StatusLineIntegration = { fg = palette[integration.color] }
-    end
-
-    -- The groups config/autocmds.lua links CursorLineNr to, one per mode
-    for name, palette_key in pairs(UI.mode.colors) do
-      opts.custom_highlights[name .. 'Mode'] = { fg = palette[palette_key] }
-    end
+    opts.custom_highlights = vim.tbl_extend(
+      'error',
+      opts.custom_highlights,
+      treesitter_highlights(palette),
+      -- The host label's group and the per-mode groups CursorLineNr links to
+      UI.statusline.highlights(palette),
+      UI.mode.highlights(palette)
+    )
 
     return opts
   end,

@@ -1,4 +1,4 @@
---- @class features.git.codediff.utils
+--- @class features.git.codediff-nvim.utils
 local M = {}
 
 -- tabpage -> last explorer-selected file path (relative to git root)

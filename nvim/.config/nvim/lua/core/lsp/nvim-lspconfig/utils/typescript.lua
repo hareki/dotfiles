@@ -92,9 +92,9 @@ local function with_owner(bufnr, callback)
       callback(owners[dir])
     else
       -- No fallback: vtsls would run its bundled TS in a project configured for TS 7
-      vim.notify_once(
+      Notifier.warn_once(
         string.format('%s needs TypeScript installed for tsc to start', project_root),
-        vim.log.levels.WARN
+        { title = 'TypeScript' }
       )
     end
   end)

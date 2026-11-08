@@ -1,4 +1,4 @@
---- @class chrome.lualine.components.snacks-image
+--- @class chrome.lualine-nvim.components.snacks-image
 local M = {}
 
 local image_icon = Conf.icons.editor.IMAGE .. ' '
@@ -23,7 +23,7 @@ end
 -- Images on one cursor row of one buffer state: a whole-buffer query opens a tree-sitter cursor per
 -- markdown_inline tree, one per paragraph (3.3 ms per edit at 850 lines, 12 ms at 3000), while
 -- at_cursor's row-limited query costs 0.3 ms
---- @class chrome.lualine.components.snacks-image.Cache
+--- @class chrome.lualine-nvim.components.snacks-image.Cache
 --- @field buf integer
 --- @field tick integer
 --- @field row integer
@@ -62,7 +62,7 @@ local function mermaid_has_content(buf)
 end
 
 --- Returns true when `gi` would render an image at the current cursor position.
---- Mirrors the branching in `features.preview.snacks.utils.hover_image`.
+--- Mirrors the branching in `features.preview.snacks-nvim.hover-image`'s toggle().
 --- @return boolean
 function M.cond()
   local buf = vim.api.nvim_get_current_buf()

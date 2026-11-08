@@ -18,9 +18,11 @@ function M.set_cursorline(enable, win)
   end
 end
 
+--- Give a window the focused window's cursorline: the full line, or only the number in a diff window
+--- @param win? integer The current window by default
 --- @return nil
-local function focus_cursorline()
-  local win = vim.api.nvim_get_current_win()
+function M.focus(win)
+  win = win or vim.api.nvim_get_current_win()
   M.set_cursorline(not vim.wo[win].diff, win)
 end
 
@@ -29,7 +31,12 @@ end
 function M.follow_focus()
   local group = vim.api.nvim_create_augroup('utils.ui.cursorline.follow-focus', { clear = true })
 
-  vim.api.nvim_create_autocmd('WinEnter', { group = group, callback = focus_cursorline })
+  vim.api.nvim_create_autocmd('WinEnter', {
+    group = group,
+    callback = function()
+      M.focus()
+    end,
+  })
   vim.api.nvim_create_autocmd('WinLeave', {
     group = group,
     callback = function()
@@ -41,7 +48,7 @@ function M.follow_focus()
     callback = function()
       -- Scheduled: a float's `style = 'minimal'` lands after its enter events, and a float opened
       -- without focus fires this while briefly the current window
-      vim.schedule(focus_cursorline)
+      vim.schedule(M.focus)
     end,
   })
 
@@ -49,7 +56,7 @@ function M.follow_focus()
   for _, win in ipairs(vim.api.nvim_list_wins()) do
     M.set_cursorline(false, win)
   end
-  focus_cursorline()
+  M.focus()
 end
 
 return M

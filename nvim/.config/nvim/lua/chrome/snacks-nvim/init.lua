@@ -39,9 +39,7 @@ return {
         backdrop = { transparent = false, blend = 0 },
         border = 'rounded',
         title = ' Zen ',
-        -- Zen's zindex 40 ties satellite.nvim's bars over a normal window; 50 clears them while
-        -- staying under styles.float (52), so pickers opened from zen stay on top
-        zindex = 50,
+        zindex = Conf.zindex.ZEN,
       }),
     },
   },

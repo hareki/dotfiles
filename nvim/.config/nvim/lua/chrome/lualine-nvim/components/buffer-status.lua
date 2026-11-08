@@ -1,7 +1,8 @@
 local component = require('lualine.component')
+local git_conflict = require('features.git.git-conflict-nvim.utils')
 local unmerged_icon = Conf.icons.git.UNMERGED .. ' '
 
---- @class chrome.lualine.components.buffer-status : lualine.component
+--- @class chrome.lualine-nvim.components.buffer-status : lualine.component
 local M = component:extend()
 
 -- getbufvar rather than vim.bo for other buffers: vim.bo reads a hidden buffer's option by
@@ -15,20 +16,21 @@ local IGNORE_FILETYPES = {
   help = true,
   checkhealth = true,
 }
---- @class chrome.lualine.components.buffer-status.Cache
+--- @class chrome.lualine-nvim.components.buffer-status.Cache
 --- @field current_unsaved string | nil
 --- @field global_unsaved string | nil
 --- @field global_conflict string | nil
 --- @field last_bufnr integer | nil The buffer `current_unsaved` was computed for
 
---- @type chrome.lualine.components.buffer-status.Cache
+--- @type chrome.lualine-nvim.components.buffer-status.Cache
 local cache = {}
 
 local function invalidate_cache()
   cache = {}
 end
 
-local group = vim.api.nvim_create_augroup('chrome.lualine.buffer-status-cache', { clear = true })
+local group =
+  vim.api.nvim_create_augroup('chrome.lualine-nvim.buffer-status-cache', { clear = true })
 vim.api.nvim_create_autocmd({
   'BufReadPost',
   'BufWritePost',
@@ -143,16 +145,14 @@ end
 
 --- @return string
 local function get_current_conflict()
-  return vim.b.git_conflict and unmerged_icon or ''
+  return git_conflict.is_conflicted(vim.api.nvim_get_current_buf()) and unmerged_icon or ''
 end
 
 --- Get global conflict flag (count of other conflicted buffers)
 --- @return string
 local function get_global_conflict()
   if cache.global_conflict == nil then
-    local count = count_other_loaded(function(bufnr)
-      return vim.b[bufnr].git_conflict == true
-    end)
+    local count = count_other_loaded(git_conflict.is_conflicted)
     cache.global_conflict = count > 0 and unmerged_icon .. count .. ' ' or ''
   end
 

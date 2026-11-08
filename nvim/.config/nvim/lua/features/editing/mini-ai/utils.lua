@@ -5,7 +5,7 @@ local M = {}
 --- @field last_obj string? Keys of the last selected text object
 
 --- @type features.editing.mini-ai.utils.State
-M.state = {
+local state = {
   last_obj = nil,
 }
 
@@ -19,12 +19,12 @@ function M.setup_repeat()
     ),
     pattern = 'MiniAiSelectObject',
     callback = function(ev)
-      M.state.last_obj = ev.data -- "iw", "af", "ag", ...
+      state.last_obj = ev.data -- "iw", "af", "ag", ...
     end,
   })
 
   vim.keymap.set('x', '.', function()
-    local last_obj = M.state.last_obj
+    local last_obj = state.last_obj
     if last_obj then
       vim.api.nvim_feedkeys(
         vim.keycode(last_obj),

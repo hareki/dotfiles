@@ -1,13 +1,13 @@
 local common = require('utils.common')
 
---- @class chrome.snacks.utils
+--- @class chrome.snacks-nvim.utils
 local M = {}
 
---- @class chrome.snacks.utils.State
+--- @class chrome.snacks-nvim.utils.State
 --- @field mapped table<integer, true> Buffers currently holding the temporary `q` mapping
 
---- @type chrome.snacks.utils.State
-M.state = {
+--- @type chrome.snacks-nvim.utils.State
+local state = {
   mapped = {},
 }
 
@@ -18,11 +18,11 @@ M.state = {
 local function map_close(win)
   local buf = win.buf
   -- Leave buffers that already spend `q` (help, quickfix) alone, rather than restore their map
-  if not buf or M.state.mapped[buf] or common.get_buf_keymap(buf, 'n', 'q') then
+  if not buf or state.mapped[buf] or common.get_buf_keymap(buf, 'n', 'q') then
     return
   end
 
-  M.state.mapped[buf] = true
+  state.mapped[buf] = true
   vim.keymap.set('n', 'q', function()
     win:close()
   end, { buf = buf, nowait = true, desc = 'Close Zen Mode' })
@@ -89,11 +89,11 @@ end
 
 --- @return nil
 function M.on_close()
-  for buf in pairs(M.state.mapped) do
+  for buf in pairs(state.mapped) do
     pcall(vim.keymap.del, 'n', 'q', { buf = buf })
   end
 
-  M.state.mapped = {}
+  state.mapped = {}
 end
 
 return M

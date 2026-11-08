@@ -1,4 +1,4 @@
---- @class chrome.lualine.components.macro
+--- @class chrome.lualine-nvim.components.macro
 local M = {}
 
 --- @return string register Empty (hiding the component) while not recording

@@ -54,7 +54,7 @@ return {
             width = side_preview.width,
             height = side_preview.height,
           },
-          zindex = 200,
+          zindex = Conf.zindex.TROUBLE_PREVIEW,
 
           reuse_loaded_buf = false,
           notify_on_toggle = false,

@@ -239,12 +239,12 @@ aucmd('CmdwinEnter', {
   end,
 })
 
--- Color the cursor line number by mode, with the per-mode groups from core/catppuccin-nvim.lua;
+-- Color the cursor line number by mode, with the per-mode groups UI.mode gives catppuccin;
 -- ColorScheme relinks after the colorscheme resets CursorLineNr
 aucmd({ 'ModeChanged', 'ColorScheme' }, {
   group = augroup('mode-line-number'),
   callback = function()
-    local hl_name = UI.mode.name() .. 'Mode'
+    local hl_name = UI.mode.group()
     -- Relinking redraws every window, so only relink on a target change
     if vim.api.nvim_get_hl(0, { name = 'CursorLineNr' }).link ~= hl_name then
       vim.api.nvim_set_hl(0, 'CursorLineNr', { link = hl_name })

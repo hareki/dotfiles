@@ -3,14 +3,14 @@ local common = require('utils.common')
 --- @module 'colorizer'
 local colorizer = Defer.on_exported_call('colorizer')
 
---- @class features.git.git-conflict.utils
+--- @class features.git.git-conflict-nvim.utils
 local M = {}
 
---- @class features.git.git-conflict.utils.State
+--- @class features.git.git-conflict-nvim.utils.State
 --- @field autocmds table<integer, integer> The cursor autocmd of each buffer set up by GitConflictDetected
 
---- @type features.git.git-conflict.utils.State
-M.state = {
+--- @type features.git.git-conflict-nvim.utils.State
+local state = {
   autocmds = {},
 }
 
@@ -55,13 +55,13 @@ local function cursor_in_conflict()
 end
 
 local function cleanup_buf(bufnr)
-  local autocmd_id = M.state.autocmds[bufnr]
+  local autocmd_id = state.autocmds[bufnr]
   if not autocmd_id then
     return
   end
   pcall(vim.api.nvim_del_autocmd, autocmd_id)
 
-  M.state.autocmds[bufnr] = nil
+  state.autocmds[bufnr] = nil
 end
 
 --- @param win integer
@@ -78,7 +78,8 @@ end
 --- highlights, pause colorizer and diagnostics in them, and undo it all once resolved
 --- @return nil
 function M.setup()
-  local group = vim.api.nvim_create_augroup('features.git.git-conflict.keymaps', { clear = true })
+  local group =
+    vim.api.nvim_create_augroup('features.git.git-conflict-nvim.keymaps', { clear = true })
 
   vim.api.nvim_create_autocmd('User', {
     group = group,
@@ -87,7 +88,7 @@ function M.setup()
       local bufnr = event.data.buf
 
       -- Detected fires on every parse, and this state is set last, so the rest is already in place
-      if M.state.autocmds[bufnr] then
+      if state.autocmds[bufnr] then
         return
       end
 
@@ -103,7 +104,7 @@ function M.setup()
         and colorizer.detach_from_buffer(bufnr) ~= -1
       vim.diagnostic.enable(false, { bufnr = bufnr })
 
-      M.state.autocmds[bufnr] = vim.api.nvim_create_autocmd(
+      state.autocmds[bufnr] = vim.api.nvim_create_autocmd(
         { 'CursorMoved', 'CursorMovedI', 'BufEnter', 'BufLeave' },
         {
           group = group,
@@ -120,7 +121,7 @@ function M.setup()
       -- The plugin parses, and fires this, inside a decoration provider's on_win, where changing
       -- an option is unsafe; a buffer left by then gets its highlights from BufEnter on return
       vim.schedule(function()
-        if M.state.autocmds[bufnr] and vim.api.nvim_get_current_buf() == bufnr then
+        if state.autocmds[bufnr] and vim.api.nvim_get_current_buf() == bufnr then
           apply_window_winhl(vim.api.nvim_get_current_win(), cursor_in_conflict())
         end
       end)
@@ -133,7 +134,7 @@ function M.setup()
     callback = function(event)
       -- :bdelete clears the git_conflict flag gating Resolved's cleanup but not the disabled
       -- diagnostics, so re-enable them (Detected disables them again if still conflicted)
-      if M.state.autocmds[event.buf] then
+      if state.autocmds[event.buf] then
         vim.diagnostic.enable(true, { bufnr = event.buf })
       end
       cleanup_buf(event.buf)
@@ -174,6 +175,13 @@ function M.setup()
       end
     end,
   })
+end
+
+--- Whether the buffer currently holds conflict markers
+--- @param bufnr integer
+--- @return boolean
+function M.is_conflicted(bufnr)
+  return vim.b[bufnr].git_conflict == true
 end
 
 return M

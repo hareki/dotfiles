@@ -1,3 +1,5 @@
+local icons = require('config.icons')
+
 --- @class utils.ui.pill
 local M = {}
 
@@ -9,9 +11,9 @@ local M = {}
 function M.virt_text(content, inner_hl, outer_hl)
   return {
     { ' ' },
-    { Conf.icons.misc.PILL_LEFT, outer_hl },
+    { icons.misc.PILL_LEFT, outer_hl },
     { content, inner_hl },
-    { Conf.icons.misc.PILL_RIGHT, outer_hl },
+    { icons.misc.PILL_RIGHT, outer_hl },
   }
 end
 
@@ -20,9 +22,9 @@ end
 --- @return integer width
 function M.display_width(content)
   return 1
-    + vim.fn.strdisplaywidth(Conf.icons.misc.PILL_LEFT)
+    + vim.fn.strdisplaywidth(icons.misc.PILL_LEFT)
     + vim.fn.strdisplaywidth(content)
-    + vim.fn.strdisplaywidth(Conf.icons.misc.PILL_RIGHT)
+    + vim.fn.strdisplaywidth(icons.misc.PILL_RIGHT)
 end
 
 return M

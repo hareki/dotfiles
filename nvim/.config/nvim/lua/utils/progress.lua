@@ -89,7 +89,8 @@ end
 --- Complete the progress notification (sends 'end' kind), stopping any pending timer
 --- @return nil
 function ProgressHandle:finish()
-  Snacks.util.stop(self._timer)
+  local snacks_util = require('snacks.util')
+  snacks_util.stop(self._timer)
   self:_queue_or_send('end')
 end
 

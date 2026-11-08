@@ -1,4 +1,4 @@
---- @class chrome.dropbar.utils
+--- @class chrome.dropbar-nvim.utils
 local M = {}
 
 local IGNORED_FILETYPES = { help = true, trouble = true, ['grug-far'] = true }

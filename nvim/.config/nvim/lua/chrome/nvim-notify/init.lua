@@ -43,8 +43,7 @@ return {
           local title = vim.b[buf][title_key]
 
           vim.api.nvim_win_set_config(win, {
-            -- Above the Snacks terminals (100); an equal zindex hides it behind a focused one
-            zindex = 101,
+            zindex = Conf.zindex.NOTIFY,
             title = title,
             title_pos = 'center',
           })

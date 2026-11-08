@@ -45,7 +45,8 @@ function M.nohlsearch()
   local was_highlighted = M.search_highlighted()
   vim.cmd.nohlsearch()
   if was_highlighted then
-    Snacks.words.update()
+    local snacks_words = require('snacks.words')
+    snacks_words.update()
   end
 end
 

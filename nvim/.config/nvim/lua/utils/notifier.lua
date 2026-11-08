@@ -1,6 +1,8 @@
 -- trouble.nvim notifier with supported custom highlight groups
 -- https://github.com/folke/trouble.nvim/blob/main/lua/trouble/util.lua
 
+local icons = require('config.icons')
+
 --- @class utils.notifier
 local M = {}
 
@@ -9,7 +11,7 @@ local M = {}
 --- @alias utils.notifier.MessageChunk { [1]: string, [2]: string } Text and its highlight group
 --- @alias utils.notifier.Message string | utils.notifier.MessageChunk[]
 
-local highlight_ns = vim.api.nvim_create_namespace('trouble_notify_hl')
+local highlight_ns = vim.api.nvim_create_namespace('utils.notifier')
 
 --- Flatten a chunk list and build an on_open that restores highlights.
 --- @param chunks utils.notifier.MessageChunk[]
@@ -132,6 +134,60 @@ function M.error(msg, opts)
   return notify(vim.log.levels.ERROR, msg, opts)
 end
 
+--- @alias utils.notifier.Notify fun(msg: utils.notifier.Message, opts?: utils.notifier.NotifierOpts): any
+
+--- Messages shown once per session, by text
+--- @type table<string, true>
+local shown_once = {}
+
+--- @param notify_fn utils.notifier.Notify
+--- @return utils.notifier.Notify
+local function once(notify_fn)
+  return function(msg, opts)
+    local key = type(msg) == 'string' and msg or vim.inspect(msg)
+    if shown_once[key] then
+      return nil
+    end
+    shown_once[key] = true
+    return notify_fn(msg, opts)
+  end
+end
+
+--- Like info/warn/error, shown once per message per session (vim.notify_once)
+M.info_once = once(M.info)
+M.warn_once = once(M.warn)
+M.error_once = once(M.error)
+
+--- @class utils.notifier.Scoped
+--- @field info utils.notifier.Notify
+--- @field warn utils.notifier.Notify
+--- @field error utils.notifier.Notify
+--- @field info_once utils.notifier.Notify
+--- @field warn_once utils.notifier.Notify
+--- @field error_once utils.notifier.Notify
+
+--- The notifier under one title, so a module's calls stop restating it; opts still override
+--- @param title string
+--- @return utils.notifier.Scoped
+function M.scoped(title)
+  --- @param notify_fn utils.notifier.Notify
+  --- @return utils.notifier.Notify
+  local function titled(notify_fn)
+    return function(msg, opts)
+      return notify_fn(msg, vim.tbl_extend('keep', opts or {}, { title = title }))
+    end
+  end
+
+  return {
+    info = titled(M.info),
+    warn = titled(M.warn),
+    error = titled(M.error),
+    info_once = titled(M.info_once),
+    warn_once = titled(M.warn_once),
+    error_once = titled(M.error_once),
+  }
+end
+
 --- Display a debug notification with vim.inspect output in a code block
 --- @param ... any
 --- @return nil
@@ -147,7 +203,7 @@ function M.inspect(...)
     end
     msg = string.format('```lua\n%s\n```', vim.inspect(obj))
   end
-  M.warn(msg, { title = 'Debug ' .. Conf.icons.tools.DEBUG, height_offset = -1 })
+  M.warn(msg, { title = 'Debug ' .. icons.tools.DEBUG, height_offset = -1 })
 end
 
 return M

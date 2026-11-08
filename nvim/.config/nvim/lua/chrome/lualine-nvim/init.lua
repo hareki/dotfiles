@@ -18,7 +18,10 @@ return {
     -- Hide it on the starter page; stdin sessions (`git diff | nvim -`) report argc 0 too
     opt.laststatus = 0
     vim.api.nvim_create_autocmd({ 'StdinReadPre', 'BufReadPre', 'BufNewFile', 'TermOpen' }, {
-      group = vim.api.nvim_create_augroup('chrome.lualine.starter-statusline', { clear = true }),
+      group = vim.api.nvim_create_augroup(
+        'chrome.lualine-nvim.starter-statusline',
+        { clear = true }
+      ),
       once = true,
       callback = function()
         opt.laststatus = 3

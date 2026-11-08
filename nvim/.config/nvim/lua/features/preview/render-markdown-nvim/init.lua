@@ -85,7 +85,7 @@ return {
       -- A wipe in a non-nested autocmd fires no BufWipeout, so each sweep catches the missed ones
       vim.api.nvim_create_autocmd('BufWipeout', {
         group = vim.api.nvim_create_augroup(
-          'features.preview.render-markdown.evict',
+          'features.preview.render-markdown-nvim.evict',
           { clear = true }
         ),
         callback = function(args)

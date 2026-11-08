@@ -1,27 +1,27 @@
-local common = require('utils.common')
+local popup = require('utils.popup')
 
---- @class features.git.gitsigns.utils
+--- @class features.git.gitsigns-nvim.utils
 local M = {}
 
 --- A callback for an opened gitsigns popup: <Tab> toggles focus with its origin, <Esc> closes it
 --- @param popup_type string Gitsigns popup type ('blame' | 'hunk')
 function M.build_popup_navigation(popup_type)
   return function()
-    local popup = require('gitsigns.popup')
-    local popup_win_id = popup.is_open(popup_type)
+    local gitsigns_popup = require('gitsigns.popup')
+    local popup_win_id = gitsigns_popup.is_open(popup_type)
 
     if not popup_win_id then
       return
     end
 
-    common.link_popup(popup_win_id, {
+    popup.link(popup_win_id, {
       name = 'Popup',
       focus_popup = function()
-        popup.focus_open(popup_type)
+        gitsigns_popup.focus_open(popup_type)
       end,
       before_focus = function(target)
         if target == 'source' then
-          popup.ignore_cursor_moved = true
+          gitsigns_popup.ignore_cursor_moved = true
         end
       end,
     })
