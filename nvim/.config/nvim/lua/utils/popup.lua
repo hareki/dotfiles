@@ -198,15 +198,6 @@ function M.link(popup_win, opts)
     pattern = tostring(popup_win),
     callback = release,
   })
-  -- A popup closed inside a non-nested autocmd (eagle's CmdlineEnter) fires no WinClosed
-  vim.api.nvim_create_autocmd('SafeState', {
-    group = group,
-    callback = function()
-      if not vim.api.nvim_win_is_valid(popup_win) then
-        release()
-      end
-    end,
-  })
 
   local close_on = opts.close_on
   if not close_on then
