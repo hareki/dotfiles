@@ -42,7 +42,7 @@ Plugins are lazy by default (`defaults.lazy = true`). Only catppuccin, snacks.nv
 ### Globals (`lua/config/globals.lua`)
 
 - `Defer` (`utils.lazy-require`): `Defer.on_index(path)` defers the `require` until the first field access, `Defer.on_exported_call(path)` until the first call of an exported function
-- `Notifier` (lazy proxy => `utils.notifier`): `Notifier.info('msg')`, `Notifier.warn('msg', { title = 'T' })`, `Notifier.error()`
+- `Notifier` (lazy proxy => `utils.notifier`): `Notifier.info('msg')`, `Notifier.warn('msg', { title = 'T' })`, `Notifier.error()`, the `*_once` variants (once per message per session), and `Notifier.scoped(title)`, which returns the same functions with the title filled in
 - `Conf` (`config`; `config/init.lua` assembles the `config.*` tables): `Conf.icons`, `Conf.filetypes` (`JS`, `JSX`, `CSS`, `MARKDOWN`, …), `Conf.priority`, `Conf.zindex` (the float stacking ladder), `Conf.picker`, `Conf.size`, `Conf.cmp` (from `config/completion.lua`)
 - `UI` (`utils.ui`, direct require):
   - Spec registration: `UI.catppuccin(fn, plugin_name?)`, `UI.which_key({ specs?, rules?, triggers? })`
@@ -109,4 +109,4 @@ Server-specific `LspAttach` autocmds use an early-return guard on client name (s
 
 ## Forks
 
-Minimal-diff plugin forks by `hareki` (list them with `rg -o --no-filename "'hareki/[^']+'" lua | sort -u`), plus the parser forks `tree-sitter-glimmer` and `tree-sitter-scss` registered in `core/nvim-treesitter/init.lua`. The `sync-forks` zsh function updates all of them except `eagle.nvim`, standing in for the suspended [wei/pull](https://github.com/wei/pull) app. Give a new fork the usual `.github/pull.yml` for when that app returns; only `eagle.nvim` and `tree-sitter-scss` lack one. A fix every user of the fork should get goes in the fork; config-side wrappers only wire a plugin into this config (a statusline refresh, `UI.layout` sizes).
+Minimal-diff plugin forks by `hareki` (list them with `rg -o --no-filename "'hareki/[^']+'" lua | sort -u`), plus the parser forks `tree-sitter-glimmer` and `tree-sitter-scss` in the parser table of `core/nvim-treesitter/utils.lua`. The `sync-forks` zsh function updates all of them except `eagle.nvim`, standing in for the suspended [wei/pull](https://github.com/wei/pull) app. Give a new fork the usual `.github/pull.yml` for when that app returns; only `eagle.nvim` and `tree-sitter-scss` lack one. A fix every user of the fork should get goes in the fork; config-side wrappers only wire a plugin into this config (a statusline refresh, `UI.layout` sizes).
