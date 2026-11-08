@@ -1,6 +1,5 @@
---- Entry point: the `tsave` zsh function calls `unsaved()` and `quit()` through `--remote-expr`,
---- so this module's path and those names must stay stable: with a broken one, tsave quits no nvim
---- and leaves tmux running
+--- Entry point: the `tsave` zsh function calls `unsaved()` and `quit()` through `--remote-expr`, so
+--- this path and those names stay stable, or tsave quits no nvim and leaves tmux running
 --- @class core.auto-session.utils
 local M = {}
 
@@ -21,9 +20,8 @@ local function runs_nvim(pid)
   return false
 end
 
---- Publishes this nvim's RPC address on its tmux pane as `@nvim-server`, where the `tsave` zsh
---- function finds the nvims to quit through their normal exit (and auto-session's save) before
---- it kills the server
+--- Publishes this nvim's RPC address on its tmux pane as `@nvim-server`, where `tsave` finds the
+--- nvims to quit through their normal exit (and auto-session's save) before it kills the server
 --- @return nil
 function M.publish_tmux_server()
   local pane = vim.env.TMUX_PANE

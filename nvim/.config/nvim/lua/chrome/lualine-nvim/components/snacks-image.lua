@@ -3,8 +3,7 @@ local M = {}
 
 local IMAGE_ICON = Conf.icons.editor.IMAGE .. ' '
 
--- query.get's cache resets on every 'runtimepath' change, which each lazy.nvim plugin load makes,
--- so its next call re-scans the runtimepath (~0.1 ms): pin the answer for redraws
+-- query.get re-scans the runtimepath (~0.1 ms) after every plugin load: pin the answer for redraws
 --- @type table<string, boolean>
 local lang_has_images_query = {}
 
@@ -21,9 +20,8 @@ local function has_images_query(lang)
   return has
 end
 
--- Images on one cursor row of one buffer state: a whole-buffer query opens a tree-sitter cursor per
--- markdown_inline tree, one per paragraph (3.3 ms per edit at 850 lines, 12 ms at 3000), while
--- at_cursor's row-limited query costs 0.3 ms
+-- Images on one cursor row of one buffer state: at_cursor's row-limited query costs 0.3 ms, where
+-- a whole-buffer one opens a cursor per markdown_inline tree (3.3 ms per edit at 850 lines)
 --- @class chrome.lualine-nvim.components.snacks-image.Cache
 --- @field buf integer
 --- @field tick integer
@@ -62,8 +60,7 @@ local function mermaid_has_content(buf)
     or vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1] ~= ''
 end
 
---- Returns true when `gi` would render an image at the current cursor position.
---- Mirrors the branching in `features.preview.snacks-nvim.hover-image`'s toggle().
+--- Whether `gi` would render an image at the cursor, mirroring hover-image's toggle() branching
 --- @return boolean
 function M.cond()
   local buf = vim.api.nvim_get_current_buf()

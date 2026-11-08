@@ -119,9 +119,8 @@ local function switch_position(position)
 
   state.position = position
   M.close_all()
-  -- nvim-tree explicitly supports subsequent setup calls:
+  -- state.opts is set, since the config runs before any keymap here; nvim-tree supports re-setup:
   -- https://github.com/nvim-tree/nvim-tree.lua/blob/b0b49552c9462900a882fe772993b01d780445fe/lua/nvim-tree.lua#L738
-  -- state.opts is set by then: the plugin's config runs before any keymap that reaches here
   M.setup(state.opts --[[@as table]])
 end
 
@@ -260,8 +259,8 @@ function M.setup(opts)
   nvimtree.setup(opts)
 end
 
---- Keep the preview following the tree buffer's focus while it is open; one watcher per tree buffer,
---- since nvim-tree wipes it on close
+--- Keep the preview following the tree buffer's focus while open; one watcher per tree buffer, as
+--- nvim-tree wipes it on close
 --- @param tree_bufnr integer
 --- @return nil
 function M.watch_preview(tree_bufnr)

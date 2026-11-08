@@ -1,9 +1,8 @@
 --- @module 'core.snacks-nvim.fullscreen-panels'
 local fullscreen_panels = Defer.on_exported_call('core.snacks-nvim.fullscreen-panels')
 
---- Entry point: lazygit's config.yml calls `prepare_remote_edit()` through `--remote-expr` ahead
---- of each `nvim --remote` edit, so this module's path and that name must stay stable: a broken
---- one stops the edit command's `&&` chain before the file opens
+--- Entry point: lazygit's config.yml calls `prepare_remote_edit()` through `--remote-expr` before
+--- each `nvim --remote` edit, so this path and that name stay stable, or the edit command stops
 --- @class features.git.snacks-nvim.lazygit
 local M = {}
 
@@ -69,7 +68,7 @@ function M.toggle()
   local file = target_file()
   state.win = Snacks.lazygit({
     args = file and { '--file', file },
-    -- Here rather than in styles.lazygit, which would load core.snacks-nvim.fullscreen-panels at startup.
+    -- Not in styles.lazygit, which would load core.snacks-nvim.fullscreen-panels at startup.
     -- Snacks.lazygit opens a Snacks terminal: border and zindex come from styles.terminal
     win = fullscreen_panels.win_config({ backdrop = false, title = ' Git Client ' }),
   })

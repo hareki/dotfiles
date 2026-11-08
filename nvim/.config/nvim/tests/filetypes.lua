@@ -1,6 +1,5 @@
 -- config.filetypes and config.filetypes.languages as an edited file meets them: the rules name
--- its filetype, and the language aliases, which nvim-treesitter registers once it loads, pick its
--- parser
+-- its filetype and the aliases, registered once nvim-treesitter loads, pick its parser
 
 local t = require('tests.lib.helpers')
 

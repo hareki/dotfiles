@@ -2,7 +2,6 @@
 local M = {}
 
 --- Parsers kept installed: `true` for one nvim-treesitter ships, else where to fetch a custom one
---- (a fork, or a parser the plugin doesn't list), registered on TSUpdate by register_custom_parsers
 --- @type table<string, true | { url: string, branch?: string, queries?: string }>
 M.parsers = {
   bash = true,
@@ -60,8 +59,7 @@ function M.parser_names()
   return vim.tbl_keys(M.parsers)
 end
 
---- Point nvim-treesitter at the custom parsers' repos: on TSUpdate, since the plugin rebuilds its
---- parser list then
+--- Point nvim-treesitter at the custom parsers' repos on TSUpdate, as the plugin rebuilds its list
 --- @return nil
 function M.register_custom_parsers()
   local ts_parsers = require('nvim-treesitter.parsers')

@@ -2,8 +2,7 @@
 local sm = UI.layout.picker_fn('sm')
 
 local layouts = require('features.search.snacks-nvim.layouts')
--- Required, not deferred: the opts below take its source table, and the highlight callback its
--- palette key, at startup
+-- Required, not deferred: the opts below take its source table and palette key at startup
 local tabs = require('features.search.snacks-nvim.sources.tabs')
 
 --- @module 'features.search.snacks-nvim.actions'

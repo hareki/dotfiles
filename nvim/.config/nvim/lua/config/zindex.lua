@@ -13,7 +13,6 @@ M.FLOAT = 52
 M.PANEL = 100
 -- Notifications: above the panels; an equal zindex hides one behind a focused panel
 M.NOTIFY = 101
--- Trouble's preview float
 M.TROUBLE_PREVIEW = 200
 -- noice's cmdline popup, above everything
 M.CMDLINE = 999

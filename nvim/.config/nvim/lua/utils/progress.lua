@@ -109,9 +109,8 @@ function M.create(opts)
   handle._timer = vim.defer_fn(function()
     handle._pending = false
 
-    -- 'end' cached during the pending window means abort: show nothing. finish() closes this
-    -- timer, so the flush sees 'end' only when the run ends in the event-loop iteration that
-    -- fires it: libuv runs timers after the poll, which queues that finish() ahead of this flush
+    -- A cached 'end' shows nothing. finish() closes this timer, so this sees 'end' only from a run
+    -- ending in the iteration that fires it: libuv runs timers after the poll that queues finish()
     if handle._cached_kind and handle._cached_kind ~= 'end' then
       ProgressHandle._send(handle, handle._cached_kind, handle._cached_title, handle._cached_perc)
     end

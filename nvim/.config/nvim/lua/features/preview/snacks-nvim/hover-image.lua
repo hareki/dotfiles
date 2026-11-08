@@ -102,8 +102,8 @@ local function open(src)
         return
       end
 
-      -- Wipe leftover extmarks such as snacks' "<step> loading ..." virt_text, which it never clears
-      -- once ready; the render() below re-sets the image's own
+      -- Wipe leftover extmarks like snacks' "<step> loading ..." virt_text, which it never clears;
+      -- the render() below re-sets the image's own
       vim.api.nvim_buf_clear_namespace(scratch, -1, 0, -1)
 
       local loc = self:state().loc

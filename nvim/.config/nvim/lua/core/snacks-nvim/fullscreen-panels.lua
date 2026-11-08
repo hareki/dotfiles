@@ -1,6 +1,5 @@
---- Full-screen Snacks terminals (Lazygit, the coding agent): builds their window config, pinned
---- to Terminal mode, and keeps them from stacking, so closing one lands on the code (panels are
---- detected by geometry, covering the `full` preset)
+--- Full-screen Snacks terminals (Lazygit, the coding agent): their window config, pinned to
+--- Terminal mode, and one at a time, so closing one lands on the code
 --- @class core.snacks-nvim.fullscreen-panels
 local M = {}
 
@@ -9,10 +8,8 @@ local M = {}
 --- @type snacks.win.Config
 local TERMINAL_MODE = {
   keys = {
-    -- Replaces Snacks' double <Esc> exit, which also swallows the second press (Claude's rewind,
-    -- Lazygit's nested popups); a buffer-local <Esc> also keeps the global <Esc><Esc> map from
-    -- holding every single press for 'timeoutlen'. With `expr`, Snacks sends an rhs that names no
-    -- action as keys
+    -- Snacks' double <Esc> exit swallows the second press (Claude's rewind, Lazygit's popups), and
+    -- the global <Esc><Esc> would hold each one for 'timeoutlen'; `expr` sends this rhs as keys
     term_normal = { '<Esc>', '<Esc>', mode = 't', expr = true, desc = 'Send Escape' },
   },
 
@@ -37,9 +34,8 @@ local TERMINAL_MODE = {
   end,
 }
 
---- Window config of a full-screen panel: the `full` preset (which hide_others detects panels by),
---- pinned to Terminal mode. A merge rather than a Snacks style, which would lose `on_buf` to the
---- claudecode.nvim fork's own `on_buf`
+--- Window config of a full-screen panel: the `full` preset hide_others detects, in Terminal mode.
+--- A merge, not a Snacks style, which would lose `on_buf` to the claudecode.nvim fork's own
 --- @param overrides snacks.win.Config|{} The panel's own options (title, position, backdrop)
 --- @return snacks.win.Config
 function M.win_config(overrides)

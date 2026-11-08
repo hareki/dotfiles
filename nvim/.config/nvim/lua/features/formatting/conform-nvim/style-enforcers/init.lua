@@ -21,9 +21,8 @@ local notify = notifier.scoped('Style Enforcer')
 --- @field buf integer
 --- @field done fun(err?: string) Report the step's end: the next step starts, or err ends the run
 
---- The context of a step that names a client. `request` passes the reply's result to on_result,
---- unless the server errors or the buffer changed in flight, which fails the step; `execute` sends
---- a workspace/executeCommand, whose reply ends the step. Their replies share the guard of `done`
+--- The context of a step that names a client: `request` fails the step on a server error or an edit
+--- in flight, and `execute`'s workspace/executeCommand reply ends it; both pass `done`'s guard
 --- @class features.formatting.conform-nvim.style-enforcers.LspContext: features.formatting.conform-nvim.style-enforcers.Context
 --- @field client vim.lsp.Client Looked up as the step starts
 --- @field request fun(method: vim.lsp.protocol.Method.ClientToServer.Request, params: table, on_result: fun(result: any))
@@ -43,9 +42,8 @@ local notify = notifier.scoped('Style Enforcer')
 --- @field steps? features.formatting.conform-nvim.style-enforcers.Step[] For tests, in place of STEPS
 --- @field timeout_ms? integer For tests, in place of TIMEOUT_MS
 
--- In run order: conform and oxfmt format before the fix steps, so oxlint's fixAll sees formatted
--- content. Each LSP step runs where its server is attached (lsp/oxfmt.lua narrows oxfmt's
--- filetypes)
+-- In run order: formatting first, so oxlint's fixAll sees formatted content; an LSP step runs
+-- where its server is attached (lsp/oxfmt.lua narrows oxfmt's filetypes)
 --- @type features.formatting.conform-nvim.style-enforcers.Step[]
 local STEPS = { conform, oxfmt, eslint, oxlint }
 
@@ -166,8 +164,7 @@ local function lsp_context(buf, client, live, done)
   }
 end
 
---- Run the steps that apply to a buffer, in order, then write it: under a per-buffer lock and a
---- timeout, with progress. The first failed step ends the run
+--- Run a buffer's steps in order and write it, under a per-buffer lock and timeout, with progress
 --- @param opts? features.formatting.conform-nvim.style-enforcers.RunOpts
 --- @return nil
 function M.run(opts)
@@ -201,10 +198,8 @@ function M.run(opts)
   --- @type features.formatting.conform-nvim.style-enforcers.Step
   local current
 
-  -- Every callback handed to a step, and the timeout, passes through here: once the run has
-  -- ended, none can start a step, edit the buffer, double-report or clobber a newer run's lock.
-  -- A server pushing an edit for an executeCommand it already got (workspace/applyEdit) is out of
-  -- its reach
+  -- Every step callback and the timeout pass through here: after the run ends, none can start a
+  -- step, edit the buffer, double-report or clobber a newer run's lock (applyEdit escapes it)
   --- @param fn function
   --- @return function
   local function live(fn)
@@ -281,8 +276,7 @@ function M.run(opts)
       ctx = lsp_context(buf, client, live, done)
     end
 
-    -- A step that throws fails like one that reports an error, rather than holding the lock
-    -- until the timeout
+    -- A step that throws fails like a reported error instead of holding the lock until the timeout
     local ok, err = pcall(step.run, ctx)
     if not ok then
       done(tostring(err))

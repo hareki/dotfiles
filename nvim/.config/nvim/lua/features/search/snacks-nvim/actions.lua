@@ -6,8 +6,7 @@ local M = {}
 
 --- @type features.search.snacks-nvim.actions.State
 local state = {
-  -- The sources that keep the preview across openings (their keymaps open them with
-  -- M.preview_layout()); add a source here to have toggle_preview remember it
+  -- Sources whose preview toggle carries across openings (their keymaps use M.preview_layout())
   preview_shown = { files = true },
 }
 

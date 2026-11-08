@@ -160,9 +160,8 @@ local status_cache = {
   text = nil,
 }
 
---- The pin indices for the current buffer, "1 [3] 4" style, or nil while the list is empty. Cached
---- by (buffer, list length), since list items need plenary path normalization and the statusline
---- asks on every draw
+--- The pin indices for the current buffer, "1 [3] 4" style, or nil while the list is empty; cached
+--- by (buffer, list length), as items need plenary path normalization and lualine asks per draw
 --- @return string | nil status
 function M.status()
   local harpoon = require('harpoon')
@@ -204,8 +203,8 @@ function M.status()
   return text
 end
 
---- Drop the cached status and redraw the statusline, for the mutations the (buffer, length) key
---- can't detect (replace_at, a remove_at short of the last slot); the spec's harpoon extensions call it
+--- Drop the cached status and redraw, for mutations the (buffer, length) key misses (replace_at, a
+--- remove_at short of the last slot); the spec's harpoon extensions call it
 --- @return nil
 function M.refresh_statusline()
   status_cache.buf = -1

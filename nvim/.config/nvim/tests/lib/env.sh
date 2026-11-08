@@ -3,9 +3,8 @@
 #
 # - XDG_DATA_HOME stays the real one, since plugins and parsers load from it. Overridden once, it
 #   led mise to an empty data dir, where a shim recursion spawned about 3,500 processes
-# - XDG_CONFIG_HOME, XDG_CACHE_HOME and XDG_STATE_HOME move into a private dir per run, so a boot
-#   never touches the real undo, swap, log or compile caches. mise reads those too, so its own
-#   dirs stay pinned to the real ones, with its auto-installs off
+# - XDG_CONFIG_HOME, XDG_CACHE_HOME and XDG_STATE_HOME move into a private dir per run (no real
+#   undo, swap, log or compile caches); mise reads them too, so its dirs stay real, installs off
 # - Homebrew's nvim runs, not the mise shim, which blocks on an install under moved dirs
 # - NVIM_INTEGRATION (it swaps lualine for a label), NVIM (set in nvim's terminals) and TMUX unset
 # - Every boot ends in os.exit, which skips VimLeavePre: no session save, no harpoon sync and no

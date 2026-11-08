@@ -39,8 +39,8 @@ function M.evict_wiped_buffers(wiping)
   end
 end
 
---- The plugin disables markdown's `conceal_lines` patterns, but the query still reports having them,
---- so each height lookup after an edit (satellite's, per refresh) re-runs it per row for nothing
+--- The plugin disables markdown's `conceal_lines` patterns, but the query still reports them, so
+--- each height lookup after an edit (satellite's, per refresh) re-runs it per row for nothing
 --- @return nil
 function M.skip_conceal_line_pass()
   local query = vim.treesitter.query.get('markdown', 'highlights')

@@ -23,9 +23,8 @@ M.default = {
   ['<PageDown>'] = { 'scroll_documentation_down' },
   ['<Space>'] = {
     function(cmp)
-      -- A space with the next key already pending never reaches blink's own hide (TextChangedI
-      -- waits out typeahead), so the next word would continue this word's context. Not a 'hide'
-      -- entry: it returns true while the menu is open, which would swallow the space
+      -- blink's own hide misses a space with typeahead pending (TextChangedI waits it out), so the
+      -- next word would continue this one; not a 'hide' entry: its true return eats the space
       cmp.hide()
     end,
     'fallback',

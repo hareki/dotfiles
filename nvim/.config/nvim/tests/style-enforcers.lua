@@ -1,6 +1,5 @@
--- The save pipeline (features.formatting.conform-nvim.style-enforcers): its keys, which load
--- conform.nvim on the first press; the runner, driven by scripted steps through its `steps` and
--- `timeout_ms` seam; and the real steps, against conform with stylua and in-process servers
+-- The save pipeline (features.formatting.conform-nvim.style-enforcers): its lazy-loading keys, the
+-- runner, driven through its `steps`/`timeout_ms` seam, real steps on stylua and in-process LSPs
 
 local t = require('tests.lib.helpers')
 local style_enforcers = require('features.formatting.conform-nvim.style-enforcers')
@@ -76,8 +75,7 @@ local function record_progress()
   return events, creates, restore
 end
 
---- A scripted step that applies everywhere, records its name in trace as it starts, then runs
---- script (default: report done at once)
+--- A scripted step for every buffer: logs its name to trace, then runs script (default: done)
 --- @param name string
 --- @param trace string[]
 --- @param script? fun(ctx: features.formatting.conform-nvim.style-enforcers.Context)

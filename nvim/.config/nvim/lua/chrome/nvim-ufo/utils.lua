@@ -63,8 +63,8 @@ function M.skip_stale_scan_without_folds()
   end
 end
 
---- ufo looks up each injected tree's folds query, a ~60 us runtimepath scan per miss, which markdown
---- repeats for every inline region; it captures the function at load, so swap it in for that load
+--- ufo looks up each injected tree's folds query, a ~60 us runtimepath scan per miss, for every
+--- markdown inline region; it captures the function at load, so swap it in for that load
 --- @return nil
 function M.memoize_fold_query_lookup()
   local query = vim.treesitter.query

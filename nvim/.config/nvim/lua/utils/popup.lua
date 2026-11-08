@@ -2,8 +2,7 @@ local cursorline = require('utils.ui.cursorline')
 local keymap = require('utils.keymap')
 local noautocmd = require('utils.noautocmd')
 
---- Floats tied to a source window: the focus hand-off between the two, their linked keys, and
---- closing the float once the source moves on
+--- Floats tied to a source window: focus hand-off, linked keys, closing once the source moves on
 --- @class utils.popup
 local M = {}
 
@@ -110,8 +109,7 @@ local function override_buf_keymaps(buf, maps)
   end
 end
 
---- Source-side events that close the popup; its source window closing or source buffer being wiped
---- always does
+--- Source-side events that close the popup, besides its source window closing or buffer being wiped
 --- @class utils.popup.CloseOn
 --- @field cursor_moved? boolean The cursor moved in the source window (re-entering it fires CursorMoved too, so the position is compared)
 --- @field focus_left? boolean Focus landed in a window or buffer other than the popup's and the source's
@@ -126,9 +124,8 @@ end
 --- @field focus_popup? fun() Focus the popup instead of the default autocmd-free switch
 --- @field esc_passthrough? boolean Have the source window's <Esc> also do what it does without the popup (e.g. the global Clear Highlight)
 
---- Link a popup to the current window: <Esc> closes it from either side (q too, inside it), <Tab>
---- toggles focus between them, `close_on` closes it once the source moves on, and the source
---- buffer's overrides go once it closes
+--- Link a popup to the current window: <Esc> (and q inside it) closes it from either side, <Tab>
+--- swaps focus, `close_on` closes it as the source moves on, and the source's overrides go with it
 --- @param popup_win integer
 --- @param opts utils.popup.LinkOpts
 --- @return fun() close Closes the popup and releases the link; later calls are no-ops

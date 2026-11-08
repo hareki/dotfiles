@@ -10,8 +10,7 @@ function M.is_ignored(buf)
   return IGNORED_FILETYPES[vim.bo[buf].filetype] == true or vim.bo[buf].buftype == 'terminal'
 end
 
---- Whether dropbar attaches: not to floats (zen's aside), windows whose winbar is already claimed,
---- ignored buffers or files over 1MB
+--- Whether dropbar attaches: not to floats (zen's aside), taken winbars, ignored or 1MB+ buffers
 --- @param buf integer
 --- @param win integer
 --- @return boolean

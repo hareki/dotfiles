@@ -1,6 +1,5 @@
---- Neovim's own keys as this config presents them: the defaults it has no use for deleted, the
---- maps Neovim sets retitled in CMOS 18 (its global defaults and the buffer-local maps of its
---- ftplugins and terminals), and the fold commands described through identity maps
+--- Neovim's own keys as this config presents them: unused defaults deleted, its global and
+--- buffer-local maps retitled in CMOS 18, and the fold commands described through identity maps
 --- @class config.builtin-keymaps
 local M = {}
 
@@ -69,9 +68,8 @@ M.DESC_OVERRIDES = {
   ['<S-Tab>'] = { desc = 'Previous Snippet Placeholder', mode = { 'i', 's' } },
 }
 
---- Descs for the buffer-local maps Neovim sets, keyed by its own desc and retitled in normal mode
---- unless `mode` lists others. Matching that desc as well as the key leaves a plugin's or this
---- config's map on the same key its own title (the LSP ]] and [[ in core/lsp/nvim-lspconfig)
+--- Descs for Neovim's buffer-local maps (normal mode unless `mode` lists others), keyed by its own
+--- desc so another map on the same key keeps its title (the LSP ]] and [[ in nvim-lspconfig)
 --- @type table<string, { lhs: string, desc: string, mode?: string[] }>
 M.BUFFER_DESC_OVERRIDES = {
   -- $VIMRUNTIME/ftplugin/{help,markdown,checkhealth}.lua
@@ -151,9 +149,8 @@ function M.setup()
     pcall(vim.keymap.del, 'n', key)
   end
 
-  -- Retitle Neovim's own maps in place: which-key and the keymaps picker read the desc off the map.
-  -- Only global ones here, so a buffer-local map on the same key (the gO outline in help, markdown
-  -- and man) keeps its own title
+  -- Retitle in place, as which-key and the keymaps picker read the map's desc; global maps only,
+  -- so a buffer-local one on the same key (gO in help, markdown and man) keeps its own title
   local retitles = {}
   for lhs, spec in pairs(M.DESC_OVERRIDES) do
     for _, mode in ipairs(spec.mode or { 'n' }) do
@@ -176,8 +173,7 @@ function M.setup()
     vim.keymap.set('n', fold[1], fold[1], { desc = fold[2] })
   end
 
-  -- Neovim creates its ftplugin loader and terminal defaults before loading this config, and
-  -- autocmds run in creation order: these see the maps they set
+  -- Created after Neovim's ftplugin and TermOpen autocmds, so these run later and see their maps
   local group =
     vim.api.nvim_create_augroup('config.builtin-keymaps.retitle-buffer-maps', { clear = true })
   local function on_maps_set(event)

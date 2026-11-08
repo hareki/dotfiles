@@ -1,6 +1,5 @@
--- tests/ab.sh's payload: what this config defines, once every plugin has loaded, as sorted
--- tab-separated rows that a diff compares across two boots. Paths into the config, cache, state
--- and cwd are normalized, so only the configs' differences remain
+-- tests/ab.sh's payload: what this config defines once every plugin has loaded, as sorted
+-- tab-separated rows that a diff compares across two boots
 
 local helpers = require('tests.lib.helpers')
 local lazy_config = require('lazy.core.config')
@@ -239,9 +238,8 @@ if ok_wk then
   end
 end
 
--- What differs between two boots of one config is dropped or normalized: paths into the boot's
--- private dirs, addresses in tostring() of functions and tables, lualine's group numbers (in
--- creation order), noice's route order (built from pairs()) and the pid in LSP command lines
+-- Boot-to-boot noise, dropped or normalized: private dir paths, tostring() addresses, lualine's
+-- group numbers (creation order), noice's route order (from pairs()) and LSP command-line pids
 
 --- Plain-text substitutions, longest path first, each in its given, normalized and resolved form
 --- @type { [1]: string, [2]: string }[]

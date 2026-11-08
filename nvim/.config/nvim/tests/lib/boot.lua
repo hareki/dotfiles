@@ -1,5 +1,5 @@
--- One headless boot for tests/run.sh and tests/ab.sh (see tests/lib/env.sh): finish the startup a
--- UI session gets, run $NVIM_TEST_PAYLOAD, and exit with its status. Runs from `-c`, before VimEnter
+-- One headless boot for tests/run.sh and tests/ab.sh (see tests/lib/env.sh), run from `-c` before
+-- VimEnter: finish the startup a UI session gets, run $NVIM_TEST_PAYLOAD, exit with its status
 
 local source = debug.getinfo(1, 'S').source:sub(2)
 -- The config holding this harness, which for ab.sh's HEAD copy is not the config under test

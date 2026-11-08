@@ -25,7 +25,6 @@ local function resolve_dimensions(dimensions)
     math.floor(math.max(height, dimensions.MIN_HEIGHT or 0))
 end
 
---- Width of a side panel preset
 --- @param variant 'sm' | 'md'
 --- @return integer width Width in columns
 function M.side_panel_width(variant)
@@ -34,10 +33,8 @@ function M.side_panel_width(variant)
   return math.floor(math.max(vim.o.columns * panel.WIDTH, panel.MIN_WIDTH))
 end
 
---- Geometry of the side preview float: left of the side panel, centered, with a 3-column gap.
---- `col` and `row` are relative to the panel window's top-left cell, as nvim_open_win's
---- `relative = 'win'` reads them; a plugin measuring a negative col from the panel's right edge
---- (trouble) subtracts the panel width itself
+--- The side preview float: left of the side panel, centered, 3 columns off, in `relative = 'win'`
+--- coordinates; a plugin measuring col from the panel's right edge (trouble) subtracts its width
 --- @return { width: integer, height: integer, row: integer, col: integer } geometry
 function M.side_preview()
   local width, height = resolve_dimensions(size_config.side_preview)

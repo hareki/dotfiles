@@ -1,6 +1,5 @@
---- What a test file in tests/ uses: register tests, assert, wait on the event loop, set up
---- buffers, look up maps and drive Snacks pickers. tests/lib/boot.lua runs the file once the
---- config has booted, VeryLazy included
+--- What a test file uses: register tests, assert, wait on the event loop, set up buffers, look up
+--- maps, drive Snacks pickers. tests/lib/boot.lua runs the file after the full boot, VeryLazy too
 --- @class tests.lib.helpers
 local M = {}
 

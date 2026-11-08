@@ -1,7 +1,5 @@
---- Language aliases this config adds to nvim-treesitter's own: its plugin/filetypes.lua registers
---- handlebars and htmlangular, but not mdx
---- Entry point: lazygit's diff renderer dofiles this under `nvim --clean`
---- (codediff/lib/bootstrap.lua), so it uses none of this config's globals or modules
+--- Language aliases nvim-treesitter's plugin/filetypes.lua lacks (it has handlebars, not mdx)
+--- Entry point: lazygit's diff renderer dofiles this under --clean, so no config globals or modules
 --- @class config.filetypes.languages
 local M = {}
 

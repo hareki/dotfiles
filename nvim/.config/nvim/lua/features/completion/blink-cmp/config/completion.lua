@@ -21,8 +21,7 @@ M.default = {
     border = 'rounded',
     max_height = vim.o.pumheight,
     draw = {
-      -- The label column keeps its gap before an empty label_description, which already leaves
-      -- slack on the right
+      -- No right padding: the label's gap before an empty label_description already leaves slack
       padding = { 1, 0 },
       components = {
         label = {
