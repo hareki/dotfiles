@@ -12,9 +12,9 @@ local notify = notifier.scoped('Style Enforcer')
 --- @field label string Progress title while the step runs
 --- @field applies? fun(buf: integer): boolean The gate; without it, the step runs where `client` is attached
 --- @field client? string The LSP client the step drives, by name; its run gets an LspContext
---- @field kind? 'format' | 'fix' What the step does to the buffer, which its default failure notice reads as
+--- @field kind 'format' | 'fix' What the step does to the buffer, which sets its failure notice's level and title
 --- @field run fun(ctx: features.formatting.conform-nvim.style-enforcers.Context)
---- @field failure? fun(err: string, debug?: boolean, buf: integer): features.formatting.conform-nvim.style-enforcers.Failure Default: the notice of its `kind`, naming the tool
+--- @field failure? fun(err: string, debug?: boolean, buf: integer): string The failure notice's text; default: it names the tool
 
 --- What a step's run gets; `done` does nothing once the run has ended
 --- @class features.formatting.conform-nvim.style-enforcers.Context
@@ -27,12 +27,6 @@ local notify = notifier.scoped('Style Enforcer')
 --- @field client vim.lsp.Client Looked up as the step starts
 --- @field request fun(method: vim.lsp.protocol.Method.ClientToServer.Request, params: table, on_result: fun(result: any))
 --- @field execute fun(command: string, argument: table)
-
---- The notice for a failed step
---- @class features.formatting.conform-nvim.style-enforcers.Failure
---- @field level 'warn' | 'error'
---- @field title string
---- @field msg string
 
 --- @class features.formatting.conform-nvim.style-enforcers.RunOpts
 --- @field debug? boolean Failure notices carry the tool's error
@@ -53,7 +47,7 @@ local TIMEOUT_MS = 5000
 -- The error a request reports when the buffer was edited while it was in flight
 local BUFFER_CHANGED = 'buffer changed while running'
 
--- The failure notice of a step without its own `failure`, by its kind
+-- A failed step's notice by the step's kind; `tool` words the default text
 local KIND_FAILURES = {
   format = { level = 'error', title = 'Formatting Failed', tool = 'Formatter' },
   fix = { level = 'warn', title = 'Fixing Failed', tool = 'Linter' },
@@ -101,14 +95,9 @@ local function notify_failure(step, err, debug, buf)
     return
   end
 
-  if step.failure then
-    local failure = step.failure(err, debug, buf)
-    notify[failure.level](failure.msg, { title = failure.title })
-    return
-  end
-
   local kind = KIND_FAILURES[step.kind]
-  local msg = debug and string.format('%s %s error: %s', kind.tool, step.name, err)
+  local msg = step.failure and step.failure(err, debug, buf)
+    or debug and string.format('%s %s error: %s', kind.tool, step.name, err)
     or string.format('%s used: %s', kind.tool, step.name)
   notify[kind.level](msg, { title = kind.title })
 end

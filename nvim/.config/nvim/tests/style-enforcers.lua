@@ -84,6 +84,7 @@ local function step(name, trace, script)
   return {
     name = name,
     label = 'Running ' .. name,
+    kind = 'fix',
     applies = function()
       return true
     end,
@@ -96,7 +97,7 @@ local function step(name, trace, script)
       end
     end,
     failure = function(err, debug)
-      return { level = 'warn', title = name .. ' Failed', msg = debug and err or name }
+      return debug and err or name
     end,
   }
 end
@@ -310,7 +311,7 @@ t.test('a failed step ends the run with its one notice, keeping what ran before'
 
   t.eq(ok, false, 'the run result')
   t.eq(trace, { 'edit', 'broken' }, 'the steps run')
-  t.eq(notices, { { level = levels.WARN, title = 'broken Failed', msg = 'boom' } }, 'the notices')
+  t.eq(notices, { { level = levels.WARN, title = 'Fixing Failed', msg = 'boom' } }, 'the notices')
   t.eq(file_lines(buf), { 'fixed' }, 'the file on disk')
   vim.cmd.bwipeout()
 end)
@@ -335,7 +336,7 @@ t.test('a step that throws fails like one that reports an error', function()
   t.eq(trace, { 'thrower' }, 'the steps run')
   t.eq(
     notices,
-    { { level = levels.WARN, title = 'thrower Failed', msg = 'thrower' } },
+    { { level = levels.WARN, title = 'Fixing Failed', msg = 'thrower' } },
     'the notices'
   )
   t.eq(run({ buf = buf, steps = {} }), true, 'a new run after the failure')
@@ -468,7 +469,7 @@ t.test('run_all runs every modified buffer, then sums them up once', function()
   restore_notices()
 
   t.eq(#notices, 2, 'the notices: the failure, then the summary')
-  t.eq(notices[1], { level = levels.WARN, title = 'check Failed', msg = 'check' }, 'the failure')
+  t.eq(notices[1], { level = levels.WARN, title = 'Fixing Failed', msg = 'check' }, 'the failure')
   t.eq(notices[2].level, levels.WARN, 'the summary level')
   t.ok(
     notices[2].msg:match('^Success:\n  .+ sum%-1%.txt\n\nError:\n  .+ sum%-2%.txt$'),

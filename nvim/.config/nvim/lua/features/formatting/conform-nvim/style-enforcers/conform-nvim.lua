@@ -3,6 +3,7 @@
 local M = {
   name = 'conform',
   label = 'Formatting',
+  kind = 'format',
 }
 
 --- @param formatters conform.FormatterInfo[]
@@ -43,21 +44,18 @@ end
 --- @param err string
 --- @param debug? boolean
 --- @param buf integer
---- @return features.formatting.conform-nvim.style-enforcers.Failure
+--- @return string msg
 function M.failure(err, debug, buf)
-  local msg
   if debug then
-    msg = 'Format error: ' .. err
-  else
-    local conform = require('conform')
-    local formatters, uses_lsp = conform.list_formatters_to_run(buf)
-    msg = string.format(
-      'Formatter(s) used: `%s` \nSee `:ConformInfo` for more information',
-      formatter_names(formatters, uses_lsp)
-    )
+    return 'Format error: ' .. err
   end
 
-  return { level = 'error', title = 'Formatting Failed', msg = msg }
+  local conform = require('conform')
+  local formatters, uses_lsp = conform.list_formatters_to_run(buf)
+  return string.format(
+    'Formatter(s) used: `%s` \nSee `:ConformInfo` for more information',
+    formatter_names(formatters, uses_lsp)
+  )
 end
 
 return M
