@@ -7,8 +7,13 @@ local keymap_registry = require('config.keymap-registry')
 -- palette key, at startup
 local tabs = require('features.search.snacks-nvim.sources.tabs')
 
+--- @module 'features.search.snacks-nvim.actions'
 local actions = Defer.on_exported_call('features.search.snacks-nvim.actions')
+
+--- @module 'features.search.snacks-nvim.sources.buffers'
 local buffers = Defer.on_exported_call('features.search.snacks-nvim.sources.buffers')
+
+--- @module 'features.search.snacks-nvim.sources.keymaps'
 local keymaps = Defer.on_exported_call('features.search.snacks-nvim.sources.keymaps')
 
 --- @module 'snacks.picker'
