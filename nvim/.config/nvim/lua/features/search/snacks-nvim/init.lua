@@ -3,16 +3,13 @@ local sm = UI.layout.picker_fn('sm')
 
 local layouts = require('features.search.snacks-nvim.layouts')
 local keymap_registry = require('config.keymap-registry')
--- Required, not deferred: the highlight callback below reads its palette key at startup
-local tabs_source = require('features.search.snacks-nvim.sources.tabs')
+-- Required, not deferred: the opts below take its source table, and the highlight callback its
+-- palette key, at startup
+local tabs = require('features.search.snacks-nvim.sources.tabs')
 
 local actions = Defer.on_exported_call('features.search.snacks-nvim.actions')
 local buffers = Defer.on_exported_call('features.search.snacks-nvim.sources.buffers')
 local keymaps = Defer.on_exported_call('features.search.snacks-nvim.sources.keymaps')
-local tabs = Defer.on_exported_call('features.search.snacks-nvim.sources.tabs')
-
---- @class snacks.picker
---- @field tabs fun(opts?: snacks.picker.Config | {}): snacks.Picker
 
 --- @module 'snacks.picker'
 local picker = Defer.on_exported_call('snacks.picker')
@@ -25,7 +22,7 @@ return {
       SnacksPickerInputCursorLine = { bg = 'none', fg = palette.text },
       SnacksPickerListCursorLine = { link = 'ListCursorLine' },
       SnacksPickerKeymapLhs = { fg = palette.blue },
-      SnacksPickerTabName = { fg = palette[tabs_source.LABEL_COLOR] },
+      SnacksPickerTabName = { fg = palette[tabs.LABEL_COLOR] },
       SnacksPickerSelected = { bg = 'none', fg = palette.text },
       SnacksPickerUnselected = { bg = 'none', fg = palette.text },
       SnacksPickerDir = { fg = palette.overlay1 },
@@ -153,23 +150,7 @@ return {
             },
           },
 
-          tabs = {
-            finder = tabs.finder,
-            format = tabs.format,
-            confirm = tabs.confirm,
-            actions = {
-              tab_close = tabs.tab_close,
-            },
-            win = {
-              input = {
-                keys = {
-                  ['<C-x>'] = { 'tab_close', mode = { 'n', 'i' } },
-                  ['x'] = 'tab_close', -- close selected tab from input (normal mode)
-                },
-              },
-              list = { keys = { ['dd'] = 'tab_close' } },
-            },
-          },
+          tabs = tabs.source,
 
           todo_comments = {
             show_pattern = false,

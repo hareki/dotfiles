@@ -3,6 +3,9 @@
 --- @class features.search.snacks-nvim.sources.tabs
 local M = {}
 
+--- @class snacks.picker
+--- @field tabs fun(opts?: snacks.picker.Config | {}): snacks.Picker
+
 --- Catppuccin palette key of a tab label, in the picker and the statusline alike
 M.LABEL_COLOR = 'green'
 
@@ -23,7 +26,7 @@ end
 --- @param _ snacks.picker.Config
 --- @param ctx snacks.picker.finder.ctx
 --- @return features.search.snacks-nvim.sources.tabs.Item[] items
-function M.finder(_, ctx)
+local function finder(_, ctx)
   local current_tab = vim.api.nvim_get_current_tabpage()
   local items = {} --- @type features.search.snacks-nvim.sources.tabs.Item[]
   local label_width = 0
@@ -59,7 +62,7 @@ end
 --- @param item snacks.picker.Item
 --- @param picker snacks.Picker
 --- @return snacks.picker.Highlight[] highlights
-function M.format(item, picker)
+local function format(item, picker)
   local ret = { --- @type snacks.picker.Highlight[]
     { item.label, 'SnacksPickerTabName' },
     { '  ' },
@@ -74,7 +77,7 @@ end
 --- @param picker snacks.Picker
 --- @param item? snacks.picker.Item The item under the cursor
 --- @return nil
-function M.confirm(picker, item)
+local function confirm(picker, item)
   -- Leave insert mode first, or picker:close()'s stopinsert moves the target tab's cursor
   picker:norm(function()
     picker:close()
@@ -117,7 +120,7 @@ end
 --- Close the selected tabpages (or the one under the cursor), the tabs source's bufdelete
 --- @param picker snacks.Picker
 --- @return nil
-function M.tab_close(picker)
+local function tab_close(picker)
   picker.preview:reset()
   local current_tab = vim.api.nvim_get_current_tabpage()
   local close_current = false
@@ -140,5 +143,25 @@ function M.tab_close(picker)
 
   picker:refresh()
 end
+
+--- The tabs source's config, which the search fragment registers as `picker.sources.tabs`
+--- @type snacks.picker.Config
+M.source = {
+  finder = finder,
+  format = format,
+  confirm = confirm,
+  actions = {
+    tab_close = tab_close,
+  },
+  win = {
+    input = {
+      keys = {
+        ['<C-x>'] = { 'tab_close', mode = { 'n', 'i' } },
+        ['x'] = 'tab_close', -- close selected tab from input (normal mode)
+      },
+    },
+    list = { keys = { ['dd'] = 'tab_close' } },
+  },
+}
 
 return M
