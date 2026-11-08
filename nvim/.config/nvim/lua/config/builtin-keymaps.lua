@@ -39,7 +39,7 @@ M.DESC_OVERRIDES = {
   ['gra'] = { desc = 'LSP: Code Actions', mode = { 'n', 'x' } },
   ['grx'] = { desc = 'LSP: Run Code Lens' },
   ['<C-S>'] = { desc = 'LSP: Signature Help', mode = { 's', 'i' } },
-  ['gx'] = { desc = 'Open URL' },
+  ['gx'] = { desc = 'Open URL', mode = { 'n', 'x' } },
 
   -- Default mappings having descriptions like :help &-default, :help v_#-default,...
   ['&'] = { desc = 'Repeat Last Substitute (Keep Flags)' },
