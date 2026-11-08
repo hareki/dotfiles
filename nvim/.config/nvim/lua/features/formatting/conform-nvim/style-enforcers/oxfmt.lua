@@ -1,7 +1,7 @@
 --- @class features.formatting.conform-nvim.style-enforcers.oxfmt: features.formatting.conform-nvim.style-enforcers.Step
 local M = {
   name = 'oxfmt',
-  label = 'Linting (oxfmt)',
+  label = 'Formatting (oxfmt)',
   client = 'oxfmt',
 }
 
@@ -26,9 +26,9 @@ end
 --- @return features.formatting.conform-nvim.style-enforcers.Failure
 function M.failure(err, debug)
   return {
-    level = 'warn',
-    title = 'Linting Failed',
-    msg = debug and string.format('Linter oxfmt error: %s', err) or 'Linter used: oxfmt',
+    level = 'error',
+    title = 'Formatting Failed',
+    msg = debug and string.format('Formatter oxfmt error: %s', err) or 'Formatter used: oxfmt',
   }
 end
 

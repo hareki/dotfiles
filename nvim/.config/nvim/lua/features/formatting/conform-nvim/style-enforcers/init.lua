@@ -42,9 +42,9 @@ local notify = notifier.scoped('Style Enforcer')
 --- @field steps? features.formatting.conform-nvim.style-enforcers.Step[] For tests, in place of STEPS
 --- @field timeout_ms? integer For tests, in place of TIMEOUT_MS
 
--- In run order: conform and oxfmt format before the lint-fix steps, so oxlint's fixAll sees
--- formatted content. Each LSP step runs where its server is attached (lsp/oxfmt.lua narrows
--- oxfmt's filetypes)
+-- In run order: conform and oxfmt format before the fix steps, so oxlint's fixAll sees formatted
+-- content. Each LSP step runs where its server is attached (lsp/oxfmt.lua narrows oxfmt's
+-- filetypes)
 --- @type features.formatting.conform-nvim.style-enforcers.Step[]
 local STEPS = { conform, oxfmt, eslint, oxlint }
 
@@ -182,6 +182,9 @@ function M.run(opts)
 
   local ended = false
   local timeout_timer
+  -- The step in flight, which the timeout names
+  --- @type features.formatting.conform-nvim.style-enforcers.Step
+  local current
 
   -- Every callback handed to a step, and the timeout, passes through here: once the run has
   -- ended, none can start a step, edit the buffer, double-report or clobber a newer run's lock.
@@ -234,6 +237,7 @@ function M.run(opts)
     if not step then
       return finish(true, true)
     end
+    current = step
 
     -- A failed step ends the run, so every one before idx has finished
     if idx == 1 then
@@ -272,7 +276,7 @@ function M.run(opts)
 
   timeout_timer = vim.defer_fn(
     live(function()
-      notify.warn('Formatting/linting timed out')
+      notify.warn(string.format('%s timed out', current.label))
       finish(false, false)
     end),
     opts.timeout_ms or TIMEOUT_MS

@@ -387,7 +387,7 @@ t.test('the timeout ends the run: no later step, notice or edit, lock released',
   t.eq(trace, { 'slow' }, 'the steps run')
   t.eq(
     notices,
-    { { level = levels.WARN, title = 'Style Enforcer', msg = 'Formatting/linting timed out' } },
+    { { level = levels.WARN, title = 'Style Enforcer', msg = 'Running slow timed out' } },
     'the notices'
   )
   t.eq(buf_lines(buf), { 'edited' }, 'the buffer')
@@ -586,7 +586,9 @@ t.test('oxfmt: a reply after the timeout is dropped, making no edit', function()
 
   t.eq(buf_lines(buf), { 'const a=1' }, 'the buffer')
   t.eq(trace, {}, 'the steps run after oxfmt')
-  t.eq(#notices, 1, 'the notices: the timeout only')
+  t.eq(notices, {
+    { level = levels.WARN, title = 'Style Enforcer', msg = 'Formatting (oxfmt) timed out' },
+  }, 'the notices')
   stop()
   vim.cmd.bwipeout()
 end)
@@ -611,7 +613,7 @@ t.test("eslint: applyAllFixes for the buffer's version; a server error fails the
   }, 'the command')
   t.eq(
     notices,
-    { { level = levels.WARN, title = 'Linting Failed', msg = 'Linter eslint error: boom' } },
+    { { level = levels.WARN, title = 'Fixing Failed', msg = 'Linter eslint error: boom' } },
     'the notices'
   )
   stop()
@@ -691,8 +693,64 @@ t.test('an LSP step whose client detached after the gate fails as missing', func
   t.eq(notices, {
     {
       level = levels.WARN,
-      title = 'Linting Failed',
+      title = 'Fixing Failed',
       msg = 'Linter oxlint error: oxlint client missing',
+    },
+  }, 'the notices')
+  stop()
+  vim.cmd.bwipeout()
+end)
+
+t.test('progress reads Formatting for conform and oxfmt, Fixing for eslint and oxlint', function()
+  local events, _, restore = record_progress()
+
+  -- conform alone: stylua formats Lua, and no LSP step has its client here
+  local lua_buf = t.file('labels.lua', UNFORMATTED)
+  t.eq(run({ buf = lua_buf }), true, 'the conform run')
+
+  -- The LSP steps alone, conform having no formatter for text; attached out of run order
+  local buf = t.file('labels.txt', { 'text' })
+  local stops = {}
+  for _, name in ipairs({ 'oxlint', 'eslint', 'oxfmt' }) do
+    local _, stop = serve(buf, name, {})
+    stops[#stops + 1] = stop
+  end
+  t.eq(run({ buf = buf }), true, 'the LSP run')
+  restore()
+
+  t.eq(events, {
+    { 'start', 'Formatting' },
+    { 'finish' },
+    { 'start', 'Formatting (oxfmt)' },
+    { 'report', 'Fixing (eslint)', 100 / 3 },
+    { 'report', 'Fixing (oxlint)', 200 / 3 },
+    { 'finish' },
+  }, 'the progress')
+  for _, stop in ipairs(stops) do
+    stop()
+  end
+  vim.cmd('bwipeout ' .. lua_buf .. ' ' .. buf)
+end)
+
+t.test('oxfmt: its failure reads as formatting', function()
+  local notices, restore = record_notices()
+  local buf = t.file('invalid.ts', { 'const a =' })
+  local _, stop = serve(buf, 'oxfmt', {
+    ['textDocument/formatting'] = function(_, reply)
+      reply({ code = -32603, message = 'syntax error' })
+    end,
+  })
+
+  t.eq(run({ buf = buf, steps = { oxfmt } }), false, 'the run result')
+  t.eq(run({ buf = buf, steps = { oxfmt }, debug = true }), false, 'the debug run result')
+  restore()
+
+  t.eq(notices, {
+    { level = levels.ERROR, title = 'Formatting Failed', msg = 'Formatter used: oxfmt' },
+    {
+      level = levels.ERROR,
+      title = 'Formatting Failed',
+      msg = 'Formatter oxfmt error: syntax error',
     },
   }, 'the notices')
   stop()

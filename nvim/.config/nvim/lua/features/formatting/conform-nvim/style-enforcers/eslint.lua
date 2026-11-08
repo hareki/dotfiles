@@ -1,7 +1,7 @@
 --- @class features.formatting.conform-nvim.style-enforcers.eslint: features.formatting.conform-nvim.style-enforcers.Step
 local M = {
   name = 'eslint',
-  label = 'Linting (eslint)',
+  label = 'Fixing (eslint)',
   client = 'eslint',
 }
 
@@ -21,7 +21,7 @@ end
 function M.failure(err, debug)
   return {
     level = 'warn',
-    title = 'Linting Failed',
+    title = 'Fixing Failed',
     msg = debug and string.format('Linter eslint error: %s', err) or 'Linter used: eslint',
   }
 end

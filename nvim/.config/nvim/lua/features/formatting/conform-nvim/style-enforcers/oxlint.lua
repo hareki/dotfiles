@@ -1,7 +1,7 @@
 --- @class features.formatting.conform-nvim.style-enforcers.oxlint: features.formatting.conform-nvim.style-enforcers.Step
 local M = {
   name = 'oxlint',
-  label = 'Linting (oxlint)',
+  label = 'Fixing (oxlint)',
   client = 'oxlint',
 }
 
@@ -24,7 +24,7 @@ end
 function M.failure(err, debug)
   return {
     level = 'warn',
-    title = 'Linting Failed',
+    title = 'Fixing Failed',
     msg = debug and string.format('Linter oxlint error: %s', err) or 'Linter used: oxlint',
   }
 end
