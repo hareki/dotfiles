@@ -21,7 +21,6 @@ end
 
 local function main()
   -- Kept off: os.exit skips VimLeavePre, so a started server would outlive the boot
-  helpers.lsp_start = vim.lsp.start
   vim.lsp.start = start_no_server
 
   -- Headless nvim fires no UIEnter, so lazy.nvim never fires VeryLazy (config.keymaps, ...)

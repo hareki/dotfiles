@@ -67,14 +67,6 @@ function M.settle(ms)
   end)
 end
 
---- Load plugins by their lazy.nvim names and let their scheduled LazyLoad handlers run
---- @param ... string
-function M.load(...)
-  local lazy = require('lazy')
-  lazy.load({ plugins = { ... } })
-  M.settle(100)
-end
-
 --- Record every call of tbl[key], calling through to the original unless `fake` replaces it
 --- @param tbl table
 --- @param key string
