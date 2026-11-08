@@ -45,7 +45,7 @@ Plugins are lazy by default (`defaults.lazy = true`). Only catppuccin, snacks.nv
 ### Globals (`lua/config/globals.lua`)
 
 - `Defer` (`utils.lazy-require`): `Defer.on_index(path)` defers the `require` until the first field access, `Defer.on_exported_call(path)` until the first call of an exported function. Every proxy, from `Defer` or from `utils.lazy-require` itself, carries `--- @module '<path>'` on the line above it: otherwise LuaLS sees a plain table, and a misspelled field passes the check to fail on the keypress
-- `Notifier` (lazy proxy => `utils.notifier`): `Notifier.info('msg')`, `Notifier.warn('msg', { title = 'T' })`, `Notifier.error()`, the `*_once` variants (once per message per session), and `Notifier.scoped(title)`, which returns the same functions with the title filled in
+- `Notifier` (lazy proxy => `utils.notifier`): `Notifier.info('msg')`, `Notifier.warn('msg', { title = 'T' })`, `Notifier.error()`, `Notifier.warn_once()` (once per message per session), and `Notifier.scoped(title)`, which returns info, warn and error with the title filled in
 - `Conf` (`config`; `config/init.lua` assembles the `config.*` tables): `Conf.icons`, `Conf.filetypes` (`JS`, `JSX`, `CSS`, `MARKDOWN`, …), `Conf.priority`, `Conf.zindex` (the float stacking ladder), `Conf.picker`, `Conf.size`, `Conf.cmp` (from `config/completion.lua`)
 - `UI` (`utils.ui`, direct require):
   - Spec registration: `UI.catppuccin(fn, plugin_name?)`, `UI.which_key({ specs?, rules?, triggers? })`

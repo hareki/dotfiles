@@ -135,17 +135,7 @@ function M.error(msg, opts)
   return notify(vim.log.levels.ERROR, msg, opts)
 end
 
---- @alias utils.notifier.Notify fun(msg: utils.notifier.Message, opts?: utils.notifier.NotifierOpts): any
-
--- The *_once variants: like info/warn/error, shown once per message text per session
-
---- @param msg utils.notifier.Message
---- @param opts? utils.notifier.NotifierOpts
---- @return boolean shown
-function M.info_once(msg, opts)
-  return notify(vim.log.levels.INFO, msg, opts, vim.notify_once)
-end
-
+--- Like warn, shown once per message text per session
 --- @param msg utils.notifier.Message
 --- @param opts? utils.notifier.NotifierOpts
 --- @return boolean shown
@@ -153,20 +143,12 @@ function M.warn_once(msg, opts)
   return notify(vim.log.levels.WARN, msg, opts, vim.notify_once)
 end
 
---- @param msg utils.notifier.Message
---- @param opts? utils.notifier.NotifierOpts
---- @return boolean shown
-function M.error_once(msg, opts)
-  return notify(vim.log.levels.ERROR, msg, opts, vim.notify_once)
-end
+--- @alias utils.notifier.Notify fun(msg: utils.notifier.Message, opts?: utils.notifier.NotifierOpts): any
 
 --- @class utils.notifier.Scoped
 --- @field info utils.notifier.Notify
 --- @field warn utils.notifier.Notify
 --- @field error utils.notifier.Notify
---- @field info_once utils.notifier.Notify
---- @field warn_once utils.notifier.Notify
---- @field error_once utils.notifier.Notify
 
 --- The notifier under one title, so a module's calls stop restating it; opts still override
 --- @param title string
@@ -184,9 +166,6 @@ function M.scoped(title)
     info = titled(M.info),
     warn = titled(M.warn),
     error = titled(M.error),
-    info_once = titled(M.info_once),
-    warn_once = titled(M.warn_once),
-    error_once = titled(M.error_once),
   }
 end
 
