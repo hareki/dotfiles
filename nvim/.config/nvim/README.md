@@ -86,6 +86,11 @@ nvim-tree-lua/
 - All keymaps include `desc` in CMOS 18 title case
 - Icons imported from `config/icons.lua`, never hardcoded
 
+## Tests
+
+- `tests/run.sh [words]`: headless tests, each file run in an nvim booted on the working tree
+- `tests/ab.sh [rev]`: boots a revision and the working tree and diffs what each config defines (maps, highlights, autocmds, options, plugin opts, ...)
+
 ## Attribution
 
 Inspired by [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim), [LazyVim](https://github.com/LazyVim/LazyVim) and [NvChad](https://github.com/NvChad/NvChad).
