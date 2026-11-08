@@ -60,7 +60,7 @@ end
 
 --- Register all mini.ai textobjects with which-key for discoverability
 --- @return nil
-function M.whichkey()
+function M.register_descs()
   local objects = {
     { ' ', desc = 'Whitespace' },
     { '"', desc = '" String' },

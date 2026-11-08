@@ -39,7 +39,7 @@ end
 
 --- Pass every diagnostic set from here on through the range fix
 --- @return nil
-function M.setup()
+function M.end_ranges_on_own_line()
   local original_set = vim.diagnostic.set
   --- @param namespace integer
   --- @param bufnr integer

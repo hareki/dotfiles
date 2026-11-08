@@ -1,3 +1,5 @@
+local PREFIX = 'Multicursor: '
+
 --- @module 'multicursor-nvim'
 local mc = Defer.on_exported_call('multicursor-nvim')
 
@@ -30,7 +32,7 @@ return {
         function()
           mc.matchAddCursor(1)
         end,
-        desc = 'Multicursor: Add Next Match Cursor',
+        desc = PREFIX .. 'Add Next Match Cursor',
         mode = { 'n', 'x' },
       },
       {
@@ -38,7 +40,7 @@ return {
         function()
           mc.matchSkipCursor(1)
         end,
-        desc = 'Multicursor: Skip Next Match Cursor',
+        desc = PREFIX .. 'Skip Next Match Cursor',
         mode = { 'n', 'x' },
       },
       {
@@ -46,7 +48,7 @@ return {
         function()
           mc.matchAddCursor(-1)
         end,
-        desc = 'Multicursor: Add Previous Match Cursor',
+        desc = PREFIX .. 'Add Previous Match Cursor',
         mode = { 'n', 'x' },
       },
       {
@@ -54,7 +56,7 @@ return {
         function()
           mc.matchSkipCursor(-1)
         end,
-        desc = 'Multicursor: Skip Previous Match Cursor',
+        desc = PREFIX .. 'Skip Previous Match Cursor',
         mode = { 'n', 'x' },
       },
       {
@@ -62,7 +64,7 @@ return {
         function()
           mc.lineAddCursor(-1)
         end,
-        desc = 'Multicursor: Add Previous Line Cursor',
+        desc = PREFIX .. 'Add Previous Line Cursor',
         mode = { 'n', 'x' },
       },
       {
@@ -70,7 +72,7 @@ return {
         function()
           mc.lineAddCursor(1)
         end,
-        desc = 'Multicursor: Add Next Line Cursor',
+        desc = PREFIX .. 'Add Next Line Cursor',
         mode = { 'n', 'x' },
       },
       {
@@ -78,7 +80,7 @@ return {
         function()
           mc.lineSkipCursor(-1)
         end,
-        desc = 'Multicursor: Skip Previous Line Cursor',
+        desc = PREFIX .. 'Skip Previous Line Cursor',
         mode = { 'n', 'x' },
       },
       {
@@ -86,11 +88,11 @@ return {
         function()
           mc.lineSkipCursor(1)
         end,
-        desc = 'Multicursor: Skip Next Line Cursor',
+        desc = PREFIX .. 'Skip Next Line Cursor',
         mode = { 'n', 'x' },
       },
       -- ghostty sends <F37> for <C-m>, which Neovim would otherwise read as <CR>
-      { '<F37>', mc.toggleCursor, desc = 'Multicursor: Toggle Cursor', mode = { 'n', 'x' } },
+      { '<F37>', mc.toggleCursor, desc = PREFIX .. 'Toggle Cursor', mode = { 'n', 'x' } },
     },
 
     opts = function()
@@ -107,7 +109,7 @@ return {
           { 'n', 'x' },
           '<leader>mx',
           multicursor.deleteCursor,
-          { desc = 'Multicursor: Delete Cursor' }
+          { desc = PREFIX .. 'Delete Cursor' }
         )
 
         layer_set('n', '<esc>', function()
@@ -116,7 +118,7 @@ return {
           else
             multicursor.clearCursors()
           end
-        end, { desc = 'Multicursor: Enable or Clear Cursors' })
+        end, { desc = PREFIX .. 'Enable or Clear Cursors' })
       end)
     end,
   },

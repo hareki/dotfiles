@@ -7,7 +7,7 @@ return {
     local range_fix = require('core.lsp.nvim-lspconfig.utils.diagnostic-range-fix')
     local server_loader = require('core.lsp.nvim-lspconfig.utils.server-loader')
 
-    range_fix.setup()
+    range_fix.end_ranges_on_own_line()
 
     vim.api.nvim_create_autocmd('LspAttach', {
       group = vim.api.nvim_create_augroup(

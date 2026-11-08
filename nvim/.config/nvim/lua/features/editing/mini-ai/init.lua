@@ -53,6 +53,6 @@ return {
 
     utils.setup_repeat()
     mini_ai.setup(opts)
-    utils.whichkey()
+    utils.register_descs()
   end,
 }
