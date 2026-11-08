@@ -50,7 +50,7 @@ lazy.nvim config built from scratch around fast cold starts, per-plugin isolatio
 ### Utils (`lua/utils/`)
 
 - `ui/`: namespaces of the `UI` global
-  - `layout.popup(size)` / `layout.picker_fn(size)`, `color.blend_hex()`, `pill.virt_text()`, `cursorline.set_cursorline()` / `cursorline.focus()`
+  - `layout.popup(size)` / `layout.picker_fn(size)`, `color.blend_hex()`, `search.is_active()` / `search.clear()`, `pill.virt_text()`, `cursorline.set_cursorline()` / `cursorline.focus()`
   - `catppuccin(fn)` / `catppuccin.get_palette()`, `which_key({ specs?, rules?, triggers? })`, `statusline.refresh()`
 - `notifier.lua`: notification wrapper; supports markdown, tuple lists for custom highlight groups, `scoped(title)` and `*_once`
 - `popup.lua`: floats tied to a source window: `link(win, { close_on, keys, ... })`, `focus_win()`

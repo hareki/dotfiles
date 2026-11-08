@@ -256,6 +256,6 @@ aucmd({ 'ModeChanged', 'ColorScheme' }, {
 aucmd('InsertEnter', {
   group = augroup('clear-hlsearch-on-insert'),
   callback = function()
-    vim.schedule(UI.color.nohlsearch)
+    vim.schedule(UI.search.clear)
   end,
 })

@@ -201,7 +201,7 @@ return {
           end, 'Live Filter: Start')
           map('n', '<Esc>', function()
             api.filter.live.clear()
-            UI.color.nohlsearch()
+            UI.search.clear()
           end, 'Clear Live Filter and Search Highlights')
 
           map('n', 'd', api.fs.trash, 'Trash')

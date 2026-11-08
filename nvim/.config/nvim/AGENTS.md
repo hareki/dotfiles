@@ -47,7 +47,7 @@ Plugins are lazy by default (`defaults.lazy = true`). Only catppuccin, snacks.nv
 - `Conf` (`config`; `config/init.lua` assembles the `config.*` tables): `Conf.icons`, `Conf.filetypes` (`JS`, `JSX`, `CSS`, `MARKDOWN`, …), `Conf.priority`, `Conf.zindex` (the float stacking ladder), `Conf.picker`, `Conf.size`, `Conf.cmp` (from `config/completion.lua`)
 - `UI` (`utils.ui`, direct require):
   - Spec registration: `UI.catppuccin(fn, plugin_name?)`, `UI.which_key({ specs?, rules?, triggers? })`
-  - Helpers: `UI.layout.*` (see **Popup Sizing**), `UI.color.blend_hex()`, `UI.pill.virt_text()`, `UI.cursorline.set_cursorline()` / `UI.cursorline.focus()`, `UI.mode.name()` / `UI.mode.colors` (the per-mode palette shared by lualine's mode pill and the cursor line number)
+  - Helpers: `UI.layout.*` (see **Popup Sizing**), `UI.color.blend_hex()`, `UI.search.is_active()` / `UI.search.clear()` (search highlighting, which Snacks word references give way to), `UI.pill.virt_text()`, `UI.cursorline.set_cursorline()` / `UI.cursorline.focus()`, `UI.mode.name()` / `UI.mode.colors` (the per-mode palette shared by lualine's mode pill and the cursor line number)
   - Integration helpers: `UI.catppuccin.get_palette('ext')`, `UI.statusline.integration` / `UI.statusline.refresh()`
 - `Snacks` (set by snacks.nvim at runtime): `Snacks.picker.*`, `Snacks.terminal.*`, etc.
 

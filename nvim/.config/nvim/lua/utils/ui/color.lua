@@ -27,27 +27,4 @@ function M.blend_hex(from, to, alpha)
   return string.format('#%02x%02x%02x', r, g, b)
 end
 
---- @return boolean
-function M.search_highlighted()
-  -- v:hlsearch alone reads 1 before any search when no shada was loaded
-  return vim.v.hlsearch == 1 and vim.fn.getreg('/') ~= ''
-end
-
---- Clear search highlight and bring Snacks word highlights back now, not on the next cursor move
---- @return nil
-function M.nohlsearch()
-  -- :nohlsearch redraws every window even with highlighting off, and <Esc> calls this per press
-  if vim.v.hlsearch == 0 then
-    return
-  end
-
-  -- With no search highlighted nothing was hidden, so update() would only re-request references
-  local was_highlighted = M.search_highlighted()
-  vim.cmd.nohlsearch()
-  if was_highlighted then
-    local snacks_words = require('snacks.words')
-    snacks_words.update()
-  end
-end
-
 return M

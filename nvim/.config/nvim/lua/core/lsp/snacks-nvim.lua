@@ -3,9 +3,9 @@ return {
   opts = {
     words = {
       enabled = true,
-      -- Hide references while search matches show; UI.color.nohlsearch() brings them back
+      -- Hide references while search matches show; UI.search.clear() brings them back
       filter = function()
-        return not UI.color.search_highlighted()
+        return not UI.search.is_active()
       end,
     },
   },

@@ -49,7 +49,7 @@ end, { expr = true, desc = 'Insert Newline After Cursor' })
 map('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Leave Terminal Mode' })
 
 map('n', '<Esc>', function()
-  UI.color.nohlsearch()
+  UI.search.clear()
   vim.snippet.stop()
 
   -- noice lazy-loads nvim-notify, and nothing can be on screen before it does
