@@ -42,6 +42,11 @@ zt_cleanup() {
   for lock in $dir/**/zsh-patina/daemon.lock(N); do
     kill "$(<$lock)" 2>/dev/null
   done
+  # Shells and daemons still exiting can write in it (history, sockets) while it goes
+  repeat 20; do
+    rm -rf $dir 2>/dev/null && return 0
+    sleep 0.2
+  done
   rm -rf $dir
 }
 
@@ -76,14 +81,16 @@ zt_env() {
 
 # zt_boot <home> <dir> <tree>: boots the config laid out in <home> (by zt_home from <tree>) in a
 # private tmux pane, first as a top-level login shell (SHLVL 1, outside tmux), then as a login shell
-# started from it, and waits for each one's dump (dump.zsh) in <dir>/dump-1.txt and dump-2.txt
+# started from it, and waits for each one's dump (dump.zsh) in <dir>/dump-1.txt and dump-2.txt.
+# Boots of one HOME share its TMPDIR (<home>/../tmp), so a second boot is warm, as on a real machine.
+# With ZT_PROBE set to a file, each shell also sources it then, writing to <dir>/probe-<SHLVL>.txt
 zt_boot() {
-  local home=$1 dir=$2 tree=$3 sock=$2/tmux.sock
-  mkdir -p $dir/tmp || return 1
-  zt_env $home $dir/tmp
+  local home=$1 dir=$2 tree=$3 sock=$2/tmux.sock tmp=${1:h}/tmp
+  mkdir -p $dir $tmp || return 1
+  zt_env $home $tmp
   # tmux runs the pane's command through $SHELL -c, which for zsh would read the config once more
   env -i $reply SHELL=/bin/sh $ZT_TMUX -S $sock -f /dev/null new-session -d -x 160 -y 50 -c $home \
-    "exec env -u TMUX -u TMUX_PANE SHELL=/bin/zsh SHLVL=0 ZDOTDIR=$ZT_LIB/zdotdir ZT_DUMP_DIR=$dir ZT_TREE=$tree /bin/zsh -l" ||
+    "exec env -u TMUX -u TMUX_PANE SHELL=/bin/zsh SHLVL=0 ZDOTDIR=$ZT_LIB/zdotdir ZT_DUMP_DIR=$dir ZT_TREE=$tree ${ZT_PROBE:+ZT_PROBE=$ZT_PROBE} /bin/zsh -l" ||
     return 1
   zt_await $sock $dir/dump-1.txt || return 1
   $ZT_TMUX -S $sock send-keys 'zsh -l' Enter

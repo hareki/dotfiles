@@ -53,8 +53,10 @@ zle -N bracketed-paste bracketed-paste-url-magic
 add-zsh-hook -d precmd omz_termsupport_cwd
 
 # p10k dumps its state and instant prompt (~5ms) at each shell's first prompt and in each dir
-# new to that shell. With the instant prompt off, only a changed cache needs dumping
-_p9k_should_dump() { (( __p9k_dumps_enabled && _p9k__state_dump_scheduled && ! _p9k__state_dump_fd )) }
+# new to that shell. With the instant prompt off (~/.p10k.zsh), only a changed cache needs dumping
+if [[ $POWERLEVEL9K_INSTANT_PROMPT == off ]]; then
+  _p9k_should_dump() { (( __p9k_dumps_enabled && _p9k__state_dump_scheduled && ! _p9k__state_dump_fd )) }
+fi
 
 # Queued last, so it wraps the deferred plugins' widgets. +s fetches a suggestion for anything
 # typed ahead. The plugin's precmd hook alone would wait for the next prompt

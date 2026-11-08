@@ -83,7 +83,11 @@ _zt_dump() {
   } >| $out.tmp
 
   _zt_generic "$(<$out.tmp)"
-  print -r -- $REPLY >| $out.tmp && mv -f $out.tmp $out
+  print -r -- $REPLY >| $out.tmp
+
+  # A test's own questions for this shell (zt_boot), answered before the dump marks the boot done
+  [[ -n $ZT_PROBE ]] && source $ZT_PROBE >| $ZT_DUMP_DIR/probe-$SHLVL.txt 2>&1
+  mv -f $out.tmp $out
 }
 
 # Sets REPLY to the text with this boot's own paths made generic: its HOME, TMPDIR, tty and the
