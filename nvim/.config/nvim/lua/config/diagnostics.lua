@@ -23,7 +23,7 @@ vim.diagnostic.config({
     },
   },
   -- Every jump opens the line's diagnostics, Neovim's own count-aware ]d/[d/]D/[D (titled in
-  -- config/keymap-registry.lua) included; on_jump runs scheduled, and only once the jump succeeded
+  -- config/builtin-keymaps.lua) included; on_jump runs scheduled, and only once the jump succeeded
   jump = {
     on_jump = function()
       vim.cmd.EagleWinLineDiagnostic()

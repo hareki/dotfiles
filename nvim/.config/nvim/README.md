@@ -45,7 +45,7 @@ lazy.nvim config built from scratch around fast cold starts, per-plugin isolatio
 - `globals.lua`: 5 project globals (`Defer`, `Notifier`, `Conf`, `UI`, plus `Snacks` set by snacks.nvim)
 - `completion.lua`: completion tuning constants in `Conf.cmp` (AI item cap/timeout, ripgrep min keyword length)
 - `picker.lua`: shared picker UI constants
-- `keymap-registry.lua`: centralized keymap `desc` overrides
+- `builtin-keymaps.lua`: Neovim's own keys: deletes the unused defaults, retitles its global, ftplugin and terminal maps, and describes the fold commands
 
 ### Utils (`lua/utils/`)
 

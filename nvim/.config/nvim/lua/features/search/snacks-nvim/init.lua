@@ -2,7 +2,6 @@
 local sm = UI.layout.picker_fn('sm')
 
 local layouts = require('features.search.snacks-nvim.layouts')
-local keymap_registry = require('config.keymap-registry')
 -- Required, not deferred: the opts below take its source table, and the highlight callback its
 -- palette key, at startup
 local tabs = require('features.search.snacks-nvim.sources.tabs')
@@ -166,14 +165,5 @@ return {
         },
       },
     },
-  },
-
-  -- Hack to get the fold keymaps to show in Snacks.picker.keymaps; descs come from the
-  -- keymap registry, shared with the which-key preset so the two never drift
-  {
-    'snacks.nvim',
-    keys = vim.tbl_map(function(fold)
-      return { fold[1], fold[1], desc = fold[2] }
-    end, keymap_registry.FOLD_DESCS),
   },
 }

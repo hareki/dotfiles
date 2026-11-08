@@ -1,6 +1,6 @@
 -- https://github.com/folke/which-key.nvim/blob/370ec46f710e058c9c1646273e6b225acf47cbed/lua/which-key/plugins/presets.lua#L1
 -- With letter case converted to CMOS 18th Edition
-local keymap_registry = require('config.keymap-registry')
+local builtin_keymaps = require('config.builtin-keymaps')
 
 --- @class chrome.which-key-nvim.preset
 local M = {}
@@ -145,7 +145,7 @@ local z = {
   { 'zz', desc = 'Center This Line' },
 }
 
-for _, fold in ipairs(keymap_registry.FOLD_DESCS) do
+for _, fold in ipairs(builtin_keymaps.FOLD_DESCS) do
   table.insert(z, { fold[1], desc = fold[2] })
 end
 

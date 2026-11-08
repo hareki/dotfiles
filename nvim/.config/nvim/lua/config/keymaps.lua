@@ -1,6 +1,3 @@
-local keymap_registry = require('config.keymap-registry')
-
-local del = vim.keymap.del
 local map = vim.keymap.set
 
 --- @module 'utils.wheel-axis-lock'
@@ -36,50 +33,6 @@ end
 local function jumplist(key)
   return function()
     return vim.bo.buftype == '' and key or ''
-  end
-end
-
--- Clean up unused keymaps
-for _, key in ipairs({
-  ']a',
-  '[a',
-  '[A',
-  ']A',
-  ']l',
-  '[l',
-  ']L',
-  '[L',
-  ']Q',
-  '[Q',
-  ']T',
-  '[T',
-  ']<C-L>',
-  '[<C-L>',
-  ']<C-Q>',
-  '[<C-Q>',
-  ']<C-T>',
-  '[<C-T>',
-}) do
-  pcall(del, 'n', key)
-end
-
--- Retitle Neovim's own maps in place: which-key and the keymaps picker read the desc off the map,
--- while a buffer-local map on the same key (the gO outline in help, markdown and man) keeps its own
-local retitles = {}
-for lhs, spec in pairs(keymap_registry.DESC_OVERRIDES) do
-  for _, mode in ipairs(spec.mode or { 'n' }) do
-    retitles[mode] = retitles[mode] or {}
-    -- Compared as keytrans() text: registry keys spell <leader>, lhsraw keeps <C-S> unsimplified
-    retitles[mode][vim.fn.keytrans(vim.keycode(lhs))] = spec.desc
-  end
-end
-for mode, descs in pairs(retitles) do
-  for _, keymap in ipairs(vim.api.nvim_get_keymap(mode)) do
-    local desc = descs[vim.fn.keytrans(keymap.lhsraw)]
-    if desc then
-      keymap.desc = desc
-      vim.fn.mapset(mode, false, keymap)
-    end
   end
 end
 
@@ -161,7 +114,7 @@ map('n', '<leader>\\', '<cmd>vsplit<cr>', { desc = 'Split Window Right' })
 map('n', '<C-o>', jumplist('<C-o>'), { expr = true, desc = 'Jumplist Back' })
 map('n', '<C-i>', jumplist('<C-i>'), { expr = true, desc = 'Jumplist Forward' })
 
--- Buffer (Neovim's own ]b/[b/]B/[B take counts; config/keymap-registry.lua titles them)
+-- Buffer (Neovim's own ]b/[b/]B/[B take counts; config/builtin-keymaps.lua titles them)
 map(
   { 'i', 'x', 'n', 's' },
   '<A-r>',

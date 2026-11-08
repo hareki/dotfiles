@@ -28,7 +28,11 @@ vim.api.nvim_create_autocmd('User', {
   pattern = 'VeryLazy',
   once = true,
   callback = function()
+    local builtin_keymaps = require('config.builtin-keymaps')
+
     require('config.usercmds')
+    -- Before config.keymaps: the retitle matches Neovim's global maps by key alone
+    builtin_keymaps.setup()
     require('config.keymaps')
     require('config.diagnostics')
     UI.cursorline.follow_focus()
