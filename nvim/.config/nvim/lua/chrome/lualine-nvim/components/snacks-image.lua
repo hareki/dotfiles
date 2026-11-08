@@ -3,7 +3,8 @@ local M = {}
 
 local IMAGE_ICON = Conf.icons.editor.IMAGE .. ' '
 
--- query.get's GC-weak cache re-scans the runtimepath after a collection: pin the answer for redraws
+-- query.get's cache resets on every 'runtimepath' change, which each lazy.nvim plugin load makes,
+-- so its next call re-scans the runtimepath (~0.1 ms): pin the answer for redraws
 --- @type table<string, boolean>
 local lang_has_images_query = {}
 
