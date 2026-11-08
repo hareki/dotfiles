@@ -1,3 +1,6 @@
+--- Entry point: the `tsave` zsh function calls `unsaved()` and `quit()` through `--remote-expr`,
+--- so this module's path and those names must stay stable: with a broken one, tsave quits no nvim
+--- and leaves tmux running
 --- @class core.auto-session.utils
 local M = {}
 

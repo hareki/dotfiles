@@ -1,3 +1,5 @@
+-- Entry point: lazygit's diff renderer dofiles this under `nvim --clean`
+-- (codediff/lib/bootstrap.lua), so it uses none of this config's globals or modules
 vim.filetype.add({
   extension = {
     mdx = 'mdx',

@@ -1,6 +1,9 @@
 --- @module 'core.snacks-nvim.fullscreen-panels'
 local fullscreen_panels = Defer.on_exported_call('core.snacks-nvim.fullscreen-panels')
 
+--- Entry point: lazygit's config.yml calls `prepare_remote_edit()` through `--remote-expr` ahead
+--- of each `nvim --remote` edit, so this module's path and that name must stay stable: a broken
+--- one stops the edit command's `&&` chain before the file opens
 --- @class features.git.snacks-nvim.lazygit
 local M = {}
 

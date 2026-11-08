@@ -1,5 +1,7 @@
---- Treesitter @capture overrides, shared with the lazygit codediff renderer so the two can't
---- drift; it loads them in a headless `nvim --clean` with no UI/Conf globals, hence `palette`
+--- Treesitter @capture overrides for catppuccin, shared with lazygit's diff renderer so the two
+--- can't drift
+--- Entry point: the renderer dofiles this under `nvim --clean` (codediff/lib/bootstrap.lua), so
+--- it uses none of this config's globals or modules, hence `palette`
 --- @param palette table catppuccin palette for the active flavour
 --- @return table<string, table>
 return function(palette)
