@@ -1,20 +1,32 @@
 --- @class features.search.snacks-nvim.actions
 local M = {}
 
---- Whether the preview is shown, for the sources that keep it across openings (their
---- keymaps open them with it); add a source here to have toggle_preview remember it
---- @type table<string, boolean>
-M.preview_shown = { files = true }
+--- @class features.search.snacks-nvim.actions.State
+--- @field preview_shown table<string, boolean> Whether the preview is shown, per remembered source
 
---- Wrap default toggle_preview to remember the choice for the sources in M.preview_shown
+--- @type features.search.snacks-nvim.actions.State
+local state = {
+  -- The sources that keep the preview across openings (their keymaps open them with
+  -- M.preview_layout()); add a source here to have toggle_preview remember it
+  preview_shown = { files = true },
+}
+
+--- The layout to open `source` with: its preview shown or hidden as toggle_preview last left it
+--- @param source string A source in state.preview_shown
+--- @return snacks.picker.layout.Config
+function M.preview_layout(source)
+  return { hidden = state.preview_shown[source] and {} or { 'preview' } }
+end
+
+--- Wrap default toggle_preview to remember the choice for the sources in state.preview_shown
 --- @module 'snacks'
 --- @param picker snacks.Picker
 function M.toggle_preview(picker)
   picker:toggle('preview')
 
   local source = picker.opts.source
-  if source and M.preview_shown[source] ~= nil then
-    M.preview_shown[source] = not M.preview_shown[source]
+  if source and state.preview_shown[source] ~= nil then
+    state.preview_shown[source] = not state.preview_shown[source]
   end
 end
 
@@ -43,7 +55,7 @@ function M.toggle_preview_focus(picker)
   local popup = require('utils.popup')
   local preview_win = picker.preview.win.win
 
-  -- No-op for pickers with `preview = false` (e.g. keymaps), where <Tab> is still bound
+  -- No-op while the preview is hidden (as the keymaps picker opens), where <Tab> is still bound
   if not preview_win then
     return
   end

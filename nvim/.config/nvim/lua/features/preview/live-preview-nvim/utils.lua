@@ -88,10 +88,7 @@ function M.pick()
     title = 'Live Preview',
     -- The extensions livepreview.utils.supported_filetype() accepts
     ft = { 'md', 'markdown', 'html', 'adoc', 'asciidoc', 'svg' },
-    layout = {
-      --- @diagnostic disable-next-line: assign-type-mismatch Wrong type from snacks
-      preview = actions.preview_shown.files,
-    },
+    layout = actions.preview_layout('files'),
     confirm = function(picker, item, action)
       -- From insert mode, jump opens the file a tick later, so start would see the previous buffer
       picker:norm(function()

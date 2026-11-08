@@ -42,12 +42,7 @@ return {
         function()
           local picker_actions = require('features.search.snacks-nvim.actions')
 
-          Snacks.picker.files({
-            layout = {
-              --- @diagnostic disable-next-line: assign-type-mismatch Wrong type from snacks
-              preview = picker_actions.preview_shown.files,
-            },
-          })
+          Snacks.picker.files({ layout = picker_actions.preview_layout('files') })
         end,
         desc = 'Find Files',
       },
@@ -153,7 +148,7 @@ return {
             end,
 
             layout = {
-              preview = false,
+              hidden = { 'preview' },
               layout = vim.tbl_extend('force', sm, { backdrop = false }),
             },
           },
