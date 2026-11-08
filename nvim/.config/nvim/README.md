@@ -76,7 +76,7 @@ nvim-tree-lua/
 
 ## Forks (author = hareki)
 
-- 24 minimal-diff forks, updated by the `sync-forks` zsh function while [wei/pull](https://github.com/wei/pull) is suspended
+- 24 minimal-diff forks, rebased onto upstream by the `sync-forks` zsh function
 - Features toggleable: disabling custom bits reverts to upstream behavior
 - Add the layout hooks, focus toggles, preview coordination and UI tweaks behind the consistent floating UX
 
