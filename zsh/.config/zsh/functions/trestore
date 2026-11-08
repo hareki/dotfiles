@@ -1,8 +1,8 @@
 #!/bin/zsh
 
 # Restores a tmux-resurrect snapshot the way `prefix C-r` does, from inside tmux or from a plain
-# terminal. Without an id it restores `last`: the snapshot most recently saved or restored.
-# Ids are the snapshot's date and time: 2026-11-04_20-15-30 is tmux_resurrect_20261104T201530.txt
+# terminal. Without an id it restores `last`: the snapshot most recently saved or restored. The
+# snapshot files, their ids and the listing are the tmux package's resurrect-snapshots.zsh's
 trestore() {
   local -a opt_help opt_list opt_force
   # -E: options may follow the id (`trestore <id> --force`)
@@ -18,77 +18,42 @@ trestore() {
     return 1
   fi
   local force=$#opt_force list=$#opt_list id=$1
-
-  local dir
+  local store=$HOME/.config/tmux/scripts/resurrect-snapshots.zsh
   if (( list )); then
-    zmodload zsh/datetime
-    zmodload -F zsh/stat b:zstat
-    dir=$(tmux show-option -gqv @resurrect-dir 2>/dev/null)
-    # Same path as @resurrect-dir in tmux/.config/tmux/plugins/resurrect.conf
-    dir=${dir:-$HOME/.local/share/tmux/resurrect}
-
-    local today yesterday noon
-    strftime -s today %Y%m%d $EPOCHSECONDS
-    # From today's noon, so a DST shift can't land on the wrong day
-    strftime -r -s noon '%Y%m%d %H' "$today 12"
-    strftime -s yesterday %Y%m%d $(( noon - 86400 ))
-
-    local f ts epoch when s w mark
-    local -a last lines sessions windows
-    zstat -L -A last +link $dir/last 2>/dev/null
-    for f in $dir/tmux_resurrect_*.txt(N.On); do
-      ts=${${f:t:r}#tmux_resurrect_}
-      strftime -r -s epoch %Y%m%dT%H%M%S $ts
-      case ${ts[1,8]} in
-        $today) strftime -s when 'today %H:%M' $epoch ;;
-        $yesterday) strftime -s when 'yesterday %H:%M' $epoch ;;
-        *) strftime -s when '%a %H:%M' $epoch ;;
-      esac
-
-      lines=(${(f)"$(<$f)"})
-      sessions=(${(u)${${(M)lines:#pane$'\t'*}#pane$'\t'}%%$'\t'*})
-      windows=(${(M)lines:#window$'\t'*})
-      s=s w=s mark=
-      (( $#sessions == 1 )) && s=
-      (( $#windows == 1 )) && w=
-      [[ ${f:t} == $last ]] && mark=', last'
-      print -r -- "${ts[1,4]}-${ts[5,6]}-${ts[7,8]}_${ts[10,11]}-${ts[12,13]}-${ts[14,15]}" \
-        " $when, $#sessions session$s, $#windows window$w$mark"
-    done
-    return 0
+    $store list
+    return
   fi
 
-  # Resurrect needs a server, and a lone pane is its cue to restore from scratch (the
-  # placeholder session is dropped by the hook in tmux/.config/tmux/plugins/resurrect.conf)
+  # Resurrect needs a server, and a lone pane is its cue to restore from scratch, replacing the
+  # placeholder session (resurrect-snapshots.zsh's pre-restore hook names it for that)
   local started=0
   if ! tmux has-session 2>/dev/null; then
     tmux new-session -d || return 1
     started=1
   fi
 
-  local script file err
+  local script err
   local -a panes
-  dir=$(tmux show-option -gqv @resurrect-dir)
   script=$(tmux show-option -gqv @resurrect-restore-script-path)
   panes=(${(f)"$(tmux list-panes -a -F '#{pane_id}')"})
-  [[ -n $id ]] && file=tmux_resurrect_${${id//-/}/_/T}.txt
   if [[ -z $script ]]; then
     err='tmux-resurrect is not loaded'
   elif (( ! force && $#panes > 1 )); then
     # Resurrect leaves existing panes alone and relaunches nothing in them
     err='this server already has panes, so the restore would barely change it; use a fresh one, or --force'
-  elif [[ -n $file && ! -f $dir/$file ]]; then
-    err="no snapshot $id (trestore --list shows them)"
-  elif [[ -z $file && ! -e $dir/last ]]; then
-    err='no snapshot to restore'
+  # Points `last`, which resurrect restores, at the snapshot
+  elif ! $store select $id; then
+    if [[ -n $id ]]; then
+      err="no snapshot $id (trestore --list shows them)"
+    else
+      err='no snapshot to restore'
+    fi
   fi
   if [[ -n $err ]]; then
     print -u2 "trestore: $err"
     (( started )) && tmux kill-server
     return 1
   fi
-
-  [[ -n $file ]] && ln -fs $file "$dir/last"
 
   # A server job, like `prefix C-r`: a restore from scratch replaces the pane it started from
   if [[ -n $TMUX ]]; then

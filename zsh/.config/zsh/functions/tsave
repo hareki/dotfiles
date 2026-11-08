@@ -5,9 +5,6 @@
 # snapshot. Pane nvims publish their RPC address as @nvim-server (nvim's core/auto-session/utils.lua),
 # and nothing is quit or killed while any nvim holds work a kill would lose
 tsave() {
-  zmodload zsh/datetime
-  zmodload -F zsh/stat b:zstat
-
   local keep_running=0
   case $1 in
     -c|--continue) keep_running=1 ;;
@@ -22,13 +19,6 @@ tsave() {
       ;;
   esac
 
-  local save dir
-  save=$(tmux show-option -gqv @resurrect-save-script-path 2>/dev/null)
-  if [[ -z $save ]]; then
-    print -u2 'tsave: no tmux server with tmux-resurrect loaded'
-    return 1
-  fi
-
   # In a pane nvim's terminal, quitting that nvim would end tsave before the kill, and the checks
   # below would count their own RPC client as a nested nvim: rerun from the tmux server, outside
   # every nvim, with the report in view mode on this pane. It returns only when tsave stops short
@@ -40,27 +30,24 @@ tsave() {
     tmux run-shell -E -t $TMUX_PANE "env -u NVIM zsh -fc ${(qq)job}; true"
     return 1
   fi
-  dir=$(tmux show-option -gqv @resurrect-dir)
 
-  # Resurrect names snapshots by the second, and a second save within one deletes itself
-  local prev now
-  prev=$(readlink "$dir/last")
-  strftime -s now %Y%m%dT%H%M%S $EPOCHSECONDS
-  [[ $prev == tmux_resurrect_$now.txt ]] && sleep 1
-
-  # save.sh exits 0 whatever happens: `last` (re)written from here on is the proof
-  local start=$EPOCHSECONDS
-  tmux run-shell "$save quiet"
-  if [[ ! -f $dir/last ]] || (( $(zstat +mtime "$dir/last") < start )); then
-    print -u2 'tsave: the snapshot was not saved, nothing quit or killed'
-    return 1
-  fi
-
-  local snap ts id
-  snap=$(readlink "$dir/last")
-  ts=${${snap:r}#tmux_resurrect_}
-  id="${ts[1,4]}-${ts[5,6]}-${ts[7,8]}_${ts[10,11]}-${ts[12,13]}-${ts[14,15]}"
-  if [[ $snap == $prev ]]; then
+  # The snapshot files are the tmux package's resurrect-snapshots.zsh's to name and keep. Any
+  # failure, a missing script included, must stop here, before anything is quit
+  local saved id
+  saved=$($HOME/.config/tmux/scripts/resurrect-snapshots.zsh save)
+  case $? in
+    0) ;;
+    1)
+      print -u2 'tsave: no tmux server with tmux-resurrect loaded'
+      return 1
+      ;;
+    *)
+      print -u2 'tsave: the snapshot was not saved, nothing quit or killed'
+      return 1
+      ;;
+  esac
+  id=${saved#* }
+  if [[ $saved == unchanged\ * ]]; then
     print "Unchanged since snapshot $id, its expiry restarts"
   else
     print "Saved snapshot $id"

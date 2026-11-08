@@ -24,7 +24,7 @@ The copy-mode yank keys need no plugin: tmux's `set-clipboard` sends each copy a
 
 ## Snapshots
 
-The zsh functions `tsave` and `trestore` drive tmux-resurrect:
+The zsh functions `tsave` and `trestore` drive tmux-resurrect, and `scripts/resurrect-snapshots.zsh` owns the snapshot store: how resurrect names and replaces the files, which one `last` points at, the ids, the listing and the expiry. Both functions go through it, and so do resurrect's two hooks (expiry after a save, the placeholder session before a restore from scratch). Terms: [GLOSSARY.md](./GLOSSARY.md).
 
 - **`tsave`**: snapshots every session, then quits each pane's nvim through its normal exit (so auto-session saves its session) and kills the server
   - **`-c`/`--continue`**: snapshot only, leaving nvim and tmux running, like resurrect's own `prefix C-s`
@@ -34,7 +34,7 @@ The zsh functions `tsave` and `trestore` drive tmux-resurrect:
   - Without an id it restores `last`, the snapshot most recently saved or restored (also what `prefix C-r` restores)
   - Ids are the snapshot's date and time (`2026-11-04_20-15-30`); `trestore <TAB>` and `trestore --list` show them newest first
   - **`--force`**: restore into a server that already has panes (resurrect leaves those as they are)
-- **Expiry**: `scripts/resurrect-prune.sh`, resurrect's post-save hook, deletes snapshots 3 days after their last save. The snapshot `last` pointed to before a save survives that save, so a stray save can't take the one you meant to restore
+- **Expiry**: resurrect's post-save hook (`resurrect-snapshots.zsh prune`) deletes snapshots 3 days after their last save. The snapshot `last` pointed to before a save survives that save, so a stray save can't take the one you meant to restore. An unchanged layout restarts its snapshot's clock, which is also how `tsave` knows that save happened
 - **nvim relaunch**: nvim panes relaunch as bare `nvim` in nvim's directory, so auto-session reopens that directory's session. An `nvim <file>` pane comes back as its directory's session, not the file
 
 ## Config Structure
@@ -50,7 +50,7 @@ The zsh functions `tsave` and `trestore` drive tmux-resurrect:
 │   ├── vim-tmux-navigator.conf # Pane navigation keys, shared with Neovim
 │   └── resurrect.conf         # Snapshot dir, expiry and restore hooks, nvim relaunch
 └── scripts/
-    └── resurrect-prune.sh     # Expires snapshots 3 days after their last save
+    └── resurrect-snapshots.zsh # The snapshot files: save, list, select, and expire (resurrect's post-save hook)
 ```
 
 Plugins themselves are installed by TPM into `~/.tmux/plugins/` (pinned via
