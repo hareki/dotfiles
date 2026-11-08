@@ -23,7 +23,7 @@ One of the specs a plugin bundling unrelated features is split into, each filed 
 _Avoid_: partial spec, sub-spec
 
 **Entry point**:
-A module that something outside nvim reaches by its path, such as lazygit's remote edit or the diff renderer's filetype rules.
+A module that something outside nvim reaches by its path, such as lazygit's remote edit, tsave's quit or the diff renderer's filetype rules.
 _Avoid_: API, hook
 
 **Defer proxy**:
