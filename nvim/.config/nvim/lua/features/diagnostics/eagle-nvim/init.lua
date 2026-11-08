@@ -1,6 +1,3 @@
---- @module 'eagle'
-local eagle = Defer.on_exported_call('eagle')
-
 --- @module 'utils.popup'
 local popup = Defer.on_exported_call('utils.popup')
 
@@ -43,7 +40,6 @@ return {
         popup.link(eagle_win, {
           name = 'Eagle',
           modes = { 'n', 'x' },
-          before_focus = eagle.ignore_next_cursor_move,
         })
       end,
     }

@@ -124,7 +124,6 @@ end
 --- @field close_on? utils.popup.CloseOn Close the popup from the source's side too
 --- @field on_close? fun() Runs once when the link is released, however the popup closed
 --- @field focus_popup? fun() Focus the popup instead of the default autocmd-free switch
---- @field before_focus? fun(target: 'popup' | 'source') Runs before either focus switch, e.g. so the plugin ignores the CursorMoved it causes
 --- @field esc_passthrough? boolean Have the source window's <Esc> also do what it does without the popup (e.g. the global Clear Highlight)
 
 --- Link a popup to the current window: <Esc> closes it from either side (q too, inside it), <Tab>
@@ -172,10 +171,6 @@ function M.link(popup_win, opts)
 
   --- @param target 'popup' | 'source'
   local function focus(target)
-    if opts.before_focus then
-      opts.before_focus(target)
-    end
-
     if target == 'source' then
       M.focus_win(source_win)
     elseif opts.focus_popup then

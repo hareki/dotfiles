@@ -19,11 +19,6 @@ function M.build_popup_navigation(popup_type)
       focus_popup = function()
         gitsigns_popup.focus_open(popup_type)
       end,
-      before_focus = function(target)
-        if target == 'source' then
-          gitsigns_popup.ignore_cursor_moved = true
-        end
-      end,
     })
   end
 end
