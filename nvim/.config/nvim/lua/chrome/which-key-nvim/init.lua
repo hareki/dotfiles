@@ -65,9 +65,10 @@ return {
         { pattern = 'terminal', icon = Conf.icons.editor.TERMINAL, color = 'green' },
         { pattern = 'plugin', icon = Conf.icons.tools.PLUGIN_MANAGER, color = 'orange' },
         { pattern = 'help', icon = Conf.icons.editor.HELP, color = 'blue' },
-        { pattern = 'buffer', icon = Conf.icons.editor.BUFFER, color = 'grey' },
         { pattern = 'undo', icon = Conf.icons.actions.UNDO, color = 'purple' },
         { pattern = 'diagnostic', icon = Conf.icons.editor.DIAGNOSTIC, color = 'blue' },
+        -- Below undo and diagnostic, which a buffer only scopes ('Find Diagnostics Buffer')
+        { pattern = 'buffer', icon = Conf.icons.editor.BUFFER, color = 'grey' },
         { pattern = 'highlight', icon = Conf.icons.editor.HIGHLIGHT, color = 'blue' },
         -- Frontier-anchored so it stops matching 'digit', which leaves 'lazygit' to its own rule
         { pattern = '%f[%a]git', icon = Conf.icons.git.GIT, color = 'red' },
