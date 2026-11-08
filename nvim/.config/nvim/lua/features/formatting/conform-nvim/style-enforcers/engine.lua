@@ -1,26 +1,26 @@
---- @class utils.style-enforcers.engine.RunOpts
+--- @class features.formatting.conform-nvim.style-enforcers.engine.RunOpts
 --- @field bufnr integer
---- @field enforcers utils.style-enforcers.engine.Entry[] In run order
+--- @field enforcers features.formatting.conform-nvim.style-enforcers.engine.Entry[] In run order
 --- @field on_start fun(name: string, idx: integer, total: integer)
 --- @field on_done fun(name: string, ok: boolean, err?: string) Called after each enforcer
 --- @field on_complete fun(ok: boolean) Called once when the run ends: after the last enforcer, or the first failed one
 
---- @class utils.style-enforcers.engine
+--- @class features.formatting.conform-nvim.style-enforcers.engine
 local M = {}
 
 --- Error a runner reports when the buffer was edited while its request was in flight
 M.BUFFER_CHANGED = 'buffer changed while running'
 
---- @alias utils.style-enforcers.engine.RunnerOpts { bufnr: integer, client: vim.lsp.Client, on_done: fun(ok: boolean, err?: string) }
---- @alias utils.style-enforcers.engine.Runner fun(opts: utils.style-enforcers.engine.RunnerOpts)
+--- @alias features.formatting.conform-nvim.style-enforcers.engine.RunnerOpts { bufnr: integer, client: vim.lsp.Client, on_done: fun(ok: boolean, err?: string) }
+--- @alias features.formatting.conform-nvim.style-enforcers.engine.Runner fun(opts: features.formatting.conform-nvim.style-enforcers.engine.RunnerOpts)
 
---- @class utils.style-enforcers.engine.Entry
+--- @class features.formatting.conform-nvim.style-enforcers.engine.Entry
 --- @field name string LSP client the runner drives, doubling as the enforcer name
---- @field runner utils.style-enforcers.engine.Runner
+--- @field runner features.formatting.conform-nvim.style-enforcers.engine.Runner
 
 --- Run the matched enforcers sequentially
---- @param matched utils.style-enforcers.engine.Entry[]
---- @param opts utils.style-enforcers.engine.RunOpts
+--- @param matched features.formatting.conform-nvim.style-enforcers.engine.Entry[]
+--- @param opts features.formatting.conform-nvim.style-enforcers.engine.RunOpts
 --- @param idx integer
 local function run_next(matched, opts, idx)
   local entry = matched[idx]
@@ -54,7 +54,7 @@ local function run_next(matched, opts, idx)
 end
 
 --- Run the enforcers whose client is attached to the buffer
---- @param opts utils.style-enforcers.engine.RunOpts
+--- @param opts features.formatting.conform-nvim.style-enforcers.engine.RunOpts
 --- @return nil
 function M.run_for_buf(opts)
   local matched = vim.tbl_filter(function(entry)
@@ -65,7 +65,7 @@ function M.run_for_buf(opts)
 end
 
 --- Send a workspace/executeCommand for a runner, reporting the server's error to its on_done
---- @param opts utils.style-enforcers.engine.RunnerOpts
+--- @param opts features.formatting.conform-nvim.style-enforcers.engine.RunnerOpts
 --- @param command string
 --- @param argument table The command's only argument
 --- @return nil
@@ -78,7 +78,7 @@ end
 
 --- Send a request for a runner and pass the reply to on_result, unless the server errors or the
 --- buffer changed in flight: edits from the reply's unversioned positions would corrupt the text
---- @param opts utils.style-enforcers.engine.RunnerOpts
+--- @param opts features.formatting.conform-nvim.style-enforcers.engine.RunnerOpts
 --- @param method vim.lsp.protocol.Method.ClientToServer.Request
 --- @param params table
 --- @param on_result fun(result: any)

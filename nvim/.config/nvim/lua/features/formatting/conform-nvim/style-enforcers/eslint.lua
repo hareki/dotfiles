@@ -1,10 +1,10 @@
-local engine = require('utils.style-enforcers.engine')
+local engine = require('features.formatting.conform-nvim.style-enforcers.engine')
 
---- @class utils.style-enforcers.eslint
+--- @class features.formatting.conform-nvim.style-enforcers.eslint
 local M = {}
 
 --- Run eslint.applyAllFixes on a buffer through the eslint language server
---- @param opts utils.style-enforcers.engine.RunnerOpts
+--- @param opts features.formatting.conform-nvim.style-enforcers.engine.RunnerOpts
 --- @return nil
 function M.run(opts)
   engine.execute_command(opts, 'eslint.applyAllFixes', {

@@ -1,21 +1,21 @@
-local engine = require('utils.style-enforcers.engine')
-local eslint = require('utils.style-enforcers.eslint')
-local oxfmt = require('utils.style-enforcers.oxfmt')
-local oxlint = require('utils.style-enforcers.oxlint')
+local engine = require('features.formatting.conform-nvim.style-enforcers.engine')
+local eslint = require('features.formatting.conform-nvim.style-enforcers.eslint')
+local oxfmt = require('features.formatting.conform-nvim.style-enforcers.oxfmt')
+local oxlint = require('features.formatting.conform-nvim.style-enforcers.oxlint')
 local notifier = require('utils.notifier')
 
 local notify = notifier.scoped('Style Enforcer')
 
 -- In run order: oxfmt formats before the lint-fix steps, so oxlint's fixAll sees formatted
 -- content. Each step runs where its server is attached (lsp/oxfmt.lua narrows oxfmt's filetypes)
---- @type utils.style-enforcers.engine.Entry[]
+--- @type features.formatting.conform-nvim.style-enforcers.engine.Entry[]
 local enforcers = {
   { name = 'oxfmt', runner = oxfmt.run },
   { name = 'eslint', runner = eslint.run },
   { name = 'oxlint', runner = oxlint.run },
 }
 
---- @class utils.style-enforcers
+--- @class features.formatting.conform-nvim.style-enforcers
 local M = {}
 
 local running_bufs = {}

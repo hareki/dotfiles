@@ -1,10 +1,10 @@
-local engine = require('utils.style-enforcers.engine')
+local engine = require('features.formatting.conform-nvim.style-enforcers.engine')
 
---- @class utils.style-enforcers.oxlint
+--- @class features.formatting.conform-nvim.style-enforcers.oxlint
 local M = {}
 
 --- Run oxc.fixAll on a buffer through the oxlint language server
---- @param opts utils.style-enforcers.engine.RunnerOpts
+--- @param opts features.formatting.conform-nvim.style-enforcers.engine.RunnerOpts
 --- @return nil
 function M.run(opts)
   local document = vim.lsp.util.make_text_document_params(opts.bufnr)

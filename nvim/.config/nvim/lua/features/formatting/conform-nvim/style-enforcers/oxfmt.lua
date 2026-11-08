@@ -1,10 +1,10 @@
-local engine = require('utils.style-enforcers.engine')
+local engine = require('features.formatting.conform-nvim.style-enforcers.engine')
 
---- @class utils.style-enforcers.oxfmt
+--- @class features.formatting.conform-nvim.style-enforcers.oxfmt
 local M = {}
 
 --- Format a buffer in memory with the oxfmt language server's edits (no CLI spawn)
---- @param opts utils.style-enforcers.engine.RunnerOpts
+--- @param opts features.formatting.conform-nvim.style-enforcers.engine.RunnerOpts
 --- @return nil
 function M.run(opts)
   local bufnr = opts.bufnr

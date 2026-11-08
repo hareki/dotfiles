@@ -3,9 +3,6 @@ local keymap_registry = require('config.keymap-registry')
 local del = vim.keymap.del
 local map = vim.keymap.set
 
---- @module 'utils.style-enforcers'
-local style_enforcers = Defer.on_exported_call('utils.style-enforcers')
-
 --- @module 'utils.wheel-axis-lock'
 local wheel_axis_lock = Defer.on_exported_call('utils.wheel-axis-lock')
 
@@ -109,17 +106,6 @@ map('n', '<Esc>', function()
     notify.dismiss()
   end
 end, { desc = 'Clear Highlight and Notifications' })
-
-map({ 'n', 'i' }, '<A-s>', style_enforcers.run, { desc = 'Format and Save' })
-
-map('n', '<leader>F', function()
-  style_enforcers.run({
-    save = false,
-  })
-end, { desc = 'Format' })
-
--- Sent for Cmd+Shift+S by the ghostty config; inspect with :echo keytrans(getcharstr())
-map({ 'n', 'i' }, '<F40>', style_enforcers.run_all, { desc = 'Format and Save All' })
 
 -- Sent for Cmd+Shift+W by the ghostty config; inspect with :echo keytrans(getcharstr())
 map({ 'i', 'x', 'n', 's' }, '<C-S-End>', function()

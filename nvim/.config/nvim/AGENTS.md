@@ -36,7 +36,7 @@ The LuaLS diagnostics surfaced to you come from Claude Code's server, run by the
 - `chrome/`: visual layer (statusline, winbar, scrollbar, notifications, folds, decorations, which-key)
 - `features/{domain}/`: domain features (navigation, completion, git, editing, search, diagnostics, formatting, ai, preview)
 
-Plugins are lazy by default (`defaults.lazy = true`). Only catppuccin, snacks.nvim, auto-session (`priority = Conf.priority.CORE`) and noice.nvim are eager (`lazy = false`); `priority` only puts the first three ahead of noice, so lazy specs leave it unset. The rest load on `event` (mostly `VeryLazy`), `ft`, `keys` or `cmd`, on first `require()` (mini.icons; conform.nvim from `utils/style-enforcers/`; tiny-code-action.nvim from the `<leader>ca` keymap), or as a dependency (nvim-treesitter-textobjects via mini.ai).
+Plugins are lazy by default (`defaults.lazy = true`). Only catppuccin, snacks.nvim, auto-session (`priority = Conf.priority.CORE`) and noice.nvim are eager (`lazy = false`); `priority` only puts the first three ahead of noice, so lazy specs leave it unset. The rest load on `event` (mostly `VeryLazy`), `ft`, `keys` or `cmd`, on first `require()` (mini.icons; tiny-code-action.nvim from the `<leader>ca` keymap), or as a dependency (nvim-treesitter-textobjects via mini.ai).
 
 `config/lazy/init.lua` imports `core` (**must stay first**), `core.lsp`, `chrome`, then each `features.{domain}`: lazy.nvim's `import` loads only direct `*.lua` files and `*/init.lua` modules, so `core/lsp/` and every new domain dir need their own entry.
 
@@ -100,7 +100,7 @@ Size floats through `UI.layout` (`utils/ui/layout.lua`, whose annotations docume
 
 Uses native `vim.lsp.enable()` / `vim.lsp.config()` (not `lspconfig[server].setup()`). Each `core/lsp/nvim-lspconfig/lsp/{server}.lua` returns `{ opts = table, setup = function? }`, **not a lazy.nvim spec or a raw `vim.lsp.Config`**: `nvim-lspconfig/utils/server-loader.lua` requires every file only once nvim-lspconfig loads (so computed values are plain file-level locals), then calls `vim.lsp.config(name, opts)` and `setup()` if present. General LSP keymaps live in `nvim-lspconfig/init.lua`, not server files; diagnostics display and the severity jumps live in `config/diagnostics.lua`.
 
-Enable a server in the `servers` list in `nvim-lspconfig/init.lua`; add a `lsp/{server}.lua` only to override nvim-lspconfig's defaults. Servers that drive style-enforcer steps (`eslint`, `oxlint`, `oxfmt`) are also listed in `utils/style-enforcers/init.lua` under their server id, which limits each step to buffers that server is attached to.
+Enable a server in the `servers` list in `nvim-lspconfig/init.lua`; add a `lsp/{server}.lua` only to override nvim-lspconfig's defaults. Servers that drive style-enforcer steps (`eslint`, `oxlint`, `oxfmt`) are also listed in `features/formatting/conform-nvim/style-enforcers/init.lua` under their server id, which limits each step to buffers that server is attached to.
 
 `eslint`, `oxlint` and `oxfmt` are always in `servers` and pick their projects per buffer: `root_dir` looks for each tool's own config, and `workspace_required` keeps them off everywhere else. conform's prettier `condition` asks oxfmt's `root_dir`, so oxfmt projects never run prettier.
 

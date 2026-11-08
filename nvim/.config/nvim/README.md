@@ -71,7 +71,7 @@ nvim-tree-lua/
 
 - Per-server configs in `lua/core/lsp/nvim-lspconfig/lsp/{server}.lua`
 - [mise-en-place](https://mise.jdx.dev/) installs the Node-based servers, oxfmt, oxlint and prettier from `~/.config/mise/config.toml`; Homebrew provides lua-language-server, marksman, taplo, typos-lsp and stylua
-- Async style-enforcement pipeline (formatters + linters) in `utils/style-enforcers/`
+- Async style-enforcement pipeline (formatters + linters) in `features/formatting/conform-nvim/style-enforcers/`, run by conform.nvim's keys
 
 ## Forks (author = hareki)
 
