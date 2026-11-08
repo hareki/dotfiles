@@ -1,3 +1,4 @@
+--- @module 'multicursor-nvim'
 local mc = Defer.on_exported_call('multicursor-nvim')
 
 return {

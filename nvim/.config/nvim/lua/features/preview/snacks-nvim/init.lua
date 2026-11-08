@@ -1,4 +1,7 @@
+--- @module 'features.preview.snacks-nvim.audio-page'
 local audio_page = Defer.on_exported_call('features.preview.snacks-nvim.audio-page')
+
+--- @module 'features.preview.snacks-nvim.hover-image'
 local hover_image = Defer.on_exported_call('features.preview.snacks-nvim.hover-image')
 
 return {

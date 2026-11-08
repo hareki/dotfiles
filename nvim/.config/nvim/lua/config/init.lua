@@ -9,7 +9,7 @@ M.zindex = require('config.zindex')
 M.picker = require('config.picker')
 M.size = require('config.size')
 -- Deferred: only lazy-loaded plugins' opts read it
---- @type config.completion
+--- @module 'config.completion'
 M.cmp = Defer.on_index('config.completion')
 
 return M

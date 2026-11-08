@@ -1,3 +1,4 @@
+--- @module 'chrome.snacks-nvim.zen'
 local zen = Defer.on_exported_call('chrome.snacks-nvim.zen')
 
 return {
