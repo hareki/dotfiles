@@ -6,8 +6,8 @@ end
 
 local aucmd = vim.api.nvim_create_autocmd
 
---- @module 'utils.common'
-local common = Defer.on_exported_call('utils.common')
+--- @module 'utils.keymap'
+local keymap = Defer.on_exported_call('utils.keymap')
 
 -- Reload files changed on disk; bare `:checktime` skips hidden buffers (contra its docs)
 aucmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
@@ -183,7 +183,7 @@ aucmd('FileType', {
   pattern = { 'markdown' },
   callback = function(event)
     -- The ftplugin's visual-mode section jumps, disabled by g.no_markdown_maps (options.lua)
-    local map = common.buf_mapper(event.buf)
+    local map = keymap.buf_mapper(event.buf)
     map(
       'x',
       ']]',
@@ -233,7 +233,7 @@ aucmd('FileType', {
 aucmd('CmdwinEnter', {
   group = augroup('cmdwin-keymaps'),
   callback = function(event)
-    local map = common.buf_mapper(event.buf)
+    local map = keymap.buf_mapper(event.buf)
     map({ 'i', 'x', 'n', 's' }, '<C-f>', '<C-c>', 'Exit Command-Line Window Mode')
     map('n', 'q', '<cmd>q!<cr>', 'Quit Command-Line Window')
   end,

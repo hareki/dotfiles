@@ -1,4 +1,4 @@
-local common = require('utils.common')
+local keymap = require('utils.keymap')
 
 --- @class chrome.snacks-nvim.zen
 local M = {}
@@ -18,7 +18,7 @@ local state = {
 local function map_close(win)
   local buf = win.buf
   -- Leave buffers that already spend `q` (help, quickfix) alone, rather than restore their map
-  if not buf or state.mapped[buf] or common.get_buf_keymap(buf, 'n', 'q') then
+  if not buf or state.mapped[buf] or keymap.get_buf_keymap(buf, 'n', 'q') then
     return
   end
 

@@ -27,9 +27,9 @@ function M.toggle_focus()
   end
 
   local trouble_win = vim.api.nvim_get_current_win()
-  local common = require('utils.common')
+  local keymap = require('utils.keymap')
   local popup = require('utils.popup')
-  local map = common.buf_mapper(preview.buf)
+  local map = keymap.buf_mapper(preview.buf)
 
   popup.focus_win(preview.win)
 

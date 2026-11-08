@@ -85,12 +85,12 @@ function M.skip_syntax_on_detach()
   end
   detach_patched = true
 
-  local common = require('utils.common')
+  local noautocmd = require('utils.noautocmd')
   local highlighter = require('vim.treesitter.highlighter') --[[@as table]]
   local on_detach = highlighter.on_detach
 
   function highlighter:on_detach()
-    common.noautocmd(function()
+    noautocmd.run(function()
       on_detach(self)
     end)
   end

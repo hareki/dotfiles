@@ -75,8 +75,8 @@ return {
 
           local gs = package.loaded.gitsigns
 
-          local common = require('utils.common')
-          local map = common.buf_mapper(buffer, { silent = true })
+          local keymap = require('utils.keymap')
+          local map = keymap.buf_mapper(buffer, { silent = true })
 
           map('n', ']h', function()
             if vim.wo.diff then

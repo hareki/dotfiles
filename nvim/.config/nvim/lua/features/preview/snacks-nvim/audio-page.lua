@@ -1,5 +1,5 @@
---- @module 'utils.common'
-local common = Defer.on_exported_call('utils.common')
+--- @module 'utils.noautocmd'
+local noautocmd = Defer.on_exported_call('utils.noautocmd')
 
 --- @module 'render-markdown'
 local render_markdown = Defer.on_exported_call('render-markdown')
@@ -173,7 +173,7 @@ function M.preview_file(ctx)
   -- A fresh scratch buffer per item, wiped by the next one, so a late probe finds it unloaded
   local buf = ctx.preview:scratch()
   -- No filetype: render-markdown looks its parser up by it, and `snacks_picker_preview` has none
-  common.noautocmd(function()
+  noautocmd.run(function()
     vim.bo[buf].filetype = ''
   end)
 

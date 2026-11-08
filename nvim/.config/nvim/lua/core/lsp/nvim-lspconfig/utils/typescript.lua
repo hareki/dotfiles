@@ -1,4 +1,5 @@
-local common = require('utils.common')
+local json = require('core.lsp.nvim-lspconfig.utils.json')
+local keymap = require('utils.keymap')
 
 --- @class core.lsp.nvim-lspconfig.utils.typescript
 local M = {}
@@ -30,7 +31,7 @@ end
 --- @return string?
 local function installed_version(dir)
   for _, name in ipairs(PACKAGES) do
-    local manifest = common.read_json(fs.joinpath(dir, 'node_modules', name, 'package.json'))
+    local manifest = json.read(fs.joinpath(dir, 'node_modules', name, 'package.json'))
     if manifest then
       return manifest.version
     end
@@ -40,7 +41,7 @@ end
 --- @param dir string
 --- @return string?
 local function declared_version(dir)
-  local manifest = common.read_json(fs.joinpath(dir, 'package.json')) or {}
+  local manifest = json.read(fs.joinpath(dir, 'package.json')) or {}
 
   for _, name in ipairs(PACKAGES) do
     local version = vim.tbl_get(manifest, 'devDependencies', name)
@@ -172,7 +173,7 @@ function M.map_import_actions(server, remove_unused, add_missing)
         return
       end
 
-      local map = common.buf_mapper(args.buf, { prefix = 'TypeScript LSP: ' })
+      local map = keymap.buf_mapper(args.buf, { prefix = 'TypeScript LSP: ' })
 
       map('n', '<leader>cu', source_action(client.id, remove_unused), 'Remove Unused Imports')
       map('n', '<leader>ci', source_action(client.id, add_missing), 'Add Missing Imports')

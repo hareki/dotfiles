@@ -1,4 +1,4 @@
-local common = require('utils.common')
+local json = require('core.lsp.nvim-lspconfig.utils.json')
 
 local fs, uv = vim.fs, vim.uv
 
@@ -23,9 +23,9 @@ end
 --- @param root_dir string
 --- @return string?
 local function get_angular_core_version(root_dir)
-  local json = common.read_json(fs.joinpath(root_dir, 'package.json')) or {}
-  local version = vim.tbl_get(json, 'dependencies', '@angular/core')
-    or vim.tbl_get(json, 'devDependencies', '@angular/core')
+  local manifest = json.read(fs.joinpath(root_dir, 'package.json')) or {}
+  local version = vim.tbl_get(manifest, 'dependencies', '@angular/core')
+    or vim.tbl_get(manifest, 'devDependencies', '@angular/core')
   return version and version:match('%d+%.%d+%.%d+')
 end
 

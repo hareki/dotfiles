@@ -1,16 +1,5 @@
---- @class utils.common
+--- @class utils.keymap
 local M = {}
-
---- @param fn fun()
-function M.noautocmd(fn)
-  local ei = vim.o.eventignore
-  vim.o.eventignore = 'all'
-  local ok, err = pcall(fn)
-  vim.o.eventignore = ei
-  if not ok then
-    error(err, 0)
-  end
-end
 
 --- Buffer-local `vim.keymap.set` sharing one opts table, with an optional desc prefix
 --- @param buf integer
@@ -48,18 +37,15 @@ function M.get_buf_keymap(buf, mode, lhs)
   end)
 end
 
---- @param path string
---- @return table? json nil when the file is missing or doesn't hold a JSON object or array
-function M.read_json(path)
-  local file = io.open(path)
-  if not file then
-    return nil
-  end
-
-  local ok, json = pcall(vim.json.decode, file:read('*a'))
-  file:close()
-
-  return ok and type(json) == 'table' and json or nil
+--- Reinstate a mapping captured by get_buf_keymap; mapset() keeps its callback, desc and flags
+--- @param buf integer
+--- @param mode string
+--- @param map table
+--- @return nil
+function M.restore_buf_keymap(buf, mode, map)
+  vim.api.nvim_buf_call(buf, function()
+    vim.fn.mapset(mode, false, map)
+  end)
 end
 
 return M

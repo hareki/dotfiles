@@ -54,7 +54,8 @@ lazy.nvim config built from scratch around fast cold starts, per-plugin isolatio
   - `catppuccin(fn)` / `catppuccin.get_palette()`, `which_key({ specs?, rules?, triggers? })`, `statusline.refresh()`
 - `notifier.lua`: notification wrapper; supports markdown, tuple lists for custom highlight groups, `scoped(title)` and `*_once`
 - `popup.lua`: floats tied to a source window: `link(win, { close_on, keys, ... })`, `focus_win()`
-- `common.lua`: `buf_mapper()`, `get_buf_keymap()`, `noautocmd()`, `read_json()`
+- `keymap.lua`: `buf_mapper()`, and `get_buf_keymap()` / `restore_buf_keymap()`, which snapshot and give back a buffer's own mapping
+- `noautocmd.lua`: `run(fn)`, Lua's `:noautocmd`
 - `lazy-require.lua`: `Defer.on_index()`, `Defer.on_exported_call()`
 
 ### Complex Plugin Structure

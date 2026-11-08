@@ -1,4 +1,4 @@
-local common = require('utils.common')
+local keymap = require('utils.keymap')
 
 --- @module 'colorizer'
 local colorizer = Defer.on_exported_call('colorizer')
@@ -92,9 +92,9 @@ function M.setup()
         return
       end
 
-      local map = common.buf_mapper(bufnr, { prefix = 'Git Conflict: ' })
-      for _, keymap in ipairs(keymaps) do
-        map('n', keymap.lhs, keymap.rhs, keymap.desc)
+      local map = keymap.buf_mapper(bufnr, { prefix = 'Git Conflict: ' })
+      for _, entry in ipairs(keymaps) do
+        map('n', entry.lhs, entry.rhs, entry.desc)
       end
 
       vim.b[bufnr].git_conflict = true

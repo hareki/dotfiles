@@ -15,8 +15,8 @@ return {
         { clear = true }
       ),
       callback = function(args)
-        local common = require('utils.common')
-        local map = common.buf_mapper(args.buf, { prefix = 'LSP: ' })
+        local keymap = require('utils.keymap')
+        local map = keymap.buf_mapper(args.buf, { prefix = 'LSP: ' })
 
         map('n', 'gd', function()
           Snacks.picker.lsp_definitions({

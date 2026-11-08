@@ -1,5 +1,6 @@
-local common = require('utils.common')
 local cursorline = require('utils.ui.cursorline')
+local keymap = require('utils.keymap')
+local noautocmd = require('utils.noautocmd')
 
 --- Floats tied to a source window: the focus hand-off between the two, their linked keys, and
 --- closing the float once the source moves on
@@ -21,7 +22,7 @@ function M.focus_win(win)
   local need_repaint = vim.api.nvim_win_get_config(src).relative ~= ''
     and vim.list_contains(filetypes.MARKDOWN, vim.bo[src_buf].filetype)
 
-  common.noautocmd(function()
+  noautocmd.run(function()
     vim.api.nvim_set_current_win(win)
   end)
 
@@ -37,17 +38,6 @@ function M.focus_win(win)
   end
 
   return true
-end
-
---- Reinstate a mapping captured by common.get_buf_keymap; mapset() keeps its callback, desc and flags
---- @param buf integer
---- @param mode string
---- @param map table
---- @return nil
-local function restore_buf_keymap(buf, mode, map)
-  vim.api.nvim_buf_call(buf, function()
-    vim.fn.mapset(mode, false, map)
-  end)
 end
 
 --- @class utils.popup.KeymapLayer
@@ -77,7 +67,7 @@ local function override_buf_keymaps(buf, maps)
     for _, mode in ipairs(modes) do
       local key = string.format('%d %s %s', buf, mode, lhs)
       override_stacks[key] = override_stacks[key]
-        or { base = common.get_buf_keymap(buf, mode, lhs), layers = {} }
+        or { base = keymap.get_buf_keymap(buf, mode, lhs), layers = {} }
       table.insert(override_stacks[key].layers, layer)
       vim.keymap.set(mode, lhs, rhs, layer.opts)
       pushed[#pushed + 1] = { key = key, mode = mode, lhs = lhs, layer = layer }
@@ -111,7 +101,7 @@ local function override_buf_keymaps(buf, maps)
         if top then
           vim.keymap.set(entry.mode, entry.lhs, top.rhs, top.opts)
         elseif stack.base then
-          restore_buf_keymap(buf, entry.mode, stack.base)
+          keymap.restore_buf_keymap(buf, entry.mode, stack.base)
         else
           pcall(vim.keymap.del, entry.mode, entry.lhs, { buf = buf })
         end
@@ -211,7 +201,7 @@ function M.link(popup_win, opts)
   }
 
   if opts.keys ~= false then
-    local map_popup = common.buf_mapper(popup_buf, { nowait = true })
+    local map_popup = keymap.buf_mapper(popup_buf, { nowait = true })
     map_popup(modes, { 'q', '<Esc>' }, close, close_desc)
     map_popup(modes, '<Tab>', function()
       focus('source')

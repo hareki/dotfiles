@@ -180,8 +180,8 @@ return {
         help = { border = 'rounded' },
 
         on_attach = function(tree_bufnr)
-          local common = require('utils.common')
-          local map = common.buf_mapper(tree_bufnr, { prefix = 'File Tree: ', nowait = true })
+          local keymap = require('utils.keymap')
+          local map = keymap.buf_mapper(tree_bufnr, { prefix = 'File Tree: ', nowait = true })
 
           map('n', '<C-t>', tree.switch_to_side, 'Switch to Side')
 
