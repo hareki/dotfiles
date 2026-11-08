@@ -36,4 +36,5 @@ Zsh setup that reaches the first usable prompt in ~45ms (~25ms for `zsh -i -c ex
 ├── tty-guard.zsh                   # Self-heal for a tty re-cooked under zle
 ├── compdefs/                       # Custom completions, `#compdef`-tagged (one per command family)
 └── functions/                      # Autoloaded utility functions (one per file)
+tests/                              # Not deployed: run.zsh (test files), ab.zsh (startup A/B against a revision)
 ```

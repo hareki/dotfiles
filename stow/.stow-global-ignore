@@ -1,8 +1,9 @@
 \.DS_Store
 
-# Root-level package metadata (docs, not config); anchored so same-named files
-# nested deeper (e.g. claude-code/.claude/CLAUDE.md) still deploy
+# Root-level package metadata (docs and tests, not config); anchored so same-named
+# files nested deeper (e.g. claude-code/.claude/CLAUDE.md) still deploy
 ^/AGENTS\.md$
 ^/CLAUDE\.md$
 ^/README\.md$
 ^/assets$
+^/tests$

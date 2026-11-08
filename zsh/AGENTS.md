@@ -2,7 +2,7 @@
 
 ## Architecture
 
-This is a zsh dotfiles configuration targeting macOS with Homebrew. `sync-dots zsh` deploys these files to `$HOME` with GNU stow. Root-level package metadata (AGENTS.md, CLAUDE.md, README.md, assets) is excluded by root-anchored patterns in `stow/.stow-global-ignore`.
+This is a zsh dotfiles configuration targeting macOS with Homebrew. `sync-dots zsh` deploys these files to `$HOME` with GNU stow. Root-level package metadata (AGENTS.md, CLAUDE.md, README.md, assets, tests) is excluded by root-anchored patterns in `stow/.stow-global-ignore`.
 
 ### Sourcing Order
 
@@ -64,7 +64,7 @@ Plugins are declared in `.zplugins` and managed by Antidote. Antidote statically
 - **atuin AI**: `--disable-ai` keeps `?` a plain key. Without it, `?` on an empty line starts `atuin ai inline`, a feature nothing here uses, and the init carries 58 more lines.
 - **SSH keys**: no shell-managed agent. `ssh/.ssh/config` names the key for `github.com` and both aliases, and neither key has a passphrase, so `ssh` reads it directly from any process, GUI apps included. `AddKeysToAgent` hands it to launchd's agent on first use. omz's ssh-agent plugin cost a daemon, a state file, `ssh-add -l` plus `ssh-keygen -lf` in the deferred queue (~8ms) and a `scutil` fork (~5.5ms) at top level.
 - **zoxide hook**: zoxide's chpwd hook blocks `cd` on `$(pwd)` plus a synchronous database write (~8ms), so `evals.zsh` turns it off with `--hook none` and adds one that runs in the background. zoxide's atomic rename keeps the database intact; `cd`s within a few ms of each other can lose a score increment.
-- **zsh-patina daemon**: `zsh-patina activate` prints the init script and also launches the highlighter daemon (~3.3ms per shell for the fork), and the script it prints only returns while the daemon's socket is missing, so a cached copy alone would leave highlighting dead after a reboot or a crash. `evals.zsh` checks the pid in `$TMPDIR/zsh-patina/daemon.lock` first, runs `zsh-patina start` (silent, idempotent) only when the daemon is down, then evalcaches `activate` like the other tools. A check of the socket adds nothing: `start` does nothing while that pid lives, and a reboot empties `$TMPDIR`, so a stale lock can't outlive one.
+- **zsh-patina daemon**: `zsh-patina activate` prints the init script and also launches the highlighter daemon (~3.3ms per shell for the fork), and the script it prints only returns while the daemon's socket is missing, so a cached copy alone would leave highlighting dead after a reboot or a crash. `evals.zsh` checks the pid in `$TMPDIR/zsh-patina/daemon.lock` first, runs `zsh-patina start` (silent, idempotent) only when the daemon is down, then evalcaches `activate` like the other tools. A check of the socket adds nothing: `start` does nothing while that pid lives, and a reboot empties `$TMPDIR`, so a stale lock can't outlive one. The cached script holds the socket path of the shell that built it, so a cache rebuilt under another `TMPDIR` (a test harness, a sandboxed agent shell) leaves highlighting off until the next `_evalcache_clear`.
 - **/etc/zshrc**: skipped with `global_rcs` off in `.zshenv`. It forks `locale` (~4ms) in every interactive shell, and omz and p10k override the rest of it (history, key bindings, prompt) except `combining_chars` and `disable log`, which `options.zsh` keeps.
 - **/etc/zprofile**: `.zshenv` sources it itself in a top-level login shell, ahead of the user dirs, so path_helper never gets to move the system dirs in front. Login shells below `SHLVL` 1 (tmux panes) inherit its PATH and LANG and would only fork path_helper again (~2ms).
 - **zsh-autosuggestions**: `ZSH_AUTOSUGGEST_MANUAL_REBIND` wraps the widgets once, when the plugin starts, instead of re-binding ~210 of them every precmd. `plugins.zsh` queues the plugin's private `_zsh_autosuggest_start` behind every deferred plugin, so the wrap covers fzf-tab's widgets.
@@ -95,6 +95,12 @@ mux <project>         # tmuxinator start, from a throwaway session outside tmux 
 tsave [-c|--continue] # tmux-resurrect snapshot, then quit every pane nvim cleanly and kill tmux (unless --continue); refuses while any nvim holds unsaved work
 trestore [<id>]       # Restore a snapshot (default: `last`) into a fresh tmux server; --list shows ids newest first, --force restores into a busy server
 ```
+
+## Tests
+
+- **Test**: `tests/run.zsh [words]` runs the test files in `tests/` (all, or those whose name contains a word), each in its own `zsh -f` started from `env -i`, with a private scratch dir under `/tmp/zt.*` as its HOME and TMPDIR. A test file asserts through `tests/lib/helpers.zsh` and drives a command through its own interface, with stand-ins for what it reaches
+- **A/B**: `tests/ab.zsh [rev]` boots `rev` (default `HEAD`) and the working tree, each in a scratch HOME as a top-level login shell and as a login shell started from it, and diffs what each defines once the deferred plugins have loaded: options, aliases, functions (by body length), widgets, every keymap, zstyles, the completion table, hooks, exported variables, paths, modules, parameter types and config values (`tests/lib/dump.zsh`). Two boots of one tree dump identically, so every diff row is a change to account for, a module moved in the `.zshrc` loop included; `ZT_AB_KEEP=<dir>` keeps both dumps
+- Scratch shells follow `tests/lib/env.zsh`, whose rules each cost a real incident: dummy API keys and never an xtrace or environment dump, `env -i` for every boot, a scratch HOME laid out like stow, a short private TMPDIR, a current omz update stamp, and mise's real dirs with installs off. Never run `sync-forks`, `tsave` or `yay` for real to test them
 
 ## Conventions
 
