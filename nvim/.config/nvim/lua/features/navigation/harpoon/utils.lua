@@ -61,7 +61,7 @@ function M.pin(index)
 end
 
 --- @return snacks.Picker | nil picker nil if the list is empty
-M.show_picker = function()
+function M.show_picker()
   local harpoon = require('harpoon')
   local buffers = require('features.search.snacks-nvim.sources.buffers')
 
