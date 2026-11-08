@@ -56,9 +56,8 @@ local function hover_src_from_file(src)
   end
 end
 
---- @param source_buf integer
 --- @param src string? Nothing opens without one
-local function open(source_buf, src)
+local function open(src)
   if not src then
     return
   end
@@ -147,7 +146,7 @@ function M.toggle()
   if vim.bo.filetype == 'mermaid' then
     local text = table.concat(vim.api.nvim_buf_get_lines(source_buf, 0, -1, false), '\n')
     if text ~= '' then
-      open(source_buf, hover_src_from_text(text))
+      open(hover_src_from_text(text))
     end
     return
   end
@@ -155,7 +154,7 @@ function M.toggle()
   Snacks.image.doc.at_cursor(function(src)
     if src then
       -- Snacks downloads URLs itself; a local copy would silently drop the hover
-      open(source_buf, Snacks.image.convert.is_uri(src) and src or hover_src_from_file(src))
+      open(Snacks.image.convert.is_uri(src) and src or hover_src_from_file(src))
     end
   end)
 end
