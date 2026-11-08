@@ -166,17 +166,6 @@ function M.link(popup_win, opts)
     pcall(vim.api.nvim_win_close, popup_win, true)
   end
 
-  --- @param target 'popup' | 'source'
-  local function focus(target)
-    if target == 'source' then
-      M.focus_win(source_win)
-    elseif opts.focus_popup then
-      opts.focus_popup()
-    else
-      M.focus_win(popup_win)
-    end
-  end
-
   local source_maps = {
     {
       modes,
@@ -196,14 +185,14 @@ function M.link(popup_win, opts)
     local map_popup = keymap.buf_mapper(popup_buf, { nowait = true })
     map_popup(modes, { 'q', '<Esc>' }, close, close_desc)
     map_popup(modes, '<Tab>', function()
-      focus('source')
+      M.focus_win(source_win)
     end, 'Focus Source Window')
 
     source_maps[#source_maps + 1] = {
       modes,
       '<Tab>',
-      function()
-        focus('popup')
+      opts.focus_popup or function()
+        M.focus_win(popup_win)
       end,
       { desc = string.format('Focus %s Window', opts.name), nowait = true },
     }
