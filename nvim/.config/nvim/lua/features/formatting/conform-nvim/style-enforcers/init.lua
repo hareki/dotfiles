@@ -1,59 +1,175 @@
-local engine = require('features.formatting.conform-nvim.style-enforcers.engine')
+local conform = require('features.formatting.conform-nvim.style-enforcers.conform-nvim')
 local eslint = require('features.formatting.conform-nvim.style-enforcers.eslint')
+local notifier = require('utils.notifier')
 local oxfmt = require('features.formatting.conform-nvim.style-enforcers.oxfmt')
 local oxlint = require('features.formatting.conform-nvim.style-enforcers.oxlint')
-local notifier = require('utils.notifier')
 
 local notify = notifier.scoped('Style Enforcer')
 
--- In run order: oxfmt formats before the lint-fix steps, so oxlint's fixAll sees formatted
--- content. Each step runs where its server is attached (lsp/oxfmt.lua narrows oxfmt's filetypes)
---- @type features.formatting.conform-nvim.style-enforcers.engine.Entry[]
-local enforcers = {
-  { name = 'oxfmt', runner = oxfmt.run },
-  { name = 'eslint', runner = eslint.run },
-  { name = 'oxlint', runner = oxlint.run },
-}
+--- One step of the save pipeline, an adapter over one tool
+--- @class features.formatting.conform-nvim.style-enforcers.Step
+--- @field name string The tool, named in notices
+--- @field label string Progress title while the step runs
+--- @field applies? fun(buf: integer): boolean The gate; without it, the step runs where `client` is attached
+--- @field client? string The LSP client the step drives, by name; its run gets an LspContext
+--- @field run fun(ctx: features.formatting.conform-nvim.style-enforcers.Context)
+--- @field failure fun(err: string, debug?: boolean, buf: integer): features.formatting.conform-nvim.style-enforcers.Failure
+
+--- What a step's run gets; `done` does nothing once the run has ended
+--- @class features.formatting.conform-nvim.style-enforcers.Context
+--- @field buf integer
+--- @field done fun(err?: string) Report the step's end: the next step starts, or err ends the run
+
+--- The context of a step that names a client. `request` passes the reply's result to on_result,
+--- unless the server errors or the buffer changed in flight, which fails the step; `execute` sends
+--- a workspace/executeCommand, whose reply ends the step. Their replies share the guard of `done`
+--- @class features.formatting.conform-nvim.style-enforcers.LspContext: features.formatting.conform-nvim.style-enforcers.Context
+--- @field client vim.lsp.Client Looked up as the step starts
+--- @field request fun(method: vim.lsp.protocol.Method.ClientToServer.Request, params: table, on_result: fun(result: any))
+--- @field execute fun(command: string, argument: table)
+
+--- The notice for a failed step
+--- @class features.formatting.conform-nvim.style-enforcers.Failure
+--- @field level 'warn' | 'error'
+--- @field title string
+--- @field msg string
+
+--- @class features.formatting.conform-nvim.style-enforcers.RunOpts
+--- @field debug? boolean Failure notices carry the tool's error
+--- @field buf? integer Default: the current buffer
+--- @field save? boolean Write the buffer at the end (default true)
+--- @field on_done? fun(ok: boolean) Called once, when the run ends
+--- @field steps? features.formatting.conform-nvim.style-enforcers.Step[] For tests, in place of STEPS
+--- @field timeout_ms? integer For tests, in place of TIMEOUT_MS
+
+-- In run order: conform and oxfmt format before the lint-fix steps, so oxlint's fixAll sees
+-- formatted content. Each LSP step runs where its server is attached (lsp/oxfmt.lua narrows
+-- oxfmt's filetypes)
+--- @type features.formatting.conform-nvim.style-enforcers.Step[]
+local STEPS = { conform, oxfmt, eslint, oxlint }
+
+-- Timeout to prevent permanent locks
+local TIMEOUT_MS = 5000
+
+-- The error a request reports when the buffer was edited while it was in flight
+local BUFFER_CHANGED = 'buffer changed while running'
 
 --- @class features.formatting.conform-nvim.style-enforcers
 local M = {}
 
 local running_bufs = {}
--- Timeout to prevent permanent locks
-local TIMEOUT_MS = 5000
 
---- @param formatters conform.FormatterInfo[]
---- @param uses_lsp boolean
---- @return string names
-local function formatter_names(formatters, uses_lsp)
-  local names = vim.tbl_map(function(formatter)
-    return formatter.name
-  end, formatters)
-
-  if uses_lsp then
-    names[#names + 1] = 'lsp'
+--- @param step features.formatting.conform-nvim.style-enforcers.Step
+--- @param buf integer
+--- @return boolean
+local function applies(step, buf)
+  if step.applies then
+    return step.applies(buf)
   end
 
-  return table.concat(names, ', ')
+  return #vim.lsp.get_clients({ name = step.client, bufnr = buf }) > 0
 end
 
---- Run format and lint sequentially on a buffer with progress, under a per-buffer lock and timeout
---- @param opts? { debug?: boolean, buf?: integer, save?: boolean, on_done?: fun(ok: boolean) }
+--- @param buf integer
+--- @return boolean ok
+local function write(buf)
+  if not vim.api.nvim_buf_is_valid(buf) then
+    return true
+  end
+
+  -- Under pcall: an unwritable buffer (E32, E45, E212) would throw and leak the buffer lock
+  local ok, err = pcall(vim.api.nvim_buf_call, buf, vim.cmd.update)
+  if not ok then
+    notify.error('Write failed: ' .. tostring(err))
+  end
+
+  return ok
+end
+
+--- @param step features.formatting.conform-nvim.style-enforcers.Step
+--- @param err string
+--- @param debug? boolean
+--- @param buf integer
+local function notify_failure(step, err, debug, buf)
+  if err == BUFFER_CHANGED then
+    notify.warn(string.format('Buffer changed while `%s` was running, skipped', step.name))
+    return
+  end
+
+  local failure = step.failure(err, debug, buf)
+  notify[failure.level](failure.msg, { title = failure.title })
+end
+
+--- @param buf integer
+--- @param client vim.lsp.Client
+--- @param live fun(fn: function): function
+--- @param done fun(err?: string)
+--- @return features.formatting.conform-nvim.style-enforcers.LspContext
+local function lsp_context(buf, client, live, done)
+  return {
+    buf = buf,
+    client = client,
+    done = done,
+
+    request = function(method, params, on_result)
+      -- changedtick rather than the reply's ctx.version, which an autoread reload leaves unchanged
+      local changedtick = vim.api.nvim_buf_get_changedtick(buf)
+
+      client:request(
+        method,
+        params,
+        live(function(err, result)
+          if err then
+            return done(err.message)
+          end
+
+          -- Edits from the reply's unversioned positions would corrupt the text
+          if
+            not vim.api.nvim_buf_is_valid(buf)
+            or vim.api.nvim_buf_get_changedtick(buf) ~= changedtick
+          then
+            return done(BUFFER_CHANGED)
+          end
+
+          on_result(result)
+        end),
+        buf
+      )
+    end,
+
+    execute = function(command, argument)
+      local params = { command = command, arguments = { argument } }
+      client:request(
+        'workspace/executeCommand',
+        params,
+        live(function(err)
+          done(err and err.message)
+        end),
+        buf
+      )
+    end,
+  }
+end
+
+--- Run the steps that apply to a buffer, in order, then write it: under a per-buffer lock and a
+--- timeout, with progress. The first failed step ends the run
+--- @param opts? features.formatting.conform-nvim.style-enforcers.RunOpts
 --- @return nil
 function M.run(opts)
   opts = opts or {}
-  local debug = opts.debug
   local buf = opts.buf or vim.api.nvim_get_current_buf()
-  local save = opts.save ~= false
-  local on_done = opts.on_done
 
   if running_bufs[buf] then
     notify.warn('Formatting already in progress')
     return
   end
 
-  local conform = require('conform')
+  local steps = vim.tbl_filter(function(step)
+    return applies(step, buf)
+  end, opts.steps or STEPS)
+
   local progress_utils = require('utils.progress')
+  local snacks_util = require('snacks.util')
 
   local progress = progress_utils.create({
     pending_ms = 500,
@@ -64,146 +180,108 @@ function M.run(opts)
 
   running_bufs[buf] = true
 
-  local settled = false
+  local ended = false
   local timeout_timer
 
-  -- Runs once, so a callback after the timeout can't double-report or clobber a newer run's lock
-  --- @param ok boolean
-  local function cleanup(ok)
-    if settled then
-      return
+  -- Every callback handed to a step, and the timeout, passes through here: once the run has
+  -- ended, none can start a step, edit the buffer, double-report or clobber a newer run's lock.
+  -- A server pushing an edit for an executeCommand it already got (workspace/applyEdit) is out of
+  -- its reach
+  --- @param fn function
+  --- @return function
+  local function live(fn)
+    return function(...)
+      if not ended then
+        return fn(...)
+      end
     end
-    settled = true
+  end
 
-    local snacks_util = require('snacks.util')
+  --- @param ok boolean
+  --- @param should_write boolean
+  local function finish(ok, should_write)
+    ended = true
     snacks_util.stop(timeout_timer)
+
+    if should_write and opts.save ~= false then
+      ok = write(buf) and ok
+    end
+
     progress:finish()
     running_bufs[buf] = nil
-    if on_done then
-      on_done(ok)
+    if opts.on_done then
+      opts.on_done(ok)
     end
   end
 
-  timeout_timer = vim.defer_fn(function()
-    if settled then
-      return
-    end
-    notify.warn('Formatting/linting timed out')
-    cleanup(false)
-  end, TIMEOUT_MS)
-
-  -- Under pcall: an unwritable buffer (E32, E45, E212) would throw and leak the buffer lock
-  local function write()
-    if not save or not vim.api.nvim_buf_is_valid(buf) then
-      return true
-    end
-
-    local ok, err = pcall(vim.api.nvim_buf_call, buf, vim.cmd.update)
-    if not ok then
-      notify.error('Write failed: ' .. tostring(err))
-    end
-
-    return ok
+  -- A failed step ends the run: after BUFFER_CHANGED, whoever is editing the buffer would race
+  -- the remaining steps. What the steps before it did is still written
+  --- @param step features.formatting.conform-nvim.style-enforcers.Step
+  --- @param err string
+  local function fail(step, err)
+    notify_failure(step, err, opts.debug, buf)
+    finish(false, true)
   end
 
-  local function run_linters(formatted)
+  --- @param idx integer
+  local function start(idx)
+    -- A step's reply can outlive its buffer
     if not vim.api.nvim_buf_is_valid(buf) then
-      cleanup(false)
-      return
+      return finish(false, false)
     end
 
-    -- The format step, when it ran, counts as one finished step of the progress
-    local done_offset = formatted and 1 or 0
+    local step = steps[idx]
+    if not step then
+      return finish(true, true)
+    end
 
-    local ok, err = pcall(function()
-      engine.run_for_buf({
-        bufnr = buf,
-        enforcers = enforcers,
-        on_start = function(linter_name, idx, total)
-          if settled then
-            return
-          end
+    -- A failed step ends the run, so every one before idx has finished
+    if idx == 1 then
+      progress:start(step.label)
+    else
+      progress:report(step.label, 100 * (idx - 1) / #steps)
+    end
 
-          local label = 'Linting (' .. linter_name .. ')'
-          -- A failed enforcer ends the run, so every one before idx has finished
-          local done = done_offset + idx - 1
-          if done == 0 then
-            progress:start(label)
-          else
-            progress:report(label, 100 * done / (done_offset + total))
-          end
-        end,
-        on_done = function(linter_name, linter_ok, lint_error)
-          if not linter_ok then
-            if lint_error == engine.BUFFER_CHANGED then
-              notify.warn(
-                string.format('Buffer changed while `%s` was running, skipped', linter_name)
-              )
-            else
-              local msg = debug and string.format('Linter %s error: %s', linter_name, lint_error)
-                or string.format('Linter used: %s', linter_name)
-
-              notify.warn(msg, {
-                title = 'Linting Failed',
-              })
-            end
-          end
-        end,
-        on_complete = function(all_ok)
-          if settled then
-            return
-          end
-
-          cleanup(write() and all_ok)
-        end,
-      })
+    local done = live(function(err)
+      if err then
+        fail(step, err)
+      else
+        start(idx + 1)
+      end
     end)
 
+    --- @type features.formatting.conform-nvim.style-enforcers.Context
+    local ctx = { buf = buf, done = done }
+    if step.client then
+      -- Looked up again rather than kept from the gate: it may have detached meanwhile
+      local client = vim.lsp.get_clients({ name = step.client, bufnr = buf })[1]
+      if not client then
+        return fail(step, step.client .. ' client missing')
+      end
+
+      ctx = lsp_context(buf, client, live, done)
+    end
+
+    -- A step that throws fails like one that reports an error, rather than holding the lock
+    -- until the timeout
+    local ok, err = pcall(step.run, ctx)
     if not ok then
-      notify.error('Linter setup failed: ' .. tostring(err))
-      write()
-      cleanup(false)
+      done(tostring(err))
     end
   end
 
-  local formatters, uses_lsp = conform.list_formatters_to_run(buf)
-  local should_format = #formatters > 0 or uses_lsp
+  timeout_timer = vim.defer_fn(
+    live(function()
+      notify.warn('Formatting/linting timed out')
+      finish(false, false)
+    end),
+    opts.timeout_ms or TIMEOUT_MS
+  )
 
-  if not should_format then
-    run_linters(false)
-    return
-  end
-
-  progress:start('Formatting')
-  conform.format({
-    async = true,
-    bufnr = buf,
-    quiet = true,
-  }, function(format_error)
-    if settled then
-      return
-    end
-
-    if format_error then
-      local msg = debug and 'Format error: ' .. format_error
-        or string.format(
-          'Formatter(s) used: `%s` \nSee `:ConformInfo` for more information',
-          formatter_names(formatters, uses_lsp)
-        )
-
-      notify.error(msg, {
-        title = 'Formatting Failed',
-      })
-      write()
-      cleanup(false)
-      return
-    end
-
-    run_linters(true)
-  end)
+  start(1)
 end
 
---- Run format+lint on all modified listed buffers, then notify a summary of counts and paths
+--- Run the pipeline on all modified listed buffers, then notify a summary of counts and paths
 --- @param debug boolean | nil Enable verbose error messages
 --- @return nil
 function M.run_all(debug)
