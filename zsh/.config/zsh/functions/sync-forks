@@ -1,40 +1,43 @@
 #!/bin/zsh
 
-# Stand-in for the wei/pull GitHub app, through the API behind the "Sync fork" button.
-# A conflicting merge leaves the fork untouched, so it's started in the clone instead
+# Stand-in for the wei/pull GitHub app that rebases instead of merging, so a fork's default
+# branch stays upstream's with the fork's own commits on top. `git replay` rebases in the
+# fork's clone without touching its working tree; a conflicting rebase is started there instead
 sync-forks() {
   local owner=hareki
   # Fork names (not upstream ones) whose drift is accepted, so they are skipped instead of synced
   local -a ignored=(eagle.nvim mason-registry maple-font)
   # Every reportable state in tally order: its phrase in a fork's line, then its tally label
   local -a states=(
-    synced   '%F{green}synced%f with'        '%F{green}synced%f'
-    none     'up to date'                    'up to date'
-    ignored  '%F{yellow}ignored%f'           '%F{yellow}ignored%f'
-    conflict '%F{red}merge conflict%f with'  '%F{red}conflicting%f'
-    failed   '%F{red}failed%f,'              '%F{red}failed%f'
-    pulled   '%F{green}pulled%f'             '%F{green}pulled%f'
-    unpulled '%F{red}not pulled%f,'          '%F{red}not pulled%f'
-    merging  '%F{yellow}merging%f in'        '%F{yellow}merging%f'
-    unpushed '%F{yellow}unpushed merge%f in' '%F{yellow}unpushed%f'
-    unmerged '%F{red}not merged%f,'          '%F{red}not merged%f'
+    synced    '%F{green}synced%f with'          '%F{green}synced%f'
+    none      'up to date'                      'up to date'
+    ignored   '%F{yellow}ignored%f'             '%F{yellow}ignored%f'
+    conflict  '%F{red}rebase conflict%f with'   '%F{red}conflicting%f'
+    failed    '%F{red}failed%f,'                '%F{red}failed%f'
+    cloned    '%F{green}cloned%f to'            '%F{green}cloned%f'
+    pulled    '%F{green}pulled%f'               '%F{green}pulled%f'
+    unpulled  '%F{red}not pulled%f,'            '%F{red}not pulled%f'
+    rebasing  '%F{yellow}rebasing%f in'         '%F{yellow}rebasing%f'
+    unpushed  '%F{yellow}unpushed rebase%f in'  '%F{yellow}unpushed%f'
+    unrebased '%F{red}not rebased%f,'           '%F{red}not rebased%f'
   )
-  local -a opt_jobs=(-j 10) opt_help opt_no_local_merge forks report parts synced conflicted failed unpulled move summary
+  local -a opt_jobs=(-j 10) opt_help opt_no_local_rebase forks report extra rejected parts synced conflicted failed unpulled move summary
   local -A counts phrases
-  local jobs list name branch upstream oid result state detail msg label dir ref tracking entry sep=$'\x1f'
+  local jobs list name branch oid upstream ubranch uoid result state detail msg label dir ref tracking new how rebasing entry sep=$'\x1f'
   for state msg label in "${states[@]}"; do
     phrases[$state]=$msg
   done
 
-  zparseopts -D -F -K -- j:=opt_jobs -jobs:=opt_jobs -no-local-merge=opt_no_local_merge -help=opt_help || return 1
+  zparseopts -D -F -K -- j:=opt_jobs -jobs:=opt_jobs -no-local-rebase=opt_no_local_rebase -help=opt_help || return 1
   # zparseopts keeps the "=" of --jobs=N
   jobs=${opt_jobs[-1]#=}
   # Leftover arguments are rejected: `sync-forks <fork>` would otherwise sync every fork
   if (( $#opt_help || $# )) || [[ $jobs != <1-> ]]; then
-    print "Usage: sync-forks [-j|--jobs <n>] [--no-local-merge]"
-    print "Merge upstream into every fork of $owner, <n> forks at a time (default 10),"
-    print "then fast-forward each fork's clone in ${(D)REPOS_DIR} from origin, or start"
-    print "a conflicting merge in the clone instead (unless --no-local-merge)"
+    print "Usage: sync-forks [-j|--jobs <n>] [--no-local-rebase]"
+    print "Rebase every fork of $owner onto its upstream, <n> forks at a time (default 10), in"
+    print "each fork's clone in ${(D)REPOS_DIR} (cloned there if missing), then force-push it and"
+    print "bring the clone's branch along, or start a conflicting rebase in the clone instead"
+    print "(unless --no-local-rebase)"
     return $(( ! $#opt_help ))
   fi
 
@@ -48,56 +51,103 @@ sync-forks() {
     query($owner: String!, $endCursor: String) {
       repositoryOwner(login: $owner) {
         repositories(first: 100, isFork: true, isArchived: false, ownerAffiliations: OWNER, after: $endCursor) {
-          nodes { name defaultBranchRef { name target { oid } } parent { nameWithOwner } }
+          nodes {
+            name defaultBranchRef { name target { oid } }
+            parent { nameWithOwner defaultBranchRef { name target { oid } } }
+          }
           pageInfo { hasNextPage endCursor }
         }
       }
     }' --jq '.data.repositoryOwner.repositories.nodes[]
-      | .name, .defaultBranchRef.name, .parent.nameWithOwner, .defaultBranchRef.target.oid') || return 1
+      | .name, .defaultBranchRef.name, .defaultBranchRef.target.oid,
+        .parent.nameWithOwner, .parent.defaultBranchRef.name, .parent.defaultBranchRef.target.oid') || return 1
   # Quoted (f) keeps gh's empty line for a null field (empty fork), or later groups shift
   [[ -n $list ]] && forks=("${(@f)list}")
 
   print-header "Syncing forks of $owner"
   zmodload zsh/zselect
   {
-    for name branch upstream oid in "${forks[@]}"; do
+    for name branch oid upstream ubranch uoid in "${forks[@]}"; do
       if (( $ignored[(Ie)$name] )); then
         print -r -- $name${sep}ignored
         continue
       fi
 
       {
-        result=$(gh api -X POST repos/$owner/$name/merge-upstream -f branch=$branch --jq .merge_type 2>&1)
-        # gh's error body lacks a newline, so its "gh: <msg> (HTTP <code>)" line is glued on
-        case $?,$result in
-          0,none)         report=($name none '') ;;
-          0,*)            report=($name synced "$upstream:$branch ($result)") ;;
-          *'(HTTP 409)'*) report=($name conflict $upstream:$branch) ;;
-          *)              report=($name failed "${result##*gh: }") ;;
-        esac
+        dir=$REPOS_DIR/$name ref=refs/heads/$branch tracking=refs/remotes/origin/$branch report=($name)
+        # A fork without a clone gets one, laid out like the rest: SSH origin, HTTPS upstream
+        if [[ -n $oid && -n $uoid && ! -e $dir ]]; then
+          result=$(git clone -q git@gh-personal:$owner/$name.git $dir 2>&1 \
+            && git -C $dir remote add upstream https://github.com/$upstream.git 2>&1) \
+            && extra=(cloned ${(D)dir})
+        fi
 
-        # Only this very fork's clone, not a same-named repo, and only if it has the branch
-        dir=$REPOS_DIR/$name ref=refs/heads/$branch tracking=refs/remotes/origin/$branch
-        if cd -q $dir 2>/dev/null \
-          && [[ $(git remote get-url origin 2>/dev/null) == *[:/]$owner/$name(|.git) ]] \
-          && git show-ref -q --verify $ref; then
-          # If GitHub merged nothing, a clone with the listed head skips the ~3s SSH fetch
-          if [[ $report[2] != (none|conflict) || $(git rev-parse -q --verify $tracking) != $oid ]] \
-            && ! result=$(git fetch -q origin $branch 2>&1); then
-            report+=(unpulled "$result")
+        if [[ -z $oid || -z $uoid ]]; then
+          report+=(failed 'no commits to sync')
+        elif ! cd -q $dir 2>/dev/null; then
+          report+=(failed "${result:-can't enter ${(D)dir}}")
+        # Only this very fork's clone, not a same-named repo
+        elif [[ $(git remote get-url origin 2>/dev/null) != *[:/]$owner/$name(|.git) ]]; then
+          report+=(failed "${(D)dir} isn't a clone of $owner/$name")
+        # The listed heads are usually here already, so only a side that moved costs a fetch
+        # (~3s over SSH)
+        elif [[ $(git rev-parse -q --verify $tracking) != $oid ]] \
+          && ! result=$(git fetch -q origin $branch 2>&1); then
+          report+=(failed "$result")
+        elif ! git cat-file -e "$uoid^{commit}" 2>/dev/null \
+          && ! result=$(git fetch -q https://github.com/$upstream.git $ubranch 2>&1); then
+          report+=(failed "$result")
+        elif git merge-base --is-ancestor $uoid $oid; then
+          report+=(none '')
+        elif git merge-base --is-ancestor $oid $uoid; then
+          new=$uoid how=fast-forward
+        # Prints "update <ref> <new> <old>" and moves nothing. No output means every commit
+        # came out empty, so the fork is upstream's branch now
+        elif result=$(git replay --ref-action=print --onto=$uoid --ref=$tracking $uoid..$oid 2>&1); then
+          new=${${(z)result}[3]:-$uoid} how=rebase
+        elif (( $? == 1 )); then
+          report+=(conflict $upstream:$ubranch)
+        else
+          report+=(failed "$result")
+        fi
+
+        if [[ -n $new ]]; then
+          # The lease fails the push if the fork moved since it was listed
+          if result=$(git push -q --force-with-lease=$ref:$oid origin $new:$ref 2>&1); then
+            report+=(synced "$upstream:$ubranch ($how)")
+          else
+            # Past the "To <url>" line, to the " ! [rejected] ... (<reason>)" one
+            rejected=(${(M)${(f)result}:#' !'*})
+            report+=(failed "${${rejected[1]:-$result}# }")
+          fi
+        fi
+        report+=($extra)
+
+        if [[ $report[2] != failed ]] && git show-ref -q --verify $ref; then
+          # head-name of a rebase in progress here, whichever backend runs it
+          rebasing=$(cat $(git rev-parse --git-path rebase-merge/head-name --git-path rebase-apply/head-name) 2>/dev/null)
+          # Most likely started by an earlier run, and the branch is the rebase's until it concludes
+          if [[ $rebasing == $ref ]]; then
+            report+=(rebasing ${(D)dir})
           # Nothing to pull: level with origin, or only ahead of it with unpushed commits
           elif git merge-base --is-ancestor $tracking $ref; then
             :
-          elif ! git merge-base --is-ancestor $ref $tracking; then
+          # An earlier run's rebase, concluded here on an older upstream, which the
+          # conflict step below rebases again
+          elif [[ $report[2] == conflict && $(git merge-base $ref $uoid) != $(git merge-base $oid $uoid) ]]; then
+            :
+          # Anything the branch has was on origin at some point: the tracking ref's reflog
+          # keeps the heads that this or an earlier run's rebase replaced
+          elif [[ $(git merge-base --fork-point $tracking $ref) != $(git rev-parse $ref) ]]; then
             report+=(unpulled "diverged from origin/$branch")
-          # Not checked out here, so only the ref has to move. Git refuses that while
-          # another worktree has the branch checked out or is rebasing it
+          # Not checked out here, so only the ref has to move: "+" as a rebase rewrites it,
+          # and git still refuses a branch checked out or being rebased in another worktree
           elif [[ $(git symbolic-ref -q HEAD) != $ref ]]; then
-            move=(fetch -q . $tracking:$ref)
+            move=(fetch -q . +$tracking:$ref)
           elif [[ -n $(git status --porcelain -uno) ]]; then
             report+=(unpulled "local changes")
           else
-            move=(merge -q --ff-only $tracking)
+            move=(reset -q --keep $tracking)
           fi
           if (( $#move )); then
             if result=$(git $move 2>&1); then
@@ -107,28 +157,22 @@ sync-forks() {
             fi
           fi
 
-          # Start the refused merge on the clone's up-to-date branch, ready to resolve there
-          if [[ $report[2] == conflict ]] && (( ! $#opt_no_local_merge && ! $report[(Ie)unpulled] )); then
-            if [[ $(git symbolic-ref -q HEAD) != $ref ]]; then
-              report+=(unmerged "$branch not checked out")
-            # Most likely started by an earlier run, and not concluded yet
-            elif git rev-parse -q --verify MERGE_HEAD >/dev/null; then
-              report+=(merging ${(D)dir})
-            elif [[ -n $(git status --porcelain -uno) ]]; then
-              report+=(unmerged "local changes")
-            elif ! result=$(git fetch -q https://github.com/$upstream.git $branch 2>&1); then
-              report+=(unmerged "$result")
-            # An earlier run's merge, concluded but not pushed yet
-            elif git merge-base --is-ancestor FETCH_HEAD $ref; then
+          # Start the refused rebase on the clone's branch, ready to finish there
+          if [[ $report[2] == conflict ]] \
+            && (( ! $#opt_no_local_rebase && ! $report[(Ie)unpulled] && ! $report[(Ie)rebasing] )); then
+            if git merge-base --is-ancestor $uoid $ref; then
               report+=(unpushed ${(D)dir})
+            elif [[ $(git symbolic-ref -q HEAD) != $ref ]]; then
+              report+=(unrebased "$branch not checked out")
+            elif [[ -n $(git status --porcelain -uno) ]]; then
+              report+=(unrebased "local changes")
+            # --reapply-cherry-picks drops only the commits that come out empty, as replay does
+            elif result=$(git rebase -q --reapply-cherry-picks $uoid 2>&1); then
+              report+=(unpushed ${(D)dir})
+            elif [[ -d $(git rev-parse --git-path rebase-merge) ]]; then
+              report+=(rebasing ${(D)dir})
             else
-              # --no-commit, so a clean merge still stops for review, like a conflicting one
-              result=$(git merge -q --no-commit FETCH_HEAD 2>&1)
-              if git rev-parse -q --verify MERGE_HEAD >/dev/null; then
-                report+=(merging ${(D)dir})
-              else
-                report+=(unmerged "$result")
-              fi
+              report+=(unrebased "$result")
             fi
           fi
         fi
@@ -136,21 +180,21 @@ sync-forks() {
         # (hence $sep), and keep only their first line, as errors can run over several
         print -r -- ${(pj:$sep:)report%%$'\n'*}
       } &
-      # Polled, so a slow merge never stalls the free slots: zargs -P runs fixed batches and
+      # Polled, so a slow rebase never stalls the free slots: zargs -P runs fixed batches and
       # zsh's wait has no -n. After the spawn, as a subshell's $jobstates lists its parent's
       # jobs until it starts one of its own
       while (( $#jobstates >= jobs )); do zselect -t 5; done
     done
     wait
   } | while IFS=$sep read -rA report; do
-    # The subshells report as lines (name, then state/detail pairs for the merge and the
+    # The subshells report as lines (name, then state/detail pairs for the sync and the
     # clone), tallied here since zsh runs a pipeline's last command in the current shell
     name=$report[1] parts=()
     for state detail in "${(@)report[2,-1]}"; do
       (( ++counts[$state] ))
       [[ $state == unpulled ]] && unpulled+=("${(D)REPOS_DIR}/$name: $detail")
       # Only the fixed text goes through prompt expansion: $detail carries branch names
-      # and API messages, where any % would read as an escape
+      # and git's messages, where any % would read as an escape
       parts+=("${(%)phrases[$state]}${detail:+ $detail}")
     done
     # Synced and conflicting forks are listed again at the end, with their clone's outcome
@@ -169,7 +213,7 @@ sync-forks() {
   fi
   {
     if (( $#conflicted )); then
-      print -P "\n%F{red}==> Merge conflicts, resolve them or add the fork to the ignore list:%f"
+      print -P "\n%F{red}==> Rebase conflicts, finish them in the clone and force-push, or add the fork to the ignore list:%f"
       print -rl -- "  "$^conflicted
     fi
     if (( $#failed )); then
