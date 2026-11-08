@@ -2,6 +2,7 @@
 local M = {
   name = 'oxlint',
   label = 'Fixing (oxlint)',
+  kind = 'fix',
   client = 'oxlint',
 }
 
@@ -16,17 +17,6 @@ function M.run(ctx)
   ctx.request('textDocument/diagnostic', { textDocument = document }, function()
     ctx.execute('oxc.fixAll', document)
   end)
-end
-
---- @param err string
---- @param debug? boolean
---- @return features.formatting.conform-nvim.style-enforcers.Failure
-function M.failure(err, debug)
-  return {
-    level = 'warn',
-    title = 'Fixing Failed',
-    msg = debug and string.format('Linter oxlint error: %s', err) or 'Linter used: oxlint',
-  }
 end
 
 return M

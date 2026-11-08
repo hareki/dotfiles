@@ -30,7 +30,7 @@ local function group_item(group, note)
   return string.format('- `%s`%s', group, note and (' ' .. note) or '')
 end
 
---- @return integer buf, integer win
+--- @return integer win
 local function open_popup(lines, row0, col0)
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
@@ -55,7 +55,7 @@ local function open_popup(lines, row0, col0)
   vim.wo[win].conceallevel = 2
   vim.wo[win].wrap = false
 
-  return buf, win
+  return win
 end
 
 --- Show the syntax groups, Tree-sitter captures, extmarks and matches at the cursor in a popup
@@ -103,7 +103,7 @@ function M.show()
     },
   })
 
-  local _, win = open_popup(lines, items.row, items.col)
+  local win = open_popup(lines, items.row, items.col)
 
   -- <Esc> in the origin window also clears search highlights, as it does without the popup
   close_active = popup.link(win, {

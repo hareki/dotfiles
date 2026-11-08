@@ -30,11 +30,8 @@ end
 --- @param lhs string
 --- @return string? desc nil when the buffer has no map on lhs
 local function buf_map_desc(buf, lhs)
-  for _, map in ipairs(vim.api.nvim_buf_get_keymap(buf, 'n')) do
-    if vim.fn.keytrans(map.lhsraw) == lhs then
-      return map.desc or ''
-    end
-  end
+  local map = t.keymap('n', lhs, buf)
+  return map and (map.desc or '')
 end
 
 t.test('cursor_moved closes it once the cursor leaves its position', function()

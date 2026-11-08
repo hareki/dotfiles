@@ -60,39 +60,18 @@ local function comparable(chunks)
   end, chunks)
 end
 
---- Close the picker and wait for the teardown snacks schedules
 --- @param picker snacks.Picker
-local function close_picker(picker)
-  picker:close()
-  t.wait_for(function()
-    return picker.preview == nil
-  end, 'the picker teardown')
-end
-
---- The open tabs picker once it lists every tab
---- @param msg string
---- @return snacks.Picker
-local function await_picker(msg)
-  local picker --- @type snacks.Picker?
-  t.wait_for(function()
-    picker = Snacks.picker.get({ source = 'tabs' })[1]
-    return picker ~= nil
-      and picker.shown == true
-      and #picker:items() == #vim.api.nvim_list_tabpages()
-  end, msg)
-  --- @cast picker snacks.Picker
-  return picker
+--- @return boolean
+local function lists_every_tab(picker)
+  return #picker:items() == #vim.api.nvim_list_tabpages()
 end
 
 --- Open Snacks.picker.tabs() and wait until it lists every tab
 --- @return snacks.Picker
 local function open_picker()
-  -- Opening a source that is already open closes it instead, so drop one a failed test left
-  for _, stale in ipairs(Snacks.picker.get({ source = 'tabs' })) do
-    close_picker(stale)
-  end
-  Snacks.picker.tabs()
-  return await_picker('the tabs picker to list every tab')
+  return t.open_picker(function()
+    Snacks.picker.tabs()
+  end, 'tabs', lists_every_tab, 'the tabs picker to list every tab')
 end
 
 --- Put the list cursor on the item of `tab`
@@ -108,20 +87,6 @@ local function select_tab(picker, tab)
     end
   end
   error(string.format('no item lists tab %d', tab))
-end
-
---- The callback of a buffer-local map in one of the picker's windows
---- @param buf integer
---- @param mode string
---- @param lhs string
---- @return function
-local function buf_map(buf, mode, lhs)
-  for _, map in ipairs(vim.api.nvim_buf_get_keymap(buf, mode)) do
-    if vim.fn.keytrans(map.lhsraw) == lhs then
-      return t.ok(map.callback, string.format('%s maps no callback', lhs))
-    end
-  end
-  error(string.format('buffer %d maps no %s in mode %s', buf, lhs, mode))
 end
 
 --- Leave insert mode, as a normal-mode key in the input window would find it
@@ -174,11 +139,11 @@ t.test('Snacks.picker.tabs() runs the exported source and maps its keys', functi
   t.eq(picker.opts.format, tabs.source.format, 'the format')
   t.eq(picker.opts.actions.confirm, tabs.source.confirm, 'the confirm action')
   t.eq(picker.opts.actions.tab_close, tabs.source.actions.tab_close, 'the tab_close action')
-  buf_map(picker.input.win.buf, 'n', 'x')
-  buf_map(picker.input.win.buf, 'n', '<C-X>')
-  buf_map(picker.input.win.buf, 'i', '<C-X>')
-  buf_map(picker.list.win.buf, 'n', 'dd')
-  close_picker(picker)
+  t.map_callback('n', 'x', picker.input.win.buf)
+  t.map_callback('n', '<C-X>', picker.input.win.buf)
+  t.map_callback('i', '<C-X>', picker.input.win.buf)
+  t.map_callback('n', 'dd', picker.list.win.buf)
+  t.close_picker(picker)
   reset_tabs()
 end)
 
@@ -193,7 +158,7 @@ t.test("format shows the tab's label, then the buffers source's row for its buff
     local buffer_row = comparable(buffers.format(item, picker))
     t.eq(comparable({ unpack(row, 3) }), buffer_row, "then the buffer's row")
   end
-  close_picker(picker)
+  t.close_picker(picker)
   reset_tabs()
 end)
 
@@ -232,12 +197,12 @@ t.test('tab_close closes the tab under the cursor and lists the rest', function(
 
   -- The list's dd, on the second tab
   select_tab(picker, fixture.tabs[2])
-  buf_map(picker.list.win.buf, 'n', 'dd')()
+  t.map_callback('n', 'dd', picker.list.win.buf)()
   t.wait_for(function()
     return #picker:items() == 1
   end, 'dd to close the second tab')
   t.eq(vim.api.nvim_list_tabpages(), { fixture.tabs[1] }, 'only the first tab is left')
-  close_picker(picker)
+  t.close_picker(picker)
   reset_tabs()
 end)
 
@@ -248,13 +213,14 @@ t.test('x on the current tab closes it and resumes the picker where nvim lands',
 
   select_tab(picker, fixture.tabs[2])
   normal_mode()
-  buf_map(picker.input.win.buf, 'n', 'x')()
-  local resumed = await_picker('the resumed picker to list the two tabs left')
+  t.map_callback('n', 'x', picker.input.win.buf)()
+  local resumed =
+    t.await_picker('tabs', lists_every_tab, 'the resumed picker to list the two tabs left')
 
   t.eq(vim.api.nvim_tabpage_is_valid(fixture.tabs[2]), false, 'the current tab closed')
   t.ok(resumed ~= picker, 'a new picker resumed the closed one')
   t.eq(pluck(resumed:items(), 'tab'), { fixture.tabs[1], fixture.tabs[3] }, 'the listed tabs')
-  close_picker(resumed)
+  t.close_picker(resumed)
   reset_tabs()
 end)
 
@@ -269,5 +235,5 @@ t.test('tab_close keeps the last tab, warning instead', function()
   t.eq(#vim.api.nvim_list_tabpages(), 1, 'the last tab stays')
   t.eq(#warnings, 1, 'one warning')
   t.eq(warnings[1][1], 'Cannot close the last tab', 'the warning')
-  close_picker(picker)
+  t.close_picker(picker)
 end)

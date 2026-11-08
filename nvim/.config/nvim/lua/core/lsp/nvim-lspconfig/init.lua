@@ -50,8 +50,8 @@ return {
 
         local client = vim.lsp.get_client_by_id(args.data.client_id) --[[@as vim.lsp.Client]]
 
-        -- Neovim's own K is buffer-local, so config/keymaps.lua's retitle misses it; it also yields
-        -- to a filetype's 'keywordprg', which none of these servers' filetypes set
+        -- Neovim's own K is buffer-local, so config/builtin-keymaps.lua's retitle misses it; it
+        -- also yields to a filetype's 'keywordprg', which none of these servers' filetypes set
         if client:supports_method('textDocument/hover') then
           map('n', 'K', vim.lsp.buf.hover, 'Hover')
         end

@@ -99,6 +99,10 @@ M.BUFFER_DESC_OVERRIDES = {
   },
 }
 
+--- The filetypes whose ftplugin sets a BUFFER_DESC_OVERRIDES map, which the retitle waits for on
+--- FileType; terminals set theirs on TermOpen
+M.FTPLUGIN_FILETYPES = { 'checkhealth', 'help', 'markdown', 'nvim-pack' }
+
 --- Fold-key { key, desc } pairs shared by the which-key preset's z group and the keymaps picker
 M.FOLD_DESCS = {
   { 'za', 'Toggle Fold Under Cursor' },
@@ -174,14 +178,17 @@ function M.setup()
 
   -- Neovim creates its ftplugin loader and terminal defaults before loading this config, and
   -- autocmds run in creation order: these see the maps they set
-  vim.api.nvim_create_autocmd({ 'FileType', 'TermOpen' }, {
-    group = vim.api.nvim_create_augroup('config.builtin-keymaps.retitle-buffer-maps', {
-      clear = true,
-    }),
-    callback = function(event)
-      retitle_buffer_maps(event.buf)
-    end,
+  local group =
+    vim.api.nvim_create_augroup('config.builtin-keymaps.retitle-buffer-maps', { clear = true })
+  local function on_maps_set(event)
+    retitle_buffer_maps(event.buf)
+  end
+  vim.api.nvim_create_autocmd('FileType', {
+    group = group,
+    pattern = M.FTPLUGIN_FILETYPES,
+    callback = on_maps_set,
   })
+  vim.api.nvim_create_autocmd('TermOpen', { group = group, callback = on_maps_set })
   -- Buffers whose FileType or TermOpen came first: a file passed on the command line
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
     if vim.api.nvim_buf_is_loaded(buf) then

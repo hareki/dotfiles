@@ -2,6 +2,7 @@
 local M = {
   name = 'oxfmt',
   label = 'Formatting (oxfmt)',
+  kind = 'format',
   client = 'oxfmt',
 }
 
@@ -19,17 +20,6 @@ function M.run(ctx)
 
     ctx.done()
   end)
-end
-
---- @param err string
---- @param debug? boolean
---- @return features.formatting.conform-nvim.style-enforcers.Failure
-function M.failure(err, debug)
-  return {
-    level = 'error',
-    title = 'Formatting Failed',
-    msg = debug and string.format('Formatter oxfmt error: %s', err) or 'Formatter used: oxfmt',
-  }
 end
 
 return M

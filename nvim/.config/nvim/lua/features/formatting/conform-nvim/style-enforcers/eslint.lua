@@ -2,6 +2,7 @@
 local M = {
   name = 'eslint',
   label = 'Fixing (eslint)',
+  kind = 'fix',
   client = 'eslint',
 }
 
@@ -13,17 +14,6 @@ function M.run(ctx)
     uri = vim.uri_from_bufnr(ctx.buf),
     version = vim.lsp.util.buf_versions[ctx.buf],
   })
-end
-
---- @param err string
---- @param debug? boolean
---- @return features.formatting.conform-nvim.style-enforcers.Failure
-function M.failure(err, debug)
-  return {
-    level = 'warn',
-    title = 'Fixing Failed',
-    msg = debug and string.format('Linter eslint error: %s', err) or 'Linter used: eslint',
-  }
 end
 
 return M

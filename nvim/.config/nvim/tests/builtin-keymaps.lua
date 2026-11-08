@@ -82,35 +82,12 @@ local function keytrans(lhs)
   return vim.fn.keytrans(vim.keycode(lhs))
 end
 
---- @param mode string
---- @param lhs string
---- @return table? map
-local function global_map(mode, lhs)
-  for _, map in ipairs(vim.api.nvim_get_keymap(mode)) do
-    if vim.fn.keytrans(map.lhsraw) == keytrans(lhs) then
-      return map
-    end
-  end
-end
-
---- @param buf integer
---- @param mode string
---- @param lhs string
---- @return table? map Only a buffer-local one
-local function buf_map(buf, mode, lhs)
-  for _, map in ipairs(vim.api.nvim_buf_get_keymap(buf, mode)) do
-    if vim.fn.keytrans(map.lhsraw) == lhs then
-      return map
-    end
-  end
-end
-
 --- @param buf integer
 --- @param mode string
 --- @param lhs string
 --- @return string? desc
 local function buf_desc(buf, mode, lhs)
-  local map = buf_map(buf, mode, lhs)
+  local map = t.keymap(mode, lhs, buf)
   return map and map.desc
 end
 
@@ -120,7 +97,7 @@ t.test('retitles the global defaults, leaving the rest of each map as Neovim set
     for _, mode in ipairs(spec.mode or { 'n' }) do
       local name = string.format('%s %s', mode, keytrans(lhs))
       local expected = vim.deepcopy(t.ok(defaults[name], name .. ' is no Neovim default'))
-      local map = t.ok(global_map(mode, lhs), name .. ' is unmapped') --[[@as table]]
+      local map = t.ok(t.keymap(mode, lhs), name .. ' is unmapped') --[[@as table]]
       t.eq(map.desc, spec.desc, name)
 
       local actual = vim.deepcopy(map)
@@ -135,7 +112,7 @@ t.test('retitles the global defaults, leaving the rest of each map as Neovim set
   local first = t.buffer()
   local second = t.buffer()
   vim.api.nvim_set_current_buf(first)
-  global_map('n', ']b').callback()
+  t.keymap('n', ']b').callback()
   t.eq(vim.api.nvim_get_current_buf(), second, ']b moves to the next buffer')
   vim.api.nvim_buf_delete(first, { force = true })
   vim.api.nvim_buf_delete(second, { force = true })
@@ -146,7 +123,7 @@ t.test('deletes the unused defaults', function()
   for _, lhs in ipairs(builtin_keymaps.UNUSED_DEFAULTS) do
     local name = 'n ' .. keytrans(lhs)
     t.ok(defaults[name], name .. ' is no Neovim default')
-    t.eq(global_map('n', lhs), nil, name)
+    t.eq(t.keymap('n', lhs), nil, name)
   end
 end)
 
@@ -169,10 +146,10 @@ t.test('retitles the help, markdown and checkhealth ftplugin maps', function()
   -- The retitled maps keep the ftplugin's callback and flags, in their own buffer
   local buf = t.buffer('markdown', { '# One', 'text', '# Two' })
   vim.api.nvim_win_set_cursor(0, { 1, 0 })
-  buf_map(buf, 'n', ']]').callback()
+  t.keymap('n', ']]', buf).callback()
   t.eq(vim.api.nvim_win_get_cursor(0)[1], 3, ']] jumps to the next heading')
-  t.eq(buf_map(buf, 'n', 'gO').silent, 1, 'gO stays silent')
-  t.eq(global_map('n', ']]'), nil, 'no global ]] appeared')
+  t.eq(t.keymap('n', 'gO', buf).silent, 1, 'gO stays silent')
+  t.eq(t.keymap('n', ']]'), nil, 'no global ]] appeared')
   vim.api.nvim_buf_delete(buf, { force = true })
 end)
 
@@ -184,6 +161,10 @@ t.test("has a title for each map with a desc that Neovim's ftplugins set", funct
     local spec = t.ok(builtin_keymaps.BUFFER_DESC_OVERRIDES[map.desc], name .. ' has no title')
     t.eq(spec.lhs, map.lhs, name)
     t.ok(vim.list_contains(spec.mode or { 'n' }, map.mode), name .. ' is retitled in other modes')
+    t.ok(
+      vim.list_contains(builtin_keymaps.FTPLUGIN_FILETYPES, map.filetype),
+      name .. "'s filetype is not retitled on FileType"
+    )
   end
 end)
 
@@ -240,11 +221,16 @@ t.test('retitles the buffers whose maps came before it was applied', function()
   t.eq(buf_desc(hidden, 'n', ']]'), 'Jump to Next Section', 'a hidden buffer')
   t.eq(buf_desc(current, 'n', ']]'), 'Jump to Next Section', 'the current buffer')
 
-  local events = vim.tbl_map(function(autocmd)
-    return autocmd.event
+  local handlers = vim.tbl_map(function(autocmd)
+    return autocmd.event .. ' ' .. autocmd.pattern
   end, vim.api.nvim_get_autocmds({ group = GROUP }))
-  table.sort(events)
-  t.eq(events, { 'FileType', 'TermOpen' }, 'one handler per event after a second setup()')
+  table.sort(handlers)
+  local expected = vim.tbl_map(function(filetype)
+    return 'FileType ' .. filetype
+  end, builtin_keymaps.FTPLUGIN_FILETYPES)
+  table.insert(expected, 'TermOpen *')
+  table.sort(expected)
+  t.eq(handlers, expected, 'one handler per ftplugin filetype and terminals after a second setup()')
 
   vim.api.nvim_buf_delete(hidden, { force = true })
   vim.api.nvim_buf_delete(current, { force = true })
@@ -252,7 +238,7 @@ end)
 
 t.test('describes the fold commands through identity maps', function()
   for _, fold in ipairs(builtin_keymaps.FOLD_DESCS) do
-    local map = t.ok(global_map('n', fold[1]), fold[1] .. ' is unmapped') --[[@as table]]
+    local map = t.ok(t.keymap('n', fold[1]), fold[1] .. ' is unmapped') --[[@as table]]
     t.eq({ map.rhs, map.noremap, map.desc }, { fold[1], 1, fold[2] }, fold[1])
   end
 

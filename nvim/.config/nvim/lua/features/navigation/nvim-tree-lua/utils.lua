@@ -117,17 +117,12 @@ local function switch_position(position)
     return
   end
 
-  local nvimtree = require('nvim-tree')
-
   state.position = position
-  if state.opts ~= nil then
-    state.opts.view.float.enable = position == 'float'
-  end
-
   M.close_all()
   -- nvim-tree explicitly supports subsequent setup calls:
   -- https://github.com/nvim-tree/nvim-tree.lua/blob/b0b49552c9462900a882fe772993b01d780445fe/lua/nvim-tree.lua#L738
-  nvimtree.setup(state.opts)
+  -- state.opts is set by then: the plugin's config runs before any keymap that reaches here
+  M.setup(state.opts --[[@as table]])
 end
 
 --- The tree's float geometry: height halved for the preview below, or the whole popup for 'expand'

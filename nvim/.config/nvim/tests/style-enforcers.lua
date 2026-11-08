@@ -21,13 +21,6 @@ local SERVER_CAPABILITIES = {
   executeCommandProvider = { commands = { 'eslint.applyAllFixes', 'oxc.fixAll' } },
 }
 
---- @param mode string
---- @param lhs string
---- @return function callback The callback of the map on lhs
-local function map_callback(mode, lhs)
-  return t.ok(vim.fn.maparg(lhs, mode, false, true).callback, 'no callback map on ' .. lhs)
-end
-
 --- @param buf integer
 --- @return string[]
 local function buf_lines(buf)
@@ -234,7 +227,7 @@ end)
 t.test('<leader>F formats without saving', function()
   local buf = t.file('no-save.lua', UNFORMATTED)
 
-  map_callback('n', '<leader>F')()
+  t.map_callback('n', '<leader>F')()
   t.wait_for(function()
     return vim.deep_equal(buf_lines(buf), FORMATTED)
   end, 'the format')
@@ -252,7 +245,7 @@ t.test('<F40> formats and saves every modified buffer', function()
   local second = t.file('all-2.lua', UNFORMATTED)
   vim.bo[second].modified = true
 
-  map_callback('n', '<F40>')()
+  t.map_callback('n', '<F40>')()
   t.wait_for(function()
     return #notices > 0
   end, 'the summary')

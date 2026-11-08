@@ -21,8 +21,18 @@ return {
         end,
       })
 
-      local utils = require('core.auto-session.utils')
-      utils.publish_tmux_server()
+      -- After the first frame: tsave reads it long after startup, and the tmux spawn costs ~0.4 ms
+      vim.api.nvim_create_autocmd('User', {
+        group = vim.api.nvim_create_augroup('core.auto-session.publish-tmux-server', {
+          clear = true,
+        }),
+        pattern = 'VeryLazy',
+        once = true,
+        callback = function()
+          local utils = require('core.auto-session.utils')
+          utils.publish_tmux_server()
+        end,
+      })
     end,
 
     keys = {

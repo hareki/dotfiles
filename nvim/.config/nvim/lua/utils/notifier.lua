@@ -65,8 +65,9 @@ end
 --- @param level integer
 --- @param msg utils.notifier.Message
 --- @param opts? utils.notifier.NotifierOpts
---- @return any handle The notification record
-local function notify(level, msg, opts)
+--- @param send? fun(msg: string, level: integer, opts: table): any Default: vim.notify
+--- @return any handle The notification record, or whether vim.notify_once showed it
+local function notify(level, msg, opts, send)
   opts = opts or {}
 
   local apply_highlight
@@ -107,7 +108,7 @@ local function notify(level, msg, opts)
     end
   end
 
-  return vim.notify(msg, level, {
+  return (send or vim.notify)(msg, level, {
     title = opts.title or 'Notifier',
     on_open = on_open,
   })
@@ -136,27 +137,28 @@ end
 
 --- @alias utils.notifier.Notify fun(msg: utils.notifier.Message, opts?: utils.notifier.NotifierOpts): any
 
---- Messages shown once per session, by text
---- @type table<string, true>
-local shown_once = {}
+-- The *_once variants: like info/warn/error, shown once per message text per session
 
---- @param notify_fn utils.notifier.Notify
---- @return utils.notifier.Notify
-local function once(notify_fn)
-  return function(msg, opts)
-    local key = type(msg) == 'string' and msg or vim.inspect(msg)
-    if shown_once[key] then
-      return nil
-    end
-    shown_once[key] = true
-    return notify_fn(msg, opts)
-  end
+--- @param msg utils.notifier.Message
+--- @param opts? utils.notifier.NotifierOpts
+--- @return boolean shown
+function M.info_once(msg, opts)
+  return notify(vim.log.levels.INFO, msg, opts, vim.notify_once)
 end
 
---- Like info/warn/error, shown once per message per session (vim.notify_once)
-M.info_once = once(M.info)
-M.warn_once = once(M.warn)
-M.error_once = once(M.error)
+--- @param msg utils.notifier.Message
+--- @param opts? utils.notifier.NotifierOpts
+--- @return boolean shown
+function M.warn_once(msg, opts)
+  return notify(vim.log.levels.WARN, msg, opts, vim.notify_once)
+end
+
+--- @param msg utils.notifier.Message
+--- @param opts? utils.notifier.NotifierOpts
+--- @return boolean shown
+function M.error_once(msg, opts)
+  return notify(vim.log.levels.ERROR, msg, opts, vim.notify_once)
+end
 
 --- @class utils.notifier.Scoped
 --- @field info utils.notifier.Notify

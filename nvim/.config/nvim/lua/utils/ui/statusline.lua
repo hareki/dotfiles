@@ -69,8 +69,8 @@ end
 --- Refresh the lualine statusline if lualine is loaded
 --- @return nil
 function M.refresh()
-  if package.loaded['lualine'] then
-    local lualine = require('lualine')
+  local lualine = package.loaded['lualine']
+  if lualine then
     lualine.refresh({ place = { 'statusline' } })
   end
 end

@@ -41,9 +41,7 @@ return {
       {
         '<leader><leader>',
         function()
-          local picker_actions = require('features.search.snacks-nvim.actions')
-
-          Snacks.picker.files({ layout = picker_actions.preview_layout('files') })
+          Snacks.picker.files({ layout = actions.preview_layout('files') })
         end,
         desc = 'Find Files',
       },

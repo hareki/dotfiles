@@ -1,5 +1,6 @@
---- What a test file in tests/ uses: register tests, assert, wait on the event loop, and set up
---- buffers. tests/lib/boot.lua runs the file once the config has booted, VeryLazy included
+--- What a test file in tests/ uses: register tests, assert, wait on the event loop, set up
+--- buffers, look up maps and drive Snacks pickers. tests/lib/boot.lua runs the file once the
+--- config has booted, VeryLazy included
 --- @class tests.lib.helpers
 local M = {}
 
@@ -119,6 +120,78 @@ function M.file(name, lines)
   vim.fn.writefile(lines, path)
   vim.cmd.edit(vim.fn.fnameescape(path))
   return vim.api.nvim_get_current_buf()
+end
+
+--- The map on lhs: `buf`'s own when given, else the global one
+--- @param mode string
+--- @param lhs string In any notation keycode() reads (`<leader>F`, `<Tab>`)
+--- @param buf? integer
+--- @return table? map A dict from nvim_get_keymap() or nvim_buf_get_keymap(), nil when unmapped
+function M.keymap(mode, lhs, buf)
+  -- Compared as keytrans() text: lhsraw keeps keys like <C-S> unsimplified
+  local wanted = vim.fn.keytrans(vim.keycode(lhs))
+  local maps = buf and vim.api.nvim_buf_get_keymap(buf, mode) or vim.api.nvim_get_keymap(mode)
+  for _, map in ipairs(maps) do
+    if vim.fn.keytrans(map.lhsraw) == wanted then
+      return map
+    end
+  end
+end
+
+--- The callback of the map on lhs (see keymap()), failing the test when there is none
+--- @param mode string
+--- @param lhs string
+--- @param buf? integer
+--- @return function
+function M.map_callback(mode, lhs, buf)
+  local where = buf and string.format('buffer %d', buf) or 'the global maps'
+  local map =
+    M.ok(M.keymap(mode, lhs, buf), string.format('no %s map on %s in %s', mode, lhs, where))
+  return M.ok(map.callback, string.format('%s maps no callback', lhs))
+end
+
+--- Close a Snacks picker and wait for the teardown snacks schedules
+--- @param picker snacks.Picker
+function M.close_picker(picker)
+  picker:close()
+  M.wait_for(function()
+    return picker.preview == nil
+  end, 'the picker teardown')
+end
+
+--- The open picker of `source`, once it shows and `ready` holds
+--- @param source string
+--- @param ready? fun(picker: snacks.Picker): boolean Default: it lists an item
+--- @param msg? string What is awaited, for the failure
+--- @return snacks.Picker
+function M.await_picker(source, ready, msg)
+  ready = ready or function(picker)
+    return #picker:items() > 0
+  end
+
+  local picker --- @type snacks.Picker?
+  M.wait_for(function()
+    picker = Snacks.picker.get({ source = source })[1]
+    return picker ~= nil and picker.shown == true and ready(picker)
+  end, msg or string.format('the %s picker to list its items', source))
+  --- @cast picker snacks.Picker
+  return picker
+end
+
+--- Run `open`, then wait for the picker of `source` it opens (see await_picker())
+--- @param open fun()
+--- @param source string
+--- @param ready? fun(picker: snacks.Picker): boolean
+--- @param msg? string
+--- @return snacks.Picker
+function M.open_picker(open, source, ready, msg)
+  -- Opening a source that is already open closes it instead, so drop one a failed test left
+  for _, stale in ipairs(Snacks.picker.get({ source = source })) do
+    M.close_picker(stale)
+  end
+
+  open()
+  return M.await_picker(source, ready, msg)
 end
 
 --- Run the registered tests, reporting each through `out`; called by boot.lua
