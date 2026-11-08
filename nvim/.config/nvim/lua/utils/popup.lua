@@ -131,13 +131,6 @@ end
 --- @return fun() close Closes the popup and releases the link; later calls are no-ops
 function M.link(popup_win, opts)
   local source_win = vim.api.nvim_get_current_win()
-  -- Already linked when it opened: gitsigns focuses an open popup rather than opening another
-  if popup_win == source_win then
-    return function()
-      pcall(vim.api.nvim_win_close, popup_win, true)
-    end
-  end
-
   local modes = opts.modes or 'n'
   local source_buf = vim.api.nvim_win_get_buf(source_win)
   local popup_buf = vim.api.nvim_win_get_buf(popup_win)

@@ -10,7 +10,8 @@ function M.build_popup_navigation(popup_type)
     local gitsigns_popup = require('gitsigns.popup')
     local popup_win_id = gitsigns_popup.is_open(popup_type)
 
-    if not popup_win_id then
+    -- gitsigns focuses a popup already open, and so already linked, instead of opening another
+    if not popup_win_id or popup_win_id == vim.api.nvim_get_current_win() then
       return
     end
 
