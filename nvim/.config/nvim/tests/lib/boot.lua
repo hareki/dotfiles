@@ -26,8 +26,11 @@ local function main()
 
   -- Headless nvim fires no UIEnter, so lazy.nvim never fires VeryLazy (config.keymaps, ...)
   vim.api.nvim_exec_autocmds('User', { pattern = 'VeryLazy', modeline = false })
-  -- lazy.nvim fires LazyLoad in vim.schedule, and nvim-lspconfig enables servers after 75 ms
-  helpers.settle(300)
+  -- Until nvim-lspconfig's deferred enable has run (75 ms, after lazy.nvim's scheduled LazyLoad);
+  -- the cap covers a revision that never enables lua_ls
+  vim.wait(300, function()
+    return vim.lsp.is_enabled('lua_ls')
+  end, 10)
 
   local payload = assert(vim.env.NVIM_TEST_PAYLOAD, 'NVIM_TEST_PAYLOAD is unset')
   local ok, err = xpcall(dofile, debug.traceback, payload)
