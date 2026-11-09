@@ -52,6 +52,16 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/bell-when-done.sh"
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
