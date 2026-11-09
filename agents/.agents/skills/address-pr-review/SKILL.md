@@ -1,8 +1,8 @@
 ---
 name: address-pr-review
-description: Work through the review feedback on a GitHub pull request. Fetches every unresolved review comment with gh, verifies each one against the code, fixes the valid ones as one commit per comment (each carrying a `Review-Comment:` trailer that links the comment), and drafts a reply for every comment in REPLY.md for the user to review. With `--fix`, it also settles the comments that would wait on the user's decision, taking the recommended option. Invoke explicitly with a PR link, or a link to a single review or comment.
+description: Work through the review feedback on a GitHub pull request. Fetches every unresolved review comment with gh, verifies each one against the code, fixes the valid ones as one commit per comment (each carrying a `Review-Comment:` trailer that links the comment), and drafts a reply for every comment in REPLY.md for the user to review. With `--decide`, it also settles the comments that would wait on the user's decision, taking the recommended option. Invoke explicitly with a PR link, or a link to a single review or comment.
 disable-model-invocation: true
-argument-hint: "[--fix] <pr-url | review-or-comment-url | pr-number>"
+argument-hint: "[--decide] <pr-url | review-or-comment-url | pr-number>"
 allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git show:*), Bash(git rev-parse:*), Bash(git add:*), Bash(git commit:*), Bash(gh pr view:*)
 ---
 
@@ -15,11 +15,11 @@ Turn the review feedback on a pull request into two things:
 
 Nothing leaves the machine: do not push, post replies, or resolve threads. The user reviews the commits and the drafts first and decides what reviewers see.
 
-With `--fix` in the arguments, the run also settles the decisions it would otherwise leave to the user: each item that would go to Your call (step 3) gets the option you recommend instead, and REPLY.md lists those choices in their own section so the user can check them. The flag covers review decisions only; every other point where this skill stops to ask still applies.
+With `--decide` in the arguments, the run also settles the decisions it would otherwise leave to the user: each item that would go to Your call (step 3) gets the option you recommend instead, and REPLY.md lists those choices in their own section so the user can check them. The flag covers review decisions only; every other point where this skill stops to ask still applies.
 
 ## 1. Fetch the feedback
 
-Run the bundled script (it lives in this skill's directory) from the repo's working directory, with the link the user gave (without `--fix`):
+Run the bundled script (it lives in this skill's directory) from the repo's working directory, with the link the user gave (without `--decide`):
 
 ```bash
 <skill-dir>/scripts/fetch-review.sh <link>
@@ -78,8 +78,8 @@ Then put each item in one bucket:
 - **Already addressed**: the code no longer has the problem (an outdated thread, or a later commit on the branch). The reply points to where.
 - **Question**: the reviewer asked something. Answer it from the code. If the answer turns out to be "that's a bug", it is also a Fix.
 - **Declined**: the claim is wrong, or right but not worth changing here (outside the PR's scope, against an established convention in the codebase, or costing more than it buys).
-- **Your call**: valid, but the fix is a product or design decision with no clear winner, or too large for this PR. Lay out the options instead of guessing. Keep this bucket small: when one option is clearly better, take it and fix it. With `--fix`, nothing lands here at triage: these items are Decided for you, and only a fix that fails verification (step 4) moves here.
-- **Decided for you** (`--fix` only): an item that would otherwise be Your call, settled with the option you recommend. When that option changes code, fix it like a Fix item; when it leaves the code as is (kept, or deferred to a follow-up), there is no commit. Keep the options you weighed and why you took this one for its REPLY.md entry.
+- **Your call**: valid, but the fix is a product or design decision with no clear winner, or too large for this PR. Lay out the options instead of guessing. Keep this bucket small: when one option is clearly better, take it and fix it. With `--decide`, nothing lands here at triage: these items are Decided for you, and only a fix that fails verification (step 4) moves here.
+- **Decided for you** (`--decide` only): an item that would otherwise be Your call, settled with the option you recommend. When that option changes code, fix it like a Fix item; when it leaves the code as is (kept, or deferred to a follow-up), there is no commit. Keep the options you weighed and why you took this one for its REPLY.md entry.
 
 Duplicates (two reviewers, or a bot and a person, asking for the same change) become one fix that carries a trailer for each comment.
 

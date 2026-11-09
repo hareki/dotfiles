@@ -10,4 +10,5 @@ These are common instructions for agents across all scenarios
 - NEVER add excessive comments when implementing tasks unless being explicitly asked, only SELECTIVELY add comments that are necessary to explain complex logic or to answer the 'WHY' question.
 - NEVER use `AskUserQuestion` tool when representing options that include code changes preview. The terminal UI truncates code previews, making it impossible to evaluate the differences. Instead, show each option as a full code block in the chat output and ask me to choose by number. `AskUserQuestion` tool is fine for options that don't involve code changes.
 - ALWAYS prewarm the relevant language server with a documentSymbol call on the target file first if you want to use LSP `findReferences`.
+- When I ask you to resolve a merge conflict, finish the merge as well: resolve, stage and create the merge commit without waiting for my approval. Never push it; I push.
 - When making technical decisions, do not give much weight to development cost. Instead, prefer quality, simplicity, robustness, scalability, and long term maintainability.
