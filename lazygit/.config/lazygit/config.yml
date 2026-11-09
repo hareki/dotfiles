@@ -47,7 +47,7 @@ gui:
       - '#313244'
     # selectedLineBgColor stays dark for text to read on it, which hides the two-column diff selection bar
     selectionBarBgColor:
-      - '#585b70'
+      - '#5B5452'
     cherryPickedCommitBgColor:
       - '#45475a'
     cherryPickedCommitFgColor:
