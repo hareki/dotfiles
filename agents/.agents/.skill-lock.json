@@ -38,15 +38,6 @@
       "installedAt": "2026-06-01T12:44:10.772Z",
       "updatedAt": "2026-10-14T03:21:05.570Z"
     },
-    "requesting-code-review": {
-      "source": "obra/superpowers",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/obra/superpowers.git",
-      "skillPath": "skills/requesting-code-review/SKILL.md",
-      "skillFolderHash": "f4a6749898702895ea4fd57c7f186cf43205b99a",
-      "installedAt": "2026-06-01T13:18:32.599Z",
-      "updatedAt": "2026-10-29T04:50:46.603Z"
-    },
     "skill-creator": {
       "source": "anthropics/skills",
       "sourceType": "github",
@@ -56,24 +47,6 @@
       "pluginName": "example-skills",
       "installedAt": "2026-06-22T03:53:09.613Z",
       "updatedAt": "2026-06-22T03:53:09.613Z"
-    },
-    "verification-before-completion": {
-      "source": "obra/superpowers",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/obra/superpowers.git",
-      "skillPath": "skills/verification-before-completion/SKILL.md",
-      "skillFolderHash": "a4cb0b69aaefeab540947a7f1642bdaad810e37a",
-      "installedAt": "2026-06-22T05:37:43.749Z",
-      "updatedAt": "2026-10-06T08:36:58.046Z"
-    },
-    "dispatching-parallel-agents": {
-      "source": "obra/superpowers",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/obra/superpowers.git",
-      "skillPath": "skills/dispatching-parallel-agents/SKILL.md",
-      "skillFolderHash": "15697cb0726c26a66bff737494e8b5266667ba0c",
-      "installedAt": "2026-06-22T05:48:48.153Z",
-      "updatedAt": "2026-10-06T08:37:01.413Z"
     },
     "diagnosing-bugs": {
       "source": "mattpocock/skills",
