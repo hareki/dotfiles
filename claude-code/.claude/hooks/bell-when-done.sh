@@ -7,4 +7,8 @@
 
 jq -e 'any(.background_tasks[]?; .type == "subagent" or .type == "workflow")' >/dev/null && exit 0
 
+# Muted by the `ctb` zsh function. Checked only once jq has read the payload: a hook that
+# exits before Claude Code finishes writing it fails with EPIPE
+[ -e "$HOME/.local/state/claude-code/bell-muted" ] && exit 0
+
 . "$(dirname "$0")/bell.sh" "$@"

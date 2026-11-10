@@ -196,3 +196,9 @@ printf "${subtext1}]${reset} "
 [ -n "$branch" ] && printf " ${subtext1}%s${reset}" "$branch$dirty"
 [ -n "$sync" ] && printf "${teal}%s${reset}" "$sync"
 printf " ${overlay1}%s${reset}" "$session_name"
+
+# Muted by `ctb`. An `if`, not `&&`: as the last command, a failed test would exit 1, and
+# Claude Code drops the output of a status line that exits nonzero
+if [ -e "$state_dir/bell-muted" ]; then
+  printf " ${yellow}󰂛${reset}"
+fi

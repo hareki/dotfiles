@@ -90,6 +90,7 @@ sync-forks [-j <n>]   # Rebase every hareki fork's default branch onto upstream'
 yay                   # Update all package managers (brew, antidote, mise, global agent skills, tpm)
 build <target>        # Build a local tool from source into ~/.local/opt/bin (atuin, eza, fzf, lazygit, television, tmux, worktrunk)
 cts                   # Toggle git skip-worktree on claude-code settings.json (model/effort churn)
+ctb                   # Toggle Claude Code's done bell (Stop hook) in every session; the status line shows a bell-off icon while it's muted
 ff                    # fastfetch with buffered output
 mux <project>         # tmuxinator start, from a throwaway session outside tmux so the layouts are built at the terminal's size
 tsave [-c|--continue] # tmux-resurrect snapshot, then quit every pane nvim cleanly and kill tmux (unless --continue); refuses while any nvim holds unsaved work

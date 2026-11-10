@@ -1,0 +1,16 @@
+#!/bin/zsh
+
+# ctb = "Claude Toggle Bell". While the flag file exists, the claude-code Stop hook
+# (bell-when-done.sh) stays quiet in every session and the status line shows a bell-off
+# icon. Permission prompts ring regardless, since they go through bell.sh directly
+ctb() {
+  local flag=$HOME/.local/state/claude-code/bell-muted
+
+  if [[ -e $flag ]]; then
+    rm -f -- $flag || return 1
+    print -P "%F{green}BELL ON%f => Claude Code rings when it's done"
+  else
+    mkdir -p -- ${flag:h} && : >| $flag || return 1
+    print -P "%F{red}BELL OFF%f => Claude Code stays quiet when it's done (permission prompts still ring)"
+  fi
+}
