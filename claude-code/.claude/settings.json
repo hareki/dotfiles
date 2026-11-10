@@ -66,7 +66,8 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "bash ~/.claude/statusline-command.sh"
+    "command": "bash ~/.claude/statusline-command.sh",
+    "refreshInterval": 60
   },
   "enabledPlugins": {
     "lua-lsp@claude-plugins-official": true,
