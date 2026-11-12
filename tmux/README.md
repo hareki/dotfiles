@@ -47,6 +47,7 @@ The zsh functions `tsave` and `trestore` drive tmux-resurrect, and `scripts/resu
 ├── typos.toml                 # typos-lsp allowlist (@thm_* palette vars)
 ├── plugins/
 │   ├── catppuccin.conf        # Theme: status bar layout, pane borders, icons, copy-mode and menu colors
+│   ├── catppuccin-modules/    # Hand-built status modules catppuccin lacks (zoom.conf: pane zoom indicator)
 │   ├── vim-tmux-navigator.conf # Pane navigation keys, shared with Neovim
 │   └── resurrect.conf         # Snapshot dir, expiry and restore hooks, nvim relaunch
 └── scripts/
