@@ -97,6 +97,9 @@
     "claude-sonnet-5-5": {
       "effortLevel": "high",
       "autoCompactWindow": "auto"
+    },
+    "claude-fable-5-2": {
+      "effortLevel": "xhigh"
     }
   },
   "tui": "fullscreen",
