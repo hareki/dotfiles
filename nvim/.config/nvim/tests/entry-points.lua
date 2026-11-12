@@ -1,11 +1,13 @@
 -- The modules something outside nvim reaches by their path (AGENTS.md, Entry points), checked the
 -- way each caller reaches them. lazygit's config.yml sends a `--remote-expr` before each edit
 -- command, and one that fails stops the `&&` chain before the file opens. tsave finds a pane's nvim
--- through the pane option publish_tmux_server() sets, asks it for unsaved(), then sends quit()
+-- through the pane option publish_tmux_server() sets, asks it for unsaved(), then sends quit().
+-- Claude Code's Stop hook sends one to the nvim running that Claude once the agent is done
 
 local t = require('tests.lib.helpers')
 
--- The dotfiles repo holds this config at nvim/.config/nvim, beside the lazygit and zsh packages
+-- The dotfiles repo holds this config at nvim/.config/nvim, beside the lazygit, zsh and
+-- claude-code packages
 local repo = vim.fs.dirname(
   vim.fs.dirname(vim.fs.dirname(assert(vim.uv.fs_realpath(vim.env.NVIM_TEST_CONFIG))))
 )
@@ -70,6 +72,12 @@ t.test('every --remote-expr tsave sends evaluates here, or exists if it would qu
     else
       evaluates(expr)
     end
+  end
+end)
+
+t.test("the --remote-expr Claude Code's Stop hook sends evaluates here", function()
+  for _, expr in ipairs(remote_exprs('claude-code/.claude/hooks/nvim-when-done.sh')) do
+    evaluates(expr)
   end
 end)
 
