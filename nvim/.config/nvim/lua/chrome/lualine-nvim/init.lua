@@ -41,6 +41,7 @@ return {
     local tab = require('chrome.lualine-nvim.components.tab')
     local snacks_image = require('chrome.lualine-nvim.components.snacks-image')
     local live_preview = require('chrome.lualine-nvim.components.live-preview')
+    local coding_agent = require('chrome.lualine-nvim.components.coding-agent')
 
     local palette = UI.catppuccin.get_palette()
 
@@ -107,6 +108,7 @@ return {
         lualine_y = {},
 
         lualine_z = flatten(
+          wrap(coding_agent, 'secondary-right'),
           wrap(snacks_image, 'secondary-right'),
           wrap(live_preview, 'secondary-right'),
 
