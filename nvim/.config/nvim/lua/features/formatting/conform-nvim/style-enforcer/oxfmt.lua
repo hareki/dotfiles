@@ -1,4 +1,4 @@
---- @class features.formatting.conform-nvim.style-enforcers.oxfmt: features.formatting.conform-nvim.style-enforcers.Step
+--- @class features.formatting.conform-nvim.style-enforcer.oxfmt: features.formatting.conform-nvim.style-enforcer.Step
 local M = {
   name = 'oxfmt',
   label = 'Formatting (oxfmt)',
@@ -7,7 +7,7 @@ local M = {
 }
 
 --- Format a buffer in memory with the oxfmt language server's edits (no CLI spawn)
---- @param ctx features.formatting.conform-nvim.style-enforcers.LspContext
+--- @param ctx features.formatting.conform-nvim.style-enforcer.LspContext
 --- @return nil
 function M.run(ctx)
   -- make_formatting_params reads the current buffer, and run_all formats in the background

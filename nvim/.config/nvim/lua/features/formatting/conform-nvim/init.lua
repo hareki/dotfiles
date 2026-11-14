@@ -5,8 +5,8 @@ return {
     {
       '<A-s>',
       function()
-        local style_enforcers = require('features.formatting.conform-nvim.style-enforcers')
-        style_enforcers.run()
+        local style_enforcer = require('features.formatting.conform-nvim.style-enforcer')
+        style_enforcer.run()
       end,
       mode = { 'n', 'i' },
       desc = 'Format and Save',
@@ -14,8 +14,8 @@ return {
     {
       '<leader>F',
       function()
-        local style_enforcers = require('features.formatting.conform-nvim.style-enforcers')
-        style_enforcers.run({
+        local style_enforcer = require('features.formatting.conform-nvim.style-enforcer')
+        style_enforcer.run({
           save = false,
         })
       end,
@@ -25,8 +25,8 @@ return {
     {
       '<F40>',
       function()
-        local style_enforcers = require('features.formatting.conform-nvim.style-enforcers')
-        style_enforcers.run_all()
+        local style_enforcer = require('features.formatting.conform-nvim.style-enforcer')
+        style_enforcer.run_all()
       end,
       mode = { 'n', 'i' },
       desc = 'Format and Save All',
@@ -46,7 +46,7 @@ return {
         prettier = {
           -- prettier infers angular only for *.component.html; html mangles app.html's @if/@for
           options = { ft_parsers = { htmlangular = 'angular' } },
-          -- oxfmt projects format through its server (style-enforcers/oxfmt.lua), leaving the
+          -- oxfmt projects format through its server (style-enforcer/oxfmt.lua), leaving the
           -- filetypes it doesn't serve (lsp/oxfmt.lua) unformatted rather than prettier-styled
           condition = function(_, ctx)
             local in_oxfmt_project = false

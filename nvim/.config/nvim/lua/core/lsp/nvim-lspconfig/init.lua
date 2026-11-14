@@ -88,7 +88,7 @@ return {
       -- These three start only in projects that configure them (root_dir + workspace_required)
       'eslint',
       'oxlint',
-      'oxfmt', -- Instead of spawning the CLI (conform-nvim/style-enforcers/oxfmt.lua)
+      'oxfmt', -- Instead of spawning the CLI (conform-nvim/style-enforcer/oxfmt.lua)
     }
 
     -- Deferred so the buffer renders before LSP servers start matching and attaching

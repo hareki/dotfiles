@@ -1,4 +1,4 @@
---- @class features.formatting.conform-nvim.style-enforcers.oxlint: features.formatting.conform-nvim.style-enforcers.Step
+--- @class features.formatting.conform-nvim.style-enforcer.oxlint: features.formatting.conform-nvim.style-enforcer.Step
 local M = {
   name = 'oxlint',
   label = 'Fixing (oxlint)',
@@ -7,7 +7,7 @@ local M = {
 }
 
 --- Run oxc.fixAll on a buffer through the oxlint language server
---- @param ctx features.formatting.conform-nvim.style-enforcers.LspContext
+--- @param ctx features.formatting.conform-nvim.style-enforcer.LspContext
 --- @return nil
 function M.run(ctx)
   local document = vim.lsp.util.make_text_document_params(ctx.buf)

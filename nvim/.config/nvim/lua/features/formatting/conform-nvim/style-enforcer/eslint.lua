@@ -1,4 +1,4 @@
---- @class features.formatting.conform-nvim.style-enforcers.eslint: features.formatting.conform-nvim.style-enforcers.Step
+--- @class features.formatting.conform-nvim.style-enforcer.eslint: features.formatting.conform-nvim.style-enforcer.Step
 local M = {
   name = 'eslint',
   label = 'Fixing (eslint)',
@@ -7,7 +7,7 @@ local M = {
 }
 
 --- Run eslint.applyAllFixes on a buffer through the eslint language server
---- @param ctx features.formatting.conform-nvim.style-enforcers.LspContext
+--- @param ctx features.formatting.conform-nvim.style-enforcer.LspContext
 --- @return nil
 function M.run(ctx)
   ctx.execute('eslint.applyAllFixes', {

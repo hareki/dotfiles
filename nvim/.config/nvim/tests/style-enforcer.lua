@@ -1,13 +1,13 @@
--- The save pipeline (features.formatting.conform-nvim.style-enforcers): its lazy-loading keys, the
+-- The save pipeline (features.formatting.conform-nvim.style-enforcer): its lazy-loading keys, the
 -- runner, driven through its `steps`/`timeout_ms` seam, real steps on stylua and in-process LSPs
 
 local t = require('tests.lib.helpers')
-local style_enforcers = require('features.formatting.conform-nvim.style-enforcers')
+local style_enforcer = require('features.formatting.conform-nvim.style-enforcer')
 
-local conform_step = require('features.formatting.conform-nvim.style-enforcers.conform-nvim')
-local eslint = require('features.formatting.conform-nvim.style-enforcers.eslint')
-local oxfmt = require('features.formatting.conform-nvim.style-enforcers.oxfmt')
-local oxlint = require('features.formatting.conform-nvim.style-enforcers.oxlint')
+local conform_step = require('features.formatting.conform-nvim.style-enforcer.conform-nvim')
+local eslint = require('features.formatting.conform-nvim.style-enforcer.eslint')
+local oxfmt = require('features.formatting.conform-nvim.style-enforcer.oxfmt')
+local oxlint = require('features.formatting.conform-nvim.style-enforcer.oxlint')
 
 local levels = vim.log.levels
 
@@ -76,8 +76,8 @@ end
 --- A scripted step for every buffer: logs its name to trace, then runs script (default: done)
 --- @param name string
 --- @param trace string[]
---- @param script? fun(ctx: features.formatting.conform-nvim.style-enforcers.Context)
---- @return features.formatting.conform-nvim.style-enforcers.Step
+--- @param script? fun(ctx: features.formatting.conform-nvim.style-enforcer.Context)
+--- @return features.formatting.conform-nvim.style-enforcer.Step
 local function step(name, trace, script)
   return {
     name = name,
@@ -101,11 +101,11 @@ local function step(name, trace, script)
 end
 
 --- Run the pipeline and wait for its end
---- @param opts features.formatting.conform-nvim.style-enforcers.RunOpts
+--- @param opts features.formatting.conform-nvim.style-enforcer.RunOpts
 --- @return boolean ok
 local function run(opts)
   local result
-  style_enforcers.run(vim.tbl_extend('force', opts, {
+  style_enforcer.run(vim.tbl_extend('force', opts, {
     on_done = function(ok)
       result = ok
     end,
@@ -372,7 +372,7 @@ t.test('a run on a buffer already running warns and runs nothing', function()
   local trace = {}
   local buf = modified_file('locked.txt')
   local first_ok
-  style_enforcers.run({
+  style_enforcer.run({
     buf = buf,
     steps = {
       step('slow', trace, function(ctx)
@@ -386,7 +386,7 @@ t.test('a run on a buffer already running warns and runs nothing', function()
 
   local notices = record_notices()
   local second_called = false
-  style_enforcers.run({
+  style_enforcer.run({
     buf = buf,
     steps = { step('second', trace) },
     on_done = function()
@@ -434,13 +434,13 @@ t.test('run_all runs every modified buffer, then sums them up once', function()
       ctx.done(ctx.buf == second and 'rejected' or nil)
     end),
   }
-  local run_steps = style_enforcers.run
-  t.spy(style_enforcers, 'run', function(opts)
+  local run_steps = style_enforcer.run
+  t.spy(style_enforcer, 'run', function(opts)
     return run_steps(vim.tbl_extend('force', opts, { steps = steps }))
   end)
   local notices = record_notices()
 
-  style_enforcers.run_all()
+  style_enforcer.run_all()
 
   t.eq(#notices, 2, 'the notices: the failure, then the summary')
   t.eq(notices[1], { level = levels.WARN, title = 'Fixing Failed', msg = 'check' }, 'the failure')
@@ -455,7 +455,7 @@ end)
 
 t.test('run_all warns when no buffer is modified', function()
   local notices = record_notices()
-  style_enforcers.run_all()
+  style_enforcer.run_all()
 
   t.eq(notices, { { level = levels.WARN, title = 'Style Enforcer', msg = 'No buffers to format' } })
 end)

@@ -1,5 +1,5 @@
 --- The format step for conform's formatters
---- @class features.formatting.conform-nvim.style-enforcers.conform-nvim: features.formatting.conform-nvim.style-enforcers.Step
+--- @class features.formatting.conform-nvim.style-enforcer.conform-nvim: features.formatting.conform-nvim.style-enforcer.Step
 local M = {
   name = 'conform',
   label = 'Formatting',
@@ -30,7 +30,7 @@ function M.applies(buf)
   return #formatters > 0 or uses_lsp
 end
 
---- @param ctx features.formatting.conform-nvim.style-enforcers.Context
+--- @param ctx features.formatting.conform-nvim.style-enforcer.Context
 --- @return nil
 function M.run(ctx)
   local conform = require('conform')

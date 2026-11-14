@@ -1,44 +1,44 @@
-local conform = require('features.formatting.conform-nvim.style-enforcers.conform-nvim')
-local eslint = require('features.formatting.conform-nvim.style-enforcers.eslint')
+local conform = require('features.formatting.conform-nvim.style-enforcer.conform-nvim')
+local eslint = require('features.formatting.conform-nvim.style-enforcer.eslint')
 local notifier = require('utils.notifier')
-local oxfmt = require('features.formatting.conform-nvim.style-enforcers.oxfmt')
-local oxlint = require('features.formatting.conform-nvim.style-enforcers.oxlint')
+local oxfmt = require('features.formatting.conform-nvim.style-enforcer.oxfmt')
+local oxlint = require('features.formatting.conform-nvim.style-enforcer.oxlint')
 
 local notify = notifier.scoped('Style Enforcer')
 
 --- One step of the save pipeline, an adapter over one tool
---- @class features.formatting.conform-nvim.style-enforcers.Step
+--- @class features.formatting.conform-nvim.style-enforcer.Step
 --- @field name string The tool, named in notices
 --- @field label string Progress title while the step runs
 --- @field applies? fun(buf: integer): boolean The gate; without it, the step runs where `client` is attached
 --- @field client? string The LSP client the step drives, by name; its run gets an LspContext
 --- @field kind 'format' | 'fix' What the step does to the buffer, which sets its failure notice's level and title
---- @field run fun(ctx: features.formatting.conform-nvim.style-enforcers.Context)
+--- @field run fun(ctx: features.formatting.conform-nvim.style-enforcer.Context)
 --- @field failure? fun(err: string, debug?: boolean, buf: integer): string The failure notice's text; default: it names the tool
 
 --- What a step's run gets; `done` does nothing once the run has ended
---- @class features.formatting.conform-nvim.style-enforcers.Context
+--- @class features.formatting.conform-nvim.style-enforcer.Context
 --- @field buf integer
 --- @field done fun(err?: string) Report the step's end: the next step starts, or err ends the run
 
 --- The context of a step that names a client: `request` fails the step on a server error or an edit
 --- in flight, and `execute`'s workspace/executeCommand reply ends it; both pass `done`'s guard
---- @class features.formatting.conform-nvim.style-enforcers.LspContext: features.formatting.conform-nvim.style-enforcers.Context
+--- @class features.formatting.conform-nvim.style-enforcer.LspContext: features.formatting.conform-nvim.style-enforcer.Context
 --- @field client vim.lsp.Client Looked up as the step starts
 --- @field request fun(method: vim.lsp.protocol.Method.ClientToServer.Request, params: table, on_result: fun(result: any))
 --- @field execute fun(command: string, argument: table)
 
---- @class features.formatting.conform-nvim.style-enforcers.RunOpts
+--- @class features.formatting.conform-nvim.style-enforcer.RunOpts
 --- @field debug? boolean Failure notices carry the tool's error
 --- @field buf? integer Default: the current buffer
 --- @field save? boolean Write the buffer at the end (default true)
 --- @field on_done? fun(ok: boolean) Called once, when the run ends
---- @field steps? features.formatting.conform-nvim.style-enforcers.Step[] For tests, in place of STEPS
+--- @field steps? features.formatting.conform-nvim.style-enforcer.Step[] For tests, in place of STEPS
 --- @field timeout_ms? integer For tests, in place of TIMEOUT_MS
 
 -- In run order: formatting first, so oxlint's fixAll sees formatted content; an LSP step runs
 -- where its server is attached (lsp/oxfmt.lua narrows oxfmt's filetypes)
---- @type features.formatting.conform-nvim.style-enforcers.Step[]
+--- @type features.formatting.conform-nvim.style-enforcer.Step[]
 local STEPS = { conform, oxfmt, eslint, oxlint }
 
 -- Timeout to prevent permanent locks
@@ -53,12 +53,12 @@ local KIND_FAILURES = {
   fix = { level = 'warn', title = 'Fixing Failed', tool = 'Linter' },
 }
 
---- @class features.formatting.conform-nvim.style-enforcers
+--- @class features.formatting.conform-nvim.style-enforcer
 local M = {}
 
 local running_bufs = {}
 
---- @param step features.formatting.conform-nvim.style-enforcers.Step
+--- @param step features.formatting.conform-nvim.style-enforcer.Step
 --- @param buf integer
 --- @return boolean
 local function applies(step, buf)
@@ -85,7 +85,7 @@ local function write(buf)
   return ok
 end
 
---- @param step features.formatting.conform-nvim.style-enforcers.Step
+--- @param step features.formatting.conform-nvim.style-enforcer.Step
 --- @param err string
 --- @param debug? boolean
 --- @param buf integer
@@ -106,7 +106,7 @@ end
 --- @param client vim.lsp.Client
 --- @param live fun(fn: function): function
 --- @param done fun(err?: string)
---- @return features.formatting.conform-nvim.style-enforcers.LspContext
+--- @return features.formatting.conform-nvim.style-enforcer.LspContext
 local function lsp_context(buf, client, live, done)
   return {
     buf = buf,
@@ -154,7 +154,7 @@ local function lsp_context(buf, client, live, done)
 end
 
 --- Run a buffer's steps in order and write it, under a per-buffer lock and timeout, with progress
---- @param opts? features.formatting.conform-nvim.style-enforcers.RunOpts
+--- @param opts? features.formatting.conform-nvim.style-enforcer.RunOpts
 --- @return nil
 function M.run(opts)
   opts = opts or {}
@@ -184,7 +184,7 @@ function M.run(opts)
   local ended = false
   local timeout_timer
   -- The step in flight, which the timeout names
-  --- @type features.formatting.conform-nvim.style-enforcers.Step
+  --- @type features.formatting.conform-nvim.style-enforcer.Step
   local current
 
   -- Every step callback and the timeout pass through here: after the run ends, none can start a
@@ -218,7 +218,7 @@ function M.run(opts)
 
   -- A failed step ends the run: after BUFFER_CHANGED, whoever is editing the buffer would race
   -- the remaining steps. What the steps before it did is still written
-  --- @param step features.formatting.conform-nvim.style-enforcers.Step
+  --- @param step features.formatting.conform-nvim.style-enforcer.Step
   --- @param err string
   local function fail(step, err)
     notify_failure(step, err, opts.debug, buf)
@@ -253,7 +253,7 @@ function M.run(opts)
       end
     end)
 
-    --- @type features.formatting.conform-nvim.style-enforcers.Context
+    --- @type features.formatting.conform-nvim.style-enforcer.Context
     local ctx = { buf = buf, done = done }
     if step.client then
       -- Looked up again rather than kept from the gate: it may have detached meanwhile
