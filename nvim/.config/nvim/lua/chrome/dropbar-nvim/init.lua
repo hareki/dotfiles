@@ -2,7 +2,7 @@ return {
   -- The other DropBarKind* groups come from catppuccin's dropbar integration (core/catppuccin-nvim.lua)
   UI.catppuccin(function(palette)
     return {
-      DropBarIconGreen = { fg = palette.green },
+      DropBarIconTree = { fg = palette[Conf.icons.colors.TREE] },
       DropBarIconMauve = { fg = palette.mauve },
       DropBarIconYellow = { fg = palette.yellow },
 
@@ -49,7 +49,7 @@ return {
       local titles = {
         NvimTree = {
           icon = Conf.icons.tools.TREE,
-          icon_hl = 'DropBarIconGreen',
+          icon_hl = 'DropBarIconTree',
 
           name = ' File Tree',
         },

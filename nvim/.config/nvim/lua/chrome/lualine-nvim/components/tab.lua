@@ -14,6 +14,6 @@ function M.cond()
 end
 
 M.icon = Conf.icons.misc.TAB
-M.color = tabs.LABEL_COLOR
+M.color = Conf.icons.colors.TAB
 
 return M

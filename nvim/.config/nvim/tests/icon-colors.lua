@@ -67,6 +67,28 @@ t.test('a statusline piece takes a palette key and refuses anything else', funct
   t.eq(pcall(piece, 'cyan'), false, "which-key's name for teal")
 end)
 
+t.test('the tab and the file tree paint one color on every surface', function()
+  local wk_icons = require('which-key.icons')
+  local tab_piece = require('chrome.lualine-nvim.components.tab')
+  local palette = UI.catppuccin.get_palette()
+  --- @param group? string
+  --- @return integer?
+  local function fg(group)
+    return group and vim.api.nvim_get_hl(0, { name = group, link = false }).fg
+  end
+
+  local tab = rgb(palette[Conf.icons.colors.TAB])
+  local _, tab_rule = wk_icons.get({ desc = 'Next Tab' })
+  t.eq(fg(tab_rule), tab, "the tab's which-key icon")
+  t.eq(fg('SnacksPickerTabName'), tab, 'the tabs picker label')
+  t.eq(rgb(palette[tab_piece.color]), tab, 'the statusline tab pill')
+
+  local tree = rgb(palette[Conf.icons.colors.TREE])
+  local _, tree_rule = wk_icons.get({ keymap = { lhs = '<leader>e', mode = 'n' } })
+  t.eq(fg(tree_rule), tree, "the file tree's which-key icon")
+  t.eq(fg('DropBarIconTree'), tree, "the file tree's winbar title")
+end)
+
 t.test('every rule which-key was set up with carries one of its own color names', function()
   local wk_config = require('which-key.config')
   local names = {}

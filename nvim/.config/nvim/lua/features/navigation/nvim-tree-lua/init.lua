@@ -20,7 +20,11 @@ return {
   end, 'nvim-tree.lua'),
 
   UI.which_key({
-    rules = { plugin = 'nvim-tree.lua', icon = Conf.icons.tools.TREE, color = 'blue' },
+    rules = {
+      plugin = 'nvim-tree.lua',
+      icon = Conf.icons.tools.TREE,
+      color = Conf.icons.colors.TREE,
+    },
   }),
 
   {

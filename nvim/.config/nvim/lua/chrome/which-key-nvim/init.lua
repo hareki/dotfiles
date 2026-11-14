@@ -85,7 +85,7 @@ return {
         { pattern = 'mark', icon = Conf.icons.tools.MARK, color = 'yellow' },
         { pattern = 'lsp', icon = Conf.icons.tools.LSP, color = 'yellow' },
         { pattern = 'register', icon = Conf.icons.editor.REGISTER, color = 'yellow' },
-        { pattern = 'tab', icon = Conf.icons.misc.TAB, color = 'blue' },
+        { pattern = 'tab', icon = Conf.icons.misc.TAB, color = Conf.icons.colors.TAB },
         { pattern = 'rename', icon = Conf.icons.actions.RENAME, color = 'yellow' },
         { pattern = 'find', icon = Conf.icons.actions.FIND, color = 'blue' },
         { pattern = 'delete', icon = Conf.icons.actions.DELETE, color = 'red' },

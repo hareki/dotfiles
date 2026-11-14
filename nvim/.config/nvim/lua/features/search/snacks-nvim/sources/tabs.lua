@@ -6,9 +6,6 @@ local M = {}
 --- @class snacks.picker
 --- @field tabs fun(opts?: snacks.picker.Config | {}): snacks.Picker
 
---- Catppuccin palette key of a tab label, in the picker and the statusline alike
-M.LABEL_COLOR = 'green'
-
 --- @param tabpage integer
 --- @return string label e.g. "tab-2" or "codediff-2"
 function M.label(tabpage)

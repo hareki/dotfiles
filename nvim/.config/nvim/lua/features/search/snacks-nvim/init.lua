@@ -2,7 +2,7 @@
 local sm = UI.layout.picker_fn('sm')
 
 local layouts = require('features.search.snacks-nvim.layouts')
--- Required, not deferred: the opts below take its source table and palette key at startup
+-- Required, not deferred: the opts below take its source table at startup
 local tabs = require('features.search.snacks-nvim.sources.tabs')
 
 --- @module 'features.search.snacks-nvim.actions'
@@ -25,7 +25,7 @@ return {
       SnacksPickerInputCursorLine = { bg = 'none', fg = palette.text },
       SnacksPickerListCursorLine = { link = 'ListCursorLine' },
       SnacksPickerKeymapLhs = { fg = palette.blue },
-      SnacksPickerTabName = { fg = palette[tabs.LABEL_COLOR] },
+      SnacksPickerTabName = { fg = palette[Conf.icons.colors.TAB] },
       SnacksPickerSelected = { bg = 'none', fg = palette.text },
       SnacksPickerUnselected = { bg = 'none', fg = palette.text },
       SnacksPickerDir = { fg = palette.overlay1 },
