@@ -296,9 +296,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/miqdadbadjuber/anti-slop.git",
       "skillPath": "skills/antislop/SKILL.md",
-      "skillFolderHash": "45bb39775392ba90b98648aa62f4ea59818139d2",
+      "skillFolderHash": "851e04b2f79c362260b6934adeb8ab0d75e61525",
       "installedAt": "2026-10-24T03:51:15.760Z",
-      "updatedAt": "2026-11-13T00:26:53.324Z"
+      "updatedAt": "2026-11-14T03:43:58.695Z"
     },
     "antislop-copywriting": {
       "source": "miqdadbadjuber/anti-slop",
@@ -314,9 +314,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/miqdadbadjuber/anti-slop.git",
       "skillPath": "skills/antislop-human/SKILL.md",
-      "skillFolderHash": "ca147d2069503d59ca917cacc5bbb88f93087763",
+      "skillFolderHash": "dbd32e9bffb0a8b097de60f710e7722bb5f3dc02",
       "installedAt": "2026-10-24T03:51:15.762Z",
-      "updatedAt": "2026-11-13T00:26:53.377Z"
+      "updatedAt": "2026-11-14T03:43:58.736Z"
     },
     "antislop-layoutmobile": {
       "source": "miqdadbadjuber/anti-slop",
@@ -332,9 +332,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/miqdadbadjuber/anti-slop.git",
       "skillPath": "skills/antislop-ui/SKILL.md",
-      "skillFolderHash": "cce993e90baf67b4465dba78a894d8341f53b179",
+      "skillFolderHash": "0c979fd4544c96444a8d70960dab7beecb0f63d9",
       "installedAt": "2026-10-24T03:51:15.763Z",
-      "updatedAt": "2026-11-13T00:26:53.420Z"
+      "updatedAt": "2026-11-14T03:43:58.768Z"
     },
     "writing-guidelines": {
       "source": "vercel-labs/agent-skills",
