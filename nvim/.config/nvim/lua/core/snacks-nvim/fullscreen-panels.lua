@@ -39,7 +39,7 @@ local TERMINAL_MODE = {
 --- @param overrides snacks.win.Config|{} The panel's own options (title, position, backdrop)
 --- @return snacks.win.Config
 function M.win_config(overrides)
-  return vim.tbl_extend('force', UI.layout.popup_fn('full'), TERMINAL_MODE, overrides)
+  return vim.tbl_extend('force', UI.layout.float_fn('full'), TERMINAL_MODE, overrides)
 end
 
 --- Whether `terminal` is up as a full-screen panel; `valid()` alone misses the agent's hidden float
@@ -63,7 +63,7 @@ end
 --- toggling a panel: a no-op when that panel is already up, since nothing else can be.
 --- @param buf? integer Buffer of the panel about to be toggled; nil when it doesn't exist yet
 function M.hide_others(buf)
-  local full = UI.layout.popup('full')
+  local full = UI.layout.float('full')
   for _, terminal in ipairs(Snacks.terminal.list()) do
     if terminal.buf ~= buf and is_visible_panel(terminal, full) then
       terminal:hide()

@@ -33,10 +33,10 @@ return {
     },
 
     styles = {
-      input = UI.layout.popup_fn('input'),
-      zen = vim.tbl_extend('force', UI.layout.popup_fn('vertical_md'), {
+      input = UI.layout.float_fn('input'),
+      zen = vim.tbl_extend('force', UI.layout.float_fn('vertical_md'), {
         -- transparent = false drops winblend, so the backdrop is opaque and hides the window behind
-        -- the popup outright instead of dimming it; zen.lua anchors its geometry to that window
+        -- the float outright instead of dimming it; zen.lua anchors its geometry to that window
         backdrop = { transparent = false, blend = 0 },
         border = 'rounded',
         title = ' Zen ',

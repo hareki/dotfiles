@@ -37,7 +37,7 @@ return {
         -- Inline images render as virtual lines, which are tricky to scroll, so keep them short
         doc = {
           -- Static number: snacks.image does no callable resolution here
-          max_width = UI.layout.popup('full').width,
+          max_width = UI.layout.float('full').width,
           max_height = 15,
           excluded_filetypes = Conf.filetypes.merge(Conf.filetypes.JS_ALL, Conf.filetypes.CSS),
         },

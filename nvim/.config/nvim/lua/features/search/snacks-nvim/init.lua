@@ -1,4 +1,4 @@
--- Function-valued, so snacks sizes and centers popups per open, across terminal resizes
+-- Function-valued, so snacks sizes and centers each picker per open, across terminal resizes
 local sm = UI.layout.picker_fn('sm')
 
 local layouts = require('features.search.snacks-nvim.layouts')

@@ -11,7 +11,7 @@ local state = {
   mapped = {},
 }
 
---- Map `q` to close the popup on its current buffer. A `win.keys` entry would outlive the popup
+--- Map `q` to close the float on its current buffer. A `win.keys` entry would outlive the float
 --- (Snacks never unmaps them, and zen shows the real buffer), shadowing macro recording there
 --- @param win snacks.win
 --- @return nil
@@ -60,13 +60,13 @@ end
 function M.on_open(win)
   map_close(win)
 
-  -- Zen's fixbuf = false lets a jump swap the popup's buffer, and each one needs its own mapping
+  -- Zen's fixbuf = false lets a jump swap the float's buffer, and each one needs its own mapping
   win:on('BufWinEnter', function()
     map_close(win)
   end)
 end
 
---- Toggle the popup over the current window, captured here since the backdrop is built after focus
+--- Toggle the float over the current window, captured here since the backdrop is built after focus
 --- @return nil
 function M.toggle()
   local parent = vim.api.nvim_get_current_win()

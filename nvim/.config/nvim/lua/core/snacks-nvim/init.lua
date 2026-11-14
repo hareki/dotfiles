@@ -21,7 +21,7 @@ return {
 
     styles = {
       float = { zindex = Conf.zindex.FLOAT },
-      terminal = vim.tbl_extend('force', UI.layout.popup_fn('lg'), {
+      terminal = vim.tbl_extend('force', UI.layout.float_fn('lg'), {
         title = ' Terminal ',
         border = 'rounded',
         zindex = Conf.zindex.PANEL,

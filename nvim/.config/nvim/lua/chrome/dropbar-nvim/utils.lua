@@ -16,7 +16,7 @@ end
 --- @return boolean
 function M.enable(buf, win)
   if
-    -- Floats stay bare unless Snacks flags one as a main window (its zen popup on a real buffer)
+    -- Floats stay bare unless Snacks flags one as a main window (its zen float on a real buffer)
     (vim.fn.win_gettype(win) ~= '' and not vim.w[win].snacks_main)
     or vim.wo[win].winbar ~= ''
     or M.is_ignored(buf)

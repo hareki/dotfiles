@@ -40,7 +40,7 @@ lazy.nvim config built from scratch around fast cold starts, per-plugin isolatio
 ### Central Modules (`lua/config/`)
 
 - `init.lua`: assembles the `Conf` global from the `config.*` tables below
-- `size.lua`: popup dimensions (`sm`, `lg`, `vertical_sm`, `vertical_md`, `full`, `input`)
+- `size.lua`: float dimensions (`sm`, `lg`, `vertical_sm`, `vertical_md`, `full`, `input`)
 - `icons.lua`: all icons (diagnostics, git, file status, LSP kinds)
 - `globals.lua`: 5 project globals (`Defer`, `Notifier`, `Conf`, `UI`, plus `Snacks` set by snacks.nvim)
 - `completion.lua`: completion tuning constants in `Conf.cmp` (AI item cap/timeout, ripgrep min keyword length)
@@ -50,7 +50,7 @@ lazy.nvim config built from scratch around fast cold starts, per-plugin isolatio
 ### Utils (`lua/utils/`)
 
 - `ui/`: namespaces of the `UI` global
-  - `layout.popup(size)` / `layout.picker_fn(size)`, `color.blend_hex()`, `search.is_active()` / `search.clear()`, `pill.virt_text()`, `cursorline.follow_focus()`
+  - `layout.float(size)` / `layout.picker_fn(size)`, `color.blend_hex()`, `search.is_active()` / `search.clear()`, `pill.virt_text()`, `cursorline.follow_focus()`
   - `catppuccin(fn)` / `catppuccin.get_palette()`, `which_key({ specs?, rules?, triggers? })`, `statusline.refresh()`
 - `notifier.lua`: notification wrapper; supports markdown, tuple lists for custom highlight groups, `scoped(title)` and `warn_once`
 - `popup.lua`: floats tied to a source window: `link(win, { close_on, keys, ... })`, `focus_win()`

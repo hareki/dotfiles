@@ -62,10 +62,10 @@ end
 --- @field row      integer
 
 --- Compute a centered window configuration from a size preset
---- @param size config.size.PopupPreset
+--- @param size config.size.FloatPreset
 --- @return utils.ui.layout.WinConfig config
-function M.popup(size)
-  local preset = size_config.popup[size]
+function M.float(size)
+  local preset = size_config.float[size]
   local width, height = resolve_dimensions(preset)
   local col, row = M.center(width, height)
 
@@ -78,32 +78,32 @@ end
 --- @field col    fun(): integer
 --- @field row    fun(): integer
 
---- Like M.popup, but function-valued, so consumers size and center popups at open time, after
+--- Like M.float, but function-valued, so consumers size and center floats at open time, after
 --- any terminal resize (Snacks can't take callable max_width/max_height, so set no max fields)
---- @param size config.size.PopupPreset
+--- @param size config.size.FloatPreset
 --- @return utils.ui.layout.WinConfigFn config Window config resolved per call
-function M.popup_fn(size)
+function M.float_fn(size)
   return {
     width = function()
-      return M.popup(size).width
+      return M.float(size).width
     end,
     height = function()
-      return M.popup(size).height
+      return M.float(size).height
     end,
     col = function()
-      return M.popup(size).col
+      return M.float(size).col
     end,
     row = function()
-      return M.popup(size).row
+      return M.float(size).row
     end,
   }
 end
 
---- Like M.popup_fn, for a snacks picker layout: 2 more cells, as its size counts inner borders
---- @param size config.size.PopupPreset
+--- Like M.float_fn, for a snacks picker layout: 2 more cells, as its size counts inner borders
+--- @param size config.size.FloatPreset
 --- @return utils.ui.layout.WinConfigFn config Window config resolved per call
 function M.picker_fn(size)
-  local config = M.popup_fn(size)
+  local config = M.float_fn(size)
 
   return {
     width = function()

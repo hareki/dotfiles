@@ -1,7 +1,7 @@
 local lazy_utils = require('config.lazy.utils')
 lazy_utils.ensure_lazy()
 
-local lg = Conf.size.popup.lg
+local lg = Conf.size.float.lg
 local lazy = require('lazy')
 lazy.setup({
   rocks = {

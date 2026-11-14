@@ -51,7 +51,7 @@ Plugins are lazy by default (`defaults.lazy = true`). Only catppuccin, snacks.nv
 - `Conf` (`config`; `config/init.lua` assembles the `config.*` tables): `Conf.icons`, `Conf.filetypes` (`JS`, `JSX`, `CSS`, `MARKDOWN`, …), `Conf.priority`, `Conf.zindex` (the float stacking ladder), `Conf.picker`, `Conf.size`, `Conf.cmp` (from `config/completion.lua`)
 - `UI` (`utils.ui`, direct require):
   - Spec registration: `UI.catppuccin(fn, plugin_name?)`, `UI.which_key({ specs?, rules?, triggers? })`
-  - Helpers: `UI.layout.*` (see **Popup Sizing**), `UI.color.blend_hex()`, `UI.search.is_active()` / `UI.search.clear()` (search highlighting, which Snacks word references give way to), `UI.pill.virt_text()`, `UI.cursorline.follow_focus()` (the cursor line follows the focused window), `UI.mode.name()` / `UI.mode.colors` (the per-mode palette shared by lualine's mode pill and the cursor line number)
+  - Helpers: `UI.layout.*` (see **Float Sizing**), `UI.color.blend_hex()`, `UI.search.is_active()` / `UI.search.clear()` (search highlighting, which Snacks word references give way to), `UI.pill.virt_text()`, `UI.cursorline.follow_focus()` (the cursor line follows the focused window), `UI.mode.name()` / `UI.mode.colors` (the per-mode palette shared by lualine's mode pill and the cursor line number)
   - Plugin glue: `UI.catppuccin.get_palette('ext')`, `UI.statusline.refresh()` (redraws lualine)
   - Integration: `UI.integration.host` (the tool that opened this nvim as its editor, nil standalone), `UI.integration.statusline()` and `UI.integration.highlights()` (its label, shown in place of lualine)
 - `Snacks` (set by snacks.nvim at runtime): `Snacks.picker.*`, `Snacks.terminal.*`, etc.
@@ -94,12 +94,12 @@ Every other fragment names the plugin bare (`'snacks.nvim'`) and holds only its 
 - Fragments use plain-table `keys`/`opts`, overriding **Opts and Keys**, and compute anything that needs logic at parse time (`Defer` proxies and locals at the file top, or inline like the keymaps source's `vim.tbl_extend` layout in `features/search/snacks-nvim/init.lua`): lazy.nvim passes a function-valued `keys`/`opts` only the value merged from fragments imported before it, and a non-nil return replaces that value, silently dropping their entries. lazy.nvim concatenates `keys` and deep-merges `opts` in import order (lists inside `opts` are replaced, not merged)
 - `init` and `config` resolve to the last fragment that defines them, silently shadowing the rest, so fragments leave both unset. Startup code goes in an extra opts-only fragment whose function `opts` runs it and returns nil, which lazy.nvim resolves right before the plugin's `setup()` (the Lazygit focus tracker, `opts = lazygit.track_last_focus` in `features/git/snacks-nvim/init.lua`)
 
-## Popup Sizing
+## Float Sizing
 
-Size floats through `UI.layout` (`utils/ui/layout.lua`, whose annotations document each helper), never hardcoded dimensions; only cursor-anchored tooltips (e.g. `utils/hl-at-cursor.lua`) size themselves from their content, since `UI.layout` has no cursor-relative placement.
+Size floats through `UI.layout` (`utils/ui/layout.lua`, whose annotations document each helper), never hardcoded dimensions; only cursor-anchored popups (e.g. `utils/hl-at-cursor.lua`) size themselves from their content, since `UI.layout` has no cursor-relative placement.
 
-- Snacks picker layouts take `picker_fn`, since their size counts the borders of the windows they draw; windows (`Snacks.win` styles, `nvim_open_win`, nvim-tree) take `popup`/`popup_fn`
-- Prefer the function-valued helpers (`popup_fn`, `picker_fn`, the `inline_max_height`/`inline_max_width` caps) wherever the consumer accepts callables, so sizes follow terminal resizes; Snacks accepts them for `width`/`height`/`col`/`row`, not `max_width`/`max_height`
+- Snacks picker layouts take `picker_fn`, since their size counts the borders of the windows they draw; windows (`Snacks.win` styles, `nvim_open_win`, nvim-tree) take `float`/`float_fn`
+- Prefer the function-valued helpers (`float_fn`, `picker_fn`, the `inline_max_height`/`inline_max_width` caps) wherever the consumer accepts callables, so sizes follow terminal resizes; Snacks accepts them for `width`/`height`/`col`/`row`, not `max_width`/`max_height`
 
 ## LSP Setup
 

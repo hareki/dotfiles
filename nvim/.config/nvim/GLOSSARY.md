@@ -52,7 +52,7 @@ _Avoid_: filetype mapping
 
 **Popup**:
 A float tied to the window it opened from: it borrows keys there and closes once that window moves on.
-_Avoid_: tooltip, overlay
+_Avoid_: tooltip, overlay; popup for a float tied to no window (a picker, a panel, the terminal)
 
 **Source window**:
 The window a popup opened from.

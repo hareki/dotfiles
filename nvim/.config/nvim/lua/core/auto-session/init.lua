@@ -45,7 +45,7 @@ return {
 
     opts = function()
       -- Function-valued so the session picker follows terminal resizes
-      local popup_config = UI.layout.picker_fn('sm')
+      local picker_config = UI.layout.picker_fn('sm')
 
       --- @module "auto-session"
       --- @type AutoSession.Config
@@ -90,8 +90,8 @@ return {
           picker_opts = {
             preview = false,
             layout = {
-              width = popup_config.width,
-              height = popup_config.height,
+              width = picker_config.width,
+              height = picker_config.height,
             },
           },
 

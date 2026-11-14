@@ -77,7 +77,7 @@ end
 --- The tree holds the upper part of the wide preset, the preview below it the rest
 --- @param preview_config vim.api.keyset.win_config
 local function expect_stacked(preview_config)
-  local preset = UI.layout.popup('lg')
+  local preset = UI.layout.float('lg')
   local win = tree_win()
   local held = geometry(win)
 
@@ -104,7 +104,7 @@ t.test('the tree opens as one float filling the narrow preset', function()
   local configs = t.spy(vim.api, 'nvim_win_set_config')
   local win = open_tree()
 
-  t.eq(geometry(win), UI.layout.popup('vertical_sm'), 'the tree')
+  t.eq(geometry(win), UI.layout.float('vertical_sm'), 'the tree')
   t.eq(reshapes(configs), 0, 'it was created in that shape, not resized to it')
   t.ok(not preview.is_open(), 'no preview shows')
 end)
@@ -120,7 +120,7 @@ t.test('turning the preview off gives the tree the narrow preset back', function
 
   press('B')
   t.ok(not preview.is_open(), 'the preview closed')
-  t.eq(geometry(win), UI.layout.popup('vertical_sm'), 'the tree')
+  t.eq(geometry(win), UI.layout.float('vertical_sm'), 'the tree')
 end)
 
 t.test('the preview choice outlasts the tree, which reopens at half height', function()

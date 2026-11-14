@@ -68,7 +68,7 @@ local function open(src)
     active()
   end
 
-  local lg = UI.layout.popup('lg')
+  local lg = UI.layout.float('lg')
 
   local scratch = vim.api.nvim_create_buf(false, true)
   vim.bo[scratch].bufhidden = 'wipe'

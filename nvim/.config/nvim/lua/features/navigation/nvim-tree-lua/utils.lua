@@ -129,7 +129,7 @@ end
 --- @return utils.ui.layout.WinConfig tree
 --- @return integer preview_height Height of the preview below the tree, with the preview on
 function M.float_geometry()
-  local size = UI.layout.popup(state.preview_on_focus and 'lg' or 'vertical_sm')
+  local size = UI.layout.float(state.preview_on_focus and 'lg' or 'vertical_sm')
   -- Minus 1 for the space between the two windows
   local collapsed_height = math.floor(size.height / 2) - 1
   -- What the collapsed tree leaves, minus the 2 border rows between the windows
@@ -160,7 +160,7 @@ local function reshape()
   vim.api.nvim_win_set_config(tree_win, vim.tbl_extend('force', cfg, geometry))
 end
 
---- Re-apply the tree geometry to the screen size, tracking resizes like the snacks popups do
+--- Re-apply the tree geometry to the screen size, tracking resizes like the Snacks floats do
 --- @return nil
 function M.resize()
   if not api.tree.is_visible() then

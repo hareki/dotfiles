@@ -30,7 +30,7 @@ return {
     },
 
     styles = {
-      scratch = UI.layout.popup_fn('lg'),
+      scratch = UI.layout.float_fn('lg'),
     },
   },
 }

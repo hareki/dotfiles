@@ -1,17 +1,17 @@
 --- @class config.size.Dimensions
 --- @field HEIGHT_OFFSET? number
---- @field ROW_OFFSET? number Rows to shift the centered popup by
+--- @field ROW_OFFSET? number Rows to shift the centered float by
 --- @field MIN_HEIGHT? number
 --- @field MIN_WIDTH? number
 --- @field HEIGHT number
 --- @field WIDTH number
 
---- @alias config.size.PopupPreset 'full' | 'lg' | 'vertical_md' | 'vertical_sm' | 'sm' | 'input'
+--- @alias config.size.FloatPreset 'full' | 'lg' | 'vertical_md' | 'vertical_sm' | 'sm' | 'input'
 
 --- @class config.size
 local M = {}
 
-M.popup = {
+M.float = {
   full = {
     WIDTH = 1,
     HEIGHT = 1,
