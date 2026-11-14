@@ -53,11 +53,10 @@ end
 
 --- Replace the progress handles with recorders
 --- @return table[] events `{ 'start', title }`, `{ 'report', title, percentage }` or `{ 'finish' }`
---- @return table[] creates The arguments each handle was created with
 local function record_progress()
   local progress_utils = require('features.formatting.conform-nvim.style-enforcer.progress')
   local events = {}
-  local creates = t.spy(progress_utils, 'create', function()
+  t.set(progress_utils, 'create', function()
     return {
       start = function(_, title)
         events[#events + 1] = { 'start', title }
@@ -70,7 +69,7 @@ local function record_progress()
       end,
     }
   end)
-  return events, creates
+  return events
 end
 
 --- A scripted step for every buffer: logs its name to trace, then runs script (default: done)
@@ -247,7 +246,7 @@ end)
 -- A run
 
 t.test('runs the steps that apply in order, counting progress over them', function()
-  local events, creates = record_progress()
+  local events = record_progress()
   local trace = {}
   local skipped = step('skipped', trace)
   skipped.applies = function()
@@ -264,7 +263,6 @@ t.test('runs the steps that apply in order, counting progress over them', functi
     { 'report', 'Running second', 50 },
     { 'finish' },
   }, 'the progress')
-  t.eq(creates[1][1].bufnr, buf, 'the buffer the progress shows for')
   t.eq(file_lines(buf), { 'edited' }, 'the file on disk')
 end)
 
@@ -661,6 +659,31 @@ t.test('progress reads Formatting for conform and oxfmt, Fixing for eslint and o
     { 'report', 'Fixing (oxlint)', 200 / 3 },
     { 'finish' },
   }, 'the progress')
+end)
+
+t.test("the progress shows in noice as the editor's own, with no LSP client behind it", function()
+  local progress_utils = require('features.formatting.conform-nvim.style-enforcer.progress')
+  local noice_progress = require('noice.lsp.progress')
+  --- The item noice shows, from the table it keeps them in
+  local function item()
+    local _, message = next(noice_progress._progress)
+    return message and message.opts.progress
+  end
+  t.eq(item(), nil, 'the items before')
+
+  local handle = progress_utils.create({ client_name = 'stenfo', pending_ms = 0 })
+  handle:start('Formatting')
+  t.wait_for(function()
+    return item() ~= nil
+  end, 'noice to show the progress')
+  t.eq(item().client, 'stenfo', 'its label')
+  t.eq(item().title, 'Formatting', 'its title')
+  t.eq(item().client_id, nil, 'its client')
+
+  handle:finish()
+  t.wait_for(function()
+    return item() == nil
+  end, 'noice to drop the finished progress')
 end)
 
 t.test('oxfmt: its failure reads as formatting', function()

@@ -1,11 +1,9 @@
 --- @class features.formatting.conform-nvim.style-enforcer.progress.CreateOpts
 --- @field client_name  string          -- Label that Noice prints
---- @field bufnr        integer         -- Buffer whose LSP client id is sampled
 --- @field pending_ms   integer         -- Delay (in ms) before the first message is shown
 
 --- @class features.formatting.conform-nvim.style-enforcer.progress.Handle
 --- @field token          string
---- @field client_id      integer | nil
 --- @field client_name    string
 --- @field _pending       boolean
 --- @field _cached_kind   'begin' | 'report' | 'end' | nil
@@ -19,14 +17,6 @@
 --- @class features.formatting.conform-nvim.style-enforcer.progress
 local M = {}
 
---- @param bufnr integer
---- @return integer | nil
-local function get_valid_client_id(bufnr)
-  -- Noice drops progress without a live client id, so fall back to any running client
-  local client = vim.lsp.get_clients({ bufnr = bufnr })[1] or vim.lsp.get_clients()[1]
-  return client and client.id
-end
-
 local ProgressHandle = {}
 ProgressHandle.__index = ProgressHandle --[[@as features.formatting.conform-nvim.style-enforcer.progress.Handle]]
 
@@ -35,14 +25,9 @@ ProgressHandle.__index = ProgressHandle --[[@as features.formatting.conform-nvim
 --- @param title      string | nil
 --- @param percentage number | nil
 function ProgressHandle:_send(kind, title, percentage)
-  -- Noice can't render progress without a real client to attribute it to
-  if not self.client_id then
-    return
-  end
-
   local noice_progress = require('noice.lsp.progress')
+  -- No client id: the noice fork shows such a report as the editor's own, under `client`
   noice_progress.progress({
-    client_id = self.client_id,
     params = {
       token = self.token,
       value = {
@@ -100,7 +85,6 @@ function M.create(opts)
   --- @type features.formatting.conform-nvim.style-enforcer.progress.Handle
   local handle = setmetatable({
     token = 'token:' .. vim.uv.hrtime(),
-    client_id = get_valid_client_id(opts.bufnr),
     client_name = opts.client_name,
     _pending = true,
   }, ProgressHandle)

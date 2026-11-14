@@ -170,12 +170,7 @@ function M.run(opts)
 
   local progress_utils = require('features.formatting.conform-nvim.style-enforcer.progress')
 
-  local progress = progress_utils.create({
-    pending_ms = 500,
-    client_name = 'stenfo',
-    -- run_all targets background buffers, so sample the client from the target
-    bufnr = buf,
-  })
+  local progress = progress_utils.create({ pending_ms = 500, client_name = 'stenfo' })
 
   running_bufs[buf] = true
 
