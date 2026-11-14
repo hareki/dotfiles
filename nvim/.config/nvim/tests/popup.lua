@@ -21,7 +21,7 @@ end
 --- @return integer buf
 --- @return integer win
 local function source()
-  vim.cmd.tabnew()
+  t.tab()
   local buf = t.buffer(nil, { 'one', 'two', 'three' })
   return buf, vim.api.nvim_get_current_win()
 end
@@ -55,7 +55,6 @@ t.test('cursor_moved closes it once the cursor leaves its position', function()
   t.eq(vim.api.nvim_win_is_valid(float), false, 'open after the cursor moved')
   t.eq(closes, 1, 'on_close runs')
   t.eq(buf_map_desc(buf, '<Esc>'), nil, 'the source <Esc> override is released')
-  vim.cmd.tabclose()
 end)
 
 t.test('focus_left closes it in a third window, not in the popup', function()
@@ -70,7 +69,6 @@ t.test('focus_left closes it in a third window, not in the popup', function()
   vim.cmd.split()
   vim.cmd.enew()
   t.eq(vim.api.nvim_win_is_valid(float), false, 'open after focus left both windows')
-  vim.cmd.tabclose()
 end)
 
 t.test('mode_changed closes it on a mode change in the source buffer', function()
@@ -80,7 +78,6 @@ t.test('mode_changed closes it on a mode change in the source buffer', function(
 
   vim.api.nvim_exec_autocmds('ModeChanged', { buffer = buf })
   t.eq(vim.api.nvim_win_is_valid(float), false, 'open after a mode change')
-  vim.cmd.tabclose()
 end)
 
 t.test('closing the popup itself releases the link', function()
@@ -100,7 +97,6 @@ t.test('closing the popup itself releases the link', function()
   t.eq(closes, 1, 'on_close runs on WinClosed')
   t.eq(buf_map_desc(buf, '<Esc>'), nil, '<Esc> is returned')
   t.eq(buf_map_desc(buf, '<Tab>'), nil, '<Tab> is returned')
-  vim.cmd.tabclose()
 end)
 
 t.test("overrides stack and give back the buffer's own map", function()
@@ -120,5 +116,4 @@ t.test("overrides stack and give back the buffer's own map", function()
   close_second()
   t.eq(buf_map_desc(buf, '<Esc>'), nil, '<Esc> is returned')
   t.eq(buf_map_desc(buf, '<Tab>'), 'Own Tab', "the buffer's own <Tab> is back")
-  vim.cmd.tabclose()
 end)

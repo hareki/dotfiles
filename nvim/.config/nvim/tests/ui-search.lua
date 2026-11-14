@@ -34,7 +34,7 @@ end)
 
 t.test('clear() turns the highlight off and refills references only after a search', function()
   local snacks_words = require('snacks.words')
-  local updates, restore = t.spy(snacks_words, 'update', function() end)
+  local updates = t.spy(snacks_words, 'update', function() end)
 
   search('needle')
   UI.search.clear()
@@ -49,8 +49,6 @@ t.test('clear() turns the highlight off and refills references only after a sear
   UI.search.clear()
   t.eq(vim.v.hlsearch, 0, 'v:hlsearch goes without a pattern too')
   t.eq(#updates, 1, 'no refill when nothing was hidden')
-
-  restore()
 end)
 
 t.test('<Esc> in Normal mode and entering Insert mode clear the search', function()

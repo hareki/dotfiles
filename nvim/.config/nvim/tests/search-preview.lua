@@ -39,6 +39,18 @@ local function expect_preview(picker, visible, msg)
   end, msg)
 end
 
+--- When the test ends, show the files picker's preview again if the test left it hidden: the
+--- choice outlives a picker, so the next test would open on it
+local function show_preview_after()
+  t.cleanup(function()
+    if vim.deep_equal(actions.preview_layout('files'), HIDDEN) then
+      local picker = t.open_picker(callback_described('Find Files'), 'files')
+      picker:action('toggle_preview')
+      expect_preview(picker, true, 'the preview to show again')
+    end
+  end)
+end
+
 t.test('<Tab> moves focus into a shown preview and back to the input', function()
   local picker = t.open_picker(callback_described('Find Files'), 'files')
 
@@ -46,10 +58,10 @@ t.test('<Tab> moves focus into a shown preview and back to the input', function(
   t.eq(vim.api.nvim_get_current_win(), picker.preview.win.win, '<Tab> focuses the preview')
   actions.toggle_preview_focus(picker)
   t.eq(vim.api.nvim_get_current_win(), picker.input.win.win, 'toggling again focuses the input')
-  t.close_picker(picker)
 end)
 
 t.test("toggle_preview's choice holds for the next files picker until toggled back", function()
+  show_preview_after()
   local find_files = callback_described('Find Files')
   t.eq(actions.preview_layout('files'), SHOWN, 'the layout before any toggle')
 
@@ -73,6 +85,7 @@ t.test("toggle_preview's choice holds for the next files picker until toggled ba
 end)
 
 t.test("live-preview's picker shares the files picker's remembered preview", function()
+  show_preview_after()
   local find_files = callback_described('Find Files')
   local picker = t.open_picker(find_files, 'files')
   picker:action('toggle_preview')
@@ -88,7 +101,6 @@ t.test("live-preview's picker shares the files picker's remembered preview", fun
 
   picker = t.open_picker(find_files, 'files')
   t.eq(preview_visible(picker), true, 'the files picker follows the toggle made in it')
-  t.close_picker(picker)
 end)
 
 t.test('the keymaps picker opens without a preview, where <Tab> does nothing', function()
@@ -110,5 +122,4 @@ t.test('the keymaps picker opens without a preview, where <Tab> does nothing', f
 
   picker = t.open_picker(callback_described('Find Keymaps'), 'keymaps')
   t.eq(preview_visible(picker), false, 'the next keymaps picker opens without it again')
-  t.close_picker(picker)
 end)

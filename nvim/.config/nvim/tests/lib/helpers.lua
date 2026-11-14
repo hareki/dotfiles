@@ -1,5 +1,7 @@
---- What a test file uses: register tests, assert, wait on the event loop, set up buffers, look up
---- maps, drive Snacks pickers. tests/lib/boot.lua runs the file after the full boot, VeryLazy too
+--- What a test file uses: register tests, assert, wait on the event loop, set up buffers and tabs,
+--- look up maps, drive Snacks pickers. tests/lib/boot.lua runs the file after the full boot,
+--- VeryLazy too. What a test acquires here (a spy, a buffer, a tab, a picker) is undone when the
+--- test ends, pass or fail, so the next one starts clean
 --- @class tests.lib.helpers
 local M = {}
 
@@ -14,11 +16,34 @@ M.startup_modules = {}
 --- @type { name: string, fn: fun() }[]
 local tests = {}
 
---- Register a test; tests run in order in one nvim process, so each cleans up what it changes
+--- What the running test undoes when it ends, in the order registered
+--- @type fun()[]
+local cleanups = {}
+
+--- Register a test; tests run in order in one nvim process
 --- @param name string
 --- @param fn fun()
 function M.test(name, fn)
   tests[#tests + 1] = { name = name, fn = fn }
+end
+
+--- Run `fn` when the running test ends, pass or fail, after the cleanups registered later than it.
+--- For what the helpers below cannot undo: a module's own state, a window, an augroup
+--- @param fn fun()
+function M.cleanup(fn)
+  cleanups[#cleanups + 1] = fn
+end
+
+--- Set tbl[key] until the test ends: a module in package.loaded, an environment variable, a field
+--- @param tbl table
+--- @param key any
+--- @param value any
+function M.set(tbl, key, value)
+  local original = tbl[key]
+  tbl[key] = value
+  M.cleanup(function()
+    tbl[key] = original
+  end)
 end
 
 --- @param actual any
@@ -67,22 +92,30 @@ function M.settle(ms)
   end)
 end
 
---- Record every call of tbl[key], calling through to the original unless `fake` replaces it
+--- Record every call of tbl[key] until the test ends, calling through to the original unless
+--- `fake` replaces it
 --- @param tbl table
 --- @param key string
 --- @param fake? function
 --- @return table[] calls Each call's arguments, packed with vim.F.pack_len
---- @return fun() restore
 function M.spy(tbl, key, fake)
   local original = tbl[key]
   local calls = {}
-  tbl[key] = function(...)
+  M.set(tbl, key, function(...)
     calls[#calls + 1] = vim.F.pack_len(...)
     return (fake or original)(...)
-  end
-  return calls, function()
-    tbl[key] = original
-  end
+  end)
+  return calls
+end
+
+--- Wipe `buf` when the test ends, unless the test already did
+--- @param buf integer
+local function wipe_after(buf)
+  M.cleanup(function()
+    if vim.api.nvim_buf_is_valid(buf) then
+      vim.api.nvim_buf_delete(buf, { force = true })
+    end
+  end)
 end
 
 --- Open a listed scratch buffer in the current window, so FileType handlers run as for a file
@@ -91,6 +124,7 @@ end
 --- @return integer buf
 function M.buffer(filetype, lines)
   local buf = vim.api.nvim_create_buf(true, false)
+  wipe_after(buf)
   vim.api.nvim_set_current_buf(buf)
   if lines then
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
@@ -110,7 +144,22 @@ function M.file(name, lines)
   vim.fn.mkdir(vim.fs.dirname(path), 'p')
   vim.fn.writefile(lines, path)
   vim.cmd.edit(vim.fn.fnameescape(path))
-  return vim.api.nvim_get_current_buf()
+  local buf = vim.api.nvim_get_current_buf()
+  wipe_after(buf)
+  return buf
+end
+
+--- Open a new tab, closed with its windows when the test ends
+--- @return integer tabpage
+function M.tab()
+  vim.cmd.tabnew()
+  local tabpage = vim.api.nvim_get_current_tabpage()
+  M.cleanup(function()
+    if vim.api.nvim_tabpage_is_valid(tabpage) then
+      vim.cmd(string.format('tabclose! %d', vim.api.nvim_tabpage_get_number(tabpage)))
+    end
+  end)
+  return tabpage
 end
 
 --- The map on lhs: `buf`'s own when given, else the global one
@@ -150,7 +199,7 @@ function M.close_picker(picker)
   end, 'the picker teardown')
 end
 
---- The open picker of `source`, once it shows and `ready` holds
+--- The open picker of `source`, once it shows and `ready` holds; closed when the test ends
 --- @param source string
 --- @param ready? fun(picker: snacks.Picker): boolean Default: it lists an item
 --- @param msg? string What is awaited, for the failure
@@ -166,6 +215,11 @@ function M.await_picker(source, ready, msg)
     return picker ~= nil and picker.shown == true and ready(picker)
   end, msg or string.format('the %s picker to list its items', source))
   --- @cast picker snacks.Picker
+  M.cleanup(function()
+    if not picker.closed then
+      M.close_picker(picker)
+    end
+  end)
   return picker
 end
 
@@ -176,13 +230,22 @@ end
 --- @param msg? string
 --- @return snacks.Picker
 function M.open_picker(open, source, ready, msg)
-  -- Opening a source that is already open closes it instead, so drop one a failed test left
-  for _, stale in ipairs(Snacks.picker.get({ source = source })) do
-    M.close_picker(stale)
-  end
-
   open()
   return M.await_picker(source, ready, msg)
+end
+
+--- Run the cleanups the test that just ended registered, newest first, each one whatever the
+--- others did; one may register more (a module reset that opens a window)
+--- @return string[] errors
+local function unwind()
+  local errors = {}
+  while #cleanups > 0 do
+    local ok, err = xpcall(table.remove(cleanups), debug.traceback)
+    if not ok then
+      errors[#errors + 1] = 'cleanup: ' .. err
+    end
+  end
+  return errors
 end
 
 --- Run the registered tests, reporting each through `out`; called by boot.lua
@@ -193,11 +256,16 @@ function M._run(out)
   local failed = 0
   for _, test in ipairs(tests) do
     local ok, err = xpcall(test.fn, debug.traceback)
-    if ok then
+    local errors = unwind()
+    if not ok then
+      table.insert(errors, 1, err)
+    end
+
+    if #errors == 0 then
       out(string.format('ok    %s: %s\n', file, test.name))
     else
       failed = failed + 1
-      out(string.format('FAIL  %s: %s\n%s\n', file, test.name, err))
+      out(string.format('FAIL  %s: %s\n%s\n', file, test.name, table.concat(errors, '\n')))
     end
   end
   return failed

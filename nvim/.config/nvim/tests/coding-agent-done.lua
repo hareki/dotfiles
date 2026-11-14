@@ -5,7 +5,8 @@ local t = require('tests.lib.helpers')
 local done = require('features.ai.claudecode-nvim.done')
 local component = require('chrome.lualine-nvim.components.coding-agent')
 
---- A stand-in panel: a focused float on a buffer that claudecode.nvim reports as its terminal
+--- A stand-in panel, gone when the test ends: a focused float on a buffer that claudecode.nvim
+--- reports as its terminal
 --- @return integer win
 local function open_panel()
   local buf = vim.api.nvim_create_buf(false, true)
@@ -16,12 +17,15 @@ local function open_panel()
     width = 10,
     height = 1,
   })
+  t.cleanup(function()
+    vim.api.nvim_win_close(win, true)
+  end)
   -- After the window, as claudecode.nvim tracks a terminal only once Snacks has opened it
-  package.loaded['claudecode.terminal'] = {
+  t.set(package.loaded, 'claudecode.terminal', {
     get_active_terminal_bufnr = function()
       return buf
     end,
-  }
+  })
   return win
 end
 
@@ -39,17 +43,23 @@ local function show_panel(win)
   vim.api.nvim_set_current_win(win)
 end
 
---- @param win integer
-local function close_panel(win)
-  vim.api.nvim_win_close(win, true)
-  package.loaded['claudecode.terminal'] = nil
-end
-
 --- @param msg string
 local function await_seen(msg)
   t.wait_for(function()
     return not done.unseen()
   end, msg)
+end
+
+--- The agent finishing, as its Stop hook reports it. The flag is the module's own, so when the
+--- test ends a panel shows to clear whatever it left
+local function finish()
+  t.cleanup(function()
+    if done.unseen() then
+      open_panel()
+      await_seen('a shown panel to clear the flag the test left')
+    end
+  end)
+  done.mark()
 end
 
 --- Wait for the statusline lualine last rendered to show the agent's icon, or to drop it
@@ -66,23 +76,21 @@ end
 t.test('a finish before any panel exists is flagged until one opens', function()
   await_icon(false, 'a statusline without the icon before the finish')
 
-  done.mark()
+  finish()
   t.eq(done.unseen(), true, 'unseen after the finish')
   t.eq(component.cond(), true, 'the component shows')
   await_icon(true, 'the icon after the finish')
 
-  local win = open_panel()
+  open_panel()
   await_seen('the opened panel to clear the flag')
   t.eq(component.cond(), false, 'the component hides')
   await_icon(false, 'the icon to go once the panel shows')
-  close_panel(win)
 end)
 
 t.test('a finish under a visible panel is not flagged', function()
-  local win = open_panel()
-  done.mark()
+  open_panel()
+  finish()
   t.eq(done.unseen(), false)
-  close_panel(win)
 end)
 
 t.test('a finish under a hidden panel is flagged until the panel shows again', function()
@@ -90,7 +98,7 @@ t.test('a finish under a hidden panel is flagged until the panel shows again', f
   local win = open_panel()
   hide_panel(win, code_win)
 
-  done.mark()
+  finish()
   t.eq(done.unseen(), true, 'unseen after the finish')
 
   -- Focus moving between other windows leaves it
@@ -106,17 +114,15 @@ t.test('a finish under a hidden panel is flagged until the panel shows again', f
   hide_panel(win, code_win)
   t.settle()
   t.eq(done.unseen(), false, 'unseen after hiding the panel again')
-  close_panel(win)
 end)
 
 t.test('a panel in another tab does not count as showing', function()
-  local win = open_panel()
-  vim.cmd.tabnew()
+  open_panel()
+  t.tab()
 
-  done.mark()
+  finish()
   t.eq(done.unseen(), true, 'unseen after the finish')
 
   vim.cmd.tabclose()
   await_seen('the panel tab to clear the flag')
-  close_panel(win)
 end)

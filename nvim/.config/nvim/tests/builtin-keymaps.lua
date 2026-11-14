@@ -114,8 +114,6 @@ t.test('retitles the global defaults, leaving the rest of each map as Neovim set
   vim.api.nvim_set_current_buf(first)
   t.keymap('n', ']b').callback()
   t.eq(vim.api.nvim_get_current_buf(), second, ']b moves to the next buffer')
-  vim.api.nvim_buf_delete(first, { force = true })
-  vim.api.nvim_buf_delete(second, { force = true })
 end)
 
 t.test('deletes the unused defaults', function()
@@ -133,15 +131,7 @@ t.test('retitles the help, markdown and checkhealth ftplugin maps', function()
     for lhs, desc in pairs(SECTION_TITLES) do
       t.eq(buf_desc(buf, 'n', lhs), desc, string.format('%s %s', filetype, lhs))
     end
-    vim.api.nvim_buf_delete(buf, { force = true })
   end
-
-  vim.cmd.help('help')
-  local help = vim.api.nvim_get_current_buf()
-  for lhs, desc in pairs(SECTION_TITLES) do
-    t.eq(buf_desc(help, 'n', lhs), desc, 'help ' .. lhs)
-  end
-  vim.cmd.helpclose()
 
   -- The retitled maps keep the ftplugin's callback and flags, in their own buffer
   local buf = t.buffer('markdown', { '# One', 'text', '# Two' })
@@ -150,7 +140,13 @@ t.test('retitles the help, markdown and checkhealth ftplugin maps', function()
   t.eq(vim.api.nvim_win_get_cursor(0)[1], 3, ']] jumps to the next heading')
   t.eq(t.keymap('n', 'gO', buf).silent, 1, 'gO stays silent')
   t.eq(t.keymap('n', ']]'), nil, 'no global ]] appeared')
-  vim.api.nvim_buf_delete(buf, { force = true })
+
+  vim.cmd.help('help')
+  t.cleanup(vim.cmd.helpclose)
+  local help = vim.api.nvim_get_current_buf()
+  for lhs, desc in pairs(SECTION_TITLES) do
+    t.eq(buf_desc(help, 'n', lhs), desc, 'help ' .. lhs)
+  end
 end)
 
 t.test("has a title for each map with a desc that Neovim's ftplugins set", function()
@@ -174,21 +170,22 @@ t.test('retitles the nvim-pack and terminal maps in each of their modes', functi
     t.eq(buf_desc(pack, mode, ']]'), 'Next Plugin', mode .. ' ]]')
     t.eq(buf_desc(pack, mode, '[['), 'Previous Plugin', mode .. ' [[')
   end
-  vim.api.nvim_buf_delete(pack, { force = true })
 
+  -- Wiped with its buffer, which ends the job
   local term = t.buffer()
-  local job = vim.fn.jobstart({ 'cat' }, { term = true })
+  vim.fn.jobstart({ 'cat' }, { term = true })
   for _, mode in ipairs({ 'n', 'x', 'o' }) do
     t.eq(buf_desc(term, mode, ']]'), 'Jump [count] Shell Prompts Forward', mode .. ' ]]')
     t.eq(buf_desc(term, mode, '[['), 'Jump [count] Shell Prompts Backward', mode .. ' [[')
   end
-  vim.fn.jobstop(job)
-  vim.api.nvim_buf_delete(term, { force = true })
 end)
 
 t.test("leaves another buffer-local map on Neovim's key its own title", function()
   -- Like a plugin's FileType handler, created before the module's (setup() re-creates that one)
   local group = vim.api.nvim_create_augroup('tests.builtin-keymaps.reference-jump', {})
+  t.cleanup(function()
+    vim.api.nvim_del_augroup_by_id(group)
+  end)
   vim.api.nvim_create_autocmd('FileType', {
     group = group,
     pattern = 'markdown',
@@ -205,9 +202,6 @@ t.test("leaves another buffer-local map on Neovim's key its own title", function
   -- The sweep over existing buffers matches on the desc too
   builtin_keymaps.setup()
   t.eq(buf_desc(buf, 'n', ']]'), 'Next Reference', 'after a sweep')
-
-  vim.api.nvim_del_augroup_by_id(group)
-  vim.api.nvim_buf_delete(buf, { force = true })
 end)
 
 t.test('retitles the buffers whose maps came before it was applied', function()
@@ -231,9 +225,6 @@ t.test('retitles the buffers whose maps came before it was applied', function()
   table.insert(expected, 'TermOpen *')
   table.sort(expected)
   t.eq(handlers, expected, 'one handler per ftplugin filetype and terminals after a second setup()')
-
-  vim.api.nvim_buf_delete(hidden, { force = true })
-  vim.api.nvim_buf_delete(current, { force = true })
 end)
 
 t.test('describes the fold commands through identity maps', function()

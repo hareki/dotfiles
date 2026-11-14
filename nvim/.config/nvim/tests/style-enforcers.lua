@@ -43,23 +43,21 @@ end
 
 --- Record the notices, through vim.notify
 --- @return { level: integer, title?: string, msg: string }[] notices
---- @return fun() restore
 local function record_notices()
   local notices = {}
-  local _, restore = t.spy(vim, 'notify', function(msg, level, opts)
+  t.spy(vim, 'notify', function(msg, level, opts)
     notices[#notices + 1] = { level = level, title = opts and opts.title, msg = msg }
   end)
-  return notices, restore
+  return notices
 end
 
 --- Replace the progress handles with recorders
 --- @return table[] events `{ 'start', title }`, `{ 'report', title, percentage }` or `{ 'finish' }`
 --- @return table[] creates The arguments of each utils.progress.create call
---- @return fun() restore
 local function record_progress()
   local progress_utils = require('utils.progress')
   local events = {}
-  local creates, restore = t.spy(progress_utils, 'create', function()
+  local creates = t.spy(progress_utils, 'create', function()
     return {
       start = function(_, title)
         events[#events + 1] = { 'start', title }
@@ -72,7 +70,7 @@ local function record_progress()
       end,
     }
   end)
-  return events, creates, restore
+  return events, creates
 end
 
 --- A scripted step for every buffer: logs its name to trace, then runs script (default: done)
@@ -118,13 +116,13 @@ local function run(opts)
   return result
 end
 
---- Start an in-process language server attached to buf; each request it gets is logged, then
---- answered by handlers[method](params, reply), or at once with a null result
+--- Start an in-process language server attached to buf, stopped when the test ends; each request
+--- it gets is logged, then answered by handlers[method](params, reply), or at once with a null
+--- result
 --- @param buf integer
 --- @param name string
 --- @param handlers table<string, fun(params: table, reply: fun(err?: table, result?: any))>
 --- @return { method: string, params: table }[] log
---- @return fun() stop
 local function serve(buf, name, handlers)
   local log = {}
 
@@ -172,27 +170,21 @@ local function serve(buf, name, handlers)
     }
   end
 
-  local id = t.ok(t.lsp_start({ name = name, cmd = cmd, root_dir = vim.uv.cwd() }, {
-    bufnr = buf,
-    -- A client left over by a failed test must not serve this one
-    reuse_client = function()
-      return false
-    end,
-  }))
+  local id = t.ok(t.lsp_start({ name = name, cmd = cmd, root_dir = vim.uv.cwd() }, { bufnr = buf }))
+  t.cleanup(function()
+    local client = vim.lsp.get_client_by_id(id)
+    if client then
+      client:stop()
+      t.wait_for(function()
+        return vim.lsp.get_client_by_id(id) == nil
+      end, name .. ' stopping')
+    end
+  end)
   t.wait_for(function()
     return #vim.lsp.get_clients({ id = id, bufnr = buf }) > 0
   end, name .. ' attaching')
 
-  return log,
-    function()
-      local client = vim.lsp.get_client_by_id(id)
-      if client then
-        client:stop()
-        t.wait_for(function()
-          return vim.lsp.get_client_by_id(id) == nil
-        end, name .. ' stopping')
-      end
-    end
+  return log
 end
 
 --- @param log { method: string }[]
@@ -220,7 +212,6 @@ t.test('<A-s> loads conform.nvim on the first press, then formats and saves', fu
 
   t.eq(file_lines(buf), FORMATTED, 'the file on disk')
   t.eq(vim.fn.exists(':ConformInfo'), 2, ':ConformInfo after the first save')
-  vim.cmd.bwipeout()
 end)
 
 t.test('<leader>F formats without saving', function()
@@ -234,11 +225,10 @@ t.test('<leader>F formats without saving', function()
 
   t.ok(vim.bo[buf].modified, 'the buffer was written')
   t.eq(file_lines(buf), UNFORMATTED, 'the file on disk')
-  vim.cmd.bwipeout({ bang = true })
 end)
 
 t.test('<F40> formats and saves every modified buffer', function()
-  local notices, restore = record_notices()
+  local notices = record_notices()
   local first = t.file('all-1.lua', UNFORMATTED)
   vim.bo[first].modified = true
   local second = t.file('all-2.lua', UNFORMATTED)
@@ -248,18 +238,16 @@ t.test('<F40> formats and saves every modified buffer', function()
   t.wait_for(function()
     return #notices > 0
   end, 'the summary')
-  restore()
 
   t.eq(file_lines(first), FORMATTED, 'the first file')
   t.eq(file_lines(second), FORMATTED, 'the second file')
   t.eq(notices[1].level, levels.INFO, 'the summary level')
-  vim.cmd('bwipeout ' .. first .. ' ' .. second)
 end)
 
 -- The runner
 
 t.test('runs the steps that apply in order, counting progress over them', function()
-  local events, creates, restore = record_progress()
+  local events, creates = record_progress()
   local trace = {}
   local skipped = step('skipped', trace)
   skipped.applies = function()
@@ -268,7 +256,6 @@ t.test('runs the steps that apply in order, counting progress over them', functi
   local buf = modified_file('order.txt')
 
   local ok = run({ buf = buf, steps = { step('first', trace), skipped, step('second', trace) } })
-  restore()
 
   t.eq(ok, true, 'the run result')
   t.eq(trace, { 'first', 'second' }, 'the steps run')
@@ -283,11 +270,10 @@ t.test('runs the steps that apply in order, counting progress over them', functi
     'the progress handle'
   )
   t.eq(file_lines(buf), { 'edited' }, 'the file on disk')
-  vim.cmd.bwipeout()
 end)
 
 t.test('a failed step ends the run with its one notice, keeping what ran before', function()
-  local notices, restore = record_notices()
+  local notices = record_notices()
   local trace = {}
   local buf = modified_file('fail.txt')
 
@@ -307,17 +293,15 @@ t.test('a failed step ends the run with its one notice, keeping what ran before'
       step('after', trace),
     },
   })
-  restore()
 
   t.eq(ok, false, 'the run result')
   t.eq(trace, { 'edit', 'broken' }, 'the steps run')
   t.eq(notices, { { level = levels.WARN, title = 'Fixing Failed', msg = 'boom' } }, 'the notices')
   t.eq(file_lines(buf), { 'fixed' }, 'the file on disk')
-  vim.cmd.bwipeout()
 end)
 
 t.test('a step that throws fails like one that reports an error', function()
-  local notices, restore = record_notices()
+  local notices = record_notices()
   local trace = {}
   local buf = modified_file('throw.txt')
 
@@ -330,7 +314,6 @@ t.test('a step that throws fails like one that reports an error', function()
       step('after', trace),
     },
   })
-  restore()
 
   t.eq(ok, false, 'the run result')
   t.eq(trace, { 'thrower' }, 'the steps run')
@@ -340,12 +323,11 @@ t.test('a step that throws fails like one that reports an error', function()
     'the notices'
   )
   t.eq(run({ buf = buf, steps = {} }), true, 'a new run after the failure')
-  vim.cmd.bwipeout()
 end)
 
 t.test('the timeout ends the run: no later step, notice or edit, lock released', function()
-  local notices, restore_notices = record_notices()
-  local events, _, restore_progress = record_progress()
+  local notices = record_notices()
+  local events = record_progress()
   local trace = {}
   local late_done = false
   local buf = modified_file('timeout.txt')
@@ -375,8 +357,6 @@ t.test('the timeout ends the run: no later step, notice or edit, lock released',
     return late_done
   end, 'the slow step reporting late')
   t.settle(50)
-  restore_notices()
-  restore_progress()
 
   t.eq(trace, { 'slow' }, 'the steps run')
   t.eq(
@@ -386,7 +366,6 @@ t.test('the timeout ends the run: no later step, notice or edit, lock released',
   )
   t.eq(buf_lines(buf), { 'edited' }, 'the buffer')
   t.eq(file_lines(buf), { 'saved' }, 'the file on disk')
-  vim.cmd.bwipeout({ bang = true })
 end)
 
 t.test('a run on a buffer already running warns and runs nothing', function()
@@ -405,7 +384,7 @@ t.test('a run on a buffer already running warns and runs nothing', function()
     end,
   })
 
-  local notices, restore = record_notices()
+  local notices = record_notices()
   local second_called = false
   style_enforcers.run({
     buf = buf,
@@ -414,7 +393,6 @@ t.test('a run on a buffer already running warns and runs nothing', function()
       second_called = true
     end,
   })
-  restore()
 
   t.wait_for(function()
     return first_ok ~= nil
@@ -427,7 +405,6 @@ t.test('a run on a buffer already running warns and runs nothing', function()
   )
   t.eq(second_called, false, 'the second run ended')
   t.eq(first_ok, true, 'the first run result')
-  vim.cmd.bwipeout()
 end)
 
 t.test('save = false leaves the file alone, the default writes it', function()
@@ -444,7 +421,6 @@ t.test('save = false leaves the file alone, the default writes it', function()
   t.eq(run({ buf = buf, steps = { step('edit', {}, edit) } }), true)
   t.eq(vim.bo[buf].modified, false, 'modified after the default save')
   t.eq(file_lines(buf), { 'formatted' }, 'the file after the default save')
-  vim.cmd.bwipeout()
 end)
 
 -- run_all
@@ -459,14 +435,12 @@ t.test('run_all runs every modified buffer, then sums them up once', function()
     end),
   }
   local run_steps = style_enforcers.run
-  local _, restore_run = t.spy(style_enforcers, 'run', function(opts)
+  t.spy(style_enforcers, 'run', function(opts)
     return run_steps(vim.tbl_extend('force', opts, { steps = steps }))
   end)
-  local notices, restore_notices = record_notices()
+  local notices = record_notices()
 
   style_enforcers.run_all()
-  restore_run()
-  restore_notices()
 
   t.eq(#notices, 2, 'the notices: the failure, then the summary')
   t.eq(notices[1], { level = levels.WARN, title = 'Fixing Failed', msg = 'check' }, 'the failure')
@@ -477,13 +451,11 @@ t.test('run_all runs every modified buffer, then sums them up once', function()
   )
   t.eq(file_lines(first), { 'edited' }, 'the first file')
   t.eq(file_lines(second), { 'edited' }, 'the second file, written after its failure')
-  vim.cmd('bwipeout ' .. first .. ' ' .. second)
 end)
 
 t.test('run_all warns when no buffer is modified', function()
-  local notices, restore = record_notices()
+  local notices = record_notices()
   style_enforcers.run_all()
-  restore()
 
   t.eq(notices, { { level = levels.WARN, title = 'Style Enforcer', msg = 'No buffers to format' } })
 end)
@@ -491,12 +463,11 @@ end)
 -- The real steps
 
 t.test('conform: its failure lists the formatters and points to :ConformInfo', function()
-  local notices, restore = record_notices()
+  local notices = record_notices()
   local buf = t.file('broken.lua', { 'local = 1' })
 
   t.eq(run({ buf = buf, steps = { conform_step } }), false, 'the run result')
   t.eq(run({ buf = buf, steps = { conform_step }, debug = true }), false, 'the debug run result')
-  restore()
 
   t.eq({ notices[1].level, notices[1].title }, { levels.ERROR, 'Formatting Failed' })
   t.eq(
@@ -505,14 +476,13 @@ t.test('conform: its failure lists the formatters and points to :ConformInfo', f
     'the notice'
   )
   t.ok(vim.startswith(notices[2].msg, 'Format error: '), 'the debug notice: ' .. notices[2].msg)
-  vim.cmd.bwipeout()
 end)
 
 t.test('oxfmt: formats a background buffer with its own options, applying the edits', function()
   local buf = t.file('format.ts', { 'const a=1' })
   vim.bo[buf].shiftwidth = 3
   vim.bo[buf].expandtab = true
-  local log, stop = serve(buf, 'oxfmt', {
+  local log = serve(buf, 'oxfmt', {
     ['textDocument/formatting'] = function(_, reply)
       vim.defer_fn(function()
         reply(nil, {
@@ -524,7 +494,7 @@ t.test('oxfmt: formats a background buffer with its own options, applying the ed
       end, 10)
     end,
   })
-  vim.cmd.enew()
+  t.buffer()
   vim.bo.shiftwidth = 8
 
   t.eq(run({ buf = buf, steps = { oxfmt } }), true, 'the run result')
@@ -537,26 +507,22 @@ t.test('oxfmt: formats a background buffer with its own options, applying the ed
     "the target buffer's options"
   )
   t.eq(file_lines(buf), { 'const a = 1;' }, 'the file on disk')
-  stop()
-  vim.cmd('bwipeout ' .. buf)
 end)
 
 t.test('oxfmt: a null reply, for a formatted file, succeeds without an edit', function()
   local buf = t.file('clean.ts', { 'const a = 1;' })
   local tick = vim.api.nvim_buf_get_changedtick(buf)
-  local _, stop = serve(buf, 'oxfmt', {})
+  serve(buf, 'oxfmt', {})
 
   t.eq(run({ buf = buf, steps = { oxfmt } }), true, 'the run result')
   t.eq(vim.api.nvim_buf_get_changedtick(buf), tick, 'the changedtick')
-  stop()
-  vim.cmd.bwipeout()
 end)
 
 t.test('oxfmt: a reply after the timeout is dropped, making no edit', function()
-  local notices, restore = record_notices()
+  local notices = record_notices()
   local buf = t.file('late.ts', { 'const a=1' })
   local replied = false
-  local _, stop = serve(buf, 'oxfmt', {
+  serve(buf, 'oxfmt', {
     ['textDocument/formatting'] = function(_, reply)
       vim.defer_fn(function()
         replied = true
@@ -576,21 +542,18 @@ t.test('oxfmt: a reply after the timeout is dropped, making no edit', function()
     return replied
   end, 'the late reply')
   t.settle(50)
-  restore()
 
   t.eq(buf_lines(buf), { 'const a=1' }, 'the buffer')
   t.eq(trace, {}, 'the steps run after oxfmt')
   t.eq(notices, {
     { level = levels.WARN, title = 'Style Enforcer', msg = 'Formatting (oxfmt) timed out' },
   }, 'the notices')
-  stop()
-  vim.cmd.bwipeout()
 end)
 
 t.test("eslint: applyAllFixes for the buffer's version; a server error fails the run", function()
-  local notices, restore = record_notices()
+  local notices = record_notices()
   local buf = t.file('fix.ts', { 'var a = 1' })
-  local log, stop = serve(buf, 'eslint', {
+  local log = serve(buf, 'eslint', {
     ['workspace/executeCommand'] = function(_, reply)
       reply({ code = -32603, message = 'boom' })
     end,
@@ -598,7 +561,6 @@ t.test("eslint: applyAllFixes for the buffer's version; a server error fails the
   local version = vim.lsp.util.buf_versions[buf]
 
   t.eq(run({ buf = buf, steps = { eslint }, debug = true }), false, 'the run result')
-  restore()
 
   t.eq(methods(log), { 'workspace/executeCommand' }, 'the requests')
   t.eq(log[1].params, {
@@ -610,13 +572,11 @@ t.test("eslint: applyAllFixes for the buffer's version; a server error fails the
     { { level = levels.WARN, title = 'Fixing Failed', msg = 'Linter eslint error: boom' } },
     'the notices'
   )
-  stop()
-  vim.cmd.bwipeout()
 end)
 
 t.test('oxlint: pulls diagnostics before fixAll, so the fix sees the current text', function()
   local buf = t.file('pull.ts', { 'const a = 1' })
-  local log, stop = serve(buf, 'oxlint', {
+  local log = serve(buf, 'oxlint', {
     ['textDocument/diagnostic'] = function(_, reply)
       vim.defer_fn(function()
         reply(nil, { kind = 'full', items = {} })
@@ -630,14 +590,12 @@ t.test('oxlint: pulls diagnostics before fixAll, so the fix sees the current tex
   t.eq(methods(log), { 'textDocument/diagnostic', 'workspace/executeCommand' }, 'the requests')
   t.eq(log[1].params, { textDocument = document }, 'the pull')
   t.eq(log[2].params, { command = 'oxc.fixAll', arguments = { document } }, 'the fix')
-  stop()
-  vim.cmd.bwipeout()
 end)
 
 t.test('oxlint: an edit during the pull skips fixAll with its own notice', function()
-  local notices, restore = record_notices()
+  local notices = record_notices()
   local buf = t.file('race.ts', { 'const a = 1' })
-  local log, stop = serve(buf, 'oxlint', {
+  local log = serve(buf, 'oxlint', {
     ['textDocument/diagnostic'] = function(_, reply)
       vim.defer_fn(function()
         reply(nil, { kind = 'full', items = {} })
@@ -649,7 +607,6 @@ t.test('oxlint: an edit during the pull skips fixAll with its own notice', funct
   end, 10)
 
   t.eq(run({ buf = buf, steps = { oxlint } }), false, 'the run result')
-  restore()
 
   t.eq(methods(log), { 'textDocument/diagnostic' }, 'the requests')
   t.eq(notices, {
@@ -659,14 +616,12 @@ t.test('oxlint: an edit during the pull skips fixAll with its own notice', funct
       msg = 'Buffer changed while `oxlint` was running, skipped',
     },
   }, 'the notices')
-  stop()
-  vim.cmd.bwipeout({ bang = true })
 end)
 
 t.test('an LSP step whose client detached after the gate fails as missing', function()
-  local notices, restore = record_notices()
+  local notices = record_notices()
   local buf = t.file('detach.ts', { 'const a = 1' })
-  local log, stop = serve(buf, 'oxlint', {})
+  local log = serve(buf, 'oxlint', {})
   local client = vim.lsp.get_clients({ name = 'oxlint', bufnr = buf })[1]
 
   local ok = run({
@@ -680,7 +635,6 @@ t.test('an LSP step whose client detached after the gate fails as missing', func
       oxlint,
     },
   })
-  restore()
 
   t.eq(ok, false, 'the run result')
   t.eq(methods(log), {}, 'the requests')
@@ -691,12 +645,10 @@ t.test('an LSP step whose client detached after the gate fails as missing', func
       msg = 'Linter oxlint error: oxlint client missing',
     },
   }, 'the notices')
-  stop()
-  vim.cmd.bwipeout()
 end)
 
 t.test('progress reads Formatting for conform and oxfmt, Fixing for eslint and oxlint', function()
-  local events, _, restore = record_progress()
+  local events = record_progress()
 
   -- conform alone: stylua formats Lua, and no LSP step has its client here
   local lua_buf = t.file('labels.lua', UNFORMATTED)
@@ -704,13 +656,10 @@ t.test('progress reads Formatting for conform and oxfmt, Fixing for eslint and o
 
   -- The LSP steps alone, conform having no formatter for text; attached out of run order
   local buf = t.file('labels.txt', { 'text' })
-  local stops = {}
   for _, name in ipairs({ 'oxlint', 'eslint', 'oxfmt' }) do
-    local _, stop = serve(buf, name, {})
-    stops[#stops + 1] = stop
+    serve(buf, name, {})
   end
   t.eq(run({ buf = buf }), true, 'the LSP run')
-  restore()
 
   t.eq(events, {
     { 'start', 'Formatting' },
@@ -720,16 +669,12 @@ t.test('progress reads Formatting for conform and oxfmt, Fixing for eslint and o
     { 'report', 'Fixing (oxlint)', 200 / 3 },
     { 'finish' },
   }, 'the progress')
-  for _, stop in ipairs(stops) do
-    stop()
-  end
-  vim.cmd('bwipeout ' .. lua_buf .. ' ' .. buf)
 end)
 
 t.test('oxfmt: its failure reads as formatting', function()
-  local notices, restore = record_notices()
+  local notices = record_notices()
   local buf = t.file('invalid.ts', { 'const a =' })
-  local _, stop = serve(buf, 'oxfmt', {
+  serve(buf, 'oxfmt', {
     ['textDocument/formatting'] = function(_, reply)
       reply({ code = -32603, message = 'syntax error' })
     end,
@@ -737,7 +682,6 @@ t.test('oxfmt: its failure reads as formatting', function()
 
   t.eq(run({ buf = buf, steps = { oxfmt } }), false, 'the run result')
   t.eq(run({ buf = buf, steps = { oxfmt }, debug = true }), false, 'the debug run result')
-  restore()
 
   t.eq(notices, {
     { level = levels.ERROR, title = 'Formatting Failed', msg = 'Formatter used: oxfmt' },
@@ -747,6 +691,4 @@ t.test('oxfmt: its failure reads as formatting', function()
       msg = 'Formatter oxfmt error: syntax error',
     },
   }, 'the notices')
-  stop()
-  vim.cmd.bwipeout()
 end)

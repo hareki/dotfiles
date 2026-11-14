@@ -10,19 +10,12 @@ local buffers = require('features.search.snacks-nvim.sources.buffers')
 --- @field file integer The second tab's buffer, editing a file
 --- @field scratch integer The third tab's buffer, unnamed with a filetype
 
---- Close every tab but the first, as a failed test may leave them
-local function reset_tabs()
-  vim.cmd('silent! 1tabnext')
-  vim.cmd('silent! tabonly!')
-end
-
 --- Three tabs: the boot's, one editing a file and one with an unnamed Lua buffer; the first is current
 --- @return tests.search-tabs.Fixture
 local function three_tabs()
-  reset_tabs()
-  vim.cmd.tabnew()
+  t.tab()
   local file = t.file('notes.txt', { 'one', 'two' })
-  vim.cmd.tabnew()
+  t.tab()
   local scratch = t.buffer('lua', { 'return {}' })
   vim.cmd('1tabnext')
   return { tabs = vim.api.nvim_list_tabpages(), file = file, scratch = scratch }
@@ -109,26 +102,20 @@ t.test("the finder lists every tab in order, with its label and its window's buf
   t.eq(items[3].file, '[Scratch]', 'an unnamed buffer lists as [Scratch]')
   t.eq(items[3].filetype, 'lua', 'the filetype of its buffer')
   t.ok(items[3].text:find('tab-3', 1, true), 'the label is searchable')
-  reset_tabs()
 end)
 
 t.test('labels pad to the widest one, so a codediff tab keeps the file column aligned', function()
   local fixture = three_tabs()
-  local lifecycle = package.loaded['codediff.ui.lifecycle']
   -- A codediff session on the second tab, as is_codediff_tab finds one
-  package.loaded['codediff.ui.lifecycle'] = {
+  t.set(package.loaded, 'codediff.ui.lifecycle', {
     get_session = function(tab)
       return tab == fixture.tabs[2] and {} or nil
     end,
-  }
-  local ok, items = pcall(finder, {}, finder_ctx())
-  local label = tabs.label(fixture.tabs[2])
-  package.loaded['codediff.ui.lifecycle'] = lifecycle
+  })
+  local items = finder({}, finder_ctx())
 
-  t.ok(ok, tostring(items))
-  t.eq(label, 'codediff-2', "the statusline's label for the codediff tab")
+  t.eq(tabs.label(fixture.tabs[2]), 'codediff-2', "the statusline's label for the codediff tab")
   t.eq(pluck(items, 'label'), { 'tab-1     ', 'codediff-2', 'tab-3     ' }, 'the padded labels')
-  reset_tabs()
 end)
 
 t.test('Snacks.picker.tabs() runs the exported source and maps its keys', function()
@@ -143,8 +130,6 @@ t.test('Snacks.picker.tabs() runs the exported source and maps its keys', functi
   t.map_callback('n', '<C-X>', picker.input.win.buf)
   t.map_callback('i', '<C-X>', picker.input.win.buf)
   t.map_callback('n', 'dd', picker.list.win.buf)
-  t.close_picker(picker)
-  reset_tabs()
 end)
 
 t.test("format shows the tab's label, then the buffers source's row for its buffer", function()
@@ -158,8 +143,6 @@ t.test("format shows the tab's label, then the buffers source's row for its buff
     local buffer_row = comparable(buffers.format(item, picker))
     t.eq(comparable({ unpack(row, 3) }), buffer_row, "then the buffer's row")
   end
-  t.close_picker(picker)
-  reset_tabs()
 end)
 
 t.test('confirm closes the picker and switches to the tab under the cursor', function()
@@ -179,7 +162,6 @@ t.test('confirm closes the picker and switches to the tab under the cursor', fun
     return vim.api.nvim_get_current_tabpage() == fixture.tabs[2]
   end, "the picker's confirm to switch to the second tab")
   t.ok(picker.closed, 'the picker is closed')
-  reset_tabs()
 end)
 
 t.test('tab_close closes the tab under the cursor and lists the rest', function()
@@ -202,8 +184,6 @@ t.test('tab_close closes the tab under the cursor and lists the rest', function(
     return #picker:items() == 1
   end, 'dd to close the second tab')
   t.eq(vim.api.nvim_list_tabpages(), { fixture.tabs[1] }, 'only the first tab is left')
-  t.close_picker(picker)
-  reset_tabs()
 end)
 
 t.test('x on the current tab closes it and resumes the picker where nvim lands', function()
@@ -220,20 +200,14 @@ t.test('x on the current tab closes it and resumes the picker where nvim lands',
   t.eq(vim.api.nvim_tabpage_is_valid(fixture.tabs[2]), false, 'the current tab closed')
   t.ok(resumed ~= picker, 'a new picker resumed the closed one')
   t.eq(pluck(resumed:items(), 'tab'), { fixture.tabs[1], fixture.tabs[3] }, 'the listed tabs')
-  t.close_picker(resumed)
-  reset_tabs()
 end)
 
 t.test('tab_close keeps the last tab, warning instead', function()
-  reset_tabs()
-  local warnings, restore = t.spy(Notifier, 'warn', function() end)
+  local warnings = t.spy(Notifier, 'warn', function() end)
   local picker = open_picker()
 
-  local ok, err = pcall(tab_close, picker)
-  restore()
-  t.ok(ok, tostring(err))
+  tab_close(picker)
   t.eq(#vim.api.nvim_list_tabpages(), 1, 'the last tab stays')
   t.eq(#warnings, 1, 'one warning')
   t.eq(warnings[1][1], 'Cannot close the last tab', 'the warning')
-  t.close_picker(picker)
 end)
