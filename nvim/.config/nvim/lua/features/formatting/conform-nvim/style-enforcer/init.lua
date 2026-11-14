@@ -1,10 +1,9 @@
 local conform = require('features.formatting.conform-nvim.style-enforcer.conform-nvim')
 local eslint = require('features.formatting.conform-nvim.style-enforcer.eslint')
-local notifier = require('utils.notifier')
 local oxfmt = require('features.formatting.conform-nvim.style-enforcer.oxfmt')
 local oxlint = require('features.formatting.conform-nvim.style-enforcer.oxlint')
 
-local notify = notifier.scoped('Style Enforcer')
+local notify = Notifier.scoped('Style Enforcer')
 
 --- One step of the save pipeline, an adapter over one tool
 --- @class features.formatting.conform-nvim.style-enforcer.Step
@@ -170,7 +169,6 @@ function M.run(opts)
   end, opts.steps or STEPS)
 
   local progress_utils = require('features.formatting.conform-nvim.style-enforcer.progress')
-  local snacks_util = require('snacks.util')
 
   local progress = progress_utils.create({
     pending_ms = 500,
@@ -203,7 +201,7 @@ function M.run(opts)
   --- @param should_write boolean
   local function finish(ok, should_write)
     ended = true
-    snacks_util.stop(timeout_timer)
+    Snacks.util.stop(timeout_timer)
 
     if should_write and opts.save ~= false then
       ok = write(buf) and ok
