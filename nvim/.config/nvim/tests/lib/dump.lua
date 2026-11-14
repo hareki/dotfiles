@@ -222,11 +222,12 @@ if ok_wk then
     flatten('which-key', string.format('%s %s', mapping.mode or '', mapping.lhs or ''), fields)
   end
 
-  -- The icon which-key gives each normal-mode map, from its desc
+  -- The icon which-key gives each normal-mode map, asked the way its view asks: the map selects a
+  -- rule by the plugin whose key it is, the desc one by its pattern
   local wk_icons = require('which-key.icons')
   for _, map in ipairs(vim.api.nvim_get_keymap('n')) do
     if map.desc then
-      local icon, hl = wk_icons.get({ keys = map.lhs, desc = map.desc })
+      local icon, hl = wk_icons.get({ keymap = map, desc = map.desc })
       row(
         'which-key-icon',
         vim.fn.keytrans(map.lhsraw or map.lhs or ''),
