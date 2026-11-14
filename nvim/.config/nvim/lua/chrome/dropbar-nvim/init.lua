@@ -3,7 +3,7 @@ return {
   UI.catppuccin(function(palette)
     return {
       DropBarIconGreen = { fg = palette.green },
-      DropBarIconPurple = { fg = palette.mauve },
+      DropBarIconMauve = { fg = palette.mauve },
       DropBarIconYellow = { fg = palette.yellow },
 
       DropBarKindDir = { fg = palette.overlay2 },
@@ -19,7 +19,7 @@ return {
   end, 'dropbar.nvim'),
 
   UI.which_key({
-    rules = { plugin = 'dropbar.nvim', icon = Conf.icons.tools.BREADCRUMB, color = 'purple' },
+    rules = { plugin = 'dropbar.nvim', icon = Conf.icons.tools.BREADCRUMB, color = 'mauve' },
   }),
 
   {
@@ -55,7 +55,7 @@ return {
         },
         ['codediff-history'] = {
           icon = Conf.icons.cmp_kinds.History .. ' ',
-          icon_hl = 'DropBarIconPurple',
+          icon_hl = 'DropBarIconMauve',
 
           name = 'Diff History',
         },

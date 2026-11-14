@@ -9,7 +9,7 @@ return {
 
   UI.which_key({
     specs = { KEY_PREFIX, group = 'Mini Surround', mode = { 'n', 'x' } },
-    rules = { pattern = 'mini.surround', icon = Conf.icons.tools.SURROUND, color = 'purple' },
+    rules = { pattern = 'mini.surround', icon = Conf.icons.tools.SURROUND, color = 'mauve' },
     -- which-key never auto-triggers the single-letter builtin `l`, which would move the cursor
     triggers = { KEY_PREFIX, mode = { 'n', 'x' } },
   }),

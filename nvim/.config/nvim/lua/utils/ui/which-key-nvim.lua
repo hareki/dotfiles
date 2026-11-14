@@ -1,6 +1,11 @@
+--- An icon rule as this config writes it: `color` is a Catppuccin palette key, which
+--- chrome/which-key-nvim/icon-rules.lua turns into which-key's own name for it once which-key loads
+--- @class utils.ui.which-key-nvim.IconRule : wk.IconRule
+--- @field color? 'sapphire' | 'blue' | 'teal' | 'green' | 'text' | 'peach' | 'mauve' | 'red' | 'yellow'
+
 --- A which-key.nvim spec fragment adding group specs, icon rules and/or manual triggers
 --- @module 'which-key'
---- @param config { specs?: wk.Spec, rules?: wk.IconRule | wk.IconRule[], triggers?: wk.Spec }
+--- @param config { specs?: wk.Spec, rules?: utils.ui.which-key-nvim.IconRule | utils.ui.which-key-nvim.IconRule[], triggers?: wk.Spec }
 --- @return table spec
 local function which_key(config)
   local rules = config.rules

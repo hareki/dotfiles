@@ -12,6 +12,6 @@ function M.get()
   return Conf.icons.cmp_kinds.CodingAgent
 end
 
-M.color = 'teal'
+M.color = Conf.icons.colors.CODING_AGENT
 
 return M

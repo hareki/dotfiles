@@ -30,8 +30,17 @@ local DEFAULTS = {
   ['secondary-right'] = { padding = { left = 0, right = 2 } },
 }
 
---- Create lualine components with consistent styling
---- @param opts { type: 'primary-left' | 'primary-right' | 'secondary-left' | 'secondary-right', comp: string | function, color: string, icon: string, margin?: {left: number, right: number}, [string]: any }
+--- The palette's color for `key`, raising on a key it lacks (a which-key color name, a typo)
+--- @param palette utils.ui.catppuccin-nvim.Palette
+--- @param key string
+--- @return string hex
+local function palette_color(palette, key)
+  return palette[key] or error(string.format('Statusline piece: %q is no palette key', key), 0)
+end
+
+--- Create lualine components with consistent styling. `color` is a Catppuccin palette key: a
+--- primary type needs one, with an icon, and a secondary type defaults to subtext0
+--- @param opts { type: 'primary-left' | 'primary-right' | 'secondary-left' | 'secondary-right', comp: string | function, color?: string, icon?: string, margin?: {left: number, right: number}, [string]: any }
 --- @return table[] components The main component, plus margins for primary types
 function M.create_styling_wrapper(opts)
   local palette = UI.catppuccin.get_palette()
@@ -43,26 +52,26 @@ function M.create_styling_wrapper(opts)
   end
 
   if not vim.startswith(opts.type, 'primary') then
-    local text_color = opts.color and palette[opts.color] or palette.subtext0
     return {
       vim.tbl_extend('force', {
         [1] = opts.comp,
         icon = opts.icon,
-        color = { fg = text_color, bg = 'none' },
+        color = { fg = palette_color(palette, opts.color or 'subtext0'), bg = 'none' },
         padding = defaults.padding,
       }, extra),
     }
   end
 
   local margin = opts.margin or defaults.margin
+  local accent = palette_color(palette, opts.color)
   local result = create_margins(margin.left, opts.cond)
   table.insert(
     result,
     vim.tbl_extend('force', {
       [1] = opts.comp,
-      color = { fg = palette[opts.color], bg = palette.surface0 },
+      color = { fg = accent, bg = palette.surface0 },
       separator = M.separator,
-      icon = { opts.icon .. ' ', color = { fg = palette.base, bg = palette[opts.color] } },
+      icon = { opts.icon .. ' ', color = { fg = palette.base, bg = accent } },
     }, extra)
   )
 

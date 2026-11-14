@@ -86,6 +86,7 @@ nvim-tree-lua/
 - LuaLS `--- @class` / `--- @param` / `--- @return` annotations for public APIs
 - All keymaps include `desc` in CMOS 18 title case
 - Icons imported from `config/icons.lua`, never hardcoded
+- Colors named by Catppuccin palette key, which-key icon rules included
 
 ## Tests
 

@@ -3,7 +3,11 @@ local PREFIX = 'Coding Agent: '
 return {
   UI.which_key({
     specs = { '<leader>a', group = 'Coding Agent', mode = { 'n', 'v' } },
-    rules = { pattern = 'coding agent', icon = Conf.icons.cmp_kinds.CodingAgent, color = 'cyan' },
+    rules = {
+      pattern = 'coding agent',
+      icon = Conf.icons.cmp_kinds.CodingAgent,
+      color = Conf.icons.colors.CODING_AGENT,
+    },
   }),
 
   {

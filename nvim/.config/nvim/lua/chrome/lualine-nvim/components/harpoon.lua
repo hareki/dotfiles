@@ -19,6 +19,6 @@ function M.get()
 end
 
 M.icon = Conf.icons.tools.PIN
-M.color = 'yellow'
+M.color = Conf.icons.colors.PIN
 
 return M

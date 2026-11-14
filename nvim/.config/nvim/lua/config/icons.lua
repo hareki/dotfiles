@@ -156,6 +156,14 @@ local M = {
     SCROLL_UP = '󱕑 ',
     SCROLL_DOWN = '󱕐 ',
   },
+  -- Palette key of each icon that more than one surface paints (its which-key rule and its
+  -- statusline piece), stated once so they agree
+  colors = {
+    CODING_AGENT = 'teal',
+    IMAGE = 'green',
+    LIVE_PREVIEW = 'mauve',
+    PIN = 'yellow',
+  },
   fillchars = {
     DIFF = '╱',
   },

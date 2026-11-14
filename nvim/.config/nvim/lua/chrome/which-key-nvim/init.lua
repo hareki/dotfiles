@@ -63,18 +63,18 @@ return {
       -- Earlier rules win, so these generic ones go after every tier's UI.which_key() rules
       vim.list_extend(opts.icons.rules, {
         { pattern = 'terminal', icon = Conf.icons.editor.TERMINAL, color = 'green' },
-        { pattern = 'plugin', icon = Conf.icons.tools.PLUGIN_MANAGER, color = 'orange' },
+        { pattern = 'plugin', icon = Conf.icons.tools.PLUGIN_MANAGER, color = 'peach' },
         { pattern = 'help', icon = Conf.icons.editor.HELP, color = 'blue' },
-        { pattern = 'undo', icon = Conf.icons.actions.UNDO, color = 'purple' },
+        { pattern = 'undo', icon = Conf.icons.actions.UNDO, color = 'mauve' },
         { pattern = 'diagnostic', icon = Conf.icons.editor.DIAGNOSTIC, color = 'blue' },
         -- Below undo and diagnostic, which a buffer only scopes ('Find Diagnostics Buffer')
-        { pattern = 'buffer', icon = Conf.icons.editor.BUFFER, color = 'grey' },
+        { pattern = 'buffer', icon = Conf.icons.editor.BUFFER, color = 'text' },
         { pattern = 'highlight', icon = Conf.icons.editor.HIGHLIGHT, color = 'blue' },
         -- Frontier-anchored so it stops matching 'digit', which leaves 'lazygit' to its own rule
         { pattern = '%f[%a]git', icon = Conf.icons.git.GIT, color = 'red' },
         { pattern = 'lazygit', icon = Conf.icons.git.GIT, color = 'red' },
         { pattern = 'window', icon = Conf.icons.editor.WINDOW, color = 'blue' },
-        { pattern = 'keymaps', icon = Conf.icons.editor.KEYMAPS, color = 'orange' },
+        { pattern = 'keymaps', icon = Conf.icons.editor.KEYMAPS, color = 'peach' },
         { pattern = 'scroll up', icon = Conf.icons.navigation.SCROLL_UP },
         { pattern = 'scroll down', icon = Conf.icons.navigation.SCROLL_DOWN },
         { pattern = 'code actions', icon = Conf.icons.actions.CODE_ACTION, color = 'yellow' },
@@ -89,14 +89,14 @@ return {
         { pattern = 'rename', icon = Conf.icons.actions.RENAME, color = 'yellow' },
         { pattern = 'find', icon = Conf.icons.actions.FIND, color = 'blue' },
         { pattern = 'delete', icon = Conf.icons.actions.DELETE, color = 'red' },
-        { pattern = 'paste', icon = Conf.icons.actions.PASTE, color = 'orange' },
+        { pattern = 'paste', icon = Conf.icons.actions.PASTE, color = 'peach' },
         { pattern = 'reset', icon = Conf.icons.actions.RESET, color = 'red' },
         { pattern = 'prev', icon = Conf.icons.navigation.PREV },
         { pattern = 'backward', icon = Conf.icons.navigation.PREV },
         { pattern = 'first', icon = Conf.icons.navigation.PREV },
         { pattern = 'start', icon = Conf.icons.navigation.PREV },
-        { pattern = 'around', icon = Conf.icons.actions.AROUND, color = 'purple' },
-        { pattern = 'inside', icon = Conf.icons.actions.INSIDE, color = 'purple' },
+        { pattern = 'around', icon = Conf.icons.actions.AROUND, color = 'mauve' },
+        { pattern = 'inside', icon = Conf.icons.actions.INSIDE, color = 'mauve' },
         { pattern = 'next', icon = Conf.icons.navigation.NEXT },
         { pattern = 'forward', icon = Conf.icons.navigation.NEXT },
         { pattern = 'last', icon = Conf.icons.navigation.NEXT },
@@ -115,8 +115,11 @@ return {
         { pattern = 'comment', icon = Conf.icons.actions.COMMENT },
         { pattern = 'prompt', icon = Conf.icons.editor.PROMPT, color = 'blue' },
         { pattern = 'newline', icon = Conf.icons.actions.NEWLINE },
-        { pattern = 'image', icon = Conf.icons.editor.IMAGE, color = 'green' },
+        { pattern = 'image', icon = Conf.icons.editor.IMAGE, color = Conf.icons.colors.IMAGE },
       })
+
+      local icon_rules = require('chrome.which-key-nvim.icon-rules')
+      opts.icons.rules = icon_rules.resolve_colors(opts.icons.rules)
 
       local which_key = require('which-key')
       which_key.setup(opts)

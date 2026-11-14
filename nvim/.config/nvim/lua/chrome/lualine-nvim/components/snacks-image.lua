@@ -115,6 +115,6 @@ function M.get()
   return IMAGE_ICON
 end
 
-M.color = 'green'
+M.color = Conf.icons.colors.IMAGE
 
 return M
