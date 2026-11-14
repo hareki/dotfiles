@@ -1,5 +1,6 @@
-# Sourced by tests/run.sh and tests/ab.sh: the environment every headless boot of this config gets.
-# Each rule below once cost a runaway process tree or a false result:
+# Sourced by the scripts beside tests/lib (run.sh, ab.sh, probe.sh), which is where it looks for
+# boot.lua: the environment every headless boot of this config gets. Each rule below once cost a
+# runaway process tree or a false result:
 #
 # - XDG_DATA_HOME stays the real one, since plugins and parsers load from it. Overridden once, it
 #   led mise to an empty data dir, where a shim recursion spawned about 3,500 processes
@@ -9,7 +10,8 @@
 # - NVIM_INTEGRATION (it swaps lualine for a label), NVIM (set in nvim's terminals) and TMUX unset
 # - Every boot ends in os.exit, which skips VimLeavePre: no session save, no harpoon sync and no
 #   LSP shutdown, which is why tests/lib/boot.lua stubs vim.lsp.start
-# - harpoon still writes a list for the cwd it boots in; nvim_test_cleanup deletes it
+# - Each boot runs in a cwd of its own, so the files one writes stay out of the next one's pickers;
+#   harpoon still writes a list for every cwd it boots in, which nvim_test_cleanup deletes
 # - Never dump the environment (`ps -E`): it holds API keys
 
 : "${MISE_DATA_DIR:=${XDG_DATA_HOME:-$HOME/.local/share}/mise}"
@@ -42,15 +44,12 @@ TIMEOUT_BIN=$(command -v gtimeout || command -v timeout)
 TESTS_DIR=$(cd "$(dirname "$0")" && pwd)
 tmp_base=${TMPDIR:-/tmp}
 NVIM_TEST_TMP=$(mktemp -d "${tmp_base%/}/nvim-tests.XXXXXX")
-mkdir -p "$NVIM_TEST_TMP/cwd"
-# What vim.uv.cwd() reports (/private/var/... on macOS), which harpoon hashes for its list
-NVIM_TEST_CWD=$(cd "$NVIM_TEST_TMP/cwd" && pwd -P)
 
 # nvim_test <config parent> <variant> <payload.lua> [out]: boot the config at <config parent>/nvim,
-# then run the payload (tests/lib/boot.lua); <variant> names its private cache and state dirs
+# then run the payload (tests/lib/boot.lua); <variant> names its private cwd, cache and state dirs
 nvim_test() {
   (
-    cd "$NVIM_TEST_CWD" &&
+    mkdir -p "$NVIM_TEST_TMP/$2/cwd" && cd "$NVIM_TEST_TMP/$2/cwd" &&
       XDG_CONFIG_HOME=$1 \
         XDG_CACHE_HOME=$NVIM_TEST_TMP/$2/cache \
         XDG_STATE_HOME=$NVIM_TEST_TMP/$2/state \
@@ -64,7 +63,11 @@ nvim_test() {
 }
 
 nvim_test_cleanup() {
-  hash=$(printf '%s' "$NVIM_TEST_CWD" | shasum -a 256 | cut -d ' ' -f 1)
-  rm -f "${XDG_DATA_HOME:-$HOME/.local/share}/nvim/harpoon/$hash.json"
+  for cwd in "$NVIM_TEST_TMP"/*/cwd; do
+    [ -d "$cwd" ] || continue
+    # What vim.uv.cwd() reports (/private/var/... on macOS), which harpoon hashes for its list
+    hash=$(cd "$cwd" && pwd -P | tr -d '\n' | shasum -a 256 | cut -d ' ' -f 1)
+    rm -f "${XDG_DATA_HOME:-$HOME/.local/share}/nvim/harpoon/$hash.json"
+  done
   rm -rf "$NVIM_TEST_TMP"
 }

@@ -91,6 +91,7 @@ nvim-tree-lua/
 
 - `tests/run.sh [words]`: headless tests, each file run in an nvim booted on the working tree
 - `tests/ab.sh [rev]`: boots a revision and the working tree and diffs what each config defines (maps, highlights, autocmds, options, plugin opts, ...)
+- `tests/probe.sh <payload.lua>`: runs a one-off Lua payload in the same boot
 
 ## Attribution
 
