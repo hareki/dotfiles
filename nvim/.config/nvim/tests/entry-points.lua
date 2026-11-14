@@ -143,7 +143,6 @@ t.test('tsave reads the pane option publish_tmux_server() sets', function()
     return { {} }
   end)
   t.set(vim.env, 'TMUX_PANE', '%1')
-  t.set(vim.env, 'NVIM', nil)
   tsave.publish_tmux_server()
 
   t.eq(#calls, 1, 'tmux calls')

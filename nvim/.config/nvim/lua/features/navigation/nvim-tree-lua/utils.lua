@@ -217,17 +217,6 @@ function M.toggle_focus()
   preview.instance:toggle_focus()
 end
 
---- Open nvim-tree, back in the float position unless the side tree is already visible
---- @return nil
-local function open()
-  if state.position ~= 'float' and not api.tree.is_visible() then
-    switch_position('float')
-  end
-
-  -- The spec's TreeAttachedPost subscription starts watch_preview
-  api.tree.open()
-end
-
 --- Reopen the tree as a side panel
 --- @return nil
 function M.switch_to_side()
@@ -235,7 +224,8 @@ function M.switch_to_side()
   api.tree.open()
 end
 
---- Open the tree, or close a focused float tree
+--- Open the tree, back in the float position unless the side tree is already visible, or close a
+--- focused float tree
 --- @return nil
 function M.toggle()
   if api.tree.is_tree_buf() and state.position == 'float' then
@@ -243,8 +233,13 @@ function M.toggle()
     return
   end
 
-  -- No reload: filesystem watchers keep it fresh, a sync reload stalls large repos
-  open()
+  if state.position ~= 'float' and not api.tree.is_visible() then
+    switch_position('float')
+  end
+
+  -- No reload: filesystem watchers keep it fresh, a sync reload stalls large repos. The spec's
+  -- TreeAttachedPost subscription starts watch_preview
+  api.tree.open()
 end
 
 --- Set nvim-tree up with `opts`, in the current position; a position switch re-runs it

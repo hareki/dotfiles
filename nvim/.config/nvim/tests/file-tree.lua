@@ -51,9 +51,7 @@ end
 local function preview_on()
   vim.api.nvim_win_set_cursor(tree_win(), { 2, 0 })
   press('B')
-  t.wait_for(function()
-    return preview.is_open()
-  end, 'the preview to open')
+  t.wait_for(preview.is_open, 'the preview to open')
   return vim.api.nvim_win_get_config(preview.instance.preview_win)
 end
 
@@ -132,9 +130,7 @@ t.test('the preview choice outlasts the tree, which reopens at half height', fun
 
   local configs = t.spy(vim.api, 'nvim_win_set_config')
   toggle_tree()
-  t.wait_for(function()
-    return preview.is_open()
-  end, 'the preview to reopen with the tree')
+  t.wait_for(preview.is_open, 'the preview to reopen with the tree')
 
   expect_stacked(vim.api.nvim_win_get_config(preview.instance.preview_win))
   t.eq(reshapes(configs), 0, 'it was created in that shape, not resized to it')
@@ -158,11 +154,6 @@ t.test('beside a side tree, the preview is the side preview float', function()
   t.eq(vim.api.nvim_win_get_config(win).relative, '', 'the tree is a split')
   t.eq(vim.api.nvim_win_get_width(win), UI.layout.side_panel_width('md'), 'its width')
 
-  local preview_config = preview_on()
-  t.eq({
-    width = preview_config.width,
-    height = preview_config.height,
-    row = preview_config.row,
-    col = preview_config.col,
-  }, UI.layout.side_preview(), 'the preview')
+  preview_on()
+  t.eq(geometry(preview.instance.preview_win), UI.layout.side_preview(), 'the preview')
 end)

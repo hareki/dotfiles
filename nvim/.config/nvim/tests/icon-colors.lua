@@ -1,54 +1,42 @@
--- The colors icons take. Icon rules are written in Catppuccin palette keys, which
--- chrome.which-key-nvim.icon-rules turns into which-key's own names, and a statusline piece takes
--- the same keys; neither accepts a key the palette lacks
+-- The colors icons take. An icon rule names its color by Catppuccin palette key, which which-key
+-- paints through the group chrome.which-key-nvim.icon-rules defines for that key, and a statusline
+-- piece takes the same keys; neither accepts a key the palette lacks
 
 local t = require('tests.lib.helpers')
 local icon_rules = require('chrome.which-key-nvim.icon-rules')
 local lualine_utils = require('chrome.lualine-nvim.utils')
 
--- The palette keys which-key has a color for
-local KEYS = { 'sapphire', 'blue', 'teal', 'green', 'text', 'peach', 'mauve', 'red', 'yellow' }
+--- @param group? string A highlight group, as which-key names the one of an icon
+--- @return string? hex Its foreground as the palette spells a color, `#rrggbb`
+local function fg(group)
+  return Snacks.util.color(t.ok(group, 'the icon has no highlight group'))
+end
 
---- @param hex string As the palette spells a color, `#rrggbb`
---- @return integer
-local function rgb(hex)
-  return tonumber(hex:sub(2), 16) --[[@as integer]]
+--- Fail unless a rule in each palette key paints its which-key icon in that color
+local function expect_every_key_painted()
+  local wk_icons = require('which-key.icons')
+  for key, hex in pairs(UI.catppuccin.get_palette()) do
+    --- @type utils.ui.which-key-nvim.IconRule
+    local rule = { icon = 'x', color = key }
+    local _, group = wk_icons.get_icon(rule)
+    t.eq(fg(group), hex, string.format('%s, through %s', key, group))
+  end
 end
 
 t.test('a rule in each palette key paints its which-key icon in that color', function()
-  local wk_icons = require('which-key.icons')
-  local palette = UI.catppuccin.get_palette()
-  -- which-key links its icon groups to mini.icons' in a scheduled step of its load
-  t.wait_for(function()
-    return vim.api.nvim_get_hl(0, { name = 'WhichKeyIconBlue', link = false }).fg ~= nil
-  end, "which-key's icon groups")
-
-  for _, key in ipairs(KEYS) do
-    local rule = icon_rules.resolve_colors({ { pattern = 'probe', icon = 'x', color = key } })[1]
-    local _, group = wk_icons.get_icon(rule)
-    local painted = vim.api.nvim_get_hl(0, { name = group, link = false }).fg
-    t.eq(painted, rgb(palette[key]), string.format('%s, through %s', key, group))
-  end
+  expect_every_key_painted()
 end)
 
-t.test('resolving leaves the rules as their specs wrote them, colorless ones included', function()
-  local written =
-    { { pattern = 'pin', icon = 'x', color = 'teal' }, { pattern = 'next', icon = 'y' } }
-  local resolved = icon_rules.resolve_colors(written)
-
-  t.eq(written[1].color, 'teal', 'the rule given keeps its palette key')
-  t.eq(resolved[1], { pattern = 'pin', icon = 'x', color = 'cyan' }, 'the resolved rule')
-  t.eq(resolved[2], { pattern = 'next', icon = 'y' }, 'a rule without a color')
-end)
-
-t.test("which-key's own color names and keys it has no color for are refused", function()
-  for _, color in ipairs({ 'cyan', 'purple', 'lavender' }) do
+t.test("which-key's own color names and other keys the palette lacks are refused", function()
+  for _, color in ipairs({ 'cyan', 'purple', 'tael' }) do
     -- The rule's type refuses them as well
     --- @diagnostic disable-next-line: assign-type-mismatch
-    local ok, err = pcall(icon_rules.resolve_colors, { { pattern = 'probe', color = color } })
+    local ok, err = pcall(icon_rules.check_colors, { { pattern = 'probe', color = color } })
     t.eq(ok, false, color)
     t.ok(tostring(err):find(color, 1, true), 'the error names the key: ' .. tostring(err))
   end
+
+  icon_rules.check_colors({ { pattern = 'pin', color = 'lavender' }, { pattern = 'next' } })
 end)
 
 t.test('a statusline piece takes a palette key and refuses anything else', function()
@@ -71,37 +59,36 @@ t.test('the tab and the file tree paint one color on every surface', function()
   local wk_icons = require('which-key.icons')
   local tab_piece = require('chrome.lualine-nvim.components.tab')
   local palette = UI.catppuccin.get_palette()
-  --- @param group? string
-  --- @return integer?
-  local function fg(group)
-    return group and vim.api.nvim_get_hl(0, { name = group, link = false }).fg
-  end
 
-  local tab = rgb(palette[Conf.icons.colors.TAB])
+  local tab = palette[Conf.icons.colors.TAB]
   local _, tab_rule = wk_icons.get({ desc = 'Next Tab' })
   t.eq(fg(tab_rule), tab, "the tab's which-key icon")
   t.eq(fg('SnacksPickerTabName'), tab, 'the tabs picker label')
-  t.eq(rgb(palette[tab_piece.color]), tab, 'the statusline tab pill')
+  t.eq(palette[tab_piece.color], tab, 'the statusline tab pill')
 
-  local tree = rgb(palette[Conf.icons.colors.TREE])
+  local tree = palette[Conf.icons.colors.TREE]
   local _, tree_rule = wk_icons.get({ keymap = { lhs = '<leader>e', mode = 'n' } })
   t.eq(fg(tree_rule), tree, "the file tree's which-key icon")
   t.eq(fg('DropBarIconTree'), tree, "the file tree's winbar title")
 end)
 
-t.test('every rule which-key was set up with carries one of its own color names', function()
+t.test('every colored rule which-key was set up with paints its palette key', function()
   local wk_config = require('which-key.config')
-  local names = {}
-  for _, key in ipairs(KEYS) do
-    names[icon_rules.resolve_colors({ { pattern = 'probe', color = key } })[1].color] = true
-  end
+  local wk_icons = require('which-key.icons')
+  local palette = UI.catppuccin.get_palette()
 
   local colored = 0
   for _, rule in ipairs(wk_config.icons.rules) do
     if rule.color then
       colored = colored + 1
-      t.ok(names[rule.color], string.format('%s: %s', rule.pattern or rule.plugin, rule.color))
+      local _, group = wk_icons.get_icon(rule)
+      t.eq(fg(group), palette[rule.color], rule.pattern or rule.plugin)
     end
   end
   t.ok(colored > 0, 'no rule carries a color')
+end)
+
+t.test('a colorscheme reload keeps the icon colors', function()
+  vim.cmd.colorscheme(vim.g.colors_name)
+  expect_every_key_painted()
 end)

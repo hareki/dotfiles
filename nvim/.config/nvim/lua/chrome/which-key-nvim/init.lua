@@ -4,9 +4,10 @@ local DELAY_O = DELAY - TIMEOUT_LEN
 
 return {
   UI.catppuccin(function(palette)
-    return {
-      WhichKeyDesc = { fg = palette.text },
-    }
+    local icon_rules = require('chrome.which-key-nvim.icon-rules')
+    local groups = icon_rules.highlights(palette)
+    groups.WhichKeyDesc = { fg = palette.text }
+    return groups
   end, 'which-key.nvim'),
 
   {
@@ -71,8 +72,8 @@ return {
         { pattern = 'buffer', icon = Conf.icons.editor.BUFFER, color = 'text' },
         { pattern = 'highlight', icon = Conf.icons.editor.HIGHLIGHT, color = 'blue' },
         -- Frontier-anchored so it stops matching 'digit', which leaves 'lazygit' to its own rule
-        { pattern = '%f[%a]git', icon = Conf.icons.git.GIT, color = 'red' },
-        { pattern = 'lazygit', icon = Conf.icons.git.GIT, color = 'red' },
+        { pattern = '%f[%a]git', icon = Conf.icons.git.GIT, color = Conf.icons.colors.GIT },
+        { pattern = 'lazygit', icon = Conf.icons.git.GIT, color = Conf.icons.colors.GIT },
         { pattern = 'window', icon = Conf.icons.editor.WINDOW, color = 'blue' },
         { pattern = 'keymaps', icon = Conf.icons.editor.KEYMAPS, color = 'peach' },
         { pattern = 'scroll up', icon = Conf.icons.navigation.SCROLL_UP },
@@ -119,7 +120,7 @@ return {
       })
 
       local icon_rules = require('chrome.which-key-nvim.icon-rules')
-      opts.icons.rules = icon_rules.resolve_colors(opts.icons.rules)
+      icon_rules.check_colors(opts.icons.rules)
 
       local which_key = require('which-key')
       which_key.setup(opts)

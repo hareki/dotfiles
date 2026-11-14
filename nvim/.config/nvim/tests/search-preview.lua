@@ -80,7 +80,6 @@ t.test("toggle_preview's choice holds for the next files picker until toggled ba
 
   picker = t.open_picker(find_files, 'files')
   t.eq(preview_visible(picker), true, 'the files picker after that shows it')
-  t.close_picker(picker)
   t.eq(actions.preview_layout('files'), SHOWN, 'the layout after showing it again')
 end)
 

@@ -3,20 +3,6 @@
 local t = require('tests.lib.helpers')
 local popup = require('utils.popup')
 
---- A float over the current window, which stays current
---- @return integer win
-local function open_float()
-  local buf = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, { 'popup' })
-  return vim.api.nvim_open_win(buf, false, {
-    relative = 'editor',
-    row = 1,
-    col = 1,
-    width = 10,
-    height = 1,
-  })
-end
-
 --- A source buffer of three lines with the cursor on the first, alone in the tab
 --- @return integer buf
 --- @return integer win
@@ -36,7 +22,7 @@ end
 
 t.test('cursor_moved closes it once the cursor leaves its position', function()
   local buf, win = source()
-  local float = open_float()
+  local float = t.float()
   local closes = 0
   popup.link(float, {
     name = 'Probe',
@@ -59,7 +45,7 @@ end)
 
 t.test('focus_left closes it in a third window, not in the popup', function()
   local _, win = source()
-  local float = open_float()
+  local float = t.float()
   popup.link(float, { name = 'Probe', close_on = { focus_left = true } })
 
   vim.api.nvim_set_current_win(float)
@@ -73,7 +59,7 @@ end)
 
 t.test('mode_changed closes it on a mode change in the source buffer', function()
   local buf = source()
-  local float = open_float()
+  local float = t.float()
   popup.link(float, { name = 'Probe', close_on = { mode_changed = true } })
 
   vim.api.nvim_exec_autocmds('ModeChanged', { buffer = buf })
@@ -82,7 +68,7 @@ end)
 
 t.test('closing the popup itself releases the link', function()
   local buf = source()
-  local float = open_float()
+  local float = t.float()
   local closes = 0
   popup.link(float, {
     name = 'Probe',
@@ -103,9 +89,9 @@ t.test("overrides stack and give back the buffer's own map", function()
   local buf = source()
   vim.keymap.set('n', '<Tab>', '<Nop>', { buf = buf, desc = 'Own Tab' })
 
-  local first = open_float()
+  local first = t.float()
   local close_first = popup.link(first, { name = 'First' })
-  local second = open_float()
+  local second = t.float()
   local close_second = popup.link(second, { name = 'Second' })
   t.eq(buf_map_desc(buf, '<Esc>'), 'Close Second', 'the newest link holds <Esc>')
 

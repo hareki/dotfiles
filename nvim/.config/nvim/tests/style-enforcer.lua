@@ -524,7 +524,7 @@ t.test('oxfmt: a reply after the timeout is dropped, making no edit', function()
             newText = 'const a = 1;',
           },
         })
-      end, 150)
+      end, 60)
     end,
   })
   local trace = {}

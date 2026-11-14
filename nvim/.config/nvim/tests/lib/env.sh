@@ -66,7 +66,7 @@ nvim_test_cleanup() {
   for cwd in "$NVIM_TEST_TMP"/*/cwd; do
     [ -d "$cwd" ] || continue
     # What vim.uv.cwd() reports (/private/var/... on macOS), which harpoon hashes for its list
-    hash=$(cd "$cwd" && pwd -P | tr -d '\n' | shasum -a 256 | cut -d ' ' -f 1)
+    hash=$(cd "$cwd" && pwd -P | tr -d '\n' | sha256sum | cut -d ' ' -f 1)
     rm -f "${XDG_DATA_HOME:-$HOME/.local/share}/nvim/harpoon/$hash.json"
   done
   rm -rf "$NVIM_TEST_TMP"

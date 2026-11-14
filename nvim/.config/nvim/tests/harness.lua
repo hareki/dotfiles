@@ -11,7 +11,7 @@ local subject = {
 }
 
 --- What the first test leaves for the second to look for
---- @type { tab?: integer, buf?: integer, file?: integer, picker?: snacks.Picker, cleaned: string[] }
+--- @type { tab?: integer, buf?: integer, file?: integer, float?: integer, picker?: snacks.Picker, cleaned: string[] }
 local left = { cleaned = {} }
 
 t.test('a test leaves open what it acquired', function()
@@ -29,6 +29,7 @@ t.test('a test leaves open what it acquired', function()
   left.tab = t.tab()
   left.buf = t.buffer('lua', { 'return {}' })
   left.file = t.file('left.txt', { 'left' })
+  left.float = t.float()
   left.picker = t.open_picker(function()
     Snacks.picker.keymaps()
   end, 'keymaps')
@@ -45,6 +46,7 @@ t.test('the next test finds none of it', function()
   t.eq(vim.api.nvim_tabpage_is_valid(left.tab), false, 'the tab')
   t.eq(vim.api.nvim_buf_is_valid(left.buf), false, 'the scratch buffer')
   t.eq(vim.api.nvim_buf_is_valid(left.file), false, 'the file buffer')
+  t.eq(vim.api.nvim_win_is_valid(left.float), false, 'the float')
   t.eq(left.picker.closed, true, 'the picker')
   t.eq(left.cleaned, { 'second', 'first' }, 'its own cleanups, the newest first')
 end)

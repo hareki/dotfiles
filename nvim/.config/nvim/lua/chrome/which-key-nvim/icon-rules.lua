@@ -1,44 +1,32 @@
+--- An icon rule's color: which-key paints the icon with the group `WhichKeyIcon<Color>`,
+--- capitalizing whatever the rule names, so a group per Catppuccin palette key lets a rule name its
+--- color as the rest of the config does
 --- @class chrome.which-key-nvim.icon-rules
 local M = {}
 
--- which-key names its nine icon colors itself and links each to a mini.icons group, which
--- catppuccin paints with these palette keys
-local WHICH_KEY_COLORS = {
-  sapphire = 'azure',
-  blue = 'blue',
-  teal = 'cyan',
-  green = 'green',
-  text = 'grey',
-  peach = 'orange',
-  mauve = 'purple',
-  red = 'red',
-  yellow = 'yellow',
-}
+--- @param palette utils.ui.catppuccin-nvim.Palette
+--- @return table<string, vim.api.keyset.highlight> groups One per palette key
+function M.highlights(palette)
+  local groups = {}
+  for key, hex in pairs(palette) do
+    groups['WhichKeyIcon' .. key:sub(1, 1):upper() .. key:sub(2)] = { fg = hex }
+  end
+  return groups
+end
 
---- The rules with each palette key replaced by the name which-key knows that color by, raising
---- on a key it has no color for; the rules given stay as their specs wrote them
+--- Raise on a rule whose color is no palette key: which-key's own name for one would paint through
+--- which-key's group, a typo through none
 --- @param rules utils.ui.which-key-nvim.IconRule[]
---- @return wk.IconRule[] resolved
-function M.resolve_colors(rules)
-  return vim.tbl_map(function(rule)
-    if not rule.color then
-      return rule
-    end
-
-    local color = WHICH_KEY_COLORS[rule.color]
-    if not color then
+function M.check_colors(rules)
+  local palette = UI.catppuccin.get_palette()
+  for _, rule in ipairs(rules) do
+    if rule.color and not palette[rule.color] then
       error(
-        string.format(
-          'Icon rule %q: which-key has no color for the palette key %q',
-          rule.pattern or rule.plugin,
-          rule.color
-        ),
+        string.format('Icon rule %q: %q is no palette key', rule.pattern or rule.plugin, rule.color),
         0
       )
     end
-
-    return vim.tbl_extend('force', rule, { color = color })
-  end, rules)
+  end
 end
 
 return M

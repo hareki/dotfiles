@@ -30,13 +30,12 @@ function M.is_media(path)
 end
 
 --- The page never redraws on mode changes or cursor moves: render every mode and the cursor line
---- alike, without the debounce that drops ffprobe's late draw (read on a buffer's first draw)
+--- alike (read on a buffer's first draw)
 --- @type render.md.partial.UserConfig
 local PAGE_RENDER_CONFIG = {
   render_modes = true,
   anti_conceal = { enabled = false },
   win_options = { concealcursor = { rendered = 'nvic' } },
-  debounce = 0,
 }
 
 --- Draw the page with render-markdown, which only attaches by filetype (the page has none)

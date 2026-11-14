@@ -160,6 +160,7 @@ local M = {
   -- piece, a winbar title, a picker label), stated once so they agree
   colors = {
     CODING_AGENT = 'teal',
+    GIT = 'red',
     IMAGE = 'green',
     LIVE_PREVIEW = 'mauve',
     PIN = 'yellow',

@@ -227,7 +227,10 @@ if ok_wk then
   local wk_icons = require('which-key.icons')
   for _, map in ipairs(vim.api.nvim_get_keymap('n')) do
     if map.desc then
-      local icon, hl = wk_icons.get({ keymap = map, desc = map.desc })
+      local icon, hl = wk_icons.get({
+        keymap = map --[[@as wk.Keymap]],
+        desc = map.desc,
+      })
       row(
         'which-key-icon',
         vim.fn.keytrans(map.lhsraw or map.lhs or ''),

@@ -1,4 +1,6 @@
---- @alias utils.ui.catppuccin-nvim.Palette { rosewater: string, flamingo: string, pink: string, mauve: string, red: string, maroon: string, peach: string, yellow: string, green: string, teal: string, sky: string, sapphire: string, blue: string, lavender: string, text: string, subtext1: string, subtext0: string, overlay2: string, overlay1: string, overlay0: string, surface2: string, surface1: string, surface0: string, base: string, mantle: string, crust: string }
+--- @alias utils.ui.catppuccin-nvim.PaletteKey 'rosewater' | 'flamingo' | 'pink' | 'mauve' | 'red' | 'maroon' | 'peach' | 'yellow' | 'green' | 'teal' | 'sky' | 'sapphire' | 'blue' | 'lavender' | 'text' | 'subtext1' | 'subtext0' | 'overlay2' | 'overlay1' | 'overlay0' | 'surface2' | 'surface1' | 'surface0' | 'base' | 'mantle' | 'crust'
+
+--- @alias utils.ui.catppuccin-nvim.Palette table<utils.ui.catppuccin-nvim.PaletteKey, string>
 
 --- @class utils.ui.catppuccin-nvim.Ext
 --- @field surface15 string

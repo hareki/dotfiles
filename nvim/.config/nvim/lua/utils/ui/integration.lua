@@ -11,7 +11,7 @@ local icons = require('config.icons')
 --- @type table<string, utils.ui.integration.Host>
 local HOSTS = {
   lazygit = { icon = icons.git.LAZYGIT, color = 'blue', label = 'Lazygit' },
-  git = { icon = icons.git.GIT, color = 'red', label = 'Git' },
+  git = { icon = icons.git.GIT, color = icons.colors.GIT, label = 'Git' },
   ['claude-code'] = { icon = icons.cmp_kinds.Claude, color = 'peach', label = 'Claude Code' },
 }
 

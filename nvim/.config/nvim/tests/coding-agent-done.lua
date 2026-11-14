@@ -1,26 +1,14 @@
 -- features.ai.claudecode-nvim.done: a finished agent is flagged in the statusline only while its
--- panel is out of sight, from the Stop hook's mark() until the panel next shows
+-- panel is out of sight, from the Stop hook's mark() until the statusline finds the panel showing
 
 local t = require('tests.lib.helpers')
 local done = require('features.ai.claudecode-nvim.done')
-local component = require('chrome.lualine-nvim.components.coding-agent')
 
 --- A stand-in panel, gone when the test ends: a focused float on a buffer that claudecode.nvim
 --- reports as its terminal
 --- @return integer win
 local function open_panel()
-  local buf = vim.api.nvim_create_buf(false, true)
-  local win = vim.api.nvim_open_win(buf, true, {
-    relative = 'editor',
-    row = 1,
-    col = 1,
-    width = 10,
-    height = 1,
-  })
-  t.cleanup(function()
-    vim.api.nvim_win_close(win, true)
-  end)
-  -- After the window, as claudecode.nvim tracks a terminal only once Snacks has opened it
+  local win, buf = t.float(true)
   t.set(package.loaded, 'claudecode.terminal', {
     get_active_terminal_bufnr = function()
       return buf
@@ -43,26 +31,20 @@ local function show_panel(win)
   vim.api.nvim_set_current_win(win)
 end
 
---- @param msg string
-local function await_seen(msg)
-  t.wait_for(function()
-    return not done.unseen()
-  end, msg)
-end
-
 --- The agent finishing, as its Stop hook reports it. The flag is the module's own, so when the
 --- test ends a panel shows to clear whatever it left
 local function finish()
   t.cleanup(function()
     if done.unseen() then
       open_panel()
-      await_seen('a shown panel to clear the flag the test left')
+      t.eq(done.unseen(), false, 'a shown panel clears the flag the test left')
     end
   end)
   done.mark()
 end
 
---- Wait for the statusline lualine last rendered to show the agent's icon, or to drop it
+--- Wait for the statusline lualine last rendered to show the agent's icon, or to drop it. Asked
+--- from a code window: lualine has drawn none yet for a float just entered
 --- @param shown boolean
 --- @param msg string
 local function await_icon(shown, msg)
@@ -73,18 +55,18 @@ local function await_icon(shown, msg)
   end, msg)
 end
 
-t.test('a finish before any panel exists is flagged until one opens', function()
+t.test('a finish before any panel exists is flagged until the statusline finds one', function()
+  local code_win = vim.api.nvim_get_current_win()
   await_icon(false, 'a statusline without the icon before the finish')
 
   finish()
   t.eq(done.unseen(), true, 'unseen after the finish')
-  t.eq(component.cond(), true, 'the component shows')
   await_icon(true, 'the icon after the finish')
 
   open_panel()
-  await_seen('the opened panel to clear the flag')
-  t.eq(component.cond(), false, 'the component hides')
+  vim.api.nvim_set_current_win(code_win)
   await_icon(false, 'the icon to go once the panel shows')
+  t.eq(done.unseen(), false, 'unseen after the statusline found the panel')
 end)
 
 t.test('a finish under a visible panel is not flagged', function()
@@ -108,11 +90,10 @@ t.test('a finish under a hidden panel is flagged until the panel shows again', f
   vim.cmd.close()
 
   show_panel(win)
-  await_seen('the shown panel to clear the flag')
+  t.eq(done.unseen(), false, 'unseen with the panel showing again')
 
   -- Seen once: hiding the panel again brings nothing back
   hide_panel(win, code_win)
-  t.settle()
   t.eq(done.unseen(), false, 'unseen after hiding the panel again')
 end)
 
@@ -124,5 +105,5 @@ t.test('a panel in another tab does not count as showing', function()
   t.eq(done.unseen(), true, 'unseen after the finish')
 
   vim.cmd.tabclose()
-  await_seen('the panel tab to clear the flag')
+  t.eq(done.unseen(), false, 'unseen back in the tab of the panel')
 end)

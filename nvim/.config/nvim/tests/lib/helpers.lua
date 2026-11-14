@@ -1,7 +1,7 @@
---- What a test file uses: register tests, assert, wait on the event loop, set up buffers and tabs,
---- look up maps, drive Snacks pickers. tests/lib/boot.lua runs the file after the full boot,
---- VeryLazy too. What a test acquires here (a spy, a buffer, a tab, a picker) is undone when the
---- test ends, pass or fail, so the next one starts clean
+--- What a test file uses: register tests, assert, wait on the event loop, set up buffers, tabs and
+--- floats, look up maps, drive Snacks pickers. tests/lib/boot.lua runs the file after the full
+--- boot, VeryLazy too. What a test acquires here (a spy, a buffer, a tab, a float, a picker) is
+--- undone when the test ends, pass or fail, so the next one starts clean
 --- @class tests.lib.helpers
 local M = {}
 
@@ -87,9 +87,7 @@ end
 --- Run the event loop for a while, letting pending callbacks fire
 --- @param ms? integer Default 50
 function M.settle(ms)
-  vim.wait(ms or 50, function()
-    return false
-  end)
+  vim.wait(ms or 50)
 end
 
 --- Record every call of tbl[key] until the test ends, calling through to the original unless
@@ -160,6 +158,23 @@ function M.tab()
     end
   end)
   return tabpage
+end
+
+--- Open a small float on a scratch buffer over the editor, gone with its buffer when the test ends
+--- @param enter? boolean Focus it; by default the current window stays current
+--- @return integer win
+--- @return integer buf
+function M.float(enter)
+  local buf = vim.api.nvim_create_buf(false, true)
+  wipe_after(buf)
+  local win = vim.api.nvim_open_win(buf, enter == true, {
+    relative = 'editor',
+    row = 1,
+    col = 1,
+    width = 10,
+    height = 1,
+  })
+  return win, buf
 end
 
 --- The map on lhs: `buf`'s own when given, else the global one
