@@ -53,9 +53,9 @@ end
 
 --- Replace the progress handles with recorders
 --- @return table[] events `{ 'start', title }`, `{ 'report', title, percentage }` or `{ 'finish' }`
---- @return table[] creates The arguments of each utils.progress.create call
+--- @return table[] creates The arguments each handle was created with
 local function record_progress()
-  local progress_utils = require('utils.progress')
+  local progress_utils = require('features.formatting.conform-nvim.style-enforcer.progress')
   local events = {}
   local creates = t.spy(progress_utils, 'create', function()
     return {

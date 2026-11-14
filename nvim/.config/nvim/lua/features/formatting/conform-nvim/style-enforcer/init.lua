@@ -169,7 +169,7 @@ function M.run(opts)
     return applies(step, buf)
   end, opts.steps or STEPS)
 
-  local progress_utils = require('utils.progress')
+  local progress_utils = require('features.formatting.conform-nvim.style-enforcer.progress')
   local snacks_util = require('snacks.util')
 
   local progress = progress_utils.create({

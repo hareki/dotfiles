@@ -1,9 +1,9 @@
---- @class utils.progress.CreateOpts
+--- @class features.formatting.conform-nvim.style-enforcer.progress.CreateOpts
 --- @field client_name  string          -- Label that Noice prints
 --- @field bufnr        integer         -- Buffer whose LSP client id is sampled
 --- @field pending_ms   integer         -- Delay (in ms) before the first message is shown
 
---- @class utils.progress.Handle
+--- @class features.formatting.conform-nvim.style-enforcer.progress.Handle
 --- @field token          string
 --- @field client_id      integer | nil
 --- @field client_name    string
@@ -12,11 +12,11 @@
 --- @field _cached_title  string | nil
 --- @field _cached_perc   number | nil
 --- @field _timer         uv.uv_timer_t | nil
---- @field start          fun(self: utils.progress.Handle, title: string)
---- @field report         fun(self: utils.progress.Handle, title?: string, percentage?: number)
---- @field finish         fun(self: utils.progress.Handle)
+--- @field start          fun(self: features.formatting.conform-nvim.style-enforcer.progress.Handle, title: string)
+--- @field report         fun(self: features.formatting.conform-nvim.style-enforcer.progress.Handle, title?: string, percentage?: number)
+--- @field finish         fun(self: features.formatting.conform-nvim.style-enforcer.progress.Handle)
 
---- @class utils.progress
+--- @class features.formatting.conform-nvim.style-enforcer.progress
 local M = {}
 
 --- @param bufnr integer
@@ -28,7 +28,7 @@ local function get_valid_client_id(bufnr)
 end
 
 local ProgressHandle = {}
-ProgressHandle.__index = ProgressHandle --[[@as utils.progress.Handle]]
+ProgressHandle.__index = ProgressHandle --[[@as features.formatting.conform-nvim.style-enforcer.progress.Handle]]
 
 --- @private
 --- @param kind       'begin' | 'report' | 'end'
@@ -95,10 +95,10 @@ function ProgressHandle:finish()
 end
 
 --- Create an LSP-style progress handle, shown after pending_ms to spare fast operations a flicker
---- @param opts utils.progress.CreateOpts
---- @return utils.progress.Handle handle
+--- @param opts features.formatting.conform-nvim.style-enforcer.progress.CreateOpts
+--- @return features.formatting.conform-nvim.style-enforcer.progress.Handle handle
 function M.create(opts)
-  --- @type utils.progress.Handle
+  --- @type features.formatting.conform-nvim.style-enforcer.progress.Handle
   local handle = setmetatable({
     token = 'token:' .. vim.uv.hrtime(),
     client_id = get_valid_client_id(opts.bufnr),
