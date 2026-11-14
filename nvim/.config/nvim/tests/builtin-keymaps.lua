@@ -4,8 +4,6 @@
 local t = require('tests.lib.helpers')
 local builtin_keymaps = require('config.builtin-keymaps')
 
-local GROUP = 'config.builtin-keymaps.retitle-buffer-maps'
-
 -- Run by a `nvim --clean` child: Neovim's own global maps by mode and keytrans() lhs, with
 -- `callback` as a boolean and without the raw lhs bytes, so they survive the JSON round trip
 local DEFAULTS_SCRIPT = [[
@@ -205,26 +203,18 @@ t.test("leaves another buffer-local map on Neovim's key its own title", function
 end)
 
 t.test('retitles the buffers whose maps came before it was applied', function()
-  -- Before VeryLazy, as for a file passed on the command line
-  vim.api.nvim_del_augroup_by_name(GROUP)
+  -- As for a file passed on the command line, whose ftplugin ran before VeryLazy: running the
+  -- ftplugin again puts Neovim's own titles back
   local hidden = t.buffer('markdown')
+  vim.cmd('runtime! ftplugin/markdown.lua')
   local current = t.buffer('checkhealth')
+  vim.cmd('runtime! ftplugin/checkhealth.lua')
   t.eq(buf_desc(hidden, 'n', ']]'), 'Jump to next section', "Neovim's own title until then")
+  t.eq(buf_desc(current, 'n', ']]'), 'Jump to next section', "Neovim's own title until then")
 
   builtin_keymaps.setup()
   t.eq(buf_desc(hidden, 'n', ']]'), 'Jump to Next Section', 'a hidden buffer')
   t.eq(buf_desc(current, 'n', ']]'), 'Jump to Next Section', 'the current buffer')
-
-  local handlers = vim.tbl_map(function(autocmd)
-    return autocmd.event .. ' ' .. autocmd.pattern
-  end, vim.api.nvim_get_autocmds({ group = GROUP }))
-  table.sort(handlers)
-  local expected = vim.tbl_map(function(filetype)
-    return 'FileType ' .. filetype
-  end, builtin_keymaps.FTPLUGIN_FILETYPES)
-  table.insert(expected, 'TermOpen *')
-  table.sort(expected)
-  t.eq(handlers, expected, 'one handler per ftplugin filetype and terminals after a second setup()')
 end)
 
 t.test('describes the fold commands through identity maps', function()

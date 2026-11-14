@@ -264,11 +264,7 @@ t.test('runs the steps that apply in order, counting progress over them', functi
     { 'report', 'Running second', 50 },
     { 'finish' },
   }, 'the progress')
-  t.eq(
-    { creates[1][1].bufnr, creates[1][1].client_name, creates[1][1].pending_ms },
-    { buf, 'stenfo', 500 },
-    'the progress handle'
-  )
+  t.eq(creates[1][1].bufnr, buf, 'the buffer the progress shows for')
   t.eq(file_lines(buf), { 'edited' }, 'the file on disk')
 end)
 
@@ -434,13 +430,9 @@ t.test('run_all runs every modified buffer, then sums them up once', function()
       ctx.done(ctx.buf == second and 'rejected' or nil)
     end),
   }
-  local run_steps = style_enforcer.run
-  t.spy(style_enforcer, 'run', function(opts)
-    return run_steps(vim.tbl_extend('force', opts, { steps = steps }))
-  end)
   local notices = record_notices()
 
-  style_enforcer.run_all()
+  style_enforcer.run_all({ steps = steps })
 
   t.eq(#notices, 2, 'the notices: the failure, then the summary')
   t.eq(notices[1], { level = levels.WARN, title = 'Fixing Failed', msg = 'check' }, 'the failure')

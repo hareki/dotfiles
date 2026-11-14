@@ -282,9 +282,10 @@ function M.run(opts)
 end
 
 --- Run the pipeline on all modified listed buffers, then notify a summary of counts and paths
---- @param debug boolean | nil Enable verbose error messages
+--- @param opts? { debug?: boolean, steps?: features.formatting.conform-nvim.style-enforcer.Step[] } As run() takes them
 --- @return nil
-function M.run_all(debug)
+function M.run_all(opts)
+  opts = opts or {}
   local modified = vim.fn.getbufinfo({ buflisted = 1, bufmodified = 1 })
 
   if #modified == 0 then
@@ -354,7 +355,8 @@ function M.run_all(debug)
     local display_path = info.name == '' and '[No Name]' or vim.fn.fnamemodify(info.name, ':.')
 
     M.run({
-      debug = debug,
+      debug = opts.debug,
+      steps = opts.steps,
       buf = info.bufnr,
       on_done = function(ok)
         if ok then
