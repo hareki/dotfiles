@@ -52,7 +52,8 @@ Plugins are lazy by default (`defaults.lazy = true`). Only catppuccin, snacks.nv
 - `UI` (`utils.ui`, direct require):
   - Spec registration: `UI.catppuccin(fn, plugin_name?)`, `UI.which_key({ specs?, rules?, triggers? })`
   - Helpers: `UI.layout.*` (see **Popup Sizing**), `UI.color.blend_hex()`, `UI.search.is_active()` / `UI.search.clear()` (search highlighting, which Snacks word references give way to), `UI.pill.virt_text()`, `UI.cursorline.follow_focus()` (the cursor line follows the focused window), `UI.mode.name()` / `UI.mode.colors` (the per-mode palette shared by lualine's mode pill and the cursor line number)
-  - Integration helpers: `UI.catppuccin.get_palette('ext')`, `UI.statusline.integration` / `UI.statusline.refresh()`
+  - Plugin glue: `UI.catppuccin.get_palette('ext')`, `UI.statusline.refresh()` (redraws lualine)
+  - Integration: `UI.integration.host` (the tool that opened this nvim as its editor, nil standalone), `UI.integration.statusline()` and `UI.integration.highlights()` (its label, shown in place of lualine)
 - `Snacks` (set by snacks.nvim at runtime): `Snacks.picker.*`, `Snacks.terminal.*`, etc.
 
 ## Plugin Spec Conventions

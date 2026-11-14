@@ -86,7 +86,7 @@ return {
       opts.custom_highlights,
       treesitter_highlights(palette),
       -- The host label's group and the per-mode groups CursorLineNr links to
-      UI.statusline.highlights(palette),
+      UI.integration.highlights(palette),
       UI.mode.highlights(palette)
     )
 

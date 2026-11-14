@@ -1,7 +1,7 @@
 return {
   'nvim-lualine/lualine.nvim',
 
-  enabled = not UI.statusline.integration, -- Host integrations show their label instead
+  enabled = not UI.integration.host, -- An integration shows its host's label instead
 
   event = 'VeryLazy',
 

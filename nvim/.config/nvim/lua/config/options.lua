@@ -53,8 +53,8 @@ opt.spelllang = {}
 -- Diagonal hatch fill for deleted/filler lines in diff views (e.g. codediff)
 opt.fillchars:append({ diff = Conf.icons.fillchars.DIFF, eob = ' ', lastline = '.' })
 
--- Host tools launching nvim as their editor (NVIM_INTEGRATION) show their label in place of lualine
-local HOST_STATUSLINE = UI.statusline.text()
+-- A tool that opened nvim as its editor (NVIM_INTEGRATION) shows its label in place of lualine
+local HOST_STATUSLINE = UI.integration.statusline()
 if HOST_STATUSLINE then
   opt.statusline = HOST_STATUSLINE
 end
