@@ -36,9 +36,6 @@ return {
         show_title = false,
         zindex = Conf.zindex.TREE_PREVIEW,
         image_preview = { enable = true },
-        on_close = function()
-          tree.toggle_tree_height('expand')
-        end,
 
         keymaps = {
           ['q'] = tree.close_all,
@@ -166,7 +163,7 @@ return {
             -- Replaced by tree.close_on_focus_loss, which spares floats
             quit_on_focus_loss = false,
             open_win_config = function()
-              return vim.tbl_extend('force', tree.float_geometry('collapse'), {
+              return vim.tbl_extend('force', tree.float_geometry(), {
                 title = string.format(' %s ', UI_NAME),
                 title_pos = 'center',
                 border = 'rounded',
@@ -274,7 +271,7 @@ return {
       end)
 
       -- TreeAttachedPost fires per open (the buffer is bufhidden=wipe), matching the watcher's
-      -- lifetime; tree.open() misses direct api.tree.open() calls, and on_attach runs for help too
+      -- lifetime; tree.toggle() misses direct api.tree.open() calls, and on_attach runs for help too
       events.subscribe(events.Event.TreeAttachedPost, tree.watch_preview)
 
       tree.setup(opts)
