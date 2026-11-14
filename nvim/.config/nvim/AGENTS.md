@@ -36,8 +36,8 @@ The LuaLS diagnostics surfaced to you come from Claude Code's server, run by the
 
 ### Plugin Tiers (`lua/`)
 
-- `core/`: infrastructure (theme, icons, snacks, sessions, treesitter, and the LSP layer in `core/lsp/`)
-- `chrome/`: visual layer (statusline, winbar, scrollbar, notifications, folds, decorations, which-key)
+- `core/`: infrastructure (theme, icons, snacks, sessions, treesitter, and the LSP setup in `core/lsp/`)
+- `chrome/`: what the screen shows (statusline, winbar, scrollbar, notifications, folds, decorations, which-key)
 - `features/{domain}/`: domain features (navigation, completion, git, editing, search, diagnostics, formatting, ai, preview)
 
 Plugins are lazy by default (`defaults.lazy = true`). Only catppuccin, snacks.nvim, auto-session (`priority = Conf.priority.CORE`) and noice.nvim are eager (`lazy = false`); `priority` only puts the first three ahead of noice, so lazy specs leave it unset. The rest load on `event` (mostly `VeryLazy`), `ft`, `keys` or `cmd`, on first `require()` (mini.icons; tiny-code-action.nvim from the `<leader>ca` keymap), or as a dependency (nvim-treesitter-textobjects via mini.ai).
@@ -47,7 +47,7 @@ Plugins are lazy by default (`defaults.lazy = true`). Only catppuccin, snacks.nv
 ### Globals (`lua/config/globals.lua`)
 
 - `Defer` (`utils.lazy-require`): `Defer.on_index(path)` defers the `require` until the first field access, `Defer.on_exported_call(path)` until the first call of an exported function. Every proxy, from `Defer` or from `utils.lazy-require` itself, carries `--- @module '<path>'` on the line above it: otherwise LuaLS sees a plain table, and a misspelled field passes the check to fail on the keypress
-- `Notifier` (lazy proxy => `utils.notifier`): `Notifier.info('msg')`, `Notifier.warn('msg', { title = 'T' })`, `Notifier.error()`, `Notifier.warn_once()` (once per message per session), and `Notifier.scoped(title)`, which returns info, warn and error with the title filled in
+- `Notifier` (defer proxy => `utils.notifier`): `Notifier.info('msg')`, `Notifier.warn('msg', { title = 'T' })`, `Notifier.error()`, `Notifier.warn_once()` (once per message per session), and `Notifier.scoped(title)`, which returns info, warn and error with the title filled in
 - `Conf` (`config`; `config/init.lua` assembles the `config.*` tables): `Conf.icons`, `Conf.filetypes` (`JS`, `JSX`, `CSS`, `MARKDOWN`, …), `Conf.priority`, `Conf.zindex` (the float stacking ladder), `Conf.picker`, `Conf.size`, `Conf.cmp` (from `config/completion.lua`)
 - `UI` (`utils.ui`, direct require):
   - Spec registration: `UI.catppuccin(fn, plugin_name?)`, `UI.which_key({ specs?, rules?, triggers? })`
@@ -83,7 +83,7 @@ return { UI.catppuccin(function(...) ... end, 'plugin'), UI.which_key({ ... }), 
 
 ### Directory Plugins
 
-Give a plugin the directory form once it has state or more than a few lines of helper logic (wrappers, monkey-patches), keeping its spec file to the lazy.nvim tables and tiny locals such as a desc `PREFIX`: `init.lua` (specs) + `utils.lua` (helpers, keeping any plugin state in a file-local `state` table that only it reads and writes, so specs call its functions) + optional `config/` sub-modules. A helper file serving a single concern is named for it (`chrome/snacks-nvim/zen.lua`, `features/diagnostics/eagle-nvim/pretty-ts-errors.lua`, `features/git/snacks-nvim/lazygit.lua`); `utils.lua` names one plugin's assorted helpers. See `nvim-tree-lua/` (state), `live-preview-nvim/` (wrappers) and `blink-cmp/` (`config/` split); larger plugins split `utils.lua` by concern (`features/search/snacks-nvim/` keeps one module per picker source under `sources/`, `features/formatting/conform-nvim/` the save pipeline under `style-enforcer/`: a runner plus one module per step).
+Give a plugin the directory form once it has state or more than a few lines of helper logic (wrappers, monkey-patches), keeping its spec file to the lazy.nvim tables and tiny locals such as a desc `PREFIX`: `init.lua` (specs) + `utils.lua` (helpers, keeping any plugin state in a file-local `state` table that only it reads and writes, so specs call its functions) + optional `config/` sub-modules. A helper file serving a single concern is named for it (`chrome/snacks-nvim/zen.lua`, `features/diagnostics/eagle-nvim/pretty-ts-errors.lua`, `features/git/snacks-nvim/lazygit.lua`); `utils.lua` names one plugin's assorted helpers. See `nvim-tree-lua/` (state), `live-preview-nvim/` (wrappers) and `blink-cmp/` (`config/` split); larger plugins split `utils.lua` by concern (`features/search/snacks-nvim/` keeps one module per picker source under `sources/`, `features/formatting/conform-nvim/` the style enforcer under `style-enforcer/`: its run plus one module per step).
 
 ### Split Plugins
 

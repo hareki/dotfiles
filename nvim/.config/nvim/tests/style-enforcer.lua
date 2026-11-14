@@ -1,5 +1,5 @@
--- The save pipeline (features.formatting.conform-nvim.style-enforcer): its lazy-loading keys, the
--- runner, driven through its `steps`/`timeout_ms` seam, real steps on stylua and in-process LSPs
+-- The style enforcer (features.formatting.conform-nvim.style-enforcer): its lazy-loading keys, a
+-- run driven through its `steps`/`timeout_ms` seam, the real steps on stylua and in-process LSPs
 
 local t = require('tests.lib.helpers')
 local style_enforcer = require('features.formatting.conform-nvim.style-enforcer')
@@ -100,7 +100,7 @@ local function step(name, trace, script)
   }
 end
 
---- Run the pipeline and wait for its end
+--- Run the style enforcer and wait for its end
 --- @param opts features.formatting.conform-nvim.style-enforcer.RunOpts
 --- @return boolean ok
 local function run(opts)
@@ -244,7 +244,7 @@ t.test('<F40> formats and saves every modified buffer', function()
   t.eq(notices[1].level, levels.INFO, 'the summary level')
 end)
 
--- The runner
+-- A run
 
 t.test('runs the steps that apply in order, counting progress over them', function()
   local events, creates = record_progress()

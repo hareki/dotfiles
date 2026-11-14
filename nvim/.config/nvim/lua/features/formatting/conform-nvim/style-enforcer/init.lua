@@ -5,7 +5,7 @@ local oxlint = require('features.formatting.conform-nvim.style-enforcer.oxlint')
 
 local notify = Notifier.scoped('Style Enforcer')
 
---- One step of the save pipeline, an adapter over one tool
+--- One step of a style enforcer run, an adapter over one tool
 --- @class features.formatting.conform-nvim.style-enforcer.Step
 --- @field name string The tool, named in notices
 --- @field label string Progress title while the step runs
@@ -281,7 +281,7 @@ function M.run(opts)
   start(1)
 end
 
---- Run the pipeline on all modified listed buffers, then notify a summary of counts and paths
+--- Run the style enforcer on all modified listed buffers, then notify a summary of counts and paths
 --- @param opts? { debug?: boolean, steps?: features.formatting.conform-nvim.style-enforcer.Step[] } As run() takes them
 --- @return nil
 function M.run_all(opts)

@@ -50,10 +50,12 @@ lazy.nvim config built from scratch around fast cold starts, per-plugin isolatio
 ### Utils (`lua/utils/`)
 
 - `ui/`: namespaces of the `UI` global
-  - `layout.float(size)` / `layout.picker_fn(size)`, `color.blend_hex()`, `search.is_active()` / `search.clear()`, `pill.virt_text()`, `cursorline.follow_focus()`
-  - `catppuccin(fn)` / `catppuccin.get_palette()`, `which_key({ specs?, rules?, triggers? })`, `statusline.refresh()`
+  - `layout.float(size)` / `layout.picker_fn(size)`, `color.blend_hex()`, `search.is_active()` / `search.clear()`, `pill.virt_text()`, `cursorline.follow_focus()`, `mode.name()` / `mode.colors`
+  - `catppuccin(fn)` / `catppuccin.get_palette()`, `which_key({ specs?, rules?, triggers? })`, `statusline.refresh()`, `integration.host` (the tool that opened nvim as its editor)
 - `notifier.lua`: notification wrapper; supports markdown, tuple lists for custom highlight groups, `scoped(title)` and `warn_once`
 - `popup.lua`: floats tied to a source window: `link(win, { close_on, keys, ... })`, `focus_win()`
+- `hl-at-cursor.lua`: `show()`, a popup of the highlight groups, captures, extmarks and matches at the cursor
+- `wheel-axis-lock.lua`: `left()` / `right()` / `vertical()`, which keep a trackpad swipe on one axis
 - `keymap.lua`: `buf_mapper()`, and `get_buf_keymap()` / `restore_buf_keymap()`, which snapshot and give back a buffer's own mapping
 - `noautocmd.lua`: `run(fn)`, Lua's `:noautocmd`
 - `lazy-require.lua`: `Defer.on_index()`, `Defer.on_exported_call()`
@@ -72,7 +74,7 @@ nvim-tree-lua/
 
 - Per-server configs in `lua/core/lsp/nvim-lspconfig/lsp/{server}.lua`
 - [mise-en-place](https://mise.jdx.dev/) installs the Node-based servers, oxfmt, oxlint and prettier from `~/.config/mise/config.toml`; Homebrew provides lua-language-server, marksman, taplo, typos-lsp and stylua
-- Async style-enforcement pipeline (formatters + linters) in `features/formatting/conform-nvim/style-enforcer/`, run by conform.nvim's keys
+- Async style enforcer (formatting, then fixing, then the save) in `features/formatting/conform-nvim/style-enforcer/`, run by conform.nvim's keys
 
 ## Forks (author = hareki)
 
