@@ -1,10 +1,15 @@
 --- @class features.git.codediff-nvim.utils
 local M = {}
 
--- tabpage -> last explorer-selected file path (relative to git root)
-local selected = {}
--- tabpage -> winsaveview() of the modified pane (the working file)
-local views = {}
+--- @class features.git.codediff-nvim.utils.State
+--- @field selected table<integer, string> tabpage -> last explorer-selected file path (relative to git root)
+--- @field views table<integer, table> tabpage -> winsaveview() of the modified pane (the working file)
+
+--- @type features.git.codediff-nvim.utils.State
+local state = {
+  selected = {},
+  views = {},
+}
 
 --- Whether the tabpage hosts a codediff diff/merge session
 --- @param tabpage integer
@@ -30,13 +35,13 @@ end
 --- Remember the file selected in the explorer (CodeDiffFileSelect handler).
 --- @param args { data: { tabpage: integer, path: string } }
 function M.remember_selection(args)
-  selected[args.data.tabpage] = args.data.path
+  state.selected[args.data.tabpage] = args.data.path
 end
 
 --- Snapshot the modified pane's scroll/cursor while its window is alive (TabClosedPre handler)
 function M.capture_view()
   local tabpage = vim.api.nvim_get_current_tabpage()
-  views[tabpage] = modified_view(tabpage)
+  state.views[tabpage] = modified_view(tabpage)
 end
 
 --- Consume the remembered state of a codediff tab
@@ -44,10 +49,10 @@ end
 --- @return string | nil path Absolute path of the file last focused in the tab
 --- @return table | nil view winsaveview() result to restore on it
 local function take_focus_target(tabpage)
-  local rel = selected[tabpage]
-  local view = modified_view(tabpage) or views[tabpage]
-  selected[tabpage] = nil
-  views[tabpage] = nil
+  local rel = state.selected[tabpage]
+  local view = modified_view(tabpage) or state.views[tabpage]
+  state.selected[tabpage] = nil
+  state.views[tabpage] = nil
   if not rel then
     return
   end
