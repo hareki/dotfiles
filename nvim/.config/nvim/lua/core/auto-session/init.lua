@@ -29,8 +29,8 @@ return {
         pattern = 'VeryLazy',
         once = true,
         callback = function()
-          local utils = require('core.auto-session.utils')
-          utils.publish_tmux_server()
+          local tsave = require('core.auto-session.tsave')
+          tsave.publish_tmux_server()
         end,
       })
     end,

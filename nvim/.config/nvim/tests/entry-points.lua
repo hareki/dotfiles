@@ -135,7 +135,7 @@ end)
 
 t.test('tsave reads the pane option publish_tmux_server() sets', function()
   local option = t.ok(read(TSAVE):match('#{(@[%w-]+)}'), 'tsave reads no pane option')
-  local utils = require('core.auto-session.utils')
+  local tsave = require('core.auto-session.tsave')
 
   -- Headless and outside tmux: give it a pane and a UI, and catch its tmux call
   local calls = t.spy(vim, 'system', function() end)
@@ -144,7 +144,7 @@ t.test('tsave reads the pane option publish_tmux_server() sets', function()
   end)
   t.set(vim.env, 'TMUX_PANE', '%1')
   t.set(vim.env, 'NVIM', nil)
-  utils.publish_tmux_server()
+  tsave.publish_tmux_server()
 
   t.eq(#calls, 1, 'tmux calls')
   local cmd = calls[1][1]

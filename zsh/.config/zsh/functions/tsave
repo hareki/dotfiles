@@ -2,7 +2,7 @@
 
 # Snapshots every tmux session with tmux-resurrect, then quits each pane's nvim through its normal
 # exit (so auto-session saves its session) and kills the server; -c/--continue stops after the
-# snapshot. Pane nvims publish their RPC address as @nvim-server (nvim's core/auto-session/utils.lua),
+# snapshot. Pane nvims publish their RPC address as @nvim-server (nvim's core/auto-session/tsave.lua),
 # and nothing is quit or killed while any nvim holds work a kill would lose
 tsave() {
   local keep_running=0
@@ -88,7 +88,7 @@ tsave() {
     elif [[ -z $addr_of[$pane] ]]; then
       blocked+=("$target_of[$pane]: nvim isn't reachable (started before this config, or with --clean)")
     # --headless: with a tty on any std stream, `--remote-expr` starts a UI instead
-    elif ! out=$($rpc $addr_of[$pane] --remote-expr "v:lua.require'core.auto-session.utils'.unsaved()" </dev/null 2>/dev/null); then
+    elif ! out=$($rpc $addr_of[$pane] --remote-expr "v:lua.require'core.auto-session.tsave'.unsaved()" </dev/null 2>/dev/null); then
       blocked+=("$target_of[$pane]: nvim didn't answer (waiting on a prompt?)")
     elif [[ -n $out ]]; then
       blocked+=("$target_of[$pane]: ${(j:, :)${(f)out}}")
@@ -104,7 +104,7 @@ tsave() {
   fi
 
   for pane in $quit; do
-    $rpc $addr_of[$pane] --remote-expr "v:lua.require'core.auto-session.utils'.quit()" </dev/null &>/dev/null
+    $rpc $addr_of[$pane] --remote-expr "v:lua.require'core.auto-session.tsave'.quit()" </dev/null &>/dev/null
   done
 
   # A pane (or the whole server) that is gone has finished quitting too

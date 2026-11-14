@@ -1,6 +1,6 @@
 --- Entry point: the `tsave` zsh function calls `unsaved()` and `quit()` through `--remote-expr`, so
 --- this path and those names stay stable, or tsave quits no nvim and leaves tmux running
---- @class core.auto-session.utils
+--- @class core.auto-session.tsave
 local M = {}
 
 --- Whether `pid` or one of its descendants is an nvim process
