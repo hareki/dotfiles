@@ -14,6 +14,32 @@ _Avoid_: mode, kind
 A line that presets or replaces a plugin's private variable, function or hook, to spare every shell work the plugin would otherwise do.
 _Avoid_: patch, hack, monkey-patch
 
+### Commands
+
+**Target**:
+A tool this machine runs from a local build of its source instead of a packaged release.
+_Avoid_: package, project, binary
+
+**Checkout**:
+The working tree a target is built from.
+_Avoid_: source dir, repo
+
+**Stamp**:
+The record of which source an installed target was built from.
+_Avoid_: marker, cache, lock
+
+**Due**:
+Said of a target whose checkout no longer matches its stamp, or that has no stamp, so the next build of every target includes it.
+_Avoid_: stale, dirty, outdated
+
+**Fork**:
+A repository of this account that follows another's: upstream's default branch with the account's own commits on top, and no merge commits.
+_Avoid_: mirror, copy
+
+**Clone**:
+A fork's local repository, kept level with the fork as it moves.
+_Avoid_: checkout (a target's), working copy
+
 ### Tests
 
 **Scratch boot**:
