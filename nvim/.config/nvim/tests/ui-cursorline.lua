@@ -149,17 +149,56 @@ t.test('terminals switched between in Terminal mode keep only their line numbers
   local c = child()
 
   -- The editor, with two terminals to its right
-  c.lua([[
+  local first = c.lua([[
     vim.cmd('vsplit | terminal')
+    local first = vim.api.nvim_get_current_win()
     vim.cmd('vsplit | terminal')
+    return first
   ]])
   c.input('i')
   c.wait('t')
-  -- To the other terminal, which keeps the mode going: Neovim puts the first one's full line back
-  -- with no event to tell. Then on to the editor
-  c.input('<A-m><A-m>')
+  -- To the other terminal, which keeps the mode going: Neovim puts the full line back on the one
+  -- it leaves, with no event to tell
+  c.input('<A-m>')
+  t.wait_for(function()
+    return c.lua('return vim.api.nvim_get_current_win()') == first
+  end, 'the first terminal', 5000)
+  local switched = c.settled()
+  t.eq(switched.mode, 't', 'Terminal mode in the first terminal')
+  t.eq(switched.terminal_lines_shown, { false, false }, 'cursor lines in the terminals')
+
+  -- Then on to the editor
+  c.input('<A-m>')
   local back = c.wait('n')
   t.eq(back.buftype, '', 'the editor window is focused')
   t.eq(back.line_shown, true, 'cursor line in the editor window')
   t.eq(back.terminal_lines_shown, { false, false }, 'cursor lines in the terminals left behind')
 end)
+
+t.test(
+  'a terminal the floating terminal opens over in Terminal mode keeps only its line number',
+  function()
+    local c = child()
+
+    -- As the coding agent's panel: the floating terminal takes the mode over from it
+    c.lua([[vim.cmd('vsplit | terminal')]])
+    c.input('i')
+    c.wait('t')
+    c.input('<A-t>')
+    t.wait_for(function()
+      return c.lua([[return vim.api.nvim_win_get_config(0).relative ~= '']])
+    end, 'the floating terminal', 5000)
+    local over = c.settled()
+    t.eq(over.mode, 't', 'Terminal mode in the floating terminal')
+    t.eq(over.terminal_lines_shown, { false, false }, 'cursor lines in both terminals')
+
+    -- Hidden again, it hands the mode back, and Normal mode shows the line
+    c.input('<A-t>')
+    t.wait_for(function()
+      return c.lua([[return vim.api.nvim_win_get_config(0).relative == '']])
+    end, 'the panel again', 5000)
+    t.eq(c.settled().terminal_lines_shown, { false }, 'cursor line in Terminal mode')
+    c.input([[<C-\><C-n>]])
+    t.eq(c.wait('nt').line_shown, true, 'cursor line in Normal mode')
+  end
+)

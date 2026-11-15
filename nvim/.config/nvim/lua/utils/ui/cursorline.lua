@@ -2,14 +2,15 @@
 local M = {}
 
 --- Show the full cursorline, or only the line number. Sets only what differs, since a same-value
---- set of these options still redraws the whole window. A no-op in Terminal mode, where Neovim
---- takes both options over (the cursor follows the program's output) and puts back at the mode's
---- end what its window had at the start, over whatever was set in between
+--- set of these options still redraws the whole window. A no-op on the window in Terminal mode,
+--- where Neovim takes both options over (the cursor follows the program's output) and, once the
+--- mode leaves the window, puts back what it had when the mode reached it, over whatever was set
+--- in between
 --- @param enable boolean
 --- @param win integer
 --- @return nil
 function M.set_cursorline(enable, win)
-  if vim.api.nvim_get_mode().mode == 't' then
+  if vim.api.nvim_get_mode().mode == 't' and win == vim.api.nvim_get_current_win() then
     return
   end
 
@@ -42,7 +43,20 @@ function M.follow_focus()
   vim.api.nvim_create_autocmd('WinLeave', {
     group = group,
     callback = function()
-      M.set_cursorline(false, vim.api.nvim_get_current_win())
+      local win = vim.api.nvim_get_current_win()
+      if vim.api.nvim_get_mode().mode ~= 't' then
+        M.set_cursorline(false, win)
+        return
+      end
+
+      -- Terminal mode lets the window go once the key that left it is done, putting back what it
+      -- had when the mode reached it (the full line, if focused then): unfocused after that. A
+      -- callback's switch runs this ahead of that instead, which TermLeave makes up for
+      vim.schedule(function()
+        if vim.api.nvim_win_is_valid(win) and win ~= vim.api.nvim_get_current_win() then
+          M.set_cursorline(false, win)
+        end
+      end)
     end,
   })
   vim.api.nvim_create_autocmd('BufWinEnter', {
@@ -56,10 +70,10 @@ function M.follow_focus()
   vim.api.nvim_create_autocmd('TermLeave', {
     group = group,
     callback = function()
-      -- Neovim has just put back what the mode's window had when the mode began: a float's
-      -- `style = 'minimal'`, or the full line on a terminal that focus has left since (one left
-      -- for another terminal got it back mid-mode, with no event). And a window entered during
-      -- the mode was skipped
+      -- Neovim has just put back what the mode's window had when the mode reached it: a float's
+      -- `style = 'minimal'`, or the full line on a terminal that focus has left since (as on one
+      -- a callback switched away from mid-mode, ahead of WinLeave's fix). And a window entered
+      -- during the mode was skipped
       local current = vim.api.nvim_get_current_win()
       for _, win in ipairs(vim.api.nvim_list_wins()) do
         if win ~= current and vim.bo[vim.api.nvim_win_get_buf(win)].buftype == 'terminal' then
