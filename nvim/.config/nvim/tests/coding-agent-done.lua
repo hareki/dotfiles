@@ -85,7 +85,6 @@ t.test('a finish under a hidden panel is flagged until the panel shows again', f
 
   -- Focus moving between other windows leaves it
   vim.cmd.split()
-  t.settle()
   t.eq(done.unseen(), true, 'unseen after entering another window')
   vim.cmd.close()
 

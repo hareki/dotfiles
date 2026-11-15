@@ -13,7 +13,8 @@ local t = require('tests.lib.helpers')
 --- @class tests.ui-cursorline.Child
 --- @field lua fun(code: string): any Runs code in it, after what it has queued
 --- @field input fun(keys: string) Types keys into it
---- @field wait fun(mode: string): tests.ui-cursorline.State Waits for a mode and the callbacks the switch scheduled
+--- @field wait fun(mode: string): tests.ui-cursorline.State Waits for a mode; its answer comes after the callbacks the switch queued
+--- @field settled fun(): tests.ui-cursorline.State The state 200 ms on, for a line that must stay hidden in Terminal mode: by then only a timer could still show it
 
 --- A child nvim on this config, booted the way the tests' own is (VeryLazy fired)
 --- @return tests.ui-cursorline.Child
@@ -72,6 +73,9 @@ local function child()
       t.wait_for(function()
         return state().mode == mode
       end, mode .. ' mode in the child', 5000)
+      return state()
+    end,
+    settled = function()
       t.settle(200)
       return state()
     end,
@@ -82,15 +86,15 @@ t.test('the floating terminal shows a cursor line in Normal mode, not in Termina
   local c = child()
 
   c.input('<A-t>')
-  local opened = c.wait('t')
-  t.eq(opened.buftype, 'terminal', 'the terminal is focused')
-  t.eq(opened.line_shown, false, 'cursor line once it opens in Terminal mode')
+  t.eq(c.wait('t').buftype, 'terminal', 'the terminal is focused')
+  t.eq(c.settled().line_shown, false, 'cursor line once it opens in Terminal mode')
 
   c.input([[<C-\><C-n>]])
   t.eq(c.wait('nt').line_shown, true, 'cursor line in Normal mode')
 
   c.input('i')
-  t.eq(c.wait('t').line_shown, false, 'cursor line back in Terminal mode')
+  c.wait('t')
+  t.eq(c.settled().line_shown, false, 'cursor line back in Terminal mode')
 end)
 
 t.test('a float opening over the terminal in Terminal mode shows no cursor line on it', function()
@@ -108,7 +112,8 @@ t.test('a float opening over the terminal in Terminal mode shows no cursor line 
       height = 1,
     })
   ]])
-  t.eq(c.wait('t').line_shown, false, 'cursor line in Terminal mode')
+  c.wait('t')
+  t.eq(c.settled().line_shown, false, 'cursor line in Terminal mode')
 end)
 
 t.test(
