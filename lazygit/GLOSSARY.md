@@ -56,6 +56,14 @@ _Avoid_: job, message
 A render by a renderer started for that diff alone, when no daemon answers.
 _Avoid_: fallback render, cold render
 
+**Ladder**:
+The order in which a client tries to get a diff drawn, each step a rung: the daemon, a daemon it starts, a one-shot, and last the patch as git wrote it.
+_Avoid_: fallback chain, retry logic
+
+**Handshake**:
+The mark a client prints ahead of everything else, telling lazygit that what follows carries records.
+_Avoid_: probe, version header
+
 ### Tests
 
 **Fixture**:
