@@ -1,6 +1,7 @@
-# lazygit's edit commands (os.edit, editAtLine and openDirInEditor in config.yml). lazygit
-# sources this file into the shell it runs each of them in (os.shellFunctionsFile), so they cost
-# no process of their own, and it quotes every path it hands them.
+# lazygit's edit commands (os.edit, editAtLine, editAtLineAndWait and openDirInEditor in
+# config.yml). lazygit sources this file into the shell it runs each of them in
+# (os.shellFunctionsFile), so they cost no process of their own, and it quotes every path it
+# hands them.
 #
 # Each way through ends in exec: that shell has nothing left to do, and would otherwise fork the
 # last command only to wait on it (~0.7ms).

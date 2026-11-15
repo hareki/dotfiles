@@ -7,6 +7,8 @@ os:
   shellFunctionsFile: '~/.config/lazygit/shell-functions.sh'
   edit: 'lazygit_edit {{filename}}'
   editAtLine: 'lazygit_edit +{{line}} {{filename}}'
+  # Edit hunk waits for its editor to close, which a host nvim can't be asked for: a new nvim
+  editAtLineAndWait: 'lazygit_nvim +{{line}} -- {{filename}}'
   openDirInEditor: 'lazygit_edit {{dir}}'
 
 gui:
