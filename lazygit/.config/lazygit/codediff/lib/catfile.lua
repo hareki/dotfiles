@@ -7,9 +7,10 @@
 -- single `git cat-file --batch-command` is kept alive between renders and both
 -- answers come back over its pipes.
 --
--- Every failure mode -- no session, a dead one, a slow or malformed answer --
--- gets one fresh session, and past that the render goes without the blobs, so
--- the worst case is a file highlighted from its hunks and never a wrong render.
+-- A kept session that fails in any way -- dead, slow, a malformed answer -- is
+-- replaced by a fresh one, once. When a fresh one fails, the render goes without
+-- the blobs, so the worst case is a file highlighted from its hunks and never a
+-- wrong render.
 
 local buffer = require('string.buffer')
 
@@ -78,13 +79,15 @@ local function retire(s)
   end)
 end
 
+--- The session for `cwd`, and whether it is one kept from an earlier render
+--- rather than started now.
 local function ensure(cwd)
   for i, held in ipairs(sessions) do
     if held.cwd == cwd then
       if not held.proc:is_closing() then
         table.remove(sessions, i)
         table.insert(sessions, 1, held)
-        return held
+        return held, true
       end
       retire(held)
       break
@@ -177,19 +180,23 @@ function M.fetch(cwd, oids, max_bytes)
   if #oids == 0 then
     return {}
   end
-  for _ = 1, 2 do
-    local s = ensure(cwd)
-    if not s then
-      break
-    end
-    local blobs = fetch_session(s, oids, max_bytes)
+  while true do
+    local s, kept = ensure(cwd)
+    local blobs = s and fetch_session(s, oids, max_bytes)
     if blobs then
       return blobs
     end
-    -- The session is only as trustworthy as its last answer.
-    retire(s)
+    if s then
+      -- The session is only as trustworthy as its last answer.
+      retire(s)
+    end
+    -- A kept session may only have died since the render before, which a new one
+    -- settles. A new one that fails has no repository to ask, and neither would
+    -- the next.
+    if not kept then
+      return {}
+    end
   end
-  return {}
 end
 
 return M

@@ -91,6 +91,18 @@ t.test('a blob past the highlight cap is highlighted from its hunks', function()
   t.ok(render(diff, repo, 'local answer = 2').fg > 1, 'a large file was parsed whole')
 end)
 
+t.test('a git session that died since the render before is replaced, not done without', function()
+  local repo, diff = change_inside_comment(10)
+  t.eq(render(diff, repo, 'local answer = 2').fg, 1, 'parsed whole')
+
+  -- The sessions git's objects are read through are this nvim's only children by now, and it
+  -- learns that one has died only when it next asks it something.
+  for _, pid in ipairs(vim.api.nvim_get_proc_children(vim.uv.os_getpid())) do
+    vim.uv.kill(pid, 'sigkill')
+  end
+  t.eq(render(diff, repo, 'local answer = 2').fg, 1, 'parsed whole once its session had died')
+end)
+
 t.test('a section past the caps keeps its tints and loses syntax and changed words', function()
   local repo = change_every_line(10)
   local colors = render(last_diff(repo), repo, 'local value_5 = 6')
