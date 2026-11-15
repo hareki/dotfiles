@@ -1,0 +1,24 @@
+commit d805bc6ce09763804b3d0f64d8f6ada0d44d1b9c (HEAD -> main, tag: merge-combined)
+Merge: bdb3691 90a802e
+Author: Fixture Author <fixture@example.com>
+Date:   Thu Jan 8 09:00:00 2026 +0000
+
+    Merge the equals rule
+
+ src/report.lua | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --cc src/report.lua
+index 15baf08,4b59986..f1df73e
+--- a/src/report.lua
++++ b/src/report.lua
+@@@ -39,7 -39,7 +39,7 @@@ function M.render(rows, opts
+      out[#out + 1] = format_row(row)
+    end
+    if opts.header then
+-     table.insert(out, 2, string.rep('-', #out[1] + 2))
+ -    table.insert(out, 2, string.rep('=', #out[1]))
+++    table.insert(out, 2, string.rep('=', #out[1] + 2))
+    end
+    return table.concat(out, '\n')
+  end

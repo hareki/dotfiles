@@ -1,0 +1,10 @@
+"""Column totals for a report."""
+
+
+def tally(rows):
+    totals = {}
+    for row in rows:
+        for index, cell in enumerate(row):
+            if isinstance(cell, (int, float)):
+                totals[index] = totals.get(index, 0) + cell
+    return totals

@@ -1,0 +1,47 @@
+local M = {}
+
+local SEPARATOR = ' | '
+
+--- Format one row of the report.
+local function format_row(row)
+  local cells = {}
+  for i, value in ipairs(row) do
+    cells[i] = tostring(value):gsub('\n', ' ')
+  end
+  return table.concat(cells, SEPARATOR)
+end
+
+--[[
+The report format, for whoever reads this next.
+
+Each row is a list of cells. A cell is rendered with tostring, so a
+table cell prints its address, which is rarely what you want: convert
+it before handing the row over.
+
+The header is optional. When it is missing the first row is not
+treated in any special way, and the caller is free to pass
+local totals = sum(rows) as a row like any other.
+
+The names in this note are examples, not part of the module:
+  return M.render(rows, { header = true })
+
+A row may be empty, and then it renders as an empty line. Rows are
+never wrapped: a caller that wants a width limit applies it to the
+cells before they get here.
+
+Nothing in this note is executed.
+]]
+
+function M.render(rows, opts)
+  opts = opts or {}
+  local out = {}
+  for _, row in ipairs(rows) do
+    out[#out + 1] = format_row(row)
+  end
+  if opts.header then
+    table.insert(out, 2, string.rep('-', #out[1]))
+  end
+  return table.concat(out, '\n')
+end
+
+return M

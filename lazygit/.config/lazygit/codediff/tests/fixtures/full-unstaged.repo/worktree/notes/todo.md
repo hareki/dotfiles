@@ -1,0 +1,9 @@
+# To do
+
+- [x] wrap long cells
+- [ ] document the header option
+
+```lua
+local report = require('src.report')
+print(report.render({ { 'a', 1 } }, { header = true }))
+```

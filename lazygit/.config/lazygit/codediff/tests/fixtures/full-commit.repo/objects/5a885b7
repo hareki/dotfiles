@@ -1,0 +1,19 @@
+// A minimal range slider.
+export function createSlider(root, options) {
+  const min = options.min ?? 0;
+  const max = options.max ?? 100;
+  let value = options.value ?? min;
+
+  const track = document.createElement('div');
+  track.className = 'slider-track';
+  root.appendChild(track);
+
+  function set(next) {
+    value = Math.min(max, Math.max(min, next));
+    track.style.setProperty('--fill', `${((value - min) / (max - min)) * 100}%`);
+    return value;
+  }
+
+  set(value);
+  return { set, get: () => value };
+}

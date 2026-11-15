@@ -1,0 +1,88 @@
+commit fcc0d1c07f43f838938b67dfd6405979d83d6597 (tag: shapes)
+Author: Fixture Author <fixture@example.com>
+Date:   Wed Jan 7 09:00:00 2026 +0000
+
+    Tidy the odds and ends
+---
+ LICENSE => LICENSE-MIT |   2 ++
+ "caf\303\251 menu.txt" |   1 +
+ data/table.txt         |   2 +-
+ "esc\033ape.txt"       |   2 ++
+ gone.txt               |   0
+ img/logo.bin           | Bin 58 -> 83 bytes
+ run.sh                 |   0
+ tools/check.sh         |   1 +
+ vendor/lib             |   2 +-
+ "with\ttab.txt"        |   2 +-
+ 10 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/LICENSE b/LICENSE-MIT
+similarity index 94%
+copy from LICENSE
+copy to LICENSE-MIT
+index 312fde2..65894b7 100644
+--- a/LICENSE
++++ b/LICENSE-MIT
+@@ -7,3 +7,5 @@ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
++
++THE SOFTWARE IS PROVIDED "AS IS".
+diff --git "a/caf\303\251 menu.txt" "b/caf\303\251 menu.txt"
+index 1e8fefb..c6c2374 100644
+--- "a/caf\303\251 menu.txt"	
++++ "b/caf\303\251 menu.txt"	
+@@ -1,2 +1,3 @@
+ espresso
++cortado
+ flat white
+diff --git a/data/table.txt b/data/table.txt
+index 32deab0..4d79514 100644
+--- a/data/table.txt
++++ b/data/table.txt
+@@ -1,3 +1,3 @@
+ name,count
+ alpha,1
+-beta,2
+\ No newline at end of file
++beta,3
+diff --git "a/esc\033ape.txt" "b/esc\033ape.txt"
+new file mode 100644
+index 0000000..2256996
+--- /dev/null
++++ "b/esc\033ape.txt"
+@@ -0,0 +1,2 @@
++plain
++text
+diff --git a/gone.txt b/gone.txt
+deleted file mode 100644
+index e69de29..0000000
+diff --git a/img/logo.bin b/img/logo.bin
+index 8baa37f..3d17546 100644
+Binary files a/img/logo.bin and b/img/logo.bin differ
+diff --git a/run.sh b/run.sh
+old mode 100644
+new mode 100755
+diff --git a/tools/check.sh b/tools/check.sh
+old mode 100644
+new mode 100755
+index 589a96e..cea17df
+--- a/tools/check.sh
++++ b/tools/check.sh
+@@ -1,3 +1,4 @@
+ #!/bin/sh
+ # Checks the tree.
+ test -d src
++test -d web
+Submodule vendor/lib 9681480..bd94ebc:
+  > Fix the speedup
+  > Speed the library up
+diff --git "a/with\ttab.txt" "b/with\ttab.txt"
+index 814f4a4..99b356d 100644
+--- "a/with\ttab.txt"
++++ "b/with\ttab.txt"
+@@ -1,2 +1,2 @@
+ one
+-two
++2

@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Deploys the built site to the given host.
+set -euo pipefail
+
+host=${1:?usage: deploy <host>}
+root=$(cd "$(dirname "$0")/.." && pwd)
+build="$root/build"
+
+if [[ ! -d $build ]]; then
+  echo "nothing to deploy: run the build first" >&2
+  exit 1
+fi
+
+echo "deploying to $host"
+
+for file in "$build"/*; do
+  name=$(basename "$file")
+  if [[ $name == *.map ]]; then
+    continue
+  fi
+  rsync -az "$file" "$host:/var/www/site/$name"
+done
+
+ssh "$host" 'sudo systemctl reload caddy'
+echo "done"

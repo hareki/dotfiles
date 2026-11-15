@@ -1,0 +1,33 @@
+diff --git a/bin/deploy b/bin/deploy
+index 5d07b76..61381cc 100755
+--- a/bin/deploy
++++ b/bin/deploy
+@@ -18,8 +18,8 @@ for file in "$build"/*; do
+   if [[ $name == *.map ]]; then
+     continue
+   fi
+-  scp -q "$file" "$host:/var/www/site/$name"
++  rsync -az "$file" "$host:/var/www/site/$name"
+ done
+ 
+-ssh "$host" 'sudo systemctl reload nginx'
++ssh "$host" 'sudo systemctl reload caddy'
+ echo "done"
+diff --git a/notes/todo.md b/notes/todo.md
+index 9f17a15..010a3b5 100644
+--- a/notes/todo.md
++++ b/notes/todo.md
+@@ -1,9 +1,9 @@
+ # To do
+ 
+-- [ ] wrap long cells
++- [x] wrap long cells
+ - [ ] document the header option
+ 
+ ```lua
+ local report = require('src.report')
+-print(report.render({ { 'a', 1 } }))
+-```
++print(report.render({ { 'a', 1 } }, { header = true }))
++```
+\ No newline at end of file

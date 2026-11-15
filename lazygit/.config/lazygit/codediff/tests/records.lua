@@ -2,16 +2,18 @@
 --
 --   nvim --clean -l tests/records.lua
 --
--- Every fixture is rendered with records in both layouts, and its records have
--- to name exactly the lines of git's patch, numbered the way lazygit numbers
--- them (LineNumberOfLine and OldLineNumberOfLine in its pkg/commands/patch):
--- that is what lazygit stages by. A render without records must carry none.
+-- Every fixture is rendered with records in both layouts, and its records have to name exactly
+-- the lines of git's patch, numbered the way lazygit numbers them (LineNumberOfLine and
+-- OldLineNumberOfLine in its pkg/commands/patch): that is what lazygit stages by. A render
+-- without records must carry none.
 --
 -- What the patch calls for is read off the fixture's text here, with nothing borrowed from the
 -- renderer: an expectation built with its parser would follow that parser into a mistake.
 
-local dir = vim.fn.fnamemodify(arg[0], ':p:h')
+local dir = vim.fs.dirname(vim.fn.fnamemodify(arg[0], ':p'))
 package.path = dir .. '/../?.lua;' .. package.path
+
+local t = require('tests.lib.t')
 
 require('lib.bootstrap').setup()
 local core = require('lib.core')
@@ -97,73 +99,67 @@ local function expected_records(input)
   return records
 end
 
--- The records a rendering carries, row by row and left to right, and a record that some row
--- states twice, if any: one lasts to the end of its row. File-header records are left out, since
--- nothing in the patch's lines calls for them.
+--- The records a rendering carries, row by row and left to right. File-header records are left
+--- out, since nothing in the patch's lines calls for them. A record lasts to the end of its
+--- row, so a row that states one twice is a failure.
 local function rendered_records(rendered)
-  local records, repeated = {}, nil
+  local records = {}
   for _, row in ipairs(vim.split(rendered, '\n', { plain = true })) do
     local seen = {}
     for payload in row:gmatch(RECORD) do
       local record = payload:match('^1;(.*)$')
       if record and not record:match('^f;') then
-        repeated = repeated or (seen[record] and record)
+        t.ok(not seen[record], 'a row states a record twice: ' .. record)
         seen[record] = true
         records[#records + 1] = record
       end
     end
   end
-  return records, repeated
+  return records
 end
 
-local fail = false
-local function report(ok, name, what, detail)
-  io.write(('%s %s (%s)%s\n'):format(ok and 'ok     ' or 'FAILED ', name, what, detail or ''))
-  fail = fail or not ok
-end
+t.with_clock(function()
+  return 0
+end, function()
+  for _, name in ipairs(t.fixture_names()) do
+    local fixture = t.fixture(name)
+    local expected = expected_records(fixture.input)
 
-local fixtures = vim.fn.glob(dir .. '/fixtures/*.diff', true, true)
-table.sort(fixtures)
+    for _, layout in ipairs({ 'inline', 'side-by-side' }) do
+      t.test(('%s (%s records)'):format(name, layout), function()
+        local function render(metadata)
+          return core.render(
+            fixture.input,
+            { cwd = fixture.cwd, cols = 100, layout = layout, metadata = metadata }
+          )
+        end
 
-for _, path in ipairs(fixtures) do
-  local name = vim.fs.basename(path)
-  local input = vim.fn.readblob(path)
-  local expected = expected_records(input)
+        local actual = rendered_records(render(true))
+        -- A side-by-side row pairs a deletion with an addition, so only the inline layout
+        -- keeps the patch's order.
+        local want = expected
+        if layout == 'side-by-side' then
+          table.sort(actual)
+          want = vim.deepcopy(expected)
+          table.sort(want)
+        end
+        if not vim.deep_equal(actual, want) then
+          error(
+            ('expected %s\n  actual   %s'):format(
+              table.concat(want, ' '),
+              table.concat(actual, ' ')
+            ),
+            0
+          )
+        end
 
-  for _, layout in ipairs({ 'inline', 'side-by-side' }) do
-    local function render(metadata)
-      -- At /, as in run.sh: no repo, so the fixtures render from their own hunks.
-      return core.render(input, { cwd = '/', cols = 100, layout = layout, metadata = metadata })
-    end
-
-    local actual, repeated = rendered_records(render(true))
-    if repeated then
-      report(false, name, layout .. ' records', ': a row states a record twice: ' .. repeated)
-    end
-    -- A side-by-side row pairs a deletion with an addition, so only the inline
-    -- layout keeps the patch's order.
-    local want = expected
-    if layout == 'side-by-side' then
-      table.sort(actual)
-      want = vim.deepcopy(expected)
-      table.sort(want)
-    end
-    local ok = vim.deep_equal(actual, want)
-    report(
-      ok,
-      name,
-      layout .. ' records',
-      not ok
-        and ('\n  expected %s\n  actual   %s'):format(
-          table.concat(want, ' '),
-          table.concat(actual, ' ')
+        t.ok(
+          not render(false):find('\27]1717', 1, true),
+          'a render that was not asked for records carries some'
         )
-    )
-
-    if render(false):find('\27]1717', 1, true) then
-      report(false, name, layout .. ' without records', ': records found')
+      end)
     end
   end
-end
+end)
 
-os.exit(fail and 1 or 0)
+t.done()

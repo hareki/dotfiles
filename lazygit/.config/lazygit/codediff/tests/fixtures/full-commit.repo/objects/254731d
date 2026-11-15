@@ -1,0 +1,10 @@
+# Old notes
+
+These predate the report module.
+
+- rows were strings
+- the separator was a tab
+
+```lua
+print(table.concat(rows, '\t'))
+```
