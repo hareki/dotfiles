@@ -4,6 +4,8 @@
 -- trackpad touches. A tap is one contact, from the first finger down to the last one up, that
 -- peaks at exactly three fingers, stays short and barely moves. Nothing is swallowed: macOS does
 -- nothing on a three-finger tap while Look up is not set to "Tap with three fingers".
+local trackpad = require('trackpad')
+
 local types = hs.eventtap.event.types
 
 local FINGERS = 3
@@ -67,12 +69,8 @@ local function on_touches(touches, now)
   end
 end
 
-local tap = hs.eventtap.new({ types.gesture }, function(event)
-  if event:getType(true) == types.gesture then
-    on_touches(event:getTouches(), hs.timer.absoluteTime() / 1e9)
+trackpad.on_gesture(function(gesture, touches)
+  if gesture == types.gesture then
+    on_touches(touches, hs.timer.absoluteTime() / 1e9)
   end
-  return false
 end)
-
--- Returned so package.loaded keeps the tap alive: Hammerspoon stops a collected watcher
-return tap:start()
