@@ -188,7 +188,7 @@ local function render_file(file, ctx)
     return out:tostring()
   end
   if #file.hunks == 0 then
-    if #out == 0 and (file.is_new or file.is_deleted) then
+    if file.is_new or file.is_deleted then
       note((file.is_new and 'new empty file: ' or 'deleted empty file: ') .. display_path)
     end
     return out:tostring()
