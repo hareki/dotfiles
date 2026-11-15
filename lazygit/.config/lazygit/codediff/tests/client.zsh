@@ -15,7 +15,7 @@
 #   the tree is a copy            a daemon recycles itself when its sources change, so touching
 #                                 the copy is also how a test daemon is told to go
 #
-# Takes ~6s. The daemon that is left to idle runs on a shorter grace and poll than daemon.lua's
+# Takes ~5s. The daemon that is left to idle runs on a shorter grace and poll than daemon.lua's
 # 10s and 3s, set in the copy: what is under test is that an idle daemon goes, not how long 10s is.
 
 zmodload zsh/net/socket zsh/datetime
