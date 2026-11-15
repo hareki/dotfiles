@@ -74,12 +74,12 @@ local MODE_HEADERS = {
 }
 
 -- "<header> <path>" lines: the path to capture, the field it fills, and the
--- path field it also becomes. `copy from` deliberately has no second field: a
--- copy leaves the source file alone, so it is not this diff's old side.
+-- side of the diff it is the path of. A copy's source is its old side just as a
+-- rename's is: the hunks that follow are against it.
 local PATH_HEADERS = {
   { '^rename from (.*)$', 'renamed_from', 'old_path' },
   { '^rename to (.*)$', 'renamed_to', 'new_path' },
-  { '^copy from (.*)$', 'copied_from' },
+  { '^copy from (.*)$', 'copied_from', 'old_path' },
   { '^copy to (.*)$', 'copied_to', 'new_path' },
 }
 
@@ -99,10 +99,7 @@ local function parse_extended_header(file, line)
     local path = line:match(header[1])
     if path then
       path = unquote_c_string(path)
-      file[header[2]] = path
-      if header[3] then
-        file[header[3]] = path
-      end
+      file[header[2]], file[header[3]] = path, path
       return true
     end
   end
