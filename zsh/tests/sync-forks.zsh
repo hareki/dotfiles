@@ -6,14 +6,6 @@
 
 source "$ZT_LIB/helpers.zsh"
 
-# sync-forks runs inside an interactive shell, so it runs here under that shell's options: those
-# `setopt` lists in one, bar the interactive-only ones (the "options set" in a tests/ab.zsh dump)
-interactive_options=(
-  multios long_list_jobs interactive_comments prompt_subst auto_cd combining_chars
-  extended_history hist_expire_dups_first hist_ignore_dups hist_ignore_space hist_verify
-  share_history complete_in_word always_to_end auto_menu hash_dirs no_flow_control no_global_rcs
-)
-
 # HOME and git's global config move in here
 [[ $ZT_TMP == /tmp/zt.?* && -d $ZT_TMP ]] || { print -ru2 -- 'ZT_TMP must be a /tmp/zt.* dir'; exit 1 }
 root=$ZT_TMP
@@ -177,7 +169,7 @@ expect() {
 # run_sync <run>: sync-forks into <run>.out and <run>.err, its network use into <run>.net, its exit
 # status into rc
 run_sync() {
-  setopt local_options $interactive_options
+  setopt local_options $T_INTERACTIVE_OPTIONS
   net_log=$root/$1.net
   : >$net_log
   sync-forks -j 1 >$root/$1.out 2>$root/$1.err
@@ -254,11 +246,6 @@ snapshot() {
   git -C $clone symbolic-ref -q HEAD
   git -C $clone status --porcelain
   print -rl -- $clone/.git/rebase-*(N:t)
-}
-
-# same_lines <what> <actual> <expected>: t_ok over a diff, which shows the lines that differ
-same_lines() {
-  t_ok $1 diff -u --label expected --label actual <(print -r -- "$3") <(print -r -- "$2")
 }
 
 # --- Scenarios, in listing order
@@ -460,7 +447,7 @@ conflicts='
 
 run_sync 1
 t_eq 'run 1: exit status' $rc 1
-same_lines 'run 1: stdout, a line per fork, the synced forks and the tally' "$(plain $root/1.out)" "$(report 1)
+t_lines 'run 1: stdout, a line per fork, the synced forks and the tally' "$(plain $root/1.out)" "$(report 1)
 
 ==> Synced with upstream:
   https://github.com/hareki/rebase: pulled main in ~/repos/rebase
@@ -473,7 +460,7 @@ same_lines 'run 1: stdout, a line per fork, the synced forks and the tally' "$(p
   https://github.com/hareki/uncloned: cloned to ~/repos/uncloned, pulled main in ~/repos/uncloned
 
 ==> 8 synced, 1 up to date, 1 ignored, 6 conflicting, 5 failed, 1 cloned, 5 pulled, 3 not pulled, 2 rebasing, 2 unpushed, 2 not rebased"
-same_lines 'run 1: stderr, the conflicts, failures and clones not pulled' "$(plain $root/1.err)" "$conflicts
+t_lines 'run 1: stderr, the conflicts, failures and clones not pulled' "$(plain $root/1.err)" "$conflicts
 
 ==> Failed to sync:
   upstream-gone: fatal: '$root/remote/up/upstream-gone.git' does not appear to be a git repository
@@ -487,7 +474,7 @@ same_lines 'run 1: stderr, the conflicts, failures and clones not pulled' "$(pla
   ~/repos/rebase-cleaned: local changes
   ~/repos/rebase-ahead: diverged from origin/main"
 # Only a side that moved since its clone last saw it costs a fetch
-same_lines 'run 1: network use' "$(network 1)" "\
+t_lines 'run 1: network use' "$(network 1)" "\
 rebase: fetch upstream, push
 rebase-other: fetch upstream, push
 rebase-dirty: fetch upstream, push
@@ -520,13 +507,13 @@ unset 'gh_pinned[lease]'
 
 run_sync 2
 t_eq 'run 2: exit status' $rc 1
-same_lines 'run 2: stdout, a line per fork, the synced forks and the tally' "$(plain $root/2.out)" "$(report 2)
+t_lines 'run 2: stdout, a line per fork, the synced forks and the tally' "$(plain $root/2.out)" "$(report 2)
 
 ==> Synced with upstream:
   https://github.com/hareki/lease: pulled main in ~/repos/lease
 
 ==> 1 synced, 9 up to date, 1 ignored, 6 conflicting, 4 failed, 2 pulled, 2 not pulled, 2 rebasing, 2 unpushed, 2 not rebased"
-same_lines 'run 2: stderr, the conflicts, failures and clones not pulled' "$(plain $root/2.err)" "$conflicts
+t_lines 'run 2: stderr, the conflicts, failures and clones not pulled' "$(plain $root/2.err)" "$conflicts
 
 ==> Failed to sync:
   upstream-gone: fatal: '$root/remote/up/upstream-gone.git' does not appear to be a git repository
@@ -538,7 +525,7 @@ same_lines 'run 2: stderr, the conflicts, failures and clones not pulled' "$(pla
   ~/repos/rebase-dirty: local changes
   ~/repos/rebase-ahead: diverged from origin/main"
 # Up-to-date forks cost no fetch: only the fork that moved and the failed fetch's retry go out
-same_lines 'run 2: network use' "$(network 2)" "\
+t_lines 'run 2: network use' "$(network 2)" "\
 upstream-gone: fetch upstream
 lease: fetch origin, push"
 
@@ -546,7 +533,7 @@ for n in $gh_forks; do
   if (( $+want_state[2/$n] )); then
     t_eq "$n: after run 2" "$(state $n)" "$want_state[2/$n]"
   else
-    same_lines "$n: run 2 left it as run 1 did" "$(snapshot $n)" "$after_run1[$n]"
+    t_lines "$n: run 2 left it as run 1 did" "$(snapshot $n)" "$after_run1[$n]"
   fi
 done
 

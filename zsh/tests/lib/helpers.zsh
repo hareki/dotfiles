@@ -4,6 +4,7 @@
 #   t_ok <what> <command...>          the command exits 0
 #   t_eq <what> <actual> <expected>   the strings are equal
 #   t_match <what> <actual> <pattern> the string matches a zsh pattern (extended_glob)
+#   t_lines <what> <actual> <expected> the texts are equal, shown as a diff of their lines if not
 #   t_done                            last line of a test file
 #
 # run.zsh starts each file with `zsh -f` from `env -i` (lib/env.zsh), its HOME and TMPDIR inside
@@ -11,6 +12,15 @@
 # test), ZT_PKG (its zsh package), ZT_LIB (this directory)
 
 typeset -gi T_PASSED=0 T_FAILED=0
+
+# A command of this config runs inside an interactive shell, so a test runs it under that shell's
+# options: those `setopt` lists in one, bar the interactive-only ones (the "options set" in a
+# tests/ab.zsh dump)
+typeset -ga T_INTERACTIVE_OPTIONS=(
+  multios long_list_jobs interactive_comments prompt_subst auto_cd combining_chars
+  extended_history hist_expire_dups_first hist_ignore_dups hist_ignore_space hist_verify
+  share_history complete_in_word always_to_end auto_menu hash_dirs no_flow_control no_global_rcs
+)
 
 t_pass() {
   (( T_PASSED++ ))
@@ -49,6 +59,10 @@ t_match() {
   else
     t_fail $1 "pattern: $3"$'\n'"actual:  ${(qqq)2}"
   fi
+}
+
+t_lines() {
+  t_ok $1 diff -u --label expected --label actual <(print -r -- "$3") <(print -r -- "$2")
 }
 
 t_done() {
