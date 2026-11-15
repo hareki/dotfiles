@@ -86,16 +86,17 @@ end
 local function send(ns, touches)
   local first, later = {}, {}
   for _, touch in ipairs(touches) do
-    table.insert(first, hs_touch(touch, touch.phase))
-    if touch.phase ~= 'ended' and touch.phase ~= 'cancelled' then
+    local reported = hs_touch(touch, touch.phase)
+    table.insert(first, reported)
+    if reported.touching then
       table.insert(later, hs_touch(touch, touch.phase == 'began' and 'stationary' or touch.phase))
     end
   end
-  local converted = false
+  local next_read = first
   local function convert()
-    local was_first = not converted
-    converted = true
-    return was_first
+    local read = next_read
+    next_read = later
+    return read
   end
   local event = {
     getType = function(_, specific)
@@ -105,9 +106,7 @@ local function send(ns, touches)
       end
       return GESTURE
     end,
-    getTouches = function()
-      return convert() and first or later
-    end,
+    getTouches = convert,
   }
   for i = #state.taps, 1, -1 do
     if state.taps[i].callback(event) then
@@ -145,9 +144,9 @@ local function tap(opts)
     end
     return touches
   end
-  send(GESTURE, { { id = ids[1], phase = 'began', x = 0.4, y = 0.5 } })
-  pause(0.02)
   local landing = all('began', 0)
+  send(GESTURE, { landing[1] })
+  pause(0.02)
   landing[1].phase = 'stationary'
   send(GESTURE, landing)
   if opts.pressure then
@@ -164,16 +163,25 @@ local function strokes_after(fn)
   return #state.strokes
 end
 
+--- Two contacts 0.2 seconds apart, each built from `tap` options.
+local function pair_strokes(first, second)
+  return strokes_after(function()
+    tap(first)
+    pause(0.2)
+    tap(second)
+  end)
+end
+
 -- The tap
 
 load_config()
-local gesture_taps = 0
+local gesture_taps = {}
 for _, t in ipairs(state.taps) do
   if t.mask[1] == GESTURE then
-    gesture_taps = gesture_taps + 1
+    table.insert(gesture_taps, t)
   end
 end
-check('one started tap watches gesture events', gesture_taps == 1 and state.taps[1].started)
+check('one started tap watches gesture events', #gesture_taps == 1 and gesture_taps[1].started)
 
 -- Two-finger double tap
 
@@ -207,44 +215,18 @@ check(
   #state.strokes == 1 and state.strokes[1].combo == 'cmd+shift+t' and state.strokes[1].delay == 0
 )
 check('double tap deletes nothing', #state.deleted == 0)
-check('single tap does nothing', strokes_after(function()
-  tap()
-end) == 0)
+check('single tap does nothing', strokes_after(tap) == 0)
 check('pause past the double-click interval does nothing', strokes_after(function()
   tap()
   pause(0.6)
   tap()
 end) == 0)
-check('a slow first tap does not count', strokes_after(function()
-  tap({ duration = 0.5 })
-  pause(0.2)
-  tap()
-end) == 0)
-check('a slow second tap does not count', strokes_after(function()
-  tap()
-  pause(0.2)
-  tap({ duration = 0.5 })
-end) == 0)
-check('a moving contact (swipe) does not count', strokes_after(function()
-  tap()
-  pause(0.2)
-  tap({ drift = 0.1 })
-end) == 0)
-check('small drift still counts', strokes_after(function()
-  tap({ drift = 0.02 })
-  pause(0.2)
-  tap({ drift = 0.02 })
-end) == 1)
-check('two-finger double tap does nothing', strokes_after(function()
-  tap({ fingers = 2 })
-  pause(0.2)
-  tap({ fingers = 2 })
-end) == 0)
-check('four-finger double tap does nothing', strokes_after(function()
-  tap({ fingers = 4 })
-  pause(0.2)
-  tap({ fingers = 4 })
-end) == 0)
+check('a slow first tap does not count', pair_strokes({ duration = 0.5 }, {}) == 0)
+check('a slow second tap does not count', pair_strokes({}, { duration = 0.5 }) == 0)
+check('a moving contact (swipe) does not count', pair_strokes({}, { drift = 0.1 }) == 0)
+check('small drift still counts', pair_strokes({ drift = 0.02 }, { drift = 0.02 }) == 1)
+check('two-finger double tap does nothing', pair_strokes({ fingers = 2 }, { fingers = 2 }) == 0)
+check('four-finger double tap does nothing', pair_strokes({ fingers = 4 }, { fingers = 4 }) == 0)
 check('a two-finger tap in between breaks the pair', strokes_after(function()
   tap()
   pause(0.1)
@@ -264,21 +246,12 @@ check('quadruple tap fires twice', strokes_after(function()
     pause(0.2)
   end
 end) == 2)
-check('a cancelled contact does not count', strokes_after(function()
-  tap()
-  pause(0.2)
-  tap({ cancel = true })
-end) == 0)
-check('a resting thumb is ignored', strokes_after(function()
-  tap({ resting = true })
-  pause(0.2)
-  tap({ resting = true })
-end) == 1)
-check('a pressure event with no touches mid-tap does not end it', strokes_after(function()
-  tap({ pressure = true })
-  pause(0.2)
-  tap({ pressure = true })
-end) == 1)
+check('a cancelled contact does not count', pair_strokes({}, { cancel = true }) == 0)
+check('a resting thumb is ignored', pair_strokes({ resting = true }, { resting = true }) == 1)
+check(
+  'a pressure event with no touches mid-tap does not end it',
+  pair_strokes({ pressure = true }, { pressure = true }) == 1
+)
 check('touch bar touches are ignored', strokes_after(function()
   send(GESTURE, { { id = 'bar', phase = 'began', x = 0, y = 0, type = 'direct' } })
   tap()
