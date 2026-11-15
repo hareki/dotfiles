@@ -134,11 +134,12 @@ end)
 t.test('a render past the highlight deadline is tint-only and must not be cached', function()
   local repo = change_every_line(3)
   local diff = last_diff(repo)
-  -- The first reading sets the deadline, and every later one is past it.
+  -- Every reading is far past the one before, so whichever of them sets the deadline, the next
+  -- one is past it.
   local readings = 0
   t.with_clock(function()
     readings = readings + 1
-    return readings == 1 and 0 or 1e12
+    return readings * 1e12
   end, function()
     local colors, cacheable = render(diff, repo, 'local value_2 = 3')
     t.eq(colors.fg, 1, 'foreground colors')
