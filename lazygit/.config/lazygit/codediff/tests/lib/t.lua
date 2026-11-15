@@ -134,7 +134,6 @@ end
 function M.fixture(name)
   local source = vim.fs.joinpath(M.fixtures, name .. '.repo')
   return {
-    name = name,
     input = M.read(vim.fs.joinpath(M.fixtures, name .. '.diff')),
     cwd = vim.uv.fs_stat(source) and M.repo(source) or '/',
   }
