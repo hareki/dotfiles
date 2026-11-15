@@ -22,6 +22,9 @@ shell-integration-features = no-cursor
 
 cursor-color = #cdd6f4
 cursor-text = #11111b
+
+selection-background = #cdd6f4
+selection-foreground = #11111b
 cursor-style = bar
 cursor-style-blink = true
 
