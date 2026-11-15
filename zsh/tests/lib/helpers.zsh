@@ -7,13 +7,19 @@
 #   t_lines <what> <actual> <expected> the texts are equal, shown as a diff of their lines if not
 #   t_done                            last line of a test file
 #
+# And for the command a test file drives:
+#
+#   t_run <out> <err> <command...>    runs it the way an interactive shell does, its stdout and
+#                                     stderr into the two files, and returns its exit status
+#   t_plain <file>                    prints the file without SGR escapes
+#
 # run.zsh starts each file with `zsh -f` from `env -i` (lib/env.zsh), its HOME and TMPDIR inside
 # ZT_TMP (a private scratch dir, removed afterwards), and these set: ZT_REPO (the repo root under
 # test), ZT_PKG (its zsh package), ZT_LIB (this directory)
 
 typeset -gi T_PASSED=0 T_FAILED=0
 
-# A command of this config runs inside an interactive shell, so a test runs it under that shell's
+# A command of this config runs inside an interactive shell, so t_run runs it under that shell's
 # options: those `setopt` lists in one, bar the interactive-only ones (the "options set" in a
 # tests/ab.zsh dump)
 typeset -ga T_INTERACTIVE_OPTIONS=(
@@ -63,6 +69,17 @@ t_match() {
 
 t_lines() {
   t_ok $1 diff -u --label expected --label actual <(print -r -- "$3") <(print -r -- "$2")
+}
+
+t_run() {
+  setopt local_options $T_INTERACTIVE_OPTIONS
+  "${@[3,-1]}" >$1 2>$2
+}
+
+t_plain() {
+  setopt local_options extended_glob
+  local text=$(<$1)
+  print -r -- "${text//$'\e'\[[0-9;]#m}"
 }
 
 t_done() {

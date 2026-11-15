@@ -5,37 +5,18 @@
 # left, checks that a sync settles
 
 source "$ZT_LIB/helpers.zsh"
+source "$ZT_LIB/repos.zsh"
 
-# HOME and git's global config move in here
-[[ $ZT_TMP == /tmp/zt.?* && -d $ZT_TMP ]] || { print -ru2 -- 'ZT_TMP must be a /tmp/zt.* dir'; exit 1 }
+zt_repos
 root=$ZT_TMP
-# A git call missing its -C then fails, instead of reaching the repo the test started in
-cd $root
-
-# Before any git call: git reads no config but this one, whose rewrites send every GitHub URL
-# sync-forks builds to a bare repo here, and a URL they miss fails rather than reach the network.
-# The real gh isn't on this PATH either
-unset -m 'GIT_*' XDG_CONFIG_HOME
-export HOME=$root/home REPOS_DIR=$root/home/repos
-export GIT_CONFIG_GLOBAL=$root/gitconfig GIT_CONFIG_NOSYSTEM=1 GIT_ALLOW_PROTOCOL=file
-path=(/usr/bin /bin /usr/sbin /sbin)
-mkdir -p $REPOS_DIR
-cat >$GIT_CONFIG_GLOBAL <<EOF
+# These rewrites send every GitHub URL sync-forks builds to a bare repo here, and a URL they miss
+# fails rather than reach the network
+cat >>$GIT_CONFIG_GLOBAL <<EOF
 [url "file://$root/remote/"]
   insteadOf = https://github.com/
 [url "file://$root/remote/hareki/"]
   insteadOf = git@gh-personal:hareki/
-[user]
-  name = zt
-  email = zt@example.invalid
-[init]
-  defaultBranch = main
 EOF
-
-probe=$(git ls-remote git@example.invalid:fork.git 2>&1)
-t_match 'a remote URL the rewrites miss fails' "$probe" "*transport 'ssh' not allowed*"
-# Everything below pushes and fetches
-[[ $probe == *"transport 'ssh' not allowed"* ]] || t_done
 
 autoload -Uz $ZT_PKG/.config/zsh/functions/{sync-forks,print-header}
 
@@ -87,19 +68,13 @@ git() {
 
 # --- Fixtures
 
-# commit_in <work tree> <subject> <file> <line>: commits <file>, holding just <line>
-commit_in() {
-  print -r -- $4 >$1/$3
-  git -C $1 add $3 && git -C $1 commit -qm $2
-}
-
-# upstream_commit/fork_commit <n> <subject> <file> <line>: the same, pushed to the upstream or the
-# fork from its work clone
+# upstream_commit/fork_commit <n> <subject> <file> <line>: a commit of <file>, holding just <line>,
+# pushed to the upstream or the fork from its work clone
 upstream_commit() {
-  commit_in $root/work/up/$1 "${@[2,-1]}" && git -C $root/work/up/$1 push -q origin HEAD:main
+  zt_commit $root/work/up/$1 "${@[2,-1]}" && git -C $root/work/up/$1 push -q origin HEAD:main
 }
 fork_commit() {
-  commit_in $root/work/hareki/$1 "${@[2,-1]}" && git -C $root/work/hareki/$1 push -q origin HEAD:main
+  zt_commit $root/work/hareki/$1 "${@[2,-1]}" && git -C $root/work/hareki/$1 push -q origin HEAD:main
 }
 
 # new_fork <n>: upstream up/<n> at u1, its fork hareki/<n>, a work clone of each, and the fork in
@@ -108,7 +83,7 @@ new_fork() {
   local up=$root/remote/up/$1.git fork=$root/remote/hareki/$1.git work=$root/work/up/$1
   gh_forks+=($1)
   git init -q $work &&
-    commit_in $work u1 shared.txt base &&
+    zt_commit $work u1 shared.txt base &&
     git clone -q --bare $work $up &&
     git -C $work remote add origin $up &&
     git clone -q --bare $up $fork &&
@@ -154,7 +129,7 @@ in_clone() {
 rebased_locally() {
   in_clone $1 fetch -q upstream &&
     in_clone $1 reset -q --hard upstream/main &&
-    commit_in $REPOS_DIR/$1 f1 shared.txt fork
+    zt_commit $REPOS_DIR/$1 f1 shared.txt fork
 }
 
 # --- Checks
@@ -168,13 +143,12 @@ expect() {
   (( $# < 5 )) || want_state[2/$1]=$5
 }
 
-# run_sync <run>: sync-forks into <run>.out and <run>.err, its network use into <run>.net, its exit
-# status into rc
+# run_sync <run> <sync-forks args>: sync-forks into <run>.out and <run>.err, its network use into
+# <run>.net, its exit status into rc
 run_sync() {
-  setopt local_options $T_INTERACTIVE_OPTIONS
   net_log=$root/$1.net
   : >$net_log
-  sync-forks -j 1 >$root/$1.out 2>$root/$1.err
+  t_run $root/$1.out $root/$1.err sync-forks "${@[2,-1]}"
   rc=$?
   net_log=
 }
@@ -182,8 +156,7 @@ run_sync() {
 # plain <file>: a run's output without SGR escapes, and the oid in a refused push's line masked
 plain() {
   setopt local_options extended_glob
-  local text=$(<$1)
-  text=${text//$'\e'\[[0-9;]#m}
+  local text=$(t_plain $1)
   print -r -- "${text//[0-9a-f](#c40)/<oid>}"
 }
 
@@ -297,7 +270,7 @@ expect rebase-cleaned \
 # ...with a commit on the clone's branch that origin never had
 behind rebase-ahead
 clone_fork rebase-ahead
-commit_in $REPOS_DIR/rebase-ahead local local.txt local
+zt_commit $REPOS_DIR/rebase-ahead local local.txt local
 expect rebase-ahead \
   'synced with up/rebase-ahead:main (rebase), not pulled, diverged from origin/main' \
   'github=u1 u2 f1; main=u1 f1 local; HEAD=main' \
@@ -447,7 +420,7 @@ conflicts='
   https://github.com/hareki/conflict-unpushed: unpushed rebase in ~/repos/conflict-unpushed
   https://github.com/hareki/conflict-moved: unpushed rebase in ~/repos/conflict-moved'
 
-run_sync 1
+run_sync 1 -j 1
 t_eq 'run 1: exit status' $rc 1
 t_eq 'run 1: Ctrl-C reaches a sync' "$(<$root/ignored)" ''
 t_lines 'run 1: stdout, a line per fork, the synced forks and the tally' "$(plain $root/1.out)" "$(report 1)
@@ -508,7 +481,7 @@ t_eq 'uncloned: cloned with an SSH origin and an HTTPS upstream' \
 in_clone rebase-cleaned checkout -q -- shared.txt
 unset 'gh_pinned[lease]'
 
-run_sync 2
+run_sync 2 -j 1
 t_eq 'run 2: exit status' $rc 1
 t_lines 'run 2: stdout, a line per fork, the synced forks and the tally' "$(plain $root/2.out)" "$(report 2)
 

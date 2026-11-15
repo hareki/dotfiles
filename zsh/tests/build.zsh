@@ -4,28 +4,15 @@
 # dir, so the install root and its stamps are too
 
 source "$ZT_LIB/helpers.zsh"
+source "$ZT_LIB/repos.zsh"
 zmodload zsh/zselect
 
-# HOME and git's global config move in here. Globals are named apart from build's locals (root,
-# target, targets), which shadow them for the stand-ins it calls
-[[ $ZT_TMP == /tmp/zt.?* && -d $ZT_TMP ]] || { print -ru2 -- 'ZT_TMP must be a /tmp/zt.* dir'; exit 1 }
+# Globals are named apart from build's locals (root, target, targets), which shadow them for the
+# stand-ins it calls
+zt_repos
 top=$ZT_TMP
-# A git call missing its -C then fails, instead of reaching the repo the test started in
-cd $top
-
-# git reads no config but this one, and reaches nothing but the bare repos here
-unset -m 'GIT_*' XDG_CONFIG_HOME
-export HOME=$top/home REPOS_DIR=$top/home/repos HOMEBREW_PREFIX=$top/brew
-export GIT_CONFIG_GLOBAL=$top/gitconfig GIT_CONFIG_NOSYSTEM=1 GIT_ALLOW_PROTOCOL=file
-path=(/usr/bin /bin /usr/sbin /sbin)
-mkdir -p $REPOS_DIR $top/gate
-cat >$GIT_CONFIG_GLOBAL <<EOF
-[user]
-  name = zt
-  email = zt@example.invalid
-[init]
-  defaultBranch = main
-EOF
+export HOMEBREW_PREFIX=$top/brew
+mkdir -p $top/gate
 
 autoload -Uz $ZT_PKG/.config/zsh/functions/{build,print-header}
 names=(${(f)"$(build --list)"})
@@ -133,15 +120,10 @@ recipe() {
 
 # --- Fixtures
 
-# commit_in <work tree> <subject> <file> <line>: commits <file>, holding just <line>
-commit_in() {
-  print -r -- $4 >$1/$3
-  git -C $1 add $3 && git -C $1 commit -qm $2
-}
-
-# push_commit <target> <subject> <file> <line>: the same on the target's origin
+# push_commit <target> <subject> <file> <line>: a commit of <file>, holding just <line>, on the
+# target's origin
 push_commit() {
-  commit_in $top/work/$1 "${@[2,-1]}" && git -C $top/work/$1 push -q origin HEAD:main
+  zt_commit $top/work/$1 "${@[2,-1]}" && git -C $top/work/$1 push -q origin HEAD:main
 }
 
 # brew_lib <lib> <version>: the library as brew links it, opt/<lib> => Cellar/<lib>/<version>
@@ -151,7 +133,7 @@ brew_lib() {
 
 for name in $names; do
   git init -q $top/work/$name &&
-    commit_in $top/work/$name c1 src.txt c1 &&
+    zt_commit $top/work/$name c1 src.txt c1 &&
     git clone -q --bare $top/work/$name $top/remote/$name.git &&
     git -C $top/work/$name remote add origin $top/remote/$name.git &&
     git clone -q $top/remote/$name.git $REPOS_DIR/$name || exit 1
@@ -162,22 +144,20 @@ done
 
 # --- Checks
 
-# run <builds> <build args>: build under an interactive shell's options, with <builds> builds due
-# to run side by side: stdout and stderr into out and err, the exit status into rc
+# run <builds> <build args>: build, with <builds> builds due to run side by side: stdout and stderr
+# into out and err, the exit status into rc
 run() {
-  setopt local_options $T_INTERACTIVE_OPTIONS
   together=$1
   rm -f $top/gate/*(N) $calls
   : >$calls
-  build "${@[2,-1]}" >$top/out 2>$top/err
+  t_run $top/out $top/err build "${@[2,-1]}"
   rc=$?
 }
 
 # plain <file>: the output without SGR escapes, and with a build's duration masked
 plain() {
   setopt local_options extended_glob
-  local text=$(<$1)
-  text=${text//$'\e'\[[0-9;]#m}
+  local text=$(t_plain $1)
   print -r -- "${text//(#b)(built in|failed after) [0-9ms ]##/$match[1] <t>}"
 }
 

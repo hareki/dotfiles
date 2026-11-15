@@ -23,3 +23,7 @@ _Avoid_: sandbox, test shell
 **State dump**:
 Everything a booted shell defines once its deferred plugins have loaded, written so that two boots compare line by line.
 _Avoid_: snapshot (a tmux term), environment dump
+
+**Scratch repos**:
+The repositories a command's test builds in its scratch dir to stand for GitHub and the local checkouts, with git cut off from every config and remote outside that dir.
+_Avoid_: fixtures, test repos, sandbox
