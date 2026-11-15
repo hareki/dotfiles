@@ -69,8 +69,8 @@ trap 'rm -f "$IN" "$OUT"; rmdir "$WORK"' EXIT
 trap 'exit 1' HUP INT TERM PIPE
 
 # The output exists up front because the daemon only ever opens it (see
-# write_output in daemon.lua): once the cleanup above has run, a late render has
-# nothing to write to.
+# write_output in lib/request.lua): once the cleanup above has run, a late render
+# has nothing to write to.
 : >"$OUT"
 {
   syswrite -- "$first"

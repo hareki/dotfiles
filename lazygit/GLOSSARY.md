@@ -1,6 +1,6 @@
 # Lazygit config
 
-A personal lazygit setup: its look, and codediff, the diff renderer it runs for every diff it draws, together with the tests that pin what codediff shows.
+A personal lazygit setup: its look, and codediff, the diff renderer it runs for every diff it draws, together with how a render is served and the tests that pin what it shows.
 
 ## Language
 
@@ -37,6 +37,24 @@ _Avoid_: fall back (the client's word)
 **Record**:
 A mark ahead of a rendered row saying which line of which file the row shows, which is what lets lazygit stage or edit the line under its cursor.
 _Avoid_: metadata, annotation
+
+### Serving
+
+**Client**:
+The program lazygit starts for every diff it draws: it hands git's patch on and prints what comes back.
+_Avoid_: pager, entry script
+
+**Daemon**:
+The renderer kept running between diffs, so a diff costs a render and not a start. It serves every lazygit the user has open and exits once none is left.
+_Avoid_: server, background process
+
+**Request**:
+What a client asks of the daemon for one diff: the patch to render, where the render goes, and how to draw it (width, layout, records, repository).
+_Avoid_: job, message
+
+**One-shot**:
+A render by a renderer started for that diff alone, when no daemon answers.
+_Avoid_: fallback render, cold render
 
 ### Tests
 
