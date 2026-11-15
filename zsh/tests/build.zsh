@@ -1,6 +1,7 @@
 # build against stand-ins for the toolchains: cargo, go, brew, make and autogen.sh log their call
-# in place of a build. Each target gets a bare repo (remote/<target>.git) as its origin and its
-# checkout in $REPOS_DIR, and HOME is a scratch dir, so the install root and its stamps are too
+# in place of a build, and rustc and du answer with what a scenario sets. Each target gets a bare
+# repo (remote/<target>.git) as its origin and its checkout in $REPOS_DIR, and HOME is a scratch
+# dir, so the install root and its stamps are too
 
 source "$ZT_LIB/helpers.zsh"
 zmodload zsh/zselect
@@ -62,12 +63,24 @@ compile() {
   fi
 }
 
+# cargo makes the target dir it builds in, and clean removes it
 cargo() {
   if [[ $1 == install ]]; then
+    mkdir -p target
     compile cargo "$@" "(root ${CARGO_INSTALL_ROOT/#$HOME/~})"
   else
     call cargo "$@"
+    [[ $1 != clean ]] || rm -rf target
   fi
+}
+# The rustc in use, and the size of a checkout's target dir where a scenario sets one
+rustc_version=1.0.0
+typeset -A kilobytes
+rustc() {
+  print -r -- "rustc $rustc_version"
+}
+du() {
+  print -r -- "${kilobytes[${PWD:t}]:-1024}"$'\t'"target"
 }
 go() {
   compile go "$@" "(GOBIN ${GOBIN/#$HOME/~})"
@@ -91,11 +104,12 @@ _evalcache_clear() {
   call _evalcache_clear
 }
 
-# recipe <target>: the calls of its build
+# recipe <target> [scratch]: the calls of its build, with scratch from an emptied target dir
 recipe() {
+  [[ $2 != scratch ]] || print -r -- "$1 cargo clean"
   case $1 in
-    atuin) print -rl -- "$1 cargo install --locked --path crates/atuin (root ~/.local/opt)" "$1 cargo clean" ;;
-    eza|television|worktrunk) print -rl -- "$1 cargo install --locked --path . (root ~/.local/opt)" "$1 cargo clean" ;;
+    atuin) print -r -- "$1 cargo install --locked --path crates/atuin (root ~/.local/opt)" ;;
+    eza|television|worktrunk) print -r -- "$1 cargo install --locked --path . (root ~/.local/opt)" ;;
     lazygit|fzf) print -r -- "$1 go install (GOBIN ~/.local/opt/bin)" ;;
     tmux)
       print -rl -- "$1 brew install libevent utf8proc jemalloc" "$1 sh autogen.sh" \
@@ -161,6 +175,7 @@ plain() {
 # are the recipe of every target that built:
 #   current   up to date, nothing ran
 #   built     built
+#   scratch   built, cargo's target dir emptied first
 #   broken    pulled, but the build failed in its long step
 #   unpulled  the pull failed, nothing ran
 check_all() {
@@ -170,7 +185,10 @@ check_all() {
     name=${pair%%=*}
     case ${pair#*=} in
       current)  lines+=("$name: up to date") ;;
-      built)    lines+=("$name: building" "$name: built in <t>") want_calls+=("${(@f)$(recipe $name)}") ;;
+      built|scratch)
+        lines+=("$name: building" "$name: built in <t>")
+        want_calls+=("${(@f)$(recipe $name ${pair#*=})}")
+        ;;
       broken)
         lines+=("$name: building" "$name: failed after <t>")
         want_calls+=("${${(f)$(recipe $name)}[1]}" "$name _evalcache_clear")
@@ -189,7 +207,7 @@ check_all() {
 # --- `build all`
 
 run 7 all
-check_all 'first run' 0 {atuin,eza,television,worktrunk,lazygit,fzf,tmux}=built
+check_all 'first run' 0 {atuin,eza,television,worktrunk}=scratch {lazygit,fzf,tmux}=built
 t_eq 'first run: no stderr' "$(<$top/err)" ''
 t_match 'first run: the logs are in a dir of their own in TMPDIR' "$(<$top/logdirs)" "$TMPDIR/build.??????"
 t_eq 'first run: Ctrl-C reaches a build' "$(<$top/traps)" ''
@@ -240,14 +258,34 @@ run 0 all
 check_all 'settled' 0 {atuin,eza,television,worktrunk,lazygit,fzf,tmux}=current
 t_eq 'no log dir outlives a run' "$(print -rl -- $TMPDIR/*(N))" ''
 
+# --- cargo's target dirs
+
+# Kept from build to build since each target's first, until one has grown past 4GB
+push_commit television c2 src.txt c2
+push_commit worktrunk c3 src.txt c3
+kilobytes[worktrunk]=$(( 5 * 1024 ** 2 ))
+run 2 all
+check_all 'a target dir past 4GB' 0 television=built worktrunk=scratch {atuin,eza,lazygit,fzf,tmux}=current
+kilobytes=()
+
+# ...or rustc is a new one, which the dir is then kept for
+rustc_version=1.1.0
+push_commit eza c3 src.txt c3
+run 1 all
+check_all 'a new rustc' 0 eza=scratch {atuin,television,worktrunk,lazygit,fzf,tmux}=current
+push_commit eza c4 src.txt c4
+run 1 all
+check_all 'the same rustc again' 0 eza=built {atuin,television,worktrunk,lazygit,fzf,tmux}=current
+
 # --- `build <target>`
 
-# Builds whatever the checkout holds, every time, and `build all` then finds it up to date
+# Builds whatever the checkout holds, every time (the first from scratch, on its first build since
+# the new rustc), and `build all` then finds it up to date
 push_commit atuin c2 src.txt c2
 git -C $REPOS_DIR/atuin pull -q
 cd $REPOS_DIR/atuin
 run 1 atuin
-t_lines 'build <target>: builds the checkout' "$rc $(<$calls)" "0 $(recipe atuin)"
+t_lines 'build <target>: builds the checkout' "$rc $(<$calls)" "0 $(recipe atuin scratch)"
 run 1 atuin
 t_lines 'build <target>: builds it again' "$rc $(<$calls)" "0 $(recipe atuin)"
 cd $top

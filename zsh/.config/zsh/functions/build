@@ -3,7 +3,7 @@
 build() {
   local -a targets=(atuin eza television worktrunk lazygit fzf tmux) tmux_libs=(libevent utf8proc jemalloc)
   local -a libs failed
-  local -A phrases=(
+  local -A crates=(atuin crates/atuin) phrases=(
     current 'up to date' building building built '%F{green}built%f in' failed '%F{red}failed%f after'
   )
   local target state secs took logs check stamp source ret root=~/.local/opt
@@ -82,10 +82,15 @@ build() {
   rm -f $stamp
 
   case "$1" in
-    # Failed builds keep their artifacts for debugging and retries; `go install` leaves none
-    atuin)                    cargo install --locked --path crates/atuin && cargo clean ;;
-    eza|television|worktrunk) cargo install --locked --path . && cargo clean ;;
-    lazygit|fzf)              go install ;;
+    atuin|eza|television|worktrunk)
+      # The target dir stays, so a rebuild reuses every crate that didn't change. It only grows
+      # though: a new rustc reuses none of it, and each bumped dependency leaves the old builds
+      # of its dependents behind. So it is emptied for a new rustc, and once past 4GB
+      [[ -r target/.rustc-version && $(rustc -V) == "$(<target/.rustc-version)" ]] \
+        && (( ${$(du -sk target)%%$'\t'*} < 4 * 1024 ** 2 )) || cargo clean
+      cargo install --locked --path ${crates[$1]:-.} && rustc -V >target/.rustc-version
+      ;;
+    lazygit|fzf) go install ;;
     tmux)
       # Explicit installs keep `brew autoremove` off the deps of a binary it can't see;
       # distclean leaves autogen.sh's outputs and the .deps dirs (stale .Po files) behind
