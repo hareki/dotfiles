@@ -3,10 +3,8 @@
 #
 #   tests/client.zsh
 #
-# The client is run the way lazygit runs it: by the names config.yml has for it, git's output on
-# stdin. Which rung it lands on is decided from outside, by what stands at the socket and by
-# which nvim PATH finds, so most rungs meet a stand-in: a listener that takes one request, an
-# nvim that only notes what it was started for. The real renderer and a real daemon come last.
+# The client runs as lazygit runs it, by config.yml's names with git's output on stdin; what stands
+# at the socket and which nvim PATH finds pick its rung, so most rungs meet a stand-in.
 #
 # What keeps a test daemon apart from the user's live one:
 #
@@ -15,8 +13,7 @@
 #   the tree is a copy            a daemon recycles itself when its sources change, so touching
 #                                 the copy is also how a test daemon is told to go
 #
-# Takes ~5s. The daemon that is left to idle runs on a shorter grace and poll than daemon.lua's
-# 10s and 3s, set in the copy: what is under test is that an idle daemon goes, not how long 10s is.
+# Takes ~5s; the idling daemon runs on a shorter grace and poll than daemon.lua's 10s and 3s.
 
 zmodload zsh/net/socket zsh/datetime
 
@@ -106,7 +103,7 @@ cleanup() {
 trap cleanup EXIT
 trap 'exit 1' HUP INT TERM
 
-# ----------------------------------------------------------------- stand-ins ---
+# Stand-ins
 
 cat >$ROOT/stub/pgrep <<'EOF'
 #!/bin/sh
@@ -114,9 +111,8 @@ cat >$ROOT/stub/pgrep <<'EOF'
 exit 1
 EOF
 
-# nvim, as far as the client can tell: it notes what it was started for, never starts a daemon,
-# and renders one-shot only when FAKE_NVIM says so: it keeps the request it was handed, and
-# answers it by naming what the request asks for.
+# nvim, as far as the client can tell: notes what it was started for, never starts a daemon, and
+# renders one-shot only when FAKE_NVIM says so, answering by naming what the request asks for.
 cat >$ROOT/fake/nvim <<'EOF'
 #!/bin/zsh -f
 print -r -- "$1 $2 $3" >>$FAKE_LOG
@@ -126,8 +122,7 @@ fields=("${(@ps:\t:)4}")
 { print -r -- "one-shot layout=$fields[4] metadata=$fields[5]"; cat $fields[1] } >$fields[2]
 EOF
 
-# The real nvim, noting what it was started for: which rung served a request shows in what the
-# client had to start.
+# The real nvim, noting what it was started for, which shows the rung that served a request.
 cat >$ROOT/logged/nvim <<EOF
 #!/bin/sh
 echo "\$*" >>"\$FAKE_LOG"
@@ -171,10 +166,9 @@ with_listener() {
   wait $pid 2>/dev/null
 }
 
-# ------------------------------------------------------------------ the names ---
+# The names
 
-# The names config.yml runs its diff renderers by are the links in the shims directory, and the
-# tests run a copy of the tree by the same names.
+# The names config.yml runs its renderers by are the shims links; the tests run a copy by them.
 NAMES=(${(f)"$(sed -n '/^  diffRenderers:/,/^[^ #]/s/^ *command: //p' $CONFIG)"})
 equal 'config.yml names two renderers' "$NAMES" 'lazygit-codediff lazygit-codediff-split'
 cp -R $CODEDIFF/{client.sh,daemon.lua,render.lua,spawn_daemon.lua,lib} $ROOT/tree/
@@ -185,9 +179,8 @@ done
 typeset -A LAYOUT=(lazygit-codediff inline lazygit-codediff-split side-by-side)
 
 HANDSHAKE=$'\e]1717;1\a'
-# The width a client sends: its shell's COLUMNS, which is the terminal's when one is in reach,
-# as it is for this shell, and the variable lazygit exports otherwise. A real render is compared
-# at that width.
+# The width a client sends: its shell's COLUMNS, the terminal's when one is in reach (as here),
+# else the variable lazygit exports. A real render is compared at that width.
 if { : </dev/tty } 2>/dev/null; then COLS=$COLUMNS; else COLS=100; fi
 DIFF=$FIXTURES/lua-small.diff
 # More than the one chunk a client reads before it decides where its input goes
@@ -203,7 +196,7 @@ EOF
 
 cd $ROOT/cwd
 
-# ------------------------------------------------------- rungs with stand-ins ---
+# Rungs with stand-ins
 
 : >$FAKE_LOG
 client $NAMES[1] PATH=$FAKE_PATH <$GRAPH >$ROOT/out
@@ -283,7 +276,7 @@ exec {git}>&-
 wait $pid
 equal 'a client that was ended leaves no work directory' "$(work_dirs)" ''
 
-# ---------------------------------------------------------- the real renderer ---
+# The real renderer
 
 # oneshot <layout> <metadata>: what render.lua makes of a request for stdin, at the client's
 # width and in this directory
@@ -327,7 +320,7 @@ exec {REPLY}>&-
 equal 'the daemon answers err to a line that is not a request' $answer err
 equal 'a served client leaves no work directory' "$(work_dirs)" ''
 
-# --------------------------------------------------------------- one daemon's life ---
+# One daemon's life
 
 touch $ROOT/tree/lib/util.lua
 client $NAMES[1] <$DIFF >$ROOT/out

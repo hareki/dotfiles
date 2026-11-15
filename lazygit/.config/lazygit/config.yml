@@ -1,9 +1,8 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/hareki/lazygit/master/schema-master/config.json
 os:
   editPreset: 'nvim-remote'
-  # The edit commands are the functions in shell-functions.sh, which lazygit sources into the
-  # shell it runs each of them in. The preset still says when lazygit steps aside for the
-  # editor: only outside nvim's terminal.
+  # The edit commands live in shell-functions.sh; the preset still decides when lazygit steps
+  # aside for the editor: only outside nvim's terminal.
   shellFunctionsFile: '~/.config/lazygit/shell-functions.sh'
   edit: 'lazygit_edit {{filename}}'
   editAtLine: 'lazygit_edit +{{line}} {{filename}}'

@@ -2,13 +2,11 @@
 --
 --   nvim --clean -l tests/records.lua
 --
--- Every fixture is rendered with records in both layouts, and its records have to name exactly
--- the lines of git's patch, numbered the way lazygit numbers them (LineNumberOfLine and
--- OldLineNumberOfLine in its pkg/commands/patch): that is what lazygit stages by. A file with
--- no lines to name has to be named by a file header. A render without records must carry none.
+-- Each fixture's records, in both layouts, must name exactly the patch's lines as lazygit numbers
+-- them (LineNumberOfLine, OldLineNumberOfLine) to stage by; a render without records has none.
 --
--- What the patch calls for is read off the fixture's text here, with nothing borrowed from the
--- renderer: an expectation built with its parser would follow that parser into a mistake.
+-- The expectation is read off the fixture's text, never the renderer's parser, whose mistakes it
+-- would share.
 
 local dir = vim.fs.dirname(vim.fn.fnamemodify(arg[0], ':p'))
 package.path = dir .. '/../?.lua;' .. package.path
@@ -25,9 +23,8 @@ local ESCAPES = { t = '\t', n = '\n' }
 -- The bytes a terminal acts on rather than shows: everything below a space but the tab, and DEL.
 local CONTROL = '[%z\1-\8\10-\31\127]'
 
---- The path a "--- a/<path>" or "+++ b/<path>" line names, nil for /dev/null. Git puts a tab
---- after a name that holds a space, and quotes one that needs escaping: octal bytes, and the
---- backslash escapes a fixture's names use.
+--- The path a "--- a/<path>" or "+++ b/<path>" line names, nil for /dev/null; git tabs off a name
+--- with a space and quotes one needing escapes (octal bytes, the backslash escapes fixtures use).
 local function header_path(line)
   local path = line:sub(5):gsub('\t.*$', '')
   if path == '/dev/null' then
@@ -46,11 +43,8 @@ local function header_path(line)
   return (path:gsub('^[ab]/', ''))
 end
 
---- The records git's patch calls for, in patch order: a hunk header numbered by the first line
---- of the new side, a deletion by the new-file line it sits at and its own old-file line,
---- anything else by its new-file line. A file is named by its new path, a deleted one by its
---- old path, and one whose name holds a control byte gets no records: the byte would end a
---- record early. A combined diff's "@@@" hunks get none either.
+--- The records git's patch calls for, in patch order, numbered as lazygit numbers them; a deleted
+--- file is named by its old path, one with a control byte in its name or a combined diff gets none.
 local function expected_records(input)
   local records = {}
   local old_path, path
@@ -99,10 +93,8 @@ local function expected_records(input)
   return records
 end
 
---- The files of the patch that have no hunk: an empty file made or removed, a change of mode
---- alone, a binary file. No line record can name one, so a file-header record is all lazygit
---- has to act on it by. Read off the "diff --git" line, which names a file plainly when its
---- path is the same on both sides and needs no quoting.
+--- The patch's files with no hunk (an empty file made or removed, a mode change, a binary file),
+--- which only a file-header record names; read off a plain, same-path "diff --git" line.
 local function files_without_hunks(input)
   local files, file = {}, nil
   for line in input:gmatch('([^\n]*)\n') do
@@ -118,10 +110,8 @@ local function files_without_hunks(input)
   return vim.tbl_keys(files)
 end
 
---- The records a rendering carries, row by row and left to right, and the files its
---- file-header records name. Those are kept apart: no line of the patch calls for one, and the
---- renderer puts them on notes it words itself. A record lasts to the end of its row, so a row
---- that states one twice is a failure.
+--- The records a rendering carries, row by row and left to right, with the file-header records'
+--- files kept apart; a record lasts to its row's end, so one stated twice in a row is a failure.
 local function rendered_records(rendered)
   local records, headed = {}, {}
   for _, row in ipairs(vim.split(rendered, '\n', { plain = true })) do
@@ -160,8 +150,7 @@ for _, name in ipairs(t.fixture_names()) do
       for _, path in ipairs(hunkless) do
         t.ok(headed[path], 'no record names ' .. path)
       end
-      -- A side-by-side row pairs a deletion with an addition, so only the inline layout
-      -- keeps the patch's order.
+      -- A side-by-side row pairs a deletion with an addition: only inline keeps the patch's order.
       local want = expected
       if layout == 'side-by-side' then
         table.sort(actual)

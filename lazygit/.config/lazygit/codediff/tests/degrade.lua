@@ -2,11 +2,8 @@
 --
 --   nvim --clean -l tests/degrade.lua
 --
--- A file is highlighted from its whole content when that is at hand and agrees with the patch,
--- from its hunks when it is not, and past the caps not at all. Each step down is reached here
--- through core.render alone, on a diff git makes in a throwaway repository, and read off the
--- rendered rows: syntax shows as more than one foreground color in a row's text, changed words
--- as a second background.
+-- Each step down (whole content, hunks only, none) is reached through core.render on a throwaway
+-- repo's diff; syntax shows as 2+ foregrounds in a row's text, changed words as a 2nd background.
 
 local dir = vim.fs.dirname(vim.fn.fnamemodify(arg[0], ':p'))
 package.path = dir .. '/../?.lua;' .. package.path
@@ -26,16 +23,14 @@ local function last_diff(repo, ...)
   return t.git(repo, { 'diff', '--no-ext-diff', '--unified=3', 'HEAD~1', 'HEAD', '--', ... })
 end
 
---- The colors of the first inline row showing `needle` (see t.row_colors), and whether the
---- render may be cached.
+--- The colors of the first inline row showing `needle` (t.row_colors), and if it may be cached.
 local function render(input, cwd, needle)
   local rendered, cacheable = core.render(input, { cwd = cwd, cols = 100 })
   return t.row_colors(rendered, needle), cacheable
 end
 
---- A repository whose last commit changes one line of code that sits inside a block comment
---- opened `padding` lines above it. Parsed with the file, the line is a comment; parsed with
---- its hunk alone, it is code.
+--- A repository whose last commit changes a line inside a block comment opened `padding` lines
+--- above it: a comment when parsed with the file, code when parsed with its hunk alone.
 local function change_inside_comment(padding)
   local repo = t.repo()
   local filler = string.rep(string.rep('filler ', 11) .. '\n', padding)
@@ -49,8 +44,8 @@ local function change_inside_comment(padding)
   return repo, last_diff(repo)
 end
 
---- A repository whose last commit changes every one of `lines` lines of z-values.lua, and adds
---- a-new.lua with `new_lines` lines when given.
+--- A repository whose last commit changes all `lines` lines of z-values.lua, and adds a-new.lua
+--- with `new_lines` lines when given.
 local function change_every_line(lines, new_lines)
   local repo = t.repo()
   local function content(offset)
@@ -95,8 +90,7 @@ t.test('a git session that died since the render before is replaced, not done wi
   local repo, diff = change_inside_comment(10)
   t.eq(render(diff, repo, 'local answer = 2').fg, 1, 'parsed whole')
 
-  -- The sessions git's objects are read through are this nvim's only children by now, and it
-  -- learns that one has died only when it next asks it something.
+  -- By now git's sessions are this nvim's only children, and a dead one shows only when next asked.
   for _, pid in ipairs(vim.api.nvim_get_proc_children(vim.uv.os_getpid())) do
     vim.uv.kill(pid, 'sigkill')
   end
@@ -146,8 +140,7 @@ end)
 t.test('a render past the highlight deadline is tint-only and must not be cached', function()
   local repo = change_every_line(3)
   local diff = last_diff(repo)
-  -- Every reading is far past the one before, so whichever of them sets the deadline, the next
-  -- one is past it.
+  -- Each reading is far past the last, so whichever sets the deadline, the next is past it.
   local readings = 0
   t.with_clock(function()
     readings = readings + 1

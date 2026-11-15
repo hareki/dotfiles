@@ -11,8 +11,7 @@ local p = theme.palette
 local function render_stat_line(line)
   local name, sep, rest = line:match('^(.-)(%s|%s)(.*)$')
   local out = { styled({ fg = p.default_fg }, name), styled({ fg = p.decoration }, sep) }
-  -- rest is like "12 +++---", "Bin 0 -> 1024 bytes", or just a count: runs of
-  -- +, of - and of anything else, each in its own color.
+  -- rest: "12 +++---", "Bin 0 -> 1024 bytes" or a count, its +, - and other runs colored apart.
   local pos = 1
   while pos <= #rest do
     local run = rest:match('^%++', pos) or rest:match('^%-+', pos) or rest:match('^[^+%-]+', pos)
@@ -25,16 +24,14 @@ local function render_stat_line(line)
   return table.concat(out)
 end
 
---- Style non-diff content (commit header, message, --stat, submodule logs).
---- Needed because we ask git for uncolored output (colorArg: never).
+--- Style the non-diff content git sends uncolored (commit header, message, --stat, submodules).
 function M.render_raw(lines, cols)
   local out = {}
   for _, raw in ipairs(lines) do
     -- A commit message or a submodule log is content like any diff row is.
     local line = util.display_form(raw)
     local hash, decorations = diffparse.commit_line(line)
-    -- "Author: ...", "Date: ..." and friends: the label keeps the colon, the
-    -- rest keeps the whitespace that separated them.
+    -- "Author: ...", "Date: ...": the label keeps its colon, the rest the whitespace after it.
     local label, rest = line:match('^(%u%w*:)(%s.*)$')
     if hash then
       local rendered = styled({ fg = p.default_fg }, 'commit ')
@@ -66,8 +63,7 @@ function M.render_raw(lines, cols)
   return table.concat(out)
 end
 
---- Combined (merge) diffs (diffparse's "combined" blocks) are shown with simple
---- prefix tinting only.
+--- Combined (merge) diffs, diffparse's "combined" blocks, get prefix tinting only.
 function M.render_combined(block)
   local title = util.display_form(block.path or 'merge diff')
   local out = { ansi.line({ fg = p.default_fg, bold = true }, title) }

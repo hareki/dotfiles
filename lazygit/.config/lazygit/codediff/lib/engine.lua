@@ -1,20 +1,12 @@
 local M = {}
 
--- Ceiling on the engine's time for one change's words. The engine runs on the
--- same clock as span extraction, and a rewrite it cannot finish in time would
--- otherwise spend the render's whole highlighting budget on emphasis; an ordinary
--- change takes a few milliseconds, a large one tens.
+-- Per change, so one rewrite can't spend the render's whole highlighting budget on emphasis.
 local MAX_EMPHASIS_MS = 100
 
--- Behind pcall: a missing or broken codediff.nvim must only cost the changed
--- words their emphasis, never break the render. Every entry point runs
--- bootstrap.setup(), which puts the plugin on the rtp, before it requires this
--- module.
+-- Behind pcall: a missing or broken codediff.nvim may only cost the changed words their emphasis.
 local has_diff, diff = pcall(require, 'codediff.core.diff')
 
--- Mirrors codediff's utf16_col_to_byte_col (ui/inline.lua): engine columns are
--- 1-based UTF-16 code units, end-exclusive. Not strict: a column past the end of
--- the line clamps to the end.
+-- codediff's utf16_col_to_byte_col (ui/inline.lua) for 1-based UTF-16 columns, clamped at the end.
 local function utf16_col_to_byte_col(line, utf16_col)
   if utf16_col <= 1 then
     return utf16_col
@@ -30,13 +22,8 @@ local function char_last_byte(line, i)
   return i + vim.str_utf_end(line, i)
 end
 
--- Split one side of the char-level inner changes into per-row byte ranges,
--- written into `rows`: { [row] = { {s, e}, ... } } with 1-based cols, e exclusive:
--- the shape layout.content_line takes for emphasis, and in the start order it
--- relies on, which is the order the engine reports its changes in. Follows
--- codediff's own per-side semantics (ui/inline.lua): the original side widens an
--- empty tail on the end line to one byte, the modified side drops it. `lines` are
--- the rows the engine was given, and `offset` places them among the side's rows.
+-- One side's inner changes as 1-based, end-exclusive byte ranges per side row (`offset` past
+-- `lines`' rows), in start order. Like codediff, only the original side widens an empty tail.
 local function side_char_ranges(rows, inner_changes, side, lines, offset)
   for _, inner in ipairs(inner_changes) do
     local r = inner[side]
@@ -48,9 +35,7 @@ local function side_char_ranges(rows, inner_changes, side, lines, offset)
         if row == r.end_line then
           e = utf16_col_to_byte_col(text, r.end_col) - 1
           if side == 'original' then
-            -- Widen an empty tail marker to a whole character, not a single
-            -- byte: a range ending mid-sequence makes the renderer cut the
-            -- character in two and emit an SGR escape between its bytes.
+            -- A whole character, not a byte: a range ending mid-sequence puts an SGR escape in it.
             e = math.max(e, char_last_byte(text, s))
           end
         else
@@ -71,10 +56,8 @@ local function side_char_ranges(rows, inner_changes, side, lines, offset)
   end
 end
 
--- Fill in a change's char emphasis by running codediff's vscode-diff engine
--- over the change's own rows. Left without any when the engine is unavailable or
--- timed out, or sees no difference at all (a CRLF-only change: the rows are
--- CR-stripped): they are still drawn as changed, just without words picked out.
+-- Fill in a change's char emphasis from codediff's engine over its rows. None when the engine is
+-- unavailable, times out or sees no change (a CRLF-only one): the rows still show as changed.
 local function emphasize(hunk, change)
   if not has_diff then
     return
@@ -96,8 +79,7 @@ local function emphasize(hunk, change)
   side_char_ranges(hunk.new.emph, inner_changes, 'modified', new_rows, change.new_start - 1)
 end
 
---- Pick out the changed words within each of a hunk's changes. A change with
---- only one side has nothing to compare its words against.
+--- Pick out the changed words in each change that has both sides to compare.
 function M.emphasize(hunk)
   for _, change in ipairs(hunk.changes) do
     if change.old_end > change.old_start and change.new_end > change.new_start then

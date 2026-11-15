@@ -1,29 +1,16 @@
--- lazygit's OSC 1717 diff-line protocol, version 1. A record ahead of a
--- rendered row says which line of which file the row shows, which is what lets
--- lazygit stage, edit or copy the line under its cursor in a rendering that no
--- longer reads as a diff. lazygit offers the protocol through $OSC1717, and
--- learns that a renderer speaks it from a version-only handshake ahead of all
--- other output, which client.sh prints (see there). A record stays in effect
--- until the end of its row, so a side-by-side row needs one per side only
--- where its sides show different lines.
+-- lazygit's OSC 1717 diff-line protocol, version 1: a record ahead of a row names the file line it
+-- shows, so lazygit can stage, edit or copy it. A record lasts to the end of its row.
 
 local diffparse = require('lib.diffparse')
 local util = require('lib.util')
 
 local M = {}
 
---- The record builder for the rows of one file, whose records name it by
---- `path`, the path git's patch has for it (which is how lazygit finds the line
---- again); nil when a record can't carry the path: a control byte (a BEL or ESC
---- above all) would end the record early and spill the rest of it onto the
---- screen.
----
---- The builder takes `kind`, one of c (context), a (added), d (deleted),
---- f (file header) or h (hunk header); `new_line`, the line's number in the new
---- file: for a deletion the line it sits at, for a hunk header the first line
---- of the hunk, nil for a file header; and `old_line`, a deleted line's number
---- in the old file, nil for every other kind. The path goes last so that it may
---- hold a ';'.
+--- The record builder for one file's rows, naming the file by git's patch path, last so it may hold
+--- a ';'; nil when a control byte in the path (a BEL, an ESC) would end the record early. It takes:
+---   kind      c (context), a (added), d (deleted), f (file header) or h (hunk header)
+---   new_line  the new file's line: where a deletion sits, a hunk's first; nil for a file header
+---   old_line  a deleted line's number in the old file, nil for every other kind
 function M.recorder(path)
   if util.has_control(path) then
     return nil
@@ -34,10 +21,8 @@ function M.recorder(path)
   end
 end
 
---- Give each side of a hunk the records of its rows, numbered as lazygit numbers
---- git's patch: a context line by its new-file line on both sides, an added line
---- by its new-file line, and a deleted line by the new-file line it sits at and
---- its own old-file line.
+--- Give each side of a hunk its rows' records, numbered as lazygit numbers git's patch: every row
+--- by its new-file line (a deletion by where it sits), a deleted one also by its old-file line.
 function M.add_hunk_records(hunk, record)
   local old, new = {}, {}
   local old_base, new_base = hunk.old.start - 1, hunk.new.start - 1

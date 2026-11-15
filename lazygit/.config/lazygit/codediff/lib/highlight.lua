@@ -1,28 +1,19 @@
 local M = {}
 
--- Captures that style nothing on their own; `_`-prefixed ones are a query's
--- private scratch names.
+-- Captures that style nothing, `_`-prefixed ones being a query's private scratch names.
 local SKIP = { spell = true, nospell = true, conceal = true }
 local UNDERSCORE = string.byte('_')
 
---- Extract per-row highlight spans from source lines, mirroring
---- vim.treesitter.highlighter semantics: injected trees are walked after their
---- parent and later spans win ties, priorities from `#set! priority` respected.
+--- Per-row highlight spans, ordered as vim.treesitter.highlighter does: injections after their
+--- parent, later spans winning ties, `#set! priority` respected.
 ---
 --- lines:      full source, one string per row
 --- lang:       treesitter language (parser must be loadable)
---- row_ranges: sorted list of {start_row, end_row} (0-based, end-exclusive)
----             restricting extraction to the rows the diff actually shows
---- deadline:   vim.uv.hrtime() value; collection stops between query
----             windows once it passes, returning whatever was gathered so far
----             (those rows still render highlighted, the rest fall back to
----             tints), so one pathological file cannot stall the whole render
+--- row_ranges: sorted {start_row, end_row} (0-based, end-exclusive), the rows the diff shows
+--- deadline:   vim.uv.hrtime() value; past it, collection stops between query windows
 ---
---- Returns rows: { [row0] = { {s1=col, e1=col_end_excl, capture, lang, prio, order}, ... } }
---- or nil when parsing is unavailable or the deadline has already passed, plus
---- whether the deadline cost this call any of its rows. Columns are 1-based and
---- end-exclusive -- the form layout.lua clips and sweeps in, so the renderer
---- never has to rebase a span it was handed.
+--- Returns { [row0] = { {s1=col, e1=col_end_excl, capture, lang, prio, order}, ... } } with 1-based
+--- columns, or nil (no parser, or the deadline already past), and whether the deadline cut rows.
 function M.line_spans(lines, lang, row_ranges, deadline)
   if vim.uv.hrtime() > deadline then
     return nil, true
@@ -32,11 +23,7 @@ function M.line_spans(lines, lang, row_ranges, deadline)
   if not ok or not parser then
     return nil
   end
-  -- Parse only the rows the diff actually shows, not the whole document: the
-  -- rows outside them are never queried, and injection discovery over them is
-  -- the single most expensive part of highlighting a large file. parse() takes
-  -- the ranges themselves, so the rows between two hunks are skipped as well as
-  -- those around the first and the last.
+  -- Only the shown rows: injection discovery over the rest is the costliest part of a large file.
   local parse_ok = pcall(parser.parse, parser, row_ranges)
   if not parse_ok then
     return nil
@@ -57,10 +44,8 @@ function M.line_spans(lines, lang, row_ranges, deadline)
   local default_prio = vim.hl.priorities.treesitter
 
   local function add_span(span_lang, name, sr, sc, er, ec, prio)
-    -- Overlapping query windows report a node that straddles them once per
-    -- window, and a node captured under the same name by two patterns comes
-    -- back once per pattern; both would otherwise land in the row twice, and
-    -- the later copy would outrank whatever legitimately won the tie between.
+    -- Overlapping windows report a straddling node once each, and two patterns capturing one name
+    -- report it twice: a duplicate would outrank the span that rightly won the tie.
     local key = span_lang .. '\0' .. name .. '\0' .. sr .. ':' .. sc .. ':' .. er .. ':' .. ec
     if seen[key] then
       return
@@ -92,14 +77,10 @@ function M.line_spans(lines, lang, row_ranges, deadline)
     end
     local captures = query.captures
     local root = tree:root()
-    -- An injected tree usually covers a fraction of the document. Querying
-    -- it over a window it does not reach is a full cursor setup for a
-    -- guaranteed-empty result, and a file with many injections (markdown
-    -- full of code blocks) would pay that once per hunk shown.
+    -- Skip windows the injected tree doesn't reach: each would cost a cursor setup for nothing.
     local tree_first, _, tree_last, _ = root:range()
     for _, range in ipairs(row_ranges) do
-      -- Between query windows, never inside one: the uv.hrtime call is nothing
-      -- next to a window's worth of captures.
+      -- Between windows, never inside one: an hrtime call is nothing next to a window's captures.
       if vim.uv.hrtime() > deadline then
         expired = true
         return
@@ -112,9 +93,7 @@ function M.line_spans(lines, lang, row_ranges, deadline)
             local prio = tonumber(metadata.priority or (meta and meta.priority)) or default_prio
             local sr, sc, er, ec
             if meta and (meta.range or meta.offset) then
-              -- A directive moved the capture: #trim! leaves a range,
-              -- #offset! only the offsets (nvim 0.12), and get_range is
-              -- what the highlighter itself resolves either with. Range6.
+              -- #trim! leaves a range, #offset! only offsets (0.12); get_range takes both. Range6.
               local r = vim.treesitter.get_range(node, content, meta)
               sr, sc, er, ec = r[1], r[2], r[4], r[5]
             else

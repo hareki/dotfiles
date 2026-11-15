@@ -1,7 +1,5 @@
---- What a test file uses: tests that report a line each, the fixtures and their goldens, a
---- throwaway repository to render in, a clock to stop, and a reading of a rendered row's colors. Each file runs in its own
---- `nvim --clean -l` (tests/run.sh), sets package.path to the renderer's directory, and ends with
---- t.done().
+--- What a test file uses: tests reporting a line each, fixtures and goldens, a throwaway repo, a
+--- clock to stop and a row's colors. Each runs in its own `nvim --clean -l` and ends in t.done().
 local M = {}
 
 local tests_dir = vim.fs.dirname(vim.fs.dirname(debug.getinfo(1, 'S').source:sub(2)))
@@ -40,8 +38,7 @@ function M.ok(value, what)
   return value
 end
 
---- Last line of a test file. Not os.exit, which leaves nvim's temp directory behind, and with it
---- every directory t.tmpdir() made.
+--- A test file's last line; os.exit would leave nvim's temp dir, and every t.tmpdir(), behind.
 function M.done()
   vim.cmd.cquit({ count = failed and 1 or 0 })
 end
@@ -63,8 +60,7 @@ function M.tmpdir()
   return path
 end
 
---- Run git in `cwd` and return its stdout. The user's git config stays out of it, so a fixture
---- hashes and diffs the same on every machine.
+--- Run git in `cwd` for its stdout, the user's config left out so a fixture hashes alike anywhere.
 function M.git(cwd, args, stdin)
   local result = vim
     .system(vim.list_extend({ 'git' }, args), {
@@ -86,10 +82,8 @@ function M.git(cwd, args, stdin)
   return result.stdout
 end
 
---- A throwaway repository. With `source`, a fixture's .repo directory: every file in its
---- objects/ becomes a blob in the object database, and its worktree/ becomes the worktree. An
---- object is named by the oid the fixture's diff has for it, which is checked here, so a fixture
---- file that was edited fails by name instead of quietly rendering from its hunks.
+--- A throwaway repository. With `source`, a fixture's .repo dir: objects/ become blobs, worktree/
+--- the worktree, each object checked against its oid so an edited fixture file fails by name.
 function M.repo(source)
   local repo = M.tmpdir()
   M.git(repo, { 'init', '-q' })
@@ -128,9 +122,8 @@ function M.fixture_names()
   return names
 end
 
---- A fixture's diff and the directory it renders in: a throwaway repository built from
---- fixtures/<name>.repo when there is one, and otherwise /, where there are no blobs to find and
---- no worktree to fall back on.
+--- A fixture's diff and where it renders: a repository built from fixtures/<name>.repo when there
+--- is one, else /, with no blobs to find and no worktree to fall back on.
 function M.fixture(name)
   local source = vim.fs.joinpath(M.fixtures, name .. '.repo')
   return {
@@ -139,8 +132,7 @@ function M.fixture(name)
   }
 end
 
---- Stop vim.uv.hrtime, the clock the highlight deadline goes by, for the rest of the test file:
---- a busy machine then can't show up as a tint-only render.
+--- Stop the highlight deadline's clock (vim.uv.hrtime) for the file, so no render goes tint-only.
 function M.freeze_clock()
   vim.uv.hrtime = function()
     return 0
@@ -162,10 +154,8 @@ local function count_distinct(text, selector)
   return #vim.iter(text:gmatch(selector .. ';2;(%d+;%d+;%d+)')):unique():totable()
 end
 
---- How many foreground and background colors the text of an inline row carries, past its
---- gutter: the first row of `rendered` whose text holds `needle`. One foreground is a row
---- without syntax colors, and two backgrounds are a changed row with its changed words picked
---- out.
+--- The foreground and background color counts past the gutter of the first inline row holding
+--- `needle`: one foreground means no syntax, two backgrounds changed words picked out in a row.
 function M.row_colors(rendered, needle)
   for row in rendered:gmatch('[^\n]+') do
     local text = row:match('│(.*)$')

@@ -1,24 +1,16 @@
 local M = {}
 
--- Chrome colors (headers, notes, --stat, commit metadata) mirror the delta
--- catppuccin-mocha theme from ~/.gitconfig. load_diff_colors(), which bootstrap
--- runs before anything renders, fills this from the live colorscheme -- the chrome
--- entries from catppuccin's own palette, the diff colors from the CodeDiff*
--- groups -- so lazygit shows exactly what codediff.nvim shows in the editor;
--- syntax colors come from catppuccin at runtime.
+-- Chrome colors mirror ~/.gitconfig's delta catppuccin-mocha theme. load_diff_colors(), run by
+-- bootstrap, fills them from catppuccin's palette and the diff colors from the CodeDiff* groups.
 M.palette = {}
 
---- Fully resolved attrs of a highlight group (empty when it is undefined), or
---- nil for a name nvim refuses.
+--- A highlight group's resolved attrs (empty when undefined), or nil for a name nvim refuses.
 local function get_hl(group)
   local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = group, link = false })
   return ok and hl or nil
 end
 
--- The catppuccin color each chrome entry is a copy of. catppuccin is loaded in
--- this process already (bootstrap puts it on the rtp and calls its setup), so
--- the palette is read back rather than transcribed a second time: a flavour
--- change in bootstrap then carries here on its own.
+-- The catppuccin color each chrome entry copies, read back so bootstrap's flavour carries here.
 local CHROME = {
   default_fg = 'text',
   decoration = 'overlay0',
@@ -39,9 +31,8 @@ local CODEDIFF = {
   filler_fg = { 'CodeDiffFiller', 'fg' },
 }
 
---- Copy the chrome colors out of catppuccin's palette and the diff colors out
---- of the CodeDiff* groups. Must run after codediff.nvim's
---- highlights.setup() has derived them from the colorscheme.
+--- Copy the chrome colors out of catppuccin's palette and the diff colors out of the CodeDiff*
+--- groups, once codediff.nvim's highlights.setup() has derived them.
 function M.load_diff_colors()
   local pal = require('catppuccin.palettes').get_palette()
   for key, name in pairs(CHROME) do
@@ -54,9 +45,7 @@ function M.load_diff_colors()
   end
 end
 
--- Nested by language then capture, so the lookup on the renderer's hot path
--- costs two table reads instead of a composite key built per segment. `false`
--- records a capture the theme defines nothing for.
+-- Language, then capture: two reads per segment, no key built; `false` for a capture with no style.
 local cache = vim.defaulttable(function(lang)
   return vim.defaulttable(function(capture)
     local hl = get_hl('@' .. capture .. '.' .. lang)
@@ -67,14 +56,8 @@ local cache = vim.defaulttable(function(lang)
   end)
 end)
 
---- Resolve a treesitter capture to highlight attrs. nvim maintains the default
---- link chain for @capture groups itself (@function.call.lua => @function.call
---- => @function, see :h treesitter-highlight-groups), so resolving the most
---- specific name is enough. Returns false when the theme defines nothing (render
---- with the default fg).
----
---- The returned table is shared and must not be mutated: callers key their own
---- memos on its identity.
+--- A capture's attrs, false when the theme defines none (nvim resolves the @capture link chain).
+--- The table is shared and keys callers' memos by identity: never mutate it.
 function M.attrs(capture, lang)
   return cache[lang][capture]
 end

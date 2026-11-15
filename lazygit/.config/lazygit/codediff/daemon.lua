@@ -1,17 +1,7 @@
 -- Persistent render daemon, started by spawn_daemon.lua as:
 --   nvim --clean -l daemon.lua
--- Under -l an error anywhere in this file exits the process, so a broken renderer
--- leaves no daemon that answers nothing while every render spawns another; the
--- server lives in the wait at the bottom.
---
--- Renders arrive over a plain line protocol on a unix socket -- see the pipe
--- section at the bottom.
---
--- Lifetime: exits once no lazygit is running (polled every few seconds), so
--- quitting lazygit (or the nvim :terminal hosting it) leaves no orphaned daemon.
--- An idle timeout backs that up, and a change to the nvim binary, to the
--- renderer's own sources or to anything bootstrap loads (parsers, plugins,
--- filetype rules) recycles the daemon after the next request.
+-- Under -l any error exits, so a broken renderer leaves no daemon that answers nothing. It exits
+-- once no lazygit runs, and recycles after a request once anything a render loads changes.
 
 local dir = vim.fn.fnamemodify(arg[0], ':p:h')
 package.path = dir .. '/?.lua;' .. package.path
@@ -20,26 +10,19 @@ local bootstrap = require('lib.bootstrap')
 
 local uv = vim.uv
 
--- The client owns the socket name and hands it down through the spawner's
--- environment. Deriving it a second time here would be the same cross-process
--- invariant spelled in two languages, kept in step by hand; without the handoff
--- there is nothing to serve.
+-- The client owns the socket name; without its handoff there is nothing to serve.
 local PIPE_PATH = assert(vim.env.CODEDIFF_PIPE)
 -- Read once: fingerprint() runs in a libuv callback, where vim.v raises.
 local PROGPATH = vim.v.progpath
 local IDLE_MS = 60 * 60 * 1000
--- How long it may sit idle with no lazygit running. Long enough for a client run
--- by hand to keep it warm, while quitting lazygit still reaps it within seconds.
+-- Idle time allowed with no lazygit running: keeps a hand-run client warm, reaps within seconds.
 local IDLE_WITHOUT_LAZYGIT_MS = 10 * 1000
 local POLL_MS = 3000
--- codediff's native diff engine leaks (libvscode-diff/src/myers.c frees only the
--- winning path of its search): ~14MB per render of a rewrite-heavy commit, and
--- next to nothing for a small one. No collection here can reach that, so a
--- lazygit left open would grow the daemon without bound; past this it recycles.
+-- codediff's native engine leaks (myers.c frees only the winning path), ~14MB per rewrite-heavy
+-- render, and no collection reaches it: past this the daemon recycles.
 local MAX_RSS_BYTES = 512 * 1024 * 1024
 
--- Microseconds, not seconds: a whole-second resolution lets an edit that lands
--- in the same second as the snapshot go unnoticed for the daemon's lifetime.
+-- Microseconds, not seconds: an edit in the snapshot's second would go unnoticed for good.
 local function mtime_of(path)
   local st = uv.fs_stat(path)
   if not st then
@@ -48,8 +31,7 @@ local function mtime_of(path)
   return st.mtime.sec * 1000000 + math.floor(st.mtime.nsec / 1000)
 end
 
--- Newest mtime across the renderer's own sources, so editing them recycles
--- the daemon instead of it serving stale code.
+-- Newest mtime across the renderer's own sources, so an edit to them recycles the daemon.
 local function scripts_mtime()
   local latest = 0
   for _, d in ipairs({ dir, dir .. '/lib' }) do
@@ -62,12 +44,8 @@ local function scripts_mtime()
   return latest
 end
 
--- Everything whose change must recycle the daemon, in one value: listing the
--- inputs once means a new one cannot be added to the snapshot but missed in the
--- comparison, which would silently never trigger a reload. Bootstrap owns the
--- list of paths a render depends on, so this reads that list rather than
--- re-deriving it, and reads *all* of it: a dependency added there cannot be one
--- the fingerprint forgot.
+-- Everything whose change must recycle the daemon, in one value, and all of bootstrap.paths: an
+-- input listed once can't be snapshotted yet missed in the comparison.
 local function fingerprint()
   local parts = { mtime_of(PROGPATH), scripts_mtime() }
   for _, path in pairs(bootstrap.paths) do
@@ -82,9 +60,8 @@ local last_request = uv.now()
 
 local pipe_ino = nil
 
--- os.exit skips nvim's own socket cleanup, so unlink here -- but only while the
--- path is still *ours*: it is shared by every daemon, and a successor may
--- already have bound its own at the same name.
+-- os.exit skips nvim's socket cleanup, so unlink here, but only while the path is still ours:
+-- a successor daemon may already have bound its own at the same name.
 local function shutdown()
   local st = uv.fs_stat(PIPE_PATH)
   if st and st.ino == pipe_ino then
@@ -93,13 +70,10 @@ local function shutdown()
   os.exit(0)
 end
 
--- Any lazygit will do: the daemon is shared, and a request says nothing about
--- which one sent it. Watching one pid costs a syscall per poll where pgrep costs
--- a spawn, so pgrep only speaks up once that pid is gone.
+-- Any lazygit will do, since the daemon is shared. One pid's kill(0) per poll spares a pgrep spawn.
 local lazygit = nil
 
--- Scheduled, because vim.system needs the main loop; a render holds that, so this
--- never runs inside one.
+-- Scheduled, as vim.system needs the main loop, which also keeps it from running inside a render.
 local poll = assert(uv.new_timer())
 poll:start(
   POLL_MS,
@@ -122,19 +96,14 @@ poll:start(
 bootstrap.setup()
 local request = require('lib.request')
 
--- -------------------------------------------------------------------- pipe ---
--- One request per connection: one line in (lib/request.lua has its fields), and
--- one line back, `ok` when the render reached the client's file and `err` when
--- it did not.
+-- The pipe: one request per connection, one line in (lib/request.lua has its fields) and one back,
+-- `ok` when the render reached the client's file, `err` when it did not.
 
 local pipe_server = assert(uv.new_pipe(false))
 local rendering = false
 
--- The client is on its way by the time this runs, so whatever submit held off
--- runs after it, with nobody waiting: a full cycle, which also re-arms the
--- collector, and then the checks that recycle the daemon. What the cycle leaves
--- resident is the daemon's real size, without a render's garbage in it. A staler
--- world served this one request, and the next spawn loads the fresh one.
+-- The client has its answer, so what submit held off runs with nobody waiting: a full collection
+-- (which re-arms the collector), then the recycle checks on a size free of the render's garbage.
 local function reply(client, message)
   client:write(message .. '\n', function()
     client:close()
@@ -147,14 +116,12 @@ local function reply(client, message)
   end)
 end
 
--- One render at a time: a scheduled callback holds the main loop, and the wait
--- on the git object session (lib/catfile.lua) takes fast events only, so a
--- second client's request stays scheduled until this one has answered.
+-- One render at a time: a scheduled callback holds the main loop, and catfile's wait takes fast
+-- events only, so a second request stays scheduled until this one has answered.
 local function submit(line, client)
   rendering = true
   last_request = uv.now()
-  -- Collecting inside a render is ~12% of the wall clock a client sees, and the
-  -- moment right after it is idle (see reply).
+  -- Collecting inside a render costs ~12% of the client's wait; right after it is idle (see reply).
   collectgarbage('stop')
   local ok, rendered = pcall(request.handle, line)
   reply(client, ok and rendered and 'ok' or 'err')
@@ -177,9 +144,7 @@ local function on_connection(err)
     local line = buf:match('^([^\n]*)\n')
     if line then
       client:read_stop()
-      -- Off the callback and onto the main loop: a render is nothing but calls
-      -- (vim.fn, treesitter, vim.system) that a libuv callback is not allowed
-      -- to make, and every one of them errors out of a fast event context.
+      -- Onto the main loop: a render's vim.fn, treesitter and vim.system calls fail in fast events.
       vim.schedule(function()
         submit(line, client)
       end)
@@ -189,10 +154,8 @@ local function on_connection(err)
   end)
 end
 
--- A bind that fails means another daemon holds the path (two clients can spawn
--- one at the same moment). That one is serving, and this process has no
--- transport of its own left to fall back on, so it exits rather than lingering
--- as a daemon that answers nothing.
+-- A failed bind means another daemon holds the path (two clients spawned at once) and serves it,
+-- so this one exits rather than linger answering nothing.
 if not (pipe_server:bind(PIPE_PATH) and pipe_server:listen(64, on_connection)) then
   os.exit(0)
 end

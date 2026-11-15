@@ -8,19 +8,11 @@ local FILLER_CHAR = '╱' -- codediff's diff.filler_text default
 
 local palette = theme.palette
 
--- Upvalue binding: this is called per rendered row, and the predicate's whole
--- point is to stay cheaper than measuring the row.
+-- An upvalue, as it runs per rendered row to stay cheaper than measuring the row.
 local first_non_ascii = util.first_non_ascii
 
--- Widths are measured per grapheme cluster, never per codepoint: a lone
--- combining mark measures one cell but contributes nothing to the character it
--- attaches to, so summing standalone widths overstates decomposed text (macOS
--- stores filenames NFD) and the caller's layout arithmetic breaks apart.
--- printf's %S and strcharpart's skipcc argument both take a base character
--- together with its composing marks, which is what both clip functions go by.
---
--- Clip a string to at most `limit` display cells (UTF-8 aware). Returns the
--- clipped string and its display width.
+-- Clip `s` to at most `limit` display cells, returning it and its width. Both clips go by grapheme
+-- cluster (%S, skipcc): a combining mark in NFD text (macOS filenames) measures a cell, adds none.
 local function clip_to_width(s, limit)
   local w = util.display_width(s)
   if w <= limit then
@@ -30,8 +22,7 @@ local function clip_to_width(s, limit)
   return clipped, util.display_width(clipped)
 end
 
--- Same, but keeps the tail and marks the elision with a leading ellipsis --
--- for paths the basename carries far more signal than the leading directories.
+-- Same, but keeps the tail behind a leading ellipsis: a path's basename says more than its dirs.
 local function clip_left_to_width(s, limit)
   local w = util.display_width(s)
   if w <= limit then
@@ -58,21 +49,14 @@ local function clip_left_to_width(s, limit)
   return '…' .. table.concat(out), w + 1
 end
 
--- Collapse the bytes that would break a row out of a single line. A tab is
--- measured relative to column 0, so a header's pieces only add up if none of
--- them contains one; git keeps interior tabs in a section heading, and a tab or
--- a newline in a path survives unquoting. Collapsing beats expanding here: this
--- text is metadata, not source that needs its indentation. Any other byte nvim
--- shows in another form (a heading is a line of the file, and unquoting
--- restores whatever a path holds) is spelled out like it is in a content row.
+-- Collapse tabs and line breaks to spaces (a tab would throw off a header's arithmetic, and this
+-- is metadata, not indented source), and spell out every other byte nvim shows in another form.
 local function one_line(s)
   return util.display_form((s:gsub('[\t\r\n]', ' ')))
 end
 
---- Delta-style boxed hunk header: path, the line the hunk starts at and the
---- section heading, framed by decoration-colored rules. `record` (an OSC 1717
---- record, may be nil) goes on the row that names the hunk; the rules around
---- it are decoration.
+--- Delta-style boxed hunk header: path, start line and section heading between decoration rules.
+--- `record` (an OSC 1717 record, may be nil) goes on the row that names the hunk.
 function M.hunk_header(path, lnum, section, cols, record)
   local p = palette
   local num = tostring(lnum)
@@ -81,14 +65,12 @@ function M.hunk_header(path, lnum, section, cols, record)
   local plain = path_plain .. ':' .. num .. heading
   local width = math.min(util.display_width(plain) + 2, math.max(cols - 1, 1))
 
-  -- Everything must fit inside the rule with at least one pad cell before the
-  -- bar, or the box breaks apart. The line number is never dropped: the path
-  -- loses its head first, then the section heading its tail.
+  -- All of it fits inside the rule with a pad cell before the bar, or the box breaks: the path
+  -- loses its head first, then the heading its tail, and the line number stays.
   local budget = math.max(width - 1, 1)
   local num_w = #num + 1 -- the colon
   local path_text, path_w = clip_left_to_width(path_plain, math.max(budget - num_w, 0))
-  -- Under three cells nothing but the heading's own ": " prefix survives, which
-  -- just reads as a stray colon; drop the heading entirely instead.
+  -- Under three cells only the heading's ": " would survive, a stray colon: drop the heading.
   local heading_budget = budget - path_w - num_w
   local heading_text, heading_w = '', 0
   if heading_budget >= 3 then
@@ -102,8 +84,7 @@ function M.hunk_header(path, lnum, section, cols, record)
     .. ansi.styled({ fg = p.hunk_num, bold = true }, num)
     .. ansi.styled({ fg = p.default_fg }, heading_text)
 
-  -- The corners sit after `width` rule cells; the bar must land in the same
-  -- column, so the pad is exactly the leftover width (no -1).
+  -- The bar lands in the corners' column, after `width` rule cells: the pad is the rest (no -1).
   local pad = width - used
   return table.concat({
     rule .. '┐' .. ansi.eol,
@@ -116,21 +97,13 @@ function M.hunk_header(path, lnum, section, cols, record)
   })
 end
 
---- One-off informational rows (rename, mode change, binary, no-newline), with
---- an OSC 1717 `record` ahead of the row when given.
+--- A one-off note row (rename, mode change, binary, no newline), an OSC 1717 `record` ahead of it.
 function M.note_row(text, record)
   return (record or '') .. ansi.line({ fg = palette.decoration, italic = true }, one_line(text))
 end
 
--- ansi.style costs two string.format calls and a concat, and a render emits one
--- style per segment of every row over a tiny set of distinct styles: each
--- capture the theme defines, times the five diff backgrounds. theme.attrs hands
--- back one stable table per capture, so its identity keys the memo directly and
--- the hot path never builds a key string.
---
--- Bounded by the colorscheme rather than by anything a diff can contain, which
--- matters because the daemon serves requests for up to an hour. Keyed by the
--- attrs, then the background (`false` for none).
+-- ansi.style per segment, memoized on theme.attrs' stable table per capture, then the background
+-- (`false` for none): bounded by the colorscheme, not by any diff the hour-long daemon is handed.
 local NO_ATTRS = {}
 local styles = vim.defaulttable(function(attrs)
   return vim.defaulttable(function(bg)
@@ -143,10 +116,8 @@ local fills = vim.defaulttable(function(bg)
   return ansi.style({ bg = bg })
 end)
 
--- A filler run is as long as the cell, so unlike the style memos this one is
--- keyed by something the daemon can keep being handed new values of (the view
--- width, once per terminal resize). Two entries are live at a time; the cap
--- keeps a daemon that has seen a hundred resizes from holding a run for each.
+-- Keyed by the view width, which every terminal resize can change: two entries are live at a time,
+-- and the cap keeps a daemon from holding a run for each resize it has seen.
 local FILLER_CACHE_MAX = 8
 local fillers = {}
 
@@ -166,10 +137,8 @@ local function by_start(x, y)
   return x.s1 < y.s1
 end
 
--- The sweep below needs the spans in start order. Sorting in place is safe:
--- a row's spans are rendered once, and sorting is idempotent even if that ever
--- stops holding. Query order is close to sorted already, so the scan that
--- decides whether to sort at all usually replaces the sort outright.
+-- The sweep below needs start order. Sorting in place is safe (a row renders once), and query order
+-- is close to sorted, so the scan deciding whether to sort usually replaces the sort.
 local function sort_by_start(spans)
   for i = 2, #spans do
     if spans[i].s1 < spans[i - 1].s1 then
@@ -179,28 +148,13 @@ local function sort_by_start(spans)
   end
 end
 
--- Reused across rows rather than allocated per row: this runs once for every
--- row that has spans, and both tables are fully written before they are read
--- (`winners` at every boundary, `active` only as far as n_active).
--- A row past this many boundaries (a minified line) gets its own winners instead:
--- the scratch table would keep a reference to every span of it for as long as the
--- daemon runs.
+-- Reused across rows, as both are fully written before they are read; a row past this many
+-- boundaries (a minified line) gets its own winners, or the scratch would pin its spans for good.
 local SCRATCH_BOUNDARIES = 1024
 local scratch_winners, scratch_active = {}, {}
 
--- Winner per segment, resolved by a left-to-right sweep over the spans sorted
--- by start. Every span edge is also a segment boundary, so a span that is
--- still open at a segment's start covers the whole segment; the active set is
--- the treesitter nesting depth, never the line's span count (a scan per
--- segment turns a minified line into seconds of CPU).
---
--- The active set is an array compacted in place as spans expire, not a set
--- keyed by span: `pairs` in the innermost loop of the renderer is a loop
--- LuaJIT cannot compile at all.
---
--- Span ends are compared unclamped. A span reaching past the line covers every
--- segment the sweep visits either way, since the last boundary (len + 1) never
--- starts a non-empty segment.
+-- Winner per segment, by a sweep in start order; the active set (the nesting depth) is an array
+-- compacted in place, since LuaJIT can't compile `pairs` here. An end past the line needs no clamp.
 local function segment_winners(spans, boundaries, nb)
   local n_spans = #spans
   local winners, active = nb <= SCRATCH_BOUNDARIES and scratch_winners or {}, scratch_active
@@ -234,10 +188,8 @@ local function segment_winners(spans, boundaries, nb)
   return winners
 end
 
--- What a row's type decides: its backgrounds and its gutter styles. The number
--- takes its side's color and the bar stays decoration-colored; both carry the
--- row's background so a tinted row reads as one block from its first cell.
--- Context rows and filler cells share the untinted style.
+-- A row type's backgrounds and gutter styles; the number and bar carry the row's background so a
+-- tinted row reads as one block. Context rows and filler cells share the untinted style.
 local row_styles = vim.defaulttable(function(line_type)
   local p = palette
   local num_fg, bg, emph_bg = p.decoration, nil, nil
@@ -254,28 +206,16 @@ local row_styles = vim.defaulttable(function(line_type)
   }
 end)
 
--- Emit one content line in codediff.nvim's style: syntax fg over the
--- CodeDiffLine* bg, char-level emphasis as the CodeDiffChar* bg, context lines
--- undecorated. Tabs are expanded against the running visual column, repeated
--- SGR sequences are collapsed, and `limit` (when given) bounds the row to that
--- many display cells.
---
--- Segments are written straight into `out` rather than materialized first: a
--- diff is tens of thousands of segments, and an intermediate row table would be
--- pure garbage. Returns the ending display column and the row's background.
---
+-- Emit one content line in codediff.nvim's style (syntax fg over the line bg, emphasis as the char
+-- bg) straight into `out`, clipped to `limit` cells; returns the end column and the row's bg.
 -- spans: 1-based byte spans from highlight.line_spans (may be nil)
 -- emph_ranges: 1-based {s, e-exclusive} byte ranges (may be nil)
 local function emit_line(out, text, spans, line_type, emph_ranges, limit)
   local row_style = row_styles[line_type]
   local line_bg, emph_bg = row_style.bg, row_style.emph_bg
 
-  -- Printable ASCII is one cluster of one cell per byte, so a row of it needs
-  -- neither tab expansion nor a width measurement per segment, and a byte offset
-  -- into it is a display column. Every row of a side-by-side diff is clipped to
-  -- its cell, and when the cut lands in that ASCII it is made here, ahead of
-  -- everything that scales with the spans: a composing mark can only attach to
-  -- the byte right before the first other byte.
+  -- Printable ASCII is a cell per byte, so it needs no tab expansion or measuring, and a cut that
+  -- lands in it is made here, before the span work: a composing mark only joins the byte before.
   local nonascii = first_non_ascii(text)
   if limit and #text > limit and (not nonascii or nonascii - 2 >= limit) then
     text, nonascii = text:sub(1, limit), nil
@@ -290,8 +230,7 @@ local function emit_line(out, text, spans, line_type, emph_ranges, limit)
     for i = 1, #spans do
       local span = spans[i]
       local s1 = span.s1
-      -- A span starting past the line's end contributes nothing: its range
-      -- clamps to empty, and the sweep never reaches its start either.
+      -- A span starting past the end adds nothing: it clamps empty and the sweep never reaches it.
       if s1 <= len then
         local e1 = span.e1
         boundaries[nb + 1] = s1
@@ -311,9 +250,7 @@ local function emit_line(out, text, spans, line_type, emph_ranges, limit)
   end
   table.sort(boundaries)
 
-  -- Only a row that is not plain ASCII can hold a byte nvim shows in another
-  -- form, so only the measured path below ever meets one, and only a row that
-  -- holds one pays for spelling its segments out.
+  -- Only a non-ASCII row can hold a byte nvim shows in another form, so only such a row respells.
   local respell = not simple and util.display_form(text) ~= text
   local winners = spans and segment_winners(spans, boundaries, nb)
 
@@ -327,12 +264,8 @@ local function emit_line(out, text, spans, line_type, emph_ranges, limit)
       local attrs = span and theme.attrs(span.capture, span.lang)
       local emph = false
       if n_emph > 0 then
-        -- Every range edge is also a segment boundary, so a segment is either
-        -- wholly inside a range or wholly outside it, and the ranges arrive
-        -- sorted by start (engine.side_char_ranges). A single advancing cursor
-        -- therefore answers the coverage question, where rescanning every range
-        -- per segment made the range count a quadratic term on
-        -- heavily-refactored lines.
+        -- Range edges are segment boundaries and ranges come sorted, so one advancing cursor
+        -- decides coverage; rescanning per segment was quadratic on heavily refactored lines.
         while next_emph <= n_emph and emph_ranges[next_emph].e <= a do
           next_emph = next_emph + 1
         end
@@ -345,14 +278,12 @@ local function emit_line(out, text, spans, line_type, emph_ranges, limit)
       if simple then
         expanded, next_col = seg, col + (b - a)
       else
-        -- The display form first, so what is measured and clipped is what is
-        -- shown.
+        -- The display form first, so what is measured and clipped is what is shown.
         local shown = respell and util.display_form(seg) or seg
         expanded, next_col = util.expand_tabs(shown, col)
       end
-      -- A clipped segment may leave a cell or two unfilled (a wide char that did
-      -- not fit), so this has to be the last one: resuming would splice the
-      -- line's tail onto its head.
+      -- A clipped segment may leave a cell unfilled (a wide char that did not fit), so it must be
+      -- the last: resuming would splice the line's tail onto its head.
       local last = limit and next_col >= limit
       if last then
         local clipped_w
@@ -375,13 +306,10 @@ local function emit_line(out, text, spans, line_type, emph_ranges, limit)
   return col, line_bg
 end
 
--- Line-number gutter ---------------------------------------------------------
+-- Line-number gutter
 
--- Digits the gutter reserves per number, at least. Sized per file rather than
--- per hunk so the text does not shift between hunks, and floored so the width
--- also holds across the files a session moves between: nearly every source
--- file is under a thousand lines (nvim's own number column shows three digits
--- as well).
+-- The gutter's minimum digits per number, sized per file so text doesn't shift between hunks, and
+-- floored at three (as nvim's number column) so it holds across most files a session moves between.
 local NUM_MIN_DIGITS = 3
 
 --- Gutter digits for a file, given the widest line number it reaches.
@@ -389,18 +317,13 @@ function M.number_width(max_lnum)
   return math.max(#tostring(max_lnum), NUM_MIN_DIGITS)
 end
 
--- One format string per gutter width, so a row's numbers cost a single format
--- call. %s right-aligns a number and leaves an absent one blank.
+-- One format per gutter width, so a row's numbers cost one call; %s blanks an absent number.
 local num_fmts = vim.defaulttable(function(num_w)
   return { pair = '%' .. num_w .. 's %' .. num_w .. 's ', single = '%' .. num_w .. 's ' }
 end)
 
--- Returns the cells the gutter took ahead of the text.
--- Reporting what was written rather than re-deriving it from num_w keeps the
--- width in one place: the numbers are ASCII (a byte is a cell) and the bar is
--- one cell, and a number wider than the gutter reserved widens both together
--- instead of silently mis-padding the row. `record`, the OSC 1717 record of
--- the row or cell (may be nil), goes ahead of it and takes no cells.
+-- Returns the cells the gutter took ahead of the text, counted from what was written so a number
+-- wider than reserved widens both together. `record` (may be nil) goes ahead and takes no cells.
 local function emit_gutter(out, nums, line_type, record)
   if record then
     out:put(record)
@@ -410,12 +333,8 @@ local function emit_gutter(out, nums, line_type, record)
   return #nums + 1
 end
 
---- Append one inline content row to `out`: both sides' line numbers, then the
---- text, padded to the view width when tinted. A context row carries both
---- numbers, a minus row only the old one and a plus row only the new one, so
---- the column a number sits in tells which file it belongs to.
---- cell: { text, spans, line_type, emph, record }, where `record` is the OSC
---- 1717 record that leads the row (may be nil).
+--- Append one inline row to `out`: the old number for a minus row, the new for a plus, both for
+--- context, then the text, padded when tinted. cell: { text, spans, line_type, emph, record }.
 function M.content_line(out, cell, old_no, new_no, cols, num_w)
   local line_type = cell.line_type
   local nums = num_fmts[num_w].pair:format(old_no or '', new_no or '')
@@ -428,19 +347,14 @@ function M.content_line(out, cell, old_no, new_no, cols, num_w)
   out:put(ansi.eol)
 end
 
--- Append one side-by-side cell of exactly `width` display cells: the side's
--- line number, then the text, truncated when overlong. cell: { text, spans,
--- line_type, emph, lnum, record } or { filler = true } (codediff renders absent
--- lines as ╱ filler under a blank number). `record`, the OSC 1717 record for
--- the side (may be nil), leads the cell, unless it is `in_effect`, the record the
--- row already carries: one lasts to the end of its row.
+-- Append one side-by-side cell of exactly `width` cells. cell: { text, spans, line_type, emph,
+-- lnum, record } or { filler = true }; its record is skipped when it is `in_effect` for the row.
 local function render_cell(out, cell, width, num_w, in_effect)
   local line_type = cell.line_type
   local nums = num_fmts[num_w].single:format(cell.lnum or '')
   local record = cell.record ~= in_effect and cell.record
   local gutter_w = emit_gutter(out, nums, line_type, record)
-  -- The gutter is never clipped: a cell too narrow for it overflows, which only
-  -- a view a dozen cells wide can bring about.
+  -- The gutter is never clipped; only a view a dozen cells wide makes a cell overflow.
   width = math.max(width - gutter_w, 1)
   if cell.filler then
     out:put(filler_run(width))

@@ -1,16 +1,10 @@
 -- Usage: CODEDIFF_PIPE=<socket> nvim --clean -l spawn_daemon.lua
 --
--- Spawns daemon.lua fully detached (new session, no controlling terminal).
--- This matters because lazygit closes its render pty after every task, which
--- SIGHUPs the pty's process group; nvim exits on SIGHUP regardless of nohup,
--- so the daemon must not belong to that session at all.
+-- Spawns daemon.lua detached in a new session: closing lazygit's render pty SIGHUPs its process
+-- group, and nvim exits on SIGHUP regardless of nohup.
 --
--- Exits 0 once the socket is there. The daemon binds it when it has bootstrapped
--- its parsers, so its arrival is also the signal that a render will be answered
--- rather than queued behind a second of startup. The wait ends early when the
--- daemon exits: one that failed to start will never bind, and one that lost the
--- socket to another daemon leaves that one's to ask. With no socket by then, it
--- exits 1: there is nothing for the client to ask.
+-- Exits 0 once the socket is there, bound after bootstrap so a render won't queue behind startup;
+-- 1 when none is there by the time the daemon exits or the wait runs out.
 
 local WAIT_MS = 2000
 

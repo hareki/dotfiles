@@ -1,17 +1,14 @@
 local M = {}
 
--- The named escapes of git's C-style quoting; any other escaped character (\"
--- and \\) stands for itself.
+-- The named escapes of git's C-style quoting; any other (\" and \\) stands for itself.
 local C_ESCAPES = { a = '\a', b = '\b', t = '\t', n = '\n', v = '\v', f = '\f', r = '\r' }
 
--- Unquote a git C-style quoted path ("a\"b", "\303\251" octal escapes, etc).
--- Returns the input unchanged when it is not quoted.
+-- Unquote a git C-style quoted path ("a\"b", "\303\251"), or return it as is when unquoted.
 local function unquote_c_string(s)
   if s:sub(1, 1) ~= '"' or s:sub(-1) ~= '"' then
     return s
   end
-  -- An octal escape is exactly three digits. Anything else stands for itself,
-  -- and the digits the pattern took along behind it are plain text.
+  -- Only three digits make an octal escape; otherwise the digits the pattern took are plain text.
   return (
     s:sub(2, -2):gsub('\\(.?)([0-7]?[0-7]?)', function(c, rest)
       if #rest == 2 and c:find('[0-7]') then
@@ -23,24 +20,18 @@ local function unquote_c_string(s)
 end
 
 local function strip_path_prefix(path)
-  -- git appends a TAB (and diff(1) a TAB plus a timestamp) after the name
-  -- whenever it contains a space. A real tab in a path is always C-quoted, so
-  -- everything from the first raw tab is metadata.
+  -- git tabs off a name holding a space (diff(1) adds a timestamp); a real tab would be C-quoted.
   path = path:gsub('\t.*$', '')
   if path == '/dev/null' then
     return nil
   end
   path = unquote_c_string(path)
-  -- Standard prefixes: a/ b/ plus i/ w/ c/ o/ 1/ 2/ used by mnemonicPrefix.
-  -- lazygit asks for one on every diff it shows, whatever diff.noPrefix says
-  -- (ParseableDiffPrefixes), so a bare path never gets here.
+  -- a/ b/ and mnemonicPrefix's i/ w/ c/ o/ 1/ 2/: lazygit asks for one on every diff it shows.
   local stripped = path:match('^[abciwo12]/(.+)$')
   return stripped or path
 end
 
--- The block a "diff --git/--cc/--combined" line opens. A combined (merge) diff
--- is kept verbatim, for passthrough to tint by prefix: nothing else about it
--- is a file this renderer lays out.
+-- The block a "diff --git/--cc/--combined" line opens; a combined diff is kept for passthrough.
 local function new_section(diff_line)
   if not vim.startswith(diff_line, 'diff --git ') then
     local p = diff_line:match('^diff %-%-c%S* (.+)$')
@@ -52,20 +43,16 @@ local function new_section(diff_line)
     is_deleted = false,
     is_binary = false,
     hunks = {},
-    -- What the hunks hold, which is what lib/blob.lua's section caps and
-    -- lib/core.lua's highlighting budget go by.
+    -- What blob.lua's section caps and core.lua's highlighting budget go by.
     hunk_lines = 0,
     hunk_bytes = 0,
   }
-  -- Path pair from the diff line for the common unquoted case; overridden by
-  -- ---/+++ or rename headers when present.
+  -- The diff line's path pair, for the unquoted case; ---/+++ and rename headers override it.
   file.old_path, file.new_path = diff_line:match('^diff %-%-git a/(.-) b/(.+)$')
   return file
 end
 
--- "<header> <mode>" lines: the mode to capture, the field it fills, and the
--- flag it raises. Capturing answers both "is this the line" and "what is in
--- it", so neither prefix has to be spelled twice.
+-- "<header> <mode>" lines: the mode to capture, the field it fills, and the flag it raises.
 local MODE_HEADERS = {
   { '^old mode (%d+)', 'old_mode' },
   { '^new mode (%d+)', 'new_mode' },
@@ -73,9 +60,8 @@ local MODE_HEADERS = {
   { '^deleted file mode (%d+)', 'old_mode', 'is_deleted' },
 }
 
--- "<header> <path>" lines: the path to capture, the field it fills, and the
--- side of the diff it is the path of. A copy's source is its old side just as a
--- rename's is: the hunks that follow are against it.
+-- "<header> <path>" lines: the path to capture, the field it fills, and the side it names. A
+-- copy's source is its old side, as a rename's is: the hunks that follow are against it.
 local PATH_HEADERS = {
   { '^rename from (.*)$', 'renamed_from', 'old_path' },
   { '^rename to (.*)$', 'renamed_to', 'new_path' },
@@ -112,10 +98,7 @@ local function parse_extended_header(file, line)
   elseif vim.startswith(line, 'Binary files ') or vim.startswith(line, 'GIT binary patch') then
     file.is_binary = true
   elseif vim.startswith(line, '--- ') then
-    -- Authoritative for this side, including the nil that /dev/null resolves
-    -- to: the header is the diff's own answer for the side, where the path
-    -- pair new_section() reads off the diff line is only a guess (it mis-splits a
-    -- name containing " b/").
+    -- Authoritative, /dev/null's nil included: the diff line's pair mis-splits a name with " b/".
     file.old_path = strip_path_prefix(line:sub(5))
   elseif vim.startswith(line, '+++ ') then
     file.new_path = strip_path_prefix(line:sub(5))
@@ -125,8 +108,7 @@ local function parse_extended_header(file, line)
   return true
 end
 
--- One side of a hunk, from the two numbers of its @@ header; a count git left out
--- is 1.
+-- One side of a hunk, from the two numbers of its @@ header; a count git left out is 1.
 local function new_side(start, count)
   return {
     start = tonumber(start),
@@ -136,21 +118,8 @@ local function new_side(start, count)
   }
 end
 
---- Add a line of the patch to `hunk`, and return the change left open after it.
---- A hunk has an `old` and a `new` side, { start, count, rows, emph }: `rows` are
---- the lines the side shows, in order, and whatever else is known about a row
---- (engine's char emphasis, osc1717's records) is keyed by the same 1-based row.
---- Only core's spans are not: they keep the 0-based rows of whatever was parsed,
---- behind side.span_base. hunk.changes pairs each minus run with the plus run
---- that follows it, as an ordered list of { old_start, old_end, new_start,
---- new_end } (rows, end exclusive). One walk builds both, so a change's rows are
---- side rows by construction.
----
---- The rows come from the patch rather than from the diff engine because they
---- are what lazygit stages: the engine is free to slide a change along lines
---- that read the same (a blank line or a brace on either end of a deleted
---- block), and a row drawn as changed would then not be the line that staging
---- it stages.
+--- Add a patch line to `hunk` and return the change left open after it. hunk.changes pairs each
+--- minus run with the next plus run, in end-exclusive rows from the patch, which lazygit stages.
 local function add_row(file, hunk, change, origin, text)
   local old, new = hunk.old.rows, hunk.new.rows
   file.hunk_lines = file.hunk_lines + 1
@@ -170,10 +139,8 @@ local function add_row(file, hunk, change, origin, text)
   return change
 end
 
---- Walk a hunk's rows in order, handing each run to the callback for it. Between
---- changes the two sides' pointers advance in step, which is both the pairing
---- the side-by-side layout draws and the numbering everything else prints -- so
---- the bookkeeping lives here rather than once per caller.
+--- Walk a hunk's rows in order, handing each run to its callback. Between changes both sides'
+--- pointers advance in step: the pairing the split layout draws and the numbering all print.
 function M.walk_hunk(hunk, on_context, on_change)
   local old_ptr, new_ptr = 1, 1
   local function context_rows(count)
@@ -190,17 +157,13 @@ function M.walk_hunk(hunk, on_context, on_change)
   context_rows(#hunk.new.rows - new_ptr + 1)
 end
 
---- The hash and decorations of the "commit <hash> (refs)" line that opens a
---- `git show`, nil for any other line. Exported because the combined-diff body
---- below ends at one, core.render reads it to tell git output from arbitrary
---- text, and passthrough styles it: git's line grammar is this module's to
---- know, not something each consumer keeps its own copy of the pattern for.
+--- The hash and decorations of a `git show`'s opening "commit <hash> (refs)" line, else nil.
+--- Exported so core, passthrough and the combined-diff body share one copy of git's grammar.
 function M.commit_line(line)
   return line:match('^commit (%x+)%s*(.*)$')
 end
 
---- True for the "Submodule <path> <range>" line git writes for a submodule's
---- change (--submodule=log), which also ends a combined-diff body.
+--- True for git's "Submodule <path> <range>" line (--submodule=log); it also ends a combined diff.
 function M.is_submodule_line(line)
   return vim.startswith(line, 'Submodule ')
 end
@@ -272,8 +235,7 @@ function M.parse(lines)
       local old_left = #hunk.old.rows < hunk.old.count
       local new_left = #hunk.new.rows < hunk.new.count
       if line == '\\ No newline at end of file' then
-        -- It marks the line before it, a side's last, which is always among
-        -- the hunk's last rows: the note renders once, after the hunk.
+        -- It marks a side's last line, always among the hunk's last rows: one note, after the hunk.
         hunk.no_newline = true
       elseif origin == '-' and old_left then
         change = add_row(file, hunk, change, '-', line:sub(2))

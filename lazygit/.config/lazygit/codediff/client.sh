@@ -1,31 +1,11 @@
 #!/bin/zsh -f
-# codediff client: lazygit's diff renderer entry point (GIT_PAGER).
-# Ships the diff to a persistent headless-nvim daemon; falls back to a
-# one-shot render, and to the diff as git wrote it as the last resort.
-#
-# lazygit starts this script again for every diff it draws, so the transport is
-# paid on every keypress that moves the selection -- and a small diff renders in
-# well under a millisecond, which makes the client the whole cost. That is why
-# this is zsh: all the hot path needs (a directory, a socket, copying bytes) is a
-# builtin here, where mktemp, nc, cat and rm would each be a ~2ms spawn. -f keeps
-# the user's startup files out of it.
-#
-# config.yml runs this by the names of its two links in bin/.local/bin/shims,
-# because git hands a pager command holding a shell metacharacter (a ~, a space,
-# a =) to `sh -c`, ~2.6ms per diff. So a path can't name it, an argument can't
-# select the layout, and the name it was run by does.
+# lazygit's diff renderer (GIT_PAGER), in zsh so the hot path spawns nothing (~2ms a spawn).
+# Run by its shims link names, which pick the layout: an argument would cost git an `sh -c`.
 LAYOUT=inline
 [[ $0 == *-split ]] && LAYOUT=side-by-side
 
-# lazygit offers its OSC 1717 diff-line protocol through $OSC1717, naming the
-# versions it understands, and decides whether it can act on what we render by
-# looking for a version-only record ahead of everything else (it runs us once
-# on empty input to ask). So the handshake goes out first, whichever path below
-# ends up rendering: every one of them either puts a record ahead of the rows
-# lazygit can place (lib/osc1717.lua) or passes the diff through as git wrote
-# it, which lazygit reads as a diff when it finds no records. The rows left
-# without one (a combined diff, a path holding a control byte) are just rows it
-# can't act on.
+# lazygit takes a version-only OSC 1717 record ahead of all output to mean records follow, so it
+# goes out first, whatever path renders: a raw diff with no records still reads as a diff.
 META=0
 if [[ ",${OSC1717:-}," == *[,\ ]V1[,\ ]* ]]; then
   META=1
@@ -39,21 +19,15 @@ pass() {
   while sysread -o 1 -s 65536; do :; done
 }
 
-# $TMPDIR is trailing-slash-terminated on macOS but bare on most other systems.
-# This is the one place the socket name is derived: the daemon is handed the
-# result through CODEDIFF_PIPE at spawn time rather than rebuilding it in Lua.
+# $TMPDIR ends in a slash only on macOS. The daemon is handed this name, via CODEDIFF_PIPE.
 TMP=${${TMPDIR:-/tmp}%/}
 PIPE=$TMP/lazygit-codediff-${USER:-u}.pipe
 
-# The two files handed to the daemon sit in a private directory, so nobody else
-# on a shared /tmp can plant a name in there for it to follow.
+# A private directory, so nobody on a shared /tmp can plant a name in it for the daemon to follow.
 WORK=$TMP/codediff.$$
 
-# lazygit's branch views run their `git log --graph` through here too, and the
-# renderer hands one back as it came (see core.render). Going through it means
-# git walks the whole history for the screenful lazygit reads, so a graph goes
-# straight through from its first bytes, and git stops where lazygit stops
-# reading. So does anything that has nowhere to be buffered.
+# A `git log --graph` from lazygit's branch views, and input that can't be buffered, go straight
+# through: git then stops where lazygit stops reading instead of walking the whole history.
 sysread -s 65536 first
 if [[ $first == '* '* ]] || ! mkdir -m 700 "$WORK" 2>/dev/null; then
   syswrite -- "$first"
@@ -64,28 +38,21 @@ fi
 IN=$WORK/in
 OUT=$WORK/out
 trap 'rm -f "$IN" "$OUT"; rmdir "$WORK"' EXIT
-# lazygit terminates a render task as soon as the selection moves on, and zsh
-# runs no EXIT trap for a signal that kills it.
+# lazygit kills a render task once the selection moves on, and zsh runs no EXIT trap on a signal.
 trap 'exit 1' HUP INT TERM PIPE
 
-# The output exists up front because the daemon only ever opens it (see
-# write_output in lib/request.lua): once the cleanup above has run, a late render
-# has nothing to write to.
+# The daemon only opens this file (lib/request.lua), so a render after cleanup has nowhere to go.
 : >"$OUT"
 {
   syswrite -- "$first"
   pass
 } >"$IN"
 
-# The request, one line that the daemon and the one-shot at the bottom both
-# take (lib/request.lua reads it). cwd goes last because it is the only field
-# that can legitimately contain a tab, and the tabs in the request are the field
-# separators. $COLUMNS is zsh's own, the width of the pty rather than the
-# variable in the environment, and lazygit sizes the one to the other.
+# The request (lib/request.lua reads it). cwd goes last, the one field that may hold a tab.
+# $COLUMNS is zsh's own: the pty's width, which lazygit sizes to the one it exports.
 REQUEST="$IN	$OUT	$COLUMNS	$LAYOUT	$META	$PWD"
 
-# Emit the render and exit if the daemon answers; returns so the caller can fall
-# further down the ladder if it did not. One line in, one line back.
+# Emit the render and exit if the daemon answers ok; otherwise return to fall down the ladder.
 answer=""
 serve() {
   zsocket "$PIPE" 2>/dev/null || return
@@ -99,19 +66,12 @@ serve() {
 
 serve
 
-# The render failed. Everything from here down is a cold path, and only these
-# paths need the script's own directory. They start nvim, which mise's shim only
-# falls through to, at ~75ms a start.
+# Cold path from here. It starts nvim, so mise's shim, ~75ms a start, comes off the path.
 DIR=${0:A:h}
 path=(${path:#*/mise/shims})
 
-# Only replace the socket when nothing is listening on it: unlinking a live
-# daemon's socket orphans it (it keeps running, unreachable, until its idle
-# timeout) and races a concurrent client that just spawned one. An empty answer
-# is what "nothing is listening" looks like -- a daemon that answered anything
-# at all is alive, and this render simply failed. The spawner puts the daemon in
-# its own session; anything attached to lazygit's render pty would be SIGHUP'd
-# when the pty closes after this render.
+# Replace the socket only when nothing answered: unlinking a live daemon's socket orphans it and
+# races a client that just spawned one. Any answer means the daemon lives and this render failed.
 if [[ -z $answer ]]; then
   rm -f "$PIPE"
   # The spawner waits for the socket, and only says so if one is there to ask.
@@ -120,11 +80,8 @@ if [[ -z $answer ]]; then
   fi
 fi
 
-# Last resort: a renderer started for this request alone. It writes to the same
-# file rather than to a pipe, because nvim can die (parser crash, OOM, a signal)
-# with part of the render written: appending the raw diff to a half-written one
-# would show the hunks twice. The file starts empty again for the same reason, a
-# daemon that died may have left part of its render in it.
+# Last resort: a renderer for this request alone. It writes the emptied file, not a pipe, so a
+# half-written render (its own or a dead daemon's) is dropped for the raw diff, not shown twice.
 : >"$OUT"
 if nvim --clean -l "$DIR/render.lua" "$REQUEST" >/dev/null 2>&1; then
   pass <"$OUT"

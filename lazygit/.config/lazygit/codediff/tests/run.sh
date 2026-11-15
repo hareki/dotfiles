@@ -5,9 +5,8 @@
 #   tests/run.sh goldens records  the files whose name contains one of the words
 #   tests/run.sh --update         rewrite the goldens (see goldens.lua)
 #
-# A test file is a *.lua beside this script, run by `nvim --clean -l`, or a *.zsh. bench.lua is
-# a benchmark, not one of them. The files share nothing, so they run side by side and report in
-# file order. Exits non-zero when a test fails or a file cannot run.
+# Each *.lua beside this script (bench.lua aside) runs under `nvim --clean -l`, each *.zsh as is,
+# side by side; exits non-zero when a test fails or a file cannot run.
 set -u
 
 DIR=$(cd "$(dirname "$0")" && pwd)

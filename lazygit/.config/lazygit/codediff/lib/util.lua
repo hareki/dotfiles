@@ -2,11 +2,8 @@ local M = {}
 
 local TAB_WIDTH = 4
 
---- Split text into renderer lines: a trailing newline does not produce an empty
---- last line, and a CRLF's carriage return is not part of the line's text.
---- Normalizing here rather than in each caller is what keeps the patch text and
---- the blob text comparable -- full-content highlighting rests on a diff row and
---- the file row it names being byte for byte the same.
+--- Split text into lines, with no empty one after a trailing newline and no CR from a CRLF. Here
+--- rather than per caller, so patch and blob lines compare byte for byte for full highlighting.
 function M.split_lines(text)
   local lines = {}
   local pos = 1
@@ -25,20 +22,15 @@ function M.split_lines(text)
   return lines
 end
 
--- Printable ASCII is exactly one display cell per byte, so a byte count is a
--- display width and clipping by cells is clipping by bytes. Control bytes are
--- excluded deliberately: nvim shows them in their two-cell ^X form, which the
--- byte count would not match.
+-- Printable ASCII, a display cell per byte; not control bytes, which nvim shows as two-cell ^X.
 local NON_ASCII = '[^\32-\126]'
 
---- Byte index of the first byte that is not printable ASCII (see NON_ASCII), or
---- nil when every byte is.
+--- Index of the first byte outside printable ASCII (NON_ASCII), or nil when there is none.
 function M.first_non_ascii(s)
   return s:find(NON_ASCII)
 end
 
--- Everything below a space except the tab, plus DEL: the bytes a terminal acts
--- on rather than shows.
+-- Everything below a space but the tab, plus DEL: the bytes a terminal acts on rather than shows.
 local CONTROL = '[%z\1-\8\10-\31\127]'
 
 --- True when `s` holds a control byte (see CONTROL).
@@ -46,33 +38,24 @@ function M.has_control(s)
   return s:find(CONTROL) ~= nil
 end
 
--- The bytes nvim may show as something other than themselves: everything but
--- printable ASCII and the tab, whose width depends on the column it starts at,
--- which is the caller's to resolve (expand_tabs).
+-- Bytes nvim may show as something else: all but printable ASCII and the tab (expand_tabs' job).
 local NOT_AS_IS = '[^\t\32-\126]'
 
---- `s` the way nvim shows it, which is the form display_width measures: control
---- bytes in caret notation (^[ for ESC, ^L for a form feed), and bytes that are
---- not valid UTF-8 or unprintable characters in angle brackets (<e9>, <feff>).
---- Content reaches the view as text, never as instructions: a raw escape would
---- restyle or erase the row it sits in, a raw CR would overwrite it, and a byte
---- the terminal draws narrower than it was measured would leave the row short.
+--- `s` as nvim shows it, the form display_width measures: control bytes as ^[ or ^L, invalid or
+--- unprintable ones as <e9> or <feff>, so content can't restyle, overwrite or shorten its row.
 function M.display_form(s)
   if not s:find(NOT_AS_IS) then
     return s
   end
-  -- strtrans is nvim's own display form, but it spells a tab ^I, and a NUL
-  -- would turn the string into a Blob on its way into vimscript.
+  -- strtrans is nvim's display form, but spells a tab ^I, and a NUL would make the string a Blob.
   return (s:gsub('%z', '^@'):gsub('[^\t]+', vim.fn.strtrans))
 end
 
---- Display width of a string in its display form. Not strdisplaywidth, which
---- measures it as laid out in the current window: a double-width character that
---- lands on the last column of this headless 80-column one counts a third cell.
+--- Display width of `s`'s display form. Not strdisplaywidth: in this headless 80-column window a
+--- double-width char on the last column counts a third cell.
 M.display_width = vim.api.nvim_strwidth
 
---- Expand tabs to spaces relative to a starting visual column (0-based).
---- Returns the expanded string and the resulting visual column.
+--- Expand tabs to spaces from a 0-based visual column, returning the string and its end column.
 function M.expand_tabs(s, start_col)
   if not s:find('\t', 1, true) then
     return s, start_col + M.display_width(s)

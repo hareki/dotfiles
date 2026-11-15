@@ -9,9 +9,8 @@
 --   --profile        also break the time down by phase
 --   --json=PATH      write the raw per-file medians there, for a before/after diff
 --
--- With no files the tests/fixtures corpus is used. Timings are wall clock around
--- core.render only: the daemon is warm by the time a user sees a diff, so the
--- nvim startup and bootstrap costs are deliberately outside the measurement.
+-- With no files the tests/fixtures corpus is used. Timings are wall clock around core.render only:
+-- a user meets a warm daemon, so nvim startup and bootstrap stay outside the measurement.
 
 local dir = vim.fn.fnamemodify(arg[0], ':p:h')
 package.path = dir .. '/../?.lua;' .. package.path
@@ -53,8 +52,7 @@ end
 require('lib.bootstrap').setup()
 local core = require('lib.core')
 
--- Phase accounting, wired by wrapping the module entry points rather than by
--- instrumenting them: the measured code stays exactly the shipped code.
+-- Phase accounting by wrapping the module entry points, so the measured code is the shipped code.
 local prof = {}
 local function timed(name, fn)
   local function finish(t0, ...)

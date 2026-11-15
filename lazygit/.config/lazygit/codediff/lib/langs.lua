@@ -1,11 +1,7 @@
 local M = {}
 
--- Capped and cleared wholesale rather than evicted one entry at a time -- the
--- shape lib/layout.lua already uses for its filler runs. The daemon serves for
--- up to an hour and every distinct path (see the key below) adds an entry, so
--- browsing a monorepo's history would otherwise only ever grow this. A few
--- hundred covers the files a session moves between; past that a render pays one
--- vim.filetype.match again, which is what the entry cost to make.
+-- Capped and cleared wholesale (as layout.lua's filler runs are): the daemon lives up to an hour
+-- and each distinct path adds an entry; a miss costs one vim.filetype.match again.
 local CACHE_MAX = 512
 local cache = {}
 
@@ -18,25 +14,15 @@ local function remember(key, lang)
 end
 
 local function parser_available(lang)
-  -- add() reports a missing parser by returning nil; it only raises on a
-  -- malformed name or a library that fails to load.
+  -- add() returns nil for a missing parser; it only raises on a malformed name or a broken library.
   local ok, loaded = pcall(vim.treesitter.language.add, lang)
   return ok and loaded and lang or nil
 end
 
---- Resolve a path (plus optional content lines) to a loadable treesitter
---- language, or nil when the file should render without syntax highlighting.
+--- A path's loadable treesitter language (content lines help detection), or nil to render plain.
 function M.lang_for(path, content_lines)
-  -- The daemon is per-user, not per-repo, and lives for up to an hour, so the
-  -- path alone is not a safe key: content-based detection (shebangs) makes the
-  -- same relative path resolve differently across repos, and between a render
-  -- that had the file's content and one that did not.
-  --
-  -- Only a bounded fingerprint of the first line goes into the key. Embedding
-  -- the line itself would let each of the cache's few hundred entries pin one,
-  -- and a first line can be the whole file (a minified bundle, up to the
-  -- highlight cap in lib/blob.lua); the detectors only ever look at its head
-  -- anyway.
+  -- Keyed by path and a bounded first-line fingerprint: shebangs make a path's language differ
+  -- across repos and with or without content, and a first line can be the whole file.
   local sample = (content_lines and content_lines[1]) or ''
   local key = path .. '\0' .. #sample .. '\0' .. sample:sub(1, 256)
   local hit = cache[key]
@@ -53,8 +39,7 @@ function M.lang_for(path, content_lines)
     end
   end
 
-  -- A dotted filetype can name a language of its own with no parser installed
-  -- ("typescript.glimmer"), and then falls back to the base filetype.
+  -- A dotted filetype ("typescript.glimmer") may name a parserless language: fall back to its base.
   local get_lang = vim.treesitter.language.get_lang
   local lang = parser_available(get_lang(ft)) or parser_available(get_lang(ft:match('^[^.]+')))
 

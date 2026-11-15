@@ -3,12 +3,8 @@
 --   nvim --clean -l tests/goldens.lua            compare every fixture against its goldens
 --   nvim --clean -l tests/goldens.lua --update   rewrite the goldens
 --
--- A fixture is fixtures/<name>.diff, rendered in both layouts at a fixed width and compared
--- with <name>.out and <name>.split.out. The OSC 1717 records lazygit asks for are checked
--- separately, against the fixtures' own patches (see records.lua).
---
--- A render reads more than the diff: the blobs the diff names, and the worktree files behind
--- the ones git has no blob for. So a fixture renders in one of two places:
+-- A fixture is fixtures/<name>.diff, compared in both layouts at a fixed width with <name>.out and
+-- <name>.split.out (records.lua checks its records), rendered in one of two places:
 --
 --   at /                       no repository, so every file is highlighted from its hunks
 --   in a throwaway repository  built from fixtures/<name>.repo, when the fixture has one
@@ -17,9 +13,6 @@
 --
 --   git cat-file blob <oid> > <name>.repo/objects/<oid>   for each oid on an "index" line
 --   rsync -R <path> <name>.repo/worktree/                 for a side git has no blob for
---
--- An oid git has no blob for is the new side of an unstaged change, and the worktree file is
--- that side.
 
 local dir = vim.fs.dirname(vim.fn.fnamemodify(arg[0], ':p'))
 package.path = dir .. '/../?.lua;' .. package.path

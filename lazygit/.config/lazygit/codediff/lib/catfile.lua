@@ -1,16 +1,5 @@
--- Asking git for the objects a diff refers to.
---
--- A render needs two answers about the same object list -- how big is it, and
--- (only for the ones worth reading) what is in it -- and git's own startup is
--- ~8ms regardless of what is asked for, so a render that spawns twice can spend
--- more time starting git than rendering. The daemon outlives the request, so a
--- single `git cat-file --batch-command` is kept alive between renders and both
--- answers come back over its pipes.
---
--- A kept session that fails in any way -- dead, slow, a malformed answer -- is
--- replaced by a fresh one, once. When a fresh one fails, the render goes without
--- the blobs, so the worst case is a file highlighted from its hunks and never a
--- wrong render.
+-- Asking git for the objects a diff refers to, over one `git cat-file --batch-command` kept alive
+-- between renders: git's ~8ms startup would otherwise outcost a render that spawns it twice.
 
 local buffer = require('string.buffer')
 
@@ -18,11 +7,8 @@ local M = {}
 
 local READ_TIMEOUT_MS = 5000
 
---- Read an `info` answer ("<oid> <type> <size>\n" or "<name> missing\n" per
---- object in `oids`). Returns the blobs worth streaming into the (long-lived)
---- daemon's memory -- never a gitlink's commit object, never an oversized blob --
---- and the exact byte count git's payload stream runs to for them. Nil unless
---- there is a line per object: the stream is not what we think it is.
+--- Read an `info` answer, one line per object in `oids`, into the blobs worth holding (no gitlink,
+--- none past `max_bytes`) and the bytes their stream runs to. Nil unless every object has a line.
 local function parse_info(out, oids, max_bytes)
   local wanted, expected = {}, 0
   local i = 0
@@ -45,8 +31,7 @@ local function parse_info(out, oids, max_bytes)
   return wanted, expected
 end
 
---- The blobs in the "<oid> <type> <size>\n<bytes>\n" stream of `wanted`, which
---- runs to exactly the bytes parse_info worked out.
+--- The blobs in `wanted`'s "<oid> <type> <size>\n<bytes>\n" stream, as sized by parse_info.
 local function parse_blobs(out, wanted)
   local blobs = {}
   for _, rec in ipairs(wanted) do
@@ -57,13 +42,8 @@ local function parse_blobs(out, wanted)
   return blobs
 end
 
--- ---------------------------------------------------------------- session ---
-
--- One live `git cat-file` per repo being served, most recently used first. The
--- daemon is shared by every lazygit the user has open, and two of them in
--- different repos would otherwise respawn git on every render -- the ~8ms of
--- startup this session exists to stop paying. Past the cap the least recently
--- used one is retired.
+-- One live `git cat-file` per repo, most recently used first: two lazygits in different repos
+-- would otherwise respawn git on every render. Past the cap the least recently used one goes.
 local SESSION_MAX = 2
 local sessions = {}
 
@@ -79,8 +59,7 @@ local function retire(s)
   end)
 end
 
---- The session for `cwd`, and whether it is one kept from an earlier render
---- rather than started now.
+--- The session for `cwd`, and whether it was kept from an earlier render rather than started now.
 local function ensure(cwd)
   for i, held in ipairs(sessions) do
     if held.cwd == cwd then
@@ -124,10 +103,8 @@ local function send(s, commands)
   return ok
 end
 
---- Whether `ready()` reported the response complete, rather than the process
---- dying or taking too long. Fast events only: they are all that git's output and
---- exit arrive as, and anything else this let in would be the next client's
---- render, starting in the middle of this one (see submit in daemon.lua).
+--- Whether `ready()` saw the response complete before git died or timed out. Fast events only:
+--- anything else let in would be the next client's render, started inside this one.
 local function await(s, ready)
   local ok = vim.wait(READ_TIMEOUT_MS, function()
     return s.proc:is_closing() or ready()
@@ -172,10 +149,7 @@ local function fetch_session(s, oids, max_bytes)
   return blobs
 end
 
--- ------------------------------------------------------------------- fetch ---
-
---- The contents of the blobs in `oids` of at most `max_bytes`, keyed by oid. A
---- name left out is missing, not a blob at all, or too large to be worth reading.
+--- The blobs of `oids` up to `max_bytes` each, by oid; one left out is missing, no blob, or larger.
 function M.fetch(cwd, oids, max_bytes)
   if #oids == 0 then
     return {}
@@ -190,9 +164,8 @@ function M.fetch(cwd, oids, max_bytes)
       -- The session is only as trustworthy as its last answer.
       retire(s)
     end
-    -- A kept session may only have died since the render before, which a new one
-    -- settles. A new one that fails has no repository to ask, and neither would
-    -- the next.
+    -- A kept session may just have died since the last render, which one retry settles; a fresh
+    -- one that fails has no repository to ask.
     if not kept then
       return {}
     end

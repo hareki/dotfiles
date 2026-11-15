@@ -2,10 +2,8 @@
 --
 --   nvim --clean -l tests/request.lua
 --
--- A request is a line naming two files the client made. One request goes through the real
--- renderer, from its line to its output file. Every other test is about the line, the files or
--- what gets rendered again, and meets a stand-in: one that counts its calls and answers what
--- the test needs answered.
+-- One request goes through the real renderer, line to output file; every other test meets a
+-- stand-in renderer that counts its calls and answers what the test needs.
 
 local dir = vim.fs.dirname(vim.fn.fnamemodify(arg[0], ':p'))
 package.path = dir .. '/../?.lua;' .. package.path
@@ -42,16 +40,15 @@ end
 
 local real_render = core.render
 
---- A request module that has cached nothing, with `render` standing in for the renderer when
---- given.
+--- A request module that has cached nothing, `render` standing in for the renderer when given.
 local function fresh_request(render)
   core.render = render or real_render
   package.loaded['lib.request'] = nil
   return require('lib.request')
 end
 
---- A stand-in renderer: its `calls` so far, and the options of the last one. It answers with
---- `result`, or what `result` returns for the input when that is a function.
+--- A stand-in renderer, with its `calls` and the last call's options; it answers `result`, or what
+--- `result` returns for the input when that is a function.
 local function stand_in(result, cacheable)
   local seen = { calls = 0 }
   local function render(input, opts)
