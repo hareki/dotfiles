@@ -22,9 +22,9 @@ build() {
       print-header "Building all targets"
       {
         {
-          # All at once: 7m16s in a row => 4m09s with every target stale. The cores stay
-          # saturated for most of it, so neither one cargo jobserver for the four builds nor
-          # priority for the long ones came out faster
+          # All at once. Through most of a full rebuild the cores stay saturated, so neither one
+          # cargo jobserver for the four builds nor priority for the long ones came out faster
+          # (both within 4% of this)
           for target in $targets; do
             {
               # A job without job control ignores both, and every build under it would too
