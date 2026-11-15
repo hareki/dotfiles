@@ -2,10 +2,11 @@
 # bare fork of it (remote/hareki/<n>.git), which the URLs sync-forks builds reach through
 # url.insteadOf rewrites, plus the fork's clone in $REPOS_DIR, and a gh stub lists their heads.
 # Every scenario is one fork in a single listing, synced twice: the second run, on what the first
-# left, checks that a sync settles
+# left, checks that a sync settles. The rest of the interface follows, on listings of its own
 
 source "$ZT_LIB/helpers.zsh"
 source "$ZT_LIB/repos.zsh"
+zmodload zsh/zselect
 
 zt_repos
 root=$ZT_TMP
@@ -23,12 +24,13 @@ autoload -Uz $ZT_PKG/.config/zsh/functions/{sync-forks,print-header}
 # --- Stand-ins
 
 # A dummy token, and GitHub's listing of gh_forks as the GraphQL query's --jq prints it: 6 lines per
-# fork, read from the bare repos unless pinned. Named apart from sync-forks' locals, which shadow
-# globals for whatever it calls
+# fork, read from the bare repos unless pinned, with every call noted in gh.calls. Named apart from
+# sync-forks' locals, which shadow globals for whatever it calls
 typeset -a gh_forks
 typeset -A gh_pinned
 gh() {
   local n
+  print -r -- "$1 $2" >>$root/gh.calls
   case $1/$2 in
     auth/token) print -r -- zt-dummy-token ;;
     api/graphql)
@@ -52,8 +54,9 @@ pin() {
 
 # Logs what sync-forks sends over the network while net_log is set: clones, pushes and fetches, but
 # `fetch .`, which moves a branch locally. And the signals the calling shell ignores, which a fork's
-# job would pass on to its git calls
+# job would pass on to its git calls. With width set, a clone waits at the gate first
 git() {
+  (( ! width )) || [[ $1 != clone ]] || gate ${@[-1]:t}
   if [[ -n $net_log ]]; then
     local -a args=(${@[2,-1]:#-*})
     case $1 in
@@ -64,6 +67,28 @@ git() {
     trap >>$root/ignored
   fi
   command git "$@"
+}
+
+# gate <n>: holds fork <n>'s sync in its clone until $width syncs are held side by side. The one
+# that completes the set leaves a too-wide run the time to start more, notes in in-flight how many
+# are held by then, and opens the gate for all. A set that never completes opens it after 2s.
+# Silent, since sync-forks reads a clone's output
+typeset -i width=0
+gate() {
+  local -a held
+  : >$root/held/$1
+  repeat 200; do
+    [[ ! -e $root/open ]] || return 0
+    held=($root/held/*(N))
+    if (( $#held >= width )) && mkdir $root/opening 2>/dev/null; then
+      zselect -t 30
+      break
+    fi
+    zselect -t 1
+  done
+  held=($root/held/*(N))
+  print -r -- $#held >$root/in-flight
+  : >$root/open
 }
 
 # --- Fixtures
@@ -512,5 +537,65 @@ for n in $gh_forks; do
     t_lines "$n: run 2 left it as run 1 did" "$(snapshot $n)" "$after_run1[$n]"
   fi
 done
+
+# --- The rest of the interface
+
+# Anything that isn't an option is refused before a fork is listed: `sync-forks <fork>` would
+# otherwise sync every fork. On an empty listing, as a -j 0 that got past its check never returns
+# once a fork's sync has started
+gh_forks=()
+: >$root/gh.calls
+run_sync named rebase
+t_eq 'a fork name: exit status' $rc 1
+t_match 'a fork name: the usage' "$(<$root/named.out)" 'Usage: sync-forks *'
+run_sync zero -j 0
+t_eq '-j 0: exit status' $rc 1
+t_match '-j 0: the usage' "$(<$root/zero.out)" 'Usage: sync-forks *'
+run_sync help --help
+t_eq '--help: exit status' $rc 0
+t_match '--help: the usage' "$(<$root/help.out)" 'Usage: sync-forks *'
+t_eq 'none of the three listed a fork or reached the network' \
+  "$(<$root/gh.calls)$(<$root/named.net)$(<$root/zero.net)$(<$root/help.net)" ''
+
+# --no-local-rebase: the conflict of the `conflict` scenario, with the clone left as it is
+conflicting no-local
+clone_fork no-local
+gh_forks=(no-local)
+want_line[no-local/no-local]='rebase conflict with up/no-local:main'
+run_sync no-local --no-local-rebase
+t_eq '--no-local-rebase: exit status' $rc 1
+t_lines '--no-local-rebase: only the conflict is reported' "$(plain $root/no-local.out)" "$(report no-local)
+
+==> 1 conflicting"
+t_eq '--no-local-rebase: no rebase starts in the clone' "$(state no-local)" 'github=u1 f1; main=github; HEAD=main'
+
+# How many forks are synced at a time: 12 forks GitHub lists with a head each, though neither a
+# fork nor a clone exists, so every sync is a clone that fails once the gate lets it go
+gh_forks=(w{01..12})
+for n in $gh_forks; do
+  gh_pinned[$n]=$n$'\nmain\n'${(l:40::1:):-}$'\nup/'$n$'\nmain\n'${(l:40::2:):-}
+  want_line[wide/$n]="failed, fatal: '$root/remote/hareki/$n.git' does not appear to be a git repository"
+done
+
+# run_wide <run> <forks at a time> <sync-forks args>: the run, held at the gate
+run_wide() {
+  rm -rf $root/held $root/opening $root/open $root/in-flight
+  mkdir $root/held
+  width=$2
+  run_sync $1 "${@[3,-1]}"
+  width=0
+}
+
+run_wide default 10
+t_eq 'without -j, 10 forks are synced at a time' "$(<$root/in-flight)" 10
+t_eq 'side by side: exit status' $rc 1
+out=("${(@f)$(plain $root/default.out)}")
+t_lines 'side by side: still a line per fork, and the tally' \
+  "$(print -rl -- "${(@)out[1,2]}" ${(o)out[3,-3]} "${(@)out[-2,-1]}")" "$(report wide)
+
+==> 12 failed"
+
+run_wide jobs 3 --jobs=3
+t_eq 'with --jobs=3, 3 at a time' "$(<$root/in-flight)" 3
 
 t_done
