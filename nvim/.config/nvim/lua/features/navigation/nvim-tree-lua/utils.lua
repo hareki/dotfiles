@@ -124,8 +124,7 @@ local function switch_position(position)
   M.setup(state.opts --[[@as table]])
 end
 
---- The float tree's geometry as the preview choice has it: the whole narrow preset with the preview
---- off, the upper half of a wider one, for readable code below, with it on
+--- Float tree geometry: the narrow preset, or the upper half of a wider one with the preview on
 --- @return utils.ui.layout.WinConfig tree
 --- @return integer preview_height Height of the preview below the tree, with the preview on
 function M.float_geometry()
@@ -224,8 +223,7 @@ function M.switch_to_side()
   api.tree.open()
 end
 
---- Open the tree, back in the float position unless the side tree is already visible, or close a
---- focused float tree
+--- Open the tree (as a float unless the side tree is visible), or close a focused float tree
 --- @return nil
 function M.toggle()
   if api.tree.is_tree_buf() and state.position == 'float' then
@@ -253,8 +251,7 @@ function M.setup(opts)
   nvimtree.setup(opts)
 end
 
---- Keep the preview following the tree buffer's focus while it is on; one watcher per tree buffer,
---- as nvim-tree wipes it on close
+--- Keep the preview on the tree's focus; one watcher per tree buffer, since nvim-tree wipes those
 --- @param tree_bufnr integer
 --- @return nil
 function M.watch_preview(tree_bufnr)
@@ -268,7 +265,7 @@ function M.watch_preview(tree_bufnr)
   })
 end
 
---- Where nvim-tree-preview draws, relative to the tree window: below a float tree, beside a side one
+--- Where nvim-tree-preview draws relative to the tree window: below a float tree, beside a side one
 --- @return { col: integer, row: integer, width: integer, height: integer } geometry
 function M.preview_geometry()
   if state.position ~= 'float' then

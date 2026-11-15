@@ -1,6 +1,5 @@
-# Sourced by the scripts beside tests/lib (run.sh, ab.sh, probe.sh), which is where it looks for
-# boot.lua: the environment every headless boot of this config gets. Each rule below once cost a
-# runaway process tree or a false result:
+# The environment every headless boot gets, sourced by the scripts beside tests/lib (it finds
+# boot.lua there). Each rule below once cost a runaway process tree or a false result:
 #
 # - XDG_DATA_HOME stays the real one, since plugins and parsers load from it. Overridden once, it
 #   led mise to an empty data dir, where a shim recursion spawned about 3,500 processes

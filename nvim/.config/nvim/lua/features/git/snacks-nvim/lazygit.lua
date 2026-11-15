@@ -74,10 +74,8 @@ function M.toggle()
   })
 end
 
---- Open the files of lazygit's edit command the way `nvim --remote` does (`:drop`), with the
---- cursor on `line` of the first unless it is 0. Every visible Snacks terminal is hidden first and
---- the last editing window refocused: `:drop` uses the current window, and closing a float nulls
---- `prevwin`, so nvim alone would fall back to the top-left split
+--- Open lazygit's edit paths with `:drop`, the cursor on `line` of the first unless 0, in the last
+--- editing window, refocused after hiding the Snacks terminals: closing a float nulls `prevwin`
 --- @param line integer
 --- @param paths string[]
 function M.remote_edit(line, paths)

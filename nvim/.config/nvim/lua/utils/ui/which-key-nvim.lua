@@ -1,5 +1,4 @@
---- An icon rule as this config writes it: `color` is a Catppuccin palette key, which which-key
---- paints through the group chrome/which-key-nvim/icon-rules.lua defines for it
+--- `color` is a palette key, painted through the group chrome/which-key-nvim/icon-rules.lua defines
 --- @class utils.ui.which-key-nvim.IconRule : wk.IconRule
 --- @field color? utils.ui.catppuccin-nvim.PaletteKey
 

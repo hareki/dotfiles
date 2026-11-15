@@ -1,15 +1,9 @@
--- The modules something outside nvim reaches by their path (AGENTS.md, Entry points), checked the
--- way each caller reaches them. lazygit's edit command (its shell-functions.sh) opens its files
--- through one `--remote-expr`, built from the paths it is handed. tsave finds a pane's nvim through
--- the pane option publish_tmux_server() sets, asks it for unsaved(), then sends quit(). Claude
--- Code's Stop hook sends one to the nvim running that Claude once the agent is done. And the tools
--- that open nvim as their editor name themselves in NVIM_INTEGRATION, which utils.ui.integration
--- must know
+-- The modules something outside nvim reaches by their path (AGENTS.md, Entry points), each checked
+-- the way its caller does: lazygit's edit command, tsave, Claude's Stop hook, NVIM_INTEGRATION
 
 local t = require('tests.lib.helpers')
 
--- The dotfiles repo holds this config at nvim/.config/nvim, beside the lazygit, zsh and
--- claude-code packages
+-- The dotfiles repo holds this config at nvim/.config/nvim, beside lazygit, zsh and claude-code
 local repo = vim.fs.dirname(
   vim.fs.dirname(vim.fs.dirname(assert(vim.uv.fs_realpath(vim.env.NVIM_TEST_CONFIG))))
 )
@@ -17,8 +11,7 @@ local repo = vim.fs.dirname(
 local TSAVE = 'zsh/.config/zsh/functions/tsave'
 local LAZYGIT_EDIT = 'lazygit/.config/lazygit/shell-functions.sh'
 
--- The files that start nvim with NVIM_INTEGRATION set: git's core.editor, lazygit's edit commands
--- and Claude Code's editor
+-- The files that start nvim with NVIM_INTEGRATION set
 local INTEGRATION_CALLERS = {
   'git/.gitconfig',
   LAZYGIT_EDIT,
@@ -92,8 +85,7 @@ t.test("lazygit's edit command opens its files in this nvim, on the line it name
     end
   end)
 
-  --- Run an edit command as lazygit does: its functions file sourced into a shell, then the
-  --- command, this nvim the one it runs inside
+  --- Run an edit command as lazygit does, its functions file sourced into a shell inside this nvim
   --- @param shell string[]
   --- @param command string
   local function lazygit_runs(shell, command)

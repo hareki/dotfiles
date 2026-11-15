@@ -1,6 +1,5 @@
--- The colors icons take. An icon rule names its color by Catppuccin palette key, which which-key
--- paints through the group chrome.which-key-nvim.icon-rules defines for that key, and a statusline
--- piece takes the same keys; neither accepts a key the palette lacks
+-- The colors icons take: an icon rule (through chrome.which-key-nvim.icon-rules' groups) and a
+-- statusline piece name a Catppuccin palette key, and neither accepts a key the palette lacks
 
 local t = require('tests.lib.helpers')
 local icon_rules = require('chrome.which-key-nvim.icon-rules')

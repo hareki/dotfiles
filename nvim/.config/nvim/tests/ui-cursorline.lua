@@ -1,6 +1,5 @@
--- UI.cursorline.follow_focus around Terminal mode. Terminal mode starts only from the main loop,
--- which a test running inside this boot's one command never returns to, so a child nvim on this
--- config enters it, driven over RPC
+-- UI.cursorline.follow_focus around Terminal mode, which starts only from the main loop a test here
+-- never returns to, so a child nvim on this config enters it, driven over RPC
 
 local t = require('tests.lib.helpers')
 

@@ -1,6 +1,5 @@
---- An icon rule's color: which-key paints the icon with the group `WhichKeyIcon<Color>`,
---- capitalizing whatever the rule names, so a group per Catppuccin palette key lets a rule name its
---- color as the rest of the config does
+--- which-key paints a rule's icon with `WhichKeyIcon<Color>`, the color capitalized, so a group per
+--- Catppuccin palette key lets a rule name its color as the rest of the config does
 --- @class chrome.which-key-nvim.icon-rules
 local M = {}
 

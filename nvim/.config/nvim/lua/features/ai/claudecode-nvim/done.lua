@@ -1,6 +1,5 @@
---- Entry point: Claude Code's Stop hook (`claude-code/.claude/hooks/nvim-when-done.sh` in the
---- dotfiles) calls `mark()` through `--remote-expr` on the nvim whose terminal runs that Claude,
---- so this path and that name stay stable
+--- Entry point: Claude Code's Stop hook (claude-code's `nvim-when-done.sh`) calls `mark()` through
+--- `--remote-expr` on the nvim running that Claude, so this path and that name stay stable
 --- @class features.ai.claudecode-nvim.done
 local M = {}
 

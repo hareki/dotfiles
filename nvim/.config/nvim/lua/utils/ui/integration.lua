@@ -5,9 +5,8 @@ local icons = require('config.icons')
 --- @field color string Catppuccin palette key for the label's foreground
 --- @field label string
 
---- Entry point: the tools that open nvim as their editor set NVIM_INTEGRATION to one of these keys
---- (git's `core.editor`, lazygit's edit commands and Claude Code's `nvim-claude` shim, all in the
---- dotfiles), so the keys stay stable: a value that is none of them aborts the boot
+--- Entry point: git's `core.editor`, lazygit's edit commands and the `nvim-claude` shim set
+--- NVIM_INTEGRATION to one of these keys, so they stay stable: any other value aborts the boot
 --- @type table<string, utils.ui.integration.Host>
 local HOSTS = {
   lazygit = { icon = icons.git.LAZYGIT, color = 'blue', label = 'Lazygit' },
@@ -40,8 +39,7 @@ local function resolve_host()
   return host
 end
 
---- The integration: the reduced mode nvim runs in when a tool opens it as its editor, its
---- statusline the tool's label in place of lualine
+--- The reduced mode nvim runs in as a tool's editor, the tool's label in place of lualine
 --- @class utils.ui.integration
 --- @field host? utils.ui.integration.Host The tool that opened this nvim, if any
 local M = {

@@ -1,6 +1,4 @@
--- features.navigation.nvim-tree-lua.utils: the float tree's shape, reached through its keys. Alone
--- it fills the narrow preset; with the preview on it keeps the upper half of the wide one, the
--- preview below it; the choice outlasts the tree; beside a side tree the preview is a side float
+-- features.navigation.nvim-tree-lua.utils: the float tree's shape, reached through its keys
 
 local t = require('tests.lib.helpers')
 local tree = require('features.navigation.nvim-tree-lua.utils')

@@ -115,9 +115,8 @@ local function run(opts)
   return result
 end
 
---- Start an in-process language server attached to buf, stopped when the test ends; each request
---- it gets is logged, then answered by handlers[method](params, reply), or at once with a null
---- result
+--- Start an in-process language server on buf, stopped when the test ends; it logs each request,
+--- then answers it through handlers[method](params, reply), or at once with a null result
 --- @param buf integer
 --- @param name string
 --- @param handlers table<string, fun(params: table, reply: fun(err?: table, result?: any))>

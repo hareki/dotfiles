@@ -1,7 +1,5 @@
---- What a test file uses: register tests, assert, wait on the event loop, set up buffers, tabs and
---- floats, look up maps, drive Snacks pickers. tests/lib/boot.lua runs the file after the full
---- boot, VeryLazy too. What a test acquires here (a spy, a buffer, a tab, a float, a picker) is
---- undone when the test ends, pass or fail, so the next one starts clean
+--- What a test file uses, run by tests/lib/boot.lua after the full boot (VeryLazy too). What a test
+--- acquires here (a spy, a buffer, a tab, a float, a picker) is undone when it ends, pass or fail
 --- @class tests.lib.helpers
 local M = {}
 
@@ -90,8 +88,7 @@ function M.settle(ms)
   vim.wait(ms or 50)
 end
 
---- Record every call of tbl[key] until the test ends, calling through to the original unless
---- `fake` replaces it
+--- Record every call of tbl[key] until the test ends, calling through unless `fake` replaces it
 --- @param tbl table
 --- @param key string
 --- @param fake? function

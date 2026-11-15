@@ -4,8 +4,7 @@
 local t = require('tests.lib.helpers')
 local done = require('features.ai.claudecode-nvim.done')
 
---- A stand-in panel, gone when the test ends: a focused float on a buffer that claudecode.nvim
---- reports as its terminal
+--- A stand-in panel until the test ends: a focused float claudecode.nvim takes for its terminal
 --- @return integer win
 local function open_panel()
   local win, buf = t.float(true)

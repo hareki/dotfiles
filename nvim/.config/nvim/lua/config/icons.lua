@@ -156,8 +156,7 @@ local M = {
     SCROLL_UP = '󱕑 ',
     SCROLL_DOWN = '󱕐 ',
   },
-  -- Palette key of each icon that more than one surface paints (a which-key rule, a statusline
-  -- piece, a winbar title, a picker label), stated once so they agree
+  -- One palette key per icon several surfaces paint (which-key, statusline, winbar), so they agree
   colors = {
     CODING_AGENT = 'teal',
     GIT = 'red',

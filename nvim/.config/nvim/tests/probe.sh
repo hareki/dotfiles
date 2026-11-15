@@ -3,9 +3,8 @@
 #
 #   tests/probe.sh path/to/payload.lua
 #
-# The payload runs once the boot is done, VeryLazy too. It can print (io.stdout:write), register
-# tests through tests/lib/helpers.lua, or both; the boot ends when it returns, failing with the
-# tests that failed. Boot rules: tests/lib/env.sh
+# The payload runs after the boot (VeryLazy too) and may print (io.stdout:write) or register tests
+# through tests/lib/helpers.lua, or both; failed tests fail the boot. Boot rules: tests/lib/env.sh
 set -u
 . "$(cd "$(dirname "$0")" && pwd)/lib/env.sh"
 trap nvim_test_cleanup EXIT
