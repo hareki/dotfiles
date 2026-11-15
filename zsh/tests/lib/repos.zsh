@@ -16,7 +16,9 @@ zt_repos() {
   unset -m 'GIT_*' XDG_CONFIG_HOME
   export HOME=$ZT_TMP/home REPOS_DIR=$ZT_TMP/home/repos
   export GIT_CONFIG_GLOBAL=$ZT_TMP/gitconfig GIT_CONFIG_NOSYSTEM=1 GIT_ALLOW_PROTOCOL=file
-  path=(/usr/bin /bin /usr/sbin /sbin)
+  # git's own dir first: /usr/bin/git is a launcher that looks it up again on every call (~3ms of
+  # ~7), and a test file makes hundreds
+  path=(${$(xcrun -f git):h} /usr/bin /bin /usr/sbin /sbin)
   mkdir -p $REPOS_DIR
   cat >$GIT_CONFIG_GLOBAL <<EOF
 [user]

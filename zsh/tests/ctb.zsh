@@ -32,7 +32,7 @@ bar() {
 
 # toggle: ctb's exit status and what it prints
 toggle() {
-  t_run $ZT_TMP/out $ZT_TMP/err ctb
+  ctb >$ZT_TMP/out 2>$ZT_TMP/err
   print -r -- "$? $(t_plain $ZT_TMP/out)$(<$ZT_TMP/err)"
 }
 

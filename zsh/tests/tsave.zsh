@@ -13,10 +13,7 @@ export SHELL=/bin/sh
 
 # The nvim tsave's own RPC client is
 nvim=/opt/homebrew/bin/nvim
-if [[ ! -x $nvim ]]; then
-  t_fail "$nvim is installed"
-  t_done
-fi
+[[ -x $nvim ]] || t_bail "$nvim is installed"
 
 # What the config does for tsave, and no more: the entry point on the module path, the address
 # published once the UI is up, and a file that only nvim's normal exit leaves
@@ -69,14 +66,13 @@ server() {
 
 # run <tsave args>: tsave's stdout and stderr into out and err, its exit status into rc
 run() {
-  t_run $ZT_TMP/out $ZT_TMP/err tsave "$@"
+  tsave "$@" >$ZT_TMP/out 2>$ZT_TMP/err
   rc=$?
 }
 
 # refused <what> <blocker pattern>...: the tsave that just ran kept its snapshot and named exactly
 # these blockers, a line each, and the server and its panes are as they were
 refused() {
-  setopt local_options extended_glob
   local what=$1 blocker want='tsave: snapshot <->-<->-<->_<->-<->-<-> kept, tmux left running:'
   for blocker in "${@[2,-1]}"; do
     want+=$'\n'"  alpha:<->.<->: $blocker"
@@ -106,10 +102,7 @@ t_eq 'then killed the server' $? 1
 
 # --- Refusals: nothing is quit while any pane holds what a kill would lose
 
-if ! server; then
-  t_fail 'a pane nvim that published its address'
-  t_done
-fi
+server || t_bail 'a pane nvim that published its address'
 # An unsaved buffer, a second pane whose nvim tsave can't reach, and a second session sharing both
 # panes, which tmux lists once per session
 tmux send-keys -t alpha ihello Escape
@@ -145,10 +138,7 @@ tmux kill-server
 # --- The quit
 
 rm -f $ZT_TMP/left
-if ! server; then
-  t_fail 'a pane nvim with nothing unsaved'
-  t_done
-fi
+server || t_bail 'a pane nvim with nothing unsaved'
 run
 t_match 'nothing unsaved: the snapshot is reported' "$rc $(<$ZT_TMP/out)" '0 (Saved|Unchanged since) snapshot *'
 t_eq 'nothing unsaved: no complaint' "$(<$ZT_TMP/err)" ''
@@ -158,10 +148,7 @@ t_eq 'and the server is gone' $? 1
 
 # An nvim still exiting when tsave gives up on it. tsave counts its 10s in sleeps, which return at
 # once here
-if ! server stalling.lua; then
-  t_fail 'a pane nvim that is slow to exit'
-  t_done
-fi
+server stalling.lua || t_bail 'a pane nvim that is slow to exit'
 sleep() { : }
 run
 unfunction sleep

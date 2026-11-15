@@ -104,10 +104,10 @@ sync-forks() {
           report+=(none '')
         elif git merge-base --is-ancestor $oid $uoid; then
           new=$uoid how=fast-forward
-        # Prints "update <ref> <new> <old>" and moves nothing. No output means every commit
-        # came out empty, so the fork is upstream's branch now
+        # Prints "update <ref> <new> <old>" and moves nothing. When every commit came out empty,
+        # <new> is upstream's head, so the fork is upstream's branch now
         elif result=$(git replay --ref-action=print --onto=$uoid --ref=$tracking $uoid..$oid 2>&1); then
-          new=${${(z)result}[3]:-$uoid} how=rebase
+          new=${${(z)result}[3]} how=rebase
         elif (( $? == 1 )); then
           report+=(conflict $upstream:$ubranch)
         else
@@ -186,7 +186,7 @@ sync-forks() {
       # Polled, so a slow rebase never stalls the free slots: zargs -P runs fixed batches and
       # zsh's wait has no -n. After the spawn, as a subshell's $jobstates lists its parent's
       # jobs until it starts one of its own
-      while (( $#jobstates >= jobs )); do zselect -t 5; done
+      while (( $#jobstates >= jobs )); do zselect -t 1; done
     done
     wait
   } | while IFS=$sep read -rA report; do

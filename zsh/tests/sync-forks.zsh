@@ -91,7 +91,7 @@ gate() {
   : >$root/open
 }
 
-# --- Fixtures
+# --- Scratch repos
 
 # upstream_commit/fork_commit <n> <subject> <file> <line>: a commit of <file>, holding just <line>,
 # pushed to the upstream or the fork from its work clone
@@ -160,22 +160,21 @@ rebased_locally() {
 # --- Checks
 
 typeset -A want_line want_state
-# expect <n> <line in run 1> <state after it> <line in run 2> [<state after it>]: the fork's report
-# line past "<n>: ", and its state (see state). Without a state after run 2, run 2 must leave the
-# fork's repos exactly as run 1 did
+# expect <n> <line in run 1> <state after it> [<line in run 2> [<state after it>]]: the fork's
+# report line past "<n>: ", and its state (see state). Without a line for run 2, it reports what
+# run 1 did, and without a state after it, it must leave the fork's repos exactly as run 1 did
 expect() {
-  want_line[1/$1]=$2 want_state[1/$1]=$3 want_line[2/$1]=$4
+  want_line[1/$1]=$2 want_state[1/$1]=$3 want_line[2/$1]=${4-$2}
   (( $# < 5 )) || want_state[2/$1]=$5
 }
 
 # run_sync <run> <sync-forks args>: sync-forks into <run>.out and <run>.err, its network use into
 # <run>.net, its exit status into rc
 run_sync() {
-  net_log=$root/$1.net
+  local net_log=$root/$1.net
   : >$net_log
-  t_run $root/$1.out $root/$1.err sync-forks "${@[2,-1]}"
+  sync-forks "${@[2,-1]}" >$root/$1.out 2>$root/$1.err
   rc=$?
-  net_log=
 }
 
 # plain <file>: a run's output without SGR escapes, and the oid in a refused push's line masked
@@ -253,7 +252,7 @@ snapshot() {
 # Up to date: upstream has nothing the fork lacks, and neither side is fetched
 current uptodate
 clone_fork uptodate
-expect uptodate 'up to date' 'github=u1 f1; main=github; HEAD=main' 'up to date'
+expect uptodate 'up to date' 'github=u1 f1; main=github; HEAD=main'
 
 # Behind upstream: rebased, pushed, and the clone's checked-out branch reset onto it
 behind rebase
@@ -325,8 +324,7 @@ conflicting conflict
 clone_fork conflict
 expect conflict \
   'rebase conflict with up/conflict:main, rebasing in ~/repos/conflict' \
-  'github=u1 f1; main=github; HEAD=detached; rebase-merge; changes=UU shared.txt' \
-  'rebase conflict with up/conflict:main, rebasing in ~/repos/conflict'
+  'github=u1 f1; main=github; HEAD=detached; rebase-merge; changes=UU shared.txt'
 
 # ...with another branch checked out in the clone
 conflicting conflict-other
@@ -334,8 +332,7 @@ clone_fork conflict-other
 in_clone conflict-other switch -qc other
 expect conflict-other \
   'rebase conflict with up/conflict-other:main, not rebased, main not checked out' \
-  'github=u1 f1; main=github; HEAD=other' \
-  'rebase conflict with up/conflict-other:main, not rebased, main not checked out'
+  'github=u1 f1; main=github; HEAD=other'
 
 # ...with local changes in the clone
 conflicting conflict-dirty
@@ -343,8 +340,7 @@ clone_fork conflict-dirty
 print local >>$REPOS_DIR/conflict-dirty/shared.txt
 expect conflict-dirty \
   'rebase conflict with up/conflict-dirty:main, not rebased, local changes' \
-  'github=u1 f1; main=github; HEAD=main; changes=M shared.txt' \
-  'rebase conflict with up/conflict-dirty:main, not rebased, local changes'
+  'github=u1 f1; main=github; HEAD=main; changes=M shared.txt'
 
 # ...with the rebase already stopped in the clone, by the other backend (rebase-apply)
 conflicting conflict-rebasing
@@ -353,8 +349,7 @@ in_clone conflict-rebasing fetch -q upstream
 in_clone conflict-rebasing rebase -q --apply upstream/main >/dev/null 2>&1
 expect conflict-rebasing \
   'rebase conflict with up/conflict-rebasing:main, rebasing in ~/repos/conflict-rebasing' \
-  'github=u1 f1; main=github; HEAD=detached; rebase-apply; changes=UU shared.txt' \
-  'rebase conflict with up/conflict-rebasing:main, rebasing in ~/repos/conflict-rebasing'
+  'github=u1 f1; main=github; HEAD=detached; rebase-apply; changes=UU shared.txt'
 
 # ...with the rebase finished in the clone, not pushed
 conflicting conflict-unpushed
@@ -362,8 +357,7 @@ clone_fork conflict-unpushed
 rebased_locally conflict-unpushed
 expect conflict-unpushed \
   'rebase conflict with up/conflict-unpushed:main, unpushed rebase in ~/repos/conflict-unpushed' \
-  'github=u1 f1; main=u1 u2 f1; HEAD=main' \
-  'rebase conflict with up/conflict-unpushed:main, unpushed rebase in ~/repos/conflict-unpushed'
+  'github=u1 f1; main=u1 u2 f1; HEAD=main'
 
 # ...finished and not pushed, then upstream moved on again: rebased once more, onto u3
 conflicting conflict-moved
@@ -372,8 +366,7 @@ rebased_locally conflict-moved
 upstream_commit conflict-moved u3 upstream.txt u3
 expect conflict-moved \
   'rebase conflict with up/conflict-moved:main, unpushed rebase in ~/repos/conflict-moved' \
-  'github=u1 f1; main=u1 u2 u3 f1; HEAD=main' \
-  'rebase conflict with up/conflict-moved:main, unpushed rebase in ~/repos/conflict-moved'
+  'github=u1 f1; main=u1 u2 u3 f1; HEAD=main'
 
 # Upstream's new head can't be fetched: its repo is gone since GitHub listed it
 behind upstream-gone
@@ -382,8 +375,7 @@ pin upstream-gone
 rm -rf $root/remote/up/upstream-gone.git
 expect upstream-gone \
   "failed, fatal: '$root/remote/up/upstream-gone.git' does not appear to be a git repository" \
-  'github=u1 f1; main=github; HEAD=main' \
-  "failed, fatal: '$root/remote/up/upstream-gone.git' does not appear to be a git repository"
+  'github=u1 f1; main=github; HEAD=main'
 
 # The lease: the fork gains f2 after GitHub listed it at f1, so the push is refused. Run 2 lists it
 # afresh and syncs it
@@ -404,8 +396,7 @@ upstream_commit merged u3 upstream.txt u3
 clone_fork merged
 expect merged \
   'failed, fatal: replaying merge commits is not supported yet!' \
-  'github=u1 f1 merge; main=github; HEAD=main' \
-  'failed, fatal: replaying merge commits is not supported yet!'
+  'github=u1 f1 merge; main=github; HEAD=main'
 
 # No clone: cloned, then synced like the rest
 behind uncloned
@@ -419,19 +410,18 @@ behind foreign
 git clone -q https://github.com/up/foreign.git $REPOS_DIR/foreign
 expect foreign \
   "failed, ~/repos/foreign isn't a clone of hareki/foreign" \
-  'github=u1 f1; main=u1 u2; HEAD=main' \
-  "failed, ~/repos/foreign isn't a clone of hareki/foreign"
+  'github=u1 f1; main=u1 u2; HEAD=main'
 
 # An empty fork, listed with empty lines for its branch. Not last, so the fork after it would shift
 # into the wrong fields if those lines got lost
 gh_forks+=(empty)
 gh_pinned[empty]=$'empty\n\n\nup/empty\n\n'
-expect empty 'failed, no commits to sync' 'github=none; clone=none' 'failed, no commits to sync'
+expect empty 'failed, no commits to sync' 'github=none; clone=none'
 
 # On the ignore list: neither cloned nor fast-forwarded
 new_fork eagle.nvim
 upstream_commit eagle.nvim u2 upstream.txt u2
-expect eagle.nvim 'ignored' 'github=u1; clone=none' 'ignored'
+expect eagle.nvim 'ignored' 'github=u1; clone=none'
 
 # --- Run 1
 
@@ -581,9 +571,8 @@ done
 run_wide() {
   rm -rf $root/held $root/opening $root/open $root/in-flight
   mkdir $root/held
-  width=$2
+  local -i width=$2
   run_sync $1 "${@[3,-1]}"
-  width=0
 }
 
 run_wide default 10

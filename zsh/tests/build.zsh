@@ -118,12 +118,11 @@ recipe() {
   print -r -- "$1 _evalcache_clear"
 }
 
-# --- Fixtures
+# --- Scratch repos and brew libraries
 
-# push_commit <target> <subject> <file> <line>: a commit of <file>, holding just <line>, on the
-# target's origin
+# push_commit <target> <subject>: a commit of src.txt, holding just <subject>, on the target's origin
 push_commit() {
-  zt_commit $top/work/$1 "${@[2,-1]}" && git -C $top/work/$1 push -q origin HEAD:main
+  zt_commit $top/work/$1 $2 src.txt $2 && git -C $top/work/$1 push -q origin HEAD:main
 }
 
 # brew_lib <lib> <version>: the library as brew links it, opt/<lib> => Cellar/<lib>/<version>
@@ -148,9 +147,9 @@ done
 # into out and err, the exit status into rc
 run() {
   together=$1
-  rm -f $top/gate/*(N) $calls
+  rm -f $top/gate/*(N)
   : >$calls
-  t_run $top/out $top/err build "${@[2,-1]}"
+  build "${@[2,-1]}" >$top/out 2>$top/err
   rc=$?
 }
 
@@ -161,32 +160,40 @@ plain() {
   print -r -- "${text//(#b)(built in|failed after) [0-9ms ]##/$match[1] <t>}"
 }
 
-# check_all <what> <exit status> <target>=<state>...: the `build all` that just ran. Its report is
-# the header, then the lines of each state, sorted as the jobs report in any order, and its calls
-# are the recipe of every target that built:
+# build_all <what> <exit status> [<target>=<state>...]: runs `build all`, with the builds its
+# states make due side by side, and checks it. Its report is the header, then the lines of each
+# state, sorted as the jobs report in any order, and its calls are the recipe of every target that
+# built. A target without a state is current:
 #   current   up to date, nothing ran
 #   built     built
 #   scratch   built, cargo's target dir emptied first
 #   broken    pulled, but the build failed in its long step
 #   unpulled  the pull failed, nothing ran
-check_all() {
+build_all() {
   local what=$1 want_rc=$2 pair name
   local -a lines want_calls out
+  local -A want
+  local -i due=0
   for pair in "${@[3,-1]}"; do
-    name=${pair%%=*}
-    case ${pair#*=} in
+    want[${pair%%=*}]=${pair#*=}
+  done
+  for name in $names; do
+    case ${want[$name]:-current} in
       current)  lines+=("$name: up to date") ;;
       built|scratch)
+        (( due++ ))
         lines+=("$name: building" "$name: built in <t>")
-        want_calls+=("${(@f)$(recipe $name ${pair#*=})}")
+        want_calls+=("${(@f)$(recipe $name $want[$name])}")
         ;;
       broken)
+        (( due++ ))
         lines+=("$name: building" "$name: failed after <t>")
         want_calls+=("${${(f)$(recipe $name)}[1]}" "$name _evalcache_clear")
         ;;
       unpulled) lines+=("$name: failed after <t>") ;;
     esac
   done
+  run $due all
   out=("${(@f)$(plain $top/out)}")
   t_eq "$what: exit status" $rc $want_rc
   t_lines "$what: a line per target" "$(print -rl -- "${(@)out[1,2]}" ${(o)out[3,-1]})" \
@@ -197,14 +204,12 @@ check_all() {
 
 # --- `build all`
 
-run 7 all
-check_all 'first run' 0 {atuin,eza,television,worktrunk}=scratch {lazygit,fzf,tmux}=built
+build_all 'first run' 0 {atuin,eza,television,worktrunk}=scratch {lazygit,fzf,tmux}=built
 t_eq 'first run: no stderr' "$(<$top/err)" ''
 t_match 'first run: the logs are in a dir of their own in TMPDIR' "$(<$top/logdirs)" "$TMPDIR/build.??????"
 t_eq 'first run: Ctrl-C reaches a build' "$(<$top/traps)" ''
 
-run 0 all
-check_all 'nothing new' 0 {atuin,eza,television,worktrunk,lazygit,fzf,tmux}=current
+build_all 'nothing new' 0
 
 # One change per target, atuin none:
 # - eza: a commit on origin
@@ -213,17 +218,16 @@ check_all 'nothing new' 0 {atuin,eza,television,worktrunk,lazygit,fzf,tmux}=curr
 # - worktrunk: a commit on origin that doesn't compile
 # - lazygit: an origin that's gone
 # - tmux: one of its brew libraries upgraded
-push_commit eza c2 src.txt c2
+push_commit eza c2
 git -C $top/work/fzf commit -q --amend -m reworded && git -C $top/work/fzf push -q --force origin HEAD:main
 git -C $REPOS_DIR/fzf fetch -q && git -C $REPOS_DIR/fzf reset -q --hard origin/main
 print local >>$REPOS_DIR/television/src.txt
-push_commit worktrunk c2 src.txt c2
+push_commit worktrunk c2
 broken=(worktrunk)
 git -C $REPOS_DIR/lazygit remote set-url origin $top/remote/gone.git
 brew_lib libevent 2.0
 
-run 4 all
-check_all 'changes' 1 atuin=current eza=built fzf=current television=built worktrunk=broken lazygit=unpulled tmux=built
+build_all 'changes' 1 eza=built fzf=current television=built worktrunk=broken lazygit=unpulled tmux=built
 err=$(plain $top/err)
 t_match 'changes: stderr has the log of the failed build' "$err" \
   '*==> Failed to build worktrunk:*Fast-forward*worktrunk: compile error*'
@@ -233,46 +237,40 @@ headers=(${(M)${(f)err}:#'==> '*})
 t_eq 'changes: stderr has no other log' $#headers 2
 
 # A failed build and an uncommitted change are built again, a build that succeeded is not
-run 2 all
-check_all 'same changes again' 1 atuin=current eza=current fzf=current television=built worktrunk=broken lazygit=unpulled tmux=current
+build_all 'same changes again' 1 television=built worktrunk=broken lazygit=unpulled
 
 # Fixed, the failed ones catch up, and the checkout with its change gone is built once more, as
 # what's installed still has the change
 broken=()
 git -C $REPOS_DIR/lazygit remote set-url origin $top/remote/lazygit.git
 git -C $REPOS_DIR/television checkout -q -- src.txt
-run 2 all
-check_all 'changes fixed' 0 atuin=current eza=current fzf=current television=built worktrunk=built lazygit=current tmux=current
+build_all 'changes fixed' 0 television=built worktrunk=built
 t_eq 'changes fixed: no stderr' "$(<$top/err)" ''
 
-run 0 all
-check_all 'settled' 0 {atuin,eza,television,worktrunk,lazygit,fzf,tmux}=current
+build_all 'settled' 0
 t_eq 'no log dir outlives a run' "$(print -rl -- $TMPDIR/*(N))" ''
 
 # --- cargo's target dirs
 
 # Kept from build to build since each target's first, until one has grown past 4GB
-push_commit television c2 src.txt c2
-push_commit worktrunk c3 src.txt c3
+push_commit television c2
+push_commit worktrunk c3
 kilobytes[worktrunk]=$(( 5 * 1024 ** 2 ))
-run 2 all
-check_all 'a target dir past 4GB' 0 television=built worktrunk=scratch {atuin,eza,lazygit,fzf,tmux}=current
+build_all 'a target dir past 4GB' 0 television=built worktrunk=scratch
 kilobytes=()
 
 # ...or rustc is a new one, which the dir is then kept for
 rustc_version=1.1.0
-push_commit eza c3 src.txt c3
-run 1 all
-check_all 'a new rustc' 0 eza=scratch {atuin,television,worktrunk,lazygit,fzf,tmux}=current
-push_commit eza c4 src.txt c4
-run 1 all
-check_all 'the same rustc again' 0 eza=built {atuin,television,worktrunk,lazygit,fzf,tmux}=current
+push_commit eza c3
+build_all 'a new rustc' 0 eza=scratch
+push_commit eza c4
+build_all 'the same rustc again' 0 eza=built
 
 # --- `build <target>`
 
 # Builds whatever the checkout holds, every time (the first from scratch, on its first build since
 # the new rustc), and `build all` then finds it up to date
-push_commit atuin c2 src.txt c2
+push_commit atuin c2
 git -C $REPOS_DIR/atuin pull -q
 cd $REPOS_DIR/atuin
 run 1 atuin
@@ -280,8 +278,7 @@ t_lines 'build <target>: builds the checkout' "$rc $(<$calls)" "0 $(recipe atuin
 run 1 atuin
 t_lines 'build <target>: builds it again' "$rc $(<$calls)" "0 $(recipe atuin)"
 cd $top
-run 0 all
-check_all 'build <target>: up to date for build all' 0 {atuin,eza,television,worktrunk,lazygit,fzf,tmux}=current
+build_all 'build <target>: up to date for build all' 0
 
 # atuin builds with every default feature when its manifest can't tell which there are
 unreadable=1
@@ -303,8 +300,7 @@ t_lines 'build <target>: a failed build' "$rc $(<$calls)"$'\n'"$(<$top/err)" \
   "1 ${$(recipe eza)[(f)1]}"$'\n'"eza _evalcache_clear"$'\n'"eza: compile error"
 broken=()
 cd $top
-run 2 all
-check_all 'build <target>: uncommitted changes and a failure leave it due' 0 atuin=built eza=built {television,worktrunk,lazygit,fzf,tmux}=current
+build_all 'build <target>: uncommitted changes and a failure leave it due' 0 atuin=built eza=built
 
 # --- The rest of the interface
 

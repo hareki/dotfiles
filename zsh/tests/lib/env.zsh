@@ -25,8 +25,6 @@ typeset -g ZT_REAL_HOME=${ZT_REAL_HOME:-$HOME} ZT_TMUX=${ZT_TMUX:-${commands[tmu
 typeset -g ZT_LIB=${${(%):-%x}:A:h}
 # What a test file's commands find: the tmux build first (resurrect's scripts call `tmux` by name)
 typeset -g ZT_PATH=${ZT_TMUX:h}:/usr/bin:/bin:/usr/sbin:/sbin
-typeset -ga ZT_TIMEOUT=()
-(( $+commands[gtimeout] )) && ZT_TIMEOUT=(gtimeout 600)
 
 # Short and private: tmux and zsh-patina put sockets here
 zt_tmpdir() {
@@ -72,13 +70,12 @@ zt_home() {
 
 # zt_env <home> <tmpdir>: sets reply to the environment a scratch boot starts from
 zt_env() {
-  local mise_cache=$ZT_REAL_HOME/Library/Caches/mise
   reply=(
     HOME=$1 USER=$USER LOGNAME=$USER SHELL=/bin/zsh LANG=${LANG:-en_US.UTF-8}
     PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR=$2/ TMUX_TMPDIR=$2
     MERCURY_API_KEY=dummy ANTHROPIC_API_KEY=dummy
     MISE_DATA_DIR=$ZT_REAL_HOME/.local/share/mise MISE_CONFIG_DIR=$ZT_REAL_HOME/.config/mise
-    MISE_STATE_DIR=$ZT_REAL_HOME/.local/state/mise MISE_CACHE_DIR=$mise_cache
+    MISE_STATE_DIR=$ZT_REAL_HOME/.local/state/mise MISE_CACHE_DIR=$ZT_REAL_HOME/Library/Caches/mise
     MISE_NOT_FOUND_AUTO_INSTALL=false MISE_EXEC_AUTO_INSTALL=false MISE_TASK_RUN_AUTO_INSTALL=false
   )
 }
@@ -92,9 +89,11 @@ zt_boot() {
   local home=$1 dir=$2 tree=$3 sock=$2/tmux.sock tmp=${1:h}/tmp
   mkdir -p $dir $tmp || return 1
   zt_env $home $tmp
-  # tmux runs the pane's command through $SHELL -c, which for zsh would read the config once more
-  env -i $reply SHELL=/bin/sh $ZT_TMUX -S $sock -f /dev/null new-session -d -x 160 -y 50 -c $home \
-    "exec env -u TMUX -u TMUX_PANE SHELL=/bin/zsh SHLVL=0 ZDOTDIR=$ZT_LIB/zdotdir ZT_DUMP_DIR=$dir ZT_TREE=$tree ${ZT_PROBE:+ZT_PROBE=$ZT_PROBE} /bin/zsh -l" ||
+  # As several arguments, which tmux executes as they are: a single one would go through $SHELL -c,
+  # a zsh that reads the config once more
+  env -i $reply $ZT_TMUX -S $sock -f /dev/null new-session -d -x 160 -y 50 -c $home \
+    env -u TMUX -u TMUX_PANE SHLVL=0 ZDOTDIR=$ZT_LIB/zdotdir ZT_DUMP_DIR=$dir ZT_TREE=$tree \
+    ${ZT_PROBE:+ZT_PROBE=$ZT_PROBE} /bin/zsh -l ||
     return 1
   zt_await $sock $dir/dump-1.txt || return 1
   $ZT_TMUX -S $sock send-keys 'zsh -l' Enter
@@ -102,14 +101,17 @@ zt_boot() {
   $ZT_TMUX -S $sock kill-server
 }
 
-# zt_await <socket> <file>: presses Enter in the pane every half second until <file> appears, since
-# the dump runs at the first prompt after the deferred plugins have loaded
+# zt_await <socket> <file>: presses Enter in the pane every tenth of a second until <file> appears,
+# since the dump runs at the first prompt after the deferred plugins have loaded
 zt_await() {
-  local sock=$1 file=$2 i
-  for i in {1..60}; do
+  local sock=$1 file=$2
+  repeat 300; do
     [[ -s $file ]] && return 0
-    $ZT_TMUX -S $sock send-keys Enter 2>/dev/null || break
-    sleep 0.5
+    if ! $ZT_TMUX -S $sock send-keys Enter 2>/dev/null; then
+      print -u2 -r -- "zt_await: the server is gone, with no ${file:t} yet"
+      return 1
+    fi
+    sleep 0.1
   done
   print -u2 -r -- "zt_await: no ${file:t} after 30s, the pane shows:"
   $ZT_TMUX -S $sock capture-pane -p 2>/dev/null | grep -v '^$' >&2

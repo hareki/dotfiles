@@ -5,12 +5,11 @@
 #   t_eq <what> <actual> <expected>   the strings are equal
 #   t_match <what> <actual> <pattern> the string matches a zsh pattern (extended_glob)
 #   t_lines <what> <actual> <expected> the texts are equal, shown as a diff of their lines if not
+#   t_bail <what>                     fails <what> and ends the file there, as the rest builds on it
 #   t_done                            last line of a test file
 #
-# And for the command a test file drives:
+# And for the output of the command a test file drives:
 #
-#   t_run <out> <err> <command...>    runs it the way an interactive shell does, its stdout and
-#                                     stderr into the two files, and returns its exit status
 #   t_plain <file>                    prints the file without SGR escapes
 #
 # run.zsh starts each file with `zsh -f` from `env -i` (lib/env.zsh), its HOME and TMPDIR inside
@@ -19,14 +18,12 @@
 
 typeset -gi T_PASSED=0 T_FAILED=0
 
-# A command of this config runs inside an interactive shell, so t_run runs it under that shell's
+# A command of this config runs inside an interactive shell, so a test file runs under that shell's
 # options: those `setopt` lists in one, bar the interactive-only ones (the "options set" in a
-# tests/ab.zsh dump, which tests/overrides.zsh compares this list with)
-typeset -ga T_INTERACTIVE_OPTIONS=(
-  multios long_list_jobs interactive_comments prompt_subst auto_cd combining_chars
-  extended_history hist_expire_dups_first hist_ignore_dups hist_ignore_space hist_verify
+# tests/ab.zsh dump, which tests/overrides.zsh compares these with)
+setopt multios long_list_jobs interactive_comments prompt_subst auto_cd combining_chars \
+  extended_history hist_expire_dups_first hist_ignore_dups hist_ignore_space hist_verify \
   share_history complete_in_word always_to_end auto_menu hash_dirs no_flow_control no_global_rcs
-)
 
 t_pass() {
   (( T_PASSED++ ))
@@ -71,15 +68,15 @@ t_lines() {
   t_ok $1 diff -u --label expected --label actual <(print -r -- "$3") <(print -r -- "$2")
 }
 
-t_run() {
-  setopt local_options $T_INTERACTIVE_OPTIONS
-  "${@[3,-1]}" >$1 2>$2
-}
-
 t_plain() {
   setopt local_options extended_glob
   local text=$(<$1)
   print -r -- "${text//$'\e'\[[0-9;]#m}"
+}
+
+t_bail() {
+  t_fail $1
+  t_done
 }
 
 t_done() {

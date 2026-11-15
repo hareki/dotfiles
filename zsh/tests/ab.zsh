@@ -1,5 +1,5 @@
 #!/bin/zsh -f
-# Boots a committed revision (HEAD by default) and this working tree side by side, each in a scratch
+# Boots a committed revision (HEAD by default), then this working tree, each in a scratch
 # HOME as a top-level login shell and as a login shell started from it, dumps what each defines once
 # the deferred plugins have loaded (lib/dump.zsh) and prints the diff:
 #

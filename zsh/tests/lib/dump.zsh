@@ -4,10 +4,11 @@
 # runs its tasks under `emulate -L zsh`, which hides the shell's own options
 
 _zt_dump() {
-  (( $#_zsh_defer_tasks )) && return
+  # Later, while tasks are queued or the last prompt's git query is out: p10k keeps a parameter for
+  # the query until gitstatusd answers, a row that only one of two boots' dumps would then have
+  (( $#_zsh_defer_tasks || $+_p9k__gitstatus_next_dir )) && return
   local -a on=(${(ok)options[(R)on]})
   precmd_functions=(${precmd_functions:#_zt_dump})
-  setopt local_options extended_glob
 
   local out=$ZT_DUMP_DIR/dump-$SHLVL.txt name REPLY
   {

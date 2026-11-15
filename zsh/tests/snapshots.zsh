@@ -76,10 +76,7 @@ t_eq 'select without an id or a last fails' $? 1
 rm -rf $dir
 
 # A private server: TMUX_TMPDIR is scratch, and run.zsh's `env -i` left TMUX behind
-if ! tmux new-session -d -s alpha -x 120 -y 30; then
-  t_fail 'start a private tmux server'
-  t_done
-fi
+tmux new-session -d -s alpha -x 120 -y 30 || t_bail 'start a private tmux server'
 t_eq "the server loads resurrect, its dir in the scratch HOME" "$(tmux show-option -gqv @resurrect-dir)" $dir
 
 local out first id1 id2
@@ -146,6 +143,6 @@ repeat 40; do
   sleep 0.25
 done
 t_eq 'the snapshot replaces the placeholder session' "${(j:,:)sessions}" alpha
-t_eq 'with its windows' "$(tmux list-windows -t alpha -F '#{window_index}' | wc -l | tr -d ' ')" 1
+t_eq 'with its windows' "$(tmux display-message -p -t alpha '#{session_windows}')" 1
 
 t_done
