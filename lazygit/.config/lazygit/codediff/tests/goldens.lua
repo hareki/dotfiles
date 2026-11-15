@@ -16,7 +16,7 @@
 -- To give a fixture its repository, run these in the repository the diff was taken from:
 --
 --   git cat-file blob <oid> > <name>.repo/objects/<oid>   for each oid on an "index" line
---   cp --parents <path> <name>.repo/worktree/             for a side git has no blob for
+--   rsync -R <path> <name>.repo/worktree/                 for a side git has no blob for
 --
 -- An oid git has no blob for is the new side of an unstaged change, and the worktree file is
 -- that side.
