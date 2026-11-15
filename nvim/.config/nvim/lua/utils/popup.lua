@@ -27,7 +27,7 @@ function M.focus_win(win)
 
   -- The eventless switch skips UI.cursorline.follow_focus's WinLeave and WinEnter
   cursorline.set_cursorline(false, src)
-  cursorline.focus(win)
+  cursorline.focus()
 
   if need_repaint then
     -- render-markdown anti-conceals the cursor row only while its buffer is current, and the

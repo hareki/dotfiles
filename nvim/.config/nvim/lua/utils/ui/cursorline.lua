@@ -24,11 +24,11 @@ function M.set_cursorline(enable, win)
   end
 end
 
---- Give a window the focused window's cursorline: the full line, or only the number in a diff window
---- @param win? integer The current window by default
+--- Give the current window the focused window's cursorline: the full line, or only the number in a
+--- diff window
 --- @return nil
-function M.focus(win)
-  win = win or vim.api.nvim_get_current_win()
+function M.focus()
+  local win = vim.api.nvim_get_current_win()
   M.set_cursorline(not vim.wo[win].diff, win)
 end
 
@@ -38,12 +38,7 @@ end
 function M.follow_focus()
   local group = vim.api.nvim_create_augroup('utils.ui.cursorline.follow-focus', { clear = true })
 
-  vim.api.nvim_create_autocmd('WinEnter', {
-    group = group,
-    callback = function()
-      M.focus()
-    end,
-  })
+  vim.api.nvim_create_autocmd('WinEnter', { group = group, callback = M.focus })
   vim.api.nvim_create_autocmd('WinLeave', {
     group = group,
     callback = function()
