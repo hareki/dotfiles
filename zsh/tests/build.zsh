@@ -63,9 +63,16 @@ compile() {
   fi
 }
 
-# cargo makes the target dir it builds in, and clean removes it
+# cargo makes the target dir it builds in, and clean removes it. Its metadata holds the workspace's
+# packages, or nothing once a scenario sets $unreadable
 cargo() {
-  if [[ $1 == install ]]; then
+  if [[ $1 == metadata ]]; then
+    [[ -z $unreadable ]] || return 1
+    print -r -- '{"packages": [
+      {"name": "atuin-client", "features": {"default": ["sync", "daemon"]}},
+      {"name": "atuin", "features": {"default": ["client", "ai", "daemon", "sync", "octavo", "pty-proxy", "clipboard"], "ai": ["atuin-ai"]}}
+    ]}'
+  elif [[ $1 == install ]]; then
     mkdir -p target
     compile cargo "$@" "(root ${CARGO_INSTALL_ROOT/#$HOME/~}${CARGO_PROFILE_RELEASE_LTO:+, $CARGO_PROFILE_RELEASE_LTO LTO over $CARGO_PROFILE_RELEASE_CODEGEN_UNITS units})"
   else
@@ -108,7 +115,10 @@ _evalcache_clear() {
 recipe() {
   [[ $2 != scratch ]] || print -r -- "$1 cargo clean"
   case $1 in
-    atuin) print -r -- "$1 cargo install --locked --path crates/atuin (root ~/.local/opt)" ;;
+    atuin)
+      [[ -n $unreadable ]] || local trimmed=' --no-default-features --features=client,sync,clipboard'
+      print -r -- "$1 cargo install --locked --path crates/atuin$trimmed (root ~/.local/opt)"
+      ;;
     eza|television) print -r -- "$1 cargo install --locked --path . (root ~/.local/opt, thin LTO over 16 units)" ;;
     worktrunk) print -r -- "$1 cargo install --locked --path . (root ~/.local/opt)" ;;
     lazygit|fzf) print -r -- "$1 go install (GOBIN ~/.local/opt/bin)" ;;
@@ -292,6 +302,14 @@ t_lines 'build <target>: builds it again' "$rc $(<$calls)" "0 $(recipe atuin)"
 cd $top
 run 0 all
 check_all 'build <target>: up to date for build all' 0 {atuin,eza,television,worktrunk,lazygit,fzf,tmux}=current
+
+# atuin builds with every default feature when its manifest can't tell which there are
+unreadable=1
+cd $REPOS_DIR/atuin
+run 1 atuin
+t_lines 'build atuin: all features without a readable manifest' "$rc $(<$calls)" "0 $(recipe atuin)"
+unreadable=
+cd $top
 
 # ...unless it built uncommitted changes, or failed
 print local >>$REPOS_DIR/atuin/src.txt
