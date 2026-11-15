@@ -69,5 +69,7 @@ nvim_test_cleanup() {
     hash=$(cd "$cwd" && pwd -P | tr -d '\n' | sha256sum | cut -d ' ' -f 1)
     rm -f "${XDG_DATA_HOME:-$HOME/.local/share}/nvim/harpoon/$hash.json"
   done
-  rm -rf "$NVIM_TEST_TMP"
+  # Not waited for: the run has reported by now, and the boots' loader caches (~6,700 files) take
+  # ~0.35 s to delete. Its output is closed, or a caller reading this script's would wait anyway
+  rm -rf "$NVIM_TEST_TMP" >/dev/null 2>&1 &
 }
