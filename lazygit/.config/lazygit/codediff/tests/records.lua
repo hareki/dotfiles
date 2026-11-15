@@ -4,8 +4,8 @@
 --
 -- Every fixture is rendered with records in both layouts, and its records have to name exactly
 -- the lines of git's patch, numbered the way lazygit numbers them (LineNumberOfLine and
--- OldLineNumberOfLine in its pkg/commands/patch): that is what lazygit stages by. A render
--- without records must carry none.
+-- OldLineNumberOfLine in its pkg/commands/patch): that is what lazygit stages by. A file with
+-- no lines to name has to be named by a file header. A render without records must carry none.
 --
 -- What the patch calls for is read off the fixture's text here, with nothing borrowed from the
 -- renderer: an expectation built with its parser would follow that parser into a mistake.
@@ -99,23 +99,45 @@ local function expected_records(input)
   return records
 end
 
---- The records a rendering carries, row by row and left to right. File-header records are left
---- out, since nothing in the patch's lines calls for them. A record lasts to the end of its
---- row, so a row that states one twice is a failure.
+--- The files of the patch that have no hunk: an empty file made or removed, a change of mode
+--- alone, a binary file. No line record can name one, so a file-header record is all lazygit
+--- has to act on it by. Read off the "diff --git" line, which names a file plainly when its
+--- path is the same on both sides and needs no quoting.
+local function files_without_hunks(input)
+  local files, file = {}, nil
+  for line in input:gmatch('([^\n]*)\n') do
+    if line:find('^diff ') then
+      file = line:match('^diff %-%-git a/(.+) b/%1$')
+      if file then
+        files[file] = true
+      end
+    elseif file and line:find('^@@ ') then
+      files[file] = nil
+    end
+  end
+  return vim.tbl_keys(files)
+end
+
+--- The records a rendering carries, row by row and left to right, and the files its
+--- file-header records name. Those are kept apart: no line of the patch calls for one, and the
+--- renderer puts them on notes it words itself. A record lasts to the end of its row, so a row
+--- that states one twice is a failure.
 local function rendered_records(rendered)
-  local records = {}
+  local records, headed = {}, {}
   for _, row in ipairs(vim.split(rendered, '\n', { plain = true })) do
     local seen = {}
     for payload in row:gmatch(RECORD) do
       local record = payload:match('^1;(.*)$')
-      if record and not record:match('^f;') then
+      if record and record:match('^f;') then
+        headed[t.ok(record:match('^f;;;(.+)$'), 'not a file-header record: ' .. record)] = true
+      elseif record then
         t.ok(not seen[record], 'a row states a record twice: ' .. record)
         seen[record] = true
         records[#records + 1] = record
       end
     end
   end
-  return records
+  return records, headed
 end
 
 t.freeze_clock()
@@ -123,6 +145,7 @@ t.freeze_clock()
 for _, name in ipairs(t.fixture_names()) do
   local fixture = t.fixture(name)
   local expected = expected_records(fixture.input)
+  local hunkless = files_without_hunks(fixture.input)
 
   for _, layout in ipairs(t.layouts) do
     t.test(('%s (%s records)'):format(name, layout), function()
@@ -133,7 +156,10 @@ for _, name in ipairs(t.fixture_names()) do
         )
       end
 
-      local actual = rendered_records(render(true))
+      local actual, headed = rendered_records(render(true))
+      for _, path in ipairs(hunkless) do
+        t.ok(headed[path], 'no record names ' .. path)
+      end
       -- A side-by-side row pairs a deletion with an addition, so only the inline layout
       -- keeps the patch's order.
       local want = expected
