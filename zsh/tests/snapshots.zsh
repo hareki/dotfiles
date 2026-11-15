@@ -75,7 +75,7 @@ $store select
 t_eq 'select without an id or a last fails' $? 1
 rm -rf $dir
 
-# A private server: TMUX_TMPDIR is scratch, and run.zsh unset TMUX
+# A private server: TMUX_TMPDIR is scratch, and run.zsh's `env -i` left TMUX behind
 if ! tmux new-session -d -s alpha -x 120 -y 30; then
   t_fail 'start a private tmux server'
   t_done
