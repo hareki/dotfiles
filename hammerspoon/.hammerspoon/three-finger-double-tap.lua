@@ -45,15 +45,13 @@ local function on_touches(touches, now)
   local down = 0
   for _, finger in ipairs(fingers) do
     local position = finger.normalizedPosition
-    local origin = contact.origins[finger.identity]
-    if not origin then
-      contact.origins[finger.identity] = position
-    elseif
-      math.abs(position.x - origin.x) > MAX_TRAVEL or math.abs(position.y - origin.y) > MAX_TRAVEL
+    local origin = contact.origins[finger.identity] or position
+    contact.origins[finger.identity] = origin
+    if
+      finger.phase == 'cancelled'
+      or math.abs(position.x - origin.x) > MAX_TRAVEL
+      or math.abs(position.y - origin.y) > MAX_TRAVEL
     then
-      contact.disqualified = true
-    end
-    if finger.phase == 'cancelled' then
       contact.disqualified = true
     end
     if finger.touching then
@@ -63,9 +61,8 @@ local function on_touches(touches, now)
   contact.peak = math.max(contact.peak, down)
 
   if down == 0 then
-    local ended = contact
+    on_contact_end(contact, now)
     contact = nil
-    on_contact_end(ended, now)
   end
 end
 
