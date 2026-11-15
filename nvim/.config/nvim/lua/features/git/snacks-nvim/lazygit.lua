@@ -1,8 +1,8 @@
 --- @module 'core.snacks-nvim.fullscreen-panels'
 local fullscreen_panels = Defer.on_exported_call('core.snacks-nvim.fullscreen-panels')
 
---- Entry point: lazygit's edit commands call `prepare_remote_edit()` through `--remote-expr` before
---- each `nvim --remote` edit, so this path and that name stay stable, or the edit command stops
+--- Entry point: lazygit's edit command calls `remote_edit()` through `--remote-expr`, so this path
+--- and that name stay stable, or the edit command stops
 --- @class features.git.snacks-nvim.lazygit
 local M = {}
 
@@ -30,7 +30,7 @@ local function target_file()
 end
 
 --- Track the last focused normal buffer and its non-floating window, so `toggle` can fall back
---- to that file from non-file buffers and `prepare_remote_edit` can land in a real editing window
+--- to that file from non-file buffers and `remote_edit` can land in a real editing window
 function M.track_last_focus()
   vim.api.nvim_create_autocmd({ 'WinEnter', 'BufEnter' }, {
     group = vim.api.nvim_create_augroup(
@@ -74,9 +74,13 @@ function M.toggle()
   })
 end
 
---- Hide every visible Snacks terminal and refocus the last editing window for `nvim --remote`
---- files: closing a float nulls `prevwin`, so nvim alone would fall back to the top-left split
-function M.prepare_remote_edit()
+--- Open the files of lazygit's edit command the way `nvim --remote` does (`:drop`), with the
+--- cursor on `line` of the first unless it is 0. Every visible Snacks terminal is hidden first and
+--- the last editing window refocused: `:drop` uses the current window, and closing a float nulls
+--- `prevwin`, so nvim alone would fall back to the top-left split
+--- @param line integer
+--- @param paths string[]
+function M.remote_edit(line, paths)
   -- Snapshot before hiding: nvim's fallback landing fires WinEnter and would overwrite it
   local win = state.last_win
 
@@ -88,6 +92,11 @@ function M.prepare_remote_edit()
 
   if win and vim.api.nvim_win_is_valid(win) then
     vim.api.nvim_set_current_win(win)
+  end
+
+  vim.cmd(string.format('drop %s', table.concat(vim.tbl_map(vim.fn.fnameescape, paths), ' ')))
+  if line > 0 then
+    vim.cmd(tostring(line))
   end
 end
 

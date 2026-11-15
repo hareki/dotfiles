@@ -1,10 +1,10 @@
 -- The modules something outside nvim reaches by their path (AGENTS.md, Entry points), checked the
--- way each caller reaches them. lazygit's edit commands (its shell-functions.sh) send a
--- `--remote-expr` before each edit, and return before the file opens when it fails. tsave finds a
--- pane's nvim through the pane option publish_tmux_server() sets, asks it for unsaved(), then
--- sends quit(). Claude Code's Stop hook sends one to the nvim running that Claude once the agent
--- is done. And the tools that open nvim as their editor name themselves in NVIM_INTEGRATION, which
--- utils.ui.integration must know
+-- way each caller reaches them. lazygit's edit command (its shell-functions.sh) opens its files
+-- through one `--remote-expr`, built from the paths it is handed. tsave finds a pane's nvim through
+-- the pane option publish_tmux_server() sets, asks it for unsaved(), then sends quit(). Claude
+-- Code's Stop hook sends one to the nvim running that Claude once the agent is done. And the tools
+-- that open nvim as their editor name themselves in NVIM_INTEGRATION, which utils.ui.integration
+-- must know
 
 local t = require('tests.lib.helpers')
 
@@ -74,18 +74,13 @@ local function evaluates(expr)
   )
 end
 
-t.test("every --remote-expr in lazygit's edit commands evaluates here", function()
-  for _, expr in ipairs(remote_exprs(LAZYGIT_EDIT)) do
-    evaluates(expr)
-  end
-end)
-
 t.test("lazygit's edit command opens its files in this nvim, on the line it names", function()
   local lines = {}
   for i = 1, 20 do
     lines[i] = 'line ' .. i
   end
-  local path = vim.fs.joinpath(vim.uv.cwd(), 'edited from lazygit.txt')
+  -- Names that need care on the way: a quote for the expr, brackets and spaces for `:drop`
+  local path = vim.fs.joinpath(vim.uv.cwd(), "edited from lazygit's view.txt")
   local other = vim.fs.joinpath(vim.uv.cwd(), 'another [one].txt')
   for _, file in ipairs({ path, other }) do
     vim.fn.writefile(lines, file)
@@ -119,15 +114,6 @@ t.test("lazygit's edit command opens its files in this nvim, on the line it name
     t.eq(vim.fn.buflisted(path), 1, shell[1] .. ': the second file is listed')
 
     lazygit_runs(shell, string.format('lazygit_edit +7 %s', quoted))
-    -- The line comes as typed keys, which a nvim busy running this test never reads: read
-    -- them here, and type them as it would have
-    local keys = ''
-    t.wait_for(function()
-      keys = keys .. vim.fn.getcharstr(0)
-      return vim.endswith(keys, '\r')
-    end, string.format('the keys %s sends for the line', shell[1]))
-    vim.api.nvim_feedkeys(keys, 'xt', false)
-
     t.eq(vim.api.nvim_buf_get_name(0), path, shell[1] .. ': the current file')
     t.eq(vim.api.nvim_win_get_cursor(0)[1], 7, shell[1] .. ': the line')
   end

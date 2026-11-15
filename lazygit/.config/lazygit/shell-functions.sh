@@ -14,11 +14,12 @@ lazygit_nvim() {
 
 # lazygit_edit [+<line>] <path>...
 #
-# Inside nvim's terminal, hand the paths to the host instance. The expr call hides the Snacks
-# terminal floats (lazygit, terminal, coding agent) and refocuses the last editing window first,
-# since --remote drops the file into whatever window is current. The RPC clients are Homebrew's
-# nvim: through mise's shim each one costs ~60ms more. The line goes last, as keys, because
-# --remote would take a +<line> for another file.
+# Inside nvim's terminal, hand the paths to the host instance, in one call. remote_edit hides the
+# Snacks terminal floats (lazygit, terminal, coding agent), refocuses the last editing window,
+# opens the files there the way --remote does, and goes to the line. An expr rather than --remote
+# itself, which drops the files into whatever window is current and would take a +<line> for
+# another file. Each path goes in as a Vim string, a quote in it doubled. The RPC client is
+# Homebrew's nvim: through mise's shim it costs ~60ms more.
 #
 # Anywhere else, a new nvim opens them.
 lazygit_edit() {
@@ -32,8 +33,11 @@ lazygit_edit() {
 
   [ -n "$NVIM" ] || lazygit_nvim ${line:++$line} -- "$@"
 
-  local host=/opt/homebrew/bin/nvim
-  "$host" --server "$NVIM" --remote-expr "v:lua.require'features.git.snacks-nvim.lazygit'.prepare_remote_edit()" || return
-  [ -n "$line" ] || exec "$host" --server "$NVIM" --remote "$@"
-  "$host" --server "$NVIM" --remote "$@" && exec "$host" --server "$NVIM" --remote-send ":$line<CR>"
+  # Not `path`, which zsh ties to PATH
+  local quote="'" file files=
+  for file in "$@"; do
+    files="$files'${file//$quote/$quote$quote}',"
+  done
+  exec /opt/homebrew/bin/nvim --server "$NVIM" --remote-expr \
+    "v:lua.require'features.git.snacks-nvim.lazygit'.remote_edit(${line:-0}, [$files])"
 }
