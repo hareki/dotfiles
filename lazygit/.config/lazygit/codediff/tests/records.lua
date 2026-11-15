@@ -118,48 +118,43 @@ local function rendered_records(rendered)
   return records
 end
 
-t.with_clock(function()
-  return 0
-end, function()
-  for _, name in ipairs(t.fixture_names()) do
-    local fixture = t.fixture(name)
-    local expected = expected_records(fixture.input)
+t.freeze_clock()
 
-    for _, layout in ipairs({ 'inline', 'side-by-side' }) do
-      t.test(('%s (%s records)'):format(name, layout), function()
-        local function render(metadata)
-          return core.render(
-            fixture.input,
-            { cwd = fixture.cwd, cols = 100, layout = layout, metadata = metadata }
-          )
-        end
+for _, name in ipairs(t.fixture_names()) do
+  local fixture = t.fixture(name)
+  local expected = expected_records(fixture.input)
 
-        local actual = rendered_records(render(true))
-        -- A side-by-side row pairs a deletion with an addition, so only the inline layout
-        -- keeps the patch's order.
-        local want = expected
-        if layout == 'side-by-side' then
-          table.sort(actual)
-          want = vim.deepcopy(expected)
-          table.sort(want)
-        end
-        if not vim.deep_equal(actual, want) then
-          error(
-            ('expected %s\n  actual   %s'):format(
-              table.concat(want, ' '),
-              table.concat(actual, ' ')
-            ),
-            0
-          )
-        end
-
-        t.ok(
-          not render(false):find('\27]1717', 1, true),
-          'a render that was not asked for records carries some'
+  for _, layout in ipairs(t.layouts) do
+    t.test(('%s (%s records)'):format(name, layout), function()
+      local function render(metadata)
+        return core.render(
+          fixture.input,
+          { cwd = fixture.cwd, cols = 100, layout = layout, metadata = metadata }
         )
-      end)
-    end
+      end
+
+      local actual = rendered_records(render(true))
+      -- A side-by-side row pairs a deletion with an addition, so only the inline layout
+      -- keeps the patch's order.
+      local want = expected
+      if layout == 'side-by-side' then
+        table.sort(actual)
+        want = vim.deepcopy(expected)
+        table.sort(want)
+      end
+      if not vim.deep_equal(actual, want) then
+        error(
+          ('expected %s\n  actual   %s'):format(table.concat(want, ' '), table.concat(actual, ' ')),
+          0
+        )
+      end
+
+      t.ok(
+        not render(false):find('\27]1717', 1, true),
+        'a render that was not asked for records carries some'
+      )
+    end)
   end
-end)
+end
 
 t.done()

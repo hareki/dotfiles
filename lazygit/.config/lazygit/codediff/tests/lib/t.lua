@@ -1,13 +1,11 @@
---- What a test file uses: tests that report a line each, the fixtures, a throwaway repository to
---- render in, a clock to pin, and a reading of a rendered row's colors. Each file runs in its own
+--- What a test file uses: tests that report a line each, the fixtures and their goldens, a
+--- throwaway repository to render in, a clock to stop, and a reading of a rendered row's colors. Each file runs in its own
 --- `nvim --clean -l` (tests/run.sh), sets package.path to the renderer's directory, and ends with
 --- t.done().
 local M = {}
 
 local tests_dir = vim.fs.dirname(vim.fs.dirname(debug.getinfo(1, 'S').source:sub(2)))
 
---- The renderer's directory, and its fixtures.
-M.root = vim.fs.dirname(tests_dir)
 M.fixtures = vim.fs.joinpath(tests_dir, 'fixtures')
 
 local failed = false
@@ -50,6 +48,12 @@ end
 
 function M.read(path)
   return vim.fn.readblob(path)
+end
+
+function M.write(path, content)
+  local file = assert(io.open(path, 'wb'))
+  file:write(content)
+  file:close()
 end
 
 --- A new directory inside nvim's own temp directory, which goes when the test file ends.
@@ -105,6 +109,15 @@ function M.repo(source)
   return repo
 end
 
+--- The layouts a fixture renders in, and the suffix of the golden each one has.
+M.layouts = { 'inline', 'side-by-side' }
+local GOLDEN_SUFFIX = { inline = '.out', ['side-by-side'] = '.split.out' }
+
+--- Where the golden of the fixture `name` in `layout` is kept.
+function M.golden_path(name, layout)
+  return vim.fs.joinpath(M.fixtures, name .. GOLDEN_SUFFIX[layout])
+end
+
 --- The fixture names, sorted: every fixtures/<name>.diff.
 function M.fixture_names()
   local names = {}
@@ -127,8 +140,15 @@ function M.fixture(name)
   }
 end
 
---- Run `body` with `clock` standing in for vim.uv.hrtime, the clock the highlight deadline goes
---- by. A constant one keeps a busy machine from showing up as a tint-only render.
+--- Stop vim.uv.hrtime, the clock the highlight deadline goes by, for the rest of the test file:
+--- a busy machine then can't show up as a tint-only render.
+function M.freeze_clock()
+  vim.uv.hrtime = function()
+    return 0
+  end
+end
+
+--- Run `body` with `clock` standing in for that clock.
 function M.with_clock(clock, body)
   local real = vim.uv.hrtime
   vim.uv.hrtime = clock
@@ -140,14 +160,7 @@ function M.with_clock(clock, body)
 end
 
 local function count_distinct(text, selector)
-  local seen, n = {}, 0
-  for color in text:gmatch(selector .. ';2;(%d+;%d+;%d+)') do
-    if not seen[color] then
-      seen[color] = true
-      n = n + 1
-    end
-  end
-  return n
+  return #vim.iter(text:gmatch(selector .. ';2;(%d+;%d+;%d+)')):unique():totable()
 end
 
 --- How many foreground and background colors the text of an inline row carries, past its

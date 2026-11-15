@@ -30,8 +30,6 @@ local update = arg[1] == '--update'
 require('lib.bootstrap').setup()
 local core = require('lib.core')
 
-local LAYOUTS = { { 'inline', '.out' }, { 'side-by-side', '.split.out' } }
-
 --- Where two renders part: the line number and that line on each side, escapes spelled out.
 local function first_difference(actual, expected)
   local a = vim.split(actual, '\n', { plain = true })
@@ -47,30 +45,26 @@ local function first_difference(actual, expected)
   end
 end
 
-t.with_clock(function()
-  return 0
-end, function()
-  for _, name in ipairs(t.fixture_names()) do
-    local fixture = t.fixture(name)
-    for _, layout in ipairs(LAYOUTS) do
-      local golden_path = vim.fs.joinpath(t.fixtures, name .. layout[2])
-      t.test(('%s (%s)'):format(name, layout[1]), function()
-        local rendered =
-          core.render(fixture.input, { cwd = fixture.cwd, cols = 100, layout = layout[1] })
-        if update then
-          local file = assert(io.open(golden_path, 'wb'))
-          file:write(rendered)
-          file:close()
-          return
-        end
-        t.ok(vim.uv.fs_stat(golden_path), 'no golden: run tests/run.sh --update')
-        local golden = t.read(golden_path)
-        if rendered ~= golden then
-          error(first_difference(rendered, golden), 0)
-        end
-      end)
-    end
+t.freeze_clock()
+
+for _, name in ipairs(t.fixture_names()) do
+  local fixture = t.fixture(name)
+  for _, layout in ipairs(t.layouts) do
+    local golden_path = t.golden_path(name, layout)
+    t.test(('%s (%s)'):format(name, layout), function()
+      local rendered =
+        core.render(fixture.input, { cwd = fixture.cwd, cols = 100, layout = layout })
+      if update then
+        t.write(golden_path, rendered)
+        return
+      end
+      t.ok(vim.uv.fs_stat(golden_path), 'no golden: run tests/run.sh --update')
+      local golden = t.read(golden_path)
+      if rendered ~= golden then
+        error(first_difference(rendered, golden), 0)
+      end
+    end)
   end
-end)
+end
 
 t.done()

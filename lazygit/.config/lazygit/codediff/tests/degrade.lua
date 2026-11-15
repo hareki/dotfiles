@@ -16,13 +16,6 @@ local t = require('tests.lib.t')
 require('lib.bootstrap').setup()
 local core = require('lib.core')
 
-local function write(path, content)
-  vim.fn.mkdir(vim.fs.dirname(path), 'p')
-  local file = assert(io.open(path, 'wb'))
-  file:write(content)
-  file:close()
-end
-
 local function commit(repo)
   t.git(repo, { 'add', '-A' })
   t.git(repo, { 'commit', '-q', '-m', 'change' })
@@ -49,9 +42,9 @@ local function change_inside_comment(padding)
   local function content(answer)
     return '--[[\n' .. filler .. 'local answer = ' .. answer .. '\n' .. filler .. ']]\nreturn {}\n'
   end
-  write(repo .. '/note.lua', content(1))
+  t.write(repo .. '/note.lua', content(1))
   commit(repo)
-  write(repo .. '/note.lua', content(2))
+  t.write(repo .. '/note.lua', content(2))
   commit(repo)
   return repo, last_diff(repo)
 end
@@ -67,79 +60,75 @@ local function change_every_line(lines, new_lines)
     end
     return table.concat(out)
   end
-  write(repo .. '/z-values.lua', content(0))
+  t.write(repo .. '/z-values.lua', content(0))
   commit(repo)
-  write(repo .. '/z-values.lua', content(1))
+  t.write(repo .. '/z-values.lua', content(1))
   if new_lines then
-    write(repo .. '/a-new.lua', string.rep('local added = true\n', new_lines))
+    t.write(repo .. '/a-new.lua', string.rep('local added = true\n', new_lines))
   end
   commit(repo)
   return repo
 end
 
-local function frozen()
-  return 0
-end
+t.freeze_clock()
 
-t.with_clock(frozen, function()
-  t.test('a worktree file edited since the diff is highlighted from its hunks', function()
-    local fixture = t.fixture('full-unstaged')
-    -- A script with no extension: only its first line, which no hunk shows, says it is bash.
-    t.ok(render(fixture.input, fixture.cwd, 'rsync -az').fg > 1, 'no syntax with the file at hand')
+t.test('a worktree file edited since the diff is highlighted from its hunks', function()
+  local fixture = t.fixture('full-unstaged')
+  -- A script with no extension: only its first line, which no hunk shows, says it is bash.
+  t.ok(render(fixture.input, fixture.cwd, 'rsync -az').fg > 1, 'no syntax with the file at hand')
 
-    local path = fixture.cwd .. '/bin/deploy'
-    write(path, (t.read(path):gsub('rsync %-az', 'rsync -a')))
-    t.eq(render(fixture.input, fixture.cwd, 'rsync -az').fg, 1, 'foreground colors')
-  end)
+  local path = fixture.cwd .. '/bin/deploy'
+  t.write(path, (t.read(path):gsub('rsync %-az', 'rsync -a')))
+  t.eq(render(fixture.input, fixture.cwd, 'rsync -az').fg, 1, 'foreground colors')
+end)
 
-  t.test('a blob past the highlight cap is highlighted from its hunks', function()
-    local repo, diff = change_inside_comment(10)
-    t.eq(render(diff, repo, 'local answer = 2').fg, 1, 'a small file, parsed whole')
+t.test('a blob past the highlight cap is highlighted from its hunks', function()
+  local repo, diff = change_inside_comment(10)
+  t.eq(render(diff, repo, 'local answer = 2').fg, 1, 'a small file, parsed whole')
 
-    -- 78 bytes a line, on both sides of the change: well past 256KB
-    repo, diff = change_inside_comment(2000)
-    t.ok(render(diff, repo, 'local answer = 2').fg > 1, 'a large file was parsed whole')
-  end)
+  -- 78 bytes a line, on both sides of the change: well past 256KB
+  repo, diff = change_inside_comment(2000)
+  t.ok(render(diff, repo, 'local answer = 2').fg > 1, 'a large file was parsed whole')
+end)
 
-  t.test('a section past the caps keeps its tints and loses syntax and changed words', function()
-    local repo = change_every_line(10)
-    local colors = render(last_diff(repo), repo, 'local value_5 = 6')
-    t.ok(colors.fg > 1, 'no syntax in a small section')
-    t.eq(colors.bg, 2, 'backgrounds in a small section')
+t.test('a section past the caps keeps its tints and loses syntax and changed words', function()
+  local repo = change_every_line(10)
+  local colors = render(last_diff(repo), repo, 'local value_5 = 6')
+  t.ok(colors.fg > 1, 'no syntax in a small section')
+  t.eq(colors.bg, 2, 'backgrounds in a small section')
 
-    -- Every line both removed and added: past 20000 hunk lines
-    repo = change_every_line(10100)
-    t.eq(render(last_diff(repo), repo, 'local value_5 = 6'), { fg = 1, bg = 1 })
-  end)
+  -- Every line both removed and added: past 20000 hunk lines
+  repo = change_every_line(10100)
+  t.eq(render(last_diff(repo), repo, 'local value_5 = 6'), { fg = 1, bg = 1 })
+end)
 
-  t.test('a file past the highlight budget loses syntax and keeps its changed words', function()
-    -- The new file comes first in the diff and takes the whole budget of 8000 lines.
-    local repo = change_every_line(3, 8001)
-    local alone = render(last_diff(repo, 'z-values.lua'), repo, 'local value_2 = 3')
-    t.ok(alone.fg > 1, 'no syntax in a diff of its own')
-    t.eq(render(last_diff(repo), repo, 'local value_2 = 3'), { fg = 1, bg = 2 })
-  end)
+t.test('a file past the highlight budget loses syntax and keeps its changed words', function()
+  -- The new file comes first in the diff and takes the whole budget of 8000 lines.
+  local repo = change_every_line(3, 8001)
+  local alone = render(last_diff(repo, 'z-values.lua'), repo, 'local value_2 = 3')
+  t.ok(alone.fg > 1, 'no syntax in a diff of its own')
+  t.eq(render(last_diff(repo), repo, 'local value_2 = 3'), { fg = 1, bg = 2 })
+end)
 
-  t.test('a finished render may be cached', function()
-    local repo = change_every_line(3)
-    local colors, cacheable = render(last_diff(repo), repo, 'local value_2 = 3')
-    t.ok(colors.fg > 1, 'no syntax')
-    t.eq(cacheable, true, 'cacheable')
-  end)
+t.test('a finished render may be cached', function()
+  local repo = change_every_line(3)
+  local colors, cacheable = render(last_diff(repo), repo, 'local value_2 = 3')
+  t.ok(colors.fg > 1, 'no syntax')
+  t.eq(cacheable, true, 'cacheable')
+end)
 
-  t.test('an input past the size cap goes back as it came, uncached', function()
-    local input = 'diff --git a/x b/x\n' .. string.rep('+line\n', 400000)
-    local rendered, cacheable = core.render(input, { cwd = '/', cols = 100 })
-    t.ok(rendered == input, 'the input was rendered')
-    t.eq(cacheable, false, 'cacheable')
-  end)
+t.test('an input past the size cap goes back as it came, uncached', function()
+  local input = 'diff --git a/x b/x\n' .. string.rep('+line\n', 400000)
+  local rendered, cacheable = core.render(input, { cwd = '/', cols = 100 })
+  t.ok(rendered == input, 'the input was rendered')
+  t.eq(cacheable, false, 'cacheable')
+end)
 
-  t.test('text that is not from git goes back as it came, uncached', function()
-    local input = t.fixture('colored-log').input
-    local rendered, cacheable = core.render(input, { cwd = '/', cols = 100 })
-    t.ok(rendered == input, 'the input was rendered')
-    t.eq(cacheable, false, 'cacheable')
-  end)
+t.test('text that is not from git goes back as it came, uncached', function()
+  local input = t.fixture('colored-log').input
+  local rendered, cacheable = core.render(input, { cwd = '/', cols = 100 })
+  t.ok(rendered == input, 'the input was rendered')
+  t.eq(cacheable, false, 'cacheable')
 end)
 
 t.test('a render past the highlight deadline is tint-only and must not be cached', function()
