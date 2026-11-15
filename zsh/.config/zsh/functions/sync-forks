@@ -74,6 +74,9 @@ sync-forks() {
       fi
 
       {
+        # A job without job control ignores both: Ctrl-C would only end the git call it is in,
+        # and the sync would carry on with its next one
+        trap - INT QUIT
         dir=$REPOS_DIR/$name ref=refs/heads/$branch tracking=refs/remotes/origin/$branch report=($name)
         # A fork without a clone gets one, laid out like the rest: SSH origin, HTTPS upstream
         if [[ -n $oid && -n $uoid && ! -e $dir ]]; then

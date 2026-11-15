@@ -70,7 +70,8 @@ pin() {
 }
 
 # Logs what sync-forks sends over the network while net_log is set: clones, pushes and fetches, but
-# `fetch .`, which moves a branch locally
+# `fetch .`, which moves a branch locally. And the signals the calling shell ignores, which a fork's
+# job would pass on to its git calls
 git() {
   if [[ -n $net_log ]]; then
     local -a args=(${@[2,-1]:#-*})
@@ -79,6 +80,7 @@ git() {
       push) print -r -- "${PWD:t} push" ;;
       fetch) [[ $args[1] == . ]] || print -r -- "${PWD:t} fetch ${args[1]/#https:*/upstream}" ;;
     esac >>$net_log
+    trap >>$root/ignored
   fi
   command git "$@"
 }
@@ -447,6 +449,7 @@ conflicts='
 
 run_sync 1
 t_eq 'run 1: exit status' $rc 1
+t_eq 'run 1: Ctrl-C reaches a sync' "$(<$root/ignored)" ''
 t_lines 'run 1: stdout, a line per fork, the synced forks and the tally' "$(plain $root/1.out)" "$(report 1)
 
 ==> Synced with upstream:
