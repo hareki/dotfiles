@@ -26,12 +26,25 @@ M.paths = {
   -- changing under a running daemon: an update that only rewrites existing
   -- files leaves their directory mtimes untouched.
   plugin_lock = vim.fs.joinpath(config, 'lazy-lock.json'),
+  -- The editor's `after` directory, which setup() puts on the rtp below for the
+  -- query extensions in it (after/queries/<lang>/*.scm): an injection or a
+  -- capture the editor adds to a language shows in its diffs as well.
+  editor_after = vim.fs.joinpath(config, 'after'),
 }
+
+-- Those query files and the directories that hold them, each a path of its own:
+-- an edit moves a file's mtime, a new or a removed file its directory's.
+local queries = vim.fs.joinpath(M.paths.editor_after, 'queries')
+M.paths[queries] = queries
+for name in vim.fs.dir(queries, { depth = 2 }) do
+  local path = vim.fs.joinpath(queries, name)
+  M.paths[path] = path
+end
 
 --- Minimal environment for treesitter-quality highlighting without loading the
 --- user's full nvim config: parsers + queries from the site dir, catppuccin for
 --- @capture colors, codediff.nvim for the diff engine + highlight groups, and
---- the same filetype=>language aliases the editor uses.
+--- the same filetype=>language aliases and query extensions the editor uses.
 function M.setup()
   -- This LuaJIT (arm64 macOS) cannot map a second machine-code area, so once
   -- the default one is full, the next trace flushes every compiled one: ~110
@@ -48,6 +61,7 @@ function M.setup()
   vim.opt.runtimepath:append(M.paths.treesitter .. '/runtime')
   vim.opt.runtimepath:append(M.paths.catppuccin)
   vim.opt.runtimepath:append(M.paths.codediff)
+  vim.opt.runtimepath:append(M.paths.editor_after)
 
   -- Mirror the subset of the editor's catppuccin setup that affects the groups
   -- this renderer reads (Diff* backgrounds, @capture colors), so lazygit shows
