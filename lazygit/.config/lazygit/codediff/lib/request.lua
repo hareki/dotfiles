@@ -1,5 +1,6 @@
--- What the daemon does with a request, from the line a client sent to whether
--- the render it asked for reached the client's output file.
+-- What a renderer does with a request, from the line a client sent to whether
+-- the render it asked for reached the client's output file. The daemon handles
+-- one after another; a one-shot (render.lua) is started for one.
 --
 -- One request is one line, tab separated:
 --   <in>\t<out>\t<cols>\t<layout>\t<metadata>\t<cwd>

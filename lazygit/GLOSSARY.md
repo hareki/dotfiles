@@ -59,7 +59,7 @@ The renderer kept running between diffs, so a diff costs a render and not a star
 _Avoid_: server, background process
 
 **Request**:
-What a client asks of the daemon for one diff: the patch to render, where the render goes, and how to draw it (width, layout, records, repository).
+What a client asks for one diff, of the daemon or of a one-shot: the patch to render, where the render goes, and how to draw it (width, layout, records, repository).
 _Avoid_: job, message
 
 **One-shot**:

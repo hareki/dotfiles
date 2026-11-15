@@ -1,20 +1,14 @@
--- One-shot renderer: git diff on stdin, ANSI on stdout.
--- Usage: nvim --clean -l render.lua   (also the daemon's fallback path)
+-- One-shot renderer: the request a daemon would have been sent, handled by an
+-- nvim started for it alone (lib/request.lua has the request's fields).
+-- Usage: nvim --clean -l render.lua <request>
 --
--- A renderer failure exits non-zero with stdout empty, which is client.sh's cue
--- to show the raw diff instead.
+-- Exits non-zero unless the render reached the request's output file, which is
+-- client.sh's cue to show the raw diff instead.
 
 local dir = vim.fn.fnamemodify(arg[0], ':p:h')
 package.path = dir .. '/?.lua;' .. package.path
 
-local input = io.read('*a')
-
 require('lib.bootstrap').setup()
-local rendered = require('lib.core').render(input, {
-  cwd = vim.fn.getcwd(),
-  cols = tonumber(vim.env.COLUMNS),
-  layout = vim.env.CODEDIFF_LAYOUT,
-  metadata = vim.env.CODEDIFF_METADATA == '1',
-})
-
-io.write(rendered)
+if not require('lib.request').handle(arg[1]) then
+  os.exit(1)
+end

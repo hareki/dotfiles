@@ -77,17 +77,19 @@ trap 'exit 1' HUP INT TERM PIPE
   pass
 } >"$IN"
 
-# Emit the render and exit if the daemon answers; returns so the caller can fall
-# further down the ladder if it did not.
-#
-# One line in, one line back. cwd goes last because it is the only field that
-# can legitimately contain a tab, and the tabs in the request are the field
+# The request, one line that the daemon and the one-shot at the bottom both
+# take (lib/request.lua reads it). cwd goes last because it is the only field
+# that can legitimately contain a tab, and the tabs in the request are the field
 # separators. $COLUMNS is zsh's own, the width of the pty rather than the
 # variable in the environment, and lazygit sizes the one to the other.
+REQUEST="$IN	$OUT	$COLUMNS	$LAYOUT	$META	$PWD"
+
+# Emit the render and exit if the daemon answers; returns so the caller can fall
+# further down the ladder if it did not. One line in, one line back.
 answer=""
 serve() {
   zsocket "$PIPE" 2>/dev/null || return
-  print -ru $REPLY -- "$IN	$OUT	$COLUMNS	$LAYOUT	$META	$PWD"
+  print -ru $REPLY -- "$REQUEST"
   read -ru $REPLY answer
   if [[ $answer == ok ]]; then
     pass <"$OUT"
@@ -118,10 +120,13 @@ if [[ -z $answer ]]; then
   fi
 fi
 
-# Last resort. Written to a file rather than piped, because nvim can die (parser
-# crash, OOM, a signal) with part of the render already on stdout: appending the
-# raw diff to a half-written one would show the hunks twice.
-if CODEDIFF_LAYOUT=$LAYOUT CODEDIFF_METADATA=$META nvim --clean -l "$DIR/render.lua" <"$IN" >"$OUT" 2>/dev/null; then
+# Last resort: a renderer started for this request alone. It writes to the same
+# file rather than to a pipe, because nvim can die (parser crash, OOM, a signal)
+# with part of the render written: appending the raw diff to a half-written one
+# would show the hunks twice. The file starts empty again for the same reason, a
+# daemon that died may have left part of its render in it.
+: >"$OUT"
+if nvim --clean -l "$DIR/render.lua" "$REQUEST" >/dev/null 2>&1; then
   pass <"$OUT"
 else
   pass <"$IN"

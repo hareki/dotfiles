@@ -115,18 +115,15 @@ exit 1
 EOF
 
 # nvim, as far as the client can tell: it notes what it was started for, never starts a daemon,
-# and renders one-shot only when FAKE_NVIM says so, by naming what it was asked for.
+# and renders one-shot only when FAKE_NVIM says so: it keeps the request it was handed, and
+# answers it by naming what the request asks for.
 cat >$ROOT/fake/nvim <<'EOF'
-#!/bin/sh
-echo "$*" >>"$FAKE_LOG"
-case "$*" in
-  *render.lua*)
-    [ "$FAKE_NVIM" = renders ] || exit 1
-    echo "one-shot layout=$CODEDIFF_LAYOUT metadata=$CODEDIFF_METADATA"
-    cat
-    ;;
-  *) exit 1 ;;
-esac
+#!/bin/zsh -f
+print -r -- "$1 $2 $3" >>$FAKE_LOG
+[[ $3 == *render.lua && $FAKE_NVIM == renders ]] || exit 1
+print -r -- $4 >$FAKE_LOG.request
+fields=("${(@ps:\t:)4}")
+{ print -r -- "one-shot layout=$fields[4] metadata=$fields[5]"; cat $fields[1] } >$fields[2]
 EOF
 
 # The real nvim, noting what it was started for: which rung served a request shows in what the
@@ -252,6 +249,7 @@ cd $ROOT/cwd
 with_listener err '' eval 'client $NAMES[1] PATH=$FAKE_PATH FAKE_NVIM=renders <$DIFF >$ROOT/out'
 { print 'one-shot layout=inline metadata=0'; cat $DIFF } >$ROOT/expected
 same 'a daemon that answers err leaves the render to a one-shot' $ROOT/out $ROOT/expected
+same 'the one-shot is handed the request the daemon was' $FAKE_LOG.request $ROOT/request
 check 'a daemon that answers err keeps its socket' listening
 equal 'a daemon that answers err is not replaced' "$(<$FAKE_LOG)" "--clean -l $ROOT/tree/render.lua"
 rm -f $PIPE
@@ -287,10 +285,13 @@ equal 'a client that was ended leaves no work directory' "$(work_dirs)" ''
 
 # ---------------------------------------------------------- the real renderer ---
 
-# oneshot <layout> <metadata>: what render.lua makes of stdin, at the client's width
+# oneshot <layout> <metadata>: what render.lua makes of a request for stdin, at the client's
+# width and in this directory
 oneshot() {
-  env -u OSC1717 COLUMNS=$COLS CODEDIFF_LAYOUT=$1 CODEDIFF_METADATA=$2 \
-    nvim --clean -l $ROOT/tree/render.lua
+  local -a request=($ROOT/oneshot.in $ROOT/oneshot.out $COLS $1 $2 $PWD)
+  cat >$request[1]
+  : >$request[2]
+  nvim --clean -l $ROOT/tree/render.lua ${(pj:\t:)request} && cat $request[2]
 }
 
 (
