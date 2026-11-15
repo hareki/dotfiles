@@ -87,8 +87,8 @@ return {
           },
         },
 
-        -- Mute trouble's "parser missing" warning for allowlisted pseudo-languages; real misses
-        -- still surface for nvim-treesitter's `ensure_installed`
+        -- Mute trouble's "parser missing" warning for allowlisted pseudo-languages; a real miss
+        -- still surfaces, as a parser to add to the table in core/nvim-treesitter/utils.lua
         {
           filter = {
             event = 'notify',

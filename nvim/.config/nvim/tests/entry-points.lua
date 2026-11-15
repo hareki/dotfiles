@@ -1,10 +1,9 @@
 -- The modules something outside nvim reaches by their path (AGENTS.md, Entry points), checked the
 -- way each caller reaches them. lazygit's edit commands (its shell-functions.sh) send a
--- `--remote-expr` before each edit, and one that fails stops the `&&` chain before the file
--- opens. tsave finds a pane's nvim
--- through the pane option publish_tmux_server() sets, asks it for unsaved(), then sends quit().
--- Claude Code's Stop hook sends one to the nvim running that Claude once the agent is done. And the
--- tools that open nvim as their editor name themselves in NVIM_INTEGRATION, which
+-- `--remote-expr` before each edit, and return before the file opens when it fails. tsave finds a
+-- pane's nvim through the pane option publish_tmux_server() sets, asks it for unsaved(), then
+-- sends quit(). Claude Code's Stop hook sends one to the nvim running that Claude once the agent
+-- is done. And the tools that open nvim as their editor name themselves in NVIM_INTEGRATION, which
 -- utils.ui.integration must know
 
 local t = require('tests.lib.helpers')
