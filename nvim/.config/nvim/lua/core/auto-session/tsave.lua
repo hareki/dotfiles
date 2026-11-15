@@ -1,5 +1,7 @@
 --- Entry point: the `tsave` zsh function calls `unsaved()` and `quit()` through `--remote-expr`, so
---- this path and those names stay stable, or tsave quits no nvim and leaves tmux running
+--- this path and those names stay stable, or tsave quits no nvim and leaves tmux running. Its test
+--- (zsh's `tests/tsave.zsh`) loads this file alone under `nvim --clean`, so it reads no globals and
+--- requires no config module
 --- @class core.auto-session.tsave
 local M = {}
 
