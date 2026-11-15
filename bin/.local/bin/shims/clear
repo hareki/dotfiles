@@ -1,6 +1,3 @@
 #!/bin/sh
-# macOS's clear (ncurses 5.7) finds no E3 in its tmux-256color entry, so inside
-# tmux the scrollback survives a clear. Homebrew's ncurses (a dependency of
-# brew's bash) sends E3 after the clear, which also drops the screen that tmux's
-# scroll-on-clear just pushed into history
+# Homebrew's clear sends E3 inside tmux to wipe the scrollback; macOS's doesn't.
 exec /opt/homebrew/opt/ncurses/bin/clear "$@"
