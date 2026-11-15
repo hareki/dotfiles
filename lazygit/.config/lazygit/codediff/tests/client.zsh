@@ -15,7 +15,8 @@
 #   the tree is a copy            a daemon recycles itself when its sources change, so touching
 #                                 the copy is also how a test daemon is told to go
 #
-# Takes ~15s: an idle daemon is given the 10s grace and the 3s poll daemon.lua gives it.
+# Takes ~6s. The daemon that is left to idle runs on a shorter grace and poll than daemon.lua's
+# 10s and 3s, set in the copy: what is under test is that an idle daemon goes, not how long 10s is.
 
 zmodload zsh/net/socket zsh/datetime
 
@@ -72,7 +73,7 @@ wait_until() {
   shift
   until "$@"; do
     (( EPOCHREALTIME < deadline )) || return 1
-    sleep 0.1
+    sleep 0.01
   done
 }
 
@@ -332,11 +333,18 @@ client $NAMES[1] <$DIFF >$ROOT/out
 same 'a daemon whose sources changed still answers the request in hand' $ROOT/out $ROOT/expected
 check 'and then goes' wait_until 5 not_listening
 
+# The next daemon is the one left to idle, on a grace and a poll short enough to wait out
+sed -i '' \
+  -e 's/^local IDLE_WITHOUT_LAZYGIT_MS = .*/local IDLE_WITHOUT_LAZYGIT_MS = 3000/' \
+  -e 's/^local POLL_MS = .*/local POLL_MS = 500/' $ROOT/tree/daemon.lua
+equal 'the copy of the daemon idles on a short grace and poll' \
+  "$(grep -cE '^local (IDLE_WITHOUT_LAZYGIT_MS = 3000|POLL_MS = 500)$' $ROOT/tree/daemon.lua)" 2
+
 client $NAMES[1] PATH=$LOGGED_PATH <$DIFF >$ROOT/out
 same 'the next client is served all the same' $ROOT/out $ROOT/expected
 equal 'by a daemon it had to start' "$(<$FAKE_LOG)" $SPAWNED$'\n'$SPAWNED
-sleep 5
-check 'an idle daemon outlives 5s with no lazygit running' listening
-check 'and is gone within 20s' wait_until 15 not_listening
+sleep 1
+check 'an idle daemon outlives a third of its grace with no lazygit running' listening
+check 'and is gone soon after the rest of it' wait_until 5 not_listening
 
 exit $failed
