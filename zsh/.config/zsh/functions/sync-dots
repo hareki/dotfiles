@@ -3,10 +3,7 @@
 # Package metadata (AGENTS.md, README.md, ...) is excluded by stow/.stow-global-ignore
 sync-dots () {
   local failed=0 dir
-  # App settings exports that are imported by hand, not stowed into $HOME
-  local -a ignored=(better-mouse simple-translate zen-browser)
   local -a packages=("$STOW_REPO"/*(/:t))
-  packages=(${packages:|ignored})
 
   case "$1" in
     --list) print -l $packages; return 0 ;;
