@@ -3,7 +3,8 @@
 local -a targets=(
   '--help:Show usage info'
   '--list:Print target names'
-  "all:Pull and build every target under ${(D)REPOS_DIR}"
+  '--up-to-date:Succeed if the installed target came from the checkout in the current directory'
+  "all:Pull every target under ${(D)REPOS_DIR} and build the changed ones side by side"
 )
 local t
 for t in ${(f)"$(build --list)"}; do

@@ -1,8 +1,12 @@
 #!/bin/zsh
 
 build() {
-  local -a targets=(atuin eza television worktrunk lazygit fzf tmux)
-  local target failed=0 root=~/.local/opt
+  local -a targets=(atuin eza television worktrunk lazygit fzf tmux) tmux_libs=(libevent utf8proc jemalloc)
+  local -a libs failed
+  local -A phrases=(
+    current 'up to date' building building built '%F{green}built%f in' failed '%F{red}failed%f after'
+  )
+  local target state secs took logs check stamp source ret root=~/.local/opt
   # Outside the toolchains' dirs, binaries skip mise's ~25ms shims and survive go upgrades
   local -x CARGO_INSTALL_ROOT=$root GOBIN=$root/bin
 
@@ -14,13 +18,70 @@ build() {
       return 0
       ;;
     all)
-      # Each target's own build clears the evalcache
-      for target in $targets; do
-        print-header "Building $target"
-        (cd $REPOS_DIR/$target && git pull && build $target) || { print -P "%F{red}==> Failed to build $target%f" >&2; failed=1; }
-      done
-      return $failed
+      logs=$(mktemp -d ${TMPDIR:-/tmp}/build.XXXXXX) || return 1
+      print-header "Building all targets"
+      {
+        {
+          # All at once: 7m16s in a row => 4m09s with every target stale. The cores stay
+          # saturated for most of it, so neither one cargo jobserver for the four builds nor
+          # priority for the long ones came out faster
+          for target in $targets; do
+            {
+              # A job without job control ignores both, and every build under it would too
+              trap - INT QUIT
+              SECONDS=0
+              if ! { cd -q $REPOS_DIR/$target && git pull } &>$logs/$target; then
+                print -r -- $target failed $SECONDS
+              elif build --up-to-date $target &>>$logs/$target; then
+                print -r -- $target current
+              else
+                print -r -- $target building
+                build $target &>>$logs/$target && state=built || state=failed
+                print -r -- $target $state $SECONDS
+              fi
+            } &
+          done
+          wait
+        } | while read -r target state secs; do
+          # The jobs report as lines, each a single short write, so they can't interleave
+          [[ $state == failed ]] && failed+=($target)
+          took=${secs:+ $(( secs / 60 ))m $(( secs % 60 ))s}
+          print -P "%F{blue}$target%f: $phrases[$state]${took/ 0m/}"
+        done
+
+        for target in $failed; do
+          print -P "\n%F{red}==> Failed to build $target:%f"
+          cat $logs/$target
+        done >&2
+      } always {
+        rm -rf $logs
+      }
+      return $(( $#failed > 0 ))
       ;;
+    --up-to-date) check=1; shift ;;
+  esac
+
+  if (( ! $targets[(Ie)$1] )); then
+    print "Unknown target: $1" >&2
+    build --help
+    return 1
+  fi
+
+  # A stamp names what the installed binary came from: the checkout's tree and, for tmux, the
+  # brew libraries it links. Uncommitted changes are in no tree, so their build leaves no stamp
+  stamp=$root/.stamps/$1
+  if [[ -z $(git status --porcelain -uno) ]] && source=$(git rev-parse 'HEAD^{tree}') && [[ $1 == tmux ]]; then
+    libs=($HOMEBREW_PREFIX/opt/$^tmux_libs)
+    # (@), or the quotes join the paths before :A can resolve each link
+    source+=" ${(@)libs:A}"
+  fi
+  if (( check )); then
+    [[ -n $source && -r $stamp && $source == "$(<$stamp)" ]]
+    return
+  fi
+  rm -f $stamp
+
+  case "$1" in
     # Failed builds keep their artifacts for debugging and retries; `go install` leaves none
     atuin)                    cargo install --locked --path crates/atuin && cargo clean ;;
     eza|television|worktrunk) cargo install --locked --path . && cargo clean ;;
@@ -28,7 +89,7 @@ build() {
     tmux)
       # Explicit installs keep `brew autoremove` off the deps of a binary it can't see;
       # distclean leaves autogen.sh's outputs and the .deps dirs (stale .Po files) behind
-      brew install libevent utf8proc jemalloc \
+      brew install $tmux_libs \
         && sh autogen.sh \
         && ./configure --prefix=$root --enable-utf8proc --enable-jemalloc \
         && make clean \
@@ -38,14 +99,10 @@ build() {
         && rm -rf autom4te.cache aclocal.m4 configure configure~ Makefile.in etc \
           .deps compat/.deps fuzz/.deps
       ;;
-    *)
-      print "Unknown target: $1" >&2
-      build --help
-      return 1
-      ;;
   esac
+  ret=$?
 
-  local ret=$?
+  (( ret )) || [[ -z $source ]] || { mkdir -p $stamp:h && print -r -- $source >$stamp }
   _evalcache_clear
   return $ret
 }
