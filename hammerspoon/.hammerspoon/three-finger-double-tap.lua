@@ -69,8 +69,6 @@ local function on_touches(touches, now)
   end
 end
 
-trackpad.on_gesture(function(gesture, touches)
-  if gesture == types.gesture then
-    on_touches(touches, hs.timer.absoluteTime() / 1e9)
-  end
+trackpad.on_gesture(types.gesture, function(touches)
+  on_touches(touches, hs.timer.absoluteTime() / 1e9)
 end)

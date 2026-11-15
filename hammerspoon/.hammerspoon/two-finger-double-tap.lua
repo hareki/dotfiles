@@ -15,10 +15,7 @@ if tonumber(smart_zoom) == 0 then
   hs.alert.show('Smart zoom is off in Trackpad settings: a two-finger double tap cannot close', 10)
 end
 
-trackpad.on_gesture(function(gesture)
-  if gesture ~= types.smartMagnify then
-    return false
-  end
+trackpad.on_gesture(types.smartMagnify, function()
   -- keyStroke sleeps its delay (200ms by default) between key down and up, stalling the tap
   hs.eventtap.keyStroke({ 'cmd' }, 'w', 0)
   return true
