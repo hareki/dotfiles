@@ -1,7 +1,8 @@
 # The lines that lean on a plugin's private names (plugins.zsh, evals.zsh) still take effect with
 # the plugins installed now, judged by what each exists to stop: a fork, a process, a dump, a hook.
 # Worth a run after `yay` updates them. Scratch boots (lib/env.zsh): a cold one, then a warm one in
-# the same HOME, with its caches built and zsh-patina's daemon running
+# the same HOME, with its caches built and zsh-patina's daemon running. The cold one also answers for
+# what the test libs copy from the config: the keys a boot is given, the options a command runs under
 
 source $ZT_LIB/helpers.zsh
 source $ZT_LIB/env.zsh
@@ -35,6 +36,15 @@ print -r -- "should_dump: ${functions[_p9k_should_dump]//$'\n'/ }"
 print -r -- "cwd_hook_defined: $+functions[omz_termsupport_cwd]"
 print -r -- "precmd: $precmd_functions"
 print -r -- "tab_widget: $widgets[fzf-tab-complete]"
+# By name only: a value never leaves the shell
+() {
+  local name
+  local -a real
+  for name in ${(ok)parameters[(R)*export*]}; do
+    [[ $name == (*KEY*|*TOKEN*|*SECRET*|*PASSWORD*) && ${(P)name} != dummy ]] && real+=($name)
+  done
+  print -r -- "real_secrets: ${real:-none}"
+}
 EOF
 
 if ! zt_boot $root/home $root/cold $ZT_REPO; then
@@ -67,6 +77,22 @@ t_match "_p9k_should_dump is this config's" "$probe" '*should_dump: *_p9k__state
 t_eq "omz's cwd hook is out of precmd" ${precmd[(Ie)omz_termsupport_cwd]} 0
 t_match 'under a name omz still defines' "$probe" '*cwd_hook_defined: 1*'
 t_match "autosuggestions wrapped fzf-tab's Tab widget" "$probe" '*tab_widget: user:_zsh_autosuggest_bound_*'
+
+# zt_env names the keys .zshenv would otherwise read from the keychain: one it misses shows here
+t_match 'a scratch boot holds no key but the dummies' "$probe" '*real_secrets: none*'
+
+# T_INTERACTIVE_OPTIONS is the options of this boot, bar those only a login shell on a terminal
+# has, and rcs, which the `zsh -f` of a test file turns off
+local from='## options set' to='## aliases'
+local -a dump=("${(@f)$(<$root/cold/dump-1.txt)}") mine
+local -a booted=(${dump[${dump[(ie)$from]}+1,${dump[(ie)$to]}-1]})
+() {
+  setopt local_options $T_INTERACTIVE_OPTIONS
+  mine=(${(ok)options[(R)on]:#localoptions})
+}
+local -a only_booted=(${booted:|mine}) only_mine=(${mine:|booted})
+t_eq "the command suites' options are a booted shell's" \
+  "$only_booted | $only_mine" 'interactive login monitor rcs shinstdin stdin zle | '
 
 # The _p9k_should_dump override suits only an instant prompt that is off
 local on=$ZT_TMP/on

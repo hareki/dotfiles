@@ -1,8 +1,9 @@
 # Sourced by run.zsh, ab.zsh and the test files: scratch dirs, and scratch shells of the config that
 # can't reach the live one. Each rule below once cost a leak or a false result:
 #
-# - Dummy API keys in the environment, so .zshenv skips the keychain. Never xtrace a boot (an xtrace
-#   of .zshenv printed both real keys into a transcript), and never dump the environment (`ps -E`)
+# - Dummy API keys in the environment, so .zshenv skips the keychain (tests/overrides.zsh checks that
+#   a boot holds no other key). Never xtrace a boot (an xtrace of .zshenv printed both real keys into
+#   a transcript), and never dump the environment (`ps -E`)
 # - Every boot, and every test file run.zsh starts, begins from `env -i` with a scratch HOME: a
 #   helper that inherited its caller's environment once booted ~15 real-config shells, ran the real
 #   antidote bundle and read the real ssh-agent file
@@ -54,8 +55,11 @@ zt_cleanup() {
 # holding the zsh, p10k and tmux packages
 zt_home() {
   local home=$1 tree=$2
+  # Every top-level dot file the zsh package holds, bar the one on stow's ignore list
+  local -a dotfiles=($tree/zsh/.*(.N))
+  dotfiles=(${dotfiles:#*/.DS_Store})
   mkdir -p $home/{.config,.cache/zsh,.local/bin/shims,.tmux} || return 1
-  ln -s $tree/zsh/{.zshenv,.zshrc,.zplugins,.hushlogin} $home/ &&
+  (( $#dotfiles )) && ln -s $dotfiles $home/ &&
     ln -s $tree/zsh/.config/zsh $home/.config/zsh &&
     ln -s $tree/p10k/.p10k.zsh $home/.p10k.zsh &&
     ln -s $tree/tmux/.config/tmux $home/.config/tmux &&

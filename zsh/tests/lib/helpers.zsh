@@ -21,7 +21,7 @@ typeset -gi T_PASSED=0 T_FAILED=0
 
 # A command of this config runs inside an interactive shell, so t_run runs it under that shell's
 # options: those `setopt` lists in one, bar the interactive-only ones (the "options set" in a
-# tests/ab.zsh dump)
+# tests/ab.zsh dump, which tests/overrides.zsh compares this list with)
 typeset -ga T_INTERACTIVE_OPTIONS=(
   multios long_list_jobs interactive_comments prompt_subst auto_cd combining_chars
   extended_history hist_expire_dups_first hist_ignore_dups hist_ignore_space hist_verify
