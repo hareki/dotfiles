@@ -142,11 +142,12 @@ end
 --- Add a line of the patch to `hunk`, and return the change left open after it.
 --- A hunk has an `old` and a `new` side, { start, count, rows, emph }: `rows` are
 --- the lines the side shows, in order, and whatever else is known about a row
---- (engine's char emphasis, core's spans, osc1717's records) is keyed by the same
---- 1-based row. hunk.changes pairs each minus run with the plus run that follows
---- it, as an ordered list of { old_start, old_end, new_start, new_end } (rows, end
---- exclusive). One walk builds both, so a change's rows are side rows by
---- construction.
+--- (engine's char emphasis, osc1717's records) is keyed by the same 1-based row.
+--- Only core's spans are not: they keep the 0-based rows of whatever was parsed,
+--- behind side.span_base. hunk.changes pairs each minus run with the plus run
+--- that follows it, as an ordered list of { old_start, old_end, new_start,
+--- new_end } (rows, end exclusive). One walk builds both, so a change's rows are
+--- side rows by construction.
 ---
 --- The rows come from the patch rather than from the diff engine because they
 --- are what lazygit stages: the engine is free to slide a change along lines
