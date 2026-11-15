@@ -46,25 +46,32 @@ local function remote_exprs(path)
   return exprs
 end
 
+--- Run cmd to its end while this nvim keeps answering the requests it sends here, and fail unless
+--- it exits 0. Not SystemObj:wait(), which runs only fast events and so never answers one
+--- @param cmd string[]
+--- @param what string Names the command in a failure
+--- @param env? table<string, string>
+local function succeeds(cmd, what, env)
+  --- @type vim.SystemCompleted?
+  local result
+  vim.system(cmd, { env = env, timeout = 5000 }, function(completed)
+    result = completed
+  end)
+  t.wait_for(function()
+    return result ~= nil
+  end, what, 6000)
+
+  local completed = assert(result)
+  t.eq(completed.code, 0, string.format('%s: %s', what, completed.stderr))
+end
+
 --- Sends expr to this nvim the way an outside client does, and fails unless it evaluates
 --- @param expr string
 local function evaluates(expr)
-  --- @type vim.SystemCompleted?
-  local result
-  vim.system(
+  succeeds(
     { vim.v.progpath, '--headless', '--server', vim.v.servername, '--remote-expr', expr },
-    { timeout = 5000 },
-    function(completed)
-      result = completed
-    end
+    expr
   )
-  -- Not SystemObj:wait(), which runs only fast events and so never answers the client's request
-  t.wait_for(function()
-    return result ~= nil
-  end, expr, 6000)
-
-  local completed = assert(result)
-  t.eq(completed.code, 0, string.format('%s: %s', expr, completed.stderr))
 end
 
 t.test("every --remote-expr in lazygit's edit commands evaluates here", function()
@@ -94,23 +101,12 @@ t.test("lazygit's edit command opens its files in this nvim, on the line it name
   --- @param shell string[]
   --- @param command string
   local function lazygit_runs(shell, command)
-    --- @type vim.SystemCompleted?
-    local result
-    vim.system(
-      vim.list_extend(
-        vim.deepcopy(shell),
-        { string.format('source %s\n%s', vim.fs.joinpath(repo, LAZYGIT_EDIT), command) }
-      ),
-      { env = { NVIM = vim.v.servername }, timeout = 5000 },
-      function(completed)
-        result = completed
-      end
+    local script = string.format('source %s\n%s', vim.fs.joinpath(repo, LAZYGIT_EDIT), command)
+    succeeds(
+      vim.list_extend(vim.deepcopy(shell), { script }),
+      string.format('%s: %s', shell[1], command),
+      { NVIM = vim.v.servername }
     )
-    t.wait_for(function()
-      return result ~= nil
-    end, command, 6000)
-    local completed = assert(result)
-    t.eq(completed.code, 0, string.format('%s: %s', shell[1], completed.stderr))
   end
 
   -- lazygit quotes every path it hands over. The user's shell, and the one a plain `sh` would be
