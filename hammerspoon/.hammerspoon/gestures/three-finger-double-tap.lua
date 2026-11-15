@@ -1,6 +1,6 @@
 -- Three-finger double tap => Cmd+Shift+T. macOS has no recognizer for it, so this reads the raw
 -- touches: a tap is one contact that peaks at three fingers, stays short and barely moves.
-local trackpad = require('trackpad')
+local trackpad = require('gestures.trackpad')
 
 local types = hs.eventtap.event.types
 

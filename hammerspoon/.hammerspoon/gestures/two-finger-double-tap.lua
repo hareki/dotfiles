@@ -1,6 +1,6 @@
 -- Two-finger double tap => Cmd+W. macOS reports it as smartMagnify only while Smart zoom is on;
 -- deleting the event keeps every app from zooming on it.
-local trackpad = require('trackpad')
+local trackpad = require('gestures.trackpad')
 
 local types = hs.eventtap.event.types
 

@@ -10,7 +10,8 @@ local config = tests .. '/../.hammerspoon'
 package.path = config .. '/?.lua;' .. package.path
 
 local GESTURE, SMART_MAGNIFY, PRESSURE = 29, 32, 34
-local MODULES = { 'trackpad', 'two-finger-double-tap', 'three-finger-double-tap' }
+local MODULES =
+  { 'gestures.trackpad', 'gestures.two-finger-double-tap', 'gestures.three-finger-double-tap' }
 
 local failures = 0
 local state
