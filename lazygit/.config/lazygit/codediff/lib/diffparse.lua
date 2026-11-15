@@ -79,8 +79,8 @@ local MODE_HEADERS = {
 local PATH_HEADERS = {
   { '^rename from (.*)$', 'renamed_from', 'old_path' },
   { '^rename to (.*)$', 'renamed_to', 'new_path' },
-  { '^copy from (.*)$', 'renamed_from' },
-  { '^copy to (.*)$', 'renamed_to', 'new_path' },
+  { '^copy from (.*)$', 'copied_from' },
+  { '^copy to (.*)$', 'copied_to', 'new_path' },
 }
 
 -- Returns true when the line was consumed as an extended header.

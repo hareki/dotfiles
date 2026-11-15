@@ -175,6 +175,9 @@ local function render_file(file, ctx)
   if file.renamed_from and file.renamed_to then
     note('renamed: ' .. file.renamed_from .. ' => ' .. file.renamed_to)
   end
+  if file.copied_from and file.copied_to then
+    note('copied: ' .. file.copied_from .. ' => ' .. file.copied_to)
+  end
   if file.old_mode and file.new_mode then
     note('mode changed: ' .. file.old_mode .. ' => ' .. file.new_mode)
   end
