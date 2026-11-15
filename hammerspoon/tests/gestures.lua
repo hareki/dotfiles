@@ -2,11 +2,8 @@
 --
 --   nvim --clean -l hammerspoon/tests/gestures.lua
 --
--- A fake gesture event reads like a real one: only its first conversion (getTouches() or
--- getType(true)) reports which fingers landed or lifted, while later ones show new fingers as
--- stationary and drop lifted ones, as a real trackpad's events do. Taps see each event newest
--- first, and a deleted event goes no further. So a binding that reads in the wrong order, or a
--- second tap ahead of it, fails here the way it fails live.
+-- Fake events report landed and lifted fingers only on their first conversion, and taps see each
+-- event newest first, so a misordered read or a second tap fails here the way it fails live.
 
 local tests = arg[0]:match('(.*)/') or '.'
 local config = tests .. '/../.hammerspoon'

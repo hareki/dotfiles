@@ -1,10 +1,5 @@
--- The one tap on trackpad gesture events, shared by every gesture binding.
---
--- Reading an event's touches or its specific type converts it to an NSEvent, and only the first
--- conversion reports which fingers just landed or lifted: later ones show new fingers as
--- stationary and drop lifted ones. So this tap reads the touches first, then the type, and hands
--- the touches to every handler of that type. Another gesture tap would break that, since a tap
--- created later sees each event first.
+-- The one gesture event tap. Only an event's first conversion reports landed and lifted fingers,
+-- so this reads touches before the type; a second tap would see each event first and hide them.
 local M = {}
 
 ---@alias trackpad.handler fun(touches: table[]): boolean?

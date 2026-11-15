@@ -1,9 +1,5 @@
--- Three-finger double tap => Cmd+Shift+T.
---
--- macOS has no recognizer for this one (Smart zoom only knows two fingers), so this reads the raw
--- trackpad touches. A tap is one contact, from the first finger down to the last one up, that
--- peaks at exactly three fingers, stays short and barely moves. Nothing is swallowed: macOS does
--- nothing on a three-finger tap while Look up is not set to "Tap with three fingers".
+-- Three-finger double tap => Cmd+Shift+T. macOS has no recognizer for it, so this reads the raw
+-- touches: a tap is one contact that peaks at three fingers, stays short and barely moves.
 local trackpad = require('trackpad')
 
 local types = hs.eventtap.event.types
@@ -12,7 +8,6 @@ local FINGERS = 3
 local MAX_TAP_SECONDS = 0.3
 -- In fractions of the trackpad's width and height
 local MAX_TRAVEL = 0.04
--- The longest pause between the two taps
 local max_gap_seconds = hs.eventtap.doubleClickInterval()
 
 local contact

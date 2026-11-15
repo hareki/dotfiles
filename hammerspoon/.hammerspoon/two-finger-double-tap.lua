@@ -1,9 +1,5 @@
--- Two-finger double tap => Cmd+W.
---
--- macOS only recognizes a two-finger double tap while Trackpad > Scroll & Zoom > Smart zoom is
--- on, and reports it as a smartMagnify event. That recognizer is also what holds back a
--- two-finger tap's right click until no second tap follows, so the double tap never opens a
--- context menu. The handler deletes the event, so no app ever zooms on it.
+-- Two-finger double tap => Cmd+W. macOS reports it as smartMagnify only while Smart zoom is on;
+-- deleting the event keeps every app from zooming on it.
 local trackpad = require('trackpad')
 
 local types = hs.eventtap.event.types

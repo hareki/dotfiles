@@ -1,6 +1,5 @@
--- Gesture events recorded off a real trackpad: four three-finger double taps, one two-finger
--- double tap, and plain pointing and scrolling around them. `t` is in seconds from the first
--- event, `ns` is the specific type, and `touches` is what the first read of the event reports.
+-- Real trackpad events: four three-finger double taps and one two-finger, amid pointing, scrolls.
+-- `t` is seconds from the first event, `ns` the specific type, `touches` the first read's report.
 -- stylua: ignore
 return {
   { t = 0.0000, ns = 29, touches = {} },
