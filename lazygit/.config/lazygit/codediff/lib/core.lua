@@ -179,7 +179,9 @@ local function render_file(file, ctx)
     note('copied: ' .. file.copied_from .. ' => ' .. file.copied_to)
   end
   if file.old_mode and file.new_mode then
-    note('mode changed: ' .. file.old_mode .. ' => ' .. file.new_mode)
+    -- With its path, in the order of git's own summary line: a change of mode alone has no hunk
+    -- header to say which file it is.
+    note(('mode changed: %s => %s %s'):format(file.old_mode, file.new_mode, display_path))
   end
   if file.is_binary then
     note('binary: ' .. display_path)
