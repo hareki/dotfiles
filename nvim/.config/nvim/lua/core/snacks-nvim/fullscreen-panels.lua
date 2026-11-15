@@ -19,7 +19,7 @@ local TERMINAL_MODE = {
     -- `show()` recreates this group right before calling `on_buf`, so nothing piles up
     vim.api.nvim_create_autocmd('TermLeave', {
       group = self.augroup,
-      buffer = self.buf,
+      buf = self.buf,
       callback = function()
         -- Runs after the input that left: a click on another window has moved focus there by then
         vim.schedule(function()

@@ -33,11 +33,11 @@ t.test('cursor_moved closes it once the cursor leaves its position', function()
   })
 
   -- Re-entering the source fires CursorMoved at the same position
-  vim.api.nvim_exec_autocmds('CursorMoved', { buffer = buf })
+  vim.api.nvim_exec_autocmds('CursorMoved', { buf = buf })
   t.ok(vim.api.nvim_win_is_valid(float), 'still open after a CursorMoved in place')
 
   vim.api.nvim_win_set_cursor(win, { 2, 0 })
-  vim.api.nvim_exec_autocmds('CursorMoved', { buffer = buf })
+  vim.api.nvim_exec_autocmds('CursorMoved', { buf = buf })
   t.eq(vim.api.nvim_win_is_valid(float), false, 'open after the cursor moved')
   t.eq(closes, 1, 'on_close runs')
   t.eq(buf_map_desc(buf, '<Esc>'), nil, 'the source <Esc> override is released')
@@ -62,7 +62,7 @@ t.test('mode_changed closes it on a mode change in the source buffer', function(
   local float = t.float()
   popup.link(float, { name = 'Probe', close_on = { mode_changed = true } })
 
-  vim.api.nvim_exec_autocmds('ModeChanged', { buffer = buf })
+  vim.api.nvim_exec_autocmds('ModeChanged', { buf = buf })
   t.eq(vim.api.nvim_win_is_valid(float), false, 'open after a mode change')
 end)
 

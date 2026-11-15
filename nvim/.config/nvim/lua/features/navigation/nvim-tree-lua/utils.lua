@@ -263,7 +263,7 @@ function M.watch_preview(tree_bufnr)
 
   vim.api.nvim_create_autocmd('BufEnter', {
     group = state.preview_watcher,
-    buffer = tree_bufnr,
+    buf = tree_bufnr,
     callback = sync_preview,
   })
 end

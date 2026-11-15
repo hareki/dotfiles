@@ -213,7 +213,7 @@ function M.link(popup_win, opts)
   })
   vim.api.nvim_create_autocmd('BufWipeout', {
     group = group,
-    buffer = source_buf,
+    buf = source_buf,
     nested = true,
     callback = close,
   })
@@ -223,7 +223,7 @@ function M.link(popup_win, opts)
 
     vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
       group = group,
-      buffer = source_buf,
+      buf = source_buf,
       nested = true,
       callback = function()
         if vim.api.nvim_get_current_win() ~= source_win then
@@ -262,7 +262,7 @@ function M.link(popup_win, opts)
   if close_on.mode_changed then
     vim.api.nvim_create_autocmd('ModeChanged', {
       group = group,
-      buffer = source_buf,
+      buf = source_buf,
       nested = true,
       callback = close,
     })
