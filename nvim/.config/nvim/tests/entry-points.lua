@@ -92,7 +92,8 @@ t.test("lazygit's edit command opens its files in this nvim, on the line it name
   end
   t.cleanup(function()
     for _, file in ipairs({ path, other }) do
-      vim.cmd.bwipeout({ vim.fn.fnameescape(file), bang = true })
+      -- bufadd() finds the file's buffer, or makes one when the edit never opened it
+      vim.api.nvim_buf_delete(vim.fn.bufadd(file), { force = true })
     end
   end)
 
