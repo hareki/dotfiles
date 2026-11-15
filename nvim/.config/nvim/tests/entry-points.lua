@@ -1,6 +1,7 @@
 -- The modules something outside nvim reaches by their path (AGENTS.md, Entry points), checked the
--- way each caller reaches them. lazygit's config.yml sends a `--remote-expr` before each edit
--- command, and one that fails stops the `&&` chain before the file opens. tsave finds a pane's nvim
+-- way each caller reaches them. lazygit's edit commands (its shell-functions.sh) send a
+-- `--remote-expr` before each edit, and one that fails stops the `&&` chain before the file
+-- opens. tsave finds a pane's nvim
 -- through the pane option publish_tmux_server() sets, asks it for unsaved(), then sends quit().
 -- Claude Code's Stop hook sends one to the nvim running that Claude once the agent is done. And the
 -- tools that open nvim as their editor name themselves in NVIM_INTEGRATION, which
@@ -15,12 +16,13 @@ local repo = vim.fs.dirname(
 )
 
 local TSAVE = 'zsh/.config/zsh/functions/tsave'
+local LAZYGIT_EDIT = 'lazygit/.config/lazygit/shell-functions.sh'
 
 -- The files that start nvim with NVIM_INTEGRATION set: git's core.editor, lazygit's edit commands
 -- and Claude Code's editor
 local INTEGRATION_CALLERS = {
   'git/.gitconfig',
-  'lazygit/.config/lazygit/config.yml',
+  LAZYGIT_EDIT,
   'bin/.local/bin/shims/nvim-claude',
 }
 
@@ -67,8 +69,71 @@ local function evaluates(expr)
 end
 
 t.test("every --remote-expr in lazygit's edit commands evaluates here", function()
-  for _, expr in ipairs(remote_exprs('lazygit/.config/lazygit/config.yml')) do
+  for _, expr in ipairs(remote_exprs(LAZYGIT_EDIT)) do
     evaluates(expr)
+  end
+end)
+
+t.test("lazygit's edit command opens its files in this nvim, on the line it names", function()
+  local lines = {}
+  for i = 1, 20 do
+    lines[i] = 'line ' .. i
+  end
+  local path = vim.fs.joinpath(vim.uv.cwd(), 'edited from lazygit.txt')
+  local other = vim.fs.joinpath(vim.uv.cwd(), 'another [one].txt')
+  for _, file in ipairs({ path, other }) do
+    vim.fn.writefile(lines, file)
+  end
+  t.cleanup(function()
+    for _, file in ipairs({ path, other }) do
+      vim.cmd.bwipeout({ vim.fn.fnameescape(file), bang = true })
+    end
+  end)
+
+  --- Run an edit command as lazygit does: its functions file sourced into a shell, then the
+  --- command, this nvim the one it runs inside
+  --- @param shell string[]
+  --- @param command string
+  local function lazygit_runs(shell, command)
+    --- @type vim.SystemCompleted?
+    local result
+    vim.system(
+      vim.list_extend(
+        vim.deepcopy(shell),
+        { string.format('source %s\n%s', vim.fs.joinpath(repo, LAZYGIT_EDIT), command) }
+      ),
+      { env = { NVIM = vim.v.servername }, timeout = 5000 },
+      function(completed)
+        result = completed
+      end
+    )
+    t.wait_for(function()
+      return result ~= nil
+    end, command, 6000)
+    local completed = assert(result)
+    t.eq(completed.code, 0, string.format('%s: %s', shell[1], completed.stderr))
+  end
+
+  -- lazygit quotes every path it hands over. The user's shell, and the one a plain `sh` would be
+  local quoted, quoted_other = vim.fn.shellescape(path), vim.fn.shellescape(other)
+  for _, shell in ipairs({ { '/bin/zsh', '-f', '-c' }, { '/bin/sh', '-c' } }) do
+    vim.cmd.enew()
+    lazygit_runs(shell, string.format('lazygit_edit %s %s', quoted_other, quoted))
+    t.eq(vim.api.nvim_buf_get_name(0), other, shell[1] .. ': the current file of two')
+    t.eq(vim.fn.buflisted(path), 1, shell[1] .. ': the second file is listed')
+
+    lazygit_runs(shell, string.format('lazygit_edit +7 %s', quoted))
+    -- The line comes as typed keys, which a nvim busy running this test never reads: read
+    -- them here, and type them as it would have
+    local keys = ''
+    t.wait_for(function()
+      keys = keys .. vim.fn.getcharstr(0)
+      return vim.endswith(keys, '\r')
+    end, string.format('the keys %s sends for the line', shell[1]))
+    vim.api.nvim_feedkeys(keys, 'xt', false)
+
+    t.eq(vim.api.nvim_buf_get_name(0), path, shell[1] .. ': the current file')
+    t.eq(vim.api.nvim_win_get_cursor(0)[1], 7, shell[1] .. ': the line')
   end
 end)
 

@@ -1,8 +1,18 @@
 # Lazygit config
 
-A personal lazygit setup: its look, and codediff, the diff renderer it runs for every diff it draws, together with how a render is served and the tests that pin what it shows.
+A personal lazygit setup: its look, the edit commands that open files in nvim, and codediff, the diff renderer it runs for every diff it draws, together with how a render is served and the tests that pin what it shows.
 
 ## Language
+
+### Editing
+
+**Edit command**:
+What lazygit runs to open a file, a line of a file or a directory in nvim.
+_Avoid_: editor template, edit script
+
+**Host nvim**:
+The nvim whose terminal lazygit is running in. An edit command hands it the files, where outside one a new nvim opens them.
+_Avoid_: parent nvim, outer nvim, remote nvim
 
 ### Rendering
 

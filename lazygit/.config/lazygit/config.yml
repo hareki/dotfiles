@@ -1,18 +1,13 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/hareki/lazygit/master/schema-master/config.json
 os:
   editPreset: 'nvim-remote'
-  # Inside nvim's terminal, hand the file to the host instance. The expr call hides the
-  # Snacks terminal floats (lazygit, terminal, coding agent) and refocuses the last editing
-  # window first, since --remote drops the file into whatever window is current. The RPC
-  # clients name Homebrew's nvim: through mise's shim each one costs ~60ms more.
-  edit: >
-    if [ -z "$NVIM" ]; then NVIM_INTEGRATION=lazygit nvim -- {{filename}}; else /opt/homebrew/bin/nvim --server "$NVIM" --remote-expr "v:lua.require'features.git.snacks-nvim.lazygit'.prepare_remote_edit()" && /opt/homebrew/bin/nvim --server "$NVIM" --remote {{filename}}; fi
-
-  editAtLine: >
-    if [ -z "$NVIM" ]; then NVIM_INTEGRATION=lazygit nvim +{{line}} -- {{filename}}; else /opt/homebrew/bin/nvim --server "$NVIM" --remote-expr "v:lua.require'features.git.snacks-nvim.lazygit'.prepare_remote_edit()" && /opt/homebrew/bin/nvim --server "$NVIM" --remote {{filename}} && /opt/homebrew/bin/nvim --server "$NVIM" --remote-send ":{{line}}<CR>"; fi
-
-  openDirInEditor: >
-    if [ -z "$NVIM" ]; then NVIM_INTEGRATION=lazygit nvim -- {{dir}}; else /opt/homebrew/bin/nvim --server "$NVIM" --remote-expr "v:lua.require'features.git.snacks-nvim.lazygit'.prepare_remote_edit()" && /opt/homebrew/bin/nvim --server "$NVIM" --remote {{dir}}; fi
+  # The edit commands are the functions in shell-functions.sh, which lazygit sources into the
+  # shell it runs each of them in. The preset still says when lazygit steps aside for the
+  # editor: only outside nvim's terminal.
+  shellFunctionsFile: '~/.config/lazygit/shell-functions.sh'
+  edit: 'lazygit_edit {{filename}}'
+  editAtLine: 'lazygit_edit +{{line}} {{filename}}'
+  openDirInEditor: 'lazygit_edit {{dir}}'
 
 gui:
   fileTreeSortOrder: foldersFirst
