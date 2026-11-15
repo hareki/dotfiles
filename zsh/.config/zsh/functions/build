@@ -88,6 +88,10 @@ build() {
       # of its dependents behind. So it is emptied for a new rustc, and once past 4GB
       [[ -r target/.rustc-version && $(rustc -V) == "$(<target/.rustc-version)" ]] \
         && (( ${$(du -sk target)%%$'\t'*} < 4 * 1024 ** 2 )) || cargo clean
+      # Both release with fat LTO over one codegen unit, most of the build on a single core
+      # (television 130s => 91s, eza 25s => 11s), for a gain at run time too small to measure
+      [[ $1 != (eza|television) ]] \
+        || local -x CARGO_PROFILE_RELEASE_LTO=thin CARGO_PROFILE_RELEASE_CODEGEN_UNITS=16
       cargo install --locked --path ${crates[$1]:-.} && rustc -V >target/.rustc-version
       ;;
     lazygit|fzf) go install ;;

@@ -67,7 +67,7 @@ compile() {
 cargo() {
   if [[ $1 == install ]]; then
     mkdir -p target
-    compile cargo "$@" "(root ${CARGO_INSTALL_ROOT/#$HOME/~})"
+    compile cargo "$@" "(root ${CARGO_INSTALL_ROOT/#$HOME/~}${CARGO_PROFILE_RELEASE_LTO:+, $CARGO_PROFILE_RELEASE_LTO LTO over $CARGO_PROFILE_RELEASE_CODEGEN_UNITS units})"
   else
     call cargo "$@"
     [[ $1 != clean ]] || rm -rf target
@@ -109,7 +109,8 @@ recipe() {
   [[ $2 != scratch ]] || print -r -- "$1 cargo clean"
   case $1 in
     atuin) print -r -- "$1 cargo install --locked --path crates/atuin (root ~/.local/opt)" ;;
-    eza|television|worktrunk) print -r -- "$1 cargo install --locked --path . (root ~/.local/opt)" ;;
+    eza|television) print -r -- "$1 cargo install --locked --path . (root ~/.local/opt, thin LTO over 16 units)" ;;
+    worktrunk) print -r -- "$1 cargo install --locked --path . (root ~/.local/opt)" ;;
     lazygit|fzf) print -r -- "$1 go install (GOBIN ~/.local/opt/bin)" ;;
     tmux)
       print -rl -- "$1 brew install libevent utf8proc jemalloc" "$1 sh autogen.sh" \
@@ -301,7 +302,7 @@ broken=(eza)
 cd $REPOS_DIR/eza
 run 1 eza
 t_lines 'build <target>: a failed build' "$rc $(<$calls)"$'\n'"$(<$top/err)" \
-  "1 eza cargo install --locked --path . (root ~/.local/opt)"$'\n'"eza _evalcache_clear"$'\n'"eza: compile error"
+  "1 ${$(recipe eza)[(f)1]}"$'\n'"eza _evalcache_clear"$'\n'"eza: compile error"
 broken=()
 cd $top
 run 2 all
