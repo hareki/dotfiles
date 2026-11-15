@@ -81,10 +81,10 @@ sh() {
   print -rl -- '#!/bin/sh' "echo \"tmux ./configure \$*\" >>$calls" >configure && chmod +x configure
 }
 make() {
-  if (( $# )); then
-    call make "$@"
+  if [[ $1 == -j* ]]; then
+    compile make "$@"
   else
-    compile make
+    call make "$@"
   fi
 }
 _evalcache_clear() {
@@ -100,7 +100,7 @@ recipe() {
     tmux)
       print -rl -- "$1 brew install libevent utf8proc jemalloc" "$1 sh autogen.sh" \
         "$1 ./configure --prefix=$HOME/.local/opt --enable-utf8proc --enable-jemalloc" \
-        "$1 make clean" "$1 make" "$1 make install" "$1 make distclean"
+        "$1 make clean" "$1 make -j$(sysctl -n hw.ncpu)" "$1 make install" "$1 make distclean"
       ;;
   esac
   print -r -- "$1 _evalcache_clear"
