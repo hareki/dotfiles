@@ -175,9 +175,9 @@ with_listener() {
 
 # ------------------------------------------------------------------ the names ---
 
-# The names config.yml runs are the links in the shims directory, and the tests run a copy of
-# the tree by the same names.
-NAMES=(${(f)"$(sed -n 's/^ *command: //p' $CONFIG)"})
+# The names config.yml runs its diff renderers by are the links in the shims directory, and the
+# tests run a copy of the tree by the same names.
+NAMES=(${(f)"$(sed -n '/^  diffRenderers:/,/^[^ #]/s/^ *command: //p' $CONFIG)"})
 equal 'config.yml names two renderers' "$NAMES" 'lazygit-codediff lazygit-codediff-split'
 cp -R $CODEDIFF/{client.sh,daemon.lua,render.lua,spawn_daemon.lua,lib} $ROOT/tree/
 for name in $NAMES; do
@@ -311,11 +311,11 @@ same 'with nobody listening, a new daemon renders what a one-shot does' $ROOT/ou
 equal 'the client waited for that daemon and rendered nothing itself' "$(<$FAKE_LOG)" $SPAWNED
 check 'the new daemon stays' listening
 
-{ print -n -- $HANDSHAKE; oneshot side-by-side 1 <$DIFF } >$ROOT/expected
+{ print -n -- $HANDSHAKE; oneshot side-by-side 1 <$DIFF } >$ROOT/expected.split
 client $NAMES[2] PATH=$LOGGED_PATH OSC1717=V1 <$DIFF >$ROOT/out
-same 'the daemon renders the other layout, with records' $ROOT/out $ROOT/expected
+same 'the daemon renders the other layout, with records' $ROOT/out $ROOT/expected.split
 client $NAMES[2] PATH=$LOGGED_PATH OSC1717=V1 <$DIFF >$ROOT/out
-same 'the same request again gets the same render' $ROOT/out $ROOT/expected
+same 'the same request again gets the same render' $ROOT/out $ROOT/expected.split
 equal 'a client served by a running daemon starts no nvim' "$(<$FAKE_LOG)" $SPAWNED
 
 zsocket $PIPE
@@ -327,7 +327,6 @@ equal 'a served client leaves no work directory' "$(work_dirs)" ''
 
 # --------------------------------------------------------------- one daemon's life ---
 
-oneshot inline 0 <$DIFF >$ROOT/expected
 touch $ROOT/tree/lib/util.lua
 client $NAMES[1] <$DIFF >$ROOT/out
 same 'a daemon whose sources changed still answers the request in hand' $ROOT/out $ROOT/expected
