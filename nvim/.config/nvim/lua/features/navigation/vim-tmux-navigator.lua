@@ -3,6 +3,7 @@ return {
   init = function()
     -- Define my own keybindings
     vim.g.tmux_navigator_no_mappings = 1
+    vim.g.tmux_navigator_preserve_zoom = 1
   end,
   keys = {
     { '<A-m>', '<cmd>TmuxNavigateLeft<cr>', mode = { 'n', 't' }, desc = 'Go to Left Window' },
