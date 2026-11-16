@@ -6,6 +6,7 @@ local M = {}
 --- @return nil
 local function open_float(notif)
   local notify = require('notify')
+  --- @diagnostic disable-next-line: missing-parameter nvim-notify annotates the optional opts as required
   local opened = notify.open(notif)
   local width = math.min(opened.width, UI.layout.inline_max_width())
   local height = math.min(opened.height, UI.layout.inline_max_height())
