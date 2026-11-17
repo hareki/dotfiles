@@ -6,7 +6,7 @@
 
 # Shells that never end on their own (dev servers) would hold every hook back too, so these
 # commands are skipped. Add one here when the hooks go quiet while it is up
-long_lived='http-server|(nx|ng) serve|npm (run )?start|node dist/main'
+long_lived='http-server|\b(nx|ng|firebase) serve|\bnest start|npm (run )?start|npm run dev\b|node dist/main|--remote-debugging-port'
 
 jq -e --arg long_lived "$long_lived" 'any(.background_tasks[]?;
   .type == "subagent" or .type == "workflow"
