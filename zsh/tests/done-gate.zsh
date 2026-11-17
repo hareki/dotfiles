@@ -24,6 +24,9 @@ local -a servers=(
   'npm start'
   'cd app && pnpm run start:api'
   'PORT=3137 npm run dev > dev.log 2>&1'
+  'pnpm dev:lite'
+  'bun run dev_lite'
+  'yarn start'
   'node dist/main'
   'chrome --headless=new --remote-debugging-port=9333 > chrome.log 2>&1'
 )
@@ -37,6 +40,6 @@ for command in $servers; do
 done
 t_eq 'a server beside a shell that ends: held' "$(gate "$(shell 'ng serve')" "$(shell 'npx nx build app')")" ''
 t_eq "a word that ends in a server's name: held" "$(gate "$(shell 'echo "starting server tests" && pytest -x')")" ''
-t_eq 'a script that starts like a server: held' "$(gate "$(shell 'npm run devtools:build')")" ''
+t_eq 'another script of a package manager: held' "$(gate "$(shell 'pnpm run build && yarn test')")" ''
 
 t_done
