@@ -1,7 +1,7 @@
 #!/bin/zsh -f
 # The tmux-resurrect snapshots in @resurrect-dir: how resurrect names and replaces them, which one
-# `last` points at, and when they expire. The zsh functions tsave and trestore call it, and
-# resurrect runs `prune` after every save (plugins/resurrect.conf):
+# `last` points at, when they expire, and how a pane running Claude Code comes back. The zsh
+# functions tsave and trestore call it, and resurrect runs its two hooks (plugins/resurrect.conf):
 #
 #   save           snapshot every session now and print `saved <id>` or `unchanged <id>`;
 #                  exit 1 without tmux-resurrect, 2 when nothing was saved
@@ -9,8 +9,8 @@
 #                  first (_trestore splits a line at its two spaces)
 #   select [<id>]  point `last` at <id>, or without one check that `last` exists; exit 1 when the
 #                  snapshot doesn't
-#   prune <file>   the post-save-layout hook, <file> being the save resurrect just wrote
-#   pre-restore    the pre-restore-all hook
+#   post-save <file>  the post-save-layout hook, <file> being the save resurrect just wrote
+#   pre-restore       the pre-restore-all hook
 #
 # An id is a snapshot's date and time: 2026-11-04_20-15-30 is tmux_resurrect_20261104T201530.txt
 
@@ -50,7 +50,7 @@ save() {
   [[ $prev == tmux_resurrect_$now.txt ]] && sleep 1
 
   # save.sh exits 0 whatever happens, so `last` (re)written from here on is the proof. An unchanged
-  # layout rewrites nothing, but `prune` touches `last` for it
+  # layout rewrites nothing, but the post-save hook's `prune` touches `last` for it
   start=$EPOCHSECONDS
   tmux run-shell "$script quiet"
   [[ -f $dir/last ]] && (( $(zstat +mtime $dir/last) >= start )) || return 2
@@ -108,6 +108,35 @@ select_snapshot() {
   [[ -f $dir/$file ]] && ln -fs $file $dir/last
 }
 
+# Gives each pane running Claude Code (claude-panes.zsh) the command that resumes its conversation,
+# in place of the one that started it: resurrect relaunches a pane with the command it saved, and
+# this runs before it compares the save with `last`. A session nothing was asked in has no
+# transcript to resume, so its pane starts a new one
+resume_claudes() {
+  local file=$1 line target session
+  local -a fields lines transcript
+  local -A session_at
+  for line in ${(f)"$(${ZSH_SCRIPT:h}/claude-panes.zsh)"}; do
+    fields=("${(@ps:\t:)line}")
+    session_at[$fields[2]]=$fields[5]
+  done
+  (( $#session_at )) || return 0
+
+  # A pane line: pane, session, window, 2 window fields, pane index, 4 pane fields, :<command>
+  for line in "${(@f)$(<$file)}"; do
+    fields=("${(@ps:\t:)line}")
+    target=${fields[2]}:${fields[3]}.${fields[6]}
+    if [[ $fields[1] == pane ]] && (( $+session_at[$target] )); then
+      session=$session_at[$target]
+      transcript=(${CLAUDE_CONFIG_DIR:-$HOME/.claude}/projects/*/$session.jsonl(N))
+      fields[11]=:claude${transcript:+ --resume $session}
+      line=${(pj:\t:)fields}
+    fi
+    lines+=("$line")
+  done
+  print -rl -- "${lines[@]}" >$file
+}
+
 prune() {
   local new=$1 dir=${1:h} prev
   last_of $dir
@@ -134,10 +163,13 @@ pre_restore() {
 case $1 in
   save | list) $1 ;;
   select) select_snapshot $2 ;;
-  prune) prune $2 ;;
+  post-save)
+    resume_claudes $2
+    prune $2
+    ;;
   pre-restore) pre_restore ;;
   *)
-    print -u2 -r -- "usage: ${0:t} save | list | select [<id>] | prune <file> | pre-restore"
+    print -u2 -r -- "usage: ${0:t} save | list | select [<id>] | post-save <file> | pre-restore"
     exit 64
     ;;
 esac

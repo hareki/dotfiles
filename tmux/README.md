@@ -24,18 +24,23 @@ The copy-mode yank keys need no plugin: tmux's `set-clipboard` sends each copy a
 
 ## Snapshots
 
-The zsh functions `tsave` and `trestore` drive tmux-resurrect, and `scripts/resurrect-snapshots.zsh` owns the snapshot store: how resurrect names and replaces the files, which one `last` points at, the ids, the listing and the expiry. Both functions go through it, and so do resurrect's two hooks (expiry after a save, the placeholder session before a restore from scratch). Terms: [GLOSSARY.md](./GLOSSARY.md).
+The zsh functions `tsave` and `trestore` drive tmux-resurrect, and `scripts/resurrect-snapshots.zsh` owns the snapshot store: how resurrect names and replaces the files, which one `last` points at, the ids, the listing and the expiry. Both functions go through it, and so do resurrect's two hooks (after a save: expiry and the command that resumes each Claude Code session; before a restore from scratch: the placeholder session). Terms: [GLOSSARY.md](./GLOSSARY.md).
 
-- **`tsave`**: snapshots every session, then quits each pane's nvim through its normal exit (so auto-session saves its session) and kills the server
-  - **`-c`/`--continue`**: snapshot only, leaving nvim and tmux running, like resurrect's own `prefix C-s`
+- **`tsave`**: snapshots every session, then quits each pane's nvim through its normal exit (so auto-session saves its session), ends each pane's Claude Code session with SIGTERM (its clean exit: the SessionEnd hooks run) and kills the server
+  - **`-c`/`--continue`**: snapshot only, leaving nvim, Claude Code and tmux running, like resurrect's own `prefix C-s`
   - Nothing is quit or killed while an nvim holds work a kill would lose: unsaved buffers, a nested nvim in a terminal buffer, a suspended nvim, or one it can't reach. Pane nvims publish their RPC address as the `@nvim-server` pane option for this (nvim's `core/auto-session/tsave.lua`)
+  - Nor while a pane's Claude Code session is `busy` (in the middle of a turn) or `waiting` (on a permission prompt or a dialog): interrupt or answer it first
   - From a pane nvim's terminal (`<A-t>`), it reruns itself from the tmux server so that nvim can quit too, and shows its report in view mode on that pane (`q` closes it)
 - **`trestore [<id>]`**: restores a snapshot into a fresh server, from inside tmux or from a plain terminal
   - Without an id it restores `last`, the snapshot most recently saved or restored (also what `prefix C-r` restores)
   - Ids are the snapshot's date and time (`2026-11-04_20-15-30`); `trestore <TAB>` and `trestore --list` show them newest first
   - **`--force`**: restore into a server that already has panes (resurrect leaves those as they are)
-- **Expiry**: resurrect's post-save hook (`resurrect-snapshots.zsh prune`) deletes snapshots 3 days after their last save. The snapshot `last` pointed to before a save survives that save, so a stray save can't take the one you meant to restore. An unchanged layout restarts its snapshot's clock, which is also how `tsave` knows that save happened
+- **Expiry**: resurrect's post-save hook (`resurrect-snapshots.zsh post-save`) deletes snapshots 3 days after their last save. The snapshot `last` pointed to before a save survives that save, so a stray save can't take the one you meant to restore. An unchanged layout restarts its snapshot's clock, which is also how `tsave` knows that save happened
 - **nvim relaunch**: nvim panes relaunch as bare `nvim` in nvim's directory, so auto-session reopens that directory's session. An `nvim <file>` pane comes back as its directory's session, not the file
+- **Claude Code relaunch**: a pane running `claude` directly relaunches as `claude --resume <session id>`, the same conversation under the same id, whatever saved the snapshot (`tsave` or `prefix C-s`)
+  - `scripts/claude-panes.zsh` finds those panes: the sessions `claude agents --json` lists, each matched to the pane on whose tty its process is in the foreground. The post-save hook writes the resume command into the snapshot
+  - The flags it was started with are not kept, and a session nothing was asked in yet has no conversation to resume, so its pane relaunches a bare `claude`
+  - Left alone, so killed with the server and not relaunched: a Claude in a pane nvim's terminal (claudecode.nvim), one suspended with Ctrl-Z, and the agents view. Background sessions belong to Claude Code's daemon, not to a pane
 
 ## Config Structure
 
@@ -49,9 +54,10 @@ The zsh functions `tsave` and `trestore` drive tmux-resurrect, and `scripts/resu
 │   ├── catppuccin.conf        # Theme: status bar layout, pane borders, icons, copy-mode and menu colors
 │   ├── catppuccin-modules/    # Hand-built status modules catppuccin lacks (zoom.conf: pane zoom indicator)
 │   ├── vim-tmux-navigator.conf # Pane navigation keys, shared with Neovim
-│   └── resurrect.conf         # Snapshot dir, expiry and restore hooks, nvim relaunch
+│   └── resurrect.conf         # Snapshot dir, post-save and pre-restore hooks, nvim and Claude Code relaunch
 └── scripts/
-    └── resurrect-snapshots.zsh # The snapshot files: save, list, select, and expire (resurrect's post-save hook)
+    ├── resurrect-snapshots.zsh # The snapshot files: save, list, select, and resurrect's hooks (expiry, Claude Code resume commands)
+    └── claude-panes.zsh       # The panes running Claude Code directly, with each session's id and status
 ```
 
 Plugins themselves are installed by TPM into `~/.tmux/plugins/` (pinned via

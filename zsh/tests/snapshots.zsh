@@ -1,12 +1,15 @@
 # The snapshot store (tmux/.config/tmux/scripts/resurrect-snapshots.zsh) and the commands on top of
 # it, tsave and trestore, through their own interfaces: the listing on fixture files with no
 # server, then saves, expiry, tsave and a restore from scratch with tmux-resurrect itself, in a
-# private server that loads this tree's tmux config
+# private server that loads this tree's tmux config. The pane running Claude Code runs a stand-in
+# (lib/claude.zsh)
 
 source $ZT_LIB/helpers.zsh
 source $ZT_LIB/env.zsh
+source $ZT_LIB/claude.zsh
 
 zt_home $HOME $ZT_REPO || exit 1
+zt_claude
 autoload -Uz $ZT_PKG/.config/zsh/functions/{tsave,trestore}
 store=$HOME/.config/tmux/scripts/resurrect-snapshots.zsh
 dir=$HOME/.local/share/tmux/resurrect
@@ -109,8 +112,24 @@ t_ok 'a snapshot past 3 days expires at the next save' test ! -e $dir/tmux_resur
 t_ok 'unless last pointed at it before that save' test -e $dir/tmux_resurrect_20200102T000000.txt
 t_ok 'newer snapshots stay' test -e $dir/$first
 
-t_eq 'tsave -c on an unchanged layout' "$(tsave -c 2>&1)" "Unchanged since snapshot $id2, its expiry restarts"
-t_eq 'tsave with no nvim in its panes' "$(tsave 2>&1)" "Unchanged since snapshot $id2, its expiry restarts"
+# A pane running Claude Code is saved with the command that resumes its session, once there is a
+# conversation to resume
+local id3
+zt_claude_in alpha:2 || t_bail 'a pane running Claude Code'
+settle
+$store save >/dev/null
+t_ok 'a session nothing was asked in is saved as a new one' \
+  grep -q "^pane"$'\t'"alpha"$'\t'"2"$'\t'".*"$'\t'":claude$" $dir/$(readlink $dir/last)
+mkdir -p $HOME/.claude/projects/-scratch
+: >$HOME/.claude/projects/-scratch/$ZT_CLAUDE_SESSION.jsonl
+out=$($store save)
+t_match 'its first transcript changes the snapshot' "$out" 'saved <->-<->-<->_<->-<->-<->'
+id3=${out#saved }
+t_ok 'which resumes the session by its id' \
+  grep -q "^pane"$'\t'"alpha"$'\t'"2"$'\t'".*"$'\t'":claude --resume $ZT_CLAUDE_SESSION$" $dir/$(readlink $dir/last)
+
+t_eq 'tsave -c on an unchanged layout' "$(tsave -c 2>&1)" "Unchanged since snapshot $id3, its expiry restarts"
+t_eq 'tsave with no nvim in its panes' "$(tsave 2>&1)" "Unchanged since snapshot $id3, its expiry restarts"
 tmux has-session 2>/dev/null
 t_eq 'and then kills the server' $? 1
 
@@ -144,5 +163,19 @@ repeat 40; do
 done
 t_eq 'the snapshot replaces the placeholder session' "${(j:,:)sessions}" alpha
 t_eq 'with its windows' "$(tmux display-message -p -t alpha '#{session_windows}')" 1
+tmux kill-server
+
+# The pane that ran Claude Code gets its session back
+tmux new-session -d
+client=$(tmux list-sessions -F '#{socket_path},#{pid},#{session_id}')
+: >$ZT_TMP/claude/started
+TMUX=${client/\$/} trestore $id3
+repeat 40; do
+  [[ -s $ZT_TMP/claude/started ]] && break
+  sleep 0.25
+done
+t_eq 'a restore resumes the Claude Code session' "$(<$ZT_TMP/claude/started)" "--resume $ZT_CLAUDE_SESSION"
+t_eq 'in the pane that ran it' "$(tmux display-message -p -t alpha:2 '#{pane_tty}')" \
+  /dev/${$(ps -o tty= -p $ZT_TMP/claude/running/*(N:t))// /}
 
 t_done

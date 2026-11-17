@@ -1,12 +1,15 @@
-# tsave past its snapshot: what it does about the nvims in the panes, against real ones. A pane nvim
-# here is `nvim --clean` plus this tree's core/auto-session/tsave.lua, the entry point tsave calls,
-# in a private server that loads this tree's tmux config. The snapshot itself is tests/snapshots.zsh's
+# tsave past its snapshot: what it does about the nvims in the panes, against real ones, and about
+# the Claude Code sessions, against a stand-in (lib/claude.zsh). A pane nvim here is `nvim --clean`
+# plus this tree's core/auto-session/tsave.lua, the entry point tsave calls, in a private server
+# that loads this tree's tmux config. The snapshot itself is tests/snapshots.zsh's
 
 source $ZT_LIB/helpers.zsh
 source $ZT_LIB/env.zsh
+source $ZT_LIB/claude.zsh
 zmodload zsh/zselect
 
 zt_home $HOME $ZT_REPO || exit 1
+zt_claude
 autoload -Uz $ZT_PKG/.config/zsh/functions/tsave
 # The panes run sh, and nvim is typed into it: a job that Ctrl-Z can suspend
 export SHELL=/bin/sh
@@ -123,6 +126,17 @@ run
 refused 'nvim at a prompt' "nvim didn't answer \(waiting on a prompt\?\)"
 tmux send-keys -t alpha Enter
 
+# A Claude Code session in the middle of a turn, beside an nvim that could quit
+tmux split-window -d -t alpha
+zt_claude_in alpha:.2 || t_bail 'a pane running Claude Code'
+print busy >$ZT_TMP/claude/status
+run
+refused 'a busy Claude' 'claude is busy'
+t_eq 'a busy Claude: the nvim beside it is still there' "$(tmux display-message -p -t alpha:.1 '#{pane_current_command}')" nvim
+t_ok 'a busy Claude: and so is the session' test ! -e $ZT_TMP/claude/ended
+print idle >$ZT_TMP/claude/status
+tmux kill-pane -t alpha:.2
+
 # Suspended, the server's kill would take it along
 tmux send-keys -t alpha C-z
 await alpha '#{pane_current_command}' '(ba|)sh'
@@ -139,10 +153,13 @@ tmux kill-server
 
 rm -f $ZT_TMP/left
 server || t_bail 'a pane nvim with nothing unsaved'
+tmux split-window -d -t alpha
+zt_claude_in alpha:.2 || t_bail 'a pane running an idle Claude Code session'
 run
 t_match 'nothing unsaved: the snapshot is reported' "$rc $(<$ZT_TMP/out)" '0 (Saved|Unchanged since) snapshot *'
 t_eq 'nothing unsaved: no complaint' "$(<$ZT_TMP/err)" ''
 t_ok 'nvim left through its normal exit' test -e $ZT_TMP/left
+t_eq 'the idle Claude was ended with SIGTERM' "$(<$ZT_TMP/claude/ended)" $ZT_CLAUDE_SESSION
 tmux has-session 2>/dev/null
 t_eq 'and the server is gone' $? 1
 
@@ -154,7 +171,7 @@ run
 unfunction sleep
 t_eq 'nvim still exiting: exit status' $rc 1
 t_match 'nvim still exiting: named, with the way out' "$(<$ZT_TMP/err)" \
-  'tsave: snapshot <->-<->-<->_<->-<->-<-> kept, but nvim is still running in: alpha:<->.<->'$'\n''  finish there, then run `tmux kill-server`:*'
+  'tsave: snapshot <->-<->-<->_<->-<->-<-> kept, but still running: nvim in alpha:<->.<->'$'\n''  finish there, then run `tmux kill-server`:*'
 t_ok 'nvim still exiting: the server lives' tmux has-session -t alpha
 : >$ZT_TMP/let-go
 await alpha '#{pane_current_command}' '(ba|)sh'
