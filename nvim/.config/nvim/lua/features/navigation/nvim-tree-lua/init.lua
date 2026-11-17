@@ -256,16 +256,13 @@ return {
         callback = tree.resize,
       })
 
-      -- Deferred like the Snacks pickers' check: nvim-tree hops through a split on file removal
-      vim.api.nvim_create_autocmd('WinEnter', {
-        group = vim.api.nvim_create_augroup(
+      UI.float.on_focus_loss(
+        vim.api.nvim_create_augroup(
           'features.navigation.nvim-tree-lua.focus-loss',
           { clear = true }
         ),
-        callback = function()
-          vim.schedule(tree.close_on_focus_loss)
-        end,
-      })
+        tree.close_on_focus_loss
+      )
 
       -- Subscribed here, not on User NvimTreeSetup: switch_position() re-runs setup(), re-firing
       -- that event while old subscriptions persist, so every switch would stack another handler

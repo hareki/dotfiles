@@ -1,3 +1,6 @@
+--- @module 'core.snacks-nvim.floating-terminal'
+local floating_terminal = Defer.on_exported_call('core.snacks-nvim.floating-terminal')
+
 -- Base spec: feature config lives in `snacks-nvim` fragments (AGENTS.md "Split Plugins")
 return {
   'hareki/snacks.nvim',
@@ -8,9 +11,7 @@ return {
   keys = {
     {
       '<A-t>',
-      function()
-        Snacks.terminal.toggle(nil, { win = { position = 'float' } })
-      end,
+      floating_terminal.toggle,
       mode = { 'n', 'x', 't', 'i' },
       desc = 'Toggle Floating Terminal',
     },

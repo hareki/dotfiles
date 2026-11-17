@@ -145,6 +145,21 @@ t.test('a resize keeps the tree and the preview inside the preset', function()
   expect_stacked(vim.api.nvim_win_get_config(preview.instance.preview_win))
 end)
 
+t.test('the float tree closes once focus lands in a normal window, not in a float', function()
+  local win = vim.api.nvim_get_current_win()
+  open_tree()
+
+  local float = t.float(true)
+  t.settle()
+  t.ok(api.tree.is_visible(), 'the tree still shows under another float')
+
+  vim.api.nvim_win_close(float, true)
+  vim.api.nvim_set_current_win(win)
+  t.wait_for(function()
+    return not api.tree.is_visible()
+  end, 'the tree to close')
+end)
+
 t.test('beside a side tree, the preview is the side preview float', function()
   open_tree()
   press('<C-t>')

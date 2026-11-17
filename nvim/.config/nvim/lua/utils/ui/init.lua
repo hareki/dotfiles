@@ -11,6 +11,8 @@ M.mode = require('utils.ui.mode')
 M.pill = lazy_require.on_index('utils.ui.pill')
 --- @module 'utils.ui.cursorline'
 M.cursorline = lazy_require.on_index('utils.ui.cursorline')
+--- @module 'utils.ui.float'
+M.float = lazy_require.on_index('utils.ui.float')
 --- @module 'utils.ui.search'
 M.search = lazy_require.on_index('utils.ui.search')
 --- @module 'utils.ui.statusline'
