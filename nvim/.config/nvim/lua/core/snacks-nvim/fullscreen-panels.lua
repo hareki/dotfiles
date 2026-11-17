@@ -59,6 +59,19 @@ local function is_visible_panel(terminal, full)
   return config.width >= full.width and config.height >= full.height
 end
 
+--- Whether the current window is a full-screen panel, every other window then being under it
+--- @return boolean
+function M.is_focused()
+  local win = vim.api.nvim_get_current_win()
+  for _, terminal in ipairs(Snacks.terminal.list()) do
+    if terminal.win == win then
+      return is_visible_panel(terminal, UI.layout.float('full'))
+    end
+  end
+
+  return false
+end
+
 --- Hide every visible full-screen panel except the one owning `buf`. Call it right before
 --- toggling a panel: a no-op when that panel is already up, since nothing else can be.
 --- @param buf? integer Buffer of the panel about to be toggled; nil when it doesn't exist yet
