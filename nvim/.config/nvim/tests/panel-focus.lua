@@ -1,5 +1,6 @@
 -- Where focus goes from the Snacks terminals: a full-screen panel hands window moves to tmux, the
--- floating terminal hides once a normal window has focus. Driven through <A-t> and the move keys
+-- floating terminal hides once a normal window or the panel under it has focus. Driven through
+-- <A-t> and the move keys
 
 local t = require('tests.lib.helpers')
 local fullscreen_panels = require('core.snacks-nvim.fullscreen-panels')
@@ -32,7 +33,14 @@ local function open_floating_terminal()
   close_terminals_after()
   t.set(vim.o, 'shell', '/bin/sh')
   t.map_callback('n', '<A-t>')()
-  return t.ok(Snacks.terminal.list()[1], 'no terminal opened')
+
+  local win = vim.api.nvim_get_current_win()
+  for _, terminal in ipairs(Snacks.terminal.list()) do
+    if terminal.win == win then
+      return terminal
+    end
+  end
+  error('no terminal opened')
 end
 
 --- Split the editor in two, focus on the right window
@@ -130,6 +138,36 @@ t.test('the floating terminal stays under another float', function()
   t.ok(terminal:valid(), 'the terminal still shows')
 
   vim.api.nvim_win_close(float, true)
+  t.settle()
+  t.eq(vim.api.nvim_get_current_win(), terminal.win, 'focus is back in the terminal')
+end)
+
+t.test('over a full-screen panel, a move key lands on the panel and hides the terminal', function()
+  split()
+  local panel = open_panel()
+  local terminal = open_floating_terminal()
+  local commands = spy_tmux()
+  t.set(vim.env, 'TMUX', '/tmp/tmux-test,1,0')
+  t.set(vim.env, 'TMUX_PANE', '%7')
+
+  t.map_callback('t', '<A-i>')()
+  t.eq(vim.api.nvim_get_current_win(), panel.win, 'the focused window')
+  t.eq(commands, {}, 'tmux commands')
+  t.wait_for(function()
+    return not terminal:valid()
+  end, 'the terminal to hide')
+
+  t.map_callback('t', '<A-i>')()
+  t.eq(commands, { { 'tmux', 'select-pane', '-t', '%7', '-R', '-Z' } }, 'the next move')
+end)
+
+t.test('the floating terminal stays under a full-screen panel opened over it', function()
+  local terminal = open_floating_terminal()
+  local panel = open_panel()
+  t.settle()
+  t.ok(terminal:valid(), 'the terminal still shows')
+
+  panel:close()
   t.settle()
   t.eq(vim.api.nvim_get_current_win(), terminal.win, 'focus is back in the terminal')
 end)

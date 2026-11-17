@@ -16,14 +16,21 @@ local DIRECTIONS = {
 }
 
 --- Go to the window or tmux pane in `direction`. A full-screen panel covers every window, and the
---- plugin's `wincmd` leaves a float for the window under it, so a panel goes straight to tmux
+--- plugin's `wincmd` leaves a float for a window under it, so with a panel up the plugin sits out:
+--- a float over the panel goes to the panel, and the panel straight to tmux
 --- @param direction features.navigation.vim-tmux-navigator.utils.Direction
 --- @return nil
 function M.navigate(direction)
   local target = DIRECTIONS[direction]
+  local panel = fullscreen_panels.visible()
 
-  if not fullscreen_panels.is_focused() then
+  if not panel then
     vim.cmd(target.command)
+    return
+  end
+
+  if panel.win ~= vim.api.nvim_get_current_win() then
+    panel:focus()
     return
   end
 

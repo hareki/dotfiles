@@ -3,14 +3,21 @@
 --- @class core.snacks-nvim.floating-terminal
 local M = {}
 
+--- @module 'core.snacks-nvim.fullscreen-panels'
+local fullscreen_panels = Defer.on_exported_call('core.snacks-nvim.fullscreen-panels')
+
 --- @param self snacks.win
 local function hide_on_focus_loss(self)
-  -- `show()` recreates this group before calling `on_win`, so nothing piles up
-  UI.float.on_focus_loss(self.augroup, function()
+  local function hide()
     if self:valid() then
       self:hide()
     end
-  end)
+  end
+
+  -- `show()` recreates this group before calling `on_win`, so nothing piles up
+  UI.float.on_focus_loss(self.augroup, hide)
+  -- Opened over a full-screen panel, the window around it is that panel
+  fullscreen_panels.on_focus_return(self.augroup, hide)
 end
 
 --- @return nil

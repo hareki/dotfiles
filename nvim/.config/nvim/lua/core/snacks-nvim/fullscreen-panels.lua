@@ -59,17 +59,39 @@ local function is_visible_panel(terminal, full)
   return config.width >= full.width and config.height >= full.height
 end
 
---- Whether the current window is a full-screen panel, every other window then being under it
---- @return boolean
-function M.is_focused()
-  local win = vim.api.nvim_get_current_win()
+--- The full-screen panel that is up, every other window then being under it
+--- @return snacks.win?
+function M.visible()
+  local full = UI.layout.float('full')
   for _, terminal in ipairs(Snacks.terminal.list()) do
-    if terminal.win == win then
-      return is_visible_panel(terminal, UI.layout.float('full'))
+    if is_visible_panel(terminal, full) then
+      return terminal
     end
   end
+end
 
-  return false
+--- Run `callback` whenever focus comes back to the panel that is up now. To a float opened over
+--- that panel this is a focus loss, where a panel opened later only covers the float. Deferred
+--- like UI.float.on_focus_loss
+--- @param group integer Augroup that lives as long as the float listens
+--- @param callback fun()
+--- @return nil
+function M.on_focus_return(group, callback)
+  local panel = M.visible()
+  if not panel then
+    return
+  end
+
+  vim.api.nvim_create_autocmd('WinEnter', {
+    group = group,
+    callback = function()
+      vim.schedule(function()
+        if panel.win == vim.api.nvim_get_current_win() then
+          callback()
+        end
+      end)
+    end,
+  })
 end
 
 --- Hide every visible full-screen panel except the one owning `buf`. Call it right before
