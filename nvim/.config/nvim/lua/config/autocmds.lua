@@ -135,7 +135,6 @@ aucmd('FileType', {
     'help',
     'notify',
     'qf',
-    'eslint-log',
   },
   callback = function(event)
     vim.bo[event.buf].buflisted = false
