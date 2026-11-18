@@ -73,8 +73,8 @@ return {
         { pattern = 'buffer', icon = Conf.icons.editor.BUFFER, color = 'text' },
         { pattern = 'highlight', icon = Conf.icons.editor.HIGHLIGHT, color = 'blue' },
         -- Frontier-anchored so it stops matching 'digit', which leaves 'lazygit' to its own rule
+        -- (features/git/snacks-nvim/init.lua)
         { pattern = '%f[%a]git', icon = Conf.icons.git.GIT, color = Conf.icons.colors.GIT },
-        { pattern = 'lazygit', icon = Conf.icons.git.GIT, color = Conf.icons.colors.GIT },
         { pattern = 'window', icon = Conf.icons.editor.WINDOW, color = 'blue' },
         { pattern = 'keymaps', icon = Conf.icons.editor.KEYMAPS, color = 'peach' },
         { pattern = 'scroll up', icon = Conf.icons.navigation.SCROLL_UP },
@@ -83,7 +83,7 @@ return {
         { pattern = 'code', icon = Conf.icons.tools.CODE, color = 'red' },
 
         -- Generic ones, should have lower priority
-        { pattern = 'typescript', icon = Conf.icons.ft.TYPESCRIPT, color = 'blue' },
+
         { pattern = 'mark', icon = Conf.icons.tools.MARK, color = 'yellow' },
         { pattern = 'lsp', icon = Conf.icons.tools.LSP, color = 'yellow' },
         { pattern = 'register', icon = Conf.icons.editor.REGISTER, color = 'yellow' },

@@ -5,6 +5,10 @@ local lazygit = Defer.on_exported_call('features.git.snacks-nvim.lazygit')
 local picker = Defer.on_exported_call('snacks.picker')
 
 return {
+  UI.which_key({
+    rules = { pattern = 'lazygit', icon = Conf.icons.git.GIT, color = Conf.icons.colors.GIT },
+  }),
+
   {
     'snacks.nvim',
     -- Startup hook: lazy.nvim runs `init` for one fragment only (see AGENTS.md "Split Plugins")
