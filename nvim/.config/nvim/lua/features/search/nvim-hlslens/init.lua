@@ -16,6 +16,13 @@ return {
   end),
 
   {
+    'noice.nvim',
+    optional = true,
+    -- The lens counts the matches, so noice's search count virtual text goes
+    opts = { messages = { view_search = false } },
+  },
+
+  {
     'kevinhwang91/nvim-hlslens',
     -- Loaded before the first search leaves the cmdline, which is what the lens renders on;
     -- escaped, since a bare `?` is an autocmd wildcard that would match `:` too

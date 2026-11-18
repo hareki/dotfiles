@@ -1,3 +1,6 @@
+-- Pseudo-languages trouble looks a parser up for, which none will ever exist for
+local PARSERLESS_LANGUAGES = { 'text' }
+
 return {
   UI.catppuccin.integration('lsp_trouble'),
   UI.catppuccin(function()
@@ -7,6 +10,29 @@ return {
       TroubleIconDirectory = { link = 'Directory' },
     }
   end, 'trouble.nvim'),
+
+  {
+    'noice.nvim',
+    optional = true,
+    opts = {
+      routes = {
+        -- Mute trouble's "parser missing" warning for the languages above; a real miss still
+        -- surfaces, as a parser to add to the table in core/nvim-treesitter/utils.lua
+        {
+          filter = {
+            event = 'notify',
+            find = 'nvim%-treesitter parser missing',
+            cond = function(message)
+              local lang = message:content():match('parser missing `([^`]+)`')
+              return vim.list_contains(PARSERLESS_LANGUAGES, lang)
+            end,
+          },
+          opts = { skip = true },
+        },
+      },
+    },
+    opts_extend = { 'routes' },
+  },
 
   {
     'hareki/trouble.nvim',

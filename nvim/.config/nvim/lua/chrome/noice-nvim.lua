@@ -1,5 +1,3 @@
-local TROUBLE_IGNORED_PARSERS = { 'text' }
-
 return {
   UI.catppuccin.integration('noice'),
   UI.catppuccin(function(palette)
@@ -35,10 +33,6 @@ return {
           search_down = { icon = Conf.icons.actions.SEARCH .. Conf.icons.navigation.DOWN },
           search_up = { icon = Conf.icons.actions.SEARCH .. Conf.icons.navigation.UP },
         },
-      },
-      messages = {
-        -- Disable search count virtual text, use kevinhwang91/nvim-hlslens for more customization
-        view_search = false,
       },
       presets = {
         lsp_doc_border = true,
@@ -93,20 +87,6 @@ return {
           },
         },
 
-        -- Mute trouble's "parser missing" warning for allowlisted pseudo-languages; a real miss
-        -- still surfaces, as a parser to add to the table in core/nvim-treesitter/utils.lua
-        {
-          filter = {
-            event = 'notify',
-            find = 'nvim%-treesitter parser missing',
-            cond = function(message)
-              local lang = message:content():match('parser missing `([^`]+)`')
-              return vim.list_contains(TROUBLE_IGNORED_PARSERS, lang)
-            end,
-          },
-          opts = { skip = true },
-        },
-
         -- Rewrite the native E21 and its Lua-wrapped E5108 (+ traceback) as one concise message
         {
           filter = {
@@ -121,6 +101,8 @@ return {
         },
       },
     },
+    -- Other specs add the routes their plugins need (trouble.nvim's)
+    opts_extend = { 'routes' },
 
     config = function(_, opts)
       -- HACK: noice shows messages from before it was enabled, so clear them in the Lazy install UI
