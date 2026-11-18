@@ -172,15 +172,6 @@ aucmd('FileType', {
   end,
 })
 
--- Comment Ghostty config lines with `#`
-aucmd('FileType', {
-  group = augroup('ghostty-defaults'),
-  pattern = { 'ghostty' },
-  callback = function(event)
-    vim.bo[event.buf].commentstring = '# %s'
-  end,
-})
-
 -- Switch back to the cmdline with the key that opened the cmdline window ('cedit')
 aucmd('CmdwinEnter', {
   group = augroup('cmdwin-keymaps'),
