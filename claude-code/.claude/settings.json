@@ -106,7 +106,7 @@
       "autoCompactWindow": "auto"
     },
     "claude-fable-5-2": {
-      "effortLevel": "xhigh"
+      "effortLevel": "high"
     }
   },
   "tui": "fullscreen",
