@@ -1,5 +1,6 @@
 return {
-  -- The other DropBarKind* groups come from catppuccin's dropbar integration (core/catppuccin-nvim.lua)
+  UI.catppuccin.integration('dropbar'), -- color_mode = false comes from catppuccin's defaults
+  -- The other DropBarKind* groups come from the integration above
   UI.catppuccin(function(palette)
     return {
       DropBarIconTree = { fg = palette[Conf.icons.colors.TREE] },

@@ -3,6 +3,7 @@ local TIMEOUT_LEN = 250
 local DELAY_O = DELAY - TIMEOUT_LEN
 
 return {
+  UI.catppuccin.integration('which_key'),
   UI.catppuccin(function(palette)
     local icon_rules = require('chrome.which-key-nvim.icon-rules')
     local groups = icon_rules.highlights(palette)

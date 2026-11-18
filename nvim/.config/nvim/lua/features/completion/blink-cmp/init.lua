@@ -1,4 +1,5 @@
 return {
+  UI.catppuccin.integration('blink_cmp'),
   UI.catppuccin(function(palette)
     return {
       BlinkCmpKindRenderMD = { fg = palette.text },

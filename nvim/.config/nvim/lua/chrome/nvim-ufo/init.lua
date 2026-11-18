@@ -1,4 +1,5 @@
 return {
+  UI.catppuccin.integration('ufo'),
   UI.catppuccin(function(palette)
     local pill_bg = UI.color.blend_hex(palette.base, palette.blue)
 

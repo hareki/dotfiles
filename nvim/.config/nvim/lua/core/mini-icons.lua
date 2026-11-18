@@ -1,4 +1,5 @@
 return {
+  UI.catppuccin.integration('mini'),
   UI.catppuccin(function(palette)
     return { MiniIconsAzure = { fg = palette.teal } }
   end, 'mini.icons'),

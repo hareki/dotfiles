@@ -1,4 +1,5 @@
 return {
+  UI.catppuccin.integration('grug_far'),
   UI.catppuccin(function(palette)
     return {
       GrugFarResultsMatch = { link = 'Search' },

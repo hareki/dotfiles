@@ -4,6 +4,7 @@ local UI_NAME = 'File Tree'
 local api = Defer.on_index('nvim-tree.api')
 
 return {
+  UI.catppuccin.integration('nvimtree'),
   UI.catppuccin(function(palette)
     local sub_palette = UI.catppuccin.get_palette('latte')
 

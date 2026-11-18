@@ -1,6 +1,7 @@
 local TROUBLE_IGNORED_PARSERS = { 'text' }
 
 return {
+  UI.catppuccin.integration('noice'),
   UI.catppuccin(function(palette)
     return {
       NoiceCmdlinePopupBorder = { fg = palette.blue },
