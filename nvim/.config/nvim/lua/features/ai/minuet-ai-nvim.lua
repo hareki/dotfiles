@@ -12,7 +12,7 @@ return {
       return {
         context_window = 20000,
         request_timeout = Conf.cmp.AI_CMP_TIMEOUT_MS / 1000,
-        n_completions = Conf.cmp.AI_CMP_MAX_ITEMS,
+        n_completions = 3, -- One FIM request per item
         throttle = 2500,
         debounce = 500,
         provider = 'openai_fim_compatible',
