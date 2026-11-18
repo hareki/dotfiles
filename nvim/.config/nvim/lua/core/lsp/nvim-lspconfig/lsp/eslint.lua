@@ -33,6 +33,7 @@ return {
       local buf = vim.api.nvim_create_buf(false, true)
       vim.bo[buf].filetype = 'eslint-log'
       vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+      vim.keymap.set('n', 'q', '<cmd>bwipeout<cr>', { buf = buf, desc = 'Quit Buffer' })
       vim.api.nvim_open_win(buf, true, { split = 'below', win = -1, height = 15 })
     end, {})
 
