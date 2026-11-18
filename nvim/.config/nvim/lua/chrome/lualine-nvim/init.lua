@@ -33,17 +33,19 @@ return {
 
   opts = function()
     local buffer_status = require('chrome.lualine-nvim.components.buffer-status')
-    local harpoon = require('chrome.lualine-nvim.components.harpoon')
     local macro = require('chrome.lualine-nvim.components.macro')
     local mode = require('chrome.lualine-nvim.components.mode')
-    local diff = require('chrome.lualine-nvim.components.diff')
     local diagnostics = require('chrome.lualine-nvim.components.diagnostics')
     local repo_name = require('chrome.lualine-nvim.components.repo-name')
     local branch = require('chrome.lualine-nvim.components.branch')
-    local tab = require('chrome.lualine-nvim.components.tab')
-    local snacks_image = require('chrome.lualine-nvim.components.snacks-image')
-    local live_preview = require('chrome.lualine-nvim.components.live-preview')
-    local coding_agent = require('chrome.lualine-nvim.components.coding-agent')
+
+    -- A feature's piece sits with the feature; the sections below only place it
+    local harpoon = require('features.navigation.harpoon.statusline')
+    local diff = require('features.git.gitsigns-nvim.statusline')
+    local tab = require('features.search.snacks-nvim.statusline')
+    local snacks_image = require('features.preview.snacks-nvim.statusline')
+    local live_preview = require('features.preview.live-preview-nvim.statusline')
+    local coding_agent = require('features.ai.claudecode-nvim.statusline')
 
     local palette = UI.catppuccin.get_palette()
 

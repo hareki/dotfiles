@@ -1,4 +1,5 @@
---- @class chrome.lualine-nvim.components.snacks-image
+--- The statusline's piece for an image under the cursor, placed by chrome/lualine-nvim/init.lua
+--- @class features.preview.snacks-nvim.statusline
 local M = {}
 
 local IMAGE_ICON = Conf.icons.editor.IMAGE .. ' '
@@ -22,7 +23,7 @@ end
 
 -- Images on one cursor row of one buffer state: at_cursor's row-limited query costs 0.3 ms, where
 -- a whole-buffer one opens a cursor per markdown_inline tree (3.3 ms per edit at 850 lines)
---- @class chrome.lualine-nvim.components.snacks-image.Cache
+--- @class features.preview.snacks-nvim.statusline.Cache
 --- @field buf integer
 --- @field tick integer
 --- @field row integer

@@ -1,4 +1,5 @@
---- @class chrome.lualine-nvim.components.coding-agent
+--- The statusline's finished-agent piece, placed by chrome/lualine-nvim/init.lua
+--- @class features.ai.claudecode-nvim.statusline
 local M = {}
 
 --- @return boolean unseen Whether the agent finished with its panel out of sight

@@ -1,4 +1,5 @@
---- @class chrome.lualine-nvim.components.live-preview
+--- The statusline's live server piece, placed by chrome/lualine-nvim/init.lua
+--- @class features.preview.live-preview-nvim.statusline
 local M = {}
 
 --- @return string port e.g. "5500", empty (hiding the component) while no server runs
