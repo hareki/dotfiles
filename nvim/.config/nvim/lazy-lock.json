@@ -23,7 +23,7 @@
   "grug-far.nvim": { "branch": "main", "commit": "5abdc604a7c6a5dd8d78138a4b41d1defedbcce4" },
   "guess-indent.nvim": { "branch": "main", "commit": "84a4987ff36798c2fc1169cbaff67960aed9776f" },
   "harpoon": { "branch": "harpoon2", "commit": "87b1a3506211538f460786c23f98ec63ad9af4e5" },
-  "lazy.nvim": { "branch": "main", "commit": "306a05526ada86a7b30af95c5cc81ffba93fef97" },
+  "lazy.nvim": { "branch": "main", "commit": "ebdf09cf1091065368c931312ccf177104936d76" },
   "lazydev.nvim": { "branch": "main", "commit": "ff2cbcba459b637ec3fd165a2be59b7bbaeedf0d" },
   "live-preview.nvim": { "branch": "main", "commit": "545eb3db010d89572f1e6c5dcc3d614fc2281ce9" },
   "lualine.nvim": { "branch": "master", "commit": "221ce6b2d999187044529f49da6554a92f740a96" },

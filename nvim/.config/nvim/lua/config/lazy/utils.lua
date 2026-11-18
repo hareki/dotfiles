@@ -6,9 +6,10 @@ local M = {}
 function M.ensure_lazy()
   local lazypath = vim.fs.joinpath(vim.fn.stdpath('data'), 'lazy', 'lazy.nvim')
   if not vim.uv.fs_stat(lazypath) then
-    local lazyrepo = 'https://github.com/folke/lazy.nvim.git'
+    -- The fork named by core/lazy-nvim.lua, on main: its patch lets that spec keep the url
+    local lazyrepo = 'https://github.com/hareki/lazy.nvim.git'
     local out = vim
-      .system({ 'git', 'clone', '--filter=blob:none', '--branch=stable', lazyrepo, lazypath }, {
+      .system({ 'git', 'clone', '--filter=blob:none', lazyrepo, lazypath }, {
         text = true,
       })
       :wait()
