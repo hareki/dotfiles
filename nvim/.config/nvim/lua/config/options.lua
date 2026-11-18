@@ -24,7 +24,6 @@ opt.wrap = false
 opt.mouse = 'a'
 opt.breakindent = true
 opt.swapfile = false
-opt.cursorline = true
 opt.scrolloff = 6 -- Minimal number of screen lines to keep above and below the cursor.
 -- Line numbers like the built-in %l item, but with the cursor line's number right-aligned too
 opt.statuscolumn = '%=%{v:virtnum ? "" : &rnu && v:relnum ? v:relnum'
