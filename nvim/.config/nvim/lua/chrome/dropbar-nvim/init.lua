@@ -29,6 +29,8 @@ return {
     init = function()
       -- Reserve a winbar line till dropbar loads to prevent layout shifting
       vim.opt.winbar = ' '
+      -- The bar and its menus highlight the entry under the mouse
+      vim.opt.mousemoveevent = true
     end,
 
     keys = {
