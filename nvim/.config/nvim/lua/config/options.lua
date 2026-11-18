@@ -10,10 +10,6 @@ g.loaded_ruby_provider = 0
 g.loaded_perl_provider = 0
 g.loaded_python3_provider = 0
 
--- markdown.vim's [[ / ]] maps duplicate markdown.lua's, and the double unmap leaves a
--- silenced E31 in v:errmsg. The visual-mode pair is re-declared in config/autocmds.lua
-g.no_markdown_maps = 1
-
 local opt = vim.opt
 
 opt.number = true
