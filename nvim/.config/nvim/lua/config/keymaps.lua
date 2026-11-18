@@ -60,12 +60,6 @@ map('n', '<Esc>', function()
   end
 end, { desc = 'Clear Highlight and Notifications' })
 
--- Sent for Cmd+Shift+W by the ghostty config; inspect with :echo keytrans(getcharstr())
-map({ 'i', 'x', 'n', 's' }, '<C-S-End>', function()
-  Snacks.bufdelete.other()
-  Notifier.info('Closed Other Buffers', { title = 'Buffers' })
-end, { desc = 'Close Other Buffers' })
-
 -- In a Snacks terminal the first `qa` only closes it; elsewhere a second one would repeat the
 -- 'confirm' prompt after a Cancel
 map({ 'n', 'x' }, '<leader>qa', function()
@@ -121,7 +115,3 @@ map(
   '<cmd>edit!<cr>',
   { desc = 'Reload Current Buffer', silent = true }
 )
-
-map({ 'i', 'x', 'n', 's' }, '<A-w>', function()
-  Snacks.bufdelete()
-end, { desc = 'Close Buffer' })
