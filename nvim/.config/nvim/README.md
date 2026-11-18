@@ -55,7 +55,7 @@ lazy.nvim config built from scratch around fast cold starts, per-plugin isolatio
 - `notifier.lua`: notification wrapper; supports markdown, tuple lists for custom highlight groups, `scoped(title)` and `warn_once`
 - `popup.lua`: floats tied to a source window: `link(win, { close_on, keys, ... })`, `focus_win()`
 
-- `wheel-axis-lock.lua`: `left()` / `right()` / `vertical()`, which keep a trackpad swipe on one axis
+
 - `keymap.lua`: `buf_mapper()`, and `get_buf_keymap()` / `restore_buf_keymap()`, which snapshot and give back a buffer's own mapping
 - `noautocmd.lua`: `run(fn)`, Lua's `:noautocmd`
 - `lazy-require.lua`: `Defer.on_index()`, `Defer.on_exported_call()`

@@ -26,7 +26,6 @@ opt.pumheight = 15 -- Maximum number of entries in a popup
 opt.pumborder = 'rounded' -- Rounded border around the popup menu (right-click + native completion)
 opt.wrap = false
 opt.mouse = 'a'
-opt.mousescroll = 'ver:3,hor:2' -- Ticks fire per cell, so hor:3 would match ver's on-screen speed; 2 pans deliberately slower
 opt.breakindent = true
 opt.swapfile = false
 opt.cursorline = true

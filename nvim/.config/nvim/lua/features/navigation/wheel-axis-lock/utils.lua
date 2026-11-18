@@ -1,4 +1,4 @@
---- @class utils.wheel-axis-lock
+--- @class features.navigation.wheel-axis-lock.utils
 local M = {}
 
 -- Sideways ticks in a row, with no vertical tick between, that make a swipe horizontal. Ticks fire
@@ -94,6 +94,26 @@ function M.vertical()
   sideways_streak = 0
   panning = drift
   return not drift
+end
+
+--- Map a wheel key to itself while `passes`, and to nothing otherwise. Nothing is <Ignore>: an empty
+--- expr result leaves the tick in vim.on_key's `typed`, glued to the next key, which then fails the
+--- exact matches in Snacks' picker list and multicursor
+--- @param key string
+--- @param desc string
+--- @param passes fun(): boolean
+local function map_wheel(key, desc, passes)
+  vim.keymap.set({ 'n', 'x', 's', 'i', 't' }, key, function()
+    return passes() and key or '<Ignore>'
+  end, { expr = true, desc = desc })
+end
+
+--- @return nil
+function M.map_wheel_keys()
+  map_wheel('<ScrollWheelUp>', 'Scroll Up', M.vertical)
+  map_wheel('<ScrollWheelDown>', 'Scroll Down', M.vertical)
+  map_wheel('<ScrollWheelLeft>', 'Scroll Left', M.left)
+  map_wheel('<ScrollWheelRight>', 'Scroll Right', M.right)
 end
 
 return M
