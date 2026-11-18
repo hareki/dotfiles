@@ -81,13 +81,8 @@ return {
 
     -- Kept in their own module, which the lazygit codediff renderer also loads headlessly
     local treesitter_highlights = require('config.treesitter-highlights')
-    opts.custom_highlights = vim.tbl_extend(
-      'error',
-      opts.custom_highlights,
-      treesitter_highlights(palette),
-      -- The host label's group
-      UI.integration.highlights(palette)
-    )
+    opts.custom_highlights =
+      vim.tbl_extend('error', opts.custom_highlights, treesitter_highlights(palette))
 
     return opts
   end,
