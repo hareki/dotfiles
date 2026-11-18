@@ -172,53 +172,6 @@ aucmd('FileType', {
   end,
 })
 
--- Wrap markdown lines and add visual-mode section jumps
-local markdown_group = augroup('markdown-defaults')
--- Headings as matched by the runtime ftplugin's section jumps
-local MARKDOWN_HEADING = [[\%(^#\{1,5\}\s\+\S\|^\S.*\n^[=-]\+$\)]]
-
-aucmd('FileType', {
-  group = markdown_group,
-  pattern = { 'markdown' },
-  callback = function(event)
-    -- The ftplugin's visual-mode section jumps, disabled by g.no_markdown_maps (options.lua)
-    local map = keymap.buf_mapper(event.buf)
-    map(
-      'x',
-      ']]',
-      string.format("<cmd>call search('%s', 'sW')<cr>", MARKDOWN_HEADING),
-      'Jump to Next Section'
-    )
-    map(
-      'x',
-      '[[',
-      string.format("<cmd>call search('%s', 'bsW')<cr>", MARKDOWN_HEADING),
-      'Jump to Previous Section'
-    )
-
-    --- @return true? done Also deletes the BufWinEnter autocmd below
-    local function wrap_in_real_window()
-      if vim.fn.win_gettype() ~= 'autocmd' then
-        -- Local only: vim.wo also sets the global value that later buffers and splits inherit
-        vim.opt_local.wrap = true
-        return true
-      end
-    end
-
-    if wrap_in_real_window() then
-      return
-    end
-
-    -- A hidden bufload() fires FileType and BufWinEnter in the autocmd window: wait for a real one
-    vim.api.nvim_clear_autocmds({ group = markdown_group, buf = event.buf })
-    aucmd('BufWinEnter', {
-      group = markdown_group,
-      buf = event.buf,
-      callback = wrap_in_real_window,
-    })
-  end,
-})
-
 -- Comment Ghostty config lines with `#`
 aucmd('FileType', {
   group = augroup('ghostty-defaults'),
