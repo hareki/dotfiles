@@ -18,6 +18,11 @@ return {
     -- Prevent layout shifting (it hides the cmdline row)
     lazy = false,
 
+    init = function()
+      -- noice skips these messages, so nvim would send them per key for nothing
+      vim.opt.showcmd = false
+    end,
+
     opts = {
       format = {
         spinner = {

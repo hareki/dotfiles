@@ -27,8 +27,6 @@ opt.pumborder = 'rounded' -- Rounded border around the popup menu (right-click +
 opt.wrap = false
 opt.mouse = 'a'
 opt.mousescroll = 'ver:3,hor:2' -- Ticks fire per cell, so hor:3 would match ver's on-screen speed; 2 pans deliberately slower
-opt.showmode = false -- Don't show the mode, since it's already in the status line
-opt.showcmd = false -- noice skips these messages, so nvim would send them per key for nothing
 opt.breakindent = true
 opt.swapfile = false
 opt.cursorline = true
@@ -46,9 +44,6 @@ opt.softtabstop = 2 -- Number of spaces tabs count for while performing editing 
 opt.expandtab = true -- Use spaces instead of tabs
 opt.showtabline = 0 -- Always hide the tabline
 opt.linebreak = true -- Wrap words, not characters (mid-word wrapping) when wrap mode is on
-
--- Use typos-lsp for spell checking, datword for suggestions
-opt.spelllang = {}
 
 -- Diagonal hatch fill for deleted/filler lines in diff views (e.g. codediff)
 opt.fillchars:append({ diff = Conf.icons.fillchars.DIFF, eob = ' ', lastline = '.' })
@@ -71,7 +66,6 @@ opt.splitbelow = true
 
 -- Ask to save instead of failing on unsaved changes (like `:q`)
 opt.confirm = true
-opt.mousemoveevent = true
 
 opt.guicursor = table.concat({
   -- Normal & Visual => solid block, blinks immediately (blinkwait0)
