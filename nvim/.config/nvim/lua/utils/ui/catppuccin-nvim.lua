@@ -95,13 +95,26 @@ local function catppuccin(register, plugin_name)
   }
 end
 
+--- A catppuccin spec fragment turning on its support for one plugin, so the flag sits in that
+--- plugin's spec file
+--- @param name string Key of catppuccin's `integrations` table, e.g. 'gitsigns'
+--- @return table spec
+local function integration(name)
+  return {
+    'catppuccin/nvim',
+    opts = { integrations = { [name] = true } },
+  }
+end
+
 --- @class utils.ui.catppuccin-nvim
 --- @field get_palette fun(name?: "frappe" | "latte" | "macchiato" | "mocha" | "ext"): utils.ui.catppuccin-nvim.Palette | utils.ui.catppuccin-nvim.Ext
+--- @field integration fun(name: string): table
 --- @overload fun(register: utils.ui.catppuccin-nvim.Register, plugin_name?: string): table
 
 --- @type utils.ui.catppuccin-nvim
 local M = setmetatable({
   get_palette = get_palette,
+  integration = integration,
 }, {
   __call = function(_, register, plugin_name)
     return catppuccin(register, plugin_name)

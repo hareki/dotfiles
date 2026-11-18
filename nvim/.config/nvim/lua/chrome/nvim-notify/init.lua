@@ -1,6 +1,7 @@
 local PREFIX = 'Notification: '
 
 return {
+  UI.catppuccin.integration('notify'),
   UI.which_key({
     rules = {
       {

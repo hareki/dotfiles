@@ -4,6 +4,7 @@ local PREFIX = 'Flash: '
 local flash = Defer.on_exported_call('flash')
 
 return {
+  UI.catppuccin.integration('flash'),
   UI.catppuccin(function(palette)
     return {
       FlashLabel = { fg = palette.red },

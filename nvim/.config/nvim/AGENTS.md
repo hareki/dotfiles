@@ -50,7 +50,7 @@ Plugins are lazy by default (`defaults.lazy = true`). Only catppuccin, snacks.nv
 - `Notifier` (defer proxy => `utils.notifier`): `Notifier.info('msg')`, `Notifier.warn('msg', { title = 'T' })`, `Notifier.error()`, `Notifier.warn_once()` (once per message per session), and `Notifier.scoped(title)`, which returns info, warn and error with the title filled in
 - `Conf` (`config`; `config/init.lua` assembles the `config.*` tables): `Conf.icons`, `Conf.filetypes` (`JS`, `JSX`, `CSS`, `MARKDOWN`, …), `Conf.priority`, `Conf.zindex` (the float stacking ladder), `Conf.picker`, `Conf.size`, `Conf.cmp` (from `config/completion.lua`)
 - `UI` (`utils.ui`, direct require):
-  - Spec registration: `UI.catppuccin(fn, plugin_name?)`, `UI.which_key({ specs?, rules?, triggers? })`
+  - Spec registration: `UI.catppuccin(fn, plugin_name?)`, `UI.catppuccin.integration(name)`, `UI.which_key({ specs?, rules?, triggers? })`
   - Helpers: `UI.layout.*` (see **Float Sizing**), `UI.color.blend_hex()`, `UI.search.is_active()` / `UI.search.clear()` (search highlighting, which Snacks word references give way to), `UI.pill.virt_text()`, `UI.cursorline.follow_focus()` (the cursor line follows the focused window), `UI.float.on_focus_loss()` (a float's cue to close: focus landed in a normal window, as for the float tree and the floating terminal), `UI.mode.name()` / `UI.mode.colors` (the per-mode palette shared by lualine's mode pill and the cursor line number)
   - Plugin glue: `UI.catppuccin.get_palette('ext')`, `UI.statusline.refresh()` (redraws lualine)
   - Integration: `UI.integration.host` (the tool that opened this nvim as its editor, nil standalone), `UI.integration.statusline()` and `UI.integration.highlights()` (its label, shown in place of lualine)
@@ -78,6 +78,8 @@ return { 'author/plugin', keys = { ... }, opts = { ... } }
 -- List with catppuccin/which-key registration (always in this order):
 return { UI.catppuccin(function(...) ... end, 'plugin'), UI.which_key({ ... }), { 'author/plugin', opts = ... } }
 ```
+
+`UI.catppuccin.integration('name')` goes ahead of both: it turns on catppuccin's own support for the plugin (a key of its `integrations` table) from the plugin's spec file, since `auto_integrations` is off.
 
 `UI.catppuccin`'s optional second argument is the lazy.nvim plugin name: the highlight callback then runs when that plugin loads (mechanism in `utils/ui/catppuccin-nvim.lua`) instead of merging into catppuccin's `custom_highlights` at startup. Pass it for plugins loaded by `event`/`ft`/`keys`/`cmd`/`require()`; omit it for `lazy=false` and `BufRead*`-triggered plugins, and when the callback recolors built-in groups used before the plugin loads (nvim-hlslens recolors the search groups). The plugin must have its own `opts` or `config`: the `opts` fragment the helper adds to it would otherwise make lazy.nvim start calling its `setup()`.
 

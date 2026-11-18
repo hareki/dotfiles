@@ -1,4 +1,5 @@
 return {
+  UI.catppuccin.integration('render_markdown'),
   UI.catppuccin(function(palette)
     local heading_colors = {
       palette.blue,

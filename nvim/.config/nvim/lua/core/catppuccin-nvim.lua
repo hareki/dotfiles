@@ -12,7 +12,8 @@ return {
 
     local opts = {
       transparent_background = true,
-      -- Skip the startup scan of every installed plugin; the integrations below are explicit
+      -- Skip the startup scan of every installed plugin: each spec names its own integration with
+      -- UI.catppuccin.integration()
       auto_integrations = false,
 
       custom_highlights = {
@@ -38,13 +39,6 @@ return {
         ModifiedIndicator = { fg = palette.yellow },
         SnippetTabStop = { bg = color.snippet_tab_stop },
 
-        LazyH1 = { bg = palette.blue, fg = palette.base },
-        LazyDir = { fg = palette.blue },
-        LazyUrl = { fg = palette.blue },
-        LazyReasonStart = { fg = palette.blue },
-        LazySpecial = { fg = palette.blue },
-        LazyProgressDone = { fg = palette.blue },
-
         -- Custom highlight group, shared across dropbar.nvim and snacks.nvim
         ListCursorLine = { bg = palette.surface0 },
 
@@ -59,23 +53,6 @@ return {
           information = { 'undercurl' },
           ok = { 'undercurl' },
         },
-      },
-      integrations = {
-        nvimtree = true,
-        grug_far = true,
-        gitsigns = true,
-        rainbow_delimiters = true,
-        lsp_trouble = true,
-        render_markdown = true,
-        mini = true,
-        noice = true,
-        notify = true,
-        snacks = true,
-        which_key = true,
-        blink_cmp = true,
-        dropbar = true, -- color_mode = false comes from catppuccin's defaults
-        flash = true,
-        ufo = true,
       },
     }
 

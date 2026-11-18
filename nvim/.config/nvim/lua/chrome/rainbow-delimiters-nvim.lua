@@ -1,4 +1,5 @@
 return {
+  UI.catppuccin.integration('rainbow_delimiters'),
   UI.catppuccin(function(palette)
     return {
       RainbowDelimiterGreen = {

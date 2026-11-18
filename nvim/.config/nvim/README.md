@@ -51,7 +51,7 @@ lazy.nvim config built from scratch around fast cold starts, per-plugin isolatio
 
 - `ui/`: namespaces of the `UI` global
   - `layout.float(size)` / `layout.picker_fn(size)`, `color.blend_hex()`, `search.is_active()` / `search.clear()`, `pill.virt_text()`, `cursorline.follow_focus()`, `mode.name()` / `mode.colors`
-  - `catppuccin(fn)` / `catppuccin.get_palette()`, `which_key({ specs?, rules?, triggers? })`, `statusline.refresh()`, `integration.host` (the tool that opened nvim as its editor)
+  - `catppuccin(fn)` / `catppuccin.integration(name)` / `catppuccin.get_palette()`, `which_key({ specs?, rules?, triggers? })`, `statusline.refresh()`, `integration.host` (the tool that opened nvim as its editor)
 - `notifier.lua`: notification wrapper; supports markdown, tuple lists for custom highlight groups, `scoped(title)` and `warn_once`
 - `popup.lua`: floats tied to a source window: `link(win, { close_on, keys, ... })`, `focus_win()`
 

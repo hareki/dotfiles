@@ -1,4 +1,5 @@
 return {
+  UI.catppuccin.integration('gitsigns'),
   UI.catppuccin(function(_, ext)
     local sub_palette = UI.catppuccin.get_palette('latte')
 

@@ -1,4 +1,5 @@
 return {
+  UI.catppuccin.integration('lsp_trouble'),
   UI.catppuccin(function()
     return {
       TroubleNormal = { link = 'NormalFloat' },
