@@ -18,10 +18,11 @@ reset='\033[0m'
 # whitespace so that an absent field stays empty instead of collapsing into its
 # neighbour and shifting all the later ones. The `exec` here and in the git call
 # below saves a fork: with a redirect attached, bash keeps the subshell around.
-IFS=$'\037' read -r cwd used session_pct session_reset week_pct week_reset model_id display_name effort_level session_name session_id <<<"$(
+IFS=$'\037' read -r cwd used context_tokens session_pct session_reset week_pct week_reset model_id display_name effort_level session_name session_id <<<"$(
   exec jq -r '[
     .workspace.current_dir,
     .context_window.used_percentage,
+    .context_window.total_input_tokens,
     .rate_limits.five_hour.used_percentage,
     .rate_limits.five_hour.resets_at,
     .rate_limits.seven_day.used_percentage,
@@ -135,6 +136,7 @@ fi
 # Usage group: context plus the 5h session and 7d week rate limits. Rate limits are
 # absent until the first API response (and for non-Pro/Max). An absent figure reads
 # "nil" (overlay1); otherwise icon and number are both colorized by threshold.
+# $3 replaces the shown percent, while the percent still picks the color.
 usage_segment() {
   local pct=${1%.*} icon=$2 color=$green
   if [ -z "$pct" ]; then
@@ -146,7 +148,24 @@ usage_segment() {
   elif [ "$pct" -gt 70 ]; then
     color=$yellow
   fi
-  printf "${color}%s %s%%${reset}" "$icon" "$pct"
+  printf "${color}%s %s${reset}" "$icon" "${3:-$pct%}"
+}
+
+# Token count as 123, 1.3k, 49k, 50.2k, 1.2M: one decimal, rounded, a trailing .0 dropped
+format_tokens() {
+  local n=${1:-0} unit=k div=100
+  if [ "$n" -lt 1000 ]; then
+    printf -v context_label '%s' "$n"
+    return
+  fi
+  # From here on the k figure would round to 1000k
+  [ "$n" -ge 999950 ] && unit=M div=100000
+  local tenths=$(( (n + div / 2) / div ))
+  if [ $((tenths % 10)) -eq 0 ]; then
+    printf -v context_label '%s%s' $((tenths / 10)) "$unit"
+  else
+    printf -v context_label '%s.%s%s' $((tenths / 10)) $((tenths % 10)) "$unit"
+  fi
 }
 
 # Model: short family name inferred from the model id
@@ -183,9 +202,10 @@ esac
 printf "${model_color}%s${reset}" "$model"
 [ -n "$effort" ] && printf " ${effort_color}%s${reset}" "$effort"
 
-# Usage group: [  4% | 󰥔 30% |   21%] - brackets & pipes in subtext1
+# Usage group: [  50.2k | 󰥔 30% |   21%] - brackets & pipes in subtext1
 printf " ${subtext1}[${reset}"
-usage_segment "$used" ''
+format_tokens "$context_tokens"
+usage_segment "$used" '' "$context_label"
 printf "${subtext1} | ${reset}"
 usage_segment "$session_pct" '󰥔'
 printf "${subtext1} | ${reset}"
