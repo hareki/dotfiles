@@ -80,10 +80,6 @@ map('v', '<leader>t', "ygvgc']p", {
   desc = 'Yank, Comment, Move Below, and Paste',
 })
 
-map('n', '<leader>?h', '<cmd>HlAtCursor<cr>', {
-  desc = 'Highlight Groups at Cursor',
-})
-
 -- Keep the selection after indenting
 map('v', '<', '<gv', { desc = 'Indent Left' })
 map('v', '>', '>gv', { desc = 'Indent Right' })
