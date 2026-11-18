@@ -1,3 +1,5 @@
+--- @module 'snacks.bufdelete'
+local bufdelete = Defer.on_exported_call('snacks.bufdelete')
 --- @module 'snacks.picker'
 local picker = Defer.on_exported_call('snacks.picker')
 --- @module 'snacks.scratch'
@@ -6,6 +8,17 @@ local scratch = Defer.on_exported_call('snacks.scratch')
 return {
   'snacks.nvim',
   keys = {
+    { '<A-w>', bufdelete.delete, mode = { 'i', 'x', 'n', 's' }, desc = 'Close Buffer' },
+    {
+      -- Sent for Cmd+Shift+W by the ghostty config; inspect with :echo keytrans(getcharstr())
+      '<C-S-End>',
+      function()
+        Snacks.bufdelete.other()
+        Notifier.info('Closed Other Buffers', { title = 'Buffers' })
+      end,
+      mode = { 'i', 'x', 'n', 's' },
+      desc = 'Close Other Buffers',
+    },
     { '<leader>fR', picker.registers, desc = "Find Registers' Contents" },
     { '<leader>fu', picker.undo, desc = 'Open Undo History' },
     { '<leader>.', scratch.open, desc = 'Toggle Scratch Buffer' },
