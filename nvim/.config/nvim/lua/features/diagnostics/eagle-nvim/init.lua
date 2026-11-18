@@ -4,6 +4,31 @@ local popup = Defer.on_exported_call('utils.popup')
 return {
   'hareki/eagle.nvim',
   cmd = { 'EagleWin', 'EagleWinLineDiagnostic' },
+
+  init = function()
+    -- On VeryLazy: vim.diagnostic stays off the startup path
+    vim.api.nvim_create_autocmd('User', {
+      group = vim.api.nvim_create_augroup(
+        'features.diagnostics.eagle-nvim.open-on-jump',
+        { clear = true }
+      ),
+      pattern = 'VeryLazy',
+      once = true,
+      callback = function()
+        -- Every jump opens the line's diagnostics, Neovim's own count-aware ]d/[d/]D/[D (titled in
+        -- config/builtin-keymaps.lua) and the severity jumps included; on_jump runs scheduled, and
+        -- only once the jump succeeded
+        vim.diagnostic.config({
+          jump = {
+            on_jump = function()
+              vim.cmd.EagleWinLineDiagnostic()
+            end,
+          },
+        })
+      end,
+    })
+  end,
+
   opts = function()
     return {
       order = 3, -- LSP info comes first
