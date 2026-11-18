@@ -1,9 +1,7 @@
 --- @class config.completion
 local M = {}
 
-M.AI_CMP_MAX_ITEMS = 3
 M.AI_MERCURY_KEY = 'MERCURY_API_KEY'
 M.AI_CMP_TIMEOUT_MS = 4000
-M.RIPGREP_MIN_KEYWORD_LENGTH = 3
 
 return M

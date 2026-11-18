@@ -5,6 +5,8 @@ local utils = require('features.completion.blink-cmp.utils')
 
 local EXTRA_WORDS_PATH =
   vim.fs.joinpath(vim.fn.stdpath('config'), 'lua/features/completion/blink-cmp/words')
+-- One length for blink's filter and the search: a shorter prefix would search for items blink hides
+local RIPGREP_MIN_KEYWORD_LENGTH = 3
 
 M.default = {
   default = {
@@ -50,13 +52,13 @@ M.default = {
       name = 'Ripgrep',
       module = 'blink-ripgrep',
       max_items = 3,
-      min_keyword_length = Conf.cmp.RIPGREP_MIN_KEYWORD_LENGTH,
+      min_keyword_length = RIPGREP_MIN_KEYWORD_LENGTH,
       score_offset = -10,
 
       --- @module "blink-ripgrep"
       --- @type blink-ripgrep.Options
       opts = {
-        prefix_min_len = Conf.cmp.RIPGREP_MIN_KEYWORD_LENGTH,
+        prefix_min_len = RIPGREP_MIN_KEYWORD_LENGTH,
         backend = {
           use = 'gitgrep',
           context_size = 6,
