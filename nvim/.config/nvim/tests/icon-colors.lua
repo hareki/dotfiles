@@ -56,7 +56,7 @@ end)
 
 t.test('the tab and the file tree paint one color on every surface', function()
   local wk_icons = require('which-key.icons')
-  local tab_piece = require('chrome.lualine-nvim.components.tab')
+  local tab_piece = require('features.search.snacks-nvim.statusline')
   local palette = UI.catppuccin.get_palette()
 
   local tab = palette[Conf.icons.colors.TAB]

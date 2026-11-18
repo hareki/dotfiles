@@ -1,4 +1,5 @@
---- @class chrome.lualine-nvim.components.diff
+--- The statusline's diff counts, placed by chrome/lualine-nvim/init.lua
+--- @class features.git.gitsigns-nvim.statusline
 local M = {}
 
 M.symbols = {

@@ -1,4 +1,5 @@
---- @class chrome.lualine-nvim.components.harpoon
+--- The statusline's pinned-files piece, placed by chrome/lualine-nvim/init.lua
+--- @class features.navigation.harpoon.statusline
 local M = {}
 
 --- The status `cond` computed for this draw: lualine calls `cond` right before `update_status`, so

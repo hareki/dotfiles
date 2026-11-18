@@ -1,6 +1,7 @@
 local tabs = require('features.search.snacks-nvim.sources.tabs')
 
---- @class chrome.lualine-nvim.components.tab
+--- The statusline's tab piece, placed by chrome/lualine-nvim/init.lua
+--- @class features.search.snacks-nvim.statusline
 local M = {}
 
 --- @return string label e.g. "tab-2" or "codediff-2"
