@@ -33,7 +33,6 @@ vim.api.nvim_create_autocmd('User', {
     -- Before config.keymaps: the retitle matches Neovim's global maps by key alone
     builtin_keymaps.setup()
     require('config.keymaps')
-    UI.cursorline.follow_focus()
     -- Kept off the startup path, see disabled_plugins in config/lazy/init.lua
     vim.cmd.packadd('matchit')
   end,
