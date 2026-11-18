@@ -2,7 +2,7 @@ local icons = require('config.icons')
 local layout = require('utils.ui.layout')
 local popup = require('utils.popup')
 
---- @class utils.hl-at-cursor
+--- @class features.diagnostics.hl-at-cursor.utils
 local M = {}
 
 --- Closer of the open popup: a second would fight it over <Tab>/<Esc> and orphan the first float

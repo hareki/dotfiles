@@ -94,9 +94,15 @@ Every other fragment names the plugin bare (`'snacks.nvim'`) and holds only its 
 - Fragments use plain-table `keys`/`opts`, overriding **Opts and Keys**, and compute anything that needs logic at parse time (`Defer` proxies and locals at the file top, or inline like the keymaps source's `vim.tbl_extend` layout in `features/search/snacks-nvim/init.lua`): lazy.nvim passes a function-valued `keys`/`opts` only the value merged from fragments imported before it, and a non-nil return replaces that value, silently dropping their entries. lazy.nvim concatenates `keys` and deep-merges `opts` in import order (lists inside `opts` are replaced, not merged)
 - `init` and `config` resolve to the last fragment that defines them, silently shadowing the rest, so fragments leave both unset. Startup code goes in an extra opts-only fragment whose function `opts` runs it and returns nil, which lazy.nvim resolves right before the plugin's `setup()` (the Lazygit focus tracker, `opts = lazygit.track_last_focus` in `features/git/snacks-nvim/init.lua`)
 
+### Native Features
+
+A feature built on Neovim alone, with no plugin behind it, is a lazy.nvim spec as well: `virtual = true` right after its name, which stands in for `'author/repo'` (`{ 'hl-at-cursor', virtual = true, cmd = 'HlAtCursor', keys = { ... } }`). lazy.nvim installs nothing for it and adds nothing to the runtimepath, while `init`, `cmd`, `event`, `keys` and `config` work as they do for a plugin. File and name it like a plugin (`features/diagnostics/hl-at-cursor/` with `init.lua` + `utils.lua`), so deleting that file or directory removes the feature.
+
+The spec owns everything the feature needs: options in `init` (they apply before the first draw), keys, commands and autocmds in `keys`, `cmd` and `config`. The same goes for a plugin: an option, autocmd or key that exists for one plugin sits in that plugin's spec. `config/options.lua`, `config/autocmds.lua` and `config/keymaps.lua` keep only what no single plugin or feature owns.
+
 ## Float Sizing
 
-Size floats through `UI.layout` (`utils/ui/layout.lua`, whose annotations document each helper), never hardcoded dimensions; only cursor-anchored popups (e.g. `utils/hl-at-cursor.lua`) size themselves from their content, since `UI.layout` has no cursor-relative placement.
+Size floats through `UI.layout` (`utils/ui/layout.lua`, whose annotations document each helper), never hardcoded dimensions; only cursor-anchored popups (e.g. `features/diagnostics/hl-at-cursor/utils.lua`) size themselves from their content, since `UI.layout` has no cursor-relative placement.
 
 - Snacks picker layouts take `picker_fn`, since their size counts the borders of the windows they draw; windows (`Snacks.win` styles, `nvim_open_win`, nvim-tree) take `float`/`float_fn`
 - Prefer the function-valued helpers (`float_fn`, `picker_fn`, the `inline_max_height`/`inline_max_width` caps) wherever the consumer accepts callables, so sizes follow terminal resizes; Snacks accepts them for `width`/`height`/`col`/`row`, not `max_width`/`max_height`
