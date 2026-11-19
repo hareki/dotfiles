@@ -1,6 +1,6 @@
 {
   "vendor": "ardia",
-  "version": "0.2.47-nightly.5",
+  "version": "0.2.47-nightly.6",
   "companions": [
     "cua-driver"
   ],
