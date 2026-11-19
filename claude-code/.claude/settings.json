@@ -98,7 +98,7 @@
       "autoCompactWindow": "auto"
     },
     "claude-opus-5-5": {
-      "effortLevel": "xhigh",
+      "effortLevel": "high",
       "autoCompactWindow": "auto"
     },
     "claude-sonnet-5-5": {
