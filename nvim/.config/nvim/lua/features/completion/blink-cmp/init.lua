@@ -21,7 +21,6 @@ return {
     version = '*', -- Use a release tag to download pre-built binaries
     event = { 'InsertEnter', 'CmdlineEnter' },
     dependencies = {
-      'windwp/nvim-autopairs',
       'dmitmel/cmp-cmdline-history',
 
       'xieyonn/blink-cmp-dat-word',
