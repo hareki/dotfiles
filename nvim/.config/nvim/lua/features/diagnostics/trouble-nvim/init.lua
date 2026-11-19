@@ -35,6 +35,33 @@ return {
   },
 
   {
+    'snacks.nvim',
+    opts = {
+      picker = {
+        actions = {
+          -- Send a picker's results to Trouble, which keeps them on screen
+          snacks_to_trouble = function(picker)
+            local snacks_source = require('trouble.sources.snacks')
+            snacks_source.open(picker)
+          end,
+        },
+        win = {
+          input = {
+            keys = {
+              ['<C-t>'] = { 'snacks_to_trouble', mode = { 'i', 'n' } },
+            },
+          },
+          preview = {
+            keys = {
+              ['<C-t>'] = { 'snacks_to_trouble', mode = { 'i', 'n' } },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  {
     'hareki/trouble.nvim',
     cmd = { 'Trouble' },
     keys = {

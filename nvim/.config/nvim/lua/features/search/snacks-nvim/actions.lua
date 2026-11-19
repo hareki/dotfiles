@@ -66,14 +66,6 @@ function M.toggle_preview_focus(picker)
   end
 end
 
---- Send picker results to Trouble for persistent viewing
---- @param picker snacks.Picker
---- @return nil
-function M.snacks_to_trouble(picker)
-  local trouble_sources = require('trouble.sources.snacks')
-  trouble_sources.open(picker)
-end
-
 --- The todo_comments source's snacks_to_trouble: Trouble's todo view, filtered to its keywords
 --- @param picker snacks.Picker
 --- @return nil
