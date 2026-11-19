@@ -5,6 +5,8 @@ local utils = require('features.completion.blink-cmp.utils')
 
 local EXTRA_WORDS_PATH =
   vim.fs.joinpath(vim.fn.stdpath('config'), 'lua/features/completion/blink-cmp/words')
+local SNIPPETS_PATH =
+  vim.fs.joinpath(vim.fn.stdpath('config'), 'lua/features/completion/blink-cmp/snippets')
 -- One length for blink's filter and the search: a shorter prefix would search for items blink hides
 local RIPGREP_MIN_KEYWORD_LENGTH = 3
 
@@ -28,6 +30,7 @@ M.default = {
 
     snippets = {
       score_offset = -10,
+      opts = { search_paths = { SNIPPETS_PATH } },
     },
 
     datword = {
