@@ -63,6 +63,12 @@ tsave() {
   for line in ${(f)"$(tmux list-panes -a -F $'#{pane_id}\t#{session_name}:#{window_index}.#{pane_index}\t#{pane_tty}\t#{pane_current_command}\t#{@nvim-server}')"}; do
     fields=("${(@ps:\t:)line}")
     pane=$fields[1]
+    # To a client without a UTF-8 locale tmux prints each tab as `_`: with no pane to check, every
+    # check below would pass
+    if (( $#fields != 5 )) || [[ $pane != %<-> ]]; then
+      print -u2 "tsave: snapshot $id kept, tmux left running: its panes can't be listed (no UTF-8 locale?)"
+      return 1
+    fi
     # Grouped sessions list their shared panes once per session
     (( $+target_of[$pane] )) && continue
     panes+=($pane)
@@ -86,10 +92,15 @@ tsave() {
     claude_status[$fields[1]]=$fields[4]
   done
 
-  # Every nvim TUI on a pane's tty: a suspended (Ctrl-Z) or background one dies with the server
+  # Every nvim TUI on a pane's tty: a suspended (Ctrl-Z) or background one dies with the server.
+  # ps lists no process at all once one tty is gone (a pane that closed since they were listed)
   ps -o tty=,comm= $ttys | while read -r tty comm; do
     [[ ${comm:t} == nvim ]] && (( nvims_on[$tty]++ ))
   done
+  if (( pipestatus[1] )); then
+    print -u2 "tsave: snapshot $id kept, tmux left running: the panes' processes can't be listed"
+    return 1
+  fi
 
   local -a rpc=(timeout 2 /opt/homebrew/bin/nvim --headless --server)
   local -a quit

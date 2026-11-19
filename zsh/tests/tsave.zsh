@@ -117,6 +117,18 @@ t_match '--continue with unsaved work: only the snapshot' "$rc $(<$ZT_TMP/out)" 
 run
 refused 'unsaved work' '\[No Name\] \(buf <->\)' "nvim isn't reachable \(started before this config, or with --clean\)"
 t_eq 'unsaved work: the buffer is still there' "$(tmux display-message -p -t alpha:.1 '#{pane_current_command}')" nvim
+
+# stopped <what> <reason pattern>: the tsave that just ran kept its snapshot and stopped ahead of
+# the pane checks for that reason, and the server is as it was
+stopped() {
+  t_eq "$1: exit status" $rc 1
+  t_match "$1: the reason" "$(<$ZT_TMP/err)" "*tsave: snapshot <->-<->-<->_<->-<->-<-> kept, tmux left running: $2"
+  t_ok "$1: the server lives" tmux has-session -t alpha
+}
+
+# Without a UTF-8 locale tmux prints the tabs between a pane's fields as `_`: no pane to check
+LC_ALL=C run
+stopped 'no UTF-8 locale' "its panes can't be listed \(no UTF-8 locale\?\)"
 tmux kill-session -t beta
 tmux kill-pane -t alpha:.2
 
@@ -142,6 +154,12 @@ tmux send-keys -t alpha C-z
 await alpha '#{pane_current_command}' '(ba|)sh'
 run
 refused 'a suspended nvim' 'a suspended or background nvim'
+
+# One tty that is gone (a pane closed since tsave listed them) and ps lists no process of any
+ps() { command ps "$@" -t nonexistent }
+run
+unfunction ps
+stopped 'a pane tty that is gone' "the panes' processes can't be listed"
 
 # ...and so it would behind a second nvim that could itself quit
 nvim_in alpha
