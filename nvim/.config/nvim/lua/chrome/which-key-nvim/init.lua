@@ -50,7 +50,6 @@ return {
       spec = {
         { '<leader>c', group = 'Code', mode = { 'n', 'v' } },
         { '<leader>f', group = 'Find', mode = { 'n', 'v' } },
-        { '<leader>fg', group = 'Git: Find' },
         { '<leader>q', group = 'Quit', mode = { 'n', 'v' } },
         { '<leader>s', group = 'Search', mode = { 'n', 'v' } },
       },
@@ -76,7 +75,6 @@ return {
         -- (features/git/snacks-nvim/init.lua)
         { pattern = '%f[%a]git', icon = Conf.icons.git.GIT, color = Conf.icons.colors.GIT },
         { pattern = 'window', icon = Conf.icons.editor.WINDOW, color = 'blue' },
-        { pattern = 'keymaps', icon = Conf.icons.editor.KEYMAPS, color = 'peach' },
         { pattern = 'scroll up', icon = Conf.icons.navigation.SCROLL_UP },
         { pattern = 'scroll down', icon = Conf.icons.navigation.SCROLL_DOWN },
         { pattern = 'code actions', icon = Conf.icons.actions.CODE_ACTION, color = 'yellow' },
@@ -117,7 +115,6 @@ return {
         { pattern = 'comment', icon = Conf.icons.actions.COMMENT },
         { pattern = 'prompt', icon = Conf.icons.editor.PROMPT, color = 'blue' },
         { pattern = 'newline', icon = Conf.icons.actions.NEWLINE },
-        { pattern = 'image', icon = Conf.icons.editor.IMAGE, color = Conf.icons.colors.IMAGE },
       })
 
       local icon_rules = require('chrome.which-key-nvim.icon-rules')

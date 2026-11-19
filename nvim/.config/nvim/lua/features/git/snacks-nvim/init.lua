@@ -6,6 +6,7 @@ local picker = Defer.on_exported_call('snacks.picker')
 
 return {
   UI.which_key({
+    specs = { '<leader>fg', group = 'Git: Find' },
     rules = { pattern = 'lazygit', icon = Conf.icons.git.GIT, color = Conf.icons.colors.GIT },
   }),
 
