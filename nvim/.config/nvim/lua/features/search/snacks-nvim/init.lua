@@ -76,7 +76,6 @@ return {
           list_half_page_up = actions.list_half_page_up,
           toggle_preview_focus = actions.toggle_preview_focus,
           toggle_preview = actions.toggle_preview,
-          snacks_to_trouble = actions.snacks_to_trouble,
         },
 
         win = {
@@ -84,7 +83,6 @@ return {
             keys = {
               ['<Tab>'] = { 'toggle_preview_focus', mode = { 'i', 'n' } },
               ['<CR>'] = { 'confirm' },
-              ['<C-t>'] = { 'snacks_to_trouble', mode = { 'i', 'n' } },
 
               ['B'] = { 'toggle_preview' },
               ['<C-b>'] = { 'toggle_preview', mode = { 'i', 'n' } },
@@ -98,8 +96,6 @@ return {
               ['<PageDown>'] = { 'list_half_page_down', mode = { 'i', 'n' } },
               ['<PageUp>'] = { 'list_half_page_up', mode = { 'i', 'n' } },
               ['<Tab>'] = { 'toggle_preview_focus', mode = { 'i', 'n' } },
-
-              ['<C-t>'] = { 'snacks_to_trouble', mode = { 'i', 'n' } },
 
               ['<C-c>'] = { 'cancel', mode = { 'i', 'n' } },
               ['<C-p>'] = { 'select_and_prev', mode = { 'i', 'n' } },
