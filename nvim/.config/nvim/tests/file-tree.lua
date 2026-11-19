@@ -170,3 +170,19 @@ t.test('beside a side tree, the preview is the side preview float', function()
   preview_on()
   t.eq(geometry(preview.instance.preview_win), UI.layout.side_preview(), 'the preview')
 end)
+
+t.test("the live filter's prompt takes no completion", function()
+  open_tree()
+  api.live_filter.start()
+  t.cleanup(function()
+    vim.cmd.stopinsert()
+    api.live_filter.clear()
+  end)
+  t.wait_for(function()
+    return vim.bo.filetype == 'NvimTreeFilter'
+  end, 'the prompt to open')
+
+  -- Asked through blink.cmp's own check: it is the one that reads the buffer's flag
+  local blink_config = require('blink.cmp.config')
+  t.eq(blink_config.enabled(), false, 'blink.cmp is off in the prompt')
+end)
