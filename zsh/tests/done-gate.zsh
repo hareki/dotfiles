@@ -16,7 +16,7 @@ export NVIM=$ZT_TMP/no-nvim
 # gate ends it. The trap waits out what a hook leaves in the background
 sourced() {
   bash -c 'trap wait EXIT; . "$0"; echo done' $ZT_REPO/claude-code/.claude/hooks/$1 \
-    <<<"{\"background_tasks\": [${(j:, :)@[2,-1]}]}"
+    <<<"{\"transcript_path\": \"$transcript\", \"background_tasks\": [${(j:, :)@[2,-1]}]}"
 }
 
 # gate [<task>...]: `done` when the gate lets a hook run on, nothing when it ends the hook
@@ -24,12 +24,20 @@ gate() {
   sourced done-gate.sh "$@"
 }
 
-# shell <command>: the task of a background shell running the command
+# shell <command>: the task of a background shell running the command, which the payload clips
+# at 1000 characters
 shell() {
-  jq -nc --arg command $1 '{type: "shell", $command}'
+  jq -nc --arg command $1 '{type: "shell", command: ($command
+    | if length > 1000 then .[0:1000] + "… [+\(length - 1000) chars]" else . end)}'
 }
 
-local command hook
+# ran <command>: the transcript line of a Bash call that ran the command in the background
+ran() {
+  jq -nc --arg command $1 \
+    '{message: {content: [{type: "tool_use", name: "Bash", input: {$command, run_in_background: true}}]}}'
+}
+
+local command hook transcript=$ZT_TMP/transcript.jsonl filler=${(l:1000::x:):-}
 local -a servers=(
   'npx --yes http-server public -p 5050 -c-1 > serve.log 2>&1'
   'NX_DAEMON=false npx nx serve app --port 3100'
@@ -47,12 +55,25 @@ local -a servers=(
   'chrome --headless=new --remote-debugging-port=9333 > chrome.log 2>&1'
   'ng serve > serve.log 2>&1 & wait $!'
   'npx tsc --watch & npx nx serve app'
+  'pnpm --filter web dev'
+  'yarn workspace web start'
+  'npm --prefix app run dev'
+  'npm  run dev'
+  'npm run startReact'
+  'npx nx run app:serve'
+  'npx vite'
+  'pgrep -f "nx serve" || npx nx serve app'
 )
 local -a lookalikes=(
   'echo "starting server tests" && pytest -x'
   'echo "an honest start" && pytest -x'
   'npx vitest run src/http-server.test.ts'
   'npm run build && node dist/main-migrate.js'
+  'npm run devtools:build'
+  'pnpm --filter web build'
+  'mybun dev'
+  'npx vite build'
+  'pkill -f "nx serve"; npx nx build app'
 )
 
 t_eq 'nothing in flight: the hooks run' "$(gate)" done
@@ -69,6 +90,19 @@ for command in $lookalikes; do
   t_eq "a command that only resembles a server: held: $command" "$(gate "$(shell $command)")" ''
 done
 t_eq 'another script of a package manager: held' "$(gate "$(shell 'pnpm run build && yarn test')")" ''
+
+# Commands of over 1000 characters that differ only past them: one in a subagent's transcript,
+# two in the session's, one in neither
+mkdir -p ${transcript:r}/subagents
+ran "A=$filler npx nx serve app" >${transcript:r}/subagents/agent-a.jsonl
+ran "A=$filler npx nx test app > test.log" >$transcript
+ran "B=$filler npx nx build app" >>$transcript
+t_eq 'a server named past where the payload clips its command does not' \
+  "$(gate "$(shell "A=$filler npx nx serve app")")" done
+t_eq 'a clipped command that ends and begins like that server: held' \
+  "$(gate "$(shell "A=$filler npx nx test app > test.log")")" ''
+t_eq 'a clipped command that ends: held' "$(gate "$(shell "B=$filler npx nx build app")")" ''
+t_eq 'a clipped command no transcript has: held' "$(gate "$(shell "C=$filler npx nx serve app")")" ''
 
 for hook in bell-when-done.sh nvim-when-done.sh; do
   t_eq "$hook runs on with nothing in flight" "$(sourced $hook)" done
