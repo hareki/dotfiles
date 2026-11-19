@@ -163,15 +163,6 @@ aucmd('FileType', {
   end,
 })
 
--- Make it easier to close man-files when opened inline
-aucmd('FileType', {
-  group = augroup('man-unlisted'),
-  pattern = { 'man' },
-  callback = function(event)
-    vim.bo[event.buf].buflisted = false
-  end,
-})
-
 -- Switch back to the cmdline with the key that opened the cmdline window ('cedit')
 aucmd('CmdwinEnter', {
   group = augroup('cmdwin-keymaps'),
