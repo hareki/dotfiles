@@ -36,7 +36,6 @@ return {
 
         LineNr = { fg = palette.overlay0 },
 
-        ModifiedIndicator = { fg = palette.yellow },
         SnippetTabStop = { bg = color.snippet_tab_stop },
 
         -- Custom highlight group, shared across dropbar.nvim and snacks.nvim

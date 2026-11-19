@@ -31,6 +31,8 @@ return {
       SnacksPickerDir = { fg = palette.overlay1 },
       SnacksPickerFile = { fg = palette.text },
       SnacksPickerTime = { fg = palette.text },
+      -- The buffers source's mark on a modified buffer
+      ModifiedIndicator = { fg = palette.yellow },
     }
   end),
 
