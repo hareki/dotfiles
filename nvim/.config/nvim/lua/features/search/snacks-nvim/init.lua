@@ -34,6 +34,10 @@ return {
     }
   end),
 
+  UI.which_key({
+    rules = { pattern = 'keymaps', icon = Conf.icons.editor.KEYMAPS, color = 'peach' },
+  }),
+
   {
     'snacks.nvim',
     keys = {

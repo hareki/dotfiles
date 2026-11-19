@@ -5,6 +5,10 @@ local audio_page = Defer.on_exported_call('features.preview.snacks-nvim.audio-pa
 local hover_image = Defer.on_exported_call('features.preview.snacks-nvim.hover-image')
 
 return {
+  UI.which_key({
+    rules = { pattern = 'image', icon = Conf.icons.editor.IMAGE, color = Conf.icons.colors.IMAGE },
+  }),
+
   {
     'snacks.nvim',
     -- Startup hook: lazy.nvim runs `init` for one fragment only (see AGENTS.md "Split Plugins")
