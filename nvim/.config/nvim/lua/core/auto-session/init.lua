@@ -10,17 +10,6 @@ return {
     init = function()
       vim.opt.sessionoptions = 'buffers,curdir,folds'
 
-      -- Registered ahead of auto-session's VimLeavePre, so codediff tabs are gone before its save
-      vim.api.nvim_create_autocmd('VimLeavePre', {
-        group = vim.api.nvim_create_augroup('core.auto-session.close-codediff-tabs', {
-          clear = true,
-        }),
-        callback = function()
-          local codediff_utils = require('features.git.codediff-nvim.utils')
-          codediff_utils.close_tabs()
-        end,
-      })
-
       -- After the first frame: tsave reads it long after startup, and the tmux spawn costs ~0.4 ms
       vim.api.nvim_create_autocmd('User', {
         group = vim.api.nvim_create_augroup('core.auto-session.publish-tmux-server', {

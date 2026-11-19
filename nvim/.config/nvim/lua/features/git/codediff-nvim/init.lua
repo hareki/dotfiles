@@ -10,6 +10,20 @@ return {
     'hareki/codediff.nvim',
     build = ':CodeDiff install',
     cmd = 'CodeDiff',
+    init = function()
+      -- lazy.nvim runs every `init` before it loads a plugin, so this VimLeavePre is registered
+      -- ahead of auto-session's and the codediff tabs are gone before the session is saved
+      vim.api.nvim_create_autocmd('VimLeavePre', {
+        group = vim.api.nvim_create_augroup('features.git.codediff-nvim.close-tabs-on-exit', {
+          clear = true,
+        }),
+        callback = function()
+          local codediff_utils = require('features.git.codediff-nvim.utils')
+          codediff_utils.close_tabs()
+        end,
+      })
+    end,
+
     keys = {
       {
         '<leader>g',
