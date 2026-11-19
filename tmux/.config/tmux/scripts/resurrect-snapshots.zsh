@@ -108,17 +108,17 @@ select_snapshot() {
   [[ -f $dir/$file ]] && ln -fs $file $dir/last
 }
 
-# Gives each pane running Claude Code (claude-panes.zsh) the command that resumes its conversation,
-# in place of the one that started it: resurrect relaunches a pane with the command it saved, and
-# this runs before it compares the save with `last`. A session nothing was asked in has no
-# transcript to resume, so its pane starts a new one
+# Gives each pane running Claude Code (a foreground session of claude-panes.zsh) the command that
+# resumes its conversation, in place of the one that started it: resurrect relaunches a pane with
+# the command it saved, and this runs before it compares the save with `last`. A session nothing
+# was asked in has no transcript to resume, so its pane starts a new one
 resume_claudes() {
   local file=$1 line target session
   local -a fields lines transcript
   local -A session_at
   for line in ${(f)"$(${ZSH_SCRIPT:h}/claude-panes.zsh)"}; do
     fields=("${(@ps:\t:)line}")
-    session_at[$fields[2]]=$fields[5]
+    [[ $fields[6] == foreground ]] && session_at[$fields[2]]=$fields[5]
   done
   (( $#session_at )) || return 0
 

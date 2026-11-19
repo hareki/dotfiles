@@ -138,16 +138,54 @@ run
 refused 'nvim at a prompt' "nvim didn't answer \(waiting on a prompt\?\)"
 tmux send-keys -t alpha Enter
 
+# The address an nvim that has quit left on its pane, under one tsave can't reach
+tmux split-window -d -t alpha
+nvim_in alpha:.2 || t_bail 'a second pane nvim that published its address'
+tmux send-keys -t alpha:.2 :q Enter
+await alpha:.2 '#{pane_current_command}' '(ba|)sh'
+tmux send-keys -t alpha:.2 "$nvim --clean" Enter
+await alpha:.2 '#{pane_current_command}' nvim
+run
+refused 'an address left by an earlier nvim' "nvim isn't reachable \(started before this config, or with --clean\)"
+tmux kill-pane -t alpha:.2
+
 # A Claude Code session in the middle of a turn, beside an nvim that could quit
 tmux split-window -d -t alpha
 zt_claude_in alpha:.2 || t_bail 'a pane running Claude Code'
+session=$REPLY
 print busy >$ZT_TMP/claude/status
 run
 refused 'a busy Claude' 'claude is busy'
 t_eq 'a busy Claude: the nvim beside it is still there' "$(tmux display-message -p -t alpha:.1 '#{pane_current_command}')" nvim
 t_ok 'a busy Claude: and so is the session' test ! -e $ZT_TMP/claude/ended
-print idle >$ZT_TMP/claude/status
+# Only idle is one tsave may end
+: >$ZT_TMP/claude/status
+run
+refused 'a Claude in no state it names' 'claude is in an unknown state'
+# Suspended in the middle of a turn, it is no longer the pane's job, and the kill would still end it
+print busy >$ZT_TMP/claude/status
+tmux send-keys -t alpha:.2 C-z
+await alpha:.2 '#{pane_current_command}' '(ba|)sh'
+run
+refused 'a busy Claude that is suspended' 'claude is busy'
+# Not left to the pane's end, where a SIGTERM reaches it and leaves an `ended` for the quit below
+# to read
+kill -KILL $session
 tmux kill-pane -t alpha:.2
+
+# One in the pane nvim's terminal, which that nvim's quit would end. The snapshot keeps the pane
+# as nvim's: `claude --resume` is for the pane that runs the session itself
+zt_claude_in alpha ':terminal claude' || t_bail "a Claude Code session in the pane nvim's terminal"
+session=$REPLY
+print busy >$ZT_TMP/claude/status
+run
+refused "a busy Claude in nvim's terminal" "claude is busy in nvim's terminal"
+t_ok "a busy Claude in nvim's terminal: the session is still there" kill -0 $session
+t_eq "a busy Claude in nvim's terminal: its pane isn't saved as a Claude Code one" \
+  "$(grep -c $'\t:claude' $HOME/.local/share/tmux/resurrect/last)" 0
+print idle >$ZT_TMP/claude/status
+# For that `ended` again
+kill -KILL $session
 
 # Suspended, the server's kill would take it along
 tmux send-keys -t alpha C-z

@@ -3,9 +3,10 @@
 # Snapshots every tmux session with tmux-resurrect, then quits each pane's nvim through its normal
 # exit (so auto-session saves its session), ends each pane's Claude Code session and kills the
 # server; -c/--continue stops after the snapshot. Pane nvims publish their RPC address as
-# @nvim-server (nvim's core/auto-session/tsave.lua), the panes running Claude Code are the tmux
-# package's claude-panes.zsh's to list, and nothing is quit or killed while any nvim holds work a
-# kill would lose or any Claude is in the middle of a turn
+# @nvim-server (nvim's core/auto-session/tsave.lua), the Claude Code sessions in the panes are the
+# tmux package's claude-panes.zsh's to list, and nothing is quit or killed while any nvim holds
+# work a kill would lose or any of those sessions, a pane nvim's terminal's included, is in the
+# middle of a turn
 tsave() {
   local keep_running=0
   case $1 in
@@ -59,7 +60,7 @@ tsave() {
   # Nothing is quit until every pane checks out, so a refusal leaves everything running
   local -a blocked panes ttys fields
   local -A target_of tty_of cmd_of addr_of nvims_on
-  local line pane tty comm out
+  local line pane tty comm out pid state where unreachable
   for line in ${(f)"$(tmux list-panes -a -F $'#{pane_id}\t#{session_name}:#{window_index}.#{pane_index}\t#{pane_tty}\t#{pane_current_command}\t#{@nvim-server}')"}; do
     fields=("${(@ps:\t:)line}")
     pane=$fields[1]
@@ -79,17 +80,28 @@ tsave() {
     ttys+=(-t $tty_of[$pane])
   done
 
-  # The Claude Code session a pane runs. Unless they can be listed this stops here too: one in the
-  # middle of a turn would die with the server
-  local -A claude_pid claude_status
+  # The Claude Code sessions in the panes. Unless they can be listed this stops here too: one in
+  # the middle of a turn would die with the server
+  local -a claudes
+  local -A claude_pane claude_busy
   if ! out=$($HOME/.config/tmux/scripts/claude-panes.zsh); then
     print -u2 "tsave: snapshot $id kept, tmux left running: the Claude Code sessions can't be listed"
     return 1
   fi
   for line in ${(f)out}; do
     fields=("${(@ps:\t:)line}")
-    claude_pid[$fields[1]]=$fields[3]
-    claude_status[$fields[1]]=$fields[4]
+    pid=$fields[3]
+    # Grouped sessions list a shared pane's Claude once per session too
+    (( $+claude_pane[$pid] )) && continue
+    claude_pane[$pid]=$fields[1]
+    # Only idle is safe to end: busy is a turn, waiting an answer one needs to finish, and a status
+    # Claude Code gives no name could be either
+    if [[ $fields[4] != idle ]]; then
+      claude_busy[$fields[1]]+=${fields[4]:-in an unknown state}$'\n'
+    # tsave ends the one a pane runs itself. One in an nvim's terminal ends with that nvim
+    elif [[ $fields[6] == foreground ]]; then
+      claudes+=($pid)
+    fi
   done
 
   # Every nvim TUI on a pane's tty: a suspended (Ctrl-Z) or background one dies with the server.
@@ -105,26 +117,36 @@ tsave() {
   local -a rpc=(timeout 2 /opt/homebrew/bin/nvim --headless --server)
   local -a quit
   for pane in $panes; do
+    where=
+    [[ $cmd_of[$pane] == nvim ]] && where=" in nvim's terminal"
+    for state in ${(f)claude_busy[$pane]}; do
+      blocked+=("$target_of[$pane]: claude is $state$where")
+    done
     if [[ $cmd_of[$pane] != nvim ]]; then
-      if (( nvims_on[$tty_of[$pane]] )); then
-        blocked+=("$target_of[$pane]: a suspended or background nvim")
-      # busy with a turn, or waiting on an answer to finish one
-      elif [[ ${claude_status[$pane]:-idle} != idle ]]; then
-        blocked+=("$target_of[$pane]: claude is $claude_status[$pane]")
-      fi
+      (( nvims_on[$tty_of[$pane]] )) && blocked+=("$target_of[$pane]: a suspended or background nvim")
       continue
     fi
+    unreachable="$target_of[$pane]: nvim isn't reachable (started before this config, or with --clean)"
     if (( nvims_on[$tty_of[$pane]] > 1 )); then
       blocked+=("$target_of[$pane]: a suspended or background nvim besides the running one")
     elif [[ -z $addr_of[$pane] ]]; then
-      blocked+=("$target_of[$pane]: nvim isn't reachable (started before this config, or with --clean)")
-    # --headless: with a tty on any std stream, `--remote-expr` starts a UI instead
-    elif ! out=$($rpc $addr_of[$pane] --remote-expr "v:lua.require'core.auto-session.tsave'.unsaved()" </dev/null 2>/dev/null); then
-      blocked+=("$target_of[$pane]: nvim didn't answer (waiting on a prompt?)")
-    elif [[ -n $out ]]; then
-      blocked+=("$target_of[$pane]: ${(j:, :)${(f)out}}")
+      blocked+=($unreachable)
     else
-      quit+=($pane)
+      # --headless: with a tty on any std stream, `--remote-expr` starts a UI instead
+      out=$($rpc $addr_of[$pane] --remote-expr "v:lua.require'core.auto-session.tsave'.unsaved()" </dev/null 2>/dev/null)
+      case $? in
+        0)
+          if [[ -n $out ]]; then
+            blocked+=("$target_of[$pane]: ${(j:, :)${(f)out}}")
+          else
+            quit+=($pane)
+          fi
+          ;;
+        # timeout's status: the nvim is there, and answers nothing
+        124) blocked+=("$target_of[$pane]: nvim didn't answer (waiting on a prompt?)") ;;
+        # Nothing listens at the address: an nvim that ran in the pane before this one left it
+        *) blocked+=($unreachable) ;;
+      esac
     fi
   done
 
@@ -139,7 +161,7 @@ tsave() {
   done
 
   # Claude Code's clean exit: its SessionEnd hooks run
-  (( $#claude_pid )) && kill -TERM $claude_pid 2>/dev/null
+  (( $#claudes )) && kill -TERM $claudes 2>/dev/null
 
   # A pane (or the whole server) that is gone has finished quitting too
   local -a running nvims
@@ -147,8 +169,8 @@ tsave() {
     nvims=(${(f)"$(tmux list-panes -a -f '#{==:#{pane_current_command},nvim}' -F '#{pane_id}' 2>/dev/null)"})
     running=()
     for pane in ${quit:*nvims}; do running+=("nvim in $target_of[$pane]"); done
-    for pane in ${(k)claude_pid}; do
-      kill -0 $claude_pid[$pane] 2>/dev/null && running+=("claude in $target_of[$pane]")
+    for pid in $claudes; do
+      kill -0 $pid 2>/dev/null && running+=("claude in $target_of[$claude_pane[$pid]]")
     done
     (( $#running )) || break
     sleep 0.1

@@ -10,7 +10,8 @@
 #
 #   zt_claude                  puts the stand-in first on PATH; before the tmux server starts, as
 #                              its panes and resurrect's hooks get the server's PATH
-#   zt_claude_in <pane> [<args>]  types `claude <args>` into the pane's shell and waits for the session
+#   zt_claude_in <pane> [<keys>]  types <keys> into the pane (`claude`, for its shell) and waits for
+#                              the session that starts, whose pid it leaves in REPLY
 
 zmodload zsh/zselect
 
@@ -45,11 +46,15 @@ EOF
 }
 
 zt_claude_in() {
-  local -a before=($ZT_TMP/claude/running/*(N)) now
-  tmux send-keys -t $1 "claude${2:+ $2}" Enter
+  local -a before=($ZT_TMP/claude/running/*(N)) new
+  tmux send-keys -t $1 ${2:-claude} Enter
   repeat 80; do
-    now=($ZT_TMP/claude/running/*(N))
-    (( $#now > $#before )) && return 0
+    new=($ZT_TMP/claude/running/*(N))
+    new=(${new:|before})
+    if (( $#new )); then
+      REPLY=${new:t}
+      return 0
+    fi
     zselect -t 10
   done
   print -ru2 -- "zt_claude_in: no session started in $1"
