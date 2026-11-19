@@ -66,22 +66,4 @@ function M.toggle_preview_focus(picker)
   end
 end
 
---- The todo_comments source's snacks_to_trouble: Trouble's todo view, filtered to its keywords
---- @param picker snacks.Picker
---- @return nil
-function M.todo_to_trouble(picker)
-  local keywords = picker
-    --- @module "todo-comments"
-    .opts --[[@as snacks.picker.todo.Config]]
-    .keywords
-
-  picker:close()
-  local trouble = require('trouble')
-  --- @diagnostic disable-next-line: missing-fields
-  trouble.toggle({
-    mode = 'todo',
-    filter = keywords and { tag = keywords },
-  })
-end
-
 return M
