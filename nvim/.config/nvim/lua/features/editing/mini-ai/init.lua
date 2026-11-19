@@ -1,7 +1,9 @@
 return {
   'hareki/mini.ai',
   event = 'VeryLazy',
-  dependencies = { 'nvim-treesitter/nvim-treesitter-textobjects' },
+  dependencies = {
+    { 'nvim-treesitter/nvim-treesitter-textobjects', branch = 'main' },
+  },
   opts = function()
     local mini_ai = require('mini.ai')
     local utils = require('features.editing.mini-ai.utils')
