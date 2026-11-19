@@ -35,7 +35,6 @@ return {
     local buffer_status = require('chrome.lualine-nvim.components.buffer-status')
     local macro = require('chrome.lualine-nvim.components.macro')
     local mode = require('chrome.lualine-nvim.components.mode')
-    local diagnostics = require('chrome.lualine-nvim.components.diagnostics')
     local repo_name = require('chrome.lualine-nvim.components.repo-name')
     local branch = require('chrome.lualine-nvim.components.branch')
 
@@ -46,6 +45,7 @@ return {
     local snacks_image = require('features.preview.snacks-nvim.statusline')
     local live_preview = require('features.preview.live-preview-nvim.statusline')
     local coding_agent = require('features.ai.claudecode-nvim.statusline')
+    local diagnostics = require('features.diagnostics.vim-diagnostic.statusline')
 
     local palette = UI.catppuccin.get_palette()
 
