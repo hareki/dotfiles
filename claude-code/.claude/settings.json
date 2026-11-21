@@ -34,13 +34,12 @@
       "Bash(* --version)",
       "Bash(* --help)"
     ],
-    "deny": [
-      "Bash(sudo *)",
-      "Bash(su *)"
-    ],
+    "deny": ["Bash(sudo *)", "Bash(su *)"],
     "defaultMode": "auto"
   },
   "model": "opus",
+  "disableClaudeAiConnectors": true,
+  "disableBundledSkills": false,
   "hooks": {
     "Notification": [
       {
@@ -71,6 +70,8 @@
   "worktree": {
     "baseRef": "head"
   },
+  "disableWorkflows": true,
+  "disableArtifact": true,
   "statusLine": {
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh",
@@ -79,34 +80,29 @@
   "enabledPlugins": {
     "lua-lsp@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
-    "context7@claude-plugins-official": true,
-    "feature-dev@claude-plugins-official": true,
-    "code-simplifier@claude-plugins-official": true,
-    "claude-md-management@claude-plugins-official": true,
     "commit-commands@claude-plugins-official": true,
-    "rust-analyzer-lsp@claude-plugins-official": true,
-    "claude-code-setup@claude-plugins-official": true,
     "gopls-lsp@claude-plugins-official": true,
     "clangd-lsp@claude-plugins-official": true,
     "atlassian@claude-plugins-official": true,
-    "figma@claude-plugins-official": true
+    "figma@claude-plugins-official": true,
+    "engineering@synced": false,
+    "design@synced": false,
+    "rust-analyzer-lsp@claude-plugins-official": true
   },
+  "outputStyle": "Unslop",
   "maxProseWidth": 100,
   "modelSettings": {
-    "claude-fable-5-1": {
-      "effortLevel": "xhigh",
-      "autoCompactWindow": "auto"
-    },
     "claude-opus-5-5": {
       "effortLevel": "high",
       "autoCompactWindow": "auto"
     },
     "claude-sonnet-5-5": {
-      "effortLevel": "high",
+      "effortLevel": "medium",
       "autoCompactWindow": "auto"
     },
     "claude-fable-5-2": {
-      "effortLevel": "high"
+      "effortLevel": "high",
+      "autoCompactWindow": "auto"
     }
   },
   "tui": "fullscreen",
