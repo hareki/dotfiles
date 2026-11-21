@@ -34,10 +34,13 @@
       "Bash(* --version)",
       "Bash(* --help)"
     ],
-    "deny": ["Bash(sudo *)", "Bash(su *)"],
+    "deny": [
+      "Bash(sudo *)",
+      "Bash(su *)"
+    ],
     "defaultMode": "auto"
   },
-  "model": "opus",
+  "model": "fable",
   "disableClaudeAiConnectors": true,
   "disableBundledSkills": false,
   "hooks": {
@@ -87,7 +90,8 @@
     "figma@claude-plugins-official": true,
     "engineering@synced": false,
     "design@synced": false,
-    "rust-analyzer-lsp@claude-plugins-official": true
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "claude-md-management@anthropic-plugin-directory": true
   },
   "outputStyle": "Unslop",
   "maxProseWidth": 100,
