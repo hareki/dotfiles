@@ -20,3 +20,5 @@ rex.bind('cmd+d>left', 'client.tab.move.backward')
 rex.bind('cmd+d>right', 'client.tab.move.forward')
 
 rex.bind('cmd+d>escape', 'pane.copy_mode.enter')
+-- Rex's own cmd+f opens atuin search here
+rex.bind('cmd+d>/', 'client.find.open')
