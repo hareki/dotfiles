@@ -91,7 +91,7 @@ return {
         desc = PREFIX .. 'Skip Next Line Cursor',
         mode = { 'n', 'x' },
       },
-      -- ghostty sends <F37> for <C-m>, which Neovim would otherwise read as <CR>
+      -- The rex config sends <F37> for <C-m>, which Neovim would otherwise read as <CR>
       { '<F37>', mc.toggleCursor, desc = PREFIX .. 'Toggle Cursor', mode = { 'n', 'x' } },
     },
 

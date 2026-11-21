@@ -16,7 +16,7 @@ lazy.nvim config built from scratch around fast cold starts, per-plugin isolatio
 - **[delta](https://github.com/dandavison/delta)**: diff previews in tiny-code-action.nvim
 - **[lazygit](https://github.com/jesseduffield/lazygit)**: terminal UI for Git, opened through Snacks (`<A-g>`)
 - **[ImageMagick](https://imagemagick.org/)**: `magick` CLI for image rendering in Snacks (`image`)
-- **[Ghostty](https://ghostty.org/)**: terminal with kitty graphics protocol support, for Snacks (`image`)
+- **[Rex](https://www.superlogical.com/rex)**: terminal with kitty graphics protocol support, for Snacks (`image`)
 - **[tree-sitter CLI](https://github.com/tree-sitter/tree-sitter) + C compiler**: build nvim-treesitter parsers
 - **[Go](https://go.dev/)**: build step for cursortab.nvim (`cd server && go build`)
 - **[Node.js](https://nodejs.org/) + npm**: mise installs the Node-based LSP servers (vtsls, vscode-langservers-extracted, etc.), which the vtsls and angularls configs resolve from mise's install dirs
