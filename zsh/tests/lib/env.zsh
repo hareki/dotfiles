@@ -9,36 +9,34 @@
 #   antidote bundle and read the real ssh-agent file
 # - A scratch HOME laid out like stow (zt_home), so everything $HOME-relative moves with it: the
 #   bundle's sources, every cache, the history. The plugin clones are a copy-on-write copy, since
-#   antidote zcompiles into them; gitstatus, the built binaries and TPM's plugins are links
+#   antidote zcompiles into them; gitstatus and the built binaries are links
 # - A short private TMPDIR: zsh-patina bakes the socket path of the shell that built its cache into
 #   it (a cache built under another TMPDIR leaves highlighting off until the next clear), and a
 #   socket path over 104 bytes fails silently
 # - omz's update stamp is current, or the updater can pull the plugin clone
 # - mise keeps its real dirs with installs off: under a moved data dir a shim recursion once spawned
 #   ~3,500 processes
-# - A private tmux server hosts each boot: zpty's 0x0 pty stalls p10k
+# - A private Rex server hosts each boot: zpty's 0x0 pty stalls p10k, and the real server's sessions
+#   stay out of reach
 
 zmodload zsh/datetime
 
 # Test files inherit these from run.zsh, since their own HOME is a scratch dir
-typeset -g ZT_REAL_HOME=${ZT_REAL_HOME:-$HOME} ZT_TMUX=${ZT_TMUX:-${commands[tmux]}}
+typeset -g ZT_REAL_HOME=${ZT_REAL_HOME:-$HOME} ZT_REX=${ZT_REX:-${commands[rex]}}
 typeset -g ZT_LIB=${${(%):-%x}:A:h}
-# What a test file's commands find: the tmux build first (resurrect's scripts call `tmux` by name)
-typeset -g ZT_PATH=${ZT_TMUX:h}:/usr/bin:/bin:/usr/sbin:/sbin
+# What a test file's commands find
+typeset -g ZT_PATH=/usr/bin:/bin:/usr/sbin:/sbin
 
-# Short and private: tmux and zsh-patina put sockets here
+# Short and private: Rex and zsh-patina put sockets here
 zt_tmpdir() {
   mktemp -d /tmp/zt.XXXXXX
 }
 
-# Stops what a test started under its scratch dir (tmux servers, zsh-patina daemons), then removes it
+# Stops what a test started under its scratch dir (Rex servers, zsh-patina daemons), then removes it
 zt_cleanup() {
-  local dir=$1 sock lock
+  local dir=$1 lock
   [[ $dir == /tmp/zt.?* && -d $dir ]] || return 0
-  for sock in $dir/**/*(N=); do
-    $ZT_TMUX -S $sock kill-server 2>/dev/null
-  done
-  for lock in $dir/**/zsh-patina/daemon.lock(N); do
+  for lock in $dir/**/rex.pid(N) $dir/**/zsh-patina/daemon.lock(N); do
     kill "$(<$lock)" 2>/dev/null
   done
   # Shells and daemons still exiting can write in it (history, sockets) while it goes
@@ -50,21 +48,19 @@ zt_cleanup() {
 }
 
 # zt_home <home> <tree>: lays out <home> the way `sync-dots` lays out $HOME from <tree>, a repo root
-# holding the zsh, p10k and tmux packages
+# holding the zsh and p10k packages
 zt_home() {
   local home=$1 tree=$2
   # Every top-level dot file the zsh package holds, bar the one on stow's ignore list
   local -a dotfiles=($tree/zsh/.*(.N))
   dotfiles=(${dotfiles:#*/.DS_Store})
-  mkdir -p $home/{.config,.cache/zsh,.local/bin/shims,.tmux} || return 1
+  mkdir -p $home/{.config,.cache/zsh,.local/bin/shims} || return 1
   (( $#dotfiles )) && ln -s $dotfiles $home/ &&
     ln -s $tree/zsh/.config/zsh $home/.config/zsh &&
     ln -s $tree/p10k/.p10k.zsh $home/.p10k.zsh &&
-    ln -s $tree/tmux/.config/tmux $home/.config/tmux &&
     cp -cR $ZT_REAL_HOME/.cache/antidote $home/.cache/antidote &&
     ln -s $ZT_REAL_HOME/.cache/gitstatus $home/.cache/gitstatus &&
-    ln -s $ZT_REAL_HOME/.local/opt $home/.local/opt &&
-    ln -s $ZT_REAL_HOME/.tmux/plugins $home/.tmux/plugins || return 1
+    ln -s $ZT_REAL_HOME/.local/opt $home/.local/opt || return 1
   print -r -- "LAST_EPOCH=$(( EPOCHSECONDS / 86400 ))" >$home/.cache/zsh/.zsh-update
 }
 
@@ -72,7 +68,7 @@ zt_home() {
 zt_env() {
   reply=(
     HOME=$1 USER=$USER LOGNAME=$USER SHELL=/bin/zsh LANG=${LANG:-en_US.UTF-8}
-    PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR=$2/ TMUX_TMPDIR=$2
+    PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR=$2/
     MERCURY_API_KEY=dummy ANTHROPIC_API_KEY=dummy
     MISE_DATA_DIR=$ZT_REAL_HOME/.local/share/mise MISE_CONFIG_DIR=$ZT_REAL_HOME/.config/mise
     MISE_STATE_DIR=$ZT_REAL_HOME/.local/state/mise MISE_CACHE_DIR=$ZT_REAL_HOME/Library/Caches/mise
@@ -80,40 +76,58 @@ zt_env() {
   )
 }
 
+# zt_rex <dir> <args>: the rex CLI on the private server zt_boot started in <dir>, never the real one
+zt_rex() {
+  "$ZT_REX" --autostart=false -S unix://$1/rex.sock "${@[2,-1]}"
+}
+
 # zt_boot <home> <dir> <tree>: boots the config laid out in <home> (by zt_home from <tree>) in a
-# private tmux pane, first as a top-level login shell (SHLVL 1, outside tmux), then as a login shell
+# pane of a private Rex server, first as a top-level login shell (SHLVL 1), then as a login shell
 # started from it, and waits for each one's dump (dump.zsh) in <dir>/dump-1.txt and dump-2.txt.
 # Boots of one HOME share its TMPDIR (<home>/../tmp), so a second boot is warm, as on a real machine.
 # With ZT_PROBE set to a file, each shell also sources it then, writing to <dir>/probe-<SHLVL>.txt
 zt_boot() {
-  local home=$1 dir=$2 tree=$3 sock=$2/tmux.sock tmp=${1:h}/tmp
+  local home=$1 dir=$2 tree=$3 tmp=${1:h}/tmp
   mkdir -p $dir $tmp || return 1
-  zt_env $home $tmp
-  # As several arguments, which tmux executes as they are: a single one would go through $SHELL -c,
-  # a zsh that reads the config once more
-  env -i $reply $ZT_TMUX -S $sock -f /dev/null new-session -d -x 160 -y 50 -c $home \
-    env -u TMUX -u TMUX_PANE SHLVL=0 ZDOTDIR=$ZT_LIB/zdotdir ZT_DUMP_DIR=$dir ZT_TREE=$tree \
-    ${ZT_PROBE:+ZT_PROBE=$ZT_PROBE} /bin/zsh -l ||
+  if [[ ! -x $ZT_REX ]]; then
+    print -u2 -r -- 'zt_boot: no rex on PATH to host the boot'
     return 1
-  zt_await $sock $dir/dump-1.txt || return 1
-  $ZT_TMUX -S $sock send-keys 'zsh -l' Enter
-  zt_await $sock $dir/dump-2.txt || return 1
-  $ZT_TMUX -S $sock kill-server
+  fi
+  zt_env $home $tmp
+  # Its panes start from the server's environment. No config and no saved sessions, so the server
+  # holds this boot alone
+  env -i $reply "$ZT_REX" server run --listen unix://$dir/rex.sock --state-dir $dir/rex \
+    --restore=false --config /dev/null &>$dir/rex.log &!
+  print -r -- $! >$dir/rex.pid
+  repeat 50; do
+    [[ -S $dir/rex.sock ]] && break
+    sleep 0.1
+  done
+  # --shell=none starts the arguments as they are: through a shell, a zsh would read the config
+  # once more. Without the pane's ids, which differ from boot to boot, in the dump's exports
+  zt_rex $dir new boot --shell=none --cwd $home -- \
+    env -u REX_SESSION -u REX_BLOCK SHLVL=0 ZDOTDIR=$ZT_LIB/zdotdir ZT_DUMP_DIR=$dir ZT_TREE=$tree \
+    ${ZT_PROBE:+ZT_PROBE=$ZT_PROBE} /bin/zsh -l >/dev/null ||
+    return 1
+  zt_await $dir dump-1.txt || return 1
+  zt_rex $dir send -s boot 'zsh -l'
+  zt_await $dir dump-2.txt || return 1
+  kill "$(<$dir/rex.pid)"
 }
 
-# zt_await <socket> <file>: presses Enter in the pane every tenth of a second until <file> appears,
-# since the dump runs at the first prompt after the deferred plugins have loaded
+# zt_await <dir> <file>: presses Enter in the pane every tenth of a second until <dir>/<file>
+# appears, since the dump runs at the first prompt after the deferred plugins have loaded
 zt_await() {
-  local sock=$1 file=$2
+  local dir=$1 file=$2
   repeat 300; do
-    [[ -s $file ]] && return 0
-    if ! $ZT_TMUX -S $sock send-keys Enter 2>/dev/null; then
-      print -u2 -r -- "zt_await: the server is gone, with no ${file:t} yet"
+    [[ -s $dir/$file ]] && return 0
+    if ! zt_rex $dir send-key -s boot enter 2>/dev/null; then
+      print -u2 -r -- "zt_await: the server is gone, with no $file yet"
       return 1
     fi
     sleep 0.1
   done
-  print -u2 -r -- "zt_await: no ${file:t} after 30s, the pane shows:"
-  $ZT_TMUX -S $sock capture-pane -p 2>/dev/null | grep -v '^$' >&2
+  print -u2 -r -- "zt_await: no $file after 30s, the pane shows:"
+  zt_rex $dir capture -s boot --trim 2>/dev/null | grep -v '^$' >&2
   return 1
 }

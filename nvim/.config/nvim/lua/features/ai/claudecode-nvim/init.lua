@@ -60,8 +60,6 @@ return {
 
       return {
         focus_after_send = true,
-        -- With $TMUX set, Claude's OSC 52 comes DCS-wrapped, which nvim's :terminal paints as text
-        env = { TMUX = '' },
         terminal = {
           --- @module "snacks"
           --- @type snacks.win.Config | {}

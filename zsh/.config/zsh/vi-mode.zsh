@@ -7,8 +7,8 @@ KEYTIMEOUT=1
 # https://gist.github.com/LukeSmithxyz/e62f26e55ea8b0ed41a65912fbebbe52
 _cursor_shape() { [[ $KEYMAP == vicmd ]] && echo -ne '\e[1 q' || echo -ne '\e[5 q' }
 
-# Hooks, since `zle -N zle-line-init` would drop omz's `echoti smkx`, which Home/End need
-# outside tmux. The `_` prefix keeps zsh-autosuggestions from wrapping the hook widgets
+# Hooks, since `zle -N zle-line-init` would drop omz's `echoti smkx`, which Home/End need.
+# The `_` prefix keeps zsh-autosuggestions from wrapping the hook widgets
 autoload -Uz add-zle-hook-widget
 add-zle-hook-widget keymap-select _cursor_shape
 add-zle-hook-widget line-init _cursor_shape

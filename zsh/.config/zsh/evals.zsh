@@ -2,7 +2,7 @@
 _evalcache() {
   local cache="$ZSH_CACHE_DIR/init-${${(j:-:)@}//[^A-Za-z0-9_.-]/_}.sh"
   if [[ ! -s $cache ]]; then
-    # Per-shell temps are moved in whole, so shells started together (tmuxinator) can't
+    # Per-shell temps are moved in whole, so shells started together (a restored session) can't
     # clobber or half-read them; `rm init-*` skips the dot, and two-arg zcompile survives mv
     local tmp="${cache:h}/.${cache:t}.$$"
     "$@" >"$tmp" || { rm -f "$tmp"; print -u2 "_evalcache: '$*' failed"; return 1 }

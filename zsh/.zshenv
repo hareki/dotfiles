@@ -18,7 +18,7 @@ if [[ -z $MERCURY_API_KEY || -z $ANTHROPIC_API_KEY ]]; then
 fi
 
 # Skip the global rcs (/etc/zshrc forks `locale`), but for /etc/zprofile's path_helper and
-# LANG, which deeper shells (tmux panes) inherit. Sourced here so the dirs below land in front
+# LANG, which deeper shells inherit. Sourced here so the dirs below land in front
 [[ -o login ]] && (( SHLVL == 1 )) && source /etc/zprofile
 unsetopt global_rcs
 

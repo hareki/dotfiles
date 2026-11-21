@@ -33,7 +33,7 @@
       tmp=$(zt_tmpdir) || return 1
       mkdir -p $tmp/home $tmp/tmp
       zt_env $tmp/home $tmp/tmp
-      timeout 600 env -i $reply PATH=$ZT_PATH ZT_REAL_HOME=$ZT_REAL_HOME ZT_TMUX=$ZT_TMUX \
+      timeout 600 env -i $reply PATH=$ZT_PATH ZT_REAL_HOME=$ZT_REAL_HOME ZT_REX=$ZT_REX \
         ZT_REPO=${tests:h:h} ZT_PKG=${tests:h} ZT_LIB=$tests/lib ZT_TMP=$tmp zsh -f $file &>$tmp/run.log &
       started+=($name $tmp $!)
     done

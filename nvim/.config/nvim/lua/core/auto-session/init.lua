@@ -9,19 +9,6 @@ return {
     priority = Conf.priority.CORE,
     init = function()
       vim.opt.sessionoptions = 'buffers,curdir,folds'
-
-      -- After the first frame: tsave reads it long after startup, and the tmux spawn costs ~0.4 ms
-      vim.api.nvim_create_autocmd('User', {
-        group = vim.api.nvim_create_augroup('core.auto-session.publish-tmux-server', {
-          clear = true,
-        }),
-        pattern = 'VeryLazy',
-        once = true,
-        callback = function()
-          local tsave = require('core.auto-session.tsave')
-          tsave.publish_tmux_server()
-        end,
-      })
     end,
 
     keys = {

@@ -16,11 +16,6 @@ yay() {
   print-header "Updating Skills"
   skills update -g || failed+=(Skills)
 
-  print-header "Updating TPM"
-  ~/.tmux/plugins/tpm/bin/clean_plugins \
-    && ~/.tmux/plugins/tpm/bin/install_plugins \
-    && ~/.tmux/plugins/tpm/bin/update_plugins all || failed+=(TPM)
-
   _evalcache_clear
 
   if (( $#failed )); then

@@ -82,7 +82,7 @@ _Avoid_: sample, test case
 
 **Golden**:
 The render a fixture must produce in one layout.
-_Avoid_: snapshot (a tmux term), expected output
+_Avoid_: snapshot, expected output
 
 **Fixture repository**:
 The blobs and worktree files a fixture's diff names, from which a throwaway repository is built for it to render in.

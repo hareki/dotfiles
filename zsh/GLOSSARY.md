@@ -7,7 +7,7 @@ A personal zsh setup for macOS: a startup tuned for a fast first prompt, the com
 ### Startup
 
 **Shape**:
-How a shell starts: as a top-level login shell (a terminal's first, at SHLVL 1), or as a login shell started from one (a tmux pane's).
+How a shell starts: as a top-level login shell (a terminal's first, at SHLVL 1), or as a login shell started from one.
 _Avoid_: mode, kind
 
 **Override**:
@@ -48,7 +48,7 @@ _Avoid_: sandbox, test shell
 
 **State dump**:
 Everything a booted shell defines once its deferred plugins have loaded, written so that two boots compare line by line.
-_Avoid_: snapshot (a tmux term), environment dump
+_Avoid_: snapshot, environment dump
 
 **Scratch repos**:
 The repositories a command's test builds in its scratch dir to stand for GitHub and the local checkouts, with git cut off from every config and remote outside that dir.

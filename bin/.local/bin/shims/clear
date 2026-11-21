@@ -1,3 +1,0 @@
-#!/bin/sh
-# Homebrew's clear sends E3 inside tmux to wipe the scrollback; macOS's doesn't.
-exec /opt/homebrew/opt/ncurses/bin/clear "$@"

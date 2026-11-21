@@ -1,8 +1,8 @@
 #!/bin/zsh
 
 build() {
-  local -a targets=(atuin eza television worktrunk lazygit fzf tmux) tmux_libs=(libevent utf8proc jemalloc)
-  local -a libs failed
+  local -a targets=(atuin eza television worktrunk lazygit fzf)
+  local -a failed
   local -A crates=(atuin crates/atuin) phrases=(
     current 'up to date' building building built '%F{green}built%f in' failed '%F{red}failed%f after'
   )
@@ -67,14 +67,10 @@ build() {
     return 1
   fi
 
-  # A stamp names what the installed binary came from: the checkout's tree and, for tmux, the
-  # brew libraries it links. Uncommitted changes are in no tree, so their build leaves no stamp
+  # A stamp names what the installed binary came from: the checkout's tree. Uncommitted changes
+  # are in no tree, so their build leaves no stamp
   stamp=$root/.stamps/$1
-  if [[ -z $(git status --porcelain -uno) ]] && source=$(git rev-parse 'HEAD^{tree}') && [[ $1 == tmux ]]; then
-    libs=($HOMEBREW_PREFIX/opt/$^tmux_libs)
-    # (@), or the quotes join the paths before :A can resolve each link
-    source+=" ${(@)libs:A}"
-  fi
+  [[ -z $(git status --porcelain -uno) ]] && source=$(git rev-parse 'HEAD^{tree}')
   if (( check )); then
     [[ -n $source && -r $stamp && $source == "$(<$stamp)" ]]
     return
@@ -103,19 +99,6 @@ build() {
         && rustc -V >target/.rustc-version
       ;;
     lazygit|fzf) go install ;;
-    tmux)
-      # Explicit installs keep `brew autoremove` off the deps of a binary it can't see;
-      # distclean leaves autogen.sh's outputs and the .deps dirs (stale .Po files) behind
-      brew install $tmux_libs \
-        && sh autogen.sh \
-        && ./configure --prefix=$root --enable-utf8proc --enable-jemalloc \
-        && make clean \
-        && make -j$(sysctl -n hw.ncpu) \
-        && make install \
-        && make distclean \
-        && rm -rf autom4te.cache aclocal.m4 configure configure~ Makefile.in etc \
-          .deps compat/.deps fuzz/.deps
-      ;;
   esac
   ret=$?
 
