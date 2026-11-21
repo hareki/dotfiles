@@ -214,14 +214,14 @@ t.test('<leader>F formats without saving', function()
   t.eq(file_lines(buf), UNFORMATTED, 'the file on disk')
 end)
 
-t.test('<F40> formats and saves every modified buffer', function()
+t.test('<D-S-s> formats and saves every modified buffer', function()
   local notices = t.notices()
   local first = t.file('all-1.lua', UNFORMATTED)
   vim.bo[first].modified = true
   local second = t.file('all-2.lua', UNFORMATTED)
   vim.bo[second].modified = true
 
-  t.map_callback('n', '<F40>')()
+  t.map_callback('n', '<D-S-s>')()
   t.wait_for(function()
     return #notices > 0
   end, 'the summary')

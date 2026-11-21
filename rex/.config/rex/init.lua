@@ -1,5 +1,6 @@
--- A terminal program can't read the cmd key, so nvim, zsh and Claude Code listen for alt keys and
--- escape sequences, and each cmd key here sends one. Ghostty's config sends the same ones
+-- Only a program that turns on the kitty keyboard protocol reads the cmd key: zsh gets no bytes for
+-- it, and nvim's terminal drops it and types the letter. So nvim, zsh and Claude Code listen for alt
+-- keys and escape sequences, and each cmd key here sends one
 
 local TERMINAL = 'com.superlogical.terminal'
 
@@ -36,12 +37,13 @@ rex.action({
   end,
 })
 
--- Sent as bytes: pane.send_key encodes ctrl+shift+f4 so that nvim reads <C-S-F4>, not the <F40>
--- its keymap is on, and \27[1;6Y is no key at all
+-- Sent as bytes. The cmd keys go as the kitty keyboard protocol writes them, so nvim reads the key
+-- itself. \27[1;6P is ctrl+shift+f1: pane.send_key encodes that so nvim reads <C-S-F1>, not the
+-- <F37> its keymap is on. \27[1;6Y is no key at all
 rex.bind('ctrl+shift+y', 'send_text', { data = '\27[1;6Y' }) -- zsh: forward-word
-rex.bind('shift+cmd+s', 'send_text', { data = '\27[1;6S' }) -- nvim: <F40>, format and save all
+rex.bind('shift+cmd+s', 'send_text', { data = '\27[115;10u' }) -- nvim: <D-S-s>, format and save all
 rex.bind('ctrl+m', 'send_text', { data = '\27[1;6P' }) -- nvim: <F37>, multicursor toggle
-rex.bind('shift+cmd+w', 'send_text', { data = '\27[1;6F' }) -- nvim: <C-S-End>, close other buffers
+rex.bind('shift+cmd+w', 'send_text', { data = '\27[119;10u' }) -- nvim: <D-S-w>, close other buffers
 
 -- [[ Pane navigation, shared with nvim ]]
 -- A program that moves between its own windows gets the key, and hands over to Rex at its edge

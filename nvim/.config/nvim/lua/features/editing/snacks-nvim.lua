@@ -10,8 +10,8 @@ return {
   keys = {
     { '<A-w>', bufdelete.delete, mode = { 'i', 'x', 'n', 's' }, desc = 'Close Buffer' },
     {
-      -- Sent for Cmd+Shift+W by the ghostty config; inspect with :echo keytrans(getcharstr())
-      '<C-S-End>',
+      -- Cmd+Shift+W, sent by the rex config; inspect with :echo keytrans(getcharstr())
+      '<D-S-w>',
       function()
         Snacks.bufdelete.other()
         Notifier.info('Closed Other Buffers', { title = 'Buffers' })
