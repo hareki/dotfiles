@@ -22,6 +22,10 @@ fi
 [[ -o login ]] && (( SHLVL == 1 )) && source /etc/zprofile
 unsetopt global_rcs
 
+# Ardia links its programs into ~/.local/bin and appends this same line to ~/.zprofile unless
+# a line of a zsh startup file names both .local/bin and PATH, so it stays a plain assignment
+PATH=$HOME/.local/bin:$PATH
+
 # The SDK dir adds `gcloud components install` binaries (Homebrew links only core commands)
 typeset -U path
 path=(

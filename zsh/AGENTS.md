@@ -11,7 +11,7 @@ This is a zsh dotfiles configuration targeting macOS with Homebrew. `sync-dots z
   => XDG_CONFIG_HOME, EDITOR, VISUAL, EZA_CONFIG_DIR, CLOUDSDK_PYTHON, API keys (from macOS keychain; skipped when inherited from a parent shell)
   => a top-level login shell (SHLVL 1) sources /etc/zprofile (path_helper, LANG)
   => unsetopt global_rcs (zsh itself reads no other /etc rc)
-  => PATH: typeset -U, then the user dirs prepended (~/.local/bin/shims, ~/.local/opt/bin, mise shims, Homebrew, then the gcloud SDK bin for `gcloud components` binaries)
+  => PATH: ~/.local/bin (Ardia's program links, in a line Ardia's own check recognizes, else it appends one to ~/.zprofile), typeset -U, then the user dirs prepended (~/.local/bin/shims, ~/.local/opt/bin, mise shims, Homebrew, then the gcloud SDK bin for `gcloud components` binaries)
 
 .zshrc  (interactive shells)
   => zmodload zprof if $ZSH_DEBUGRC
