@@ -6,7 +6,7 @@
 sync-forks() {
   local owner=hareki
   # Fork names (not upstream ones) whose drift is accepted, so they are skipped instead of synced
-  local -a ignored=(eagle.nvim mason-registry maple-font)
+  local -a ignored=(eagle.nvim mason-registry maple-font tmux)
   # Every reportable state in tally order: its phrase in a fork's line, then its tally label
   local -a states=(
     synced    '%F{green}synced%f with'          '%F{green}synced%f'

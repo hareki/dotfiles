@@ -49,7 +49,7 @@ autoload -Uz bracketed-paste-url-magic
 zle -N bracketed-paste bracketed-paste-url-magic
 
 # omz forks twice per prompt for an OSC 7 nothing reads: Ghostty's shell integration reports
-# the cwd itself, tmux keeps it in an unused #{pane_path}, and nvim's terminal drops it
+# the cwd itself, Rex takes it from the pane's process, and nvim's terminal drops it
 add-zsh-hook -d precmd omz_termsupport_cwd
 
 # p10k dumps its state and instant prompt (~5ms) at each shell's first prompt and in each dir

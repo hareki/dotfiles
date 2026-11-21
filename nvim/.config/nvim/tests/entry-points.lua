@@ -1,5 +1,5 @@
 -- Entry points (docs/architecture.md), each checked the way its caller does: lazygit's edit
--- command, tsave, Claude's Stop and SessionStart hooks, NVIM_INTEGRATION
+-- command, Claude's Stop and SessionStart hooks, NVIM_INTEGRATION
 
 local t = require('tests.lib.helpers')
 
@@ -8,7 +8,6 @@ local repo = vim.fs.dirname(
   vim.fs.dirname(vim.fs.dirname(assert(vim.uv.fs_realpath(vim.env.NVIM_TEST_CONFIG))))
 )
 
-local TSAVE = 'zsh/.config/zsh/functions/tsave'
 local LAZYGIT_EDIT = 'lazygit/.config/lazygit/shell-functions.sh'
 
 -- The $CLAUDE_PID a hook runs with: the pid of its Claude
@@ -20,9 +19,6 @@ local INTEGRATION_CALLERS = {
   LAZYGIT_EDIT,
   'bin/.local/bin/shims/nvim-claude',
 }
-
--- Called here, these would end the nvim the tests run in
-local ENDS_NVIM = { quit = true }
 
 --- @param path string Relative to the repo root
 --- @return string
@@ -112,19 +108,6 @@ t.test("lazygit's edit command opens its files in this nvim, on the line it name
     lazygit_runs(shell, string.format('lazygit_edit +7 %s', quoted))
     t.eq(vim.api.nvim_buf_get_name(0), path, shell[1] .. ': the current file')
     t.eq(vim.api.nvim_win_get_cursor(0)[1], 7, shell[1] .. ': the line')
-  end
-end)
-
-t.test('every --remote-expr tsave sends evaluates here, or exists if it would quit', function()
-  for _, expr in ipairs(remote_exprs(TSAVE)) do
-    local path, name = expr:match("^v:lua%.require'([^']+)'%.([%w_]+)%(")
-    t.ok(path, string.format('not a v:lua.require call: %s', expr))
-    if ENDS_NVIM[name] then
-      local module = require(path)
-      t.eq(type(module[name]), 'function', expr)
-    else
-      evaluates(expr)
-    end
   end
 end)
 
@@ -221,21 +204,4 @@ t.test('an NVIM_INTEGRATION no host answers to aborts the boot, naming the ones 
   t.ok(stderr:find('Invalid NVIM_INTEGRATION "no-such-tool"', 1, true), stderr)
   t.ok(stderr:find('claude-code, git, lazygit', 1, true), stderr)
   t.ok(not statusline:find('StatusLineIntegration', 1, true), 'no host label shows')
-end)
-
-t.test('tsave reads the pane option publish_tmux_server() sets', function()
-  local option = t.ok(read(TSAVE):match('#{(@[%w-]+)}'), 'tsave reads no pane option')
-  local tsave = require('core.auto-session.tsave')
-
-  -- Headless and outside tmux: give it a pane and a UI, and catch its tmux call
-  local calls = t.spy(vim, 'system', function() end)
-  t.spy(vim.api, 'nvim_list_uis', function()
-    return { {} }
-  end)
-  t.set(vim.env, 'TMUX_PANE', '%1')
-  tsave.publish_tmux_server()
-
-  t.eq(#calls, 1, 'tmux calls')
-  local cmd = calls[1][1]
-  t.ok(vim.tbl_contains(cmd, option), string.format('%s not in %s', option, vim.inspect(cmd)))
 end)

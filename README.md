@@ -12,7 +12,7 @@
 
 <div align="center"><p>
     <a href="#-packages">
-      <img alt="26 packages" src="https://img.shields.io/badge/packages-26-89b4fa?style=for-the-badge&logo=gnubash&logoColor=D9E0EE&labelColor=302D41" />
+      <img alt="25 packages" src="https://img.shields.io/badge/packages-25-89b4fa?style=for-the-badge&logo=gnubash&logoColor=D9E0EE&labelColor=302D41" />
     </a>
     <a href="https://github.com/hareki/dotfiles/commits/main">
       <img alt="Last commit" src="https://img.shields.io/github/last-commit/hareki/dotfiles?style=for-the-badge&logo=starship&color=8bd5ca&logoColor=D9E0EE&labelColor=302D41" />
@@ -29,11 +29,11 @@ links to `~/.config/nvim` and `zsh/.zshrc` to `~/.zshrc`.
 ## ✨ Features
 
 - 🚀 Neovim starts in ~28ms and zsh reaches its first prompt in ~45ms
-- ⌨️ Ghostty turns <kbd>Cmd</kbd> keys into escape sequences that tmux, Neovim and zsh bind, so one modifier works across all three
+- ⌨️ Rex sends each <kbd>Cmd</kbd> key as the key Neovim, zsh or Claude Code binds, and Neovim hands pane navigation back to Rex at its edge
 - 🧩 lazygit's diff panel is drawn by codediff.nvim's diff engine, which a headless Neovim daemon runs
 - 🤖 Claude Code's settings, hooks, status line and theme, plus one skill set shared by every agent
 - 🍴 Plugin and tool forks under `hareki/*`, each rebased onto upstream by `sync-forks`
-- 🎨 Catppuccin Mocha across Neovim, Ghostty, tmux, lazygit, fzf, atuin, bat, eza and Claude Code
+- 🎨 Catppuccin Mocha across Neovim, Rex, Ghostty, lazygit, fzf, atuin, bat, eza and Claude Code
 
 ## 🤔 What is it?
 
@@ -97,7 +97,7 @@ in, so `all` unstows a removed package's directory that stays behind with only i
 sync-dots nvim
 
 # Several
-sync-dots zsh tmux ghostty lazygit mise atuin
+sync-dots zsh rex ghostty lazygit mise atuin
 
 # Every package directory in $STOW_REPO
 sync-dots all
@@ -113,9 +113,8 @@ stow -R -d "$STOW_REPO" -t ~ nvim
 ### Editor and terminal
 
 - **[nvim](./nvim/)**: a from-scratch Lua config on lazy.nvim, one spec file per plugin, one float layout for the picker, the file tree and their previews
-- **[ghostty](./ghostty/)**: the terminal, with <kbd>Cmd</kbd> keybindings that emit escape sequences for tmux, Neovim and zsh
-- **[tmux](./tmux/)**: TPM plugins, a Catppuccin status bar, prefix <kbd>Alt-d</kbd>, and `tsave`/`trestore` snapshots that relaunch Neovim and Claude Code sessions
-- **tmuxinator**: project layouts, a git submodule
+- **[ghostty](./ghostty/)**: the terminal, with <kbd>Cmd</kbd> keybindings that emit escape sequences for Neovim and zsh
+- **[rex](./rex/.config/rex/)**: the terminal and multiplexer, configured in Lua, prefix <kbd>Cmd-d</kbd>
 
 ### Shell
 
@@ -151,7 +150,7 @@ stow -R -d "$STOW_REPO" -t ~ nvim
 ### Repo plumbing
 
 - **stow**: the global ignore list that keeps package docs and tests out of `$HOME`
-- **bin**: wrappers in `~/.local/bin/shims` that pin a binary, add default flags or set the env for `claude`, `clear`, `codegraph`, `mmdc`, `nvim-claude` and the lazygit diff renderer
+- **bin**: wrappers in `~/.local/bin/shims` that pin a binary, add default flags or set the env for `claude`, `codegraph`, `mmdc`, `nvim-claude` and the lazygit diff renderer
 
 ## 📂 File Structure
 
@@ -159,7 +158,7 @@ stow -R -d "$STOW_REPO" -t ~ nvim
 dotfiles
 ├── nvim/.config/nvim           => ~/.config/nvim
 ├── zsh/                        => ~/.zshenv, ~/.zshrc, ~/.config/zsh
-├── tmux/.config/tmux           => ~/.config/tmux
+├── rex/.config/rex             => ~/.config/rex
 ├── ghostty/.config/ghostty     => ~/.config/ghostty
 ├── lazygit/.config/lazygit     => ~/.config/lazygit
 ├── claude-code/.claude         => ~/.claude
@@ -175,7 +174,6 @@ dotfiles
 
 - **[nvim/README.md](./nvim/README.md)**: the Neovim config, its plugins and its conventions
 - **[zsh/README.md](./zsh/README.md)**: the zsh config, its commands and its startup measurements
-- **[tmux/README.md](./tmux/README.md)**: the tmux config and the snapshot store behind `tsave`/`trestore`
 - **[lazygit/GLOSSARY.md](./lazygit/GLOSSARY.md)**: lazygit's edit commands and the codediff renderer
 - **[hammerspoon/README.md](./hammerspoon/README.md)**: setup and the gesture tests
 - **[GLOSSARY-MAP.md](./GLOSSARY-MAP.md)**: the glossary of each config and where one config reaches into another

@@ -88,10 +88,8 @@ The config lives in my [dotfiles](https://github.com/hareki/dotfiles), which
 
 - **`sync-dots`**: stow one package, several, or `all`
 - **`sync-forks`**: rebase every `hareki/*` fork onto its upstream
-- **`build`**: build atuin, eza, television, worktrunk, lazygit, fzf and tmux from source
-- **`yay`**: update Homebrew, Antidote, mise, the agent skills and TPM in one go
-- **`tsave`** / **`trestore`**: snapshot every tmux session and quit it cleanly, then restore it
-- **`mux`**: run a tmuxinator layout at the terminal's real size
+- **`build`**: build atuin, eza, television, worktrunk, lazygit and fzf from source
+- **`yay`**: update Homebrew, Antidote, mise and the agent skills in one go
 - **`ctb`** / **`cts`**: toggle Claude Code's done bell, and whether git tracks its `settings.json`
 
 ## 📂 File Structure

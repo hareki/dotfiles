@@ -22,11 +22,6 @@ yay() {
   # are symlinks, which ardia's own install refuses to write through
   (cd -q "$STOW_REPO/agents" && ardia skills install --project) || failed+=("Ardia Skills")
 
-  print-header "Updating TPM"
-  ~/.tmux/plugins/tpm/bin/clean_plugins \
-    && ~/.tmux/plugins/tpm/bin/install_plugins \
-    && ~/.tmux/plugins/tpm/bin/update_plugins all || failed+=(TPM)
-
   _evalcache_clear
 
   if (( $#failed )); then

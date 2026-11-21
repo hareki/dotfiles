@@ -1,12 +1,12 @@
--- Focus from the Snacks terminals: a full-screen panel hands window moves to tmux, the floating
--- terminal hides once a normal window or its panel has focus, and hide_others keeps one panel up
+-- Focus from the Snacks terminals: window moves at an edge or in a full-screen panel go to the next
+-- Rex pane, the float hides once a normal window or its panel has focus, hide_others keeps one up
 
 local t = require('tests.lib.helpers')
 local terminals = require('core.snacks-nvim.terminals')
 local lazy = require('lazy')
 
--- The move keys are lazy.nvim's stubs until the plugin loads
-lazy.load({ plugins = { 'vim-tmux-navigator' } })
+-- The move keys are lazy.nvim's stubs until the feature loads
+lazy.load({ plugins = { 'window-navigation' } })
 
 --- Close the terminals the running test opened when it ends
 local function close_terminals_after()
@@ -56,13 +56,13 @@ local function split()
   return left, right
 end
 
---- Record the tmux commands sent until the test ends, running none
+--- Record the Rex commands sent until the test ends, running none
 --- @return string[][] commands
-local function spy_tmux()
+local function spy_rex()
   local system = vim.system
   local commands = {}
   t.set(vim, 'system', function(cmd, ...)
-    if cmd[1] ~= 'tmux' then
+    if cmd[1] ~= 'rex' then
       return system(cmd, ...)
     end
     commands[#commands + 1] = cmd
@@ -79,22 +79,45 @@ t.test('a move key goes to the window on that side', function()
   t.eq(vim.api.nvim_get_current_win(), right, '<A-i>')
 end)
 
-t.test('outside tmux, a move key keeps a full-screen panel focused', function()
+t.test('inside Rex, a move key at the edge goes on to the next pane', function()
+  local left, right = split()
+  local commands = spy_rex()
+  t.set(vim.env, 'REX_SESSION', 'session:test')
+
+  t.map_callback('n', '<A-m>')()
+  t.eq(vim.api.nvim_get_current_win(), left, 'the focused window')
+  t.eq(commands, {}, 'Rex commands between two windows')
+
+  t.map_callback('n', '<A-m>')()
+  t.map_callback('n', '<A-n>')()
+  t.map_callback('n', '<A-e>')()
+  t.eq(vim.api.nvim_get_current_win(), left, 'the focused window at the edge')
+  t.eq(commands, {
+    { 'rex', 'focus', 'left', '--session', 'session:test' },
+    { 'rex', 'focus', 'down', '--session', 'session:test' },
+    { 'rex', 'focus', 'up', '--session', 'session:test' },
+  }, 'Rex commands')
+
+  t.map_callback('n', '<A-i>')()
+  t.eq(vim.api.nvim_get_current_win(), right, 'the focused window after a move back')
+  t.eq(#commands, 3, 'Rex commands after a move back')
+end)
+
+t.test('outside Rex, a move key keeps a full-screen panel focused', function()
   split()
   local panel = open_panel()
-  local commands = spy_tmux()
+  local commands = spy_rex()
 
   t.map_callback('t', '<A-m>')()
   t.eq(vim.api.nvim_get_current_win(), panel.win, 'the focused window')
-  t.eq(commands, {}, 'tmux commands')
+  t.eq(commands, {}, 'Rex commands')
 end)
 
-t.test('inside tmux, a move key takes a full-screen panel straight to the next pane', function()
+t.test('inside Rex, a move key takes a full-screen panel straight to the next pane', function()
   split()
   local panel = open_panel()
-  local commands = spy_tmux()
-  t.set(vim.env, 'TMUX', '/tmp/tmux-test,1,0')
-  t.set(vim.env, 'TMUX_PANE', '%7')
+  local commands = spy_rex()
+  t.set(vim.env, 'REX_SESSION', 'session:test')
 
   t.map_callback('t', '<A-m>')()
   t.map_callback('t', '<A-n>')()
@@ -103,11 +126,11 @@ t.test('inside tmux, a move key takes a full-screen panel straight to the next p
 
   t.eq(vim.api.nvim_get_current_win(), panel.win, 'the focused window')
   t.eq(commands, {
-    { 'tmux', 'select-pane', '-t', '%7', '-L', '-Z' },
-    { 'tmux', 'select-pane', '-t', '%7', '-D', '-Z' },
-    { 'tmux', 'select-pane', '-t', '%7', '-U', '-Z' },
-    { 'tmux', 'select-pane', '-t', '%7', '-R', '-Z' },
-  }, 'tmux commands')
+    { 'rex', 'focus', 'left', '--session', 'session:test' },
+    { 'rex', 'focus', 'down', '--session', 'session:test' },
+    { 'rex', 'focus', 'up', '--session', 'session:test' },
+    { 'rex', 'focus', 'right', '--session', 'session:test' },
+  }, 'Rex commands')
 end)
 
 t.test('the floating terminal hides once a move key lands in a normal window', function()
@@ -146,19 +169,18 @@ t.test('over a full-screen panel, a move key lands on the panel and hides the te
   split()
   local panel = open_panel()
   local terminal = open_floating_terminal()
-  local commands = spy_tmux()
-  t.set(vim.env, 'TMUX', '/tmp/tmux-test,1,0')
-  t.set(vim.env, 'TMUX_PANE', '%7')
+  local commands = spy_rex()
+  t.set(vim.env, 'REX_SESSION', 'session:test')
 
   t.map_callback('t', '<A-i>')()
   t.eq(vim.api.nvim_get_current_win(), panel.win, 'the focused window')
-  t.eq(commands, {}, 'tmux commands')
+  t.eq(commands, {}, 'Rex commands')
   t.wait_for(function()
     return not terminal:valid()
   end, 'the terminal to hide')
 
   t.map_callback('t', '<A-i>')()
-  t.eq(commands, { { 'tmux', 'select-pane', '-t', '%7', '-R', '-Z' } }, 'the next move')
+  t.eq(commands, { { 'rex', 'focus', 'right', '--session', 'session:test' } }, 'the next move')
 end)
 
 t.test('the floating terminal stays under a full-screen panel opened over it', function()

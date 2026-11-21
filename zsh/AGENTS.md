@@ -10,4 +10,4 @@ The rules for one kind of change live in `docs/`, one file per topic, written fo
 
 Test through `tests/run.zsh` and `tests/ab.zsh`, whose scratch shells follow the rules in `tests/lib/env.zsh`, each of which cost a real incident: dummy API keys, `env -i` for every boot, a scratch HOME and TMPDIR. Never xtrace a boot (an xtrace of `.zshenv` once printed both real keys into a transcript) and never dump the environment (`ps -E`).
 
-Never run `sync-forks`, `tsave` or `yay` for real to test them: they force-push every fork, quit every nvim and Claude Code session and the tmux server, and update every package manager. `tests/sync-forks.zsh` and `tests/tsave.zsh` run the first two against stand-ins; `yay` has no test.
+Never run `sync-forks` or `yay` for real to test them: they force-push every fork and update every package manager. `tests/sync-forks.zsh` runs the first against stand-ins; `yay` has no test.

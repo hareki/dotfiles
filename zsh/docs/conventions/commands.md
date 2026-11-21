@@ -1,6 +1,6 @@
 # Commands
 
-How the commands this config defines (`build`, `sync-forks`, `tsave`, `trestore`, `yay`, ...) are written, wrapped and completed, and how aliases reach the shells that run them.
+How the commands this config defines (`build`, `sync-forks`, `ctb`, `yay`, ...) are written, wrapped and completed, and how aliases reach the shells that run them.
 
 ## Functions
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-# tmux and neovim terminal nullify all of the choices
+# The neovim terminal nullifies all of the choices
 # - Bell feature doesn't work
 # - Native notification needs 3rd party (terminal-notifier, alerter)
 #   But they couldn't modify the app icon to be ghostty while not blocking stdio at the same time

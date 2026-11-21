@@ -1,5 +1,0 @@
-#compdef tsave
-
-_arguments \
-  '(- *)'{-c,--continue}'[Snapshot only, leave nvim, claude and tmux running]' \
-  '(- *)'{-h,--help}'[Show usage info]'

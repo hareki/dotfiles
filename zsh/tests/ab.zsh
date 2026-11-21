@@ -17,7 +17,7 @@
   {
     mkdir -p $run/old/tree || return 2
     # From the top: run inside a subdirectory, git archive leaves out paths outside it
-    git -C $repo archive $rev zsh p10k tmux | tar -x -C $run/old/tree || return 2
+    git -C $repo archive $rev zsh p10k | tar -x -C $run/old/tree || return 2
     zt_home $run/old/home $run/old/tree && zt_home $run/new/home $repo || return 2
     zt_boot $run/old/home $run/old $run/old/tree && zt_boot $run/new/home $run/new $repo || return 2
 

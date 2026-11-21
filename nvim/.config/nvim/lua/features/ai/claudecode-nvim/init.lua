@@ -75,8 +75,6 @@ return {
         -- A function, so the start after an nvim session restore resumes the Claude session
         terminal_cmd = session.command,
         focus_after_send = true,
-        -- With $TMUX set, Claude's OSC 52 comes DCS-wrapped, which nvim's :terminal paints as text
-        env = { TMUX = '' },
         terminal = {
           --- @module "snacks"
           --- @type snacks.win.Config | {}

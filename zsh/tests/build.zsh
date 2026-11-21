@@ -1,5 +1,5 @@
-# build against stand-ins for the toolchains: cargo, go, brew, make and autogen.sh log their call
-# in place of a build, and rustc and du answer with what a scenario sets. Each target gets a bare
+# build against stand-ins for the toolchains: cargo and go log their call in place of a build, and
+# rustc and du answer with what a scenario sets. Each target gets a bare
 # repo (remote/<target>.git) as its origin and its checkout in $REPOS_DIR, and HOME is a scratch
 # dir, so the install root and its stamps are too
 
@@ -11,7 +11,6 @@ zmodload zsh/zselect
 # stand-ins it calls
 zt_repos
 top=$ZT_TMP
-export HOMEBREW_PREFIX=$top/brew
 mkdir -p $top/gate
 
 autoload -Uz $ZT_PKG/.config/zsh/functions/{build,print-header}
@@ -79,21 +78,6 @@ du() {
 go() {
   compile go "$@" "(GOBIN ${GOBIN/#$HOME/~})"
 }
-brew() {
-  call brew "$@"
-}
-# autogen.sh writes the configure script, which build removes again
-sh() {
-  call sh "$@"
-  print -rl -- '#!/bin/sh' "echo \"tmux ./configure \$*\" >>$calls" >configure && chmod +x configure
-}
-make() {
-  if [[ $1 == -j* ]]; then
-    compile make "$@"
-  else
-    call make "$@"
-  fi
-}
 _evalcache_clear() {
   call _evalcache_clear
 }
@@ -109,25 +93,15 @@ recipe() {
     eza|television) print -r -- "$1 cargo install --locked --path . (root ~/.local/opt, thin LTO over 16 units)" ;;
     worktrunk) print -r -- "$1 cargo install --locked --path . (root ~/.local/opt)" ;;
     lazygit|fzf) print -r -- "$1 go install (GOBIN ~/.local/opt/bin)" ;;
-    tmux)
-      print -rl -- "$1 brew install libevent utf8proc jemalloc" "$1 sh autogen.sh" \
-        "$1 ./configure --prefix=$HOME/.local/opt --enable-utf8proc --enable-jemalloc" \
-        "$1 make clean" "$1 make -j$(sysctl -n hw.ncpu)" "$1 make install" "$1 make distclean"
-      ;;
   esac
   print -r -- "$1 _evalcache_clear"
 }
 
-# --- Scratch repos and brew libraries
+# --- Scratch repos
 
 # push_commit <target> <subject>: a commit of src.txt, holding just <subject>, on the target's origin
 push_commit() {
   zt_commit $top/work/$1 $2 src.txt $2 && git -C $top/work/$1 push -q origin HEAD:main
-}
-
-# brew_lib <lib> <version>: the library as brew links it, opt/<lib> => Cellar/<lib>/<version>
-brew_lib() {
-  mkdir -p $HOMEBREW_PREFIX/{opt,Cellar/$1/$2} && ln -sfn ../Cellar/$1/$2 $HOMEBREW_PREFIX/opt/$1
 }
 
 for name in $names; do
@@ -136,9 +110,6 @@ for name in $names; do
     git clone -q --bare $top/work/$name $top/remote/$name.git &&
     git -C $top/work/$name remote add origin $top/remote/$name.git &&
     git clone -q $top/remote/$name.git $REPOS_DIR/$name || exit 1
-done
-for lib in libevent utf8proc jemalloc; do
-  brew_lib $lib 1.0
 done
 
 # --- Checks
@@ -204,7 +175,7 @@ build_all() {
 
 # --- `build all`
 
-build_all 'first run' 0 {atuin,eza,television,worktrunk}=scratch {lazygit,fzf,tmux}=built
+build_all 'first run' 0 {atuin,eza,television,worktrunk}=scratch {lazygit,fzf}=built
 t_eq 'first run: no stderr' "$(<$top/err)" ''
 t_match 'first run: the logs are in a dir of their own in TMPDIR' "$(<$top/logdirs)" "$TMPDIR/build.??????"
 t_eq 'first run: Ctrl-C reaches a build' "$(<$top/traps)" ''
@@ -217,7 +188,6 @@ build_all 'nothing new' 0
 # - television: an uncommitted change
 # - worktrunk: a commit on origin that doesn't compile
 # - lazygit: an origin that's gone
-# - tmux: one of its brew libraries upgraded
 push_commit eza c2
 git -C $top/work/fzf commit -q --amend -m reworded && git -C $top/work/fzf push -q --force origin HEAD:main
 git -C $REPOS_DIR/fzf fetch -q && git -C $REPOS_DIR/fzf reset -q --hard origin/main
@@ -225,9 +195,8 @@ print local >>$REPOS_DIR/television/src.txt
 push_commit worktrunk c2
 broken=(worktrunk)
 git -C $REPOS_DIR/lazygit remote set-url origin $top/remote/gone.git
-brew_lib libevent 2.0
 
-build_all 'changes' 1 eza=built fzf=current television=built worktrunk=broken lazygit=unpulled tmux=built
+build_all 'changes' 1 eza=built fzf=current television=built worktrunk=broken lazygit=unpulled
 err=$(plain $top/err)
 t_match 'changes: stderr has the log of the failed build' "$err" \
   '*==> Failed to build worktrunk:*Fast-forward*worktrunk: compile error*'
@@ -309,7 +278,7 @@ t_lines 'an unknown target' "$rc"$'\n'"$(<$top/err)"$'\n'"$(<$top/out)" "\
 1
 Unknown target: nope
 Usage: build <target>
-Available targets: all, atuin, eza, television, worktrunk, lazygit, fzf, tmux"
+Available targets: all, atuin, eza, television, worktrunk, lazygit, fzf"
 t_eq 'an unknown target: nothing ran' "$(<$calls)" ''
 
 t_done

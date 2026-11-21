@@ -196,7 +196,7 @@ Plugins marked **fork** run from a `hareki/*` fork of the linked repository.
 
 - File tree with [nvim-tree.lua](https://github.com/nvim-tree/nvim-tree.lua) ([fork](https://github.com/hareki/nvim-tree.lua)) and [nvim-tree-preview.lua](https://github.com/b0o/nvim-tree-preview.lua) ([fork](https://github.com/hareki/nvim-tree-preview.lua))
 - File marks with [harpoon](https://github.com/ThePrimeagen/harpoon) (`harpoon2`)
-- Pane moves across Neovim and tmux with [vim-tmux-navigator](https://github.com/christoomey/vim-tmux-navigator)
+- Window moves that carry on into the next Rex pane at the edge, from a `virtual = true` spec (`window-navigation`)
 - Search and replace with [grug-far.nvim](https://github.com/MagicDuck/grug-far.nvim) ([fork](https://github.com/hareki/grug-far.nvim))
 - Match counts with [nvim-hlslens](https://github.com/kevinhwang91/nvim-hlslens), selection matches with [visimatch.nvim](https://github.com/wurli/visimatch.nvim)
 - TODO comments with [todo-comments.nvim](https://github.com/folke/todo-comments.nvim)
