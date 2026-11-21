@@ -1,7 +1,7 @@
 -- Rex.app keeps its settings in its macOS preferences (com.superlogical.rex), where no file can
 -- set them. This is their record: each entry names a client.setting.* action and the value it
--- takes, and the Apply Settings action (init.lua) sets them all. So change a setting here and
--- apply it. One changed in the Settings window is lost at the next apply
+-- takes, and the Apply Settings action (features/apply-settings.lua) sets them all. So change a
+-- setting here and apply it. One changed in the Settings window is lost at the next apply
 return {
   -- [[ Themes ]]
   { 'themes.dark.palette', 'Catppuccin Mocha' },
