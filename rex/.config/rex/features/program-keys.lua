@@ -11,7 +11,6 @@ local ALT_KEYS = {
   's', -- nvim: format and save
   'w', -- nvim: close buffer
   'a', -- nvim: claudecode.nvim toggle
-  'p', -- Claude Code model picker, Snacks picker preview toggle
   't', -- nvim: floating terminal
   'g', -- nvim: lazygit
   'space', -- zsh: completion

@@ -1,5 +1,7 @@
 -- Keys for Rex's own actions. A key that belongs to a feature is bound in its file under features/
 
+rex.bind('cmd+p', 'client.palette.toggle')
+
 -- [[ Tabs ]]
 rex.bind('cmd+[', 'client.tab.previous')
 rex.bind('cmd+]', 'client.tab.next')
