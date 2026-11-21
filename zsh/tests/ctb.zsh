@@ -13,12 +13,14 @@ print -rl -- '#!/bin/sh' "echo \"\$1\" >>$ZT_TMP/played" >$ZT_TMP/bin/afplay
 chmod +x $ZT_TMP/bin/afplay
 path=($ZT_TMP/bin $path)
 
-# rings <hook>: how many sounds the hook plays for a main agent that is done. A hook leaves its
-# sound playing in the background, which the trap waits out, so none lands in a later count
+# rings <hook> [<nvim>]: how many sounds the hook plays for a main agent that is done, in a Claude
+# whose $NVIM is <nvim> (a server that isn't there by default, empty outside nvim). A hook leaves
+# its sound playing in the background, which the trap waits out, so none lands in a later count
 rings() {
   local -a played
   : >$ZT_TMP/played
-  bash -c 'trap wait EXIT; . "$0"' $claude/hooks/$1 <<<'{"background_tasks": []}'
+  NVIM=${2-$ZT_TMP/no-nvim} bash -c 'trap wait EXIT; . "$0"' $claude/hooks/$1 \
+    <<<'{"background_tasks": []}'
   played=(${(f)"$(<$ZT_TMP/played)"})
   print -r -- $#played
 }
@@ -36,16 +38,17 @@ toggle() {
   print -r -- "$? $(t_plain $ZT_TMP/out)$(<$ZT_TMP/err)"
 }
 
-t_eq 'unmuted: the Stop hook rings' $(rings bell-when-done.sh) 1
+t_eq 'unmuted: the Stop hook rings' $(rings nvim-bell-when-done.sh) 1
+t_eq 'outside nvim: the Stop hook stays quiet' $(rings nvim-bell-when-done.sh '') 0
 local unmuted=$(bar)
 
 t_match 'ctb mutes' "$(toggle)" '0 BELL OFF *'
-t_eq 'muted: the Stop hook stays quiet' $(rings bell-when-done.sh) 0
+t_eq 'muted: the Stop hook stays quiet' $(rings nvim-bell-when-done.sh) 0
 t_match 'muted: the status line says so' "$(bar)" "${(b)unmuted} ?*"
 t_eq 'muted: a permission prompt still rings' $(rings bell.sh) 1
 
 t_match 'ctb again unmutes' "$(toggle)" '0 BELL ON *'
-t_eq 'unmuted again: the Stop hook rings' $(rings bell-when-done.sh) 1
+t_eq 'unmuted again: the Stop hook rings' $(rings nvim-bell-when-done.sh) 1
 t_eq 'unmuted again: the status line is as it was' "$(bar)" "$unmuted"
 
 t_done

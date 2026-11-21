@@ -1,8 +1,9 @@
 #!/bin/zsh
 
 # ctb = "Claude Toggle Bell". While the flag file exists, the claude-code Stop hook
-# (bell-when-done.sh) stays quiet in every session and the status line shows a bell-off
-# icon. Permission prompts ring regardless, since they go through bell.sh directly
+# (nvim-bell-when-done.sh, which rings only for a Claude in nvim) stays quiet in every
+# session and the status line shows a bell-off icon. Permission prompts ring regardless,
+# since they go through bell.sh directly
 ctb() {
   local flag=$HOME/.local/state/claude-code/bell-muted
 
