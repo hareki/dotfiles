@@ -40,7 +40,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "fable",
+  "model": "opus",
   "disableClaudeAiConnectors": true,
   "disableBundledSkills": false,
   "hooks": {
