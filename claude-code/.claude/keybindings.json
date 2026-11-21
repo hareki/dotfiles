@@ -6,15 +6,21 @@
       "context": "Chat",
       "bindings": {
         "escape": null,
-        "ctrl+p": "command:effort",
-        "ctrl+l": "command:clear"
+        "ctrl+p": "chat:modelPicker",
+        "ctrl+l": "command:clear",
+        "ctrl+r": "command:resume"
       }
     },
     {
-      "context": "Select",
+      "context": "Global",
       "bindings": {
-        "escape": null,
-        "ctrl+q": "select:cancel"
+        "ctrl+f": "history:search"
+      }
+    },
+    {
+      "context": "HistorySearch",
+      "bindings": {
+        "ctrl+f": "historySearch:cycleScope"
       }
     }
   ]
