@@ -96,13 +96,14 @@ rex.bind('cmd+d>escape', 'pane.copy_mode.enter')
 
 -- [[ Settings ]]
 local SETTINGS = require('settings')
--- Imported again on every apply: the import replaces the theme of that name
-local THEME = os.getenv('HOME') .. '/.config/ghostty/themes/Catppuccin Mocha'
+-- A Ghostty theme file, which the import reads. Imported again on every apply: the import replaces
+-- the theme of that name
+local THEME = os.getenv('HOME') .. '/.config/rex/themes/Catppuccin Mocha'
 
 rex.action({
   name = 'apply_settings',
   title = 'Apply Settings from Dotfiles',
-  description = 'Imports the Ghostty theme file and sets every setting settings.lua lists.',
+  description = 'Imports the theme file and sets every setting settings.lua lists.',
   run = function()
     rex.client.queue('client.theme.import', { path = THEME })
     for _, setting in ipairs(SETTINGS) do

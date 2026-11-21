@@ -42,7 +42,7 @@ that stay rebased on upstream.
 
 ## 🤔 What is it?
 
-- A personal config built for one machine (macOS, Ghostty, mise, Homebrew). It is public so the
+- A personal config built for one machine (macOS, Rex, mise, Homebrew). It is public so the
   ideas can be borrowed, not installed as is.
 
 - Each plugin has one spec file or directory under `lua/{core,chrome,features}/`. A feature built
@@ -101,7 +101,7 @@ graphics protocol. <kbd>g</kbd><kbd>i</kbd> shows any image path under the curso
 - **[Neovim](https://neovim.io/) 0.12+**, for the native `vim.lsp.enable()` API
 - **[Git](https://git-scm.com/)**, used by gitsigns.nvim, lazygit and blink-ripgrep's gitgrep backend
 - **[Nerd Font](https://www.nerdfonts.com/)**: every icon is a Nerd Font glyph
-- **[Ghostty](https://ghostty.org/)** or another terminal with the kitty graphics protocol, for images
+- **[Rex](https://www.superlogical.com/rex)** or another terminal with the kitty graphics protocol, for images
 - **[ripgrep](https://github.com/BurntSushi/ripgrep)** and **[fd](https://github.com/sharkdp/fd)** for the picker
 - **[lazygit](https://github.com/jesseduffield/lazygit)**, opened full screen with <kbd>Alt-g</kbd>
 - **[delta](https://github.com/dandavison/delta)**, for diff previews in tiny-code-action.nvim

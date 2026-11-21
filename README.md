@@ -12,7 +12,7 @@
 
 <div align="center"><p>
     <a href="#-packages">
-      <img alt="25 packages" src="https://img.shields.io/badge/packages-25-89b4fa?style=for-the-badge&logo=gnubash&logoColor=D9E0EE&labelColor=302D41" />
+      <img alt="24 packages" src="https://img.shields.io/badge/packages-24-89b4fa?style=for-the-badge&logo=gnubash&logoColor=D9E0EE&labelColor=302D41" />
     </a>
     <a href="https://github.com/hareki/dotfiles/commits/main">
       <img alt="Last commit" src="https://img.shields.io/github/last-commit/hareki/dotfiles?style=for-the-badge&logo=starship&color=8bd5ca&logoColor=D9E0EE&labelColor=302D41" />
@@ -33,11 +33,11 @@ links to `~/.config/nvim` and `zsh/.zshrc` to `~/.zshrc`.
 - 🧩 lazygit's diff panel is drawn by codediff.nvim's diff engine, which a headless Neovim daemon runs
 - 🤖 Claude Code's settings, hooks, status line and theme, plus one skill set shared by every agent
 - 🍴 Plugin and tool forks under `hareki/*`, each rebased onto upstream by `sync-forks`
-- 🎨 Catppuccin Mocha across Neovim, Rex, Ghostty, lazygit, fzf, atuin, bat, eza and Claude Code
+- 🎨 Catppuccin Mocha across Neovim, Rex, lazygit, fzf, atuin, bat, eza and Claude Code
 
 ## 🤔 What is it?
 
-- A personal setup for one machine: macOS, Homebrew at `/opt/homebrew/`, Ghostty, mise. It is
+- A personal setup for one machine: macOS, Homebrew at `/opt/homebrew/`, Rex, mise. It is
   public so the ideas can be borrowed, not installed as is.
 
 - Every package is a plain Stow package. `stow/.stow-global-ignore` keeps each package's
@@ -52,7 +52,7 @@ links to `~/.config/nvim` and `zsh/.zshrc` to `~/.zshrc`.
 
 - **macOS** with **[Homebrew](https://brew.sh/)** at `/opt/homebrew/`
 - **[GNU Stow](https://www.gnu.org/software/stow/)**
-- **[Ghostty](https://ghostty.org/)** and a **[Nerd Font](https://www.nerdfonts.com/)** ([Maple Mono NF](https://github.com/subframe7536/maple-font))
+- **[Rex](https://www.superlogical.com/rex)** and a **[Nerd Font](https://www.nerdfonts.com/)** ([Maple Mono NF](https://github.com/subframe7536/maple-font))
 - **[mise](https://mise.jdx.dev/)** for the language toolchains and the npm-based tools
 
 Each package's own requirements are in its README: [nvim](./nvim/README.md#%EF%B8%8F-requirements), [zsh](./zsh/README.md#%EF%B8%8F-requirements).
@@ -97,7 +97,7 @@ in, so `all` unstows a removed package's directory that stays behind with only i
 sync-dots nvim
 
 # Several
-sync-dots zsh rex ghostty lazygit mise atuin
+sync-dots zsh rex lazygit mise atuin
 
 # Every package directory in $STOW_REPO
 sync-dots all
@@ -113,7 +113,6 @@ stow -R -d "$STOW_REPO" -t ~ nvim
 ### Editor and terminal
 
 - **[nvim](./nvim/)**: a from-scratch Lua config on lazy.nvim, one spec file per plugin, one float layout for the picker, the file tree and their previews
-- **[ghostty](./ghostty/)**: the terminal, with <kbd>Cmd</kbd> keybindings that emit escape sequences for Neovim and zsh
 - **[rex](./rex/.config/rex/)**: the terminal and multiplexer, configured in Lua, prefix <kbd>Cmd-d</kbd>
 
 ### Shell
@@ -159,7 +158,6 @@ dotfiles
 ├── nvim/.config/nvim           => ~/.config/nvim
 ├── zsh/                        => ~/.zshenv, ~/.zshrc, ~/.config/zsh
 ├── rex/.config/rex             => ~/.config/rex
-├── ghostty/.config/ghostty     => ~/.config/ghostty
 ├── lazygit/.config/lazygit     => ~/.config/lazygit
 ├── claude-code/.claude         => ~/.claude
 ├── agents/.agents              => ~/.agents

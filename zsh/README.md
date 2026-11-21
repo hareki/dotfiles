@@ -39,7 +39,7 @@ functions load on their first call.
 
 ## 🤔 What is it?
 
-- A personal config for one machine: macOS, Homebrew at `/opt/homebrew/`, Ghostty sending
+- A personal config for one machine: macOS, Homebrew at `/opt/homebrew/`, Rex sending
   <kbd>Cmd</kbd> as <kbd>Alt</kbd>.
 
 - It loads six oh-my-zsh libs instead of the framework, and runs every expensive `eval` once:
