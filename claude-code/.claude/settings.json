@@ -36,7 +36,8 @@
     ],
     "deny": [
       "Bash(sudo *)",
-      "Bash(su *)"
+      "Bash(su *)",
+      "AskUserQuestion"
     ],
     "defaultMode": "auto"
   },

@@ -8,7 +8,7 @@ These instructions apply to every agent and every task.
 - NEVER remove comments, log statements, or any code unrelated to the current task unless explicitly asked. Treat all existing code as intentional.
 - NEVER use "→" for an arrow; use "=>" instead.
 - NEVER add excessive code comments when implementing tasks unless explicitly asked. Add a comment only where it explains complex logic or why the code is written this way.
-- NEVER use the `AskUserQuestion` tool for options that preview code changes. The terminal UI truncates code previews, so I can't compare the options. Instead, show each option as a full code block in the chat output and ask me to choose by number. `AskUserQuestion` is fine for options without code changes.
+- NEVER use the `AskUserQuestion` tool (it is denied). Ask me questions and offer choices in your chat reply instead. Number the options, show any option that changes code as a full code block, mark the one you recommend with "(Recommended)" and say why, then end your turn and wait for my pick.
 - Prefer delegating to subagents for work like exploration, research, reading long logs or test output, or reviews, whenever it fits. Delegating keeps your own context window small.
 - ALWAYS prewarm the relevant language server with a `documentSymbol` call on the target file before using LSP `findReferences`.
 - When I ask you to resolve a merge or rebase conflict, finish the operation, without waiting for my approval. Unless explicitly asked, never push the result.
