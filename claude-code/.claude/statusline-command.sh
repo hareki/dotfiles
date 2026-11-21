@@ -177,6 +177,11 @@ case "$model_id" in
   *fable*)  model="Fable";  model_color="$red" ;;
   *)        model="$display_name"; model_color="$overlay1" ;;
 esac
+# The version comes from display_name, which already formats it ("4.8"), while the
+# id spells it as "4-8" and may append a date or a provider suffix
+if [ "$model" != "$display_name" ] && [[ $display_name =~ [0-9]+(\.[0-9]+)* ]]; then
+  model+=" ${BASH_REMATCH[0]}"
+fi
 
 # Reasoning effort: shown next to the model name, colored by intensity.
 case "$effort_level" in
