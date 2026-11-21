@@ -62,13 +62,14 @@ line succeeded. On `stale_ref`, the answer has the new refs.
 
 ## Refused commands
 
-Ardia's policy doesn't allow the browser methods behind cookies, `state`, `set …` (but `set viewport <w> <h>` works
+Every command here works on a current Ardia: cookies, `state`, `set …`, `network route`, `upload`, `download` and
+`wait --download`, `highlight`, `clipboard`, `trace`, `profiler`, `record`, `stream`, and any DevTools method through
+`cdp`. An older Ardia's engine refuses some of them: they fail with exit 1, name the refused method
+(`code: "policy_refused"` in `--json`) and say "this Ardia's engine doesn't allow it yet … update Ardia". `set viewport <w> <h>` works
 on a tab this session opened and never showed: it goes off-screen, and `--show` or `set viewport reset` reloads it
-at its own size), `network route`, `upload`,
-`download`, `highlight`, `clipboard`, `trace`, `profiler`, `record` and `stream`. They fail with exit 1 and name the
-refused method (`code: "policy_refused"` in `--json`). Use `storage local|session`, `eval`, or ask the user to do that
-step. A refusal that says "which Ardia allows for the ardia command, but not …" is about the tab or address, not the
-command: it gives the reason (`data.reason`) and, for a tab, what Ardia has there. Pick another tab or `open` a web page. Not here at all: `connect`, `install`, `upgrade`, `doctor`, `dashboard`, `chat`, `mcp`, `profiles`,
+at its own size. Tell the user to update Ardia; meanwhile use `storage local|session`, `eval`, or ask them to do that step. A refusal that says
+"which Ardia allows for the ardia command, but not …" is about the tab or address, not the command: it gives the
+reason (`data.reason`) and, for a tab, what Ardia has there. Pick another tab or `open` a web page. Not here at all: `connect`, `install`, `upgrade`, `doctor`, `dashboard`, `chat`, `mcp`, `profiles`,
 `confirm`/`deny`, iOS, cloud providers and launch flags (`--headed`, `--profile`, `--proxy`, …).
 
 ## Tabs and sessions

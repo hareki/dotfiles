@@ -1,6 +1,6 @@
 ---
 name: ardia
-description: Drives the user's own Ardia browser (their open tabs, logins and cookies) from the shell with `ardia browse`. Use for any task on a page the user has open or a site they're signed in to, for reading web pages (one URL or many), filling forms, clicking, extracting data and screenshots, and for Ardia's site notes, userscripts, config, themes, commands, hooks and daily reports. Prefer it to agent-browser, Playwright, curl or web fetch whenever the user's browser or logins matter.
+description: Drives the user's own Ardia browser (their open tabs, logins and cookies) from the shell with `ardia browse`, and the whole browser with `ardia call`. Use for any task on a page the user has open or a site they're signed in to, for reading web pages (one URL or many), filling forms, clicking, extracting data and screenshots, and for Ardia's site notes, userscripts, config, themes, commands, hooks and daily reports. Prefer it to agent-browser, Playwright, curl or web fetch whenever the user's browser or logins matter.
 allowed-tools: Bash(ardia:*)
 ---
 
@@ -106,5 +106,7 @@ EOF
 
 - `--port N` anywhere on the line (or `ARDIA_PORT`). Write `ardia browse` out in each command. Exit 2: Ardia
   isn't reachable; its message says what to ask the user.
+- The rest of the browser and profile: `ardia methods` lists, `ardia call <name>` acts (`automation.md`); `ardia
+  browse cdp <Domain.method>` sends any DevTools call.
 - `ardia browse <command> --help`. `references/troubleshooting.md`: input that doesn't land, background tabs,
   refusals, sessions, exit codes. `automation.md`: tabs and groups (`ardia tabs --usage`), events, hooks. `userscripts.md`, `config.md` (looks: `ardia theme set`), `daily-reports.md`.
