@@ -2,7 +2,7 @@
 local navigator = Defer.on_exported_call('features.navigation.window-navigation.utils')
 
 -- Move between windows, and on to the next Rex pane from a window at the edge. Rex sends these
--- keys for cmd+m/n/e/i while nvim runs in the pane (rex/.config/rex/init.lua)
+-- keys for cmd+m/n/e/i while nvim runs in the pane (rex/.config/rex/features/pane-navigation.lua)
 return {
   'window-navigation',
   virtual = true,
