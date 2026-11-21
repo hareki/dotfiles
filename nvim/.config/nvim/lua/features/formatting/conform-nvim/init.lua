@@ -21,9 +21,9 @@ return {
       end,
       desc = 'Format',
     },
-    -- Sent for Cmd+Shift+S by the ghostty config; inspect with :echo keytrans(getcharstr())
+    -- Cmd+Shift+S, sent by the rex config; inspect with :echo keytrans(getcharstr())
     {
-      '<F40>',
+      '<D-S-s>',
       function()
         local style_enforcer = require('features.formatting.conform-nvim.style-enforcer')
         style_enforcer.run_all()
