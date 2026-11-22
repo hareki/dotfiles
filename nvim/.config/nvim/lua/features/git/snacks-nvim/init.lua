@@ -12,7 +12,7 @@ return {
 
   {
     'snacks.nvim',
-    -- Startup hook: lazy.nvim runs `init` for one fragment only (see split-plugins.md)
+    -- Startup hook: lazy.nvim runs `init` for one fragment only (see docs/conventions/split-plugins.md)
     opts = lazygit.track_last_focus,
   },
 

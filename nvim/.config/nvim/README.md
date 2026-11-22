@@ -96,6 +96,20 @@ nvim-tree-lua/
 - `tests/ab.sh [rev]`: boots a revision and the working tree and diffs what each config defines (maps, highlights, autocmds, options, plugin opts, ...)
 - `tests/probe.sh <payload.lua>`: runs a one-off Lua payload in the same boot
 
+## Docs
+
+The conventions for each kind of change live in `docs/conventions/`:
+
+- **[code-style.md](docs/conventions/code-style.md)**: the Lua style every module follows (annotations, requires, constants, augroups, notifications, entry points) and file and directory names
+- **[plugin-specs.md](docs/conventions/plugin-specs.md)**: where a spec is filed, how it is named and shaped, and which spec owns an option, key or autocmd
+- **[split-plugins.md](docs/conventions/split-plugins.md)**: snacks.nvim's per-feature fragments, and where fragments bend the spec rules
+- **[keymaps.md](docs/conventions/keymaps.md)**: defining a keymap, `desc` title case, which-key groups and icons
+- **[ui.md](docs/conventions/ui.md)**: icons, colors, highlights and float sizing
+- **[lsp.md](docs/conventions/lsp.md)**: enabling and configuring a language server, and which servers run per project
+- **[forks.md](docs/conventions/forks.md)**: the `hareki/*` plugin and parser forks, and which fixes go in a fork
+
+[docs/testing.md](docs/testing.md) says which test script answers which question, and how a test is written.
+
 ## Attribution
 
 Inspired by [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim), [LazyVim](https://github.com/LazyVim/LazyVim) and [NvChad](https://github.com/NvChad/NvChad).

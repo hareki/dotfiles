@@ -1,7 +1,7 @@
 --- @module 'core.snacks-nvim.floating-terminal'
 local floating_terminal = Defer.on_exported_call('core.snacks-nvim.floating-terminal')
 
--- Base spec: feature config lives in `snacks-nvim` fragments (split-plugins.md)
+-- Base spec: feature config lives in `snacks-nvim` fragments (docs/conventions/split-plugins.md)
 return {
   UI.catppuccin.integration('snacks'),
 

@@ -7,4 +7,5 @@
 ^/GLOSSARY\.md$
 ^/README\.md$
 ^/assets$
+^/docs$
 ^/tests$
