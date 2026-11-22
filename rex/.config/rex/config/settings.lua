@@ -34,7 +34,7 @@ return {
   { 'terminal.typography.style', 'SemiBold' },
   { 'terminal.typography.size', 18.5 },
   -- Percent of the font's own line height added
-  { 'terminal.typography.line_height', 25 },
+  { 'terminal.typography.line_height', 28 },
   { 'terminal.cursor.force', false },
   { 'terminal.cursor.shaders', false },
   { 'terminal.cursor.shader', 'warp' },
