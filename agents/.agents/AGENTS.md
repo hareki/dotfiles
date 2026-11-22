@@ -12,5 +12,14 @@ These instructions apply to every agent and every task.
 - As the main agent, prefer delegating to subagents for work like exploration, research, reading long logs or test output, or reviews, whenever it fits. Delegating keeps your own context window small.
 - ALWAYS prewarm the relevant language server with a `documentSymbol` call on the target file before using LSP `findReferences`.
 - When I ask you to resolve a merge or rebase conflict, finish the operation, without waiting for my approval. Unless explicitly asked, never push the result.
-- When you run as a background session (agents view or `claude --bg`) and change code, keep working in the isolated worktree, but land the work yourself unless I ask to keep the worktree or open a PR: before EnterWorktree, note the branch checked out in the shared checkout (the one you were spawned from); when done, commit in the worktree and `git rebase <that branch>` there, then ExitWorktree with `keep`, run `git merge --ff-only <worktree branch>` in the shared checkout, and delete the worktree with `git worktree remove <path>` followed by `git branch -d <worktree branch>`. Never push, stash, reset, create a merge commit, or use `--force`/`-D`; if the rebase conflicts, the shared checkout is no longer on that branch, or any git step refuses, stop, keep the worktree, and tell me. This overrides the default background-session guidance to push, open a draft PR, and never merge.
+- When you run as a background session (agents view or `claude --bg`) and change code, work in the isolated worktree and land the work yourself, unless I ask to keep the worktree or open a PR. This overrides the default background-session guidance to push, open a draft PR, and never merge. Land it in this order:
+  1. Before EnterWorktree, note the branch checked out in the shared checkout (the one you were spawned from). Call it `<base branch>`.
+  2. Do the work in the worktree and commit it there.
+  3. In the worktree, run `git rebase <base branch>`.
+  4. Call ExitWorktree with `keep`.
+  5. In the shared checkout, run `git merge --ff-only <worktree branch>`.
+  6. Remove the worktree with `git worktree remove <path>`, then delete its branch with `git branch -d <worktree branch>`.
+
+  Never push, stash, reset, create a merge commit, or use `--force`/`-D`. If the rebase conflicts, the shared checkout is no longer on `<base branch>`, or any git step refuses, stop, keep the worktree, and tell me.
+
 - When making technical decisions, do not give much weight to development cost. Instead, prefer quality, simplicity, robustness, scalability, and long-term maintainability.
