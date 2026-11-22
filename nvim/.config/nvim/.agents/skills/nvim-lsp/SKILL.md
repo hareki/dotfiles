@@ -5,9 +5,9 @@ description: Language servers in this Neovim config (`core/lsp/nvim-lspconfig/`)
 
 # Language servers
 
-The config uses native `vim.lsp.enable()` / `vim.lsp.config()`, not `lspconfig[server].setup()`. Paths below are under `core/lsp/nvim-lspconfig/`.
+Paths below are under `core/lsp/nvim-lspconfig/`.
 
-- Enable a server in the `servers` list in `init.lua`; add a `lsp/{server}.lua` only to override nvim-lspconfig's defaults. Its basename is the server id verbatim (`lua_ls.lua`, `typos_lsp.lua`), the one exception to kebab-case.
+- Enable a server in the `servers` list in `init.lua`; add a `lsp/{server}.lua` only to override nvim-lspconfig's defaults.
 - Each `lsp/{server}.lua` returns `{ opts = table, setup = function? }`, **not a lazy.nvim spec or a raw `vim.lsp.Config`**: `utils/server-loader.lua` requires every file only once nvim-lspconfig loads (so computed values are plain file-level locals), then calls `vim.lsp.config(name, opts)` and `setup()` if present.
 - General LSP keymaps live in `init.lua`, not server files; diagnostics display and the severity jumps live in `features/diagnostics/vim-diagnostic/`.
 - Server-specific `LspAttach` autocmds use an early-return guard on client name (see `utils/typescript.lua`).
