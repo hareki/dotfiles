@@ -17,6 +17,8 @@ return {
       NvimTreeGitStagedIcon = { fg = sub_palette.yellow },
       NvimTreeRootFolder = { fg = palette.overlay2 },
       NvimTreeGitMergeIcon = { fg = palette.yellow },
+      NvimTreeSymlink = { fg = palette.blue },
+      NvimTreeExecFile = {},
     }
   end, 'nvim-tree.lua'),
 
