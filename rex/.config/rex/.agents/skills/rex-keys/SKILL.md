@@ -1,6 +1,6 @@
 ---
 name: rex-keys
-description: Key bindings in this Rex config, covering where a binding goes, the cmd => alt scheme, raw bytes through `send_text`, the app's shadowed default shortcuts and pane navigation. Use when adding or changing a binding, or the key one sends to the program in a pane.
+description: Key bindings in this Rex config, covering where a binding goes, the cmd => alt scheme, raw bytes through the terminal's `write` method, the app's shadowed default shortcuts and pane navigation. Use when adding or changing a binding, or the key one sends to the program in a pane.
 ---
 
 # Keys

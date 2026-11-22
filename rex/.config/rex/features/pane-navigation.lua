@@ -4,7 +4,7 @@
 
 local TERMINAL = 'com.superlogical.terminal'
 local NAVIGATION_KEYS = { left = 'm', down = 'n', up = 'e', right = 'i' }
-local NAVIGATES_ITSELF = { nvim = true, vim = true, fzf = true }
+local NAVIGATES_ITSELF = { nvim = true }
 
 rex.action({
   name = 'navigate',

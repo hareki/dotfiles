@@ -14,7 +14,8 @@ Run these from `~/.config/rex`.
 Run every live test in a probe session, never one in use:
 
 - `rex new Probe --json -- <cmd>` makes a session without switching the app to it
-- `rex do init.lua --action <name> -s <session> -b <block> key=value` (JSON args: `--args '{"data":"..."}'`) runs a custom action from the working file, before any reload
+- `rex do init.lua --action <name> -s <session> -b <block> key=value` (JSON args: `--args '{"direction":"left"}'`) runs a custom action from the working file, before any reload
+- `rex do com.superlogical.terminal.write -s S -b B --args '{"data":"\u001b[1;6P"}'` writes the bytes a [raw-byte binding](conventions/keys.md#raw-bytes) sends
 - `rex split -s S -b B --focus=false --shell=none -- /bin/cat -v` adds a pane that prints the bytes it gets
 - `rex capture -s S -b B --trim` reads a pane
 - `rex session inspect S --json | jq '.windows[0].focused_block_id'` shows where focus went

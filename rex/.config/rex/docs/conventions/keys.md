@@ -5,6 +5,7 @@ Where a binding goes, how a key reaches the program in the pane, and which of th
 ## Where a binding goes
 
 - `config/keymaps.lua` binds Rex's built-in actions
+- `features/program-keys.lua` binds the keys sent to the program in the pane: alt keys ([Cmd => Alt](#cmd--alt)) and raw bytes ([Raw bytes](#raw-bytes))
 - A key that runs a custom action is bound in that action's feature file, `features/<name>.lua` ([Actions](actions.md))
 - **Sent keys**: every key a binding sends to the program in the pane carries a trailing comment naming the program and what the key does there (`'f', -- zsh: atuin search`), since nothing in this directory shows what reads it
 
@@ -12,11 +13,13 @@ Where a binding goes, how a key reaches the program in the pane, and which of th
 
 A cmd key reaches only a program that turned on the kitty keyboard protocol (`\27[<codepoint>;9u`, `10` with shift, which nvim maps as `<D-s>`). zsh gets no bytes for it, nvim's `:terminal` drops the modifier and types the bare letter, and legacy `alt+shift+s` arrives as `\es`, shift lost.
 
-Alt is the one modifier that passes zsh, nvim's terminal, fzf and Claude Code, so a new cmd key for a program goes in `ALT_KEYS` (`features/program-keys.lua`) and the program listens for the alt key. Only `shift+cmd+s` and `shift+cmd+w` go as real cmd bytes, through `send_text`.
+Alt is the one modifier that passes zsh, nvim's terminal, fzf and Claude Code, so a new cmd key for a program goes in `ALT_KEYS` (`features/program-keys.lua`) and the program listens for the alt key. Only `shift+cmd+s` and `shift+cmd+w` go as the cmd key itself (`pane.send_key` with the same key), for nvim alone: a binding to the key keeps the app's own shortcut off it, and the pane gets the key as a press would send it.
 
 ## Raw bytes
 
-`pane.send_key` encodes a key as the terminal would (`ctrl+shift+f1` reaches nvim as `<C-S-F1>`), while the same key written as bytes through `send_text` reaches it as another (`\27[1;6P` is `<F37>`). Pick the form that lands on the key the program maps, and say which in the comment.
+A binding sends bytes by naming the terminal's `write` block method, `com.superlogical.terminal.write` with `{ data = '...' }`, which writes them to the focused pane as they are.
+
+`pane.send_key` encodes a key as the terminal would (`ctrl+shift+f1` reaches nvim as `<C-S-F1>`), while the same key written as bytes reaches it as another (`\27[1;6P` is `<F37>`). Pick the form that lands on the key the program maps, and say which in the comment.
 
 ## Shadowed defaults
 

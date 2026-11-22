@@ -37,8 +37,9 @@ settings live in the dotfiles instead of the Settings window.
 - A personal config for one machine: macOS, with Neovim, zsh and Claude Code in the panes.
 
 - `init.lua` only requires modules. `config/` holds the keys for Rex's own actions and the
-  settings record, and each `features/<name>.lua` adds one custom action with the keys that run
-  it, so deleting the file and its `init.lua` line removes the feature.
+  settings record, and each `features/<name>.lua` adds one feature, a custom action with the keys
+  that run it or the keys sent to the program in the pane, so deleting the file and its
+  `init.lua` line removes the feature.
 
 - Every <kbd>Cmd</kbd> key for a program sends the <kbd>Alt</kbd> key it binds, so the bindings
   live in the program that handles them: Neovim's keymaps, `zsh/.config/zsh/keymaps.zsh`.
@@ -91,7 +92,7 @@ Without the prefix:
 - **<kbd>Cmd-[</kbd>** / **<kbd>Cmd-]</kbd>**: previous / next tab
 - **<kbd>Cmd-m</kbd>/<kbd>n</kbd>/<kbd>e</kbd>/<kbd>i</kbd>**: move left, down, up and right across Rex panes and Neovim windows
 
-A pane running Neovim, Vim or fzf gets the move as <kbd>Alt-m</kbd>/<kbd>n</kbd>/<kbd>e</kbd>/<kbd>i</kbd>,
+A pane running Neovim gets the move as <kbd>Alt-m</kbd>/<kbd>n</kbd>/<kbd>e</kbd>/<kbd>i</kbd>,
 and Neovim hands it back with `rex focus` from a window at its edge
 (`nvim/.config/nvim/lua/features/navigation/window-navigation/`). Any other pane moves Rex's focus
 right away.
@@ -108,10 +109,13 @@ The <kbd>Cmd</kbd> keys for the program in the pane, each sent as its <kbd>Alt</
 - **<kbd>Cmd-Space</kbd>**: completion in zsh, and blink.cmp's menu in Neovim (the AI items when it is already open)
 - **<kbd>Shift-Enter</kbd>**: a new line in Claude Code, sent as <kbd>Alt-Enter</kbd>
 
-The rest go as raw bytes through `send_text`:
+Two go as the <kbd>Cmd</kbd> key itself, which Neovim reads through the kitty keyboard protocol:
 
-- **<kbd>Cmd-Shift-s</kbd>**: format and save all, `<D-S-s>` in Neovim through the kitty keyboard protocol
+- **<kbd>Cmd-Shift-s</kbd>**: format and save all, `<D-S-s>` in Neovim
 - **<kbd>Cmd-Shift-w</kbd>**: close the other buffers, `<D-S-w>` in Neovim
+
+The rest go as raw bytes, through the terminal's `write` method:
+
 - **<kbd>Ctrl-m</kbd>**: toggle a multicursor.nvim cursor, <kbd>F37</kbd> in Neovim, which reads a bare <kbd>Ctrl-m</kbd> as Enter
 - **<kbd>Ctrl-Shift-y</kbd>**: `forward-word` in zsh, which accepts the autosuggestion's next word
 
@@ -136,8 +140,8 @@ them.
 │   ├── keymaps.lua         keys for Rex's own actions: palette, tabs, splits, copy mode, find
 │   └── settings.lua        the settings record, one client.setting.* action per entry
 ├── features
-│   ├── program-keys.lua    the Cmd => Alt keys, and send_text for raw escape sequences
-│   ├── pane-navigation.lua navigate: hands the move to Neovim, Vim or fzf, or moves Rex's focus
+│   ├── program-keys.lua    the Cmd => Alt keys, and the raw escape sequences
+│   ├── pane-navigation.lua navigate: hands the move to Neovim, or moves Rex's focus
 │   ├── close-pane.lua      close_pane: closes a tab's last pane too, and the tab with it
 │   └── apply-settings.lua  apply_settings: imports the theme and sets every recorded setting
 └── themes

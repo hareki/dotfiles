@@ -6,6 +6,7 @@ How the app's settings are recorded and applied, and how the theme gets in.
 
 Rex.app keeps its settings in macOS preferences (`com.superlogical.rex`), which no file sets. `config/settings.lua` records them as `{ '<name>', value }` pairs, each the `client.setting.<name>` action and its `value`, and `apply_settings` (`features/apply-settings.lua`) sets them all. A setting changed in the Settings window is lost at the next apply, so a settings change is an edit to the record.
 
+- Group the entries under `-- [[ Name ]]` headers named for the Settings window section that holds them
 - Take a setting's name and its values from the Rex docs page [`/rex/docs/reference/mac-settings`](https://www.superlogical.com/rex/docs/reference/mac-settings). `rex -C <client label> actions --json` gives each enum, and `rex client list` the app's label
 - `programActivitySoundVolume` stays out of the record: its scale against the action's `value` is unknown
 
@@ -19,9 +20,6 @@ Read the stored values with `defaults read com.superlogical.rex`, never the plis
 
 ## Theme
 
-`client.theme.import` replaces the theme of the imported file's name in place, so `apply_settings` imports `themes/Catppuccin Mocha` on every run, and `themes.dark.palette` names it. Renaming the file renames the theme: change both.
+`client.theme.import` replaces the theme of the imported file's name in place, so `apply_settings` imports `themes/Catppuccin Mocha` on every run, and `themes.dark.palette` names it. Renaming the file renames the theme: change both. `apply_settings` reads the file at the stowed path, `~/.config/rex/themes/Catppuccin Mocha`, so it works only once stowed.
 
-Files outside this config that reach the theme:
-
-- `features/apply-settings.lua` reads the theme at `~/.config/rex/themes/Catppuccin Mocha`, the stowed path, so it works only once stowed
-- nvim's `config/filetypes/init.lua` opens `rex/themes/*` with the `ghostty` filetype
+Outside this config, nvim's `config/filetypes/init.lua` opens `rex/themes/*` with the `ghostty` filetype.

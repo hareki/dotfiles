@@ -8,7 +8,7 @@ description: Testing this Rex config with `rex config check`, `rex keymap`, `rex
 Read [`docs/testing.md`](../../../docs/testing.md).
 
 - Create a probe session for every live test, and `rex kill` it when done.
-- Leave `client.tab.close`, `client.close` and `client.setting.*` unrun: they reach the user's app, and the auto-mode classifier refuses `client.setting.*` probes. Say in the report which checks stayed untested for that reason.
+- Leave the actions under Untested live unrun, and say in the report which checks stayed untested for that reason.
 
 ## Check
 
