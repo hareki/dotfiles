@@ -11,7 +11,7 @@ return {
 
   {
     'snacks.nvim',
-    -- Startup hook: lazy.nvim runs `init` for one fragment only (see AGENTS.md "Split Plugins")
+    -- Startup hook: lazy.nvim runs `init` for one fragment only (see split-plugins.md)
     opts = audio_page.setup_audio_viewer,
   },
 
