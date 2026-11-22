@@ -22,7 +22,7 @@ Alt is the one modifier that passes zsh, nvim's terminal, fzf and Claude Code, s
 
 The app's default shortcuts (`cmd+f`, and menu key equivalents such as `cmd+w` and `shift+cmd+w`) are a layer `rex keymap` does not list, and a config binding shadows them. They are listed only on the Rex docs page [`/rex/docs/reference/mac-actions`](https://www.superlogical.com/rex/docs/reference/mac-actions).
 
-Check that page before binding a cmd key. When a binding takes a default over, move the default under the `cmd+d` prefix with a comment (`cmd+d>/` for find, `cmd+d>x` for close).
+Check that page before binding a cmd key. A default may stay shadowed, since its action stays in the command palette. To keep a key for one, bind it elsewhere with a comment naming the key it lost (`cmd+d>/` for find, `cmd+d>x` for close).
 
 ## Pane navigation
 
