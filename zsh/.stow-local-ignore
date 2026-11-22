@@ -1,0 +1,13 @@
+# Stow reads this file in place of stow/.stow-global-ignore for this package, so it repeats
+# that list. The skills' dirs share their names with the agents and claude-code packages' own,
+# which a global rule would drop from those packages too
+\.DS_Store
+
+^/AGENTS\.md$
+^/CLAUDE\.md$
+^/GLOSSARY\.md$
+^/README\.md$
+^/assets$
+^/tests$
+^/\.agents$
+^/\.claude$

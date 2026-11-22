@@ -53,9 +53,9 @@ zt_cleanup() {
 # holding the zsh, p10k and tmux packages
 zt_home() {
   local home=$1 tree=$2
-  # Every top-level dot file the zsh package holds, bar the one on stow's ignore list
+  # Every top-level dot file the zsh package holds, bar the ones stow leaves out
   local -a dotfiles=($tree/zsh/.*(.N))
-  dotfiles=(${dotfiles:#*/.DS_Store})
+  dotfiles=(${dotfiles:#*/(.DS_Store|.stow-local-ignore)})
   mkdir -p $home/{.config,.cache/zsh,.local/bin/shims,.tmux} || return 1
   (( $#dotfiles )) && ln -s $dotfiles $home/ &&
     ln -s $tree/zsh/.config/zsh $home/.config/zsh &&
