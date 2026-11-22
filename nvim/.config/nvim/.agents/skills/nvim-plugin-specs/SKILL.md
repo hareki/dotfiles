@@ -7,7 +7,7 @@ description: Plugin specs in this Neovim config, covering where a lazy.nvim spec
 
 Before finishing, check each spec you touched against every rule below.
 
-When the plugin is snacks.nvim, or a spec adds a `'snacks.nvim'` **fragment**, read [`split-plugins.md`](split-plugins.md) first: fragments override some of these rules.
+When the plugin takes **fragments** from other files (snacks.nvim, which-key.nvim through `UI.which_key`, catppuccin through `UI.catppuccin`), or a spec adds one, read [`split-plugins.md`](split-plugins.md) first: fragments override some of these rules.
 
 ## Filing
 
