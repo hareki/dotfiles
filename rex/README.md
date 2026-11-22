@@ -155,5 +155,13 @@ Run them from `~/.config/rex`:
 
 ## 📚 Docs
 
-- **[AGENTS.md](./.config/rex/AGENTS.md)**: code style, the commands that check, reload and probe the config, the key encodings and the files outside this package that reach into it
+The conventions for each kind of change live in [`docs/conventions/`](./.config/rex/docs/conventions/):
+
+- **[code-style.md](./.config/rex/docs/conventions/code-style.md)**: requires, constants, sections, file names
+- **[keys.md](./.config/rex/docs/conventions/keys.md)**: where a binding goes, the <kbd>Cmd</kbd> => <kbd>Alt</kbd> keys, raw bytes, shadowed defaults and pane navigation
+- **[actions.md](./.config/rex/docs/conventions/actions.md)**: filing, naming and titling a custom action, and server versus client calls
+- **[settings.md](./.config/rex/docs/conventions/settings.md)**: the settings record, the stored values and the theme import
+
+[docs/testing.md](./.config/rex/docs/testing.md) covers the checks, the probe sessions live tests run in, and the actions that stay untested live.
+
 - **[Rex docs](https://www.superlogical.com/rex/docs)**: the Lua API, the [default shortcuts](https://www.superlogical.com/rex/docs/reference/mac-actions) a config binding shadows, and the [settings](https://www.superlogical.com/rex/docs/reference/mac-settings)

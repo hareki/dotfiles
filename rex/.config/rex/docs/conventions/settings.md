@@ -1,0 +1,27 @@
+# Settings
+
+How the app's settings are recorded and applied, and how the theme gets in.
+
+## The record
+
+Rex.app keeps its settings in macOS preferences (`com.superlogical.rex`), which no file sets. `config/settings.lua` records them as `{ '<name>', value }` pairs, each the `client.setting.<name>` action and its `value`, and `apply_settings` (`features/apply-settings.lua`) sets them all. A setting changed in the Settings window is lost at the next apply, so a settings change is an edit to the record.
+
+- Take a setting's name and its values from the Rex docs page [`/rex/docs/reference/mac-settings`](https://www.superlogical.com/rex/docs/reference/mac-settings). `rex -C <client label> actions --json` gives each enum, and `rex client list` the app's label
+- `programActivitySoundVolume` stays out of the record: its scale against the action's `value` is unknown
+
+## Stored values
+
+Read the stored values with `defaults read com.superlogical.rex`, never the plist file, which lags by seconds. Their keys differ from the setting names:
+
+- `interfaceStyle` holds style and tint together: classic + tint is `useTheme`, classic `system`, glass + tint `blendTheme`, glass `modern`
+- `terminalPaddingColor` off/automatic/always is `background`/`extend`/`extend-always`
+- line height keeps the action's percent (`terminalCellHeightPercent`), while border opacity (`activePaneBorderOpacity`) reads `1` for the record's `100`. The docs give no range, so the action either scales the percent or clamps it at 1
+
+## Theme
+
+`client.theme.import` replaces the theme of the imported file's name in place, so `apply_settings` imports `themes/Catppuccin Mocha` on every run, and `themes.dark.palette` names it. Renaming the file renames the theme: change both.
+
+Files outside this config that reach the theme:
+
+- `features/apply-settings.lua` reads the theme at `~/.config/rex/themes/Catppuccin Mocha`, the stowed path, so it works only once stowed
+- nvim's `config/filetypes/init.lua` opens `rex/themes/*` with the `ghostty` filetype
