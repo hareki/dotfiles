@@ -183,6 +183,10 @@ return {
           local keymap = require('utils.keymap')
           local map = keymap.buf_mapper(tree_bufnr, { prefix = UI_NAME .. ': ', nowait = true })
 
+          -- Unfocused, the full line marks the current file (update_focused_file holds the cursor
+          -- there): a number-only cursorline would paint just the statuscolumn cell
+          vim.b[tree_bufnr].cursorline_keep_full = true
+
           map('n', '<C-t>', tree.switch_to_side, 'Switch to Side')
 
           map('n', '<Tab>', tree.toggle_focus, 'Toggle Preview Focus')

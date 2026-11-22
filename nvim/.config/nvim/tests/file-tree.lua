@@ -186,3 +186,34 @@ t.test("the live filter's prompt takes no completion", function()
   local blink_config = require('blink.cmp.config')
   t.eq(blink_config.enabled(), false, 'blink.cmp is off in the prompt')
 end)
+
+--- The name on the tree's cursor line
+--- @return string
+local function cursor_name()
+  local win = tree_win()
+  local row = vim.api.nvim_win_get_cursor(win)[1]
+  local line = vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(win), row - 1, row, false)[1]
+  return line:match('%S+$')
+end
+
+t.test("an unfocused side tree keeps its full cursor line on the focused window's file", function()
+  -- A normal window: an earlier test can leave the preview float current
+  t.tab()
+  t.file('a.txt', { 'one' })
+  open_tree()
+  press('<C-t>')
+  local win = tree_win()
+
+  vim.cmd.wincmd('p')
+  t.eq(
+    { vim.wo[win].cursorline, vim.wo[win].cursorlineopt },
+    { true, 'both' },
+    'cursor line in the unfocused tree'
+  )
+  t.eq(cursor_name(), 'a.txt', 'the file the tree opened over')
+
+  t.file('b.txt', { 'two' })
+  t.wait_for(function()
+    return cursor_name() == 'b.txt'
+  end, 'the cursor line to move to b.txt')
+end)

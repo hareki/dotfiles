@@ -2,7 +2,8 @@
 local M = {}
 
 --- Full cursorline or only the number, setting only what differs: a same-value set still redraws.
---- A no-op on the window in Terminal mode: Neovim restores both options as the mode leaves it
+--- A buffer with `b:cursorline_keep_full` keeps the full line. A no-op on the window in Terminal
+--- mode: Neovim restores both options as the mode leaves it
 --- @param enable boolean
 --- @param win integer
 --- @return nil
@@ -12,7 +13,8 @@ function M.set_cursorline(enable, win)
   end
 
   local wo = vim.wo[win]
-  local opt = enable and 'both' or 'number'
+  local full = enable or vim.b[vim.api.nvim_win_get_buf(win)].cursorline_keep_full
+  local opt = full and 'both' or 'number'
 
   if wo.cursorlineopt ~= opt then
     wo.cursorlineopt = opt
