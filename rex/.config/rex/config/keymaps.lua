@@ -22,3 +22,5 @@ rex.bind('cmd+d>right', 'client.tab.move.forward')
 rex.bind('cmd+d>escape', 'pane.copy_mode.enter')
 -- Rex's own cmd+f opens atuin search here
 rex.bind('cmd+d>/', 'client.find.open')
+-- Rex's own cmd+p opens the palette here
+rex.bind('cmd+d>w', 'pane.go_to')
