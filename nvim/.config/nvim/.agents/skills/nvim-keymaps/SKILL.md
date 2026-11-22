@@ -1,0 +1,14 @@
+---
+name: nvim-keymaps
+description: Keymaps in this Neovim config, covering how to define one, its `desc` title case (CMOS 18), and which-key groups and icons. Use when adding, changing or retitling a keymap or a which-key group.
+---
+
+# Keymaps
+
+- A keymap sits in the `keys` of the spec that owns it (the `nvim-plugin-specs` skill), or goes through `vim.keymap.set()` in `config/keymaps.lua` when no single spec owns it. Use `<cmd>...<cr>` strings rather than the structured `vim.cmd` API; fall back to a function only for runtime values or multi-statement logic.
+- Every picker keymap goes under `<leader>f` (Find), even when its plugin has a which-key group of its own: harpoon (`<leader>H`) => `<leader>fp`, debugprint (`<leader>?`) => `<leader>f?`, live-preview (`<leader>p`) => `<leader>fP`. Before binding one, list the free `<leader>f` letters, and mirror the plugin's group key when it is free; otherwise take an uppercase or mnemonic letter, the way `fh`/`fH` split highlights and help. The `desc` may keep the plugin's prefix ("Live Preview: Find File"), and the plugin's which-key icon rule still applies inside the Find menu.
+- A useful keymap a plugin creates on its own (no `desc`, outside lazy loading) is reclaimed rather than deleted: set the plugin's option for that map to `false`, then re-declare the same lhs in the spec's `keys`, calling the plugin's public function, with a title-case `desc` (debugprint's `[g`/`]g`/`[G`/`]G` in `features/diagnostics/debugprint-nvim.lua`). The config turns plugin maps off to control their load timing, descs and which-key grouping, so deleting a useful one loses the key. Delete only a map nobody wants.
+- Every keymap gets a `desc` in **CMOS 18 title case** (rule 8.160): capitalize the first, last and all major words; lowercase only articles (a, an, the), coordinating conjunctions (and, but, or, nor, for), `to`, `as`, and prepositions of **four or fewer letters** (in, of, on, at, by, with, from, into, over), as in "Go to Definition". Prepositions of **five or more letters are capitalized** (Under, After, Before, Above, Below, Between, Within, Through, Without, About, Until, During), as in "Toggle Fold Under Cursor"; this differs from CMOS 17, which lowercased all prepositions regardless of length. In a review, a capitalized "Under" or "After" is correct, and the lowercase one is the violation.
+- which-key groups, icon rules and triggers are registered from the owning spec file with `UI.which_key({ specs?, rules?, triggers? })`. An icon rule names its color by Catppuccin palette key (`teal`, `mauve`, `peach`): `chrome/which-key-nvim/icon-rules.lua` defines the group which-key paints each key with, and refuses a rule that names anything else (which-key's own `cyan`, `purple`, `orange` included).
+
+Before finishing, check every `desc` you wrote or changed word by word against the title-case rule.
