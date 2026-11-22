@@ -1,6 +1,7 @@
 #!/bin/zsh
 
-# Package metadata (AGENTS.md, README.md, ...) is excluded by stow/.stow-global-ignore
+# Package metadata (AGENTS.md, README.md, ...) is excluded by stow/.stow-global-ignore, or by
+# a package's own .stow-local-ignore, which replaces it
 sync-dots () {
   local failed=0 dir
   local -a packages=("$STOW_REPO"/*(/:t))
