@@ -32,7 +32,7 @@ that stay rebased on upstream.
 
 ## ✨ Features
 
-- 🚀 Starts in ~28ms with no file, ~47ms on a small Lua file, ~140ms on a TypeScript file (`:Lazy profile`)
+- 🚀 Starts in ~28ms with no file, \~47ms on a small Lua file, \~140ms on a TypeScript file (`:Lazy profile`)
 - 🪟 One floating layout for the Snacks picker, the file tree and their previews
 - ⌨️ <kbd>Tab</kbd> moves focus between a list and its preview, <kbd>Ctrl-t</kbd> docks a float as a side panel
 - 🤖 Claude Code in a full-screen terminal, next-edit predictions and AI completion items
