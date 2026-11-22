@@ -173,10 +173,10 @@ end)
 
 t.test("the live filter's prompt takes no completion", function()
   open_tree()
-  api.live_filter.start()
+  api.filter.live.start()
   t.cleanup(function()
     vim.cmd.stopinsert()
-    api.live_filter.clear()
+    api.filter.live.clear()
   end)
   t.wait_for(function()
     return vim.bo.filetype == 'NvimTreeFilter'
