@@ -42,6 +42,20 @@ vim.api.nvim_create_autocmd('VimLeavePre', {
 })
 EOF
 
+# The same nvim, whose buffer changes between tsave's check and its quit
+cat >$ZT_TMP/changing.lua <<EOF
+dofile('$ZT_TMP/pane.lua')
+local tsave = require('core.auto-session.tsave')
+local unsaved, calls = tsave.unsaved, 0
+tsave.unsaved = function()
+  calls = calls + 1
+  if calls == 2 then
+    vim.bo.modified = true
+  end
+  return unsaved()
+end
+EOF
+
 # The same nvim, whose exit takes a while and leaves a line as it starts and one as it ends, the
 # ShaDa write being in between
 cat >$ZT_TMP/logging.lua <<EOF
@@ -208,7 +222,7 @@ kill -KILL $session
 tmux send-keys -t alpha C-z
 await alpha '#{pane_current_command}' '(ba|)sh'
 run
-refused 'a suspended nvim' 'a suspended or background nvim'
+refused 'a suspended nvim' 'a suspended or background nvim, or one (ba|)sh runs'
 
 # ...and so it would behind a second nvim that could itself quit
 nvim_in alpha
@@ -254,6 +268,15 @@ t_match 'nvim still exiting: named, with the way out' "$(<$ZT_TMP/err)" \
 t_ok 'nvim still exiting: the server lives' tmux has-session -t alpha
 : >$ZT_TMP/let-go
 await alpha '#{pane_current_command}' '(ba|)sh'
+tmux kill-server
+
+# Work an nvim gains after its check, while tsave quits the others, keeps it running
+server changing.lua || t_bail 'a pane nvim whose buffer changes after the check'
+run
+t_eq 'changed after the check: exit status' $rc 1
+t_match 'changed after the check: named as still running' "$(<$ZT_TMP/err)" \
+  'tsave: snapshot <->-<->-<->_<->-<->-<-> kept, but still running: nvim in alpha:<->.<->'$'\n''*'
+t_eq 'changed after the check: the nvim is still there' "$(tmux display-message -p -t alpha '#{pane_current_command}')" nvim
 tmux kill-server
 
 t_done

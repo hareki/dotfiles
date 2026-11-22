@@ -114,7 +114,8 @@ tsave() {
       blocked+=("$target_of[$pane]: claude is $state$where")
     done
     if [[ $cmd_of[$pane] != nvim ]]; then
-      (( nvims_on[$tty_of[$pane]] )) && blocked+=("$target_of[$pane]: a suspended or background nvim")
+      (( nvims_on[$tty_of[$pane]] )) &&
+        blocked+=("$target_of[$pane]: a suspended or background nvim, or one $cmd_of[$pane] runs")
       continue
     fi
     unreachable="$target_of[$pane]: nvim isn't reachable (started before this config, or with --clean)"
@@ -155,7 +156,9 @@ tsave() {
   # leave have used up .tmp.a to .tmp.z), and the one that loses waits at a hit-enter prompt
   # instead of exiting. A pane (or the whole server) that is gone has finished quitting too
   for pane in $quit; do
-    $rpc $addr_of[$pane] --remote-expr "v:lua.require'core.auto-session.tsave'.quit()" </dev/null &>/dev/null
+    # A reply names work the nvim gained since its check: it stays, and is reported below
+    [[ -n $($rpc $addr_of[$pane] --remote-expr "v:lua.require'core.auto-session.tsave'.quit()" </dev/null 2>/dev/null) ]] &&
+      continue
     repeat 200; do
       [[ $(tmux display-message -p -t $pane '#{pane_current_command}' 2>/dev/null) == nvim ]] || break
       sleep 0.05

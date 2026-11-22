@@ -5,7 +5,7 @@ zstyle ':completion:*:trestore:*' sort false
 
 local -a snapshots
 local -a options=(
-  '--force:Restore into a server that already has panes'
+  '--force:Restore into a server that already has panes, or one already running outside tmux'
   '--list:List snapshots, newest first'
   '--help:Show usage info'
 )

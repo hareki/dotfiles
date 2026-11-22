@@ -10,7 +10,8 @@ trestore() {
   if (( $#opt_help )); then
     print 'Usage: trestore [--force] [<id>]   # no id: the last snapshot saved or restored'
     print '       trestore --list             # snapshot ids, newest first'
-    print '  --force: restore into a server that already has panes (resurrect keeps them as they are)'
+    print '  --force: restore into a server that already has panes (resurrect keeps them as they are),'
+    print '           or, from outside tmux, into a server already running'
     return 0
   fi
   if (( $# > 1 )); then
@@ -41,6 +42,9 @@ trestore() {
   elif (( ! force && $#panes > 1 )); then
     # Resurrect leaves existing panes alone and relaunches nothing in them
     err='this server already has panes, so the restore would barely change it; use a fresh one, or --force'
+  elif (( ! force && ! started )) && [[ -z $TMUX ]]; then
+    # From outside tmux, a lone pane in a server that was already running may hold real work
+    err='a tmux server is already running; restore from inside it, or --force'
   # Points `last`, which resurrect restores, at the snapshot
   elif ! $store select $id; then
     if [[ -n $id ]]; then

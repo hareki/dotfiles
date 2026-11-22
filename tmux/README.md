@@ -34,13 +34,13 @@ The zsh functions `tsave` and `trestore` drive tmux-resurrect, and `scripts/resu
 - **`trestore [<id>]`**: restores a snapshot into a fresh server, from inside tmux or from a plain terminal
   - Without an id it restores `last`, the snapshot most recently saved or restored (also what `prefix C-r` restores)
   - Ids are the snapshot's date and time (`2026-11-04_20-15-30`); `trestore <TAB>` and `trestore --list` show them newest first
-  - **`--force`**: restore into a server that already has panes (resurrect leaves those as they are)
+  - **`--force`**: restore into a server that already has panes (resurrect leaves those as they are), or, from a plain terminal, into a server already running, whose lone pane the restore replaces
 - **Expiry**: resurrect's post-save hook (`resurrect-snapshots.zsh post-save`) deletes snapshots 3 days after their last save. The snapshot `last` pointed to before a save survives that save, so a stray save can't take the one you meant to restore. An unchanged layout restarts its snapshot's clock, which is also how `tsave` knows that save happened
 - **nvim relaunch**: nvim panes relaunch as `nvim .` in nvim's directory, so auto-session reopens that directory's session. An `nvim <file>` pane comes back as its directory's session, not the file
 - **Claude Code relaunch**: a pane running `claude` directly relaunches as `claude --resume <session id>`, the same conversation under the same id, whatever saved the snapshot (`tsave` or `prefix C-s`)
   - `scripts/claude-panes.zsh` finds those panes: the sessions `claude agents --json` lists, each matched to the pane whose tty its process is on, or else the nearest of its ancestors that is on one (a pane nvim's terminal is a tty of nvim's own). The session in the foreground of the pane's tty is the one the pane runs, and the post-save hook writes its resume command into the snapshot
   - The flags it was started with are not kept, and a session nothing was asked in yet has no conversation to resume, so its pane relaunches a bare `claude`
-  - Not ended by `tsave` and not relaunched: a Claude in a pane nvim's terminal, which ends with that nvim, and one suspended with Ctrl-Z, which the server's kill takes. `tsave` still waits for either to be `idle`. The agents view is left alone, and background sessions belong to Claude Code's daemon, not to a pane
+  - Not ended by `tsave` and not relaunched: a Claude in a pane nvim's terminal, which ends with that nvim, and one suspended with Ctrl-Z, which the server's kill takes. `tsave` still refuses until either is `idle`. The agents view is left alone, and background sessions belong to Claude Code's daemon, not to a pane
 
 ## Config Structure
 

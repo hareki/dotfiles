@@ -59,9 +59,15 @@ function M.unsaved()
 end
 
 --- Quits once the RPC reply is out, through the normal exit path, so VimLeavePre runs
---- auto-session's save. The `!` only ends terminal jobs, since `tsave` has checked `unsaved()`
---- @return string
+--- auto-session's save. The `!` only ends terminal jobs, since `tsave` has checked `unsaved()`, and
+--- work gained since that check (tsave quits the nvims one at a time) keeps this nvim running
+--- @return string blockers What kept nvim running, empty when it quits
 function M.quit()
+  local blockers = M.unsaved()
+  if blockers ~= '' then
+    return blockers
+  end
+
   vim.schedule(function()
     vim.cmd('qall!')
     -- Still running: an ExitPre handler closed the current window, which aborts a quit. Snacks

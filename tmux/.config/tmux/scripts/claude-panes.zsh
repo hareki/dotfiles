@@ -7,7 +7,7 @@
 # a line per session), <status> one of idle, busy and waiting, and <job> `foreground` for the
 # session the pane runs as its foreground job or `within` for any other: one in a pane nvim's
 # terminal, or one suspended with Ctrl-Z. The zsh function tsave reads it to end the foreground
-# sessions and to wait on the busy ones, and resurrect-snapshots.zsh to save the command that
+# sessions and to refuse while any is busy, and resurrect-snapshots.zsh to save the command that
 # resumes each foreground one. Exits 1 when Claude Code can't list its sessions.
 #
 # `claude agents --json` is Claude Code's own list of live sessions, and a session is in the pane

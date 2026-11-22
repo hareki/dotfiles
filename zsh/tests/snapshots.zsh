@@ -155,6 +155,14 @@ t_eq 'trestore names a missing snapshot' "$(trestore 1999-01-01_00-00-00 --force
   'trestore: no snapshot 1999-01-01_00-00-00 (trestore --list shows them)'
 tmux kill-server
 
+# A lone pane is the placeholder only from inside tmux: from outside, it may be real work
+tmux new-session -d
+local before=$(tmux list-panes -a -F '#{session_name} #{pane_id}')
+t_eq 'trestore refuses a running server from outside tmux' "$(trestore 2>&1)" \
+  'trestore: a tmux server is already running; restore from inside it, or --force'
+t_eq 'and leaves its pane alone' "$(tmux list-panes -a -F '#{session_name} #{pane_id}')" $before
+tmux kill-server
+
 local -a sessions
 from_scratch $id1
 t_eq 'trestore <id> from inside tmux' $? 0
