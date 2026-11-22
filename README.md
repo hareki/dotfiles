@@ -110,7 +110,7 @@ stow -d "$STOW_REPO" -t ~ nvim
 ### Editor and terminal
 
 - **[nvim](./nvim/.config/nvim/)**: a from-scratch Lua config on lazy.nvim, one spec file per plugin, one float layout for the picker, the file tree and their previews
-- **[ghostty](./ghostty/.config/ghostty/)**: the terminal, with <kbd>Cmd</kbd> keybindings that emit escape sequences for tmux, Neovim and zsh
+- **[ghostty](./ghostty/)**: the terminal, with <kbd>Cmd</kbd> keybindings that emit escape sequences for tmux, Neovim and zsh
 - **[tmux](./tmux/)**: TPM plugins, a Catppuccin status bar, prefix <kbd>Alt-d</kbd>, and `tsave`/`trestore` snapshots that relaunch Neovim and Claude Code sessions
 - **tmuxinator**: project layouts, a git submodule
 
