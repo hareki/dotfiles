@@ -26,7 +26,7 @@ A zsh config for macOS that reaches a usable prompt in ~45ms (~25ms for `zsh -i 
 Antidote bundles the plugins into one static file, tool init output is cached and compiled, and
 functions load on their first call.
 
-![image](./assets/docs/demo.png)
+![image](./assets/docs/demo.jpg)
 
 ## ✨ Features
 
