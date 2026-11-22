@@ -1,6 +1,6 @@
 # My Personal Tmux Config
 
-![image](./assets/docs/demo.png)
+![image](./assets/docs/demo.jpg)
 
 **TPM**-managed config optimized for Neovim integration, vi-style copy mode, and image passthrough.
 
