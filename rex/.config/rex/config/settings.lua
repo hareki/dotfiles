@@ -18,6 +18,7 @@ return {
   { 'interface.tabs.shell_icon_theme', 'theme' },
   { 'interface.tabs.count', 3 },
   { 'interface.panes.density', 'comfortable' },
+  { 'interface.panes.headers', 'on_hover' },
   { 'interface.pane_padding.color', 'off' },
   { 'interface.active_panes.active_border', false },
   { 'interface.active_panes.active_border_color', 'accent' },
