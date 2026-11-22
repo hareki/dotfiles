@@ -12,8 +12,7 @@ return {
 
     local opts = {
       transparent_background = true,
-      -- Skip the startup scan of every installed plugin: each spec names its own integration with
-      -- UI.catppuccin.integration()
+      -- No startup plugin scan: each spec names its own with UI.catppuccin.integration()
       auto_integrations = false,
 
       custom_highlights = {

@@ -1,6 +1,5 @@
--- Where focus goes from the Snacks terminals: a full-screen panel hands window moves to tmux, the
--- floating terminal hides once a normal window or the panel under it has focus. Driven through
--- <A-t> and the move keys
+-- Focus from the Snacks terminals, through <A-t> and the move keys: a full-screen panel hands
+-- window moves to tmux, the floating terminal hides once a normal window or its panel has focus
 
 local t = require('tests.lib.helpers')
 local fullscreen_panels = require('core.snacks-nvim.fullscreen-panels')

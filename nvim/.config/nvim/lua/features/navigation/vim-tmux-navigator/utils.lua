@@ -15,9 +15,8 @@ local DIRECTIONS = {
   right = { command = 'TmuxNavigateRight', flag = '-R' },
 }
 
---- Go to the window or tmux pane in `direction`. A full-screen panel covers every window, and the
---- plugin's `wincmd` leaves a float for a window under it, so with a panel up the plugin sits out:
---- a float over the panel goes to the panel, and the panel straight to tmux
+--- Go to the window or tmux pane in `direction`. With a full-screen panel up, the plugin's `wincmd`
+--- would land under it, so a float over the panel goes to the panel, and the panel straight to tmux
 --- @param direction features.navigation.vim-tmux-navigator.utils.Direction
 --- @return nil
 function M.navigate(direction)

@@ -15,9 +15,8 @@ return {
       pattern = 'VeryLazy',
       once = true,
       callback = function()
-        -- Every jump opens the line's diagnostics, Neovim's own count-aware ]d/[d/]D/[D (titled in
-        -- config/builtin-keymaps.lua) and the severity jumps included; on_jump runs scheduled, and
-        -- only once the jump succeeded
+        -- Every jump opens the line's diagnostics, Neovim's ]d/[d/]D/[D and the severity jumps
+        -- included; on_jump runs scheduled, and only once the jump succeeded
         vim.diagnostic.config({
           jump = {
             on_jump = function()

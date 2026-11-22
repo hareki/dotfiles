@@ -96,9 +96,8 @@ function M.vertical()
   return not drift
 end
 
---- Map a wheel key to itself while `passes`, and to nothing otherwise. Nothing is <Ignore>: an empty
---- expr result leaves the tick in vim.on_key's `typed`, glued to the next key, which then fails the
---- exact matches in Snacks' picker list and multicursor
+--- Map a wheel key to itself while `passes`, else to <Ignore>: an empty expr result stays in
+--- vim.on_key's `typed`, glued to the next key, so Snacks' list and multicursor miss exact matches
 --- @param key string
 --- @param desc string
 --- @param passes fun(): boolean

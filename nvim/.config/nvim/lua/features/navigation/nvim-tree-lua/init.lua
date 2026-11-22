@@ -257,8 +257,7 @@ return {
         callback = tree.resize,
       })
 
-      -- No completion source belongs in the live filter prompt: blink.cmp stays off in a buffer
-      -- whose b:completion is false
+      -- No completion in the live filter prompt: blink.cmp stays off where b:completion is false
       vim.api.nvim_create_autocmd('FileType', {
         group = vim.api.nvim_create_augroup(
           'features.navigation.nvim-tree-lua.filter-no-completion',

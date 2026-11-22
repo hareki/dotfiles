@@ -1,7 +1,5 @@
 --- Entry point: the `tsave` zsh function calls `unsaved()` and `quit()` through `--remote-expr`, so
---- this path and those names stay stable, or tsave quits no nvim and leaves tmux running. Its test
---- (zsh's `tests/tsave.zsh`) loads this file alone under `nvim --clean`, so it reads no globals and
---- requires no config module
+--- path and names stay stable; zsh's `tests/tsave.zsh` runs it under --clean: no globals or modules
 --- @class core.auto-session.tsave
 local M = {}
 
@@ -58,9 +56,8 @@ function M.unsaved()
   return table.concat(blockers, '\n')
 end
 
---- Quits once the RPC reply is out, through the normal exit path, so VimLeavePre runs
---- auto-session's save. The `!` only ends terminal jobs, since `tsave` has checked `unsaved()`, and
---- work gained since that check (tsave quits the nvims one at a time) keeps this nvim running
+--- Quits after the RPC reply, by the normal exit path so VimLeavePre saves the session. `!` only
+--- ends terminal jobs, as `tsave` checked `unsaved()`; work gained since then keeps nvim running
 --- @return string blockers What kept nvim running, empty when it quits
 function M.quit()
   local blockers = M.unsaved()

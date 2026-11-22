@@ -70,9 +70,8 @@ function M.visible()
   end
 end
 
---- Run `callback` whenever focus comes back to the panel that is up now. To a float opened over
---- that panel this is a focus loss, where a panel opened later only covers the float. Deferred
---- like UI.float.on_focus_loss
+--- Run `callback` whenever focus returns to the panel up now, deferred like UI.float.on_focus_loss.
+--- For a float over that panel this is its focus loss; a panel opened later only covers the float
 --- @param group integer Augroup that lives as long as the float listens
 --- @param callback fun()
 --- @return nil

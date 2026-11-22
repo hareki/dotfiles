@@ -8,7 +8,7 @@ return {
   {
     'hareki/snacks.nvim',
     lazy = false,
-    -- This plugin has many responsibilities, should load it early to setup stuff correctly
+    -- Set up early, as Snacks' README asks: some plugins rely on the autocmds its setup creates
     priority = Conf.priority.CORE,
 
     keys = {
