@@ -84,8 +84,10 @@ server() {
   tmux new-session -d -s alpha -x 120 -y 30 && nvim_in alpha $1
 }
 
-# run <tsave args>: tsave's stdout and stderr into out and err, its exit status into rc
+# run <tsave args>: tsave's stdout and stderr into out and err, its exit status into rc. Without
+# `last` the store never waits out the second its newest snapshot is named for
 run() {
+  rm -f $HOME/.local/share/tmux/resurrect/last
   tsave "$@" >$ZT_TMP/out 2>$ZT_TMP/err
   rc=$?
 }
@@ -130,28 +132,23 @@ tmux split-window -d -t alpha "$nvim --clean"
 tmux new-session -d -s beta -t alpha
 await alpha:.2 '#{pane_current_command}' nvim
 run --continue
-t_match '--continue with unsaved work: only the snapshot' "$rc $(<$ZT_TMP/out)" '0 (Saved|Unchanged since) snapshot *'
+t_match '--continue with unsaved work: only the snapshot' "$rc $(<$ZT_TMP/out)" '0 Saved snapshot *'
 run
 refused 'unsaved work' '\[No Name\] \(buf <->\)' "nvim isn't reachable \(started before this config, or with --clean\)"
 t_eq 'unsaved work: the buffer is still there' "$(tmux display-message -p -t alpha:.1 '#{pane_current_command}')" nvim
 
-# stopped <what> <reason pattern>: the tsave that just ran kept its snapshot and stopped ahead of
-# the pane checks for that reason, and the server is as it was
-stopped() {
-  t_eq "$1: exit status" $rc 1
-  t_match "$1: the reason" "$(<$ZT_TMP/err)" "*tsave: snapshot <->-<->-<->_<->-<->-<-> kept, tmux left running: $2"
-  t_ok "$1: the server lives" tmux has-session -t alpha
-}
-
-# Without a UTF-8 locale tmux prints the tabs between a pane's fields as `_`: no pane to check
+# Without a UTF-8 locale tmux prints the tabs between a pane's fields as `_`, unless asked not to
 LC_ALL=C run
-stopped 'no UTF-8 locale' "its panes can't be listed \(no UTF-8 locale\?\)"
+refused 'no UTF-8 locale' '\[No Name\] \(buf <->\)' "nvim isn't reachable \(started before this config, or with --clean\)"
 tmux kill-session -t beta
 tmux kill-pane -t alpha:.2
 
-# At a prompt, nvim answers no request until a key ends it
+# At a prompt, nvim answers no request until a key ends it. tsave waits 2s for the answer, cut
+# short here
 tmux send-keys -t alpha ':set nomodified | echo "a\nb"' Enter
+timeout() { command timeout 0.2 "${@[2,-1]}" }
 run
+unfunction timeout
 refused 'nvim at a prompt' "nvim didn't answer \(waiting on a prompt\?\)"
 tmux send-keys -t alpha Enter
 
@@ -175,6 +172,9 @@ run
 refused 'a busy Claude' 'claude is busy'
 t_eq 'a busy Claude: the nvim beside it is still there' "$(tmux display-message -p -t alpha:.1 '#{pane_current_command}')" nvim
 t_ok 'a busy Claude: and so is the session' test ! -e $ZT_TMP/claude/ended
+# claude-panes.zsh lists the panes itself, for the same tabs
+LC_ALL=C run
+refused 'a busy Claude, without a UTF-8 locale' 'claude is busy'
 # Only idle is one tsave may end
 : >$ZT_TMP/claude/status
 run
@@ -210,12 +210,6 @@ await alpha '#{pane_current_command}' '(ba|)sh'
 run
 refused 'a suspended nvim' 'a suspended or background nvim'
 
-# One tty that is gone (a pane closed since tsave listed them) and ps lists no process of any
-ps() { command ps "$@" -t nonexistent }
-run
-unfunction ps
-stopped 'a pane tty that is gone' "the panes' processes can't be listed"
-
 # ...and so it would behind a second nvim that could itself quit
 nvim_in alpha
 run
@@ -229,7 +223,7 @@ server || t_bail 'a pane nvim with nothing unsaved'
 tmux split-window -d -t alpha
 zt_claude_in alpha:.2 || t_bail 'a pane running an idle Claude Code session'
 run
-t_match 'nothing unsaved: the snapshot is reported' "$rc $(<$ZT_TMP/out)" '0 (Saved|Unchanged since) snapshot *'
+t_match 'nothing unsaved: the snapshot is reported' "$rc $(<$ZT_TMP/out)" '0 Saved snapshot *'
 t_eq 'nothing unsaved: no complaint' "$(<$ZT_TMP/err)" ''
 t_ok 'nvim left through its normal exit' test -e $ZT_TMP/left
 t_eq 'the idle Claude was ended with SIGTERM' "$(<$ZT_TMP/claude/ended)" $ZT_CLAUDE_SESSION
@@ -239,7 +233,6 @@ t_eq 'and the server is gone' $? 1
 # Two pane nvims, each slow enough to exit that the second would start while the first is at it:
 # nvims that write their ShaDa file at the same moment fail (E137) and wait at a prompt instead of
 # exiting, so each has left before the next is asked to
-rm -f $ZT_TMP/exits
 server logging.lua || t_bail 'a pane nvim that logs its exit'
 tmux split-window -d -t alpha
 nvim_in alpha:.2 logging.lua || t_bail 'a second pane nvim that logs its exit'

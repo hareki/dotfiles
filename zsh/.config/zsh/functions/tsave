@@ -58,18 +58,13 @@ tsave() {
   (( keep_running )) && return 0
 
   # Nothing is quit until every pane checks out, so a refusal leaves everything running
-  local -a blocked panes ttys fields
+  local -a blocked panes fields
   local -A target_of tty_of cmd_of addr_of nvims_on
   local line pane tty comm out pid state where unreachable
-  for line in ${(f)"$(tmux list-panes -a -F $'#{pane_id}\t#{session_name}:#{window_index}.#{pane_index}\t#{pane_tty}\t#{pane_current_command}\t#{@nvim-server}')"}; do
+  # -u: to a client outside tmux without a UTF-8 locale, tmux prints each tab as `_`
+  for line in ${(f)"$(tmux -u list-panes -a -F $'#{pane_id}\t#{session_name}:#{window_index}.#{pane_index}\t#{pane_tty}\t#{pane_current_command}\t#{@nvim-server}')"}; do
     fields=("${(@ps:\t:)line}")
     pane=$fields[1]
-    # To a client without a UTF-8 locale tmux prints each tab as `_`: with no pane to check, every
-    # check below would pass
-    if (( $#fields != 5 )) || [[ $pane != %<-> ]]; then
-      print -u2 "tsave: snapshot $id kept, tmux left running: its panes can't be listed (no UTF-8 locale?)"
-      return 1
-    fi
     # Grouped sessions list their shared panes once per session
     (( $+target_of[$pane] )) && continue
     panes+=($pane)
@@ -77,13 +72,12 @@ tsave() {
     tty_of[$pane]=${fields[3]#/dev/}
     cmd_of[$pane]=$fields[4]
     addr_of[$pane]=$fields[5]
-    ttys+=(-t $tty_of[$pane])
   done
 
   # The Claude Code sessions in the panes. Unless they can be listed this stops here too: one in
   # the middle of a turn would die with the server
   local -a claudes
-  local -A claude_pane claude_busy
+  local -A claude_at claude_busy
   if ! out=$($HOME/.config/tmux/scripts/claude-panes.zsh); then
     print -u2 "tsave: snapshot $id kept, tmux left running: the Claude Code sessions can't be listed"
     return 1
@@ -92,8 +86,8 @@ tsave() {
     fields=("${(@ps:\t:)line}")
     pid=$fields[3]
     # Grouped sessions list a shared pane's Claude once per session too
-    (( $+claude_pane[$pid] )) && continue
-    claude_pane[$pid]=$fields[1]
+    (( $+claude_at[$pid] )) && continue
+    claude_at[$pid]=$fields[2]
     # Only idle is safe to end: busy is a turn, waiting an answer one needs to finish, and a status
     # Claude Code gives no name could be either
     if [[ $fields[4] != idle ]]; then
@@ -105,14 +99,11 @@ tsave() {
   done
 
   # Every nvim TUI on a pane's tty: a suspended (Ctrl-Z) or background one dies with the server.
-  # ps lists no process at all once one tty is gone (a pane that closed since they were listed)
-  ps -o tty=,comm= $ttys | while read -r tty comm; do
+  # Every process is listed, as `ps -t` lists none once one of its ttys is gone (a pane that closed
+  # since they were listed)
+  ps -axo tty=,comm= | while read -r tty comm; do
     [[ ${comm:t} == nvim ]] && (( nvims_on[$tty]++ ))
   done
-  if (( pipestatus[1] )); then
-    print -u2 "tsave: snapshot $id kept, tmux left running: the panes' processes can't be listed"
-    return 1
-  fi
 
   local -a rpc=(timeout 2 /opt/homebrew/bin/nvim --headless --server)
   local -a quit
@@ -175,7 +166,7 @@ tsave() {
   repeat 100; do
     late=()
     for pid in $claudes; do
-      kill -0 $pid 2>/dev/null && late+=("claude in $target_of[$claude_pane[$pid]]")
+      kill -0 $pid 2>/dev/null && late+=("claude in $claude_at[$pid]")
     done
     (( $#late )) || break
     sleep 0.1

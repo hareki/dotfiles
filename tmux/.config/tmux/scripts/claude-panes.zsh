@@ -20,9 +20,9 @@ setopt pipe_fail
 # No Claude Code, no panes running it
 (( $+commands[claude] )) || exit 0
 
-local sessions line pid ppid tty stat at
+local sessions line pid ppid tty stat at job
 local -a fields
-local -A status_of session_of parent_of tty_of stat_of panes_on job_of sessions_on
+local -A status_of session_of parent_of tty_of stat_of panes_on
 sessions=$(claude agents --json </dev/null |
   jq -r '.[] | select(.kind == "interactive") | [.pid, .status, .sessionId] | @tsv') || exit 1
 for line in ${(f)sessions}; do
@@ -32,7 +32,8 @@ for line in ${(f)sessions}; do
 done
 (( $#status_of )) || exit 0
 
-for line in ${(f)"$(tmux list-panes -a -F $'#{pane_id}\t#{session_name}:#{window_index}.#{pane_index}\t#{pane_tty}')"}; do
+# -u: to a client outside tmux without a UTF-8 locale, tmux prints each tab as `_`
+for line in ${(f)"$(tmux -u list-panes -a -F $'#{pane_id}\t#{session_name}:#{window_index}.#{pane_index}\t#{pane_tty}')"}; do
   fields=("${(@ps:\t:)line}")
   panes_on[${fields[3]#/dev/}]+=$fields[1]$'\t'$fields[2]$'\n'
 done
@@ -49,20 +50,11 @@ for pid in ${(k)status_of}; do
     at=$parent_of[$at]
   done
   [[ -n $at ]] || continue
-  sessions_on[$tty_of[$at]]+="$pid "
+  job=within
   # `+`: in the foreground process group of its tty
-  if [[ $at == $pid && $stat_of[$pid] == *+* ]]; then
-    job_of[$pid]=foreground
-  else
-    job_of[$pid]=within
-  fi
-done
-
-for tty in ${(k)sessions_on}; do
-  for line in ${(f)panes_on[$tty]}; do
-    for pid in ${=sessions_on[$tty]}; do
-      print -r -- $line$'\t'$pid$'\t'$status_of[$pid]$'\t'$session_of[$pid]$'\t'$job_of[$pid]
-    done
+  [[ $at == $pid && $stat_of[$pid] == *+* ]] && job=foreground
+  for line in ${(f)panes_on[$tty_of[$at]]}; do
+    print -r -- $line$'\t'$pid$'\t'$status_of[$pid]$'\t'$session_of[$pid]$'\t'$job
   done
 done
 exit 0

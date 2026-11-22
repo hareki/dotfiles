@@ -43,6 +43,14 @@ settle() {
   done
 }
 
+# from_scratch <id>: trestore <id> as from a pane of the placeholder session (outside tmux, trestore
+# attaches), whose $TMUX names that session for the hook that renames it: resurrect then replaces it
+from_scratch() {
+  tmux new-session -d
+  local client=$(tmux list-sessions -F '#{socket_path},#{pid},#{session_id}')
+  TMUX=${client/\$/} trestore $1
+}
+
 local today yesterday older weekday noon
 strftime -s today %Y%m%d $EPOCHSECONDS
 strftime -r -s noon '%Y%m%d %H' "$today 12"
@@ -82,7 +90,7 @@ rm -rf $dir
 tmux new-session -d -s alpha -x 120 -y 30 || t_bail 'start a private tmux server'
 t_eq "the server loads resurrect, its dir in the scratch HOME" "$(tmux show-option -gqv @resurrect-dir)" $dir
 
-local out first id1 id2
+local out first id1 id3
 settle
 out=$($store save)
 t_match 'save reports the new snapshot' "$out" 'saved <->-<->-<->_<->-<->-<->'
@@ -107,14 +115,12 @@ tmux new-window -d -t alpha
 settle
 out=$($store save)
 t_match 'a changed layout saves a new snapshot' "$out" 'saved <->-<->-<->_<->-<->-<->'
-id2=${out#saved }
 t_ok 'a snapshot past 3 days expires at the next save' test ! -e $dir/tmux_resurrect_20200101T000000.txt
 t_ok 'unless last pointed at it before that save' test -e $dir/tmux_resurrect_20200102T000000.txt
 t_ok 'newer snapshots stay' test -e $dir/$first
 
 # A pane running Claude Code is saved with the command that resumes its session, once there is a
 # conversation to resume
-local id3
 zt_claude_in alpha:2 || t_bail 'a pane running Claude Code'
 settle
 $store save >/dev/null
@@ -132,6 +138,7 @@ t_eq 'tsave -c on an unchanged layout' "$(tsave -c 2>&1)" "Unchanged since snaps
 t_eq 'tsave with no nvim in its panes' "$(tsave 2>&1)" "Unchanged since snapshot $id3, its expiry restarts"
 tmux has-session 2>/dev/null
 t_eq 'and then kills the server' $? 1
+t_eq 'tsave without a server' "$(tsave 2>&1)" 'tsave: no tmux server with tmux-resurrect loaded'
 
 tmux new-session -d
 $store pre-restore
@@ -148,12 +155,8 @@ t_eq 'trestore names a missing snapshot' "$(trestore 1999-01-01_00-00-00 --force
   'trestore: no snapshot 1999-01-01_00-00-00 (trestore --list shows them)'
 tmux kill-server
 
-# From scratch, as from a pane of the placeholder session (outside tmux, trestore attaches), whose
-# $TMUX names that session for the hook that renames it: resurrect then replaces it
-tmux new-session -d
 local -a sessions
-local client=$(tmux list-sessions -F '#{socket_path},#{pid},#{session_id}')
-TMUX=${client/\$/} trestore $id1
+from_scratch $id1
 t_eq 'trestore <id> from inside tmux' $? 0
 t_eq 'it points last at that snapshot' "$(readlink $dir/last)" $first
 repeat 40; do
@@ -166,10 +169,8 @@ t_eq 'with its windows' "$(tmux display-message -p -t alpha '#{session_windows}'
 tmux kill-server
 
 # The pane that ran Claude Code gets its session back
-tmux new-session -d
-client=$(tmux list-sessions -F '#{socket_path},#{pid},#{session_id}')
 : >$ZT_TMP/claude/started
-TMUX=${client/\$/} trestore $id3
+from_scratch $id3
 repeat 40; do
   [[ -s $ZT_TMP/claude/started ]] && break
   sleep 0.25
