@@ -113,7 +113,7 @@ stow -R -d "$STOW_REPO" -t ~ nvim
 ### Editor and terminal
 
 - **[nvim](./nvim/)**: a from-scratch Lua config on lazy.nvim, one spec file per plugin, one float layout for the picker, the file tree and their previews
-- **[rex](./rex/.config/rex/)**: the terminal and multiplexer, configured in Lua, prefix <kbd>Cmd-d</kbd>
+- **[rex](./rex/)**: the terminal and multiplexer, configured in Lua, prefix <kbd>Cmd-d</kbd>
 
 ### Shell
 
@@ -172,6 +172,7 @@ dotfiles
 
 - **[nvim/README.md](./nvim/README.md)**: the Neovim config, its plugins and its conventions
 - **[zsh/README.md](./zsh/README.md)**: the zsh config, its commands and its startup measurements
+- **[rex/README.md](./rex/README.md)**: the Rex config, its keybindings and its settings record
 - **[lazygit/GLOSSARY.md](./lazygit/GLOSSARY.md)**: lazygit's edit commands and the codediff renderer
 - **[hammerspoon/README.md](./hammerspoon/README.md)**: setup and the gesture tests
 - **[GLOSSARY-MAP.md](./GLOSSARY-MAP.md)**: the glossary of each config and where one config reaches into another
