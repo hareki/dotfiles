@@ -42,10 +42,20 @@ return {
     },
 
     opts = function()
+      local utils = require('features.preview.render-markdown-nvim.utils')
+
       --- @module 'render-markdown'
       --- @type render.md.UserConfig
       return {
         file_types = Conf.filetypes.MARKDOWN,
+        on = {
+          render = function(ctx)
+            utils.refresh_scrollbar(ctx.win)
+          end,
+          clear = function(ctx)
+            utils.refresh_scrollbar(ctx.win)
+          end,
+        },
         heading = {
           position = 'inline', -- Same indentation for every level, instead of one space per '#'
           width = 'block', -- Background hugs the heading text instead of spanning the window

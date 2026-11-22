@@ -49,4 +49,15 @@ function M.skip_conceal_line_pass()
   end
 end
 
+--- Hiding or revealing a line (a code fence) moves no topline, so no WinScrolled tells satellite.nvim
+--- its bar measured the old lines, and a float that now fits keeps its bar; never loads the plugin
+--- @param win integer
+--- @return nil
+function M.refresh_scrollbar(win)
+  local visible = package.loaded['satellite.visible']
+  if visible then
+    visible.refresh_if_changed(win)
+  end
+end
+
 return M
