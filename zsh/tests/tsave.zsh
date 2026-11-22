@@ -42,6 +42,23 @@ vim.api.nvim_create_autocmd('VimLeavePre', {
 })
 EOF
 
+# The same nvim, whose exit takes a while and leaves a line as it starts and one as it ends, the
+# ShaDa write being in between
+cat >$ZT_TMP/logging.lua <<EOF
+dofile('$ZT_TMP/pane.lua')
+vim.api.nvim_create_autocmd('VimLeavePre', {
+  callback = function()
+    vim.fn.writefile({ 'leaving ' .. vim.env.TMUX_PANE }, '$ZT_TMP/exits', 'a')
+    vim.wait(300)
+  end,
+})
+vim.api.nvim_create_autocmd('VimLeave', {
+  callback = function()
+    vim.fn.writefile({ 'left ' .. vim.env.TMUX_PANE }, '$ZT_TMP/exits', 'a')
+  end,
+})
+EOF
+
 # await <pane> <format> <pattern>: until the pane shows it
 await() {
   local got
@@ -218,6 +235,19 @@ t_ok 'nvim left through its normal exit' test -e $ZT_TMP/left
 t_eq 'the idle Claude was ended with SIGTERM' "$(<$ZT_TMP/claude/ended)" $ZT_CLAUDE_SESSION
 tmux has-session 2>/dev/null
 t_eq 'and the server is gone' $? 1
+
+# Two pane nvims, each slow enough to exit that the second would start while the first is at it:
+# nvims that write their ShaDa file at the same moment fail (E137) and wait at a prompt instead of
+# exiting, so each has left before the next is asked to
+rm -f $ZT_TMP/exits
+server logging.lua || t_bail 'a pane nvim that logs its exit'
+tmux split-window -d -t alpha
+nvim_in alpha:.2 logging.lua || t_bail 'a second pane nvim that logs its exit'
+panes=(${(f)"$(tmux list-panes -t alpha -F '#{pane_id}')"})
+run
+t_eq 'two nvims: exit status' $rc 0
+t_lines 'two nvims: each left before the next began to' "$(<$ZT_TMP/exits)" \
+  "leaving $panes[1]"$'\n'"left $panes[1]"$'\n'"leaving $panes[2]"$'\n'"left $panes[2]"
 
 # An nvim still exiting when tsave gives up on it. tsave counts its 10s in sleeps, which return at
 # once here

@@ -1,8 +1,8 @@
 #!/bin/zsh
 
 # Snapshots every tmux session with tmux-resurrect, then quits each pane's nvim through its normal
-# exit (so auto-session saves its session), ends each pane's Claude Code session and kills the
-# server; -c/--continue stops after the snapshot. Pane nvims publish their RPC address as
+# exit (so auto-session saves its session), one at a time, ends each pane's Claude Code session and
+# kills the server; -c/--continue stops after the snapshot. Pane nvims publish their RPC address as
 # @nvim-server (nvim's core/auto-session/tsave.lua), the Claude Code sessions in the panes are the
 # tmux package's claude-panes.zsh's to list, and nothing is quit or killed while any nvim holds
 # work a kill would lose or any of those sessions, a pane nvim's terminal's included, is in the
@@ -156,25 +156,33 @@ tsave() {
     return 1
   fi
 
-  for pane in $quit; do
-    $rpc $addr_of[$pane] --remote-expr "v:lua.require'core.auto-session.tsave'.quit()" </dev/null &>/dev/null
-  done
-
   # Claude Code's clean exit: its SessionEnd hooks run
   (( $#claudes )) && kill -TERM $claudes 2>/dev/null
 
-  # A pane (or the whole server) that is gone has finished quitting too
-  local -a running nvims
-  repeat 100; do
-    nvims=(${(f)"$(tmux list-panes -a -f '#{==:#{pane_current_command},nvim}' -F '#{pane_id}' 2>/dev/null)"})
-    running=()
-    for pane in ${quit:*nvims}; do running+=("nvim in $target_of[$pane]"); done
-    for pid in $claudes; do
-      kill -0 $pid 2>/dev/null && running+=("claude in $target_of[$claude_pane[$pid]]")
+  # One nvim at a time, each given 10s to go before the next is asked to: nvims that write their
+  # ShaDa file at the same moment collide (E137, and E138 once the temp files those collisions
+  # leave have used up .tmp.a to .tmp.z), and the one that loses waits at a hit-enter prompt
+  # instead of exiting. A pane (or the whole server) that is gone has finished quitting too
+  for pane in $quit; do
+    $rpc $addr_of[$pane] --remote-expr "v:lua.require'core.auto-session.tsave'.quit()" </dev/null &>/dev/null
+    repeat 200; do
+      [[ $(tmux display-message -p -t $pane '#{pane_current_command}' 2>/dev/null) == nvim ]] || break
+      sleep 0.05
     done
-    (( $#running )) || break
+  done
+
+  local -a running nvims late
+  repeat 100; do
+    late=()
+    for pid in $claudes; do
+      kill -0 $pid 2>/dev/null && late+=("claude in $target_of[$claude_pane[$pid]]")
+    done
+    (( $#late )) || break
     sleep 0.1
   done
+  nvims=(${(f)"$(tmux list-panes -a -f '#{==:#{pane_current_command},nvim}' -F '#{pane_id}' 2>/dev/null)"})
+  for pane in ${quit:*nvims}; do running+=("nvim in $target_of[$pane]"); done
+  running+=($late)
   if (( $#running )); then
     print -u2 "tsave: snapshot $id kept, but still running: ${(j:, :)running}"
     print -u2 '  finish there, then run `tmux kill-server`: a new tsave would save the quit panes as plain shells'
