@@ -309,6 +309,16 @@
       "skillFolderHash": "17d954cadfb8dec50bf0c707c9e7634be9ae9fe8",
       "installedAt": "2026-11-12T03:30:38.042Z",
       "updatedAt": "2026-11-12T03:30:38.042Z"
+    },
+    "no-ai-slop": {
+      "source": "petergyang/no-ai-slop",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/petergyang/no-ai-slop.git",
+      "commit": "000650b156983f5159695b441477f4e63b25dc85",
+      "skillPath": "skills/no-ai-slop/SKILL.md",
+      "skillFolderHash": "3d8be37cd59f6601cbc33676ecaf5b42865daf63",
+      "installedAt": "2026-11-22T03:16:14.769Z",
+      "updatedAt": "2026-11-22T03:16:14.769Z"
     }
   },
   "dismissed": {
