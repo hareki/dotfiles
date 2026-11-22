@@ -1,7 +1,9 @@
 #!/bin/sh
 # Boot a committed revision (HEAD by default) and this working tree side by side, dump what each
-# config defines once every plugin has loaded (maps, highlights, autocmds, options, plugin opts,
-# LSP configs, which-key specs and icons; tests/lib/dump.lua), and print the diff:
+# config defines once every plugin but claudecode.nvim has loaded (options, globals, maps,
+# highlights, autocmds, commands, namespaces, plugin specs and opts, LSP configs, diagnostic config,
+# which-key specs and icons, and the modules on the startup path; tests/lib/dump.lua), and print
+# the diff:
 #
 #   tests/ab.sh            HEAD against the working tree
 #   tests/ab.sh <rev>      <rev> against the working tree
