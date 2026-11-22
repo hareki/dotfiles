@@ -55,7 +55,7 @@ links to `~/.config/nvim` and `zsh/.zshrc` to `~/.zshrc`.
 - **[Ghostty](https://ghostty.org/)** and a **[Nerd Font](https://www.nerdfonts.com/)** ([Maple Mono NF](https://github.com/subframe7536/maple-font))
 - **[mise](https://mise.jdx.dev/)** for the language toolchains and the npm-based tools
 
-Each package's own requirements are in its README: [nvim](./nvim/.config/nvim/README.md#%EF%B8%8F-requirements), [zsh](./zsh/README.md#%EF%B8%8F-requirements).
+Each package's own requirements are in its README: [nvim](./nvim/README.md#%EF%B8%8F-requirements), [zsh](./zsh/README.md#%EF%B8%8F-requirements).
 
 ## 🚀 Getting Started
 
@@ -109,7 +109,7 @@ stow -d "$STOW_REPO" -t ~ nvim
 
 ### Editor and terminal
 
-- **[nvim](./nvim/.config/nvim/)**: a from-scratch Lua config on lazy.nvim, one spec file per plugin, one float layout for the picker, the file tree and their previews
+- **[nvim](./nvim/)**: a from-scratch Lua config on lazy.nvim, one spec file per plugin, one float layout for the picker, the file tree and their previews
 - **[ghostty](./ghostty/)**: the terminal, with <kbd>Cmd</kbd> keybindings that emit escape sequences for tmux, Neovim and zsh
 - **[tmux](./tmux/)**: TPM plugins, a Catppuccin status bar, prefix <kbd>Alt-d</kbd>, and `tsave`/`trestore` snapshots that relaunch Neovim and Claude Code sessions
 - **tmuxinator**: project layouts, a git submodule
@@ -170,7 +170,7 @@ dotfiles
 
 ## 📚 Docs
 
-- **[nvim/.config/nvim/README.md](./nvim/.config/nvim/README.md)**: the Neovim config, its plugins and its conventions
+- **[nvim/README.md](./nvim/README.md)**: the Neovim config, its plugins and its conventions
 - **[zsh/README.md](./zsh/README.md)**: the zsh config, its commands and its startup measurements
 - **[tmux/README.md](./tmux/README.md)**: the tmux config and the snapshot store behind `tsave`/`trestore`
 - **[lazygit/GLOSSARY.md](./lazygit/GLOSSARY.md)**: lazygit's edit commands and the codediff renderer
