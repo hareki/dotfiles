@@ -7,14 +7,14 @@ description: What every zsh shell runs at startup, covering `.zshenv`, `.zshrc`,
 
 ## Sourcing order
 
-`.zshenv` runs in every shell, including the `$SHELL -c` shells television's cables start: environment, keychain secrets, `/etc` rc handling and `PATH`. `.zshrc` runs in interactive shells: `~/.p10k.zsh`, then the config modules in the order its loop names them, then the autoloads of `.config/zsh/functions/`.
+`.zshenv` runs in every shell, including the `$SHELL -c` shells television's cables start. `.zshrc` runs in interactive shells only, and sources the config modules in the order its loop names them.
 
 The loop's order is load-bearing. keymaps' plain `bindkey` calls and the `^X` keys compinit binds in the main keymap reach viins only because vi-mode's `bindkey -v` has already replaced omz's `bindkey -e`. The tools in evals call the `compdef` that compinit defines. Moving a module means checking what it reads from the ones before it.
 
 ## Where a line goes
 
 - **`.zshenv`**: what every shell needs, `PATH` included.
-- **`options.zsh`**: interactive env vars, history overrides (history itself comes from omz's `lib/history.zsh`), fzf options.
+- **`options.zsh`**: interactive env vars and fzf options. The history settings all come from omz's `lib/history.zsh`.
 - **`evals.zsh`**: tool init (`zoxide`, `atuin`, `wt`, `zsh-patina`), through `_evalcache` when the init is an `eval "$(command)"`.
 - **`plugins.zsh`**, before the bundle is sourced: plugin configuration (zstyles, env vars).
 - **`plugins.zsh`**, after the bundle: overrides of what the bundle itself sets, such as widget and hook changes (the `bracketed-paste` rebind, which `lib/misc.zsh` would overwrite).
@@ -29,7 +29,7 @@ omz's own loader isn't used, and `.zplugins` names only the lib files this confi
 
 - `lib/directories.zsh`: `options.zsh` keeps its `auto_cd` and `aliases.zsh` its `l`. The lib's unguarded `compdef` would need compinit ahead of the bundle.
 - `lib/theme-and-appearance.zsh`: `options.zsh` keeps its `LSCOLORS` and `aliases.zsh` its `ls -G`. p10k sets `prompt_subst` itself, and the `LS_COLORS` it exported would override eza's theme.
-- `lib/vcs_info.zsh`: its only job is quoting `%` in a branch name for p10k's `vcs_info` fallback, which runs only while gitstatusd is down.
+- `lib/vcs_info.zsh`: its only job is quoting `%` in the branch and the other fields of p10k's `vcs_info` fallback, which runs only while gitstatusd is down.
 - `lib/grep.zsh`: `aliases.zsh` keeps its `grep` alias. The lib re-probes flags macOS's grep always has, daily, to write that same alias to a cache file, and its `egrep` and `fgrep` aliases had no use.
 
 ## Overrides

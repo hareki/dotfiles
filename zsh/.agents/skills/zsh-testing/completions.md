@@ -1,6 +1,6 @@
 # Probing a completion
 
-A compdef is proven by a TAB in a scratch boot that lists a candidate only that compdef can produce (e.g. `television` for `build t`, a project name for `mux`). The boot goes through a private tmux pane like `zt_boot`'s, since zpty's 0x0 pty stalls p10k, and the pane's size gives fzf-tab room to draw.
+A compdef is proven by a TAB in a scratch boot that lists a candidate only that compdef can produce (e.g. `television` for `build t`). The boot goes through a private tmux pane like `zt_boot`'s, since zpty's 0x0 pty stalls p10k, and the pane's size gives fzf-tab room to draw.
 
 Save this outside the repo (e.g. `/tmp/zt-tab/tab.zsh`):
 
