@@ -4,7 +4,7 @@
 
 A zsh config for macOS, with Homebrew at `/opt/homebrew/`. `sync-dots zsh` deploys it to `$HOME` with GNU stow, minus what `.stow-local-ignore` lists. [GLOSSARY.md](./GLOSSARY.md) defines the terms the docs, the code and the tests use; [README.md](./README.md) maps the files.
 
-The rules for one kind of change are project skills in `.agents/skills/` (`.claude/skills` links there).
+The rules for one kind of change live in `docs/`, one file per topic, written for people and agents alike: conventions in `docs/conventions/`, the overrides' reasons and the testing guide beside them. A project skill in `.agents/skills/` (`.claude/skills` links there) points the agent at its doc and holds only the agent's own steps and checks, so a new convention goes in a doc.
 
 ## Tests
 

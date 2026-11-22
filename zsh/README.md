@@ -36,5 +36,18 @@ Zsh setup that reaches the first usable prompt in ~45ms (~25ms for `zsh -i -c ex
 ├── tty-guard.zsh                   # Self-heal for a tty re-cooked under zle
 ├── compdefs/                       # Custom completions, `#compdef`-tagged (one per command family)
 └── functions/                      # Autoloaded utility functions (one per file)
+docs/                               # Not deployed: conventions, startup overrides, testing (see Docs)
 tests/                              # Not deployed: run.zsh (test files), ab.zsh (startup A/B against a revision)
 ```
+
+## Docs
+
+The conventions for each kind of change live in `docs/conventions/`:
+
+- **[startup.md](docs/conventions/startup.md)**: what a shell runs at startup, where a new line goes, and measuring it
+- **[commands.md](docs/conventions/commands.md)**: writing, wrapping and completing a command, and aliases in `$SHELL -c` shells
+
+Beside them in `docs/`:
+
+- **[startup-overrides.md](docs/startup-overrides.md)**: the reason and the measured cost behind each line that spares a shell some work
+- **[testing.md](docs/testing.md)**: which test run answers which change, and writing a test

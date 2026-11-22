@@ -8,6 +8,7 @@
 ^/GLOSSARY\.md$
 ^/README\.md$
 ^/assets$
+^/docs$
 ^/tests$
 ^/\.agents$
 ^/\.claude$
