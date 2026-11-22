@@ -8,7 +8,7 @@ Personal config for Rex, the terminal multiplexer app (`TERM_PROGRAM=rex`). Stow
 
 The rules for one kind of change live in `docs/`, one file per topic, written for people and agents alike: conventions in `docs/conventions/`, the testing guide beside them. A project skill in `.agents/skills/` points the agent at its doc and holds only the agent's own steps and checks, so a new convention goes in a doc.
 
-Rex's API ships no type definitions: `.luarc.json` declares only the `rex` global, so LuaLS checks none of its fields. Look an API up before using it: the `superlogical` MCP server (`search_docs`, and `read_doc`, which gives a long page's outline, then one section by its `#anchor`), or `https://www.superlogical.com/rex/docs/llms-full.txt`; `rex actions --json` lists the actions a client or the server offers.
+Rex's API ships no type definitions: `.luarc.json` declares only the `rex` global, so LuaLS checks none of its fields. Look an API up before using it: the `superlogical` MCP server (`search_docs`, `read_doc`), or `https://www.superlogical.com/rex/docs/llms-full.txt`; `rex actions --json` lists the actions a client or the server offers.
 
 ## Code Style
 

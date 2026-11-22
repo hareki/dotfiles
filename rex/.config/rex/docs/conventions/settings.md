@@ -8,11 +8,11 @@ Rex.app keeps its settings in macOS preferences (`com.superlogical.rex`), which 
 
 - Group the entries under `-- [[ Name ]]` headers named for the Settings window section that holds them
 - Take a setting's name and its values from the Rex docs page [`/rex/docs/reference/mac-settings`](https://www.superlogical.com/rex/docs/reference/mac-settings). `rex -C <client label> actions --json` gives each enum, and `rex client list` the app's label
-- `programActivitySoundVolume` stays out of the record: its scale against the action's `value` is unknown
+- `notifications.activity.sound_volume` stays out of the record: how its `value` maps to the stored `programActivitySoundVolume` is unknown
 
 ## Stored values
 
-Read the stored values with `defaults read com.superlogical.rex`, never the plist file, which lags by seconds. Their keys differ from the setting names:
+Read the stored values with `defaults read com.superlogical.rex`, never the plist file, which lags by seconds. Their keys carry a `Workspace.` prefix and differ from the setting names:
 
 - `interfaceStyle` holds style and tint together: classic + tint is `useTheme`, classic `system`, glass + tint `blendTheme`, glass `modern`
 - `terminalPaddingColor` off/automatic/always is `background`/`extend`/`extend-always`

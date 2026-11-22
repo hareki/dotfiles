@@ -10,7 +10,7 @@ How a custom action is filed, named and titled, and which calls it builds on.
 ## Naming
 
 - `name` in `snake_case`
-- `title` in CMOS 18 title case, the rule nvim's keymap descs follow (`nvim/.config/nvim/docs/conventions/keymaps.md`, Titles). Under rule 8.160, prepositions of five or more letters are capitalized: "Close Pane, or the Tab with Its Last Pane"
+- `title` in CMOS 18 title case, the rule nvim's keymap descs follow (`nvim/.config/nvim/docs/conventions/keymaps.md`, Titles)
 - a `description` when the title leaves out what the action does
 
 ## Errors

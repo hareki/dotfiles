@@ -6,7 +6,7 @@ description: Key bindings in this Rex config, covering where a binding goes, the
 # Keys
 
 1. Read [`docs/conventions/keys.md`](../../../docs/conventions/keys.md).
-2. Before binding a cmd key, read the shortcuts on `/rex/docs/reference/mac-actions` through the `superlogical` MCP server's `read_doc`, and name in your report any default the binding shadows.
+2. Name in your report every default shortcut a new binding shadows (Shadowed defaults).
 
 ## Check
 

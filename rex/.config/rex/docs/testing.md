@@ -6,8 +6,8 @@ Run these from `~/.config/rex`.
 
 - **Format**: `stylua --check .`
 - **Load**: `rex config check` loads `init.lua` and counts its bindings and actions
-- **Bindings**: `rex keymap` lists the bindings (`rex keymap --json | jq '.bindings[] | select(.keys[0] == "cmd+d")'`), and exits 1 on an error. It leaves out the app's default shortcuts ([Shadowed defaults](conventions/keys.md#shadowed-defaults))
-- **Reload**: `rex config reload`, or `cmd+d>shift+r` in the app
+- **Reload**: `rex config reload`
+- **Bindings**: `rex keymap` lists the bindings the server loaded, and checks no action name or argument. Given the app's actions as its request, it warns about an unknown action and a bad argument to a custom action or block method, though not to a client action: `rex -C <client label> actions --json | jq -c '{actions: [.actions[] | {name}]}' | rex keymap --request -` (`rex client list` names the label). A warning leaves the exit status 0, so read the output. It leaves out the app's default shortcuts ([Shadowed defaults](conventions/keys.md#shadowed-defaults))
 
 ## Live tests
 

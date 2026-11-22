@@ -5,11 +5,8 @@ description: Testing this Rex config with `rex config check`, `rex keymap`, `rex
 
 # Testing
 
-Read [`docs/testing.md`](../../../docs/testing.md).
-
-- Create a probe session for every live test, and `rex kill` it when done.
-- Leave the actions under Untested live unrun, and say in the report which checks stayed untested for that reason.
+Read [`docs/testing.md`](../../../docs/testing.md). Say in the report which checks stayed untested because their actions are under Untested live.
 
 ## Check
 
-`stylua --check .`, `rex config check` and `rex keymap` pass, and every live test ran in a probe session that is gone afterwards.
+Every check under Checks passes, with no warning from `rex keymap --request`, and every live test ran in a probe session that is gone afterwards.

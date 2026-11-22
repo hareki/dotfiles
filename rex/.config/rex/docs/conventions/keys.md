@@ -23,17 +23,17 @@ A binding sends bytes by naming the terminal's `write` block method, `com.superl
 
 ## Shadowed defaults
 
-The app's default shortcuts (`cmd+f`, and menu key equivalents such as `cmd+w` and `shift+cmd+w`) are a layer `rex keymap` does not list, and a config binding shadows them. They are listed only on the Rex docs page [`/rex/docs/reference/mac-actions`](https://www.superlogical.com/rex/docs/reference/mac-actions).
+The app's default shortcuts (`cmd+f`, `cmd+w`, `shift+cmd+w`, `ctrl+tab`) are a layer `rex keymap` does not list, and a config binding shadows them. They are listed only on the Rex docs page [`/rex/docs/reference/mac-actions`](https://www.superlogical.com/rex/docs/reference/mac-actions).
 
-Check that page before binding a cmd key. A default may stay shadowed, since its action stays in the command palette. To keep a key for one, bind it elsewhere with a comment naming the key it lost (`cmd+d>/` for find, `cmd+d>x` for close).
+Check that page before binding a key. A default may stay shadowed, since its action stays in the command palette. To keep a key for one, bind it elsewhere with a comment naming the key it lost (`cmd+d>/` for find, `cmd+d>x` for close).
 
 ## Pane navigation
 
-`cmd+m/n/e/i` is one grid across Rex panes and nvim windows. `navigate` (`features/pane-navigation.lua`) writes `\27` plus the letter (alt+m/n/e/i) when the pane's foreground process is in `NAVIGATES_ITSELF` (`process` returns `.foreground.name`, `nvim` even through the mise shim's exec), and nvim calls `rex focus <direction> --session $REX_SESSION` from a window at its edge (`nvim/.config/nvim/lua/features/navigation/window-navigation/`). Change a direction key on both sides.
+`cmd+m/n/e/i` is one grid across Rex panes and nvim windows. `navigate` (`features/pane-navigation.lua`) writes `\27` plus the letter (alt+m/n/e/i) when the pane's foreground process is in `NAVIGATES_ITSELF` (`process` returns `.foreground.name`, `nvim` even through the mise shim's exec), and nvim calls `rex focus <direction> --session $REX_SESSION` from a window at its edge (`nvim/.config/nvim/lua/features/navigation/window-navigation/`).
 
 ## Files outside this config
 
 These read the keys Rex sends, so change them with the binding:
 
 - `features/pane-navigation.lua` and nvim's `features/navigation/window-navigation/` ([Pane navigation](#pane-navigation))
-- `features/program-keys.lua` and the programs that listen for its keys: nvim's keymaps, `zsh/.config/zsh/keymaps.zsh` (`^[f` atuin, `\e ` completion, `\e[1;6Y` forward-word), Claude Code (`alt+enter` new line)
+- `features/program-keys.lua` and the programs that listen for its keys: nvim's keymaps, `zsh/.config/zsh/keymaps.zsh`, Claude Code
