@@ -10,7 +10,7 @@ local lazy = require('lazy')
 lazy.load({ plugins = { 'git-conflict.nvim' } })
 
 -- The plugin's namespace, where a parsed conflict is one extmark over its region
-local CONFLICT_NS = vim.api.nvim_create_namespace('git-conflict')
+local conflict_ns = vim.api.nvim_create_namespace('git-conflict')
 local CONFLICT_WINHL =
   'DocumentHighlight:GitConflictDocumentHighlight,GitSignsCurrentLineBlame:GitConflictBlame'
 local UNMERGED_ICON = Conf.icons.git.UNMERGED
@@ -23,7 +23,7 @@ local LINES = { 'before', '<<<<<<< HEAD', 'ours', '>>>>>>> theirs', 'after' }
 --- @return integer buf
 local function conflicted_file(name)
   local buf = t.file(name, LINES)
-  vim.api.nvim_buf_set_extmark(buf, CONFLICT_NS, 1, 0, { end_row = 4, end_col = 0 })
+  vim.api.nvim_buf_set_extmark(buf, conflict_ns, 1, 0, { end_row = 4, end_col = 0 })
   return buf
 end
 

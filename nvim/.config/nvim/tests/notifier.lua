@@ -6,7 +6,7 @@ local t = require('tests.lib.helpers')
 local notify = require('notify')
 local notify_utils = require('chrome.nvim-notify.utils')
 
-local RENDER_MARKDOWN_NS = vim.api.nvim_create_namespace('render-markdown.nvim')
+local render_markdown_ns = vim.api.nvim_create_namespace('render-markdown.nvim')
 
 local function dismiss_toasts()
   notify.dismiss({ pending = true, silent = true })
@@ -188,7 +188,7 @@ local function highlights(buf)
   return vim
     .iter(vim.api.nvim_buf_get_extmarks(buf, -1, 0, -1, { details = true }))
     :filter(function(mark)
-      return mark[4].ns_id ~= RENDER_MARKDOWN_NS
+      return mark[4].ns_id ~= render_markdown_ns
     end)
     :map(function(mark)
       return { mark[2], mark[3], mark[4].end_row, mark[4].end_col, mark[4].hl_group }
@@ -201,7 +201,7 @@ end
 --- @param where string
 local function await_markdown(buf, where)
   t.wait_for(function()
-    local marks = vim.api.nvim_buf_get_extmarks(buf, RENDER_MARKDOWN_NS, 0, -1, { details = true })
+    local marks = vim.api.nvim_buf_get_extmarks(buf, render_markdown_ns, 0, -1, { details = true })
     return vim.iter(marks):any(function(mark)
       local details = mark[4]
       return details.hl_group == 'RenderMarkdownCodeInline'
@@ -302,7 +302,7 @@ t.test('a string message renders as markdown in the toast, a duplicate and the h
   )
 
   -- So the duplicate's render has to paint it again
-  vim.api.nvim_buf_clear_namespace(buf, RENDER_MARKDOWN_NS, 0, -1)
+  vim.api.nvim_buf_clear_namespace(buf, render_markdown_ns, 0, -1)
   Notifier.warn(MARKDOWN, { title = 'Style Enforcer' })
   t.wait_for(function()
     return vim.api.nvim_win_get_config(win).title[1][1]:find('(x2)', 1, true) ~= nil
@@ -393,7 +393,7 @@ t.test("render-markdown stays out of the markdown preview of Snacks' text previe
   -- render-markdown, were it on, would have painted by now
   t.settle(300)
   t.eq(
-    vim.api.nvim_buf_get_extmarks(buf, RENDER_MARKDOWN_NS, 0, -1, {}),
+    vim.api.nvim_buf_get_extmarks(buf, render_markdown_ns, 0, -1, {}),
     {},
     'render-markdown paints nothing'
   )
