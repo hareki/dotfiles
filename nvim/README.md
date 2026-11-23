@@ -38,7 +38,7 @@ that stay rebased on upstream.
 - 🤖 Claude Code in a full-screen terminal, next-edit predictions and AI completion items
 - 🧠 TypeScript errors rendered as readable Markdown in the diagnostic hover
 - 🎨 Catppuccin Mocha everywhere, with one color per mode on the statusline and the cursor line number
-- 🍴 25 plugin forks, each a few commits on top of upstream
+- 🍴 26 plugin forks, each a few commits on top of upstream
 
 ## 🤔 What is it?
 
