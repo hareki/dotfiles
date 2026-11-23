@@ -17,6 +17,32 @@ function M.jump(direction)
   end
 end
 
+--- Open a picker's results in Trouble, whose snacks source asserts every item has a file or a
+--- buffer: a picker of keymaps or commands warns instead
+--- @param picker snacks.Picker
+function M.snacks_to_trouble(picker)
+  -- The items the source's default "smart" open takes: the selection, else every item
+  local items = picker:selected()
+  if #items == 0 then
+    items = picker:items()
+  end
+
+  for _, item in ipairs(items) do
+    if not item.file and not item.buf then
+      local source = picker.opts.source
+      local name = source and string.format('`%s` ', source) or ''
+      Notifier.warn(
+        string.format('The %sSnacks picker has no files to send to Trouble', name),
+        { title = 'Snacks Picker' }
+      )
+      return
+    end
+  end
+
+  local snacks_source = require('trouble.sources.snacks')
+  snacks_source.open(picker)
+end
+
 M.SNACKS_WINBAR = "%{%v:lua.require'features.diagnostics.trouble-nvim.utils'.snacks_title()%}"
 
 --- The pinned title of a list sent from a Snacks picker: icon, name and item count

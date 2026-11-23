@@ -45,8 +45,8 @@ return {
         actions = {
           -- Send a picker's results to Trouble, which keeps them on screen
           snacks_to_trouble = function(picker)
-            local snacks_source = require('trouble.sources.snacks')
-            snacks_source.open(picker)
+            local utils = require('features.diagnostics.trouble-nvim.utils')
+            utils.snacks_to_trouble(picker)
           end,
         },
         win = {
