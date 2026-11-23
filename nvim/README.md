@@ -256,6 +256,9 @@ nvim-tree-lua/
 
 ## 📚 Docs
 
+**[docs/architecture.md](./.config/nvim/docs/architecture.md)** covers how the config boots, where code
+lives, and which modules other tools reach into.
+
 The conventions for each kind of change live in [`docs/conventions/`](./.config/nvim/docs/conventions/):
 
 - **[code-style.md](./.config/nvim/docs/conventions/code-style.md)**: annotations, requires, constants, augroups, notifications, file names
@@ -266,7 +269,7 @@ The conventions for each kind of change live in [`docs/conventions/`](./.config/
 - **[lsp.md](./.config/nvim/docs/conventions/lsp.md)**: enabling a language server, and which servers run per project
 - **[forks.md](./.config/nvim/docs/conventions/forks.md)**: the `hareki/*` forks and which fixes belong in one
 
-[docs/testing.md](./.config/nvim/docs/testing.md) covers the three test scripts: `tests/run.sh` runs the headless
+**[docs/testing.md](./.config/nvim/docs/testing.md)** covers the three test scripts: `tests/run.sh` runs the headless
 tests, `tests/ab.sh` diffs what two revisions of the config define (maps, highlights, autocmds,
 options, plugin opts), and `tests/probe.sh` runs a one-off Lua payload in the same boot.
 
