@@ -55,7 +55,7 @@
   "snacks.nvim": { "branch": "main", "commit": "efe36781a8f3f97ba0160255459464e7213348a6" },
   "tiny-code-action.nvim": { "branch": "main", "commit": "91a9c32228e9a7761d241023d9ebb9d11d8fb10d" },
   "todo-comments.nvim": { "branch": "main", "commit": "31e3c38ce9b29781e4422fc0322eb0a21f4e8668" },
-  "trouble.nvim": { "branch": "main", "commit": "ac6e17656d5d264f477733bf0de35ea3c728a78f" },
+  "trouble.nvim": { "branch": "main", "commit": "44729fe66e4694ea0f424f21b1f818f8c29b42ca" },
   "ts-autotag.nvim": { "branch": "master", "commit": "6178353d9003e91eb053d69cf9a4d72e28137daa" },
   "vim-tmux-navigator": { "branch": "master", "commit": "fb217852efb294a50a10507fc8d53709696b6e23" },
   "visimatch.nvim": { "branch": "main", "commit": "c4bbb796122416d7848a4d521335de2c2f5aac3d" },
