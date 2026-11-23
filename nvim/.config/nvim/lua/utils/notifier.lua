@@ -52,6 +52,7 @@ end
 --- The render a notification carries, which nvim-notify runs each time it fills its buffer (the
 --- toast, a duplicate re-rendering it, the history picker's preview and float): the configured
 --- render, then the message's own paint over its plain lines
+--- @module 'notify'
 --- @param highlights? utils.notifier.Highlight[] A chunk message's spans; nil paints it as markdown
 --- @return fun(buf: integer, notif: notify.Notification, hl: NotifyBufHighlights, config: table)
 local function renderer(highlights)
