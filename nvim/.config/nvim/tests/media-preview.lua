@@ -177,8 +177,7 @@ end)
 
 t.test('a picker without a previewer of its own previews audio as its page', function()
   local probes = fake_ffprobe()
-  local path = vim.fs.joinpath(vim.uv.cwd(), 'preview.mp3')
-  vim.fn.writefile({ 'not really audio' }, path)
+  local path = t.write('preview.mp3', { 'not really audio' })
 
   local picker = t.open_picker(
     function()

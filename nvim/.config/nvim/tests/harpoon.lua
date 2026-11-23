@@ -18,16 +18,6 @@ local function pin_list()
   return list
 end
 
---- Record the notices, through vim.notify
---- @return { level: integer, title?: string, msg: string }[] notices
-local function record_notices()
-  local notices = {}
-  t.spy(vim, 'notify', function(msg, level, opts)
-    notices[#notices + 1] = { level = level, title = opts and opts.title, msg = msg }
-  end)
-  return notices
-end
-
 --- @param lhs string
 local function press(lhs)
   t.map_callback('n', lhs)()
@@ -47,19 +37,17 @@ end
 --- The pin piece of the statusline: the slots after the pin icon, nil without it
 --- @return string?
 local function shown_pins()
-  local line = vim.api.nvim_eval_statusline(vim.o.statusline, {}).str
-  local pins = line:match(vim.pesc(PIN_ICON) .. '%s+([%d%[%] ]+)')
+  local pins = t.statusline():match(vim.pesc(PIN_ICON) .. '%s+([%d%[%] ]+)')
   return pins and vim.trim(pins)
 end
 
---- Wait for the statusline to show `pins` (nil: no pin piece); lualine redraws on a 1 s timer, so
---- ask for a redraw the way the config's own modules do, which leaves the piece's cache alone
+--- Wait for the statusline to show `pins` (nil: no pin piece); the redraw t.statusline asks for
+--- leaves the piece's cache alone
 --- @param pins string?
 --- @param msg string
 local function await_pins(pins, msg)
   local shown
   local ok = vim.wait(2000, function()
-    UI.statusline.refresh()
     shown = shown_pins()
     return shown == pins
   end, 10)
@@ -68,7 +56,7 @@ end
 
 t.test('a pin key adds the file to an empty slot', function()
   local list = pin_list()
-  local notices = record_notices()
+  local notices = t.notices()
   t.file('first.txt', { 'first' })
 
   press('<leader>H1')
@@ -82,7 +70,7 @@ t.test('a pin warns when the file is already there, moves it, or replaces anothe
   local list = pin_list()
   t.file('a.txt', { 'a' })
   press('<leader>H1')
-  local notices = record_notices()
+  local notices = t.notices()
 
   press('<leader>H1')
   t.eq(slots(list), { 'a.txt' }, 'the pins after pinning to the same slot')
@@ -111,7 +99,7 @@ end)
 
 t.test('the picker key tells an empty list, opening nothing', function()
   pin_list()
-  local notices = record_notices()
+  local notices = t.notices()
 
   press('<leader>fp')
   t.eq(notices, { { level = levels.INFO, title = 'Pin', msg = 'Pin list is empty' } })

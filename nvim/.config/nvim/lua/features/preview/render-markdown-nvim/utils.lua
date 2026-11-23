@@ -51,12 +51,12 @@ end
 
 --- Hiding or revealing a line (a code fence) moves no topline, so no WinScrolled tells satellite.nvim
 --- its bar measured the old lines, and a float that now fits keeps its bar; never loads the plugin
---- @param win integer
+--- @param ctx render.md.on.render.Context render-markdown's `on.render` and `on.clear` argument
 --- @return nil
-function M.refresh_scrollbar(win)
+function M.refresh_scrollbar(ctx)
   local visible = package.loaded['satellite.visible']
   if visible then
-    visible.refresh_if_changed(win)
+    visible.refresh_if_changed(ctx.win)
   end
 end
 

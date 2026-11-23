@@ -8,10 +8,7 @@ return {
     enabled = UI.integration.host ~= nil,
 
     init = function()
-      local opt = vim.opt
-
-      opt.statusline = UI.integration.statusline()
-      opt.showmode = false -- As under lualine, whose init is not there to turn it off
+      vim.opt.statusline = UI.integration.statusline()
     end,
   },
 }

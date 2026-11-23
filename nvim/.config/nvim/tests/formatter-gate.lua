@@ -16,30 +16,21 @@ local function formatters_for(path)
   end, (conform.list_formatters_to_run(buf)))
 end
 
---- Write a file under the boot's cwd
---- @param path string
---- @param lines string[]
-local function write(path, lines)
-  local full = vim.fs.joinpath(vim.uv.cwd(), path)
-  vim.fn.mkdir(vim.fs.dirname(full), 'p')
-  vim.fn.writefile(lines, full)
-end
-
 t.test('prettier formats a file outside an oxfmt project', function()
   t.eq(formatters_for('plain/src/app.ts'), { 'prettier' })
 end)
 
 t.test('a .oxfmtrc.json above the file leaves prettier out', function()
-  write('oxfmt-rc/.oxfmtrc.json', { '{}' })
+  t.write('oxfmt-rc/.oxfmtrc.json', { '{}' })
   t.eq(formatters_for('oxfmt-rc/src/app.ts'), {})
 end)
 
 t.test('a package.json naming oxfmt above the file leaves prettier out', function()
-  write('oxfmt-package/package.json', { '{ "devDependencies": { "oxfmt": "^0.1.0" } }' })
+  t.write('oxfmt-package/package.json', { '{ "devDependencies": { "oxfmt": "^0.1.0" } }' })
   t.eq(formatters_for('oxfmt-package/src/app.ts'), {})
 end)
 
 t.test('a package.json without oxfmt keeps prettier', function()
-  write('other-package/package.json', { '{ "devDependencies": { "typescript": "^5.0.0" } }' })
+  t.write('other-package/package.json', { '{ "devDependencies": { "typescript": "^5.0.0" } }' })
   t.eq(formatters_for('other-package/src/app.ts'), { 'prettier' })
 end)

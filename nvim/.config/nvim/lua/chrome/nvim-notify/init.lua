@@ -29,6 +29,8 @@ return {
     },
 
     opts = function()
+      local notify_utils = require('chrome.nvim-notify.utils')
+
       return {
         stages = 'static',
         timeout = 2000,
@@ -38,7 +40,6 @@ return {
         max_width = UI.layout.inline_max_width,
 
         on_open = function(win)
-          local notify_utils = require('chrome.nvim-notify.utils')
           local buf = vim.api.nvim_win_get_buf(win)
           local title = vim.b[buf][notify_utils.TITLE_KEY]
 
@@ -51,7 +52,6 @@ return {
         end,
 
         render = function(bufnr, notif, hl)
-          local notify_utils = require('chrome.nvim-notify.utils')
           local title = notif.title[1]
           if notif.duplicates then
             title = string.format('%s (x%d)', title, #notif.duplicates)

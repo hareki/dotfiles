@@ -91,7 +91,7 @@ return {
         'astro',
         'ember', -- Ember/Glimmer
         'angularls',
-        -- These three start only in projects that configure them (root_dir + workspace_required)
+        -- These three start only in projects that configure them (docs/conventions/lsp.md)
         'eslint',
         'oxlint',
         'oxfmt', -- Instead of spawning the CLI (conform-nvim/style-enforcer/oxfmt.lua)

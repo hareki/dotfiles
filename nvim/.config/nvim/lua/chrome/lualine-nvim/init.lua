@@ -8,8 +8,6 @@ return {
   init = function()
     local opt = vim.opt
 
-    opt.showmode = false -- The mode pill shows it
-
     -- An empty statusline till lualine loads, to prevent layout shifting
     opt.statusline = ' '
 

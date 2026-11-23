@@ -2,31 +2,29 @@
 local M = {}
 
 --- @class features.search.snacks-nvim.actions.State
---- @field preview_shown table<string, boolean> Whether the preview is shown, per remembered source
+--- @field preview_hidden table<string, boolean> Whether toggle_preview last hid a source's preview
 
 --- @type features.search.snacks-nvim.actions.State
-local state = {
-  -- Sources whose preview toggle carries across openings (their config hook is M.remembered_preview)
-  preview_shown = { files = true },
-}
+local state = { preview_hidden = {} }
 
---- A source's `config` hook: open with the preview shown or hidden as toggle_preview last left it,
---- whoever opens the picker. snacks runs it more than once per open, so it only reads the choice
---- @param opts snacks.picker.Config The merged config of a source in state.preview_shown
+--- A source's `config` hook, which makes its preview toggle carry across openings: open with the
+--- preview shown or hidden as toggle_preview last left it, whoever opens the picker. snacks runs it
+--- more than once per open, so it only reads the choice
+--- @param opts snacks.picker.Config The source's merged config
 function M.remembered_preview(opts)
   local layout = opts.layout --[[@as snacks.picker.layout.Config]]
-  layout.hidden = state.preview_shown[opts.source] and {} or { 'preview' }
+  layout.hidden = state.preview_hidden[opts.source] and { 'preview' } or {}
 end
 
---- Wrap default toggle_preview to remember the choice for the sources in state.preview_shown
+--- Wrap default toggle_preview to record the choice, which only a source with the hook reads
 --- @module 'snacks'
 --- @param picker snacks.Picker
 function M.toggle_preview(picker)
   picker:toggle('preview')
 
   local source = picker.opts.source
-  if source and state.preview_shown[source] ~= nil then
-    state.preview_shown[source] = not picker.layout:is_hidden('preview')
+  if source then
+    state.preview_hidden[source] = picker.layout:is_hidden('preview')
   end
 end
 

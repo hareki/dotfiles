@@ -41,16 +41,6 @@ local function modified_file(name)
   return buf
 end
 
---- Record the notices, through vim.notify
---- @return { level: integer, title?: string, msg: string }[] notices
-local function record_notices()
-  local notices = {}
-  t.spy(vim, 'notify', function(msg, level, opts)
-    notices[#notices + 1] = { level = level, title = opts and opts.title, msg = msg }
-  end)
-  return notices
-end
-
 --- Replace the progress handles with recorders
 --- @return table[] events `{ 'start', title }`, `{ 'report', title, percentage }` or `{ 'finish' }`
 local function record_progress()
@@ -225,7 +215,7 @@ t.test('<leader>F formats without saving', function()
 end)
 
 t.test('<F40> formats and saves every modified buffer', function()
-  local notices = record_notices()
+  local notices = t.notices()
   local first = t.file('all-1.lua', UNFORMATTED)
   vim.bo[first].modified = true
   local second = t.file('all-2.lua', UNFORMATTED)
@@ -265,7 +255,7 @@ t.test('runs the steps that apply in order, counting progress over them', functi
 end)
 
 t.test('a failed step ends the run with its one notice, keeping what ran before', function()
-  local notices = record_notices()
+  local notices = t.notices()
   local trace = {}
   local buf = modified_file('fail.txt')
 
@@ -293,7 +283,7 @@ t.test('a failed step ends the run with its one notice, keeping what ran before'
 end)
 
 t.test('a step that throws fails like one that reports an error', function()
-  local notices = record_notices()
+  local notices = t.notices()
   local trace = {}
   local buf = modified_file('throw.txt')
 
@@ -318,7 +308,7 @@ t.test('a step that throws fails like one that reports an error', function()
 end)
 
 t.test('the timeout ends the run: no later step, notice or edit, lock released', function()
-  local notices = record_notices()
+  local notices = t.notices()
   local events = record_progress()
   local trace = {}
   local late_done = false
@@ -376,7 +366,7 @@ t.test('a run on a buffer already running warns and runs nothing', function()
     end,
   })
 
-  local notices = record_notices()
+  local notices = t.notices()
   local second_called = false
   style_enforcer.run({
     buf = buf,
@@ -426,7 +416,7 @@ t.test('run_all runs every modified buffer, then sums them up once', function()
       ctx.done(ctx.buf == second and 'rejected' or nil)
     end),
   }
-  local notices = record_notices()
+  local notices = t.notices()
 
   style_enforcer.run_all({ steps = steps })
 
@@ -442,7 +432,7 @@ t.test('run_all runs every modified buffer, then sums them up once', function()
 end)
 
 t.test('run_all warns when no buffer is modified', function()
-  local notices = record_notices()
+  local notices = t.notices()
   style_enforcer.run_all()
 
   t.eq(notices, { { level = levels.WARN, title = 'Style Enforcer', msg = 'No buffers to format' } })
@@ -451,7 +441,7 @@ end)
 -- The real steps
 
 t.test('conform: its failure lists the formatters and points to :ConformInfo', function()
-  local notices = record_notices()
+  local notices = t.notices()
   local buf = t.file('broken.lua', { 'local = 1' })
 
   t.eq(run({ buf = buf, steps = { conform_step } }), false, 'the run result')
@@ -507,7 +497,7 @@ t.test('oxfmt: a null reply, for a formatted file, succeeds without an edit', fu
 end)
 
 t.test('oxfmt: a reply after the timeout is dropped, making no edit', function()
-  local notices = record_notices()
+  local notices = t.notices()
   local buf = t.file('late.ts', { 'const a=1' })
   local replied = false
   serve(buf, 'oxfmt', {
@@ -539,7 +529,7 @@ t.test('oxfmt: a reply after the timeout is dropped, making no edit', function()
 end)
 
 t.test("eslint: applyAllFixes for the buffer's version; a server error fails the run", function()
-  local notices = record_notices()
+  local notices = t.notices()
   local buf = t.file('fix.ts', { 'var a = 1' })
   local log = serve(buf, 'eslint', {
     ['workspace/executeCommand'] = function(_, reply)
@@ -581,7 +571,7 @@ t.test('oxlint: pulls diagnostics before fixAll, so the fix sees the current tex
 end)
 
 t.test('oxlint: an edit during the pull skips fixAll with its own notice', function()
-  local notices = record_notices()
+  local notices = t.notices()
   local buf = t.file('race.ts', { 'const a = 1' })
   local log = serve(buf, 'oxlint', {
     ['textDocument/diagnostic'] = function(_, reply)
@@ -607,7 +597,7 @@ t.test('oxlint: an edit during the pull skips fixAll with its own notice', funct
 end)
 
 t.test('an LSP step whose client detached after the gate fails as missing', function()
-  local notices = record_notices()
+  local notices = t.notices()
   local buf = t.file('detach.ts', { 'const a = 1' })
   local log = serve(buf, 'oxlint', {})
   local client = vim.lsp.get_clients({ name = 'oxlint', bufnr = buf })[1]
@@ -685,7 +675,7 @@ t.test("the progress shows in noice as the editor's own, with no LSP client behi
 end)
 
 t.test('oxfmt: its failure reads as formatting', function()
-  local notices = record_notices()
+  local notices = t.notices()
   local buf = t.file('invalid.ts', { 'const a =' })
   serve(buf, 'oxfmt', {
     ['textDocument/formatting'] = function(_, reply)

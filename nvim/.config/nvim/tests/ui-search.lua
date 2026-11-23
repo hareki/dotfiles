@@ -55,12 +55,12 @@ t.test('<Esc> in Normal mode and entering Insert mode clear the search', functio
   t.buffer(nil, { 'needle in a haystack' })
 
   search('needle')
-  vim.api.nvim_feedkeys(vim.keycode('<Esc>'), 'x', false)
+  t.press('<Esc>')
   t.eq(vim.v.hlsearch, 0, '<Esc> clears the search')
 
   search('needle')
   -- Cleared from a scheduled callback, since autocmds restore the highlight state on return
-  vim.api.nvim_feedkeys('i', 'x', false)
+  t.press('i')
   t.wait_for(function()
     return vim.v.hlsearch == 0
   end, 'InsertEnter to clear the search')

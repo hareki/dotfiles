@@ -18,11 +18,6 @@ local M = {}
 --- @field end_col integer
 --- @field group string
 
---- What a notification paints over its plain lines: highlighted spans, or the message as markdown
---- @class utils.notifier.Paint
---- @field highlights? utils.notifier.Highlight[]
---- @field markdown? boolean
-
 -- Whether the buffer's message is markdown, which only renders once a window shows it
 local MARKDOWN_KEY = 'notify_markdown'
 
@@ -39,28 +34,29 @@ function M.paint_window(win)
     -- on it instead of the autocmd window
     vim.bo[buf].filetype = 'markdown'
     local render_markdown = require('render-markdown')
-    render_markdown.render({ buf = buf, win = win, config = { render_modes = true } })
+    render_markdown.render({ buf = buf, win = win })
   end
 end
 
 --- The render a notification carries, which nvim-notify runs each time it fills its buffer (the
---- toast, a duplicate re-rendering it, the history float): the configured render, then `paint`
---- @param paint utils.notifier.Paint
+--- toast, a duplicate re-rendering it, the history float): the configured render, then the
+--- message's own paint over its plain lines
+--- @param highlights? utils.notifier.Highlight[] A chunk message's spans; nil paints it as markdown
 --- @return fun(buf: integer, notif: notify.Notification, hl: NotifyBufHighlights, config: table)
-local function renderer(paint)
+local function renderer(highlights)
   return function(buf, notif, hl, config)
     config.render()(buf, notif, hl, config)
 
     -- A duplicate re-renders over the old highlights
     vim.api.nvim_buf_clear_namespace(buf, highlight_ns, 0, -1)
-    for _, span in ipairs(paint.highlights or {}) do
+    for _, span in ipairs(highlights or {}) do
       vim.api.nvim_buf_set_extmark(buf, highlight_ns, span.row, span.col, {
         end_col = span.end_col,
         hl_group = span.group,
       })
     end
 
-    vim.b[buf][MARKDOWN_KEY] = paint.markdown
+    vim.b[buf][MARKDOWN_KEY] = highlights == nil
     -- A duplicate re-renders into the window of the toast it repeats
     for _, win in ipairs(vim.fn.win_findbuf(buf)) do
       M.paint_window(win)
@@ -106,13 +102,11 @@ end
 local function notify(level, msg, opts, send)
   opts = opts or {}
 
-  local text, paint
+  local text, highlights
   if type(msg) == 'string' then
-    text, paint = msg, { markdown = true }
+    text = msg
   else
-    local highlights
     text, highlights = normalize_message(msg)
-    paint = { highlights = highlights }
   end
 
   local on_open
@@ -126,7 +120,7 @@ local function notify(level, msg, opts, send)
   -- float; it replaces noice's, whose extra passes paint nothing on a vim.notify message
   return (send or vim.notify)(text, level, {
     title = opts.title or 'Notifier',
-    render = renderer(paint),
+    render = renderer(highlights),
     on_open = on_open,
   })
 end

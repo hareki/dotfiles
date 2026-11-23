@@ -15,7 +15,8 @@ status=0
 boots=''
 
 for file in "$TESTS_DIR"/*.lua; do
-  name=$(basename "$file" .lua)
+  name=${file##*/}
+  name=${name%.lua}
   if [ $# -gt 0 ]; then
     wanted=false
     for word in "$@"; do

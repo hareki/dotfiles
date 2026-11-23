@@ -79,16 +79,13 @@ local function split_other()
   return win
 end
 
---- Wait for the statusline to show `text`, or to drop it; lualine redraws on a 1 s timer, so ask
---- for a redraw the way the config's own modules do
+--- Wait for the statusline to show `text`, or to drop it
 --- @param text string
 --- @param shown boolean
 --- @param msg string
 local function await_statusline(text, shown, msg)
   t.wait_for(function()
-    UI.statusline.refresh()
-    local line = vim.api.nvim_eval_statusline(vim.o.statusline, {}).str
-    return (line:find(text, 1, true) ~= nil) == shown
+    return (t.statusline():find(text, 1, true) ~= nil) == shown
   end, msg)
 end
 

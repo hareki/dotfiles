@@ -18,9 +18,7 @@ local function project(name, files)
   local root = vim.fs.joinpath(vim.uv.cwd(), name)
   files = vim.tbl_extend('keep', files, { ['package-lock.json'] = '{}' })
   for path, content in pairs(files) do
-    local full = vim.fs.joinpath(root, path)
-    vim.fn.mkdir(vim.fs.dirname(full), 'p')
-    vim.fn.writefile(vim.split(content, '\n'), full)
+    t.write(vim.fs.joinpath(name, path), vim.split(content, '\n'))
   end
   return root
 end

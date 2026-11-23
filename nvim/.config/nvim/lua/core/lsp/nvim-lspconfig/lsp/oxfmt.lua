@@ -4,9 +4,6 @@ local filetypes = Conf.filetypes
 -- graphql, vue, svelte and handlebars, where conform's LSP fallback would follow html.lua's server
 return {
   opts = {
-    -- Upstream's root_dir answers nil outside an oxfmt project, which starts a rootless server
-    workspace_required = true,
-
     filetypes = filetypes.merge(
       filetypes.JS, -- No astro
       filetypes.CSS,

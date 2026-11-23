@@ -25,14 +25,12 @@ local function open_float(notif)
     row = row,
     border = 'rounded',
     style = 'minimal',
+    title = vim.b[opened.buffer][M.TITLE_KEY],
+    title_pos = 'center',
   })
 
   vim.wo[win][0].winhighlight =
     string.format('Normal:%s,FloatBorder:%s', opened.highlights.body, opened.highlights.border)
-  vim.api.nvim_win_set_config(
-    win,
-    { title = vim.b[opened.buffer][M.TITLE_KEY], title_pos = 'center' }
-  )
   Notifier.paint_window(win)
 end
 

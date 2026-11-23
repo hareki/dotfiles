@@ -25,7 +25,6 @@ return {
       image = {
         enabled = true,
         convert = {
-          notify = false,
           magick = {
             -- snacks' default plus the define: ImageMagick asks ffmpeg for WebP frames, which
             -- Homebrew's ffmpeg (no libwebp) can't encode; PAM needs none, and only video reads it

@@ -103,6 +103,24 @@ function M.spy(tbl, key, fake)
   return calls
 end
 
+--- Record the notices sent through vim.notify until the test ends, showing none
+--- @return { level: integer, title?: string, msg: string }[] notices
+function M.notices()
+  local notices = {}
+  M.spy(vim, 'notify', function(msg, level, opts)
+    notices[#notices + 1] = { level = level, title = opts and opts.title, msg = msg }
+  end)
+  return notices
+end
+
+--- The statusline's text after a redraw: lualine redraws on a 1 s timer, so ask for one the way the
+--- config's own modules do
+--- @return string
+function M.statusline()
+  UI.statusline.refresh()
+  return vim.api.nvim_eval_statusline(vim.o.statusline, {}).str
+end
+
 --- Wipe `buf` when the test ends, unless the test already did
 --- @param buf integer
 local function wipe_after(buf)
@@ -130,14 +148,23 @@ function M.buffer(filetype, lines)
   return buf
 end
 
---- Write a file under the boot's cwd (a private temp dir) and edit it, detecting its filetype
+--- Write a file under the boot's cwd (a private temp dir), making its directories
+--- @param name string
+--- @param lines string[]
+--- @return string path
+function M.write(name, lines)
+  local path = vim.fs.joinpath(vim.uv.cwd(), name)
+  vim.fn.mkdir(vim.fs.dirname(path), 'p')
+  vim.fn.writefile(lines, path)
+  return path
+end
+
+--- Write a file under the boot's cwd (see write()) and edit it, detecting its filetype
 --- @param name string
 --- @param lines string[]
 --- @return integer buf
 function M.file(name, lines)
-  local path = vim.fs.joinpath(vim.uv.cwd(), name)
-  vim.fn.mkdir(vim.fs.dirname(path), 'p')
-  vim.fn.writefile(lines, path)
+  local path = M.write(name, lines)
   vim.cmd.edit(vim.fn.fnameescape(path))
   local buf = vim.api.nvim_get_current_buf()
   wipe_after(buf)

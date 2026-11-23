@@ -81,7 +81,6 @@ return {
         { pattern = 'code', icon = Conf.icons.tools.CODE, color = 'red' },
 
         -- Generic ones, should have lower priority
-
         { pattern = 'mark', icon = Conf.icons.tools.MARK, color = 'yellow' },
         { pattern = 'lsp', icon = Conf.icons.tools.LSP, color = 'yellow' },
         { pattern = 'register', icon = Conf.icons.editor.REGISTER, color = 'yellow' },

@@ -18,8 +18,9 @@ return {
     lazy = false,
 
     init = function()
-      -- noice skips these messages, so nvim would send them per key for nothing
+      -- noice skips these messages, so nvim would send them per key and per mode change for nothing
       vim.opt.showcmd = false
+      vim.opt.showmode = false
     end,
 
     opts = {

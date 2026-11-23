@@ -31,7 +31,6 @@ return {
         },
       },
     },
-    opts_extend = { 'routes' },
   },
 
   {
