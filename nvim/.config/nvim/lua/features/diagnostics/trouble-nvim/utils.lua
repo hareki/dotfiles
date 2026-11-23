@@ -22,10 +22,11 @@ M.SNACKS_WINBAR = "%{%v:lua.require'features.diagnostics.trouble-nvim.utils'.sna
 --- The pinned title of a list sent from a Snacks picker: icon, name and item count
 --- @return string winbar
 function M.snacks_title()
-  local count = #require('trouble.sources.snacks').items
-  return ('%%#TroubleSnacksIcon# %s %%#Title#Snacks %%#TroubleSnacksCount#%d'):format(
+  local snacks_source = require('trouble.sources.snacks')
+  return string.format(
+    '%%#TroubleSnacksIcon# %s %%#Title#Snacks %%#TroubleSnacksCount#%d',
     Conf.icons.tools.SNACKS,
-    count
+    #snacks_source.items
   )
 end
 
