@@ -11,15 +11,70 @@ local M = {}
 --- @alias utils.notifier.MessageChunk { [1]: string, [2]: string } Text and its highlight group
 --- @alias utils.notifier.Message string | utils.notifier.MessageChunk[]
 
+--- A highlight group over part of one message line, counted from the message's first line
+--- @class utils.notifier.Highlight
+--- @field row integer
+--- @field col integer
+--- @field end_col integer
+--- @field group string
+
+--- What a notification paints over its plain lines: highlighted spans, or the message as markdown
+--- @class utils.notifier.Paint
+--- @field highlights? utils.notifier.Highlight[]
+--- @field markdown? boolean
+
+-- Whether the buffer's message is markdown, which only renders once a window shows it
+local MARKDOWN_KEY = 'notify_markdown'
+
 local highlight_ns = vim.api.nvim_create_namespace('utils.notifier')
 
---- Flatten a chunk list and build an on_open that restores highlights.
+--- Render the message as markdown in a window showing its buffer, if it is markdown. nvim-notify's
+--- `on_open` and the history float call it too: each opens its window after the render has run
+--- @param win integer
+--- @return nil
+function M.paint_window(win)
+  local buf = vim.api.nvim_win_get_buf(win)
+  if vim.b[buf][MARKDOWN_KEY] then
+    -- Set while a window shows the buffer, so the FileType handlers' window options (wrap) land
+    -- on it instead of the autocmd window
+    vim.bo[buf].filetype = 'markdown'
+    local render_markdown = require('render-markdown')
+    render_markdown.render({ buf = buf, win = win, config = { render_modes = true } })
+  end
+end
+
+--- The render a notification carries, which nvim-notify runs each time it fills its buffer (the
+--- toast, a duplicate re-rendering it, the history float): the configured render, then `paint`
+--- @param paint utils.notifier.Paint
+--- @return fun(buf: integer, notif: notify.Notification, hl: NotifyBufHighlights, config: table)
+local function renderer(paint)
+  return function(buf, notif, hl, config)
+    config.render()(buf, notif, hl, config)
+
+    -- A duplicate re-renders over the old highlights
+    vim.api.nvim_buf_clear_namespace(buf, highlight_ns, 0, -1)
+    for _, span in ipairs(paint.highlights or {}) do
+      vim.api.nvim_buf_set_extmark(buf, highlight_ns, span.row, span.col, {
+        end_col = span.end_col,
+        hl_group = span.group,
+      })
+    end
+
+    vim.b[buf][MARKDOWN_KEY] = paint.markdown
+    -- A duplicate re-renders into the window of the toast it repeats
+    for _, win in ipairs(vim.fn.win_findbuf(buf)) do
+      M.paint_window(win)
+    end
+  end
+end
+
+--- Flatten a chunk list into its text and the spans its highlight groups cover
 --- @param chunks utils.notifier.MessageChunk[]
 --- @return string plain
---- @return function on_open
+--- @return utils.notifier.Highlight[] highlights
 local function normalize_message(chunks)
-  local parts, regions = {}, {}
-  local line, col = 0, 0
+  local parts, highlights = {}, {}
+  local row, col = 0, 0
 
   for _, chunk in ipairs(chunks) do
     local text, group = chunk[1], chunk[2]
@@ -29,36 +84,17 @@ local function normalize_message(chunks)
     for i, line_text in ipairs(lines) do
       -- The first part continues the current line, the others start a new one
       if i > 1 then
-        line, col = line + 1, 0
+        row, col = row + 1, 0
       end
-      regions[#regions + 1] = { line, col, col + #line_text, group }
+      if line_text ~= '' then
+        highlights[#highlights + 1] =
+          { row = row, col = col, end_col = col + #line_text, group = group }
+      end
       col = col + #line_text
     end
   end
-  local plain = table.concat(parts)
 
-  --- @param win integer
-  local function on_open(win)
-    local buf = vim.api.nvim_win_get_buf(win)
-    vim.api.nvim_buf_clear_namespace(buf, highlight_ns, 0, -1)
-    vim.schedule(function()
-      if not vim.api.nvim_buf_is_valid(buf) then
-        return
-      end
-
-      for _, r in ipairs(regions) do
-        -- Format: r = { line, start_col, end_col, hl_group }
-        if r[2] ~= r[3] then -- Only apply if there's actual content (not empty line)
-          vim.api.nvim_buf_set_extmark(buf, highlight_ns, r[1], r[2], {
-            end_col = r[3],
-            hl_group = r[4],
-          })
-        end
-      end
-    end)
-  end
-
-  return plain, on_open
+  return table.concat(parts), highlights
 end
 
 --- Notify with a string rendered as markdown, or chunks keeping their highlight groups
@@ -70,46 +106,27 @@ end
 local function notify(level, msg, opts, send)
   opts = opts or {}
 
-  local apply_highlight
+  local text, paint
   if type(msg) == 'string' then
-    apply_highlight = function(win)
-      local bufnr = vim.api.nvim_win_get_buf(win)
-      vim.bo[bufnr].filetype = 'markdown'
-      local render_markdown = require('render-markdown')
-      render_markdown.render({
-        buf = bufnr,
-        config = {
-          render_modes = true,
-        },
-      })
-    end
+    text, paint = msg, { markdown = true }
   else
-    msg, apply_highlight = normalize_message(msg)
+    local highlights
+    text, highlights = normalize_message(msg)
+    paint = { highlights = highlights }
   end
 
-  local function on_open(win)
-    local buf = vim.api.nvim_win_get_buf(win)
-
-    apply_highlight(win)
-
-    -- Relies on `nvim-notify` re-detecting filetype during duplicate render
-    vim.api.nvim_create_autocmd('FileType', {
-      buf = buf,
-      callback = function()
-        if vim.api.nvim_win_is_valid(win) then
-          apply_highlight(win)
-        end
-      end,
-      desc = 'Reapply Notifier Highlighting for Duplicate Messages',
-    })
-
-    if opts.height_offset then
+  local on_open
+  if opts.height_offset then
+    on_open = function(win)
       vim.api.nvim_win_set_height(win, vim.api.nvim_win_get_height(win) + opts.height_offset)
     end
   end
 
-  return (send or vim.notify)(msg, level, {
+  -- The record keeps its own render, which nvim-notify re-runs for a duplicate and the history
+  -- float; it replaces noice's, whose extra passes paint nothing on a vim.notify message
+  return (send or vim.notify)(text, level, {
     title = opts.title or 'Notifier',
+    render = renderer(paint),
     on_open = on_open,
   })
 end

@@ -29,8 +29,6 @@ return {
     },
 
     opts = function()
-      local title_key = 'notify_title_with_hl'
-
       return {
         stages = 'static',
         timeout = 2000,
@@ -40,17 +38,20 @@ return {
         max_width = UI.layout.inline_max_width,
 
         on_open = function(win)
+          local notify_utils = require('chrome.nvim-notify.utils')
           local buf = vim.api.nvim_win_get_buf(win)
-          local title = vim.b[buf][title_key]
+          local title = vim.b[buf][notify_utils.TITLE_KEY]
 
           vim.api.nvim_win_set_config(win, {
             zindex = Conf.zindex.NOTIFY,
             title = title,
             title_pos = 'center',
           })
+          Notifier.paint_window(win)
         end,
 
         render = function(bufnr, notif, hl)
+          local notify_utils = require('chrome.nvim-notify.utils')
           local title = notif.title[1]
           if notif.duplicates then
             title = string.format('%s (x%d)', title, #notif.duplicates)
@@ -60,7 +61,7 @@ return {
           local title_with_hl = { { title, hl.title } }
 
           -- Set title on first notification (see `on_open` callback)
-          vim.b[bufnr][title_key] = title_with_hl
+          vim.b[bufnr][notify_utils.TITLE_KEY] = title_with_hl
 
           -- Set title on duplicate notifications
           for _, win in ipairs(vim.fn.win_findbuf(bufnr)) do
@@ -70,7 +71,8 @@ return {
             })
           end
 
-          -- Body coloring comes from the window's winhl (Normal:Notify*Body), not extmarks
+          -- Body coloring comes from the window's winhl (Normal:Notify*Body), not extmarks; a
+          -- Notifier message's own highlights come from the render it carries, which calls this one
           vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, notif.message)
         end,
       }

@@ -1,6 +1,10 @@
 --- @class chrome.nvim-notify.utils
 local M = {}
 
+--- The buffer variable the spec's `render` leaves the title in: nvim-notify renders a toast before
+--- it opens its window, and `on_open` gets neither the highlight groups nor the duplicates
+M.TITLE_KEY = 'notify_title_with_hl'
+
 --- Open a notification in a centered float, sized to its content up to the inline popup caps
 --- @param notif notify.Record
 --- @return nil
@@ -25,6 +29,11 @@ local function open_float(notif)
 
   vim.wo[win][0].winhighlight =
     string.format('Normal:%s,FloatBorder:%s', opened.highlights.body, opened.highlights.border)
+  vim.api.nvim_win_set_config(
+    win,
+    { title = vim.b[opened.buffer][M.TITLE_KEY], title_pos = 'center' }
+  )
+  Notifier.paint_window(win)
 end
 
 --- Show nvim-notify's history, newest first, each message highlighted as markdown in the preview
