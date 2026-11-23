@@ -9,8 +9,9 @@ return {
       TroublePreview = { link = 'Search' },
       TroubleIconDirectory = { link = 'Directory' },
       TroubleSnacksCount = { fg = palette.lavender },
-      -- Rows of a file-only list are filenames; the grep list's blue ones are group headers
-      TroubleSnacksFilesFilename = { fg = palette.text },
+      -- Paths read as they do in the picker the list came from
+      TroubleSnacksDirname = { link = 'SnacksPickerDir' },
+      TroubleSnacksBasename = { link = 'SnacksPickerFile' },
     }
   end, 'trouble.nvim'),
 
@@ -94,9 +95,19 @@ return {
         auto_refresh = false,
         win = { position = 'right', size = panel_cols },
 
+        formatters = {
+          dirname = utils.format_dirname,
+        },
+
         modes = {
+          snacks = {
+            groups = {
+              { 'cmd', format = '{hl:Title}Snacks{hl} {cmd:Comment} {count}' },
+              { 'filename', format = '{file_icon} {dirname}{basename} {count}' },
+            },
+          },
           snacks_files = {
-            format = '{file_icon} {filename:TroubleSnacksFilesFilename}',
+            format = '{file_icon} {dirname}{basename}',
           },
         },
 

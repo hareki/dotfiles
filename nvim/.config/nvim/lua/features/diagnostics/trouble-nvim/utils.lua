@@ -17,6 +17,18 @@ function M.jump(direction)
   end
 end
 
+--- Trouble's own dirname takes its trailing slash from `:p`, which adds one only to a directory
+--- still on disk, so `{dirname}{basename}` glues a deleted file's two parts together
+--- @param ctx trouble.Formatter.ctx
+--- @return trouble.Format
+function M.format_dirname(ctx)
+  local dir = vim.fn.fnamemodify(ctx.item.dirname --[[@as string]], ':p:~:.')
+  if dir ~= '' and not vim.endswith(dir, '/') then
+    dir = dir .. '/'
+  end
+  return { text = dir }
+end
+
 --- Move focus from the trouble list into its preview float, with buffer-local keys to get back
 function M.toggle_focus()
   local preview_manager = require('trouble.view.preview')
