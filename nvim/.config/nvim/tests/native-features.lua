@@ -33,7 +33,7 @@ t.test('a virtual spec is installed from nowhere and adds nothing to the runtime
   end
 end)
 
-t.test('hl-at-cursor stays unloaded until its key, which opens the popup', function()
+t.test('hl-at-cursor loads on its key, whose popup a second show replaces', function()
   t.eq(loaded('hl-at-cursor'), false, 'nothing has asked for it yet')
   t.file('hl-at-cursor.lua', { 'local answer = 42' })
   local before = #floats()
@@ -50,6 +50,11 @@ t.test('hl-at-cursor stays unloaded until its key, which opens the popup', funct
   t.wait_for(function()
     return #floats() > before
   end, 'the popup to open')
+  local first = floats()
+
+  vim.cmd.HlAtCursor()
+  t.eq(#floats(), before + 1, 'the floats after a second show')
+  t.eq(vim.api.nvim_win_is_valid(first[#first]), false, 'the first popup, after a second show')
 end)
 
 t.test('the wheel axis lock maps the wheel keys on VeryLazy, passing a vertical tick', function()
