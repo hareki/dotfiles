@@ -9,16 +9,20 @@ return {
     local sub_palette = UI.catppuccin.get_palette('latte')
 
     return {
-      NvimTreeCursorLineNr = { link = 'CursorLine' },
       NvimTreeNormal = { link = 'Normal' },
-      NvimTreeCutHL = { bg = palette.maroon, fg = palette.base },
-      NvimTreeCopiedHL = { bg = palette.surface2, fg = palette.text },
-      NvimTreeLiveFilterPrefix = { fg = palette.yellow },
-      NvimTreeGitStagedIcon = { fg = sub_palette.yellow },
+      NvimTreeCursorLineNr = { link = 'CursorLine' },
+
       NvimTreeRootFolder = { fg = palette.overlay2 },
-      NvimTreeGitMergeIcon = { fg = palette.yellow },
       NvimTreeSymlink = { fg = palette.blue },
       NvimTreeExecFile = {},
+
+      NvimTreeGitStagedIcon = { fg = sub_palette.yellow },
+      NvimTreeGitMergeIcon = { fg = palette.yellow },
+
+      NvimTreeCutHL = { bg = palette.maroon, fg = palette.base },
+      NvimTreeCopiedHL = { bg = palette.surface2, fg = palette.text },
+
+      NvimTreeLiveFilterPrefix = { fg = palette.yellow },
     }
   end, 'nvim-tree.lua'),
 
