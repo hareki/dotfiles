@@ -3,7 +3,7 @@
 ## Contexts
 
 - [Lazygit config](./lazygit/GLOSSARY.md): the edit commands, and codediff, the diff renderer: how it is served and the tests that pin what it shows
-- [Neovim config](./nvim/.config/nvim/GLOSSARY.md): plugins filed by tier and domain, and the modules other tools reach into
+- [Neovim config](./nvim/.config/nvim/docs/GLOSSARY.md): plugins filed by tier and domain, and the modules other tools reach into
 - [Tmux config](./tmux/GLOSSARY.md): the status bar, and the snapshots of every session
 - [Zsh config](./zsh/GLOSSARY.md): the startup, the commands built on it, and their tests
 
