@@ -106,7 +106,7 @@ The copy-mode yank keys need no plugin: tmux's `set-clipboard` sends each copy a
 
 ## 💾 Snapshots
 
-The zsh functions `tsave` and `trestore` drive tmux-resurrect, and `scripts/resurrect-snapshots.zsh` owns the snapshot store: how resurrect names and replaces the files, which one `last` points at, the ids, the listing and the expiry. Both functions go through it, and so do resurrect's two hooks (after a save: expiry and the command that resumes each Claude Code session; before a restore from scratch: the placeholder session). Terms: [docs/GLOSSARY.md](./docs/GLOSSARY.md).
+The zsh functions `tsave` and `trestore` drive tmux-resurrect, and `scripts/resurrect-snapshots.zsh` owns the snapshot store: how resurrect names and replaces the files, which one `last` points at, the ids, the listing and the expiry. Both functions go through it, and so do resurrect's two hooks (after a save: expiry and the command that resumes each Claude Code session; before a restore from scratch: the placeholder session). Terms: [GLOSSARY.md](./GLOSSARY.md).
 
 - **`tsave`**: snapshots every session, then quits each pane's nvim through its normal exit (so auto-session saves its session), one at a time, ends each pane's Claude Code session with SIGTERM (its clean exit: the SessionEnd hooks run) and kills the server
   - **`-c`/`--continue`**: snapshot only, leaving nvim, Claude Code and tmux running, like resurrect's own `prefix C-s`
@@ -144,5 +144,5 @@ The zsh functions `tsave` and `trestore` drive tmux-resurrect, and `scripts/resu
 
 ## 📚 Docs
 
-- **[docs/GLOSSARY.md](./docs/GLOSSARY.md)**: the terms for the status bar and the snapshots
+- **[GLOSSARY.md](./GLOSSARY.md)**: the terms for the status bar and the snapshots
 - **[zsh/README.md](../zsh/README.md#-commands)**: `tsave`, `trestore` and `mux`, the commands that drive this config

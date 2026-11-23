@@ -1,6 +1,6 @@
 # Startup overrides
 
-Why each line that spares a shell some work is written the way it is, with the cost it saves. An entry that names a private plugin name is an **override** ([GLOSSARY.md](./GLOSSARY.md)). [conventions/startup.md](conventions/startup.md) says which file each kind of line goes in.
+Why each line that spares a shell some work is written the way it is, with the cost it saves. An entry that names a private plugin name is an **override** ([GLOSSARY.md](../GLOSSARY.md)). [conventions/startup.md](conventions/startup.md) says which file each kind of line goes in.
 
 ## Startup files
 

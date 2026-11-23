@@ -2,7 +2,7 @@
 
 ## Overview
 
-Personal Neovim 0.12+ configuration using the lazy.nvim plugin manager. `docs/GLOSSARY.md` defines the terms this file, the docs, the skills and the code use.
+Personal Neovim 0.12+ configuration using the lazy.nvim plugin manager. `GLOSSARY.md` defines the terms this file, the docs, the skills and the code use.
 
 `CLAUDE.md` is a symlink to this file and `.claude/skills` to `.agents/skills`: edit the real files. Keep every line under 1000 characters, since some views trim longer lines and a trimmed copy written back once deleted a rule.
 

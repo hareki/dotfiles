@@ -1,6 +1,6 @@
 # Architecture
 
-How the config boots, where code lives, and which modules other tools reach into. Terms in bold are defined in [GLOSSARY.md](./GLOSSARY.md). The rules for filing and shaping code live in [conventions/](conventions/).
+How the config boots, where code lives, and which modules other tools reach into. Terms in bold are defined in [GLOSSARY.md](../GLOSSARY.md). The rules for filing and shaping code live in [conventions/](conventions/).
 
 This doc describes shapes and rules, not inventories. Where a list exists, it points to the file that owns it.
 
