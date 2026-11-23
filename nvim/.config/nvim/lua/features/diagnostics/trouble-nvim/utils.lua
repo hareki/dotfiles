@@ -45,6 +45,30 @@ function M.snacks_to_trouble(picker)
   snacks_source.open(picker)
 end
 
+--- The files on the row under the cursor in the current window's Trouble list, each once: an
+--- item row's own, a group row's from every item under it (a directory row gives several)
+--- @return string[] files Absolute paths; a Snacks item names its file relative to the cwd
+function M.files_under_cursor()
+  local trouble_view = require('trouble.view')
+
+  local win = vim.api.nvim_get_current_win()
+  for _, entry in ipairs(trouble_view.get({ open = true })) do
+    local view = entry.view
+    if view.win.win == win then
+      local location = view:at()
+      -- A group row holds no item of its own, only the node its items hang under
+      local items = location.item and { location.item }
+        or location.node and location.node:flatten()
+        or {}
+      local files = vim.tbl_map(function(item)
+        return vim.fs.abspath(item.filename)
+      end, items)
+      return vim.list.unique(files)
+    end
+  end
+  return {}
+end
+
 M.SNACKS_WINBAR = "%{%v:lua.require'features.diagnostics.trouble-nvim.utils'.snacks_title()%}"
 
 --- The pinned title of a list sent from a Snacks picker: icon, name and item count

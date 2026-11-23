@@ -32,6 +32,15 @@ return {
         ft = { 'NvimTree' },
       },
       {
+        '<leader>pp',
+        function()
+          local utils = require('features.preview.live-preview-nvim.utils')
+          utils.start_trouble_row()
+        end,
+        desc = PREFIX .. 'Start File',
+        ft = { 'trouble' },
+      },
+      {
         '<leader>px',
         '<cmd>LivePreview close<cr>',
         desc = PREFIX .. 'Stop',

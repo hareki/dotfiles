@@ -105,6 +105,24 @@ function M.start_tree_node()
   M.start(node.path)
 end
 
+--- Preview the file on the Trouble row under the cursor
+function M.start_trouble_row()
+  local trouble = require('features.diagnostics.trouble-nvim.utils')
+
+  local files = trouble.files_under_cursor()
+  if #files == 0 then
+    return
+  end
+
+  -- Like a folder in the tree, a row of several files (a directory's) has no one file to preview
+  if #files > 1 then
+    warn_unsupported()
+    return
+  end
+
+  M.start(files[1])
+end
+
 --- Pick a previewable file with the Snacks finder: the plugin's walks the whole cwd synchronously
 function M.pick()
   Snacks.picker.files({

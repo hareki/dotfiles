@@ -1,5 +1,6 @@
--- features.preview.live-preview-nvim: `<leader>pp` in the tree previews the node under the cursor,
--- and the port a preview starts on, with the plugin's lsof check answered by a stub
+-- features.preview.live-preview-nvim: `<leader>pp` in the tree previews the node under the cursor
+-- and in a Trouble list the file of the row under it, and the port a preview starts on, with the
+-- plugin's lsof check answered by a stub
 
 local t = require('tests.lib.helpers')
 local tree = require('features.navigation.nvim-tree-lua.utils')
@@ -94,6 +95,69 @@ local function preview(name)
   return starts, warnings
 end
 
+--- @return integer? win The open Trouble list
+local function trouble_win()
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == 'trouble' then
+      return win
+    end
+  end
+end
+
+--- The opener of a Trouble list of a Snacks picker's results, sent with the picker's <C-t>
+--- @param open fun() Opens the picker
+--- @param source string
+--- @return fun()
+local function from_picker(open, source)
+  return function()
+    local picker = t.open_picker(open, source)
+    t.map_callback('i', '<C-t>', picker.input.win.buf)()
+  end
+end
+
+--- Press `<leader>pp` on the first row of the Trouble list that shows `text`, once one does
+--- @param text string
+local function press_on_trouble_row(text)
+  t.wait_for(function()
+    local win = trouble_win()
+    local lines = win and vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(win), 0, -1, false)
+    for row, line in ipairs(lines or {}) do
+      if line:find(text, 1, true) then
+        vim.api.nvim_set_current_win(win)
+        vim.api.nvim_win_set_cursor(win, { row, 0 })
+        return true
+      end
+    end
+    return false
+  end, string.format('a Trouble row showing %q', text))
+
+  t.press('<leader>pp')
+end
+
+--- Run `open`, which shows a Trouble list (closed when the test ends), then press `<leader>pp` on
+--- the first row showing `text`, with the server, its ports and the warning stubbed
+--- @param open fun()
+--- @param text string
+--- @return { args: string[], port: integer }[] starts
+--- @return table[] warnings The calls of Notifier.warn
+local function preview_trouble_row(open, text)
+  stub_ports(none_taken)
+  local starts = stub_start()
+  local warnings = t.spy(Notifier, 'warn', function() end)
+
+  local trouble = require('trouble')
+  t.cleanup(function()
+    trouble.close()
+    t.wait_for(function()
+      return trouble_win() == nil
+    end, 'the Trouble list to close')
+  end)
+  open()
+
+  press_on_trouble_row(text)
+  return starts, warnings
+end
+
 --- Press `<leader>pp` in a Markdown file, with the server stubbed and the ports `taken` holds
 --- taken; the plugin's config is restored when the test ends, since each start rewrites its port
 --- @param taken fun(port: integer): boolean
@@ -138,6 +202,51 @@ end)
 
 t.test('a link to a folder warns too', function()
   local starts, warnings = preview('linked.md')
+
+  t.eq(#starts, 0, 'no start')
+  t.eq(#warnings, 1, 'one warning')
+end)
+
+t.test('a row of a files list in Trouble starts the preview of its file', function()
+  local open = from_picker(function()
+    Snacks.picker.files({ pattern = 'my notes' })
+  end, 'files')
+  local starts, warnings = preview_trouble_row(open, 'my notes.md')
+
+  t.eq(#warnings, 0, 'no warning')
+  t.eq(
+    starts[1] and starts[1].args,
+    { 'start', vim.fs.joinpath(vim.uv.cwd(), 'my notes.md') },
+    'the start command, its path absolute'
+  )
+end)
+
+t.test('the file row and the match row of a grep list in Trouble start the same preview', function()
+  local open = from_picker(function()
+    Snacks.picker.grep({ search = '# Notes' })
+  end, 'grep')
+  local starts = preview_trouble_row(open, 'my notes.md')
+  press_on_trouble_row('# Notes')
+
+  local path = vim.fs.joinpath(vim.uv.cwd(), 'my notes.md')
+  t.eq(#starts, 2, 'a start per row')
+  t.eq(starts[1].args, { 'start', path }, 'the file row')
+  t.eq(starts[2].args, { 'start', path }, 'the match row')
+end)
+
+t.test('a directory row of a diagnostics list in Trouble warns instead', function()
+  local ns = vim.api.nvim_create_namespace('tests.live-preview')
+  t.cleanup(function()
+    vim.diagnostic.reset(ns)
+  end)
+  for _, name in ipairs({ 'guides/one.md', 'guides/two.md' }) do
+    local buf = t.file(name, { '# Guide' })
+    vim.diagnostic.set(ns, buf, { { lnum = 0, col = 0, message = 'checked' } })
+  end
+
+  local starts, warnings = preview_trouble_row(function()
+    vim.cmd.Trouble('diagnostics')
+  end, 'guides')
 
   t.eq(#starts, 0, 'no start')
   t.eq(#warnings, 1, 'one warning')
