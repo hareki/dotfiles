@@ -57,17 +57,23 @@ function M.running_port()
   return address and address.port
 end
 
---- Preview the current buffer, never another loaded file like `:LivePreview start`, moving to the
---- first free port above the configured one while something else (a second nvim) listens there
-function M.start()
+local function warn_unsupported()
+  Notifier.warn('Only Markdown, HTML, AsciiDoc and SVG files can be previewed', {
+    title = 'Live Preview',
+  })
+end
+
+--- Preview `path`, by default the current buffer, never another loaded file like a bare
+--- `:LivePreview start`, moving to the first free port above the configured one while something
+--- else (a second nvim) listens there
+--- @param path? string
+function M.start(path)
   local livepreview_config = require('livepreview.config')
   local livepreview_utils = require('livepreview.utils')
 
-  local path = vim.api.nvim_buf_get_name(0)
+  path = path or vim.api.nvim_buf_get_name(0)
   if not livepreview_utils.supported_filetype(path) then
-    Notifier.warn('Only Markdown, HTML, AsciiDoc and SVG files can be previewed', {
-      title = 'Live Preview',
-    })
+    warn_unsupported()
     return
   end
 
@@ -77,7 +83,28 @@ function M.start()
     port = M.running_port() or free_port(state.port),
   })
 
-  vim.cmd.LivePreview('start')
+  -- As a list, so the command gets a path with spaces as one argument
+  vim.cmd.LivePreview({ args = { 'start', path } })
+end
+
+--- Preview the nvim-tree node under the cursor
+function M.start_tree_node()
+  local api = require('nvim-tree.api')
+
+  local node = api.tree.get_node_under_cursor()
+  if not node then
+    return
+  end
+
+  --- get_node_under_cursor can return a nvim_tree.api.DirectoryNode (or a link to one), which has
+  --- `nodes`; supported_filetype() reads only the extension, so it would pass a `docs.md/`
+  --- @diagnostic disable-next-line: undefined-field
+  if node.nodes then
+    warn_unsupported()
+    return
+  end
+
+  M.start(node.absolute_path)
 end
 
 --- Pick a previewable file with the Snacks finder: the plugin's walks the whole cwd synchronously

@@ -23,6 +23,15 @@ return {
         desc = PREFIX .. 'Start',
       },
       {
+        '<leader>pp',
+        function()
+          local utils = require('features.preview.live-preview-nvim.utils')
+          utils.start_tree_node()
+        end,
+        desc = PREFIX .. 'Start File',
+        ft = { 'NvimTree' },
+      },
+      {
         '<leader>px',
         '<cmd>LivePreview close<cr>',
         desc = PREFIX .. 'Stop',
