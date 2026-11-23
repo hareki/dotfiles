@@ -103,3 +103,36 @@ t.test("overrides stack and give back the buffer's own map", function()
   t.eq(buf_map_desc(buf, '<Esc>'), nil, '<Esc> is returned')
   t.eq(buf_map_desc(buf, '<Tab>'), 'Own Tab', "the buffer's own <Tab> is back")
 end)
+
+--- Give the source buffer an <Esc> of its own, then press the one a popup linked with
+--- `esc_passthrough` lends there and run what that press queues
+--- @param esc_passthrough boolean
+--- @return integer presses How often the buffer's own <Esc> ran
+--- @return integer float
+local function press_lent_esc(esc_passthrough)
+  local buf = source()
+  local presses = 0
+  vim.keymap.set('n', '<Esc>', function()
+    presses = presses + 1
+  end, { buf = buf, desc = 'Own Esc' })
+
+  local float = t.float()
+  popup.link(float, { name = 'Probe', esc_passthrough = esc_passthrough })
+  t.map_callback('n', '<Esc>', buf)()
+  vim.api.nvim_feedkeys('', 'x', false)
+
+  t.eq(buf_map_desc(buf, '<Esc>'), 'Own Esc', "the buffer's own <Esc> is back")
+  return presses, float
+end
+
+t.test('esc_passthrough replays <Esc> to the map the popup covered', function()
+  local presses, float = press_lent_esc(true)
+  t.eq(vim.api.nvim_win_is_valid(float), false, 'open after <Esc>')
+  t.eq(presses, 1, "runs of the buffer's own <Esc>")
+end)
+
+t.test('without esc_passthrough, <Esc> only closes the popup', function()
+  local presses, float = press_lent_esc(false)
+  t.eq(vim.api.nvim_win_is_valid(float), false, 'open after <Esc>')
+  t.eq(presses, 0, "runs of the buffer's own <Esc>")
+end)
