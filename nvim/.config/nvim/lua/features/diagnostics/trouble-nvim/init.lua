@@ -3,11 +3,14 @@ local PARSERLESS_LANGUAGES = { 'text' }
 
 return {
   UI.catppuccin.integration('lsp_trouble'),
-  UI.catppuccin(function()
+  UI.catppuccin(function(palette)
     return {
       TroubleNormal = { link = 'NormalFloat' },
       TroublePreview = { link = 'Search' },
       TroubleIconDirectory = { link = 'Directory' },
+      TroubleSnacksCount = { fg = palette.lavender },
+      -- Rows of a file-only list are filenames; the grep list's blue ones are group headers
+      TroubleSnacksFilesFilename = { fg = palette.text },
     }
   end, 'trouble.nvim'),
 
@@ -90,6 +93,12 @@ return {
       return {
         auto_refresh = false,
         win = { position = 'right', size = panel_cols },
+
+        modes = {
+          snacks_files = {
+            format = '{file_icon} {filename:TroubleSnacksFilesFilename}',
+          },
+        },
 
         icons = {
           folder_closed = Conf.icons.file_tree.FOLDER,
