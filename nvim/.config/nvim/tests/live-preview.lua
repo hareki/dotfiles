@@ -120,8 +120,10 @@ end
 local function press_on_trouble_row(text)
   t.wait_for(function()
     local win = trouble_win()
-    local lines = win and vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(win), 0, -1, false)
-    for row, line in ipairs(lines or {}) do
+    if not win then
+      return false
+    end
+    for row, line in ipairs(vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(win), 0, -1, false)) do
       if line:find(text, 1, true) then
         vim.api.nvim_set_current_win(win)
         vim.api.nvim_win_set_cursor(win, { row, 0 })

@@ -17,14 +17,14 @@ return {
             show_pattern = false,
             actions = {
               -- In this source, <C-t> opens Trouble's todo view, filtered to the picker's keywords
-              --- @param picker snacks.Picker
-              snacks_to_trouble = function(picker)
-                local keywords = picker
+              --- @param todo_picker snacks.Picker
+              snacks_to_trouble = function(todo_picker)
+                local keywords = todo_picker
                   --- @module "todo-comments"
                   .opts --[[@as snacks.picker.todo.Config]]
                   .keywords
 
-                picker:close()
+                todo_picker:close()
                 local trouble = require('trouble')
                 --- @diagnostic disable-next-line: missing-fields
                 trouble.toggle({
