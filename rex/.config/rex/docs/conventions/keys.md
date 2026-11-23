@@ -13,7 +13,7 @@ Where a binding goes, how a key reaches the program in the pane, and which of th
 
 A cmd key reaches only a program that turned on the kitty keyboard protocol (`\27[<codepoint>;9u`, `10` with shift, which nvim maps as `<D-s>`). zsh gets no bytes for it, nvim's `:terminal` drops the modifier and types the bare letter, and legacy `alt+shift+s` arrives as `\es`, shift lost.
 
-Alt is the one modifier that passes zsh, nvim's terminal, fzf and Claude Code, so a new cmd key for a program goes in `ALT_KEYS` (`features/program-keys.lua`) and the program listens for the alt key. Only `shift+cmd+s` and `shift+cmd+w` go as the cmd key itself (`pane.send_key` with the same key), for nvim alone: a binding to the key keeps the app's own shortcut off it, and the pane gets the key as a press would send it.
+Alt is the one modifier that passes zsh, nvim's terminal, fzf and Claude Code, so a new cmd key for a program goes in `ALT_KEYS` (`features/program-keys.lua`) and the program listens for the alt key. Only `shift+cmd+s` and `shift+cmd+w` go as the cmd key itself (a Lua function that returns `false`), for nvim alone: a function binding keeps the app's own shortcut off it (`rex keymap` lists it as `client.key.forward`), and the false return hands the pane the key as a press would send it. A `pane.send_key` binding that sends its own key reaches no pane: a press of it gave nvim nothing (2026-11-23).
 
 ## Raw bytes
 

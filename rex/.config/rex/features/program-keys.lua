@@ -24,9 +24,14 @@ end
 rex.bind('shift+enter', 'pane.send_key', { key = 'alt+enter' })
 
 -- The cmd key itself, which nvim reads through the kitty keyboard protocol. A legacy pane such as
--- zsh gets no bytes for it
-rex.bind('shift+cmd+s', 'pane.send_key', { key = 'shift+cmd+s' }) -- nvim: <D-S-s>, format and save all
-rex.bind('shift+cmd+w', 'pane.send_key', { key = 'shift+cmd+w' }) -- nvim: <D-S-w>, close other buffers
+-- zsh gets no bytes for it. A function that returns false hands the key to the pane while still
+-- shadowing the app default; a pane.send_key binding that sends its own key reaches no pane
+local function pass_through()
+  return false
+end
+
+rex.bind('shift+cmd+s', pass_through) -- nvim: <D-S-s>, format and save all
+rex.bind('shift+cmd+w', pass_through) -- nvim: <D-S-w>, close other buffers
 
 -- Sent as bytes. \27[1;6P is ctrl+shift+f1: pane.send_key encodes that so nvim reads <C-S-F1>, not
 -- the <F37> its keymap is on. \27[1;6Y is no key at all
