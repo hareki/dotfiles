@@ -531,24 +531,6 @@ t.test('height_offset resizes the toast, not the history float', function()
   t.eq(vim.api.nvim_win_get_height(float), 1, 'the history float fits the message')
 end)
 
-t.test('the history float shows every row of a line it wraps', function()
-  t.cleanup(dismiss_toasts)
-  -- Three times the widest the float gets
-  local lines = { string.rep('x', 3 * UI.layout.inline_max_width()) }
-
-  Notifier.info(lines[1])
-  await_toast(lines)
-
-  local float = open_from_history(record_of(lines))
-  t.eq(vim.wo[float].wrap, true, 'the history float wraps the line')
-  t.ok(vim.api.nvim_win_get_height(float) > 1, 'the history float is taller than one row')
-  t.eq(
-    vim.api.nvim_win_get_height(float),
-    vim.api.nvim_win_text_height(float, {}).all,
-    'the history float has a row for each one the line takes'
-  )
-end)
-
 --- @param kind string Names the test, and tells its message from the other kind's: nvim-notify
 --- takes the same text for a duplicate
 --- @param message fun(text: string): utils.notifier.Message

@@ -1,4 +1,5 @@
-local render_markdown = require('features.preview.render-markdown-nvim.utils')
+--- @module 'features.preview.render-markdown-nvim.utils'
+local render_markdown = Defer.on_index('features.preview.render-markdown-nvim.utils')
 
 --- @class chrome.nvim-notify.utils
 local M = {}
@@ -24,8 +25,9 @@ end
 --- @return nil
 local function open_float(notif)
   local opened = open_buffer(notif)
+  local max_height = UI.layout.inline_max_height()
   local width = math.min(opened.width, UI.layout.inline_max_width())
-  local height = math.min(opened.height, UI.layout.inline_max_height())
+  local height = math.min(opened.height, max_height)
   local col, row = UI.layout.center(width, height)
   -- None from a notification sent with a render of its own, which never runs the spec's
   local title = vim.b[opened.buffer][M.TITLE_KEY]
@@ -47,18 +49,11 @@ local function open_float(notif)
   Notifier.paint_window(win)
 
   -- A painted window wraps: a line wider than the float takes more rows than the buffer has
-  -- lines, and a window too short for a line's rows cannot scroll to the rest of them
-  local rows = math.min(vim.api.nvim_win_text_height(win, {}).all, UI.layout.inline_max_height())
-  if rows ~= height then
-    col, row = UI.layout.center(width, rows)
-    vim.api.nvim_win_set_config(win, {
-      relative = 'editor',
-      width = width,
-      height = rows,
-      col = col,
-      row = row,
-    })
-  end
+  -- lines, and a window too short for a line's rows cannot scroll to the rest of them. Counted up
+  -- to the cap: an inspected table has thousands of lines
+  height = math.min(vim.api.nvim_win_text_height(win, { max_height = max_height }).all, max_height)
+  col, row = UI.layout.center(width, height)
+  vim.api.nvim_win_set_config(win, { relative = 'editor', height = height, col = col, row = row })
 end
 
 --- The picker's previewer: the notification as its toast showed it. Snacks' text previewer has no
@@ -109,7 +104,7 @@ local function row_extmarks(mark, line)
     }
   end
 
-  -- A mark reaching into another line (a code block's background) is not this row's
+  -- A mark reaching into another line is not this row's
   if (opts.end_row or mark.start_row) ~= mark.start_row then
     return {}
   end
@@ -183,34 +178,30 @@ function M.show_picker()
         { ' ' },
       }
 
-      local line, marks = notif.message[1] or '', {}
-      if Notifier.is_markdown(notif) then
-        -- Parsed once per item: Snacks formats a row each time the list draws it
-        item.markdown_row = item.markdown_row or { markdown_row(notif.message) }
-        line, marks = unpack(item.markdown_row)
+      -- Built once per item: Snacks formats a row each time the list draws it
+      if not item.message_row then
+        --- @type string, snacks.picker.Highlight[]
+        local line, message_row = notif.message[1] or '', {}
+        if Notifier.is_markdown(notif) then
+          line, message_row = markdown_row(notif.message)
+        end
+        message_row[#message_row + 1] = {
+          col = 0,
+          end_col = #line,
+          hl_group = 'Notify' .. notif.level .. 'Body',
+          priority = BODY_PRIORITY,
+        }
+        message_row[#message_row + 1] = { line }
+        item.message_row = message_row
       end
 
-      local offset = Snacks.picker.highlight.offset(ret)
-      ret[#ret + 1] = {
-        col = offset,
-        end_col = offset + #line,
-        hl_group = 'Notify' .. notif.level .. 'Body',
-        priority = BODY_PRIORITY,
-      }
-      for _, mark in ipairs(marks) do
-        ret[#ret + 1] = vim.tbl_extend('force', mark, {
-          col = mark.col + offset,
-          end_col = mark.end_col and mark.end_col + offset, -- Virtual text has a start only
-        })
-      end
-      ret[#ret + 1] = { line }
-
-      return ret
+      -- A copy: `extend` shifts the columns of the row it is given
+      return Snacks.picker.highlight.extend(ret, vim.deepcopy(item.message_row))
     end,
     preview = preview,
     win = {
       preview = {
-        wo = { wrap = true, number = false, relativenumber = false },
+        wo = { number = false, relativenumber = false },
       },
     },
     confirm = function(picker, item)

@@ -153,6 +153,24 @@ t.test('the conflict highlights follow the cursor in and out of the region', fun
   t.eq({ vim.wo[win].winhighlight, vim.wo[split].winhighlight }, { '', '' }, 'after Resolved')
 end)
 
+t.test("the conflict highlights keep the window's own redirects", function()
+  local buf = conflicted_file('redirects.txt')
+  local win = vim.api.nvim_get_current_win()
+  vim.wo[win].winhighlight = 'Normal:NormalFloat'
+  t.cleanup(function()
+    vim.wo[win].winhighlight = ''
+  end)
+
+  detected(buf)
+  move_to(3)
+  t.eq(vim.wo[win].winhighlight, 'Normal:NormalFloat,' .. CONFLICT_WINHL, 'after a redirect')
+
+  vim.wo[win].winhighlight = vim.wo[win].winhighlight .. ',FloatBorder:Comment'
+  move_to(1)
+  t.eq(vim.wo[win].winhighlight, 'Normal:NormalFloat,FloatBorder:Comment', 'from between two')
+  resolved(buf)
+end)
+
 t.test('a buffer Detected while another is current gets its highlights on entry', function()
   local buf = conflicted_file('background.txt')
   local win = vim.api.nvim_get_current_win()

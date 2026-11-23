@@ -68,11 +68,10 @@ function M.fit_toast(win, max_width, max_height)
 
   -- Counted a line at a time, over the lines the toast has room for. A hidden line (the end of a
   -- code fence, which takes no row) is not taken off: `height_offset` is how its sender does that
-  local lines = vim.api.nvim_buf_line_count(buf)
-  local rows = lines
-  for row = 0, math.min(lines, max_height) - 1 do
+  local rows = 0
+  for row = 0, math.min(vim.api.nvim_buf_line_count(buf), max_height) - 1 do
     local shown = vim.api.nvim_win_text_height(win, { start_row = row, end_row = row }).all
-    rows = rows + math.max(shown - 1, 0)
+    rows = rows + math.max(shown, 1)
   end
 
   local offset = vim.b[buf][HEIGHT_OFFSET_KEY] or 0
@@ -99,14 +98,10 @@ local function renderer(highlights)
     end
 
     vim.b[buf][MARKDOWN_KEY] = highlights == nil
-    -- A duplicate re-renders into the window of the toast it repeats
-    for _, win in ipairs(vim.fn.win_findbuf(buf)) do
-      M.paint_window(win)
-    end
-
-    -- nvim-notify then sizes that toast to the message again, once this render has returned
-    local toast = vim.fn.bufwinid(buf)
-    if toast ~= -1 then
+    -- A duplicate re-renders into the window of the toast it repeats, which nvim-notify then sizes
+    -- to the message again, once this render has returned
+    for _, toast in ipairs(vim.fn.win_findbuf(buf)) do
+      M.paint_window(toast)
       vim.schedule(function()
         if vim.api.nvim_win_is_valid(toast) then
           M.fit_toast(toast, config.max_width(), config.max_height())

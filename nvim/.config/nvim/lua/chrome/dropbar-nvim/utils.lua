@@ -1,19 +1,18 @@
 --- @class chrome.dropbar-nvim.utils
 local M = {}
 
-local IGNORED_FILETYPES = { help = true, trouble = true, ['grug-far'] = true }
+local IGNORED_FILETYPES = { trouble = true, ['grug-far'] = true }
 
---- Check if the buffer never gets a dropbar: an ignored filetype, or a terminal. A help file opened
---- for editing (buftype '') is a file like any other
+-- The help viewer by its buftype: a help file opened for editing (buftype '') is a file like any
+-- other
+local IGNORED_BUFTYPES = { help = true, terminal = true }
+
+--- Check if the buffer never gets a dropbar: an ignored filetype or buftype
 --- @param buf integer
 --- @return boolean
 function M.is_ignored(buf)
-  local filetype, buftype = vim.bo[buf].filetype, vim.bo[buf].buftype
-  if filetype == 'help' and buftype == '' then
-    return false
-  end
-
-  return IGNORED_FILETYPES[filetype] == true or buftype == 'terminal'
+  return IGNORED_FILETYPES[vim.bo[buf].filetype] == true
+    or IGNORED_BUFTYPES[vim.bo[buf].buftype] == true
 end
 
 --- Whether dropbar attaches: not to floats (zen's aside), taken winbars, ignored or 1MB+ buffers

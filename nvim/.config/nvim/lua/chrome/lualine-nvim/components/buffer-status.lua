@@ -13,7 +13,6 @@ local IGNORED_FILETYPES = {
   NvimTree = true,
   lazy = true,
   trouble = true,
-  help = true,
   checkhealth = true,
 }
 --- @class chrome.lualine-nvim.components.buffer-status.Cache
@@ -71,12 +70,13 @@ local function get_current_unsaved()
   local name = vim.api.nvim_buf_get_name(bufnr)
 
   -- Terminals are always nomodifiable (a misleading padlock); empty-filetype nofile/prompt buffers
-  -- are UI, while codediff:// views clear their filetype yet still earn the lock icon. A help file
-  -- opened for editing (buftype '') is a file like any other
+  -- are UI, while codediff:// views clear their filetype yet still earn the lock icon. The help
+  -- viewer goes by its buftype: a help file opened for editing (buftype '') is a file like any other
   if
     bo.buftype == 'terminal'
+    or bo.buftype == 'help'
     or (ft == '' and (bo.buftype == 'nofile' or bo.buftype == 'prompt'))
-    or (IGNORED_FILETYPES[ft] and not (ft == 'help' and bo.buftype == ''))
+    or IGNORED_FILETYPES[ft]
   then
     cache.current_unsaved = ''
     cache.last_bufnr = bufnr
