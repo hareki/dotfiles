@@ -1,7 +1,6 @@
 --- @class features.completion.blink-cmp.config.sources
 local M = {}
-
-local utils = require('features.completion.blink-cmp.utils')
+--- @alias features.completion.blink-cmp.config.sources.TransformItems fun(ctx: blink.cmp.Context, items: blink.cmp.CompletionItem[]): blink.cmp.CompletionItem[]
 
 local EXTRA_WORDS_PATH =
   vim.fs.joinpath(vim.fn.stdpath('config'), 'lua/features/completion/blink-cmp/words')
@@ -9,6 +8,22 @@ local SNIPPETS_PATH =
   vim.fs.joinpath(vim.fn.stdpath('config'), 'lua/features/completion/blink-cmp/snippets')
 -- One length for blink's filter and the search: a shorter prefix would search for items blink hides
 local RIPGREP_MIN_KEYWORD_LENGTH = 3
+
+--- A transform_items tagging every item with a custom kind: the icon resolves from
+--- appearance.kind_icons[name], and kind_hl is set since blink derives it from the numeric kind
+--- @param name string Kind name (e.g. 'History', 'Spell')
+--- @return features.completion.blink-cmp.config.sources.TransformItems
+local function custom_kind(name)
+  local kind_hl = 'BlinkCmpKind' .. name
+
+  return function(_, items)
+    for _, item in ipairs(items) do
+      item.kind_name = name
+      item.kind_hl = kind_hl
+    end
+    return items
+  end
+end
 
 M.default = {
   default = {
@@ -48,7 +63,7 @@ M.default = {
         },
         spellsuggest = true,
       },
-      transform_items = utils.custom_kind('Spell'),
+      transform_items = custom_kind('Spell'),
     },
 
     ripgrep = {
@@ -97,7 +112,7 @@ M.default = {
       name = 'cmdline_history',
       module = 'blink.compat.source',
       max_items = 9,
-      transform_items = utils.custom_kind('History'),
+      transform_items = custom_kind('History'),
     },
 
     lazydev = {
@@ -111,7 +126,7 @@ M.default = {
       name = 'RenderMarkdown',
       module = 'render-markdown.integ.blink',
       max_items = 3,
-      transform_items = utils.custom_kind('RenderMD'),
+      transform_items = custom_kind('RenderMD'),
     },
 
     conventional_commits = {
