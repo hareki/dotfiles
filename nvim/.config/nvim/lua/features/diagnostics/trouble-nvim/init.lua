@@ -8,6 +8,7 @@ return {
       TroubleNormal = { link = 'NormalFloat' },
       TroublePreview = { link = 'Search' },
       TroubleIconDirectory = { link = 'Directory' },
+      TroubleSnacksIcon = { fg = palette[Conf.icons.colors.SNACKS] },
       TroubleSnacksCount = { fg = palette.lavender },
       -- Paths read as they do in the picker the list came from
       TroubleSnacksDirname = { link = 'SnacksPickerDir' },
@@ -99,15 +100,18 @@ return {
           dirname = utils.format_dirname,
         },
 
+        -- The title row moves to the winbar, so it stays in view as the list scrolls
         modes = {
           snacks = {
             groups = {
-              { 'cmd', format = '{hl:Title}Snacks{hl} {cmd:Comment} {count}' },
               { 'filename', format = '{file_icon} {dirname}{basename} {count}' },
             },
+            win = { wo = { winbar = utils.SNACKS_WINBAR } },
           },
           snacks_files = {
+            groups = {},
             format = '{file_icon} {dirname}{basename}',
+            win = { wo = { winbar = utils.SNACKS_WINBAR } },
           },
         },
 

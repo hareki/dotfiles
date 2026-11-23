@@ -17,6 +17,18 @@ function M.jump(direction)
   end
 end
 
+M.SNACKS_WINBAR = "%{%v:lua.require'features.diagnostics.trouble-nvim.utils'.snacks_title()%}"
+
+--- The pinned title of a list sent from a Snacks picker: icon, name and item count
+--- @return string winbar
+function M.snacks_title()
+  local count = #require('trouble.sources.snacks').items
+  return ('%%#TroubleSnacksIcon# %s %%#Title#Snacks %%#TroubleSnacksCount#%d'):format(
+    Conf.icons.tools.SNACKS,
+    count
+  )
+end
+
 --- Trouble's own dirname takes its trailing slash from `:p`, which adds one only to a directory
 --- still on disk, so `{dirname}{basename}` glues a deleted file's two parts together
 --- @param ctx trouble.Formatter.ctx

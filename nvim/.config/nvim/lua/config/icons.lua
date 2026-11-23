@@ -144,6 +144,7 @@ local M = {
     PIN = '󰐃',
     MARK = '',
     LIVE_PREVIEW = '󰀃',
+    SNACKS = '?',
   },
   navigation = {
     PREV = '󰒮',
@@ -163,6 +164,7 @@ local M = {
     IMAGE = 'green',
     LIVE_PREVIEW = 'mauve',
     PIN = 'yellow',
+    SNACKS = 'red',
     TAB = 'green',
     TREE = 'green',
   },
