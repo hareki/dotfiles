@@ -7,15 +7,23 @@ local ENGAGE_TICKS = 5
 -- Gap between sideways ticks that ends a swipe: terminals report ticks, not gestures
 local RELEASE_NS = 200e6
 
-local last_sideways_tick = 0
-local sideways_streak = 0
--- Set only by a tick that moved text: sideways ticks over text that fits must not block scrolling
-local panning = false
+--- @class features.navigation.wheel-axis-lock.utils.State
+--- @field last_sideways_tick number hrtime() of the last sideways tick
+--- @field sideways_streak integer Sideways ticks since the last vertical one or the swipe's start
+--- @field panning boolean Whether the swipe moves text sideways
+
+--- @type features.navigation.wheel-axis-lock.utils.State
+local state = {
+  last_sideways_tick = 0,
+  sideways_streak = 0,
+  -- Set only by a tick that moved text: sideways ticks over text that fits must not block scrolling
+  panning = false,
+}
 
 local function forget_ended_swipe()
-  if vim.uv.hrtime() - last_sideways_tick >= RELEASE_NS then
-    sideways_streak = 0
-    panning = false
+  if vim.uv.hrtime() - state.last_sideways_tick >= RELEASE_NS then
+    state.sideways_streak = 0
+    state.panning = false
   end
 end
 
@@ -65,34 +73,34 @@ end
 --- @return boolean
 local function sideways(left)
   forget_ended_swipe()
-  last_sideways_tick = vim.uv.hrtime()
-  sideways_streak = sideways_streak + 1
-  if not panning and sideways_streak < ENGAGE_TICKS or not can_pan(left) then
+  state.last_sideways_tick = vim.uv.hrtime()
+  state.sideways_streak = state.sideways_streak + 1
+  if not state.panning and state.sideways_streak < ENGAGE_TICKS or not can_pan(left) then
     return false
   end
 
-  panning = true
+  state.panning = true
   return true
 end
 
 --- @return boolean
-function M.left()
+local function left()
   return sideways(true)
 end
 
 --- @return boolean
-function M.right()
+local function right()
   return sideways(false)
 end
 
 --- Whether a vertical tick should scroll: a pan drops lone ones as drift, and two in a row end it,
 --- since a swipe that turns vertical keeps drifting sideways and so never reaches RELEASE_NS
 --- @return boolean
-function M.vertical()
+local function vertical()
   forget_ended_swipe()
-  local drift = panning and sideways_streak > 0
-  sideways_streak = 0
-  panning = drift
+  local drift = state.panning and state.sideways_streak > 0
+  state.sideways_streak = 0
+  state.panning = drift
   return not drift
 end
 
@@ -109,10 +117,10 @@ end
 
 --- @return nil
 function M.map_wheel_keys()
-  map_wheel('<ScrollWheelUp>', 'Scroll Up', M.vertical)
-  map_wheel('<ScrollWheelDown>', 'Scroll Down', M.vertical)
-  map_wheel('<ScrollWheelLeft>', 'Scroll Left', M.left)
-  map_wheel('<ScrollWheelRight>', 'Scroll Right', M.right)
+  map_wheel('<ScrollWheelUp>', 'Scroll Up', vertical)
+  map_wheel('<ScrollWheelDown>', 'Scroll Down', vertical)
+  map_wheel('<ScrollWheelLeft>', 'Scroll Left', left)
+  map_wheel('<ScrollWheelRight>', 'Scroll Right', right)
 end
 
 return M
