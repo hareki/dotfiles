@@ -89,22 +89,20 @@ end
 
 --- Preview the nvim-tree node under the cursor
 function M.start_tree_node()
-  local api = require('nvim-tree.api')
+  local tree = require('features.navigation.nvim-tree-lua.utils')
 
-  local node = api.tree.get_node_under_cursor()
+  local node = tree.node_under_cursor()
   if not node then
     return
   end
 
-  --- get_node_under_cursor can return a nvim_tree.api.DirectoryNode (or a link to one), which has
-  --- `nodes`; supported_filetype() reads only the extension, so it would pass a `docs.md/`
-  --- @diagnostic disable-next-line: undefined-field
-  if node.nodes then
+  -- supported_filetype() reads only the extension, so it would pass a `docs.md/`
+  if node.is_folder then
     warn_unsupported()
     return
   end
 
-  M.start(node.absolute_path)
+  M.start(node.path)
 end
 
 --- Pick a previewable file with the Snacks finder: the plugin's walks the whole cwd synchronously

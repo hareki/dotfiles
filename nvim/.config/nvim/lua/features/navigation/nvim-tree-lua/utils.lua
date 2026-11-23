@@ -302,4 +302,24 @@ function M.format_root_label(path)
   return (short:gsub('^~/', home .. separator):gsub('^/', ''):gsub('/', separator))
 end
 
+--- @class features.navigation.nvim-tree-lua.utils.Node
+--- @field path string
+--- @field is_folder boolean A folder or a link to one
+
+--- The node under the tree's cursor, for callers outside the tree
+--- @return features.navigation.nvim-tree-lua.utils.Node? node nil when the cursor is on none
+function M.node_under_cursor()
+  local node = api.tree.get_node_under_cursor()
+  if not node then
+    return nil
+  end
+
+  --- get_node_under_cursor can return a nvim_tree.api.DirectoryNode (or a link to one), which has
+  --- `nodes`
+  --- @diagnostic disable-next-line: undefined-field
+  local is_folder = node.nodes ~= nil
+
+  return { path = node.absolute_path, is_folder = is_folder }
+end
+
 return M

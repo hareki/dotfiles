@@ -10,10 +10,11 @@ local api = Defer.on_index('nvim-tree.api')
 -- The plugin's default, which the spec's opts keep
 local CONFIGURED_PORT = 5500
 
--- A space in the name, a file it can't preview, and a folder named like one it can
+-- A space in the name, a file it can't preview, and a folder named like one it can, and a link to it
 vim.fn.writefile({ '# Notes' }, 'my notes.md')
 vim.fn.writefile({ 'plain' }, 'plain.txt')
 vim.fn.mkdir('docs.md', 'p')
+assert(vim.uv.fs_symlink('docs.md', 'linked.md'))
 
 --- Answer the plugin's lsof check (livepreview.utils.processes_listening_on_port) until the test
 --- ends, as if a process listened on the ports `taken` holds; every other command runs
@@ -130,6 +131,13 @@ end)
 
 t.test('a folder warns instead, whatever its name ends in', function()
   local starts, warnings = preview('docs.md')
+
+  t.eq(#starts, 0, 'no start')
+  t.eq(#warnings, 1, 'one warning')
+end)
+
+t.test('a link to a folder warns too', function()
+  local starts, warnings = preview('linked.md')
 
   t.eq(#starts, 0, 'no start')
   t.eq(#warnings, 1, 'one warning')
