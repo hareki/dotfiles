@@ -72,14 +72,37 @@ function M.ok(value, msg)
   return value
 end
 
+--- @param predicate fun(): boolean
+--- @param msg string
+--- @param timeout_ms? integer
+local function wait(predicate, msg, timeout_ms)
+  if not vim.wait(timeout_ms or 2000, predicate, 10) then
+    -- Blames the caller of wait_for() or await()
+    error('timed out waiting for ' .. msg, 3)
+  end
+end
+
 --- Run the event loop (timers, scheduled callbacks, RPC replies) until predicate holds
 --- @param predicate fun(): boolean
 --- @param msg string What is awaited, for the failure
 --- @param timeout_ms? integer Default 2000
 function M.wait_for(predicate, msg, timeout_ms)
-  if not vim.wait(timeout_ms or 2000, predicate, 10) then
-    error('timed out waiting for ' .. msg, 2)
-  end
+  wait(predicate, msg, timeout_ms)
+end
+
+--- Run the event loop until `get` returns a value, and return it
+--- @generic T
+--- @param get fun(): T?
+--- @param msg string What is awaited, for the failure
+--- @param timeout_ms? integer Default 2000
+--- @return T value
+function M.await(get, msg, timeout_ms)
+  local value
+  wait(function()
+    value = get()
+    return value ~= nil
+  end, msg, timeout_ms)
+  return value
 end
 
 --- Run the event loop for a while, letting pending callbacks fire
@@ -257,12 +280,12 @@ function M.await_picker(source, ready, msg)
     return #picker:items() > 0
   end
 
-  local picker --- @type snacks.Picker?
-  M.wait_for(function()
-    picker = Snacks.picker.get({ source = source })[1]
-    return picker ~= nil and picker.shown == true and ready(picker)
+  local picker = M.await(function()
+    local candidate = Snacks.picker.get({ source = source })[1]
+    if candidate and candidate.shown and ready(candidate) then
+      return candidate
+    end
   end, msg or string.format('the %s picker to list its items', source))
-  --- @cast picker snacks.Picker
   M.cleanup(function()
     if not picker.closed then
       M.close_picker(picker)

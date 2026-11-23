@@ -62,14 +62,11 @@ end
 --- @return integer win
 --- @return integer buf
 local function await_toast(lines)
-  local win --- @type integer?
-  t.wait_for(function()
-    win = vim.iter(floats_showing(lines)):find(function(candidate)
+  local win = t.await(function()
+    return vim.iter(floats_showing(lines)):find(function(candidate)
       return vim.api.nvim_win_get_config(candidate).zindex == Conf.zindex.NOTIFY
     end)
-    return win ~= nil
   end, 'the toast of ' .. vim.inspect(lines))
-  --- @cast win integer
   return win, vim.api.nvim_win_get_buf(win)
 end
 
@@ -103,12 +100,12 @@ local function pick_from_history(record)
   t.eq(picker:current().notif.id, record.id, 'the cursor is on the record')
 
   local preview_win = t.ok(picker.preview.win.win, 'the picker has no preview window')
-  local preview_buf --- @type integer?
-  t.wait_for(function()
-    preview_buf = vim.api.nvim_win_get_buf(preview_win)
-    return vim.deep_equal(vim.api.nvim_buf_get_lines(preview_buf, 0, -1, false), record.message)
+  local preview_buf = t.await(function()
+    local buf = vim.api.nvim_win_get_buf(preview_win)
+    if vim.deep_equal(vim.api.nvim_buf_get_lines(buf, 0, -1, false), record.message) then
+      return buf
+    end
   end, 'the preview of the record')
-  --- @cast preview_buf integer
 
   return picker, preview_buf, preview_win
 end
@@ -195,14 +192,11 @@ local function confirm(picker, record)
   local before = floats_showing(record.message)
   picker:action('confirm')
 
-  local win --- @type integer?
-  t.wait_for(function()
-    win = vim.iter(floats_showing(record.message)):find(function(candidate)
+  local win = t.await(function()
+    return vim.iter(floats_showing(record.message)):find(function(candidate)
       return not vim.tbl_contains(before, candidate)
     end)
-    return win ~= nil
   end, 'the history float')
-  --- @cast win integer
   t.cleanup(function()
     if vim.api.nvim_win_is_valid(win) then
       vim.api.nvim_win_close(win, true)
@@ -511,12 +505,12 @@ t.test("render-markdown stays out of the markdown preview of Snacks' text previe
     })
   end, 'notifier_text_preview')
 
-  local buf --- @type integer?
-  t.wait_for(function()
-    buf = vim.api.nvim_win_get_buf(picker.preview.win.win)
-    return vim.bo[buf].filetype == 'markdown.snacks_picker_preview'
+  local buf = t.await(function()
+    local preview_buf = vim.api.nvim_win_get_buf(picker.preview.win.win)
+    if vim.bo[preview_buf].filetype == 'markdown.snacks_picker_preview' then
+      return preview_buf
+    end
   end, "Snacks' markdown preview")
-  --- @cast buf integer
   -- render-markdown, were it on, would have painted by now
   t.settle(300)
   t.eq(

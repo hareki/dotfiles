@@ -37,10 +37,10 @@ local function grep_to_trouble(search, count)
     end, 'the Trouble list to close')
   end)
 
-  t.wait_for(function()
-    return trouble_win() ~= nil
+  -- Not t.await(trouble_win): LuaLS would bind T to its `integer?` return, nil included
+  return t.await(function()
+    return trouble_win()
   end, 'the Trouble list to open')
-  return trouble_win() --[[@as integer]]
 end
 
 --- The highlights the screen draws two texts of a row with, nil until `win` shows the row
@@ -57,7 +57,7 @@ local function drawn_attrs(win, row, text, other)
     local start = line:find(row, 1, true)
     if start then
       local function attr(part)
-        local col = line:find(part, start, true) --[[@as integer]]
+        local col = t.ok(line:find(part, start, true), part .. ' is on the row')
         local pos = vim.fn.screenpos(win, lnum, col)
         return vim.fn.screenattr(pos.row, pos.col)
       end
@@ -105,15 +105,12 @@ t.test('e on a grep row jumps to its match, as <CR> does', function()
   t.write('jump.lua', { 'local before = 1', 'local target = 2' })
 
   local win = grep_to_trouble('target', 1)
-  local lnum --- @type integer?
-  t.wait_for(function()
+  local lnum = t.await(function()
     local lines = vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(win), 0, -1, false)
-    lnum = vim.iter(ipairs(lines)):find(function(_, line)
+    return vim.iter(ipairs(lines)):find(function(_, line)
       return line:find('local target = 2', 1, true) ~= nil
     end)
-    return lnum ~= nil
   end, 'the Trouble list to show the match')
-  --- @cast lnum integer
 
   vim.api.nvim_set_current_win(win)
   vim.api.nvim_win_set_cursor(win, { lnum, 0 })

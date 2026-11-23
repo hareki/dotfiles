@@ -95,7 +95,7 @@ t.test('retitles the global defaults, leaving the rest of each map as Neovim set
     for _, mode in ipairs(spec.mode or { 'n' }) do
       local name = string.format('%s %s', mode, keytrans(lhs))
       local expected = vim.deepcopy(t.ok(defaults[name], name .. ' is no Neovim default'))
-      local map = t.ok(t.keymap(mode, lhs), name .. ' is unmapped') --[[@as table]]
+      local map = t.ok(t.keymap(mode, lhs), name .. ' is unmapped')
       t.eq(map.desc, spec.desc, name)
 
       local actual = vim.deepcopy(map)
@@ -219,7 +219,7 @@ end)
 
 t.test('describes the fold commands through identity maps', function()
   for _, fold in ipairs(builtin_keymaps.FOLD_DESCS) do
-    local map = t.ok(t.keymap('n', fold[1]), fold[1] .. ' is unmapped') --[[@as table]]
+    local map = t.ok(t.keymap('n', fold[1]), fold[1] .. ' is unmapped')
     t.eq({ map.rhs, map.noremap, map.desc }, { fold[1], 1, fold[2] }, fold[1])
   end
 

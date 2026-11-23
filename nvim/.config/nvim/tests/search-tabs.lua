@@ -86,7 +86,7 @@ end
 --- @param picker snacks.Picker
 --- @return tests.search-tabs.Row[]
 local function rendered_rows(picker)
-  local buf = picker.list.win.buf --[[@as integer]]
+  local buf = t.ok(picker.list.win.buf, 'the list window has a buffer')
   local lines = vim.api.nvim_buf_get_lines(buf, 0, #picker:items(), false)
   local rows = vim.tbl_map(function(line)
     return { text = line, highlighted = {} }
@@ -95,7 +95,7 @@ local function rendered_rows(picker)
   local marks = vim.api.nvim_buf_get_extmarks(buf, -1, 0, -1, { details = true })
   for _, mark in ipairs(marks) do
     -- Asked with details, so every mark carries them
-    local details = mark[4] --[[@as vim.api.keyset.extmark_details]]
+    local details = t.ok(mark[4], 'the mark has details')
     local row, col = rows[mark[2] + 1], mark[3]
     if row and details.virt_text then
       row.icon_col = row.icon_col or col
