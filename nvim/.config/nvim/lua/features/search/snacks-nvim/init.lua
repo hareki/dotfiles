@@ -43,13 +43,7 @@ return {
   {
     'snacks.nvim',
     keys = {
-      {
-        '<leader><leader>',
-        function()
-          Snacks.picker.files({ layout = actions.preview_layout('files') })
-        end,
-        desc = 'Find Files',
-      },
+      { '<leader><leader>', picker.files, desc = 'Find Files' },
       {
         '<leader>f/',
         function()
@@ -135,6 +129,7 @@ return {
           files = {
             hidden = true,
             exclude = { '.DS_Store' },
+            config = actions.remembered_preview,
           },
 
           highlights = {

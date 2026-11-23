@@ -109,13 +109,10 @@ end
 
 --- Pick a previewable file with the Snacks finder: the plugin's walks the whole cwd synchronously
 function M.pick()
-  local actions = require('features.search.snacks-nvim.actions')
-
   Snacks.picker.files({
     title = 'Live Preview',
     -- The extensions livepreview.utils.supported_filetype() accepts
     ft = { 'md', 'markdown', 'html', 'adoc', 'asciidoc', 'svg' },
-    layout = actions.preview_layout('files'),
     confirm = function(picker, item, action)
       -- From insert mode, jump opens the file a tick later, so start would see the previous buffer
       picker:norm(function()

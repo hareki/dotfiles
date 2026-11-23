@@ -6,15 +6,16 @@ local M = {}
 
 --- @type features.search.snacks-nvim.actions.State
 local state = {
-  -- Sources whose preview toggle carries across openings (their keymaps use M.preview_layout())
+  -- Sources whose preview toggle carries across openings (their config hook is M.remembered_preview)
   preview_shown = { files = true },
 }
 
---- The layout to open `source` with: its preview shown or hidden as toggle_preview last left it
---- @param source string A source in state.preview_shown
---- @return snacks.picker.layout.Config
-function M.preview_layout(source)
-  return { hidden = state.preview_shown[source] and {} or { 'preview' } }
+--- A source's `config` hook: open with the preview shown or hidden as toggle_preview last left it,
+--- whoever opens the picker. snacks runs it more than once per open, so it only reads the choice
+--- @param opts snacks.picker.Config The merged config of a source in state.preview_shown
+function M.remembered_preview(opts)
+  local layout = opts.layout --[[@as snacks.picker.layout.Config]]
+  layout.hidden = state.preview_shown[opts.source] and {} or { 'preview' }
 end
 
 --- Wrap default toggle_preview to remember the choice for the sources in state.preview_shown
@@ -25,7 +26,7 @@ function M.toggle_preview(picker)
 
   local source = picker.opts.source
   if source and state.preview_shown[source] ~= nil then
-    state.preview_shown[source] = not state.preview_shown[source]
+    state.preview_shown[source] = not picker.layout:is_hidden('preview')
   end
 end
 
