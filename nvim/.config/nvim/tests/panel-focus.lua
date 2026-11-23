@@ -1,8 +1,9 @@
 -- Focus from the Snacks terminals, through <A-t> and the move keys: a full-screen panel hands
--- window moves to tmux, the floating terminal hides once a normal window or its panel has focus
+-- window moves to tmux, the floating terminal hides once a normal window or its panel has focus,
+-- and hide_others keeps one full-screen panel up
 
 local t = require('tests.lib.helpers')
-local fullscreen_panels = require('core.snacks-nvim.fullscreen-panels')
+local terminals = require('core.snacks-nvim.terminals')
 local lazy = require('lazy')
 
 -- The move keys are lazy.nvim's stubs until the plugin loads
@@ -17,12 +18,13 @@ local function close_terminals_after()
   end)
 end
 
+--- @param count? integer Snacks keys its terminals on the command and count: one panel per count
 --- @return snacks.win
-local function open_panel()
+local function open_panel(count)
   close_terminals_after()
   return Snacks.terminal.open(
     { 'sleep', '1000' },
-    { win = fullscreen_panels.win_config({ position = 'float' }) }
+    { count = count, win = terminals.win_config({ position = 'float' }) }
   )
 end
 
@@ -178,4 +180,29 @@ t.test('a full-screen panel stays when a normal window takes focus', function()
   vim.api.nvim_set_current_win(win)
   t.settle()
   t.ok(panel:valid(), 'the panel still shows')
+end)
+
+t.test('hide_others hides every full-screen panel but the one about to toggle', function()
+  local first = open_panel(1)
+  local second = open_panel(2)
+  t.ok(first:valid(), 'the first panel hid under the second')
+
+  terminals.hide_others(second.buf)
+  t.ok(not first:valid(), 'the other panel still shows')
+  t.ok(first:buf_valid(), 'its buffer lives on')
+  t.eq(terminals.visible(), second, 'the panel up')
+
+  -- The documented no-op: with its own panel up, no other can be
+  terminals.hide_others(second.buf)
+  t.eq(terminals.visible(), second, 'the panel up after a second call')
+
+  terminals.hide_others(nil)
+  t.eq(terminals.visible(), nil, 'the panel up once none is about to toggle')
+end)
+
+t.test('hide_others leaves the floating terminal', function()
+  local terminal = open_floating_terminal()
+
+  terminals.hide_others(nil)
+  t.ok(terminal:valid(), 'the terminal hid')
 end)

@@ -1,5 +1,5 @@
---- @module 'core.snacks-nvim.fullscreen-panels'
-local fullscreen_panels = Defer.on_exported_call('core.snacks-nvim.fullscreen-panels')
+--- @module 'core.snacks-nvim.terminals'
+local terminals = Defer.on_exported_call('core.snacks-nvim.terminals')
 
 --- Entry point: lazygit's edit command calls `remote_edit()` through `--remote-expr`, so this path
 --- and that name stay stable, or the edit command stops
@@ -58,7 +58,7 @@ end
 --- Toggle the single Lazygit instance, preselecting the file on first launch: Snacks.terminal
 --- keys instances on the full command (`--file <path>` included), so the window is held instead
 function M.toggle()
-  fullscreen_panels.hide_others(state.win and state.win.buf)
+  terminals.hide_others(state.win and state.win.buf)
 
   if state.win and state.win:buf_valid() then
     state.win:toggle()
@@ -68,9 +68,8 @@ function M.toggle()
   local file = target_file()
   state.win = Snacks.lazygit({
     args = file and { '--file', file },
-    -- Not in styles.lazygit, which would load core.snacks-nvim.fullscreen-panels at startup.
-    -- Snacks.lazygit opens a Snacks terminal: border and zindex come from styles.terminal
-    win = fullscreen_panels.win_config({ backdrop = false, title = ' Git Client ' }),
+    -- Not in styles.lazygit, which would load core.snacks-nvim.terminals at startup
+    win = terminals.win_config({ backdrop = false, title = ' Git Client ' }),
   })
 end
 

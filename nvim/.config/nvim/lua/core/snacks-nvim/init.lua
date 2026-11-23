@@ -1,5 +1,5 @@
---- @module 'core.snacks-nvim.floating-terminal'
-local floating_terminal = Defer.on_exported_call('core.snacks-nvim.floating-terminal')
+--- @module 'core.snacks-nvim.terminals'
+local terminals = Defer.on_exported_call('core.snacks-nvim.terminals')
 
 -- Base spec: feature config lives in `snacks-nvim` fragments (docs/conventions/split-plugins.md)
 return {
@@ -14,7 +14,7 @@ return {
     keys = {
       {
         '<A-t>',
-        floating_terminal.toggle,
+        terminals.toggle_floating,
         mode = { 'n', 'x', 't', 'i' },
         desc = 'Toggle Floating Terminal',
       },

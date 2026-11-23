@@ -8,7 +8,7 @@ Every other fragment names the plugin bare (`'snacks.nvim'`) and holds only its 
 
 - A plugin with a spec of its own that plugs one piece into a snacks module adds it from that spec file, as a `'snacks.nvim'` opts fragment beside its own spec (trouble.nvim's picker action and its `<C-t>` keys; `rg "'snacks.nvim'" lua` lists these too).
 - A new module's config joins the fragment of the domain it serves, picker keymaps included (`<leader>fgb` lives in the git fragment).
-- Helpers stay with the domain that owns them, and other domains require them from there (harpoon's picker uses the search fragment's buffers source). `core/snacks-nvim/fullscreen-panels.lua` holds the one helper no single domain owns, the full-screen panels.
+- Helpers stay with the domain that owns them, and other domains require them from there (harpoon's picker uses the search fragment's buffers source). `core/snacks-nvim/terminals.lua` holds the one helper no single domain owns, the Snacks terminals (the floating terminal and the full-screen panels).
 
 ## Where fragments differ from single specs
 

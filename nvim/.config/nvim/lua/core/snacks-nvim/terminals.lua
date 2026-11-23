@@ -1,6 +1,8 @@
---- Full-screen Snacks terminals (Lazygit, the coding agent): their window config, pinned to
---- Terminal mode, and one at a time, so closing one lands on the code
---- @class core.snacks-nvim.fullscreen-panels
+--- The Snacks terminals and when each one gives way. The floating terminal is smaller than the
+--- screen, so the windows around it stay in reach, and hides once focus lands in one of them. The
+--- full-screen panels (Lazygit, the coding agent) are pinned to Terminal mode and up one at a time,
+--- so closing one lands on the code
+--- @class core.snacks-nvim.terminals
 local M = {}
 
 --- Pins a panel to Terminal mode: its app takes every key and click itself, so Normal mode there
@@ -39,7 +41,13 @@ local TERMINAL_MODE = {
 --- @param overrides snacks.win.Config|{} The panel's own options (title, position, backdrop)
 --- @return snacks.win.Config
 function M.win_config(overrides)
-  return vim.tbl_extend('force', UI.layout.float_fn('full'), TERMINAL_MODE, overrides)
+  return vim.tbl_extend(
+    'force',
+    UI.layout.float_fn('full'),
+    { border = 'rounded', zindex = Conf.zindex.PANEL },
+    TERMINAL_MODE,
+    overrides
+  )
 end
 
 --- Whether `terminal` is up as a full-screen panel; `valid()` alone misses the agent's hidden float
@@ -75,7 +83,7 @@ end
 --- @param group integer Augroup that lives as long as the float listens
 --- @param callback fun()
 --- @return nil
-function M.on_focus_return(group, callback)
+local function on_focus_return(group, callback)
   local panel = M.visible()
   if not panel then
     return
@@ -103,6 +111,25 @@ function M.hide_others(buf)
       terminal:hide()
     end
   end
+end
+
+--- @param self snacks.win
+local function hide_on_focus_loss(self)
+  local function hide()
+    if self:valid() then
+      self:hide()
+    end
+  end
+
+  -- `show()` recreates this group before calling `on_win`, so nothing piles up
+  UI.float.on_focus_loss(self.augroup, hide)
+  -- Opened over a full-screen panel, the window around it is that panel
+  on_focus_return(self.augroup, hide)
+end
+
+--- @return nil
+function M.toggle_floating()
+  Snacks.terminal.toggle(nil, { win = { position = 'float', on_win = hide_on_focus_loss } })
 end
 
 return M

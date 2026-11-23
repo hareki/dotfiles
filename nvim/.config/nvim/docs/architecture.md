@@ -100,6 +100,6 @@ Renaming or moving one of these modules breaks a tool outside nvim. `tests/entry
 
 `utils/popup.lua` owns floats tied to a **source window**: it hands focus over without firing autocmds, borrows keys in the source window, and closes the float once that window moves on. `tests/popup.lua` is the model test file.
 
-### Full-screen panels
+### Snacks terminals
 
-`core/snacks-nvim/fullscreen-panels.lua` manages the **full-screen panels**. It sits in `core` because no single domain owns it.
+`core/snacks-nvim/terminals.lua` manages the Snacks terminals: the floating terminal, the **full-screen panels**, and when each one hides. It sits in `core` because no single domain owns it.

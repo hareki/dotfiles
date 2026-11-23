@@ -1,8 +1,8 @@
 --- @class features.navigation.vim-tmux-navigator.utils
 local M = {}
 
---- @module 'core.snacks-nvim.fullscreen-panels'
-local fullscreen_panels = Defer.on_exported_call('core.snacks-nvim.fullscreen-panels')
+--- @module 'core.snacks-nvim.terminals'
+local terminals = Defer.on_exported_call('core.snacks-nvim.terminals')
 
 --- @alias features.navigation.vim-tmux-navigator.utils.Direction 'left' | 'down' | 'up' | 'right'
 
@@ -21,7 +21,7 @@ local DIRECTIONS = {
 --- @return nil
 function M.navigate(direction)
   local target = DIRECTIONS[direction]
-  local panel = fullscreen_panels.visible()
+  local panel = terminals.visible()
 
   if not panel then
     vim.cmd(target.command)

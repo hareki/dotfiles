@@ -17,10 +17,10 @@ return {
       {
         '<A-a>',
         function()
-          local fullscreen_panels = require('core.snacks-nvim.fullscreen-panels')
+          local terminals = require('core.snacks-nvim.terminals')
           local terminal = require('claudecode.terminal')
 
-          fullscreen_panels.hide_others(terminal.get_active_terminal_bufnr())
+          terminals.hide_others(terminal.get_active_terminal_bufnr())
           vim.cmd.ClaudeCode()
         end,
         desc = PREFIX .. 'Toggle',
@@ -56,7 +56,7 @@ return {
     },
 
     opts = function()
-      local fullscreen_panels = require('core.snacks-nvim.fullscreen-panels')
+      local terminals = require('core.snacks-nvim.terminals')
 
       return {
         focus_after_send = true,
@@ -65,7 +65,7 @@ return {
         terminal = {
           --- @module "snacks"
           --- @type snacks.win.Config | {}
-          snacks_win_opts = fullscreen_panels.win_config({
+          snacks_win_opts = terminals.win_config({
             title = ' Coding Agent ',
             position = 'float',
           }),
