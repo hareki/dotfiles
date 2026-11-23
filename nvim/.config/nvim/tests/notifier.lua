@@ -359,11 +359,41 @@ t.test('the history row of a fenced message shows the first line under the fence
   t.eq(row_shown(pick_from_history(record), record), '{ 1 }', 'the row skips the fence')
 end)
 
-t.test('a vim.notify message stays plain in the history row and preview', function()
+t.test('a vim.notify message renders as markdown in the toast and the history', function()
   t.cleanup(dismiss_toasts)
   local lines = { 'Saved **nothing**' }
 
-  vim.notify(lines[1], vim.log.levels.INFO, { title = 'Plain' })
+  vim.notify(lines[1], vim.log.levels.INFO, { title = 'Plugin' })
+  await_shown(await_toast(lines), 'Saved nothing', 'the toast')
+  local record = record_of(lines)
+
+  local picker, preview_buf, preview = pick_from_history(record)
+  t.eq(row_shown(picker, record), 'Saved nothing', 'the history row conceals the asterisks')
+  t.ok(row_is_bold(picker, 'nothing'), 'the history row paints the word bold')
+  t.eq(vim.bo[preview_buf].filetype, 'markdown', 'the history preview filetype')
+  await_shown(preview, 'Saved nothing', 'the history preview')
+end)
+
+-- lazy.nvim sends its markdown with an `on_open` that starts treesitter in the toast
+t.test("a message with its sender's on_open renders as markdown too", function()
+  t.cleanup(dismiss_toasts)
+  local lazy_util = require('lazy.core.util')
+  local lines = { 'Reloaded **nothing**' }
+
+  lazy_util.warn(lines[1])
+  await_shown(await_toast(lines), 'Reloaded nothing', 'the toast')
+  local record = record_of(lines)
+
+  local picker, _, preview = pick_from_history(record)
+  t.eq(row_shown(picker, record), 'Reloaded nothing', 'the history row conceals the asterisks')
+  await_shown(preview, 'Reloaded nothing', 'the history preview')
+end)
+
+t.test("a vim.notify message in another language's ft stays plain", function()
+  t.cleanup(dismiss_toasts)
+  local lines = { 'local **x**' }
+
+  vim.notify(lines[1], vim.log.levels.INFO, { title = 'Plugin', ft = 'lua' })
   await_toast(lines)
   local record = record_of(lines)
 

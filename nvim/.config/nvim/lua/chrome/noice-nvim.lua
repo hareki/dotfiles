@@ -100,6 +100,19 @@ return {
             end,
           },
         },
+
+        -- Render every other vim.notify message as markdown, as the Notifier renders its own
+        {
+          filter = {
+            cond = function(message)
+              -- Checked here, not as a filter key: noice walks a filter's keys in no set order
+              if message.event == 'notify' then
+                Notifier.adopt(message.opts)
+              end
+              return false -- Rewrite-only hook; fall through to the default notify route
+            end,
+          },
+        },
       },
     },
     -- Other specs add the routes their plugins need (trouble.nvim's)

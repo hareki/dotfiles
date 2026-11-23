@@ -79,11 +79,24 @@ end
 --- Every markdown message carries this one render, which is how a record tells it is one
 local markdown_render = renderer()
 
---- Whether a history record's message is markdown: a string sent through this module
+--- Whether a history record's message is markdown: a string sent through this module, or a
+--- `vim.notify` message `adopt` took in
 --- @param record notify.Record
 --- @return boolean
 function M.is_markdown(record)
   return record.render == markdown_render
+end
+
+--- Give a `vim.notify` message sent outside this module the markdown render. Plugins that write
+--- theirs in markdown (lazy.nvim, trouble.nvim) color it from an `on_open`, which a history record
+--- does not keep. A message with a render of its own, or an `ft` naming another language, stays as
+--- sent
+--- @param opts table The opts of the vim.notify call
+--- @return nil
+function M.adopt(opts)
+  if not opts.render and (opts.ft == nil or opts.ft == 'markdown') then
+    opts.render = markdown_render
+  end
 end
 
 --- Flatten a chunk list into its text and the spans its highlight groups cover
