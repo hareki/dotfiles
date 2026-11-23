@@ -19,6 +19,7 @@
               "diagnostics": { "unusedLocalExclude": ["_*"] },
               "workspace": {
                 "library": ["/opt/homebrew/share/nvim/runtime", "~/.local/share/nvim/lazy"],
+                "ignoreDir": [".vscode", "/*/tests/", "/*/test/", "/*/spec/", "/*/scripts/"],
                 "checkThirdParty": false
               }
             }
