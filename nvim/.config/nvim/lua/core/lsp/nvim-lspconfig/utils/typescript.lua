@@ -94,7 +94,8 @@ local function with_owner(bufnr, callback)
     else
       -- No fallback: vtsls would run its bundled TS in a project configured for TS 7
       Notifier.warn_once(
-        string.format('%s needs TypeScript installed for tsc to start', project_root),
+        -- A code span: markdown would read the underscores and asterisks of a path as emphasis
+        string.format('`%s` needs TypeScript installed for tsc to start', project_root),
         { title = 'TypeScript' }
       )
     end

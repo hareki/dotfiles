@@ -10,7 +10,8 @@ function M.navigate(direction)
 
   if not ok then
     local search_text = vim.fn.getreg('/')
-    Notifier.warn(string.format('`%s` is not found', search_text), {
+    -- Chunks: a pattern holding a backtick would end a markdown code span early
+    Notifier.warn({ { search_text, 'NotifyWARNTitle' }, { ' is not found', 'Normal' } }, {
       title = 'nvim-hlslens',
     })
     return

@@ -78,7 +78,8 @@ local function write(buf)
   -- Under pcall: an unwritable buffer (E32, E45, E212) would throw and leak the buffer lock
   local ok, err = pcall(vim.api.nvim_buf_call, buf, vim.cmd.update)
   if not ok then
-    notify.error('Write failed: ' .. tostring(err))
+    -- A chunk: Vim's error text is not markdown
+    notify.error({ { 'Write failed: ' .. tostring(err), 'Normal' } })
   end
 
   return ok

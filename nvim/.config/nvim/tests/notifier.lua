@@ -513,6 +513,92 @@ t.test('height_offset resizes the toast, not the history float', function()
   local win = await_toast(lines)
   t.eq(vim.api.nvim_win_get_height(win), 2, 'the toast is one line taller than its message')
 
+  -- nvim-notify sizes the toast to the message again after a duplicate's render
+  Notifier.info({ { lines[1], 'Normal' } }, { title = 'Offset', height_offset = 1 })
+  t.wait_for(function()
+    return vim.api.nvim_win_get_config(win).title[1][1]:find('(x2)', 1, true) ~= nil
+  end, 'the duplicate to re-render the toast')
+  t.wait_for(function()
+    return vim.api.nvim_win_get_height(win) == 2
+  end, 'the duplicate to keep the toast one line taller than its message')
+
   local float = open_from_history(record_of(lines))
   t.eq(vim.api.nvim_win_get_height(float), 1, 'the history float fits the message')
+end)
+
+t.test('the history float shows every row of a line it wraps', function()
+  t.cleanup(dismiss_toasts)
+  -- Three times the widest the float gets
+  local lines = { string.rep('x', 3 * UI.layout.inline_max_width()) }
+
+  Notifier.info(lines[1])
+  await_toast(lines)
+
+  local float = open_from_history(record_of(lines))
+  t.eq(vim.wo[float].wrap, true, 'the history float wraps the line')
+  t.ok(vim.api.nvim_win_get_height(float) > 1, 'the history float is taller than one row')
+  t.eq(
+    vim.api.nvim_win_get_height(float),
+    vim.api.nvim_win_text_height(float, {}).all,
+    'the history float has a row for each one the line takes'
+  )
+end)
+
+--- @param kind string Names the test, and tells its message from the other kind's: nvim-notify
+--- takes the same text for a duplicate
+--- @param message fun(text: string): utils.notifier.Message
+local function test_wrapped_toast(kind, message)
+  t.test(string.format('a %s toast has a row for each one a wrapped line takes', kind), function()
+    t.cleanup(dismiss_toasts)
+    local max_width = UI.layout.inline_max_width()
+    -- The first line takes three rows of the widest toast, which nvim-notify sizes to two lines
+    local lines = { string.rep('x', 3 * max_width), string.format('The line under a %s one', kind) }
+    local msg = message(table.concat(lines, '\n'))
+
+    --- @param win integer
+    --- @return boolean
+    local function fits(win)
+      return vim.api.nvim_win_get_width(win) == max_width
+        and vim.api.nvim_win_get_height(win) == vim.api.nvim_win_text_height(win, {}).all
+    end
+
+    Notifier.info(msg, { title = 'Wrapped' })
+    local win = await_toast(lines)
+    t.eq(vim.wo[win].wrap, true, 'the toast wraps the line')
+    t.eq(vim.api.nvim_win_get_height(win), 4, 'the toast has the rows of both lines')
+    t.ok(fits(win), 'the toast is as wide as its cap and as tall as its text')
+
+    -- nvim-notify sizes the toast to the message again after a duplicate's render, without its caps
+    Notifier.info(msg, { title = 'Wrapped' })
+    t.wait_for(function()
+      return vim.api.nvim_win_get_config(win).title[1][1]:find('(x2)', 1, true) ~= nil
+    end, 'the duplicate to re-render the toast')
+    t.wait_for(function()
+      return fits(win)
+    end, 'the duplicate to keep the toast within its cap, with the rows of both lines')
+    t.eq(vim.api.nvim_win_get_height(win), 4, 'the duplicate keeps the rows of both lines')
+
+    local float = open_from_history(record_of(lines))
+    t.eq(vim.api.nvim_win_get_height(float), 4, 'the history float has the rows of both lines')
+  end)
+end
+
+test_wrapped_toast('markdown', function(text)
+  return text
+end)
+test_wrapped_toast('chunk', function(text)
+  return { { text, 'Normal' } }
+end)
+
+-- nvim-notify's own renders draw the title in the buffer, so the spec's leaves the window none
+t.test('a message with a render of its own opens its toast and its history float', function()
+  t.cleanup(dismiss_toasts)
+  local lines = { 'Rendered by the sender' }
+
+  vim.notify(lines[1], vim.log.levels.INFO, { title = 'Plugin', render = 'minimal' })
+  local win = await_toast(lines)
+  t.eq(vim.api.nvim_win_get_config(win).title, nil, 'the toast has no title on its border')
+
+  local float = open_from_history(record_of(lines))
+  t.eq(vim.api.nvim_win_get_config(float).title, nil, 'the history float has none either')
 end)

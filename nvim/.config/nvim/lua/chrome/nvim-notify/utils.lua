@@ -27,6 +27,8 @@ local function open_float(notif)
   local width = math.min(opened.width, UI.layout.inline_max_width())
   local height = math.min(opened.height, UI.layout.inline_max_height())
   local col, row = UI.layout.center(width, height)
+  -- None from a notification sent with a render of its own, which never runs the spec's
+  local title = vim.b[opened.buffer][M.TITLE_KEY]
 
   local win = vim.api.nvim_open_win(opened.buffer, true, {
     relative = 'editor',
@@ -36,13 +38,27 @@ local function open_float(notif)
     row = row,
     border = 'rounded',
     style = 'minimal',
-    title = vim.b[opened.buffer][M.TITLE_KEY],
-    title_pos = 'center',
+    title = title,
+    title_pos = title and 'center' or nil,
   })
 
   vim.wo[win][0].winhighlight =
     string.format('Normal:%s,FloatBorder:%s', opened.highlights.body, opened.highlights.border)
   Notifier.paint_window(win)
+
+  -- A painted window wraps: a line wider than the float takes more rows than the buffer has
+  -- lines, and a window too short for a line's rows cannot scroll to the rest of them
+  local rows = math.min(vim.api.nvim_win_text_height(win, {}).all, UI.layout.inline_max_height())
+  if rows ~= height then
+    col, row = UI.layout.center(width, rows)
+    vim.api.nvim_win_set_config(win, {
+      relative = 'editor',
+      width = width,
+      height = rows,
+      col = col,
+      row = row,
+    })
+  end
 end
 
 --- The picker's previewer: the notification as its toast showed it. Snacks' text previewer has no

@@ -14,7 +14,8 @@ function M.jump(direction)
     local ok, err =
       pcall(vim.cmd[direction == 'next' and 'cnext' or 'cprev'], { count = vim.v.count1 })
     if not ok then
-      Notifier.error(tostring(err), { title = 'Quickfix' })
+      -- A chunk: Vim's error text is not markdown
+      Notifier.error({ { tostring(err), 'Normal' } }, { title = 'Quickfix' })
     end
   end
 end

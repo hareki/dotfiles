@@ -41,14 +41,16 @@ return {
 
         on_open = function(win)
           local buf = vim.api.nvim_win_get_buf(win)
+          -- None from a notification sent with a render of its own, which never runs the one below
           local title = vim.b[buf][notify_utils.TITLE_KEY]
 
           vim.api.nvim_win_set_config(win, {
             zindex = Conf.zindex.NOTIFY,
             title = title,
-            title_pos = 'center',
+            title_pos = title and 'center' or nil,
           })
           Notifier.paint_window(win)
+          Notifier.fit_toast(win, UI.layout.inline_max_width(), UI.layout.inline_max_height())
         end,
 
         render = function(bufnr, notif, hl)

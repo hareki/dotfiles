@@ -21,6 +21,9 @@ local M = {}
 -- Whether the buffer's message is markdown, which only renders once a window shows it
 local MARKDOWN_KEY = 'notify_markdown'
 
+-- The `height_offset` of the toast's notification, which `fit_toast` adds to its height
+local HEIGHT_OFFSET_KEY = 'notify_height_offset'
+
 -- A notification is read, never edited: the line under the cursor (the first one, as the history
 -- float opens) stays rendered, where render-markdown would show an editor its markdown syntax
 --- @type render.md.partial.UserConfig
@@ -31,13 +34,15 @@ local RENDER_CONFIG = {
 
 local highlight_ns = vim.api.nvim_create_namespace('utils.notifier')
 
---- Render the message as markdown in a window showing its buffer, if it is markdown. nvim-notify's
---- `on_open` and the history picker's preview and float call it too: each shows the buffer in its
---- window after the render has run
+--- Paint a window showing a notification's buffer: wrap its lines, and render the message as
+--- markdown if it is markdown. nvim-notify's `on_open` and the history picker's preview and float
+--- call it too: each shows the buffer in its window after the render has run
 --- @param win integer
 --- @return nil
 function M.paint_window(win)
   local buf = vim.api.nvim_win_get_buf(win)
+  -- A chunk message too, which the markdown filetype's own wrap never reaches
+  vim.wo[win][0].wrap = true
   if vim.b[buf][MARKDOWN_KEY] then
     local render_markdown = require('render-markdown')
     -- Asked for before the filetype is set: render-markdown keeps the config of its first look at
@@ -47,6 +52,31 @@ function M.paint_window(win)
     -- on it instead of the autocmd window
     vim.bo[buf].filetype = 'markdown'
   end
+end
+
+--- Size a toast to its message as its window shows it. nvim-notify sizes one to its buffer's
+--- lines, which leaves no row for those a wrapped line adds (the lines under it scroll out of the
+--- toast), and sizes it again for a duplicate without its caps. nvim-notify's `on_open` calls it
+--- once the window is painted, which is what wraps its lines
+--- @param win integer
+--- @param max_width integer
+--- @param max_height integer
+--- @return nil
+function M.fit_toast(win, max_width, max_height)
+  local buf = vim.api.nvim_win_get_buf(win)
+  vim.api.nvim_win_set_width(win, math.min(vim.api.nvim_win_get_width(win), max_width))
+
+  -- Counted a line at a time, over the lines the toast has room for. A hidden line (the end of a
+  -- code fence, which takes no row) is not taken off: `height_offset` is how its sender does that
+  local lines = vim.api.nvim_buf_line_count(buf)
+  local rows = lines
+  for row = 0, math.min(lines, max_height) - 1 do
+    local shown = vim.api.nvim_win_text_height(win, { start_row = row, end_row = row }).all
+    rows = rows + math.max(shown - 1, 0)
+  end
+
+  local offset = vim.b[buf][HEIGHT_OFFSET_KEY] or 0
+  vim.api.nvim_win_set_height(win, math.min(rows, max_height) + offset)
 end
 
 --- The render a notification carries, which nvim-notify runs each time it fills its buffer (the
@@ -72,6 +102,16 @@ local function renderer(highlights)
     -- A duplicate re-renders into the window of the toast it repeats
     for _, win in ipairs(vim.fn.win_findbuf(buf)) do
       M.paint_window(win)
+    end
+
+    -- nvim-notify then sizes that toast to the message again, once this render has returned
+    local toast = vim.fn.bufwinid(buf)
+    if toast ~= -1 then
+      vim.schedule(function()
+        if vim.api.nvim_win_is_valid(toast) then
+          M.fit_toast(toast, config.max_width(), config.max_height())
+        end
+      end)
     end
   end
 end
@@ -133,7 +173,8 @@ end
 --- @param msg utils.notifier.Message
 --- @param opts? utils.notifier.NotifierOpts
 --- @param send? fun(msg: string, level: integer, opts: table): any Default: vim.notify
---- @return any handle The notification record, or whether vim.notify_once showed it
+--- @return any handle What vim.notify returned (noice's `{ id }` of its message, nil in a fast
+--- event, never nvim-notify's record), or whether vim.notify_once showed it
 local function notify(level, msg, opts, send)
   opts = opts or {}
 
@@ -144,10 +185,11 @@ local function notify(level, msg, opts, send)
     text, highlights = normalize_message(msg)
   end
 
+  -- Runs before nvim-notify's own `on_open`, which fits the toast
   local on_open
   if opts.height_offset then
     on_open = function(win)
-      vim.api.nvim_win_set_height(win, vim.api.nvim_win_get_height(win) + opts.height_offset)
+      vim.b[vim.api.nvim_win_get_buf(win)][HEIGHT_OFFSET_KEY] = opts.height_offset
     end
   end
 
@@ -162,21 +204,21 @@ end
 
 --- @param msg utils.notifier.Message
 --- @param opts? utils.notifier.NotifierOpts
---- @return any handle The notification record
+--- @return any handle What vim.notify returned
 function M.info(msg, opts)
   return notify(vim.log.levels.INFO, msg, opts)
 end
 
 --- @param msg utils.notifier.Message
 --- @param opts? utils.notifier.NotifierOpts
---- @return any handle The notification record
+--- @return any handle What vim.notify returned
 function M.warn(msg, opts)
   return notify(vim.log.levels.WARN, msg, opts)
 end
 
 --- @param msg utils.notifier.Message
 --- @param opts? utils.notifier.NotifierOpts
---- @return any handle The notification record
+--- @return any handle What vim.notify returned
 function M.error(msg, opts)
   return notify(vim.log.levels.ERROR, msg, opts)
 end
