@@ -3,7 +3,7 @@
   "auto-session": { "branch": "main", "commit": "8b879c2e864b67825af32d9ae70aeedf024cc770" },
   "blink-cmp-conventional-commits": { "branch": "main", "commit": "28f46593ef5e03ba7525bdf6075be0c56c6ceb55" },
   "blink-cmp-dat-word": { "branch": "main", "commit": "0c58fe92bd94710c52a5cb3a89c63a47bc851733" },
-  "blink-ripgrep.nvim": { "branch": "main", "commit": "89286b4ae60332ce0e6db0405f4f4bb30111f789" },
+  "blink-ripgrep.nvim": { "branch": "main", "commit": "19add131bd44b99a36fab48dcfda37a0f0344267" },
   "blink.cmp": { "branch": "main", "commit": "78336bc89ee5365633bcf754d93df01678b5c08f" },
   "blink.compat": { "branch": "main", "commit": "1454f14a8d855a578ceeba77c62538fa1459a67c" },
   "catppuccin": { "branch": "main", "commit": "edefef779ab08ce1a4a404713e3012b0d202bd35" },
