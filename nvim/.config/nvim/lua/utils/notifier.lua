@@ -24,7 +24,8 @@ local MARKDOWN_KEY = 'notify_markdown'
 local highlight_ns = vim.api.nvim_create_namespace('utils.notifier')
 
 --- Render the message as markdown in a window showing its buffer, if it is markdown. nvim-notify's
---- `on_open` and the history float call it too: each opens its window after the render has run
+--- `on_open` and the history picker's preview and float call it too: each shows the buffer in its
+--- window after the render has run
 --- @param win integer
 --- @return nil
 function M.paint_window(win)
@@ -39,8 +40,8 @@ function M.paint_window(win)
 end
 
 --- The render a notification carries, which nvim-notify runs each time it fills its buffer (the
---- toast, a duplicate re-rendering it, the history float): the configured render, then the
---- message's own paint over its plain lines
+--- toast, a duplicate re-rendering it, the history picker's preview and float): the configured
+--- render, then the message's own paint over its plain lines
 --- @param highlights? utils.notifier.Highlight[] A chunk message's spans; nil paints it as markdown
 --- @return fun(buf: integer, notif: notify.Notification, hl: NotifyBufHighlights, config: table)
 local function renderer(highlights)
@@ -62,6 +63,16 @@ local function renderer(highlights)
       M.paint_window(win)
     end
   end
+end
+
+--- Every markdown message carries this one render, which is how a record tells it is one
+local markdown_render = renderer()
+
+--- Whether a history record's message is markdown: a string sent through this module
+--- @param record notify.Record
+--- @return boolean
+function M.is_markdown(record)
+  return record.render == markdown_render
 end
 
 --- Flatten a chunk list into its text and the spans its highlight groups cover
@@ -117,10 +128,10 @@ local function notify(level, msg, opts, send)
   end
 
   -- The record keeps its own render, which nvim-notify re-runs for a duplicate and the history
-  -- float; it replaces noice's, whose extra passes paint nothing on a vim.notify message
+  -- picker; it replaces noice's, whose extra passes paint nothing on a vim.notify message
   return (send or vim.notify)(text, level, {
     title = opts.title or 'Notifier',
-    render = renderer(highlights),
+    render = highlights and renderer(highlights) or markdown_render,
     on_open = on_open,
   })
 end
