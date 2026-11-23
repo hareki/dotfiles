@@ -5,9 +5,14 @@ local popup = require('utils.popup')
 --- @class features.diagnostics.hl-at-cursor.utils
 local M = {}
 
---- Closer of the open popup: a second would fight it over <Tab>/<Esc> and orphan the first float
---- @type fun()?
-local close_active
+--- @class features.diagnostics.hl-at-cursor.utils.State
+--- @field close_active fun()? Closer of the open popup
+
+--- @type features.diagnostics.hl-at-cursor.utils.State
+local state = {
+  -- A second popup would fight the open one over <Tab>/<Esc> and orphan its float
+  close_active = nil,
+}
 
 --- Render the popup's markdown: a bold title per section, then its unique items or 'none'
 --- @param sections { [1]: string, [2]: string[] }[] Section titles and their list items
@@ -61,8 +66,8 @@ end
 --- Show the syntax groups, Tree-sitter captures, extmarks and matches at the cursor in a popup
 --- @return nil
 function M.show()
-  if close_active then
-    close_active()
+  if state.close_active then
+    state.close_active()
   end
 
   -- The current buffer at the cursor, with every group resolved through its links
@@ -106,12 +111,12 @@ function M.show()
   local win = open_popup(lines, items.row, items.col)
 
   -- <Esc> in the origin window also clears search highlights, as it does without the popup
-  close_active = popup.link(win, {
+  state.close_active = popup.link(win, {
     name = 'Highlight Popup',
     esc_passthrough = true,
     close_on = { cursor_moved = true, focus_left = true },
     on_close = function()
-      close_active = nil
+      state.close_active = nil
     end,
   })
 end
