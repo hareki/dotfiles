@@ -1,6 +1,10 @@
 --- @class features.preview.render-markdown-nvim.utils
 local M = {}
 
+--- The cells of background on each side of a heading. The plugin ends the right ones at a window
+--- column, so whoever paints its marks somewhere else (a picker row) adds those itself
+M.HEADING_PAD = 1
+
 --- Evict wiped buffers from render-markdown.nvim's bufnr-keyed caches, which never evict, so
 --- short-lived markdown buffers leak tens of KB and a uv timer each; never loads the plugin
 --- @param wiping? integer A buffer being wiped, still valid until its BufWipeout ends
@@ -37,6 +41,31 @@ function M.evict_wiped_buffers(wiping)
       end
     end
   end
+end
+
+--- The marks render-markdown would paint on a buffer, as data and in this call. Its `render` paints
+--- a window on a later tick, which a caller with no window to show the buffer in (a picker row)
+--- cannot wait for. Reads the plugin's private modules, as nothing public returns marks
+--- @param buf integer
+--- @return render.md.Mark[]
+function M.marks(buf)
+  local state = require('render-markdown.state')
+  local Context = require('render-markdown.request.context')
+  local handlers = require('render-markdown.core.handlers')
+
+  -- The plugin covers the lines of the windows showing the buffer (and 10 around them): the call
+  -- gives a buffer shown nowhere the autocmd window
+  return vim.api.nvim_buf_call(buf, function()
+    local parser = assert(vim.treesitter.get_parser(buf, 'markdown'))
+    local win = vim.api.nvim_get_current_win()
+    local context = assert(Context.new(buf, win, state.get(buf)))
+
+    local marks
+    context.view:parse(parser, function()
+      marks = handlers.run(context, parser)
+    end)
+    return marks
+  end)
 end
 
 --- The plugin disables markdown's `conceal_lines` patterns, but the query still reports them, so

@@ -1,3 +1,5 @@
+local render_markdown = require('features.preview.render-markdown-nvim.utils')
+
 --- @class chrome.nvim-notify.utils
 local M = {}
 
@@ -59,22 +61,69 @@ end
 -- Under treesitter's (90 and up), so a markdown row's own colors show over the body's
 local BODY_PRIORITY = 50
 
+local staging_buf --- @type integer?
+
+--- The scratch buffer a row's markdown is parsed in. Not the one Snacks parses `code` in, which
+--- has no end of line: the parser reads a heading the text stops in (`# Test`) as an error
+--- @return integer
+local function staging()
+  if not (staging_buf and vim.api.nvim_buf_is_valid(staging_buf)) then
+    staging_buf = vim.api.nvim_create_buf(false, true)
+  end
+  return staging_buf
+end
+
+--- A render-markdown mark on a row's line, as the list's extmarks for it
+--- @param mark render.md.Mark
+--- @param line string
+--- @return snacks.picker.Extmark[] extmarks Their columns count from the line's start
+local function row_extmarks(mark, line)
+  local opts = mark.opts
+
+  -- A heading's background runs to the window's edge, and a mask at a window column cuts it off
+  -- past the right pad. A row of the list starts at neither, so its line and a pad carry the color
+  if opts.virt_text_win_col then
+    return {}
+  end
+  if opts.hl_eol and opts.end_row == mark.start_row + 1 then
+    local pad = string.rep(' ', render_markdown.HEADING_PAD)
+    return {
+      { col = mark.start_col, end_col = #line, hl_group = opts.hl_group },
+      { col = #line, virt_text = { { pad, opts.hl_group } }, virt_text_pos = 'inline' },
+    }
+  end
+
+  -- A mark reaching into another line (a code block's background) is not this row's
+  if (opts.end_row or mark.start_row) ~= mark.start_row then
+    return {}
+  end
+  local extmark = vim.tbl_extend('force', opts, { col = mark.start_col })
+  extmark.end_row = nil
+  return { extmark }
+end
+
 --- What a list row shows of a markdown message: its first line with text, a code fence aside (it
---- names the language of the lines under it), and treesitter's highlights and conceals for that
---- line. render-markdown paints a window on a markdown buffer, which one row of the list is not
+--- names the language of the lines under it), with what treesitter and render-markdown paint on
+--- that line in the preview
 --- @param message string[]
 --- @return string line
---- @return snacks.picker.Extmark[] marks
+--- @return snacks.picker.Extmark[] marks Their columns count from the line's start
 local function markdown_row(message)
   for row, line in ipairs(message) do
     if line:find('%S') and not line:find('^%s*```') then
       -- Parsed down to its line only: the lines under it color nothing in the row, and an
       -- inspected table has thousands of them (half a second for 15,000)
-      local rows = Snacks.picker.highlight.get_highlights({
-        code = table.concat(message, '\n', 1, row),
-        lang = 'markdown',
-      })
-      return line, rows[row] or {}
+      local buf = staging()
+      vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.list_slice(message, 1, row))
+
+      local highlights = Snacks.picker.highlight.get_highlights({ buf = buf, lang = 'markdown' })
+      local marks = highlights[row] or {}
+      for _, mark in ipairs(render_markdown.marks(buf)) do
+        if mark.start_row == row - 1 then
+          vim.list_extend(marks, row_extmarks(mark, line))
+        end
+      end
+      return line, marks
     end
   end
 
@@ -135,7 +184,7 @@ function M.show_picker()
       for _, mark in ipairs(marks) do
         ret[#ret + 1] = vim.tbl_extend('force', mark, {
           col = mark.col + offset,
-          end_col = mark.end_col + offset,
+          end_col = mark.end_col and mark.end_col + offset, -- Virtual text has a start only
         })
       end
       ret[#ret + 1] = { line }

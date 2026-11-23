@@ -52,8 +52,8 @@ return {
         heading = {
           position = 'inline', -- Same indentation for every level, instead of one space per '#'
           width = 'block', -- Background hugs the heading text instead of spanning the window
-          left_pad = 1,
-          right_pad = 1,
+          left_pad = utils.HEADING_PAD,
+          right_pad = utils.HEADING_PAD,
         },
         sign = {
           enabled = false,

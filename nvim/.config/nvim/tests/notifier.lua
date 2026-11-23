@@ -5,6 +5,7 @@
 local t = require('tests.lib.helpers')
 local notify = require('notify')
 local notify_utils = require('chrome.nvim-notify.utils')
+local render_markdown_utils = require('features.preview.render-markdown-nvim.utils')
 
 local render_markdown_ns = vim.api.nvim_create_namespace('render-markdown.nvim')
 
@@ -120,11 +121,11 @@ local function row_shown(picker, record)
   return shown(win, vim.api.nvim_win_get_cursor(win)[1]):match(record.level .. ' (.*)$')
 end
 
---- Whether the history picker paints `text` bold in the row its cursor is on
+--- The highlight groups the history picker paints over all of `text` in the row its cursor is on
 --- @param picker snacks.Picker
 --- @param text string
---- @return boolean
-local function row_is_bold(picker, text)
+--- @return string[]
+local function row_groups(picker, text)
   local list = picker.list.win
   local row = vim.api.nvim_win_get_cursor(list.win)[1] - 1
   local line = vim.api.nvim_buf_get_lines(list.buf, row, row + 1, false)[1]
@@ -137,12 +138,49 @@ local function row_is_bold(picker, text)
     { details = true }
   )
 
-  return vim.iter(marks):any(function(mark)
-    local details = mark[4]
-    return details.hl_group ~= nil
-      and mark[3] <= from
-      and details.end_col >= from + #text
-      and vim.api.nvim_get_hl(0, { name = details.hl_group, link = false }).bold == true
+  return vim
+    .iter(marks)
+    :filter(function(mark)
+      local details = mark[4]
+      return details.hl_group ~= nil and mark[3] <= from and details.end_col >= from + #text
+    end)
+    :map(function(mark)
+      return mark[4].hl_group
+    end)
+    :totable()
+end
+
+--- The virtual text the history picker puts right after `text` in the row its cursor is on
+--- @param picker snacks.Picker
+--- @param text string
+--- @return table? virt_text
+local function row_pad(picker, text)
+  local list = picker.list.win
+  local row = vim.api.nvim_win_get_cursor(list.win)[1] - 1
+  local line = vim.api.nvim_buf_get_lines(list.buf, row, row + 1, false)[1]
+  local _, to = line:find(text, 1, true)
+  local marks = vim.api.nvim_buf_get_extmarks(
+    list.buf,
+    -1,
+    { row, to },
+    { row, to },
+    { details = true }
+  )
+
+  for _, mark in ipairs(marks) do
+    if mark[4].virt_text_pos == 'inline' then
+      return mark[4].virt_text
+    end
+  end
+end
+
+--- Whether the history picker paints `text` bold in the row its cursor is on
+--- @param picker snacks.Picker
+--- @param text string
+--- @return boolean
+local function row_is_bold(picker, text)
+  return vim.iter(row_groups(picker, text)):any(function(group)
+    return vim.api.nvim_get_hl(0, { name = group, link = false }).bold == true
   end)
 end
 
@@ -316,6 +354,10 @@ t.test('a string message renders as markdown in the toast, a duplicate and the h
     'Run stylua on init.lua',
     'the history row conceals the markdown syntax'
   )
+  t.ok(
+    vim.tbl_contains(row_groups(picker, '`init.lua`'), 'RenderMarkdownCodeInline'),
+    'the history row paints the inline code as render-markdown does'
+  )
   t.eq(vim.bo[preview_buf].filetype, 'markdown', 'the history preview filetype')
   await_markdown(preview_buf, 'the history preview')
 
@@ -347,6 +389,40 @@ t.test('a bold message reads without its asterisks wherever the history shows it
   picker:action('toggle_preview_focus')
   t.eq(shown(preview), 'test', 'the history preview under the cursor')
   await_shown(confirm(picker, record), 'test', 'the history float')
+end)
+
+-- A one-word heading is the whole of its message: the parser gets no line under it to end it with
+t.test('the history row renders a heading, whatever follows it', function()
+  t.cleanup(dismiss_toasts)
+
+  for level, lines in ipairs({ { '# Test' }, { '## Test', '', 'Under the heading' } }) do
+    Notifier.info(table.concat(lines, '\n'))
+    await_toast(lines)
+    local record = record_of(lines)
+    local background = string.format('RenderMarkdownH%dBg', level)
+    local pad = string.rep(' ', render_markdown_utils.HEADING_PAD)
+
+    local picker = pick_from_history(record)
+    local groups = row_groups(picker, lines[1])
+    t.ok(
+      vim.tbl_contains(groups, string.format('@markup.heading.%d.markdown', level)),
+      string.format('the history row colors %q as a heading', lines[1])
+    )
+    t.ok(vim.tbl_contains(groups, background), 'the history row paints the heading background')
+
+    -- render-markdown's icon for the level, whichever glyph the config gives it
+    local row = t.ok(row_shown(picker, record), 'the row shows no message')
+    local icon, text = vim.trim(row):match('^(%S+) (.*)$')
+    t.eq(text, 'Test', 'the history row shows the heading text after one icon')
+    t.ok(not icon:find('#', 1, true), 'the icon stands in place of the heading marker')
+    t.eq(row:sub(1, #pad), pad, 'the background starts a pad before the icon')
+    t.eq(
+      row_pad(picker, lines[1]),
+      { { pad, background } },
+      'the background ends a pad after the text'
+    )
+    picker:close()
+  end
 end)
 
 t.test('the history row of a fenced message shows the first line under the fence', function()
