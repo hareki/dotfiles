@@ -35,7 +35,7 @@ return {
         '<leader>as',
         '<cmd>ClaudeCodeTreeAdd<cr>',
         desc = PREFIX .. 'Add File',
-        ft = { 'NvimTree' },
+        ft = { 'NvimTree', 'trouble' },
       },
       {
         '<leader>as',
