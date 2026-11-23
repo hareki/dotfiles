@@ -4,7 +4,6 @@
 # files nested deeper (e.g. claude-code/.claude/CLAUDE.md) still deploy
 ^/AGENTS\.md$
 ^/CLAUDE\.md$
-^/GLOSSARY\.md$
 ^/README\.md$
 ^/assets$
 ^/docs$

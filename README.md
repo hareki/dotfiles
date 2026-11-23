@@ -173,7 +173,7 @@ dotfiles
 - **[nvim/README.md](./nvim/README.md)**: the Neovim config, its plugins and its conventions
 - **[zsh/README.md](./zsh/README.md)**: the zsh config, its commands and its startup measurements
 - **[tmux/README.md](./tmux/README.md)**: the tmux config and the snapshot store behind `tsave`/`trestore`
-- **[lazygit/GLOSSARY.md](./lazygit/GLOSSARY.md)**: lazygit's edit commands and the codediff renderer
+- **[lazygit/docs/GLOSSARY.md](./lazygit/docs/GLOSSARY.md)**: lazygit's edit commands and the codediff renderer
 - **[hammerspoon/README.md](./hammerspoon/README.md)**: setup and the gesture tests
 - **[GLOSSARY-MAP.md](./GLOSSARY-MAP.md)**: the glossary of each config and where one config reaches into another
 
