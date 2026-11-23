@@ -1,18 +1,11 @@
--- Function-valued, so snacks sizes and centers each picker per open, across terminal resizes
-local sm = UI.layout.picker_fn('sm')
-
 local layouts = require('features.search.snacks-nvim.layouts')
--- Required, not deferred: the opts below take its source table at startup
+-- Required, not deferred: the opts below take their source tables at startup
+local buffers = require('features.search.snacks-nvim.sources.buffers')
+local keymaps = require('features.search.snacks-nvim.sources.keymaps')
 local tabs = require('features.search.snacks-nvim.sources.tabs')
 
 --- @module 'features.search.snacks-nvim.actions'
 local actions = Defer.on_exported_call('features.search.snacks-nvim.actions')
-
---- @module 'features.search.snacks-nvim.sources.buffers'
-local buffers = Defer.on_exported_call('features.search.snacks-nvim.sources.buffers')
-
---- @module 'features.search.snacks-nvim.sources.keymaps'
-local keymaps = Defer.on_exported_call('features.search.snacks-nvim.sources.keymaps')
 
 --- @module 'snacks.picker'
 local picker = Defer.on_exported_call('snacks.picker')
@@ -111,20 +104,7 @@ return {
         layouts = layouts,
 
         sources = {
-          buffers = {
-            format = buffers.format,
-            transform = buffers.transform,
-            matcher = { sort_empty = true }, -- Required for sort to work with empty search
-            -- Modified buffers first, then snacks' default order (score, text length, index)
-            sort = { fields = { 'modified', 'score:desc', '#text', 'idx' } },
-            win = {
-              input = {
-                keys = {
-                  ['x'] = { 'bufdelete' },
-                },
-              },
-            },
-          },
+          buffers = buffers.source,
 
           files = {
             hidden = true,
@@ -136,17 +116,7 @@ return {
             layout = 'preview_right',
           },
 
-          keymaps = {
-            transform = keymaps.transform,
-            format = function(item)
-              return keymaps.format(item, sm.width())
-            end,
-
-            layout = {
-              hidden = { 'preview' },
-              layout = vim.tbl_extend('force', sm, { backdrop = false }),
-            },
-          },
+          keymaps = keymaps.source,
 
           tabs = tabs.source,
         },

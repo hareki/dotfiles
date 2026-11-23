@@ -1,7 +1,10 @@
 --- @module 'snacks'
---- The keymaps picker's pieces: descs filled from which-key, noise filtered, aligned columns
+--- The keymaps picker's source: descs filled from which-key, noise filtered, aligned columns
 --- @class features.search.snacks-nvim.sources.keymaps
 local M = {}
+
+-- Function-valued, so snacks sizes and centers each picker per open, across terminal resizes
+local sm = UI.layout.picker_fn('sm')
 
 local FILTERED_DESCRIPTIONS = {
   'blink.cmp',
@@ -36,7 +39,7 @@ end
 --- Transform function for keymap picker: fill missing descs from which-key, filter unwanted maps
 --- @param item snacks.picker.Item
 --- @return snacks.picker.Item | false item false to filter it out
-function M.transform(item)
+local function transform(item)
   local keymap = item.item
   item.file = nil -- We're not showing the file column anyway
 
@@ -58,11 +61,10 @@ function M.transform(item)
   return item
 end
 
---- Format function for keymap picker (icon, description, buffer, lhs, mode)
+--- Format function for keymap picker (icon, description, buffer, lhs, mode), as wide as the picker
 --- @param item snacks.picker.Item
---- @param width integer
 --- @return snacks.picker.Highlight[] highlights
-function M.format(item, width)
+local function format(item)
   local ret = {} --- @type snacks.picker.Highlight[]
   --- @type wk.Keymap
   local k = item.item
@@ -75,7 +77,7 @@ function M.format(item, width)
   }
   local col_count = vim.tbl_count(col_width)
 
-  local desc_width = width
+  local desc_width = sm.width()
     - col_width.icon
     - col_width.buffer
     - col_width.lhs
@@ -103,5 +105,16 @@ function M.format(item, width)
 
   return ret
 end
+
+--- The keymaps source's config, which the search fragment registers as `picker.sources.keymaps`
+--- @type snacks.picker.Config
+M.source = {
+  transform = transform,
+  format = format,
+  layout = {
+    hidden = { 'preview' },
+    layout = vim.tbl_extend('force', sm, { backdrop = false }),
+  },
+}
 
 return M

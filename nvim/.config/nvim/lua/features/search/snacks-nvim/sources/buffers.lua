@@ -1,4 +1,4 @@
---- The buffers picker's pieces; `format` also renders the rows of the tabs and harpoon pickers
+--- The buffers picker's source; `format` also renders the rows of the tabs and harpoon pickers
 --- @class features.search.snacks-nvim.sources.buffers
 local M = {}
 
@@ -29,10 +29,27 @@ end
 --- Transform function for buffer picker: flag modified buffers for the `modified` sort field
 --- @param item snacks.picker.Item
 --- @return nil
-function M.transform(item)
+local function transform(item)
   -- The matcher sorts from snacks' async loop, a fast event context where vim.bo raises
   -- E5560, so the sort key comes from the buffers finder's getbufinfo() snapshot
   item.modified = item.info.changed == 1
 end
+
+--- The buffers source's config, which the search fragment registers as `picker.sources.buffers`
+--- @type snacks.picker.Config
+M.source = {
+  format = M.format,
+  transform = transform,
+  matcher = { sort_empty = true }, -- Required for sort to work with empty search
+  -- Modified buffers first, then snacks' default order (score, text length, index)
+  sort = { fields = { 'modified', 'score:desc', '#text', 'idx' } },
+  win = {
+    input = {
+      keys = {
+        ['x'] = { 'bufdelete' },
+      },
+    },
+  },
+}
 
 return M
