@@ -30,13 +30,8 @@ local DEFAULTS = {
   ['secondary-right'] = { padding = { left = 0, right = 2 } },
 }
 
---- The palette's color for `key`, raising on a key it lacks (a which-key color name, a typo)
---- @param palette utils.ui.catppuccin-nvim.Palette
---- @param key string
---- @return string hex
-local function palette_color(palette, key)
-  return palette[key] or error(string.format('Statusline piece: %q is no palette key', key), 0)
-end
+-- What a wrong color key names in its error
+local OWNER = 'Statusline piece'
 
 --- Create lualine components with consistent styling. `color` is a Catppuccin palette key: a
 --- primary type needs one, with an icon, and a secondary type defaults to subtext0
@@ -56,14 +51,14 @@ function M.create_styling_wrapper(opts)
       vim.tbl_extend('force', {
         [1] = opts.comp,
         icon = opts.icon,
-        color = { fg = palette_color(palette, opts.color or 'subtext0'), bg = 'none' },
+        color = { fg = UI.catppuccin.palette_color(opts.color or 'subtext0', OWNER), bg = 'none' },
         padding = defaults.padding,
       }, extra),
     }
   end
 
   local margin = opts.margin or defaults.margin
-  local accent = palette_color(palette, opts.color)
+  local accent = UI.catppuccin.palette_color(opts.color, OWNER)
   local result = create_margins(margin.left, opts.cond)
   table.insert(
     result,

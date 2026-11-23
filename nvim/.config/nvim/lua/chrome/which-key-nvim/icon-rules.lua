@@ -17,12 +17,11 @@ end
 --- which-key's group, a typo through none
 --- @param rules utils.ui.which-key-nvim.IconRule[]
 function M.check_colors(rules)
-  local palette = UI.catppuccin.get_palette()
   for _, rule in ipairs(rules) do
-    if rule.color and not palette[rule.color] then
-      error(
-        string.format('Icon rule %q: %q is no palette key', rule.pattern or rule.plugin, rule.color),
-        0
+    if rule.color then
+      UI.catppuccin.palette_color(
+        rule.color,
+        string.format('Icon rule %q', rule.pattern or rule.plugin)
       )
     end
   end

@@ -39,6 +39,14 @@ local function get_palette(name)
   return palettes.get_palette(name or 'mocha')
 end
 
+--- The palette's color for `key`, raising on a key it lacks (which-key's own color names, a typo)
+--- @param key string
+--- @param owner string What names the key, for the error (`Icon rule "pin"`)
+--- @return string hex
+local function palette_color(key, owner)
+  return get_palette()[key] or error(string.format('%s: %q is no palette key', owner, key), 0)
+end
+
 --- @alias utils.ui.catppuccin-nvim.Register fun(palette: utils.ui.catppuccin-nvim.Palette, extension: utils.ui.catppuccin-nvim.Ext): table<string, vim.api.keyset.highlight>
 
 --- Resolve a register callback into its highlight table
@@ -109,12 +117,14 @@ end
 --- @class utils.ui.catppuccin-nvim
 --- @field get_palette fun(name?: "frappe" | "latte" | "macchiato" | "mocha" | "ext"): utils.ui.catppuccin-nvim.Palette | utils.ui.catppuccin-nvim.Ext
 --- @field integration fun(name: string): table
+--- @field palette_color fun(key: string, owner: string): string
 --- @overload fun(register: utils.ui.catppuccin-nvim.Register, plugin_name?: string): table
 
 --- @type utils.ui.catppuccin-nvim
 local M = setmetatable({
   get_palette = get_palette,
   integration = integration,
+  palette_color = palette_color,
 }, {
   __call = function(_, register, plugin_name)
     return catppuccin(register, plugin_name)
