@@ -1,4 +1,4 @@
--- The modules something outside nvim reaches by their path (AGENTS.md, Entry points), each checked
+-- The modules something outside nvim reaches by their path (docs/architecture.md, Entry points), each checked
 -- the way its caller does: lazygit's edit command, tsave, Claude's Stop hook, NVIM_INTEGRATION
 
 local t = require('tests.lib.helpers')

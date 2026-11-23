@@ -19,4 +19,4 @@ Before writing or reviewing Lua, or naming a file or directory, read `docs/conve
 ## Commands
 
 - **Format**: run `stylua .` after editing Lua
-- **Test**: every headless nvim boot goes through `tests/run.sh`, `tests/probe.sh` or `tests/ab.sh`, which apply the rules in `tests/lib/env.sh`, each of which cost a real incident: never override `XDG_DATA_HOME`, never dump the environment, and end a boot with `os.exit`
+- **Test**: boot headless nvim only through `tests/run.sh`, `tests/probe.sh` or `tests/ab.sh` (a test file may start a child nvim from inside such a boot, which inherits its environment), which apply the rules in `tests/lib/env.sh`, each of which cost a real incident: never override `XDG_DATA_HOME`, never dump the environment, and end a boot with `os.exit`

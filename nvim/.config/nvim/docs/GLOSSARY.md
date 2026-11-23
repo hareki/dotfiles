@@ -61,6 +61,10 @@ The window a popup opened from.
 A float over the whole editor: lazygit and the coding agent.
 _Avoid_: modal, fullscreen terminal
 
+**Side panel**:
+A split docked beside the code at a fraction of the editor's width: the file tree out of its float, the diagnostics list, search and replace.
+_Avoid_: sidebar, drawer
+
 **Picker source**:
 What one picker lists and how: its finder, item format, confirm action and keys.
 _Avoid_: picker, for the definition
@@ -70,7 +74,7 @@ A file kept in harpoon's numbered list.
 _Avoid_: mark, bookmark
 
 **Integration**:
-The reduced mode nvim runs in when another tool (lazygit, git, the coding agent) opens it as its editor.
+The mode nvim runs in when another tool (lazygit, git, the coding agent) opens it as its editor: a label naming that tool stands in for the statusline.
 _Avoid_: embedded mode
 
 ### Verification

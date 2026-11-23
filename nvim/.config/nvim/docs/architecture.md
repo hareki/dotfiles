@@ -50,7 +50,7 @@ Outside `lua/`:
 
 lazy.nvim imports `core` first, then `chrome`, then each `features` domain. `config/lazy/init.lua` holds the import list.
 
-`core` must stay first because `core/catppuccin-nvim.lua` builds its `opts` in a function that returns a fresh table. A catppuccin **fragment** imported before it would be dropped.
+`core` must stay first because `core/catppuccin-nvim.lua` builds its `opts` in a function that returns a fresh table. A catppuccin **fragment** imported before it would be dropped. Inside a tier lazy.nvim imports the modules in name order, so the same holds for a `core` spec whose name sorts before `catppuccin-nvim`: only `auto-session` today, which registers none.
 
 Every tier reads `config/` and `utils/` through the globals. `chrome/lualine-nvim` places a feature's `statusline.lua` without owning it.
 
@@ -59,7 +59,7 @@ Every tier reads `config/` and `utils/` through the globals. `chrome/lualine-nvi
 `config/globals.lua` assigns a few globals so spec files skip the require boilerplate. Each one is a table built from `config/` or `utils/` modules, which you can look up there.
 
 - A global whose modules aren't needed at startup holds a **defer proxy**, which loads the module on first use.
-- `config/` modules require each other directly, because the globals don't exist yet while they load.
+- The modules `config/init.lua` pulls in require each other directly, because `Conf` doesn't exist until that module has loaded. The `config/` modules `init.lua` loads after `config/globals.lua` (options, autocmds, keymaps, `config/lazy/`) read the globals.
 
 ## Specs and fragments
 
