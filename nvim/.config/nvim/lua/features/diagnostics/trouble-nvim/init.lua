@@ -9,7 +9,7 @@ return {
       TroublePreview = { link = 'Search' },
       TroubleIconDirectory = { link = 'Directory' },
       TroubleSnacksIcon = { fg = palette[Conf.icons.colors.SNACKS] },
-      TroubleSnacksCount = { fg = palette.lavender },
+      TroubleSnacksCount = { fg = palette.yellow },
       -- Paths read as they do in the picker the list came from
       TroubleSnacksDirname = { link = 'SnacksPickerDir' },
       TroubleSnacksBasename = { link = 'SnacksPickerFile' },
