@@ -1,18 +1,20 @@
 --- @class features.diagnostics.trouble-nvim.utils
 local M = {}
 
---- Jump to the next/previous item of the open trouble view, else of the quickfix list
+--- Jump [count] items forward/backward in the open trouble view, else in the quickfix list
 --- @param direction 'next' | 'prev'
 function M.jump(direction)
   local trouble = require('trouble')
 
   if trouble.is_open() then
+    -- Trouble's next and prev read v:count1 themselves
     --- @diagnostic disable-next-line: missing-parameter, missing-fields
     trouble[direction]({ jump = true })
   else
-    local ok, err = pcall(vim.cmd[direction == 'next' and 'cnext' or 'cprev'])
+    local ok, err =
+      pcall(vim.cmd[direction == 'next' and 'cnext' or 'cprev'], { count = vim.v.count1 })
     if not ok then
-      Notifier.error(err, { title = 'Quickfix' })
+      Notifier.error(tostring(err), { title = 'Quickfix' })
     end
   end
 end

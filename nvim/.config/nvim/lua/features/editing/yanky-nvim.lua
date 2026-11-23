@@ -117,8 +117,9 @@ return {
           -- prefix, it overwrites register 0 (P's source) and skips the small delete register
           local register = vim.v.register == '"' and '' or '"' .. vim.v.register
 
-          -- With a count, stay native linewise so 3dd still deletes 3 lines
-          if vim.v.count1 > 1 then
+          -- With a count, stay native linewise so 3dd still deletes 3 lines; on a closed fold too,
+          -- which an operator takes whole, leaving the `"_dd` below the line after it
+          if vim.v.count1 > 1 or vim.fn.foldclosed('.') ~= -1 then
             vim.cmd.normal({ register .. vim.v.count1 .. 'dd', bang = true })
             return
           end

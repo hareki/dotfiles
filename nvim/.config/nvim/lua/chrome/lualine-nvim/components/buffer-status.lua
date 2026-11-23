@@ -71,11 +71,12 @@ local function get_current_unsaved()
   local name = vim.api.nvim_buf_get_name(bufnr)
 
   -- Terminals are always nomodifiable (a misleading padlock); empty-filetype nofile/prompt buffers
-  -- are UI, while codediff:// views clear their filetype yet still earn the lock icon
+  -- are UI, while codediff:// views clear their filetype yet still earn the lock icon. A help file
+  -- opened for editing (buftype '') is a file like any other
   if
     bo.buftype == 'terminal'
     or (ft == '' and (bo.buftype == 'nofile' or bo.buftype == 'prompt'))
-    or IGNORED_FILETYPES[ft]
+    or (IGNORED_FILETYPES[ft] and not (ft == 'help' and bo.buftype == ''))
   then
     cache.current_unsaved = ''
     cache.last_bufnr = bufnr

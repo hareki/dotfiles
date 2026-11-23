@@ -39,7 +39,7 @@ return {
             },
           })
         end,
-        mode = { 'n', 'v' },
+        mode = { 'n', 'x' },
         desc = 'Search and Replace',
       },
     },

@@ -137,6 +137,12 @@ aucmd('FileType', {
     'qf',
   },
   callback = function(event)
+    -- A help file opened for editing (a plugin's `doc/*.txt`, buftype '') is a file like any other:
+    -- this `q` would throw its unsaved edits away
+    if event.match == 'help' and vim.bo[event.buf].buftype ~= 'help' then
+      return
+    end
+
     vim.bo[event.buf].buflisted = false
     vim.keymap.set('n', 'q', function()
       pcall(vim.api.nvim_win_close, 0, true)
@@ -148,11 +154,15 @@ aucmd('FileType', {
   end,
 })
 
--- Open help vertically to the right
+-- Open help vertically to the right; a help file opened for editing (buftype '') stays in place
 aucmd('FileType', {
   group = augroup('help-right'),
   pattern = { 'help' },
-  command = 'wincmd L',
+  callback = function(event)
+    if vim.bo[event.buf].buftype == 'help' then
+      vim.cmd.wincmd('L')
+    end
+  end,
 })
 
 -- Don't continue comments onto new lines

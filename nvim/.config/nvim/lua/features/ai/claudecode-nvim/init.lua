@@ -2,7 +2,7 @@ local PREFIX = 'Coding Agent: '
 
 return {
   UI.which_key({
-    specs = { '<leader>a', group = 'Coding Agent', mode = { 'n', 'v' } },
+    specs = { '<leader>a', group = 'Coding Agent', mode = { 'n', 'x' } },
     rules = {
       pattern = 'coding agent',
       icon = Conf.icons.cmp_kinds.CodingAgent,
@@ -40,7 +40,7 @@ return {
       {
         '<leader>as',
         '<cmd>ClaudeCodeSend<cr>',
-        mode = 'v',
+        mode = 'x',
         desc = PREFIX .. 'Add Selection',
       },
       {

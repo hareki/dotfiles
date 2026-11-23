@@ -67,11 +67,23 @@ end
 --- @param win integer
 --- @param in_conflict boolean
 local function apply_window_winhl(win, in_conflict)
+  local winhl = vim.wo[win].winhighlight
+  local from, to = winhl:find(CONFLICT_WINHL, 1, true)
+
   -- Setting 'winhighlight', even to its current value, redraws the whole window on every move here
-  local winhl = in_conflict and CONFLICT_WINHL or ''
-  if vim.wo[win].winhighlight ~= winhl then
-    vim.wo[win].winhighlight = winhl
+  if (from ~= nil) == in_conflict then
+    return
   end
+
+  -- The window's own redirects stay: a Snacks float's (zen, a picker's preview of this buffer)
+  if in_conflict then
+    winhl = winhl == '' and CONFLICT_WINHL or winhl .. ',' .. CONFLICT_WINHL
+  else
+    -- Minus the comma that joined it to a neighbor
+    local before, after = winhl:sub(1, from - 1), winhl:sub(to + 1)
+    winhl = before == '' and after:sub(2) or before:sub(1, -2) .. after
+  end
+  vim.wo[win].winhighlight = winhl
 end
 
 --- Register the autocmds that give conflicted buffers their keymaps and conflict window

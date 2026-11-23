@@ -21,7 +21,7 @@ return {
   end, 'gitsigns.nvim'),
 
   UI.which_key({
-    specs = { '<leader>h', group = 'Gitsigns', mode = { 'n', 'v' } },
+    specs = { '<leader>h', group = 'Gitsigns', mode = { 'n', 'x' } },
     rules = { pattern = 'gitsigns', icon = Conf.icons.git.SIGN, color = 'yellow' },
   }),
 
@@ -105,11 +105,11 @@ return {
 
           -- Visual variants pass the selected range: a <cmd> mapping would hit the whole hunk
           map('n', '<leader>hs', gs.stage_hunk, 'Toggle Stage Hunk')
-          map('v', '<leader>hs', function()
+          map('x', '<leader>hs', function()
             gs.stage_hunk({ vim.fn.line('.'), vim.fn.line('v') })
           end, 'Toggle Stage Hunk')
           map('n', '<leader>hr', gs.reset_hunk, 'Reset Hunk')
-          map('v', '<leader>hr', function()
+          map('x', '<leader>hr', function()
             gs.reset_hunk({ vim.fn.line('.'), vim.fn.line('v') })
           end, 'Reset Hunk')
           map('n', '<leader>hS', gs.stage_buffer, 'Stage Buffer')

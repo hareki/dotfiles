@@ -5,7 +5,8 @@ local M = {}
 --- @param direction 'n' | 'N'
 --- @return nil
 function M.navigate(direction)
-  local ok = pcall(vim.cmd.normal, { vim.v.count1 .. direction, bang = true })
+  -- `zv`: 'foldopen' skips a search that runs from a mapping, which would land in a closed fold
+  local ok = pcall(vim.cmd.normal, { vim.v.count1 .. direction .. 'zv', bang = true })
 
   if not ok then
     local search_text = vim.fn.getreg('/')

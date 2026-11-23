@@ -58,14 +58,14 @@ end, { expr = true, desc = 'Quit All' })
 map({ 'n', 'x' }, '<PageUp>', scroll_center('<C-u>'), { desc = 'Scroll Up and Center' })
 map({ 'n', 'x' }, '<PageDown>', scroll_center('<C-d>'), { desc = 'Scroll Down and Center' })
 
-map('v', '<leader>t', "ygvgc']p", {
+map('x', '<leader>t', "ygvgc']p", {
   remap = true,
   desc = 'Yank, Comment, Move Below, and Paste',
 })
 
--- Keep the selection after indenting
-map('v', '<', '<gv', { desc = 'Indent Left' })
-map('v', '>', '>gv', { desc = 'Indent Right' })
+-- Keep the selection after indenting; not in Select mode, where a snippet placeholder types them
+map('x', '<', '<gv', { desc = 'Indent Left' })
+map('x', '>', '>gv', { desc = 'Indent Right' })
 
 -- Better up/down: display lines unless a count above 1 is given (the typed count applies to
 -- the returned keys). They run unmapped, since 'j'/'k' might be remapped for other purposes

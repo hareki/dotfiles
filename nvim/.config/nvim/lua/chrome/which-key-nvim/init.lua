@@ -48,10 +48,10 @@ return {
       },
 
       spec = {
-        { '<leader>c', group = 'Code', mode = { 'n', 'v' } },
-        { '<leader>f', group = 'Find', mode = { 'n', 'v' } },
-        { '<leader>q', group = 'Quit', mode = { 'n', 'v' } },
-        { '<leader>s', group = 'Search', mode = { 'n', 'v' } },
+        { '<leader>c', group = 'Code', mode = { 'n', 'x' } },
+        { '<leader>f', group = 'Find', mode = { 'n', 'x' } },
+        { '<leader>q', group = 'Quit', mode = { 'n', 'x' } },
+        { '<leader>s', group = 'Search', mode = { 'n', 'x' } },
       },
 
       -- <auto> skips single-letter builtins; plugins needing one use UI.which_key({ triggers })

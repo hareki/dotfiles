@@ -32,7 +32,8 @@ local function repo_name_from_url(url)
 
   url = url:gsub('%.git$', '')
 
-  return url:match('([^/]+)$')
+  -- Up to a colon too: an scp-style URL can have no slash (`git@host:repo.git`)
+  return url:match('([^/:]+)$')
 end
 
 --- `M.get`'s async cache-miss path
