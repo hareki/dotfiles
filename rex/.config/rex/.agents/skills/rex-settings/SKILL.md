@@ -1,6 +1,6 @@
 ---
 name: rex-settings
-description: The Rex.app settings record (`config/settings.lua`), Apply Settings and the imported theme. Use when adding or changing a setting, syncing one the user changed in the Settings window, or changing the theme.
+description: Rex.app settings and the theme in this Rex config. Use when adding or changing a setting or the theme, including one the user changed in the app.
 ---
 
 # Settings

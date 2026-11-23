@@ -1,6 +1,6 @@
 ---
 name: rex-actions
-description: Custom actions in this Rex config (`features/<name>.lua`, `rex.action`), covering how one is filed, named and titled, its errors, and server versus client calls. Use when adding, changing or retitling an action.
+description: Custom actions in this Rex config. Use when adding or changing an action.
 ---
 
 # Actions

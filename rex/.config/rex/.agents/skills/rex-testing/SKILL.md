@@ -1,6 +1,6 @@
 ---
 name: rex-testing
-description: Testing this Rex config with `rex config check`, `rex keymap`, `rex do` and probe sessions. Use when verifying a change, running a custom action before a reload, or reading the bytes a key sends.
+description: Checking changes to this Rex config, and testing them live in a throwaway session instead of the user's own. Use when verifying a new or changed binding, action or setting.
 ---
 
 # Testing
