@@ -12,6 +12,32 @@ local function dismiss_toasts()
   notify.dismiss({ pending = true, silent = true })
 end
 
+--- The text `win` shows of buffer line `lnum`, read off the screen: what the user reads there, with
+--- the conceals and virtual text of whoever painted it. Its first screen row, should the line wrap
+--- @param win integer
+--- @param lnum? integer Default 1
+--- @return string
+local function shown(win, lnum)
+  vim.cmd.redraw()
+  local info = vim.fn.getwininfo(win)[1]
+  local pos = vim.fn.screenpos(win, lnum or 1, 1)
+  local cells = {}
+  for col = pos.col, pos.col + info.width - info.textoff - 1 do
+    cells[#cells + 1] = vim.fn.screenstring(pos.row, col)
+  end
+  return vim.trim(table.concat(cells))
+end
+
+--- Wait for `win` to show `text` on its first line: render-markdown renders off the event loop
+--- @param win integer
+--- @param text string
+--- @param where string
+local function await_shown(win, text, where)
+  t.wait_for(function()
+    return shown(win) == text
+  end, string.format('%s to show %q', where, text))
+end
+
 --- The floats showing exactly `lines`
 --- @param lines string[]
 --- @return integer[]
@@ -61,9 +87,11 @@ end
 --- The history picker as <leader>fn opens it, with the cursor on `record` and its preview drawn
 --- @param record notify.Record
 --- @return snacks.Picker picker
---- @return string row The message part of the record's list row, without the text it conceals
 --- @return integer preview_buf
+--- @return integer preview_win
 local function pick_from_history(record)
+  -- A toast covers the picker's top right corner, which `shown` would read in place of the list
+  dismiss_toasts()
   local picker = t.open_picker(notify_utils.show_picker, 'notify')
   for idx, item in ipairs(picker:items()) do
     if item.notif.id == record.id then
@@ -72,39 +100,50 @@ local function pick_from_history(record)
   end
   t.eq(picker:current().notif.id, record.id, 'the cursor is on the record')
 
+  local preview_win = t.ok(picker.preview.win.win, 'the picker has no preview window')
   local preview_buf --- @type integer?
   t.wait_for(function()
-    preview_buf = vim.api.nvim_win_get_buf(picker.preview.win.win)
+    preview_buf = vim.api.nvim_win_get_buf(preview_win)
     return vim.deep_equal(vim.api.nvim_buf_get_lines(preview_buf, 0, -1, false), record.message)
   end, 'the preview of the record')
   --- @cast preview_buf integer
 
-  local list_buf = picker.list.win.buf
-  local row = vim.api.nvim_win_get_cursor(picker.list.win.win)[1] - 1
-  local line = vim.api.nvim_buf_get_lines(list_buf, row, row + 1, false)[1]
-  local concealed = {}
+  return picker, preview_buf, preview_win
+end
+
+--- The message part of the row the history picker's cursor is on, which is the record's
+--- @param picker snacks.Picker
+--- @param record notify.Record
+--- @return string?
+local function row_shown(picker, record)
+  local win = t.ok(picker.list.win.win, 'the picker has no list window')
+  return shown(win, vim.api.nvim_win_get_cursor(win)[1]):match(record.level .. ' (.*)$')
+end
+
+--- Whether the history picker paints `text` bold in the row its cursor is on
+--- @param picker snacks.Picker
+--- @param text string
+--- @return boolean
+local function row_is_bold(picker, text)
+  local list = picker.list.win
+  local row = vim.api.nvim_win_get_cursor(list.win)[1] - 1
+  local line = vim.api.nvim_buf_get_lines(list.buf, row, row + 1, false)[1]
+  local from = t.ok(line:find(text, 1, true), 'the row has no ' .. text) - 1
   local marks = vim.api.nvim_buf_get_extmarks(
-    list_buf,
+    list.buf,
     -1,
     { row, 0 },
     { row, -1 },
     { details = true }
   )
-  for _, mark in ipairs(marks) do
-    if mark[4].conceal then
-      for col = mark[3] + 1, mark[4].end_col do
-        concealed[col] = true
-      end
-    end
-  end
-  local shown = {}
-  for col = 1, #line do
-    if not concealed[col] then
-      shown[#shown + 1] = line:sub(col, col)
-    end
-  end
 
-  return picker, table.concat(shown):match(record.level .. ' (.*)$'), preview_buf
+  return vim.iter(marks):any(function(mark)
+    local details = mark[4]
+    return details.hl_group ~= nil
+      and mark[3] <= from
+      and details.end_col >= from + #text
+      and vim.api.nvim_get_hl(0, { name = details.hl_group, link = false }).bold == true
+  end)
 end
 
 --- Confirm the picker's record, which opens it in the history float
@@ -228,15 +267,14 @@ t.test('a chunk message keeps its highlights in the toast, a duplicate and the h
     'the duplicate counts itself in the title'
   )
 
-  local picker, row, preview_buf = pick_from_history(record)
-  t.eq(row, PIN_LINES[1], 'the history row shows the first line')
+  local picker, preview_buf = pick_from_history(record)
+  t.eq(row_shown(picker, record), PIN_LINES[1], 'the history row shows the first line')
   t.eq(highlights(preview_buf), PIN_HIGHLIGHTS, 'the history preview highlights each chunk')
   t.eq(vim.bo[preview_buf].filetype, 'notify', 'the history preview is not markdown')
-  t.eq(
-    vim.fn.maparg('<Tab>', 'n', false, true).buffer,
-    1,
-    'the history preview has the preview window keys'
-  )
+  picker:action('toggle_preview_focus')
+  t.eq(picker:current_win(), 'preview', 'the history preview takes the focus')
+  t.press('<Tab>')
+  t.eq(picker:current_win(), 'input', 'the history preview has the preview window keys')
 
   local float, float_buf = confirm(picker, record)
   t.eq(highlights(float_buf), PIN_HIGHLIGHTS, 'the history float highlights each chunk')
@@ -272,8 +310,12 @@ t.test('a string message renders as markdown in the toast, a duplicate and the h
   t.eq(vim.bo[buf].filetype, 'markdown', 'the duplicate keeps the filetype')
   await_markdown(buf, 'the duplicate')
 
-  local picker, row, preview_buf = pick_from_history(record)
-  t.eq(row, 'Run stylua on init.lua', 'the history row conceals the markdown syntax')
+  local picker, preview_buf = pick_from_history(record)
+  t.eq(
+    row_shown(picker, record),
+    'Run stylua on init.lua',
+    'the history row conceals the markdown syntax'
+  )
   t.eq(vim.bo[preview_buf].filetype, 'markdown', 'the history preview filetype')
   await_markdown(preview_buf, 'the history preview')
 
@@ -288,14 +330,73 @@ t.test('a string message renders as markdown in the toast, a duplicate and the h
   )
 end)
 
+t.test('a bold message reads without its asterisks wherever the history shows it', function()
+  t.cleanup(dismiss_toasts)
+  local lines = { '**test**' }
+
+  Notifier.info(lines[1])
+  await_shown(await_toast(lines), 'test', 'the toast')
+  local record = record_of(lines)
+
+  local picker, _, preview = pick_from_history(record)
+  await_shown(preview, 'test', 'the history preview')
+  t.eq(row_shown(picker, record), 'test', 'the history row')
+  t.ok(row_is_bold(picker, lines[1]), 'the history row paints the word bold')
+
+  -- Both put the cursor on the message's first line, which render-markdown leaves raw for an editor
+  picker:action('toggle_preview_focus')
+  t.eq(shown(preview), 'test', 'the history preview under the cursor')
+  await_shown(confirm(picker, record), 'test', 'the history float')
+end)
+
 t.test('the history row of a fenced message shows the first line under the fence', function()
   t.cleanup(dismiss_toasts)
   local lines = { '```lua', '{ 1 }', '```' }
 
   Notifier.inspect({ 1 })
   await_toast(lines)
-  local _, row = pick_from_history(record_of(lines))
-  t.eq(row, '{ 1 }', 'the row skips the fence')
+  local record = record_of(lines)
+  t.eq(row_shown(pick_from_history(record), record), '{ 1 }', 'the row skips the fence')
+end)
+
+t.test('a vim.notify message stays plain in the history row and preview', function()
+  t.cleanup(dismiss_toasts)
+  local lines = { 'Saved **nothing**' }
+
+  vim.notify(lines[1], vim.log.levels.INFO, { title = 'Plain' })
+  await_toast(lines)
+  local record = record_of(lines)
+
+  local picker, preview_buf, preview = pick_from_history(record)
+  t.eq(row_shown(picker, record), lines[1], 'the history row keeps the asterisks')
+  t.eq(vim.bo[preview_buf].filetype, 'notify', 'the history preview is not markdown')
+  t.eq(shown(preview), lines[1], 'the history preview keeps the asterisks')
+end)
+
+-- Why the history picker previews with a buffer of its own: this is the previewer it would use
+t.test("render-markdown stays out of the markdown preview of Snacks' text previewer", function()
+  local picker = t.open_picker(function()
+    Snacks.picker({
+      source = 'notifier_text_preview',
+      items = { { text = MARKDOWN, preview = { text = MARKDOWN, ft = 'markdown' } } },
+      format = 'text',
+      preview = 'preview',
+    })
+  end, 'notifier_text_preview')
+
+  local buf --- @type integer?
+  t.wait_for(function()
+    buf = vim.api.nvim_win_get_buf(picker.preview.win.win)
+    return vim.bo[buf].filetype == 'markdown.snacks_picker_preview'
+  end, "Snacks' markdown preview")
+  --- @cast buf integer
+  -- render-markdown, were it on, would have painted by now
+  t.settle(300)
+  t.eq(
+    vim.api.nvim_buf_get_extmarks(buf, RENDER_MARKDOWN_NS, 0, -1, {}),
+    {},
+    'render-markdown paints nothing'
+  )
 end)
 
 t.test('height_offset resizes the toast, not the history float', function()

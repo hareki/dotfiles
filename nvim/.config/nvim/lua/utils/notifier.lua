@@ -21,6 +21,14 @@ local M = {}
 -- Whether the buffer's message is markdown, which only renders once a window shows it
 local MARKDOWN_KEY = 'notify_markdown'
 
+-- A notification is read, never edited: the line under the cursor (the first one, as the history
+-- float opens) stays rendered, where render-markdown would show an editor its markdown syntax
+--- @type render.md.partial.UserConfig
+local RENDER_CONFIG = {
+  anti_conceal = { enabled = false },
+  win_options = { concealcursor = { rendered = 'nvc' } },
+}
+
 local highlight_ns = vim.api.nvim_create_namespace('utils.notifier')
 
 --- Render the message as markdown in a window showing its buffer, if it is markdown. nvim-notify's
@@ -31,11 +39,13 @@ local highlight_ns = vim.api.nvim_create_namespace('utils.notifier')
 function M.paint_window(win)
   local buf = vim.api.nvim_win_get_buf(win)
   if vim.b[buf][MARKDOWN_KEY] then
+    local render_markdown = require('render-markdown')
+    -- Asked for before the filetype is set: render-markdown keeps the config of its first look at
+    -- a buffer, which the FileType handler would take, and renders once this call has returned
+    render_markdown.render({ buf = buf, win = win, config = RENDER_CONFIG })
     -- Set while a window shows the buffer, so the FileType handlers' window options (wrap) land
     -- on it instead of the autocmd window
     vim.bo[buf].filetype = 'markdown'
-    local render_markdown = require('render-markdown')
-    render_markdown.render({ buf = buf, win = win })
   end
 end
 

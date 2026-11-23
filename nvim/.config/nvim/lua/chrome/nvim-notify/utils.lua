@@ -66,13 +66,14 @@ local BODY_PRIORITY = 50
 --- @return string line
 --- @return snacks.picker.Extmark[] marks
 local function markdown_row(message)
-  local rows = Snacks.picker.highlight.get_highlights({
-    code = table.concat(message, '\n'),
-    lang = 'markdown',
-  })
-
   for row, line in ipairs(message) do
     if line:find('%S') and not line:find('^%s*```') then
+      -- Parsed down to its line only: the lines under it color nothing in the row, and an
+      -- inspected table has thousands of them (half a second for 15,000)
+      local rows = Snacks.picker.highlight.get_highlights({
+        code = table.concat(message, '\n', 1, row),
+        lang = 'markdown',
+      })
       return line, rows[row] or {}
     end
   end
