@@ -144,7 +144,7 @@ local M = {
     PIN = '󰐃',
     MARK = '',
     LIVE_PREVIEW = '󰀃',
-    SNACKS = '?',
+    SNACKS = '',
   },
   navigation = {
     PREV = '󰒮',
