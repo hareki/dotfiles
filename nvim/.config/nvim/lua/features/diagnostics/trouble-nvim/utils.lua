@@ -14,8 +14,7 @@ function M.jump(direction)
     local ok, err =
       pcall(vim.cmd[direction == 'next' and 'cnext' or 'cprev'], { count = vim.v.count1 })
     if not ok then
-      -- A chunk: Vim's error text is not markdown
-      Notifier.error({ { tostring(err), 'Normal' } }, { title = 'Quickfix' })
+      Notifier.error(tostring(err), { title = 'Quickfix' })
     end
   end
 end
@@ -36,7 +35,7 @@ function M.snacks_to_trouble(picker)
       local name = source and string.format('`%s` ', source) or ''
       Notifier.warn(
         string.format('The %sSnacks picker has no files to send to Trouble', name),
-        { title = 'Snacks Picker' }
+        { title = 'Snacks Picker', markdown = true }
       )
       return
     end

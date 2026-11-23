@@ -6,7 +6,8 @@ local icons = require('config.icons')
 --- @class utils.notifier
 local M = {}
 
---- @alias utils.notifier.NotifierOpts { title?: string, height_offset?: integer }
+--- `markdown`: render a string message as markdown; without it the string is shown as written
+--- @alias utils.notifier.NotifierOpts { title?: string, height_offset?: integer, markdown?: boolean }
 
 --- @alias utils.notifier.MessageChunk { [1]: string, [2]: string } Text and its highlight group
 --- @alias utils.notifier.Message string | utils.notifier.MessageChunk[]
@@ -41,7 +42,7 @@ local highlight_ns = vim.api.nvim_create_namespace('utils.notifier')
 --- @return nil
 function M.paint_window(win)
   local buf = vim.api.nvim_win_get_buf(win)
-  -- A chunk message too, which the markdown filetype's own wrap never reaches
+  -- A message that is not markdown too, which the markdown filetype's own wrap never reaches
   vim.wo[win][0].wrap = true
   if vim.b[buf][MARKDOWN_KEY] then
     local render_markdown = require('render-markdown')
@@ -82,7 +83,8 @@ end
 --- toast, a duplicate re-rendering it, the history picker's preview and float): the configured
 --- render, then the message's own paint over its plain lines
 --- @module 'notify'
---- @param highlights? utils.notifier.Highlight[] A chunk message's spans; nil paints it as markdown
+--- @param highlights? utils.notifier.Highlight[] A chunk message's spans, none for a string shown
+--- as written; nil paints it as markdown
 --- @return fun(buf: integer, notif: notify.Notification, hl: NotifyBufHighlights, config: table)
 local function renderer(highlights)
   return function(buf, notif, hl, config)
@@ -114,8 +116,11 @@ end
 --- Every markdown message carries this one render, which is how a record tells it is one
 local markdown_render = renderer()
 
---- Whether a history record's message is markdown: a string sent through this module, or a
---- `vim.notify` message `adopt` took in
+--- A string shown as written: no spans to paint
+local plain_render = renderer({})
+
+--- Whether a history record's message is markdown: a string sent as markdown through this module,
+--- or a `vim.notify` message `adopt` took in
 --- @param record notify.Record
 --- @return boolean
 function M.is_markdown(record)
@@ -163,7 +168,8 @@ local function normalize_message(chunks)
   return table.concat(parts), highlights
 end
 
---- Notify with a string rendered as markdown, or chunks keeping their highlight groups
+--- Notify with a string shown as written (as markdown with `opts.markdown`), or chunks keeping
+--- their highlight groups
 --- @param level integer
 --- @param msg utils.notifier.Message
 --- @param opts? utils.notifier.NotifierOpts
@@ -173,11 +179,13 @@ end
 local function notify(level, msg, opts, send)
   opts = opts or {}
 
-  local text, highlights
+  local text, render
   if type(msg) == 'string' then
-    text = msg
+    text, render = msg, opts.markdown and markdown_render or plain_render
   else
+    local highlights
     text, highlights = normalize_message(msg)
+    render = renderer(highlights)
   end
 
   -- Runs before nvim-notify's own `on_open`, which fits the toast
@@ -192,7 +200,7 @@ local function notify(level, msg, opts, send)
   -- picker; it replaces noice's, whose extra passes paint nothing on a vim.notify message
   return (send or vim.notify)(text, level, {
     title = opts.title or 'Notifier',
-    render = highlights and renderer(highlights) or markdown_render,
+    render = render,
     on_open = on_open,
   })
 end
@@ -267,7 +275,7 @@ function M.inspect(...)
     end
     msg = string.format('```lua\n%s\n```', vim.inspect(obj))
   end
-  M.warn(msg, { title = 'Debug ' .. icons.tools.DEBUG, height_offset = -1 })
+  M.warn(msg, { title = 'Debug ' .. icons.tools.DEBUG, height_offset = -1, markdown = true })
 end
 
 return M

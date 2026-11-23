@@ -328,10 +328,26 @@ t.test('a chunk message keeps its highlights in the toast, a duplicate and the h
   )
 end)
 
-t.test('a string message renders as markdown in the toast, a duplicate and the history', function()
+t.test('a string message is shown as written in the toast and the history', function()
+  t.cleanup(dismiss_toasts)
+  local lines = { 'No match for **/*.lua in `src`' }
+
+  Notifier.info(lines[1])
+  local win, buf = await_toast(lines)
+  local record = record_of(lines)
+  t.eq(vim.bo[buf].filetype, 'notify', 'the toast is not markdown')
+  t.eq(shown(win), lines[1], 'the toast keeps the asterisks and the backticks')
+
+  local picker, preview_buf, preview = pick_from_history(record)
+  t.eq(row_shown(picker, record), lines[1], 'the history row keeps them')
+  t.eq(vim.bo[preview_buf].filetype, 'notify', 'the history preview is not markdown')
+  t.eq(shown(preview), lines[1], 'the history preview keeps them')
+end)
+
+t.test('a markdown message renders in the toast, a duplicate and the history', function()
   t.cleanup(dismiss_toasts)
 
-  Notifier.warn(MARKDOWN, { title = 'Style Enforcer' })
+  Notifier.warn(MARKDOWN, { title = 'Style Enforcer', markdown = true })
   local win, buf = await_toast({ MARKDOWN })
   local record = record_of({ MARKDOWN })
   t.eq(vim.bo[buf].filetype, 'markdown', 'the toast filetype')
@@ -346,7 +362,7 @@ t.test('a string message renders as markdown in the toast, a duplicate and the h
 
   -- So the duplicate's render has to paint it again
   vim.api.nvim_buf_clear_namespace(buf, render_markdown_ns, 0, -1)
-  Notifier.warn(MARKDOWN, { title = 'Style Enforcer' })
+  Notifier.warn(MARKDOWN, { title = 'Style Enforcer', markdown = true })
   t.wait_for(function()
     return vim.api.nvim_win_get_config(win).title[1][1]:find('(x2)', 1, true) ~= nil
   end, 'the duplicate to re-render the toast')
@@ -381,7 +397,7 @@ t.test('a bold message reads without its asterisks wherever the history shows it
   t.cleanup(dismiss_toasts)
   local lines = { '**test**' }
 
-  Notifier.info(lines[1])
+  Notifier.info(lines[1], { markdown = true })
   await_shown(await_toast(lines), 'test', 'the toast')
   local record = record_of(lines)
 
@@ -401,7 +417,7 @@ t.test('the history row renders a heading, whatever follows it', function()
   t.cleanup(dismiss_toasts)
 
   for level, lines in ipairs({ { '# Test' }, { '## Test', '', 'Under the heading' } }) do
-    Notifier.info(table.concat(lines, '\n'))
+    Notifier.info(table.concat(lines, '\n'), { markdown = true })
     await_toast(lines)
     local record = record_of(lines)
     local background = string.format('RenderMarkdownH%dBg', level)
@@ -533,14 +549,14 @@ end)
 
 --- @param kind string Names the test, and tells its message from the other kind's: nvim-notify
 --- takes the same text for a duplicate
---- @param message fun(text: string): utils.notifier.Message
-local function test_wrapped_toast(kind, message)
+--- @param send fun(text: string) Sends the text as a notification of that kind, titled "Wrapped"
+local function test_wrapped_toast(kind, send)
   t.test(string.format('a %s toast has a row for each one a wrapped line takes', kind), function()
     t.cleanup(dismiss_toasts)
     local max_width = UI.layout.inline_max_width()
     -- The first line takes three rows of the widest toast, which nvim-notify sizes to two lines
     local lines = { string.rep('x', 3 * max_width), string.format('The line under a %s one', kind) }
-    local msg = message(table.concat(lines, '\n'))
+    local text = table.concat(lines, '\n')
 
     --- @param win integer
     --- @return boolean
@@ -549,14 +565,14 @@ local function test_wrapped_toast(kind, message)
         and vim.api.nvim_win_get_height(win) == vim.api.nvim_win_text_height(win, {}).all
     end
 
-    Notifier.info(msg, { title = 'Wrapped' })
+    send(text)
     local win = await_toast(lines)
     t.eq(vim.wo[win].wrap, true, 'the toast wraps the line')
     t.eq(vim.api.nvim_win_get_height(win), 4, 'the toast has the rows of both lines')
     t.ok(fits(win), 'the toast is as wide as its cap and as tall as its text')
 
     -- nvim-notify sizes the toast to the message again after a duplicate's render, without its caps
-    Notifier.info(msg, { title = 'Wrapped' })
+    send(text)
     t.wait_for(function()
       return vim.api.nvim_win_get_config(win).title[1][1]:find('(x2)', 1, true) ~= nil
     end, 'the duplicate to re-render the toast')
@@ -571,10 +587,10 @@ local function test_wrapped_toast(kind, message)
 end
 
 test_wrapped_toast('markdown', function(text)
-  return text
+  Notifier.info(text, { title = 'Wrapped', markdown = true })
 end)
 test_wrapped_toast('chunk', function(text)
-  return { { text, 'Normal' } }
+  Notifier.info({ { text, 'Normal' } }, { title = 'Wrapped' })
 end)
 
 -- nvim-notify's own renders draw the title in the buffer, so the spec's leaves the window none

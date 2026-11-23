@@ -78,8 +78,7 @@ local function write(buf)
   -- Under pcall: an unwritable buffer (E32, E45, E212) would throw and leak the buffer lock
   local ok, err = pcall(vim.api.nvim_buf_call, buf, vim.cmd.update)
   if not ok then
-    -- A chunk: Vim's error text is not markdown
-    notify.error({ { 'Write failed: ' .. tostring(err), 'Normal' } })
+    notify.error('Write failed: ' .. tostring(err))
   end
 
   return ok
@@ -91,7 +90,10 @@ end
 --- @param buf integer
 local function notify_failure(step, err, debug, buf)
   if err == BUFFER_CHANGED then
-    notify.warn(string.format('Buffer changed while `%s` was running, skipped', step.name))
+    notify.warn(
+      string.format('Buffer changed while `%s` was running, skipped', step.name),
+      { markdown = true }
+    )
     return
   end
 
@@ -99,7 +101,8 @@ local function notify_failure(step, err, debug, buf)
   local msg = step.failure and step.failure(err, debug, buf)
     or debug and string.format('%s %s error: %s', kind.tool, step.name, err)
     or string.format('%s used: %s', kind.tool, step.name)
-  notify[kind.level](msg, { title = kind.title })
+  -- Markdown, as conform's notice is written, but for a debug notice: that holds the error's text
+  notify[kind.level](msg, { title = kind.title, markdown = not debug })
 end
 
 --- @param buf integer
