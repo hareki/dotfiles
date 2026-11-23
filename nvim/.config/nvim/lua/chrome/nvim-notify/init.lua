@@ -15,7 +15,7 @@ return {
 
   {
     -- noice.nvim will automatically load this plugin when needed
-    'rcarriga/nvim-notify',
+    'hareki/nvim-notify',
     keys = {
       {
         '<leader>fn',

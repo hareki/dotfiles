@@ -174,7 +174,7 @@ Plugins marked **fork** run from a `hareki/*` fork of the linked repository.
 
 - Statusline with [lualine.nvim](https://github.com/nvim-lualine/lualine.nvim) and its own components (mode, branch, buffer status, macro, repo name)
 - Breadcrumbs with [dropbar.nvim](https://github.com/Bekaboo/dropbar.nvim) ([fork](https://github.com/hareki/dropbar.nvim))
-- Cmdline and messages with [noice.nvim](https://github.com/folke/noice.nvim) ([fork](https://github.com/hareki/noice.nvim)) and [nvim-notify](https://github.com/rcarriga/nvim-notify)
+- Cmdline and messages with [noice.nvim](https://github.com/folke/noice.nvim) ([fork](https://github.com/hareki/noice.nvim)) and [nvim-notify](https://github.com/rcarriga/nvim-notify) ([fork](https://github.com/hareki/nvim-notify))
 - Folds with [nvim-ufo](https://github.com/kevinhwang91/nvim-ufo)
 - Scrollbar with diagnostic and search marks with [satellite.nvim](https://github.com/lewis6991/satellite.nvim) ([fork](https://github.com/hareki/satellite.nvim))
 - Key hints with [which-key.nvim](https://github.com/folke/which-key.nvim) ([fork](https://github.com/hareki/which-key.nvim))

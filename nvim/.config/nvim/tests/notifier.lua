@@ -4,6 +4,7 @@
 
 local t = require('tests.lib.helpers')
 local notify = require('notify')
+local notify_group_id = require('notify.service.buffer.group_id')
 local notify_utils = require('chrome.nvim-notify.utils')
 local render_markdown_utils = require('features.preview.render-markdown-nvim.utils')
 
@@ -251,14 +252,18 @@ local function await_markdown(buf, where)
   end, string.format('render-markdown to paint the inline code in %s', where))
 end
 
---- The window's title: the record's icon and title, in the level's title group of `buf`
+--- The window's title: the record's icon and title, in the level's title group of `buf`, which
+--- the nvim-notify fork numbers
 --- @param record notify.Record
 --- @param buf integer
 --- @param title string
 --- @return table
 local function expected_title(record, buf, title)
   return {
-    { string.format(' %s %s ', record.icon, title), 'Notify' .. record.level .. 'Title' .. buf },
+    {
+      string.format(' %s %s ', record.icon, title),
+      'Notify' .. record.level .. 'Title' .. notify_group_id.of(buf),
+    },
   }
 end
 
