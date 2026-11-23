@@ -110,7 +110,7 @@ function M.show()
 
   local win = open_popup(lines, items.row, items.col)
 
-  -- <Esc> in the origin window also clears search highlights, as it does without the popup
+  -- <Esc> in the source window also clears search highlights, as it does without the popup
   state.close_active = popup.link(win, {
     name = 'Highlight Popup',
     esc_passthrough = true,
