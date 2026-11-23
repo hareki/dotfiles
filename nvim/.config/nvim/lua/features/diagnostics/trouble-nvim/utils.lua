@@ -8,7 +8,6 @@ function M.jump(direction)
 
   if trouble.is_open() then
     -- Trouble's next and prev read v:count1 themselves
-    --- @diagnostic disable-next-line: missing-parameter, missing-fields
     trouble[direction]({ jump = true })
   else
     local ok, err =
@@ -87,7 +86,7 @@ end
 --- @param ctx trouble.Formatter.ctx
 --- @return trouble.Format
 function M.format_dirname(ctx)
-  local dir = vim.fn.fnamemodify(ctx.item.dirname --[[@as string]], ':p:~:.')
+  local dir = vim.fn.fnamemodify(ctx.item.dirname, ':p:~:.')
   if dir ~= '' and not vim.endswith(dir, '/') then
     dir = dir .. '/'
   end

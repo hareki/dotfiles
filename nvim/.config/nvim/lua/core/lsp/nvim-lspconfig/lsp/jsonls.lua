@@ -4,7 +4,7 @@ return {
   opts = {
     commands = {
       ['json.sort'] = function(_cmd, ctx)
-        local client = vim.lsp.get_client_by_id(ctx.client_id) --[[@as vim.lsp.Client]]
+        local client = assert(vim.lsp.get_client_by_id(ctx.client_id))
         local bufnr = ctx.bufnr
         local params = {
           uri = vim.uri_from_bufnr(bufnr),

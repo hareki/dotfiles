@@ -43,9 +43,9 @@ return {
     -- Client-side command, which `Client:exec_cmd` checks before asking the server
     commands = {
       ['_typescript.moveToFileRefactoring'] = function(command, ctx)
-        local client = vim.lsp.get_client_by_id(ctx.client_id) --[[@as vim.lsp.Client]]
+        local client = assert(vim.lsp.get_client_by_id(ctx.client_id))
         --- @type string, string, lsp.Range
-        local action, uri, range = unpack(command.arguments --[[@as any[] ]])
+        local action, uri, range = unpack(command.arguments)
 
         local function move(newf)
           client:request('workspace/executeCommand', {

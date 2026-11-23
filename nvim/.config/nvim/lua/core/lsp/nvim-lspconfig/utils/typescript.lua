@@ -11,7 +11,11 @@ local M = {}
 local fs = vim.fs
 
 -- Stateless, and read before lsp/vtsls.lua replaces it: that file requires this module first
-local project_root_dir = vim.lsp.config.vtsls.root_dir --[[@as fun(bufnr: integer, on_dir: fun(root_dir?: string))]]
+local project_root_dir = vim.lsp.config.vtsls.root_dir
+assert(
+  type(project_root_dir) == 'function',
+  "nvim-lspconfig's vtsls root_dir is no longer a function"
+)
 
 -- Native first: Microsoft's alias setup keeps TS 6 as `typescript` and installs TS 7 under this name
 local PACKAGES = { '@typescript/native', 'typescript' }

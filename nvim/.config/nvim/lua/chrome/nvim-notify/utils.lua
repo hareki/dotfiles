@@ -14,7 +14,6 @@ M.TITLE_KEY = 'notify_title_with_hl'
 --- @return notify.OpenedBuffer
 local function open_buffer(notif)
   local notify = require('notify')
-  --- @diagnostic disable-next-line: missing-parameter nvim-notify annotates the optional opts as required
   local opened = notify.open(notif)
   vim.bo[opened.buffer].bufhidden = 'wipe'
   return opened

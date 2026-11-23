@@ -12,7 +12,7 @@ local state = { preview_hidden = {} }
 --- more than once per open, so it only reads the choice
 --- @param opts snacks.picker.Config The source's merged config
 function M.remembered_preview(opts)
-  local layout = opts.layout --[[@as snacks.picker.layout.Config]]
+  local layout = opts.layout
   layout.hidden = state.preview_hidden[opts.source] and { 'preview' } or {}
 end
 

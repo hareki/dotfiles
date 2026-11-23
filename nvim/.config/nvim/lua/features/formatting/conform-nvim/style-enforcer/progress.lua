@@ -18,7 +18,7 @@
 local M = {}
 
 local ProgressHandle = {}
-ProgressHandle.__index = ProgressHandle --[[@as features.formatting.conform-nvim.style-enforcer.progress.Handle]]
+ProgressHandle.__index = ProgressHandle
 
 --- @private
 --- @param kind       'begin' | 'report' | 'end'

@@ -44,6 +44,16 @@ function M.close_on_focus_loss()
   end
 end
 
+--- The folder `node` is, or links to; nil for a file
+--- @param node nvim_tree.api.Node
+--- @return nvim_tree.api.DirectoryNode? folder
+local function as_folder(node)
+  -- Not node:as(api.DirectoryNode): get_node_under_cursor() returns nvim-tree's internal node, not
+  -- the api node it is annotated with. Both kinds of folder node carry their children in `nodes`
+  --- @cast node nvim_tree.api.DirectoryNode
+  return node.nodes and node or nil
+end
+
 --- Node action applying `folder_action` to folders; files open or collapse their parent
 --- @param folder_action 'expand' | 'collapse' | 'toggle'
 --- @return function action
@@ -54,11 +64,9 @@ function M.create_node_action(folder_action)
       return
     end
 
-    --- get_node_under_cursor can return a nvim_tree.api.DirectoryNode, which has `nodes`
-    --- @diagnostic disable-next-line: undefined-field
-    local is_file_node = node.nodes == nil
+    local folder = as_folder(node)
 
-    if is_file_node then
+    if not folder then
       if folder_action == 'collapse' then
         api.node.navigate.parent_close()
         return
@@ -70,14 +78,10 @@ function M.create_node_action(folder_action)
       return
     end
 
-    --- get_node_under_cursor can return a nvim_tree.api.DirectoryNode, which has `open`
-    --- @diagnostic disable-next-line: undefined-field
-    local node_open = node.open
-
     if
       folder_action == 'toggle'
-      or folder_action == 'expand' and not node_open
-      or folder_action == 'collapse' and node_open
+      or folder_action == 'expand' and not folder.open
+      or folder_action == 'collapse' and folder.open
     then
       api.node.open.edit()
     end
@@ -114,7 +118,7 @@ local function switch_position(position)
   M.close_all()
   -- state.opts is set, since the config runs before any keymap here; nvim-tree supports re-setup:
   -- https://github.com/nvim-tree/nvim-tree.lua/blob/b0b49552c9462900a882fe772993b01d780445fe/lua/nvim-tree.lua#L738
-  M.setup(state.opts --[[@as table]])
+  M.setup(state.opts)
 end
 
 --- Float tree geometry: the narrow preset, or the upper half of a wider one with the preview on
@@ -314,12 +318,7 @@ function M.node_under_cursor()
     return nil
   end
 
-  --- get_node_under_cursor can return a nvim_tree.api.DirectoryNode (or a link to one), which has
-  --- `nodes`
-  --- @diagnostic disable-next-line: undefined-field
-  local is_folder = node.nodes ~= nil
-
-  return { path = node.absolute_path, is_folder = is_folder }
+  return { path = node.absolute_path, is_folder = as_folder(node) ~= nil }
 end
 
 return M

@@ -45,11 +45,11 @@ function M.end_ranges_on_own_line()
   --- @param bufnr integer
   --- @param diagnostics vim.Diagnostic[]
   --- @param opts? vim.diagnostic.Opts
-  --- @diagnostic disable-next-line: duplicate-set-field
-  vim.diagnostic.set = function(namespace, bufnr, diagnostics, opts)
+  local function set_fixed(namespace, bufnr, diagnostics, opts)
     apply(bufnr, diagnostics)
     return original_set(namespace, bufnr, diagnostics, opts)
   end
+  vim.diagnostic.set = set_fixed
 end
 
 return M

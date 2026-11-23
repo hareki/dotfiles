@@ -12,7 +12,7 @@ vim.api.nvim_create_autocmd('VimEnter', {
 vim.loader.enable(true)
 
 -- A lone directory argument is the project: adopt it as the cwd before anything reads it
-local first_arg = vim.fn.argv(0) --[[@as string]]
+local first_arg = vim.fn.argv()[1]
 if vim.fn.argc() == 1 and vim.fn.isdirectory(first_arg) == 1 then
   -- Not :cd, which expands `#`, `%` and `$` in the name and would abort init.lua on them
   vim.api.nvim_set_current_dir(first_arg)

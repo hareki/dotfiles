@@ -54,7 +54,7 @@ return {
             })
           end, 'Code Actions')
 
-          local client = vim.lsp.get_client_by_id(args.data.client_id) --[[@as vim.lsp.Client]]
+          local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
 
           -- Neovim's own K is buffer-local, so config/builtin-keymaps.lua's retitle misses it; it
           -- also yields to a filetype's 'keywordprg', which none of these servers' filetypes set

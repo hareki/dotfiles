@@ -176,7 +176,6 @@ end
 function M.setup(opts)
   local livepreview_config = require('livepreview.config')
 
-  --- @diagnostic disable-next-line: param-type-mismatch Wrong type from live-preview
   livepreview_config.set(opts)
   state.port = livepreview_config.config.port
   patch_template()
