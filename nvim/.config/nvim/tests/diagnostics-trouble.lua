@@ -100,3 +100,28 @@ t.test('a second list sent to the open Trouble list is highlighted too', functio
   win = grep_to_trouble('second', 2)
   await_distinct(win, 'local second = 2', 'local', 'second')
 end)
+
+t.test('e on a grep row jumps to its match, as <CR> does', function()
+  t.write('jump.lua', { 'local before = 1', 'local target = 2' })
+
+  local win = grep_to_trouble('target', 1)
+  local lnum --- @type integer?
+  t.wait_for(function()
+    local lines = vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(win), 0, -1, false)
+    lnum = vim.iter(ipairs(lines)):find(function(_, line)
+      return line:find('local target = 2', 1, true) ~= nil
+    end)
+    return lnum ~= nil
+  end, 'the Trouble list to show the match')
+  --- @cast lnum integer
+
+  vim.api.nvim_set_current_win(win)
+  vim.api.nvim_win_set_cursor(win, { lnum, 0 })
+  t.press('e')
+
+  -- Trouble runs an action once the list settles, not in the key's own call
+  t.wait_for(function()
+    return vim.fs.basename(vim.api.nvim_buf_get_name(0)) == 'jump.lua'
+  end, 'e to jump to the file of the row')
+  t.eq(vim.api.nvim_win_get_cursor(0), { 2, 6 })
+end)

@@ -144,6 +144,8 @@ return {
             desc = 'Toggle Focus Between List and Preview',
           },
           B = 'toggle_preview',
+          -- As in the tree: jump to an item row, fold a group row
+          e = 'jump',
         },
       }
     end,
