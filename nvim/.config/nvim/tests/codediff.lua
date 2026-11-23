@@ -74,8 +74,7 @@ local function open_codediff()
   end)
 
   local before = #vim.api.nvim_list_tabpages()
-  -- A keys-lazy map loads codediff.nvim on its first press, which must be typed
-  vim.api.nvim_feedkeys(vim.keycode('<leader>g'), 'mx', false)
+  t.press('<leader>g')
   t.wait_for(function()
     return #vim.api.nvim_list_tabpages() > before
   end, 'the codediff tab')

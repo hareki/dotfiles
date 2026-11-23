@@ -202,8 +202,7 @@ t.test('<A-s> loads conform.nvim on the first press, then formats and saves', fu
   local buf = t.file('first.lua', UNFORMATTED)
   vim.bo[buf].modified = true
 
-  -- lazy.nvim's stub loads the plugin and replays the key into the typeahead, which 'x' drains
-  vim.api.nvim_feedkeys(vim.keycode('<A-s>'), 'mx', false)
+  t.press('<A-s>')
   t.wait_for(function()
     return not vim.bo[buf].modified
   end, 'the write')

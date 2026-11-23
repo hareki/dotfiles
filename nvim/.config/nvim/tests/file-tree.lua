@@ -18,10 +18,10 @@ local function tree_win()
   return t.ok(api.tree.winid(), 'the tree is closed')
 end
 
---- Press `<leader>e`, typed so that lazy.nvim's stub can load the plugin on the first press
+--- Press `<leader>e`
 --- @return integer win
 local function toggle_tree()
-  vim.api.nvim_feedkeys(vim.keycode('<leader>e'), 'mx', false)
+  t.press('<leader>e')
   return tree_win()
 end
 

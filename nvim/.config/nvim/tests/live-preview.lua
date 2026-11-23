@@ -57,11 +57,11 @@ local function stub_start()
   return starts
 end
 
---- Open the tree with `<leader>e`, typed so that lazy.nvim's stub can load the plugin
+--- Open the tree with `<leader>e`
 --- @return integer win
 local function open_tree()
   t.cleanup(tree.close_all)
-  vim.api.nvim_feedkeys(vim.keycode('<leader>e'), 'mx', false)
+  t.press('<leader>e')
   return t.ok(api.tree.winid(), 'the tree is closed')
 end
 
@@ -90,7 +90,7 @@ local function preview(name)
   local warnings = t.spy(Notifier, 'warn', function() end)
 
   cursor_on(open_tree(), name)
-  vim.api.nvim_feedkeys(vim.keycode('<leader>pp'), 'mx', false)
+  t.press('<leader>pp')
   return starts, warnings
 end
 
@@ -106,7 +106,7 @@ local function start_in_file(taken)
   local starts = stub_start()
 
   t.file('page.md', { '# Page' })
-  vim.api.nvim_feedkeys(vim.keycode('<leader>pp'), 'mx', false)
+  t.press('<leader>pp')
   t.eq(#starts, 1, 'one start')
   return starts, checked
 end

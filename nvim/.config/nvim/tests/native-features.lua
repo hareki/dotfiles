@@ -43,7 +43,7 @@ t.test('hl-at-cursor loads on its key, whose popup a second show replaces', func
     end
   end)
 
-  vim.api.nvim_feedkeys(vim.keycode('<leader>?h'), 'mx', false)
+  t.press('<leader>?h')
 
   t.eq(loaded('hl-at-cursor'), true, 'the key loads it')
   t.eq(vim.fn.exists(':HlAtCursor'), 2, 'its command is the real one')

@@ -202,6 +202,15 @@ function M.map_callback(mode, lhs, buf)
   return M.ok(map.callback, string.format('%s maps no callback', lhs))
 end
 
+--- Type `keys` as the user would, mappings applied, and run them before returning. A key that
+--- lazy.nvim's stub still holds has to be pressed this way: the stub loads the plugin and replays
+--- the key into the typeahead, which calling the map's callback would leave unread
+--- @param keys string In map notation, such as `<leader>e`
+--- @return nil
+function M.press(keys)
+  vim.api.nvim_feedkeys(vim.keycode(keys), 'mx', false)
+end
+
 --- Close a Snacks picker and wait for the teardown snacks schedules
 --- @param picker snacks.Picker
 function M.close_picker(picker)
