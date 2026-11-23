@@ -139,3 +139,23 @@ t.test('the keymaps picker opens without a preview, where <Tab> does nothing', f
   picker = t.open_picker(callback_described('Find Files'), 'files')
   t.eq(preview_visible(picker), true, "the files picker's memory is untouched")
 end)
+
+t.test('render-markdown paints the markdown preview of a picker', function()
+  local markdown = '# Notes'
+  local picker = t.open_picker(function()
+    Snacks.picker({
+      source = 'markdown_preview',
+      items = { { text = markdown, preview = { text = markdown, ft = 'markdown' } } },
+      format = 'text',
+      preview = 'preview',
+    })
+  end, 'markdown_preview')
+
+  local ns = vim.api.nvim_create_namespace('render-markdown.nvim')
+  t.await(function()
+    local buf = vim.api.nvim_win_get_buf(picker.preview.win.win)
+    return vim.bo[buf].filetype == 'markdown.snacks_picker_preview'
+      and #vim.api.nvim_buf_get_extmarks(buf, ns, 0, -1, {}) > 0
+  end, 'render-markdown marks in the markdown preview')
+  t.close_picker(picker)
+end)

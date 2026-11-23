@@ -56,8 +56,7 @@ local function open_float(notif)
 end
 
 --- The picker's previewer: the notification as its toast showed it. Snacks' text previewer has no
---- chunk highlights, and its markdown never reaches render-markdown (the render-markdown spec opts
---- the `markdown.snacks_picker_preview` filetype out)
+--- chunk highlights
 --- @param ctx snacks.picker.preview.ctx
 --- @return nil
 local function preview(ctx)

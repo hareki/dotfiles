@@ -494,32 +494,6 @@ t.test("a vim.notify message in another language's ft stays plain", function()
   t.eq(shown(preview), lines[1], 'the history preview keeps the asterisks')
 end)
 
--- Why the history picker previews with a buffer of its own: this is the previewer it would use
-t.test("render-markdown stays out of the markdown preview of Snacks' text previewer", function()
-  local picker = t.open_picker(function()
-    Snacks.picker({
-      source = 'notifier_text_preview',
-      items = { { text = MARKDOWN, preview = { text = MARKDOWN, ft = 'markdown' } } },
-      format = 'text',
-      preview = 'preview',
-    })
-  end, 'notifier_text_preview')
-
-  local buf = t.await(function()
-    local preview_buf = vim.api.nvim_win_get_buf(picker.preview.win.win)
-    if vim.bo[preview_buf].filetype == 'markdown.snacks_picker_preview' then
-      return preview_buf
-    end
-  end, "Snacks' markdown preview")
-  -- render-markdown, were it on, would have painted by now
-  t.settle(300)
-  t.eq(
-    vim.api.nvim_buf_get_extmarks(buf, render_markdown_ns, 0, -1, {}),
-    {},
-    'render-markdown paints nothing'
-  )
-end)
-
 t.test('height_offset resizes the toast, not the history float', function()
   t.cleanup(dismiss_toasts)
   local lines = { 'Offset by one line' }
