@@ -26,7 +26,7 @@ local M = {}
 --- Will only require the module after the first index of a module.
 --- Only works for modules that export a table.
 --- @param require_path string The module path to lazy-require
---- @return table proxy A proxy table that defers require until first access
+--- @return table proxy A defer proxy that loads the module on first access
 M.on_index = function(require_path)
   return setmetatable({}, {
     __index = function(_, key)
@@ -40,7 +40,7 @@ M.on_index = function(require_path)
 end
 
 --- Require when an exported method is called
---- Creates a new function wrapper. Cannot be used to compare functions,
+--- Creates a new function per key. Cannot be used to compare functions,
 --- set new values, etc. Only useful for deferring require until the function is called.
 --- ```lua
 --- -- This is not loaded yet
@@ -50,7 +50,7 @@ end
 --- lazy_func(42)  -- <- Only loads the module now
 --- ```
 --- @param require_path string The module path to lazy-require
---- @return table proxy A proxy table where each key returns a lazy function wrapper
+--- @return table proxy A defer proxy whose every key is a function loading the module when called
 M.on_exported_call = function(require_path)
   return setmetatable({}, {
     __index = function(_, k)

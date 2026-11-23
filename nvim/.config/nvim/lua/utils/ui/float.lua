@@ -1,3 +1,5 @@
+local snacks_util = require('snacks.util')
+
 --- @class utils.ui.float
 local M = {}
 
@@ -11,7 +13,7 @@ function M.on_focus_loss(group, callback)
     group = group,
     callback = function()
       vim.schedule(function()
-        if not Snacks.util.is_float() and vim.fn.getcmdwintype() == '' then
+        if not snacks_util.is_float() and vim.fn.getcmdwintype() == '' then
           callback()
         end
       end)
