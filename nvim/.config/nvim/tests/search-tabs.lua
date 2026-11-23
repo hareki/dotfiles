@@ -1,9 +1,9 @@
--- features.search.snacks-nvim.sources.tabs: the tabs picker's source, driven through the table the
--- module exports and through Snacks.picker.tabs(), which the search fragment registers it for
+-- features.search.snacks-nvim.sources.tabs: the tabs picker's source, driven through
+-- Snacks.picker.tabs(), which the search fragment registers it for, and its keys; the tab label
+-- also directly, which the statusline reads
 
 local t = require('tests.lib.helpers')
 local tabs = require('features.search.snacks-nvim.sources.tabs')
-local buffers = require('features.search.snacks-nvim.sources.buffers')
 
 --- @class tests.search-tabs.Fixture
 --- @field tabs integer[] The tabpages, in order
@@ -21,18 +21,6 @@ local function three_tabs()
   return { tabs = vim.api.nvim_list_tabpages(), file = file, scratch = scratch }
 end
 
---- The finder's context for a picker opened from the current window
---- @return snacks.picker.finder.ctx
-local function finder_ctx()
-  local ctx = {}
-  ctx.picker = { main = vim.api.nvim_get_current_win() }
-  return ctx
-end
-
--- The source's functions with their own signatures, which its snacks.picker.Config type widens
-local finder = tabs.source.finder --[[@as fun(opts: table, ctx: snacks.picker.finder.ctx): features.search.snacks-nvim.sources.tabs.Item[] ]]
-local tab_close = tabs.source.actions.tab_close --[[@as fun(picker: snacks.Picker)]]
-
 --- @param items { tab: integer, label: string }[]
 --- @param field 'tab' | 'label'
 --- @return any[]
@@ -40,17 +28,6 @@ local function pluck(items, field)
   return vim.tbl_map(function(item)
     return item[field]
   end, items)
-end
-
---- Highlight chunks with their functions replaced, since snacks builds a `resolve` closure per call
---- @param chunks snacks.picker.Highlight[]
---- @return table[]
-local function comparable(chunks)
-  return vim.tbl_map(function(chunk)
-    return vim.tbl_map(function(value)
-      return type(value) == 'function' and '<function>' or value
-    end, chunk)
-  end, chunks)
 end
 
 --- @param picker snacks.Picker
@@ -90,12 +67,56 @@ local function normal_mode()
   end, 'normal mode')
 end
 
-t.test("the finder lists every tab in order, with its label and its window's buffer", function()
+--- Press `lhs` in `mode` in one of the picker's windows
+--- @param picker snacks.Picker
+--- @param win 'input' | 'list'
+--- @param mode string
+--- @param lhs string
+local function press(picker, win, mode, lhs)
+  t.map_callback(mode, lhs, picker[win].win.buf)()
+end
+
+--- @class tests.search-tabs.Row
+--- @field text string The row's text, without the icons drawn over it
+--- @field highlighted table<string, string> The text each highlight group covers
+--- @field label_end integer The column the label's highlight ends at
+--- @field icon_col integer The column the file icon is drawn at
+
+--- The list window's rendered rows, one per listed item
+--- @param picker snacks.Picker
+--- @return tests.search-tabs.Row[]
+local function rendered_rows(picker)
+  local buf = picker.list.win.buf --[[@as integer]]
+  local lines = vim.api.nvim_buf_get_lines(buf, 0, #picker:items(), false)
+  local rows = vim.tbl_map(function(line)
+    return { text = line, highlighted = {} }
+  end, lines)
+
+  local marks = vim.api.nvim_buf_get_extmarks(buf, -1, 0, -1, { details = true })
+  for _, mark in ipairs(marks) do
+    -- Asked with details, so every mark carries them
+    local details = mark[4] --[[@as vim.api.keyset.extmark_details]]
+    local row, col = rows[mark[2] + 1], mark[3]
+    if row and details.virt_text then
+      row.icon_col = row.icon_col or col
+    elseif row and details.hl_group and details.end_col then
+      row.highlighted[details.hl_group] = row.text:sub(col + 1, details.end_col)
+      if details.hl_group == 'SnacksPickerTabName' then
+        row.label_end = details.end_col
+      end
+    end
+  end
+  return rows
+end
+
+t.test("the picker lists every tab in order, with its label and its window's buffer", function()
   local fixture = three_tabs()
-  local items = finder({}, finder_ctx())
+  local origin_buf = vim.api.nvim_get_current_buf()
+  local items = open_picker():items()
 
   t.eq(pluck(items, 'tab'), fixture.tabs, 'one item per tab')
   t.eq(pluck(items, 'label'), { 'tab-1', 'tab-2', 'tab-3' }, 'the labels')
+  t.eq(items[1].buf, origin_buf, 'the current tab lists the window the picker opened from')
   t.eq(items[2].buf, fixture.file, "the second tab's buffer")
   t.eq(items[2].file, vim.api.nvim_buf_get_name(fixture.file), 'a named buffer lists its file')
   t.eq(items[3].buf, fixture.scratch, "the third tab's buffer")
@@ -112,78 +133,86 @@ t.test('labels pad to the widest one, so a codediff tab keeps the file column al
       return tab == fixture.tabs[2] and {} or nil
     end,
   })
-  local items = finder({}, finder_ctx())
+  local picker = open_picker()
 
   t.eq(tabs.label(fixture.tabs[2]), 'codediff-2', "the statusline's label for the codediff tab")
-  t.eq(pluck(items, 'label'), { 'tab-1     ', 'codediff-2', 'tab-3     ' }, 'the padded labels')
+  t.eq(
+    pluck(picker:items(), 'label'),
+    { 'tab-1     ', 'codediff-2', 'tab-3     ' },
+    'the padded labels'
+  )
 end)
 
-t.test('Snacks.picker.tabs() runs the exported source and maps its keys', function()
-  three_tabs()
-  local picker = open_picker()
-
-  t.eq(picker.opts.finder, tabs.source.finder, 'the finder')
-  t.eq(picker.opts.format, tabs.source.format, 'the format')
-  t.eq(picker.opts.actions.confirm, tabs.source.confirm, 'the confirm action')
-  t.eq(picker.opts.actions.tab_close, tabs.source.actions.tab_close, 'the tab_close action')
-  t.map_callback('n', 'x', picker.input.win.buf)
-  t.map_callback('n', '<C-X>', picker.input.win.buf)
-  t.map_callback('i', '<C-X>', picker.input.win.buf)
-  t.map_callback('n', 'dd', picker.list.win.buf)
-end)
-
-t.test("format shows the tab's label, then the buffers source's row for its buffer", function()
-  three_tabs()
-  local picker = open_picker()
-
-  for _, item in ipairs(picker:items()) do
-    local row = tabs.source.format(item, picker)
-    t.eq(row[1], { item.label, 'SnacksPickerTabName' }, 'the label comes first')
-    t.eq(row[2], { '  ' }, 'two spaces part it from the buffer')
-    local buffer_row = comparable(buffers.format(item, picker))
-    t.eq(comparable({ unpack(row, 3) }), buffer_row, "then the buffer's row")
-  end
-end)
-
-t.test('confirm closes the picker and switches to the tab under the cursor', function()
+t.test("a row shows the tab's label, then the buffers source's row for its buffer", function()
   local fixture = three_tabs()
+  vim.api.nvim_buf_set_lines(fixture.file, 0, 1, false, { 'changed' })
   local picker = open_picker()
+  local rows = rendered_rows(picker)
+  local modified = Conf.icons.file_status.MODIFIED
 
-  tabs.source.confirm(picker, select_tab(picker, fixture.tabs[3]))
-  t.wait_for(function()
-    return vim.api.nvim_get_current_tabpage() == fixture.tabs[3]
-  end, 'the switch to the third tab')
-  t.ok(picker.closed, 'the picker is closed')
-
-  picker = open_picker()
-  select_tab(picker, fixture.tabs[2])
-  picker:action('confirm')
-  t.wait_for(function()
-    return vim.api.nvim_get_current_tabpage() == fixture.tabs[2]
-  end, "the picker's confirm to switch to the second tab")
-  t.ok(picker.closed, 'the picker is closed')
+  for idx, item in ipairs(picker:items()) do
+    local row = rows[idx]
+    t.eq(row.highlighted.SnacksPickerTabName, item.label, 'the label, in its color')
+    t.eq(row.icon_col, row.label_end + 2, "two columns part the label from the buffer's icon")
+  end
+  t.ok(rows[1].text:find('[Scratch]', 1, true), "the first tab's unnamed buffer")
+  t.eq(rows[1].highlighted.ModifiedIndicator, nil, 'an unmodified buffer has no mark')
+  t.ok(rows[2].text:find('notes.txt', 1, true), "the second tab's file")
+  t.eq(rows[2].highlighted.ModifiedIndicator, modified, 'a modified buffer is marked')
+  t.eq(rows[3].highlighted.SnacksPickerFileType, 'lua', "an unnamed buffer's filetype")
 end)
 
-t.test('tab_close closes the tab under the cursor and lists the rest', function()
+t.test('<CR> closes the picker and switches to the tab under the cursor', function()
   local fixture = three_tabs()
   local picker = open_picker()
 
   select_tab(picker, fixture.tabs[3])
-  tab_close(picker)
+  press(picker, 'input', 'i', '<CR>')
   t.wait_for(function()
-    return #picker:items() == 2
-  end, 'the list to drop the closed tab')
-  t.eq(vim.api.nvim_list_tabpages(), { fixture.tabs[1], fixture.tabs[2] }, 'the third tab closed')
-  t.eq(pluck(picker:items(), 'tab'), { fixture.tabs[1], fixture.tabs[2] }, 'the listed tabs')
-  t.ok(not picker.closed, 'the picker stays open')
+    return vim.api.nvim_get_current_tabpage() == fixture.tabs[3]
+  end, "the input's <CR> to switch to the third tab")
+  t.ok(picker.closed, 'the picker is closed')
 
-  -- The list's dd, on the second tab
+  picker = open_picker()
   select_tab(picker, fixture.tabs[2])
-  t.map_callback('n', 'dd', picker.list.win.buf)()
+  normal_mode()
+  press(picker, 'list', 'n', '<CR>')
   t.wait_for(function()
-    return #picker:items() == 1
-  end, 'dd to close the second tab')
-  t.eq(vim.api.nvim_list_tabpages(), { fixture.tabs[1] }, 'only the first tab is left')
+    return vim.api.nvim_get_current_tabpage() == fixture.tabs[2]
+  end, "the list's <CR> to switch to the second tab")
+  t.ok(picker.closed, 'the picker is closed')
+end)
+
+t.test('x, <C-x> and dd close the tab under the cursor and list the rest', function()
+  three_tabs()
+  -- One tab to close per key press
+  t.tab()
+  t.tab()
+  vim.cmd('1tabnext')
+  local all = vim.api.nvim_list_tabpages()
+  local origin_buf = vim.api.nvim_get_current_buf()
+  local picker = open_picker()
+
+  local presses = {
+    { 'input', 'n', 'x' },
+    { 'input', 'n', '<C-x>' },
+    { 'input', 'i', '<C-x>' },
+    { 'list', 'n', 'dd' },
+  }
+  for idx, keys in ipairs(presses) do
+    local target = all[#all - idx + 1]
+    local what = string.format('%s %s in the %s', keys[2], keys[3], keys[1])
+    select_tab(picker, target)
+    press(picker, keys[1], keys[2], keys[3])
+    t.wait_for(function()
+      return #picker:items() == #all - idx
+    end, string.format('the list to drop the tab %s closed', what))
+    t.eq(vim.api.nvim_tabpage_is_valid(target), false, what .. ' closes the tab')
+    t.ok(not picker.closed, what .. ' keeps the picker open')
+  end
+  t.eq(pluck(picker:items(), 'tab'), { all[1] }, 'the tab left is listed')
+  -- Refreshed with the input focused: the current tab still lists the window under the picker
+  t.eq(picker:items()[1].buf, origin_buf, "the tab left lists its own window's buffer")
 end)
 
 t.test('x on the current tab closes it and resumes the picker where nvim lands', function()
@@ -193,7 +222,7 @@ t.test('x on the current tab closes it and resumes the picker where nvim lands',
 
   select_tab(picker, fixture.tabs[2])
   normal_mode()
-  t.map_callback('n', 'x', picker.input.win.buf)()
+  press(picker, 'input', 'n', 'x')
   local resumed =
     t.await_picker('tabs', lists_every_tab, 'the resumed picker to list the two tabs left')
 
@@ -202,12 +231,14 @@ t.test('x on the current tab closes it and resumes the picker where nvim lands',
   t.eq(pluck(resumed:items(), 'tab'), { fixture.tabs[1], fixture.tabs[3] }, 'the listed tabs')
 end)
 
-t.test('tab_close keeps the last tab, warning instead', function()
+t.test('x on the last tab keeps it, warning instead', function()
   local warnings = t.spy(Notifier, 'warn', function() end)
   local picker = open_picker()
 
-  tab_close(picker)
+  normal_mode()
+  press(picker, 'input', 'n', 'x')
   t.eq(#vim.api.nvim_list_tabpages(), 1, 'the last tab stays')
   t.eq(#warnings, 1, 'one warning')
   t.eq(warnings[1][1], 'Cannot close the last tab', 'the warning')
+  t.ok(not picker.closed, 'the picker stays open')
 end)
