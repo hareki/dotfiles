@@ -106,23 +106,16 @@ The copy-mode yank keys need no plugin: tmux's `set-clipboard` sends each copy a
 
 ## 💾 Snapshots
 
-The zsh functions `tsave` and `trestore` drive tmux-resurrect, and `scripts/resurrect-snapshots.zsh` owns the snapshot store: how resurrect names and replaces the files, which one `last` points at, the ids, the listing and the expiry. Both functions go through it, and so do resurrect's two hooks (after a save: expiry and the command that resumes each Claude Code session; before a restore from scratch: the placeholder session). Terms: [GLOSSARY.md](./GLOSSARY.md).
+`tsave` and `trestore` are zsh wrappers around tmux-resurrect. `scripts/resurrect-snapshots.zsh` manages the snapshot files for both of them and for resurrect's hooks. Terms: [GLOSSARY.md](./GLOSSARY.md).
 
-- **`tsave`**: snapshots every session, then quits each pane's nvim through its normal exit (so auto-session saves its session), one at a time, ends each pane's Claude Code session with SIGTERM (its clean exit: the SessionEnd hooks run) and kills the server
-  - **`-c`/`--continue`**: snapshot only, leaving nvim, Claude Code and tmux running, like resurrect's own `prefix C-s`
-  - Nothing is quit or killed while an nvim holds work a kill would lose: unsaved buffers, a nested nvim in a terminal buffer, a suspended nvim, or one it can't reach. Pane nvims publish their RPC address as the `@nvim-server` pane option for this (nvim's `core/auto-session/tsave.lua`)
-  - Nor while a Claude Code session in a pane is anything but `idle`: `busy` (in the middle of a turn) or `waiting` (on a permission prompt or a dialog), so interrupt or answer it first. That counts the one in a pane nvim's terminal (claudecode.nvim), which the nvim's quit would end
-  - From a pane nvim's terminal (`<A-t>`), it reruns itself from the tmux server so that nvim can quit too, and shows its report in view mode on that pane (`q` closes it)
-- **`trestore [<id>]`**: restores a snapshot into a fresh server, from inside tmux or from a plain terminal
-  - Without an id it restores `last`, the snapshot most recently saved or restored (also what `prefix C-r` restores)
-  - Ids are the snapshot's date and time (`2026-11-04_20-15-30`); `trestore <TAB>` and `trestore --list` show them newest first
-  - **`--force`**: restore into a server that already has panes (resurrect leaves those as they are), or, from a plain terminal, into a server already running, whose lone pane the restore replaces
-- **Expiry**: resurrect's post-save hook (`resurrect-snapshots.zsh post-save`) deletes snapshots 3 days after their last save. The snapshot `last` pointed to before a save survives that save, so a stray save can't take the one you meant to restore. An unchanged layout restarts its snapshot's clock, which is also how `tsave` knows that save happened
-- **nvim relaunch**: nvim panes relaunch as `nvim .` in nvim's directory, so auto-session reopens that directory's session. An `nvim <file>` pane comes back as its directory's session, not the file
-- **Claude Code relaunch**: a pane running `claude` directly relaunches as `claude --resume <session id>`, the same conversation under the same id, whatever saved the snapshot (`tsave` or `prefix C-s`)
-  - `scripts/claude-panes.zsh` finds those panes: the sessions `claude agents --json` lists, each matched to the pane whose tty its process is on, or else the nearest of its ancestors that is on one (a pane nvim's terminal is a tty of nvim's own). The session in the foreground of the pane's tty is the one the pane runs, and the post-save hook writes its resume command into the snapshot
-  - The flags it was started with are not kept, and a session nothing was asked in yet has no conversation to resume, so its pane relaunches a bare `claude`
-  - Not ended by `tsave` and not relaunched: a Claude in a pane nvim's terminal, which ends with that nvim, and one suspended with Ctrl-Z, which the server's kill takes. `tsave` still refuses until either is `idle`. The agents view is left alone, and background sessions belong to Claude Code's daemon, not to a pane
+- **`tsave`**: snapshots every session, quits each pane's nvim and Claude Code cleanly so they save their own state, then kills the server
+  - **`-c`/`--continue`**: snapshot only and keep everything running, like `prefix C-s`
+  - Quits nothing while an nvim has unsaved work or a Claude Code session is busy or waiting on a prompt
+- **`trestore [<id>]`**: restores a snapshot into a fresh server. Without an id it restores `last`, the most recently saved or restored one, like `prefix C-r`
+  - Ids are timestamps (`2026-11-04_20-15-30`). `trestore --list` and `trestore <TAB>` show them newest first
+  - **`--force`**: restore into a server that is already running
+- **Expiry**: snapshots are deleted 3 days after their last save. A save never deletes the snapshot `last` pointed to before it
+- **Relaunch**: nvim panes reopen as `nvim .`, so auto-session restores the directory's session. `claude` panes come back as `claude --resume <session id>`, the same conversation without the original flags
 
 ## 📂 File Structure
 
