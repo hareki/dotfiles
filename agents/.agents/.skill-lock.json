@@ -288,19 +288,20 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/miqdadbadjuber/anti-slop.git",
       "skillPath": "skills/antislop-code/SKILL.md",
-      "skillFolderHash": "17976b03ca7f88e09ed11ef4b796461f46758156",
+      "skillFolderHash": "d426864e4c62427a9e88e0c888d3747fcea77ec6",
       "installedAt": "2026-10-24T03:51:15.757Z",
-      "updatedAt": "2026-11-13T00:26:53.301Z"
+      "updatedAt": "2026-11-27T00:10:17.087Z",
+      "commit": "f07c57244fdb1bda0727bee49614cfc159899a09"
     },
     "antislop": {
       "source": "miqdadbadjuber/anti-slop",
       "sourceType": "github",
       "sourceUrl": "https://github.com/miqdadbadjuber/anti-slop.git",
       "skillPath": "skills/antislop/SKILL.md",
-      "skillFolderHash": "e66b6381efcb7efe7e8aa2412c5805f49bddf1da",
+      "skillFolderHash": "3f0fed2d900f55431abee7e8321fc8c70b603cf7",
       "installedAt": "2026-10-24T03:51:15.760Z",
-      "updatedAt": "2026-11-21T03:49:59.355Z",
-      "commit": "7f6a03df2931c12cb244dc4ab14ee4866b0ac2ba"
+      "updatedAt": "2026-11-27T00:10:17.110Z",
+      "commit": "f07c57244fdb1bda0727bee49614cfc159899a09"
     },
     "writing-guidelines": {
       "source": "vercel-labs/agent-skills",
