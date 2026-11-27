@@ -16,6 +16,12 @@ yay() {
   print-header "Updating Skills"
   skills update -g || failed+=(Skills)
 
+  print-header "Updating Ardia Skills"
+  # --project, not refresh: refresh only rewrites folders listed in ardia's per-machine
+  # ~/Library/Application Support/Ardia/CLI/skills.json, and ~/.claude/skills and ~/.agents
+  # are symlinks, which ardia's own install refuses to write through
+  (cd -q "$STOW_REPO/agents" && ardia skills install --project) || failed+=("Ardia Skills")
+
   print-header "Updating TPM"
   ~/.tmux/plugins/tpm/bin/clean_plugins \
     && ~/.tmux/plugins/tpm/bin/install_plugins \
