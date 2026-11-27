@@ -54,7 +54,7 @@ For each planned commit:
 - A file that spans multiple logical changes: `git add -p <file>` to stage only the relevant hunks. This only ever stages content; it cannot discard it.
 - Verify what you are about to commit with `git diff --staged`, then commit with its planned message.
 
-Write the message exactly as planned. For a body, pass it as additional `-m` arguments. Add nothing else (see Guardrails on attribution).
+Write the message exactly as planned. For a body, pass it as additional `-m` arguments. Add the two trailers from Guardrails with `--trailer`, and nothing else.
 
 ## 5. Verify nothing was lost or added
 
@@ -71,7 +71,9 @@ If something goes wrong at any point, recover with `git reset --soft <ORIG_HEAD>
 
 ## Guardrails
 
-- **No attribution.** Never add a `Co-Authored-By` trailer or any Claude/AI attribution. The message is exactly the planned content, with nothing appended.
+- **Two attribution trailers.** End every commit with these two trailers, in this order, and append nothing else:
+  - `Agent-Scope: commit split and message only, via atomic-commits`. Co-Authored-By alone would credit the agent with work it may only have split up, so this trailer keeps the history honest about who wrote what.
+  - `Co-Authored-By`: the attribution line your harness gives you, or, if it gives none, one naming the model that ran this skill.
 - **Commit only what is already there.** Never edit, create, reformat, or delete file contents to make a commit look cleaner. Introduce nothing new into the worktree; the snapshot check in step 5 exists to catch exactly this.
 - **Never run change-destroying commands.** `git reset --hard`, `git checkout -- <path>`, `git restore`, `git clean`, and `git stash` can all wipe uncommitted work and are not part of this workflow. The only resets used here are the mixed `git reset` (unstage) and `git reset --soft` (rollback), both of which preserve file content.
 - Do not `git push`, `git rebase`, or amend existing commits unless explicitly asked.
