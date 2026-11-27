@@ -23,8 +23,8 @@ A session starts with no tab: run one of these first. `snapshot -i` lists what y
 ## Read
 
 - This page's text: `ardia browse read`, or `read -s <sel>`. Other pages, any number, in one call:
-  `read <url> <url> …`, or every link here whose URL matches: `read --links /p/ -s table.specs` (`--list`: just the
-  URLs). They load in background tabs, logged in.
+  `read <url> <url> …`, or every link here whose URL matches: `read --links /p/ -s table.specs` (`--list` or
+  `links <pattern>`: just the URLs). They load in background tabs, logged in.
 - A page's data: `read --data` (JSON it embeds), `network requests --reload --type xhr,fetch`
   (JSON it loads); `read --http <url>` gets it.
 - A long or scroll-loaded list (`1–40 of 200`): `read --scroll` (the main list, or `-s <list>`; `--match <text>`).
@@ -47,13 +47,14 @@ EOF
 ```
 
 - Each action answers with what changed: new refs, values, the URL, requests (`POST /api/contacts → 201`), the
-  new page after a navigation. Plan and verify from that; end a batch with `read` to get the page too.
+  new page after a navigation. Plan and verify from that; end a batch with `read` to get the page too;
+  a repeated `snapshot -i` lists only what changed.
 - Put every step you can name in one `batch`, repeated rounds and dependent fields (To after From) included: each
   line runs once the last took effect, and a ref lasts as long as its element. `find label "Title" fill "…"` and
   `find role button click --name Save` need no refs.
 - `fill` types, and sets date (`YYYY-MM-DD`), time, color and range inputs; on a grid cell it opens, sets and
   commits. `select` picks in a `<select>`, typeahead, chip input or custom dropdown.
-- `open <url>` moves your session to a background tab; `tab t<N>` (`tab list`) switches back, in a batch too.
+- `open <url>` uses its own tab (`--here`: the `tab active` one); `tab new <url>` adds one; `tab t<N>` switches.
 
 ## Loops
 

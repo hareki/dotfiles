@@ -35,15 +35,14 @@ live, so input works without switching the user's view. On one that doesn't, `op
 
 ## Refs
 
-A ref belongs to its document. After a navigation, a new document or an Ardia restart it's reported as stale
-(`Stale ref @e4: … Run snapshot again`). When the page redraws an element in place, the ref follows the new one
-(`→ @e4 was redrawn, so this used the same button "Save", now @e19`) only if its role and name were and still are
-unique on the page, inside the same named dialog, row or form; otherwise the error names the new ref. An element
+A ref points only at the element it was issued for. When that element is gone (a navigation, a new document, a
+redraw, an Ardia restart), the command fails with `stale_ref`: ``Stale ref @e4: … Run `ardia browse snapshot -i` again and use the new
+refs``, or, when the same element came back under a new ref, `… is now @e19 … use that ref`. An element
 keeps its number across snapshots of the same page, and a number never moves to another element. Long runs of one role fold into one line in change reports
 (`+ 48 options in combobox "Start time" (…; e8…e55)`); the refs in it work.
 
 In a `batch`, a line can carry its own flags (`--no-changes`), and a last line `close` closes your tabs once every
-line succeeded. On `stale_ref`, the answer has the new refs.
+line succeeded. On `stale_ref`, take a new snapshot (or use the ref the error names) and rerun from that line.
 
 ## Custom inputs, covered elements, drag
 
@@ -62,12 +61,15 @@ line succeeded. On `stale_ref`, the answer has the new refs.
 
 ## Refused commands
 
-Every command here works on a current Ardia: cookies, `state`, `set …`, `network route`, `upload`, `download` and
-`wait --download`, `highlight`, `clipboard`, `trace`, `profiler`, `record`, `stream`, and any DevTools method through
-`cdp`. An older Ardia's engine refuses some of them: they fail with exit 1, name the refused method
-(`code: "policy_refused"` in `--json`) and say "this Ardia's engine doesn't allow it yet … update Ardia". `set viewport <w> <h>` works
-on a tab this session opened and never showed: it goes off-screen, and `--show` or `set viewport reset` reloads it
-at its own size. Tell the user to update Ardia; meanwhile use `storage local|session`, `eval`, or ask them to do that step. A refusal that says
+Not available yet on any released Ardia: cookies, `state save` (and `state load` of a file with cookies),
+`set device|geo|offline|headers|credentials|media|permission`, `network route`, `upload`, `download` and
+`wait --download`, `highlight`, `clipboard`, `trace`, `profiler`, `record` and `stream enable`. A DevTools method
+through `cdp` off Ardia's list is refused too, though an older Ardia refuses some a current one allows, so there
+updating may help. Ardia keeps them from the ardia command on purpose:
+they fail with exit 1 and `code: "policy_refused"`, say it's a deliberate limit and what to do instead. Updating or
+retrying won't help: ask the user to attach the file or download it, use `screenshot` instead of `record`, and
+`storage local|session` or `eval` instead of cookies and `state`. `set viewport <w> <h>` works on a tab this session
+opened and never showed: it goes off-screen, and `--show` or `set viewport reset` reloads it at its own size. A refusal that says
 "which Ardia allows for the ardia command, but not …" is about the tab or address, not the command: it gives the
 reason (`data.reason`) and, for a tab, what Ardia has there. Pick another tab or `open` a web page. Not here at all: `connect`, `install`, `upgrade`, `doctor`, `dashboard`, `chat`, `mcp`, `profiles`,
 `confirm`/`deny`, iOS, cloud providers and launch flags (`--headed`, `--profile`, `--proxy`, …).
@@ -81,6 +83,8 @@ reason (`data.reason`) and, for a tab, what Ardia has there. Pick another tab or
   prints.
 - `tab_detached`: Ardia took the tab away mid-command (it closed, crashed or went to sleep). Run the command again;
   a multi-page `read` already retries that page in a new tab.
+- `frame_gone`: the frame chosen with `ardia browse frame` is gone. Run `ardia browse frame main` or pick another frame.
+- `attaches_unanswered`: Ardia hasn't answered DevTools attaches yet. Retry, or `ardia browse close` the session.
 - `setup_lost`: the tab was attached again after Ardia detached it, but the init scripts, `set` overrides or routes the
   error names couldn't be put back, so they are off. Set them again, then rerun the command.
 - `--session name` (or `AGENT_BROWSER_SESSION`) gives its own tabs, refs and captures; cookies and logins are the
@@ -90,12 +94,13 @@ reason (`data.reason`) and, for a tab, what Ardia has there. Pick another tab or
 
 Snapshots, `read` and locating run in an isolated world or through the browser; the page sees only what a person's
 input would cause. `eval`, `wait --fn`, `page.evaluate` in scripts, init scripts and `open --enable react-devtools` run
-in the page's own world. `console` and `errors` start capturing on first use (or with `open --capture-console`).
+in the page's own world, where its globals are; `eval --isolated` (and `wait --fn … --isolated`) run in an isolated
+world instead, which shares the DOM but leaves nothing the page can see. `console` and `errors` start capturing on first use (or with `open --capture-console`).
 
 ## Output cap
 
-Text output stops at about 12,000 characters (20,000 for `script`) with a last line naming the file that holds all of
-it and saying how to narrow it. Narrow with `-s <sel>`, `snapshot -i`, `read --links <pattern>`, or a script that
+Text output stops at about 12,000 characters (20,000 for `script`) with one line, on stderr, saying how to narrow it
+(for a snapshot, the `-s` of its biggest region). Narrow rather than reading the saved full output. Narrow with `-s <sel>`, `snapshot -i`, `read --links <pattern>`, or a script that
 returns only the fields you need. `--json` and output redirected to a file (`> out.json`) are never cut.
 
 ## Auth vault
