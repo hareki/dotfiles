@@ -34,6 +34,28 @@ local TERMINAL_MODE = {
   end,
 }
 
+--- Redirects that hide search matches in a terminal window: a group nothing defines draws as plain
+--- text, while every other window still shows the matches
+local SEARCH_HIDDEN_WINHL =
+  'Search:TerminalSearch,CurSearch:TerminalSearch,IncSearch:TerminalSearch'
+
+--- Hide search matches in `win` while it shows a terminal, and show them again once it doesn't
+--- @param win integer
+function M.sync_search_highlight(win)
+  local is_terminal = vim.bo[vim.api.nvim_win_get_buf(win)].buftype == 'terminal'
+  -- Setting 'winhighlight', even to its current value, redraws the whole window
+  if (vim.wo[win].winhighlight:find(SEARCH_HIDDEN_WINHL, 1, true) ~= nil) == is_terminal then
+    return
+  end
+
+  -- `+=` and `-=` keep the window's own redirects, like a Snacks float's
+  vim.api.nvim_win_call(win, function()
+    vim.cmd.setlocal(
+      string.format('winhighlight%s=%s', is_terminal and '+' or '-', SEARCH_HIDDEN_WINHL)
+    )
+  end)
+end
+
 --- Window config of a full-screen panel: the `full` preset hide_others detects, in Terminal mode.
 --- A merge, not a Snacks style, which would lose `on_buf` to the claudecode.nvim fork's own
 --- @param overrides snacks.win.Config|{} The panel's own options (title, position, backdrop)
