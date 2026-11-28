@@ -190,3 +190,45 @@ aucmd('InsertEnter', {
     vim.schedule(UI.search.clear)
   end,
 })
+
+-- Pass on the status a program in a terminal buffer reports (Program Status Protocol, OSC 7501), so
+-- the Rex pane shows it as for a program run in the pane itself. nvim's terminal drops the
+-- sequence, and Claude Code reports only once the terminal has answered its query
+local program_status_group = augroup('program-status')
+--- Per terminal buffer, the state its program reported last
+--- @type table<integer, string>
+local reported_states = {}
+
+aucmd('TermRequest', {
+  group = program_status_group,
+  callback = function(event)
+    local report = event.data.sequence:match('^\27%]7501;(.*)')
+    if not report or not vim.env.REX_BLOCK then
+      return
+    end
+
+    if report == '?' then
+      -- The answer of a terminal that takes the protocol's own states and kinds
+      vim.api.nvim_chan_send(vim.bo[event.buf].channel, '\27]7501;?\27\\')
+      return
+    end
+
+    reported_states[event.buf] = (':' .. report):match(':state=(%l+)')
+    -- Through the TUI's own output, so the sequence never lands inside one the TUI is writing
+    vim.api.nvim_ui_send(event.data.sequence .. '\27\\')
+  end,
+})
+
+-- The pane drops such a record when the process it runs ends, and that is nvim: a program that
+-- ends here without clearing its own (killed, its buffer wiped) would leave it up. `done` and
+-- `error` outlast their program
+aucmd('TermClose', {
+  group = program_status_group,
+  callback = function(event)
+    local state = reported_states[event.buf]
+    reported_states[event.buf] = nil
+    if state == 'working' or state == 'blocked' or state == 'idle' then
+      vim.api.nvim_ui_send('\27]7501;state=clear\27\\')
+    end
+  end,
+})
