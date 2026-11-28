@@ -30,6 +30,7 @@ settings live in the dotfiles instead of the Settings window.
 - 🗂️ Prefix <kbd>Cmd-d</kbd> for splits, tabs, sessions and copy mode
 - ⚙️ The app settings recorded in `config/settings.lua`, and one action that applies them all
 - 🎨 Catppuccin Mocha, imported from a Ghostty theme file
+- 🔁 Claude Code and Neovim come back after a server restart: Claude Code through Rex's own rule, Neovim through `features/nvim-resume.lua`, which trusts the bare `nvim` Neovim reports so auto-session restores its session
 - 🔤 [Maple Mono NF](https://github.com/subframe7536/maple-font) SemiBold
 
 ## 🤔 What is it?
@@ -38,7 +39,7 @@ settings live in the dotfiles instead of the Settings window.
 
 - `init.lua` only requires modules. `config/` holds the keys for Rex's own actions and the
   settings record, and each `features/<name>.lua` adds one feature, a custom action with the keys
-  that run it or the keys sent to the program in the pane, so deleting the file and its
+  that run it, the keys sent to the program in the pane or a resume rule, so deleting the file and its
   `init.lua` line removes the feature.
 
 - Every <kbd>Cmd</kbd> key for a program sends the <kbd>Alt</kbd> key it binds, so the bindings
@@ -143,7 +144,8 @@ them.
 │   ├── program-keys.lua    the Cmd => Alt keys, and the raw escape sequences
 │   ├── pane-navigation.lua navigate: hands the move to Neovim, or moves Rex's focus
 │   ├── close-pane.lua      close_pane: closes a tab's last pane too, and the tab with it
-│   └── apply-settings.lua  apply_settings: imports the theme and sets every recorded setting
+│   ├── apply-settings.lua  apply_settings: imports the theme and sets every recorded setting
+│   └── nvim-resume.lua     the resume rule that starts Neovim again after a server restart
 └── themes
     └── Catppuccin Mocha    the Ghostty theme file Apply Settings imports
 </pre>
