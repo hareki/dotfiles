@@ -4,6 +4,7 @@ ruby = "latest"
 rust = "latest"
 go = "latest"
 python = "latest"
+uv = "latest"
 bun = "latest"
 
 # chromium-bidi has shipped without npm provenance since it moved into Chromium.
