@@ -3,8 +3,12 @@
 # Package metadata (AGENTS.md, README.md, ...) is excluded by stow/.stow-global-ignore, or by
 # a package's own .stow-local-ignore, which replaces it
 sync-dots () {
-  local failed=0 dir
-  local -a packages=("$STOW_REPO"/*(/:t))
+  local failed=0 dir listing
+  # A package is a directory git has a file in. A removed package's directory can stay behind
+  # holding only ignored files (.DS_Store), so `all` unstows it instead
+  listing=$(git -C "$STOW_REPO" ls-files --cached --others --exclude-standard) || return 1
+  local -a dirs=("$STOW_REPO"/*(/:t)) known=(${(u)${(M)${(f)listing}:#*/*}%%/*})
+  local -a packages=(${dirs:*known}) leftovers=(${dirs:|known})
 
   case "$1" in
     --list) print -l $packages; return 0 ;;
@@ -13,15 +17,22 @@ sync-dots () {
       print "       sync-dots all   # sync every package directory in \$STOW_REPO"
       return 0
       ;;
-    all) set -- $packages ;;
+    all)
+      set -- $packages
+      for dir in $leftovers; do
+        stow -D -d "$STOW_REPO" -t "$HOME" "$dir" || { print -P "%F{red}==> Failed to unstow $dir%f" >&2; failed=1; }
+      done
+      ;;
   esac
 
   for dir in $@; do
-    if [[ -d "$STOW_REPO/$dir" ]]; then
+    if (( ${packages[(Ie)$dir]} )); then
       print-header "Syncing $dir"
-      stow -d "$STOW_REPO" -t "$HOME" "$dir" || { print -P "%F{red}==> Failed to sync $dir%f" >&2; failed=1; }
+      # A restow also removes the links into $STOW_REPO that point at nothing, a removed file's or
+      # package's, from each directory the package reaches
+      stow -R -d "$STOW_REPO" -t "$HOME" "$dir" || { print -P "%F{red}==> Failed to sync $dir%f" >&2; failed=1; }
     else
-      echo "Directory '$dir' does not exist in $STOW_REPO." >&2
+      echo "'$dir' is not a package in $STOW_REPO." >&2
       failed=1
     fi
   done

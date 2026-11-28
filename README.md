@@ -87,7 +87,10 @@ Each package's own requirements are in its README: [nvim](./nvim/README.md#%EF%B
 <details><summary>Using <code>sync-dots</code></summary>
 
 `sync-dots` (autoloaded from `zsh/.config/zsh/functions/sync-dots`) runs stow with the repo and
-`$HOME` filled in, and completes package names:
+`$HOME` filled in, and completes package names. It restows, which also removes the links into the
+repo that point at nothing, such as a removed package's. A package is a directory git has a file
+in, so `all` unstows a removed package's directory that stays behind with only ignored files
+(`.DS_Store`):
 
 ```sh
 # One package
@@ -100,7 +103,7 @@ sync-dots zsh tmux ghostty lazygit mise atuin
 sync-dots all
 
 # The same thing with plain stow
-stow -d "$STOW_REPO" -t ~ nvim
+stow -R -d "$STOW_REPO" -t ~ nvim
 ```
 
 </details>
