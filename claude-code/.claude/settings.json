@@ -94,7 +94,7 @@
     "rust-analyzer-lsp@claude-plugins-official": true,
     "claude-md-management@anthropic-plugin-directory": true
   },
-  "outputStyle": "Unslop",
+  "outputStyle": "Concise",
   "maxProseWidth": 100,
   "modelSettings": {
     "claude-opus-5-5": {
