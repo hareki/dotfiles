@@ -149,8 +149,8 @@ them.
 ├── features
 │   ├── program-keys.lua           the Cmd => Alt keys, and the raw escape sequences
 │   ├── pane-navigation.lua        navigate: hands the move to Neovim, or moves Rex's focus
-│   ├── close-pane.lua             close_pane: closes a tab's last pane too, and the tab with it
-│   ├── apply-settings.lua         apply_settings: imports the theme and sets every recorded setting
+│   ├── pane-closing.lua           close_pane: closes a tab's last pane too, and the tab with it
+│   ├── settings-sync.lua          apply_settings: imports the theme and sets every recorded setting
 │   ├── nvim-resume.lua            the resume rule that starts Neovim again after a server restart
 │   └── lazygit-resume.lua         the resume rule that starts lazygit again after a server restart
 ├── scripts

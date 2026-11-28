@@ -6,4 +6,4 @@ The Lua rules every file in this config follows. Run `stylua .` after an edit.
 - **String formatting**: use `string.format(...)`, never the method form `('...'):format(...)`
 - **Constants**: a file-level local holding data the file never reassigns or mutates (lookup tables, lists, fixed strings) is `UPPER_SNAKE` (`TERMINAL`, `NAVIGATION_KEYS`, `THEME`); functions and requires stay `snake_case`
 - **Sections**: group a file's bindings or settings under `-- [[ Name ]]` headers
-- **File names**: `kebab-case`, dot-free, since `require` reads a `.` as a path separator. The theme file keeps its exact name: Rex names the imported theme after it ([Theme](settings.md#theme))
+- **File names**: `kebab-case`, dot-free, since `require` reads a `.` as a path separator. A feature file is named with a noun phrase for what it adds (`pane-navigation.lua`), not the verb of its action (`close-pane.lua`). The theme file keeps its exact name: Rex names the imported theme after it ([Theme](settings.md#theme))

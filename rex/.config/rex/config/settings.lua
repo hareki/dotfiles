@@ -1,5 +1,5 @@
 -- Rex.app's settings, kept in macOS preferences that no file sets, as client.setting.* actions and
--- values. Apply Settings (features/apply-settings.lua) sets them, over Settings window changes
+-- values. Apply Settings (features/settings-sync.lua) sets them, over Settings window changes
 return {
   -- [[ Themes ]]
   { 'themes.dark.palette', 'Catppuccin Mocha' },

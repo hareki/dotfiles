@@ -4,7 +4,7 @@ How the app's settings are recorded and applied, and how the theme gets in.
 
 ## The record
 
-Rex.app keeps its settings in macOS preferences (`com.superlogical.rex`), which no file sets. `config/settings.lua` records them as `{ '<name>', value }` pairs, each the `client.setting.<name>` action and its `value`, and `apply_settings` (`features/apply-settings.lua`) sets them all. A setting changed in the Settings window is lost at the next apply, so a settings change is an edit to the record.
+Rex.app keeps its settings in macOS preferences (`com.superlogical.rex`), which no file sets. `config/settings.lua` records them as `{ '<name>', value }` pairs, each the `client.setting.<name>` action and its `value`, and `apply_settings` (`features/settings-sync.lua`) sets them all. A setting changed in the Settings window is lost at the next apply, so a settings change is an edit to the record.
 
 - Group the entries under `-- [[ Name ]]` headers named for the Settings window section that holds them
 - Take a setting's name and its values from the Rex docs page [`/rex/docs/reference/mac-settings`](https://www.superlogical.com/rex/docs/reference/mac-settings). `rex -C <client label> actions --json` gives each enum, and `rex client list` the app's label
