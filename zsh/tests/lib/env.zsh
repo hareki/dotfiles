@@ -76,7 +76,8 @@ zt_env() {
   )
 }
 
-# zt_rex <dir> <args>: the rex CLI on the private server zt_boot started in <dir>, never the real one
+# zt_rex <dir> <args>: the rex CLI on the private server zt_server started in <dir>, never the real
+# one
 zt_rex() {
   "$ZT_REX" --autostart=false -S unix://$1/rex.sock "${@[2,-1]}"
 }
@@ -92,7 +93,7 @@ zt_server() {
   fi
   zt_env $home $tmp
   # Its panes start from the server's environment. No config and no saved sessions, so the server
-  # holds this boot alone
+  # holds only the panes its caller starts
   env -i $reply "$ZT_REX" server run --listen unix://$dir/rex.sock --state-dir $dir/rex \
     --restore=false --config /dev/null &>$dir/rex.log &!
   print -r -- $! >$dir/rex.pid

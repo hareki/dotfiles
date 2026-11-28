@@ -38,8 +38,7 @@ settings live in the dotfiles instead of the Settings window.
 - A personal config for one machine: macOS, with Neovim, zsh and Claude Code in the panes.
 
 - `init.lua` only requires modules. `config/` holds the keys for Rex's own actions and the
-  settings record, and each `features/<name>.lua` adds one feature, a custom action with the keys
-  that run it, the keys sent to the program in the pane or a resume rule, so deleting the file and its
+  settings record, and each `features/<name>.lua` adds one feature, so deleting the file and its
   `init.lua` line removes the feature.
 
 - Every <kbd>Cmd</kbd> key for a program sends the <kbd>Alt</kbd> key it binds, so the bindings

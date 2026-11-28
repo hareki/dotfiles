@@ -1,8 +1,10 @@
 -- The resume reports nvim sends a Rex pane (core/auto-session/rex-resume.lua): what a report holds
--- and signs, and which launches send one. Each test runs setup again with a token of its own, as
--- the boot under a Rex pane does, and reads the reports off nvim_ui_send
+-- and signs, and when it clears the record instead. Each test runs setup again with a token of its
+-- own, as the boot under a Rex pane does, and reads the reports off nvim_ui_send. auto-session
+-- itself answers whether it saves this instance
 
 local t = require('tests.lib.helpers')
+local auto_session = require('auto-session')
 local rex_resume = require('core.auto-session.rex-resume')
 
 local TOKEN = 'test-token-0123456789abcdef'
@@ -12,6 +14,8 @@ local GROUP = 'core.auto-session.rex-resume'
 --- @return table[] calls Each nvim_ui_send call's arguments
 local function start()
   t.set(vim.env, 'OSC7577_TOKEN', TOKEN)
+  -- auto-session saves nothing in a headless nvim, unless its own tests' switch is on
+  t.set(vim.env, 'AUTOSESSION_UNIT_TESTING', '1')
   local calls = t.spy(vim.api, 'nvim_ui_send', function() end)
   rex_resume.setup()
   t.cleanup(function()
@@ -40,6 +44,15 @@ local function parse(sequence)
   return keys
 end
 
+--- @param sequence string
+--- @param msg string
+local function is_clear(sequence, msg)
+  local keys = parse(sequence)
+  t.eq(keys.clear, '1', msg)
+  t.eq(keys.argv, nil, 'a clear names no command')
+  t.eq(tonumber(keys.pid), vim.uv.os_getppid(), "the record cleared is the TUI's")
+end
+
 t.test('a bare launch reports `nvim` in its cwd and hides the token', function()
   local calls = start()
   t.eq(vim.env.OSC7577_TOKEN, nil, 'what nvim starts gets no token')
@@ -51,19 +64,6 @@ t.test('a bare launch reports `nvim` in its cwd and hides the token', function()
   t.ok(math.abs(tonumber(keys.time) - os.time()) <= 5, 'the time is now')
   t.eq(vim.base64.decode(keys.argv), 'nvim')
   t.eq(vim.base64.decode(keys.cwd), vim.fn.getcwd(-1, -1))
-end)
-
-t.test('a launch on one directory reports as a bare one does', function()
-  local dir = vim.fs.joinpath(vim.fn.getcwd(-1, -1), 'rex-resume-dir')
-  vim.fn.mkdir(dir, 'p')
-  vim.cmd.argadd(vim.fn.fnameescape(dir))
-  t.cleanup(function()
-    vim.cmd('%argdelete')
-  end)
-  local calls = start()
-
-  fire('UIEnter')
-  t.eq(#calls, 1, 'auto-session restores in a lone directory too')
 end)
 
 t.test('a :cd reports the new cwd', function()
@@ -80,30 +80,44 @@ t.test('a :cd reports the new cwd', function()
   t.eq(vim.base64.decode(parse(calls[1][1]).cwd), vim.fn.getcwd(-1, -1))
 end)
 
-t.test('a launch on files reports nothing until a session loads', function()
-  t.write('rex-resume.txt', { 'text' })
-  vim.cmd.argadd('rex-resume.txt')
+t.test('a :cd into a directory auto-session suppresses clears the record', function()
+  local calls = start()
+  local cwd = vim.fn.getcwd(-1, -1)
   t.cleanup(function()
-    vim.cmd('%argdelete')
+    vim.api.nvim_set_current_dir(cwd)
   end)
-  local calls = start()
 
-  fire('UIEnter')
-  t.eq(#calls, 0, 'no report for a launch on files')
-  fire('SessionLoadPost')
-  t.eq(#calls, 1, 'a loaded session reports')
+  vim.api.nvim_set_current_dir('/')
+  t.eq(#calls, 1, 'one report for the change')
+  is_clear(calls[1][1], 'no session is saved for /, so a bare nvim there restores nothing')
 end)
 
-t.test('a launch reading stdin reports nothing', function()
+t.test('a launch reading stdin clears the record', function()
   local calls = start()
+  t.cleanup(function()
+    vim.g.in_pager_mode = false
+  end)
 
-  fire('StdinReadPre')
+  vim.api.nvim_exec_autocmds('StdinReadPre', {})
   fire('UIEnter')
-  t.eq(#calls, 0)
+  t.eq(#calls, 1)
+  is_clear(calls[1][1], 'auto-session saves nothing for a pager')
 end)
 
-t.test('without a token, setup sets up nothing', function()
+t.test('a restored session reports', function()
+  local calls = start()
+
+  auto_session.run_cmds('post_restore', 'a session')
+  t.eq(#calls, 1, 'the spec hooks the report to post_restore_cmds')
+  t.eq(vim.base64.decode(parse(calls[1][1]).argv), 'nvim')
+end)
+
+t.test('without a token, nothing is set up or sent', function()
   t.set(vim.env, 'OSC7577_TOKEN', nil)
+  local calls = t.spy(vim.api, 'nvim_ui_send', function() end)
   rex_resume.setup()
   t.eq(vim.fn.exists('#' .. GROUP), 0, 'no autocmds')
+
+  rex_resume.report()
+  t.eq(#calls, 0, 'no report')
 end)

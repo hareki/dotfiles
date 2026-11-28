@@ -23,6 +23,7 @@ return {
     },
 
     opts = function()
+      local rex_resume = require('core.auto-session.rex-resume')
       -- Function-valued so the session picker follows terminal resizes
       local picker_config = UI.layout.picker_fn('sm')
 
@@ -61,6 +62,9 @@ return {
             })
           end,
         },
+        -- Not on SessionLoadPost, which fires while auto-session still counts a launch on files as
+        -- one it does not save
+        post_restore_cmds = { rex_resume.report },
 
         --- @type SessionLens
         session_lens = {
