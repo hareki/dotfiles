@@ -132,7 +132,7 @@ stow -R -d "$STOW_REPO" -t ~ nvim
 
 ### Toolchains and formatters
 
-- **mise**: Node, Ruby, Rust, Go, Python and Bun, plus the language servers, oxfmt, oxlint, prettier and mermaid-cli
+- **mise**: Node, Rust, Go, Python, uv and Bun, plus the language servers, oxfmt, oxlint, prettier and mermaid-cli
 - **prettier**, **typos**: global configs for the formatter and the spell checker
 - **mermaid-cli**: the render config and a Puppeteer config that uses the system Chrome
 

@@ -91,6 +91,7 @@ The config lives in my [dotfiles](https://github.com/hareki/dotfiles), which
 - **<kbd>prefix</kbd> <kbd>Left</kbd>** / **<kbd>Right</kbd>**: move the tab left or right
 - **<kbd>prefix</kbd> <kbd>Esc</kbd>**: copy mode
 - **<kbd>prefix</kbd> <kbd>/</kbd>**: find in the pane. Rex's own <kbd>Cmd-f</kbd> opens atuin search here
+- **<kbd>prefix</kbd> <kbd>w</kbd>**: Go to Anything. Rex's own <kbd>Cmd-p</kbd> opens the palette here
 
 Without the prefix:
 

@@ -1,6 +1,5 @@
 [tools]
 node = "lts"
-ruby = "latest"
 rust = "latest"
 go = "latest"
 python = "latest"
@@ -36,9 +35,6 @@ bun = "latest"
 [settings]
 idiomatic_version_file_enable_tools = ["node"]
 minimum_release_age = "1d"
-
-[settings.ruby]
-compile = false
 
 [settings.shims]
 # Only project configs pin these (claudecode.nvim both, blink-ripgrep.nvim stylua), but mise

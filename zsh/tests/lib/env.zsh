@@ -24,8 +24,6 @@ zmodload zsh/datetime
 # Test files inherit these from run.zsh, since their own HOME is a scratch dir
 typeset -g ZT_REAL_HOME=${ZT_REAL_HOME:-$HOME} ZT_REX=${ZT_REX:-${commands[rex]}}
 typeset -g ZT_LIB=${${(%):-%x}:A:h}
-# What a test file's commands find
-typeset -g ZT_PATH=/usr/bin:/bin:/usr/sbin:/sbin
 
 # Short and private: Rex and zsh-patina put sockets here
 zt_tmpdir() {
@@ -112,9 +110,9 @@ zt_boot() {
   local home=$1 dir=$2 tree=$3
   zt_server $home $dir || return 1
   # --shell=none starts the arguments as they are: through a shell, a zsh would read the config
-  # once more. Without the pane's ids, which differ from boot to boot, in the dump's exports
+  # once more. Without the pane's id, which differs from boot to boot, in the dump's exports
   zt_rex $dir new boot --shell=none --cwd $home -- \
-    env -u REX_SESSION -u REX_BLOCK SHLVL=0 ZDOTDIR=$ZT_LIB/zdotdir ZT_DUMP_DIR=$dir ZT_TREE=$tree \
+    env -u REX_BLOCK SHLVL=0 ZDOTDIR=$ZT_LIB/zdotdir ZT_DUMP_DIR=$dir ZT_TREE=$tree \
     ${ZT_PROBE:+ZT_PROBE=$ZT_PROBE} /bin/zsh -l >/dev/null ||
     return 1
   zt_await $dir dump-1.txt || return 1

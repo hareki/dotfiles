@@ -29,7 +29,7 @@ Check that page before binding a key. A default may stay shadowed, since its act
 
 ## Pane navigation
 
-`cmd+m/n/e/i` is one grid across Rex panes and nvim windows. `navigate` (`features/pane-navigation.lua`) writes `\27` plus the letter (alt+m/n/e/i) when the pane's foreground process is in `NAVIGATES_ITSELF` (`process` returns `.foreground.name`, `nvim` even through the mise shim's exec), and nvim calls `rex focus <direction> --session $REX_BLOCK` (Rex takes a block ID for a session) from a window at its edge (`nvim/.config/nvim/lua/features/navigation/window-navigation/`).
+`cmd+m/n/e/i` is one grid across Rex panes and nvim windows. `navigate` (`features/pane-navigation.lua`) writes `\27` plus the letter (alt+m/n/e/i) when the pane's foreground process is in `NAVIGATES_ITSELF` (`process` returns `.foreground.name`, `nvim` even through the mise shim's exec), and nvim calls `rex focus <direction>` (the CLI acts on the session that holds the pane's `$REX_BLOCK`) from a window at its edge (`nvim/.config/nvim/lua/features/navigation/window-navigation/`).
 
 ## Files outside this config
 

@@ -11,14 +11,9 @@ source $ZT_TREE/zsh/tests/lib/env.zsh
 root=$(zt_tmpdir)
 trap 'zt_cleanup $root' EXIT
 zt_home $root/home $ZT_TREE || exit 1
-mkdir -p $root/tmp $root/dump
-zt_env $root/home $root/tmp
-env -i $reply $ZT_REX server run --listen unix://$root/dump/rex.sock --state-dir $root/dump/rex \
-  --restore=false --config /dev/null &>$root/rex.log &!
-print -r -- $! >$root/dump/rex.pid
-repeat 50; do [[ -S $root/dump/rex.sock ]] && break; sleep 0.1; done
+zt_server $root/home $root/dump || exit 1
 zt_rex $root/dump new boot --shell=none --cwd $root/home -- \
-  env -u REX_SESSION -u REX_BLOCK SHLVL=0 ZDOTDIR=$ZT_LIB/zdotdir ZT_DUMP_DIR=$root/dump \
+  env -u REX_BLOCK SHLVL=0 ZDOTDIR=$ZT_LIB/zdotdir ZT_DUMP_DIR=$root/dump \
   ZT_TREE=$ZT_TREE /bin/zsh -l >/dev/null || exit 1
 # The dump marks the first prompt after the deferred plugins, fzf-tab among them, have loaded
 zt_await $root/dump dump-1.txt || exit 1

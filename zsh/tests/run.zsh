@@ -3,7 +3,7 @@
 # own `zsh -f` started from `env -i` (lib/env.zsh), with a private scratch dir as its HOME and TMPDIR:
 #
 #   tests/run.zsh              every test file
-#   tests/run.zsh sync snap    the files whose name contains one of the words
+#   tests/run.zsh sync build   the files whose name contains one of the words
 #
 # Prints each file's output once it has finished, in file order. Exits 1 when a test fails or a file
 # cannot run. Assertions: lib/helpers.zsh; scratch shells of the config and the rules they follow:
@@ -33,7 +33,7 @@
       tmp=$(zt_tmpdir) || return 1
       mkdir -p $tmp/home $tmp/tmp
       zt_env $tmp/home $tmp/tmp
-      timeout 600 env -i $reply PATH=$ZT_PATH ZT_REAL_HOME=$ZT_REAL_HOME ZT_REX=$ZT_REX \
+      timeout 600 env -i $reply ZT_REAL_HOME=$ZT_REAL_HOME ZT_REX=$ZT_REX \
         ZT_REPO=${tests:h:h} ZT_PKG=${tests:h} ZT_LIB=$tests/lib ZT_TMP=$tmp zsh -f $file &>$tmp/run.log &
       started+=($name $tmp $!)
     done
