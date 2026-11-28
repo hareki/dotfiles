@@ -35,6 +35,7 @@ return {
   { 'terminal.typography.size', 18.5 },
   -- Percent of the font's own line height added
   { 'terminal.typography.line_height', 28 },
+  { 'terminal.colors.contrast', false },
   { 'terminal.cursor.force', false },
   { 'terminal.cursor.shaders', false },
   { 'terminal.cursor.shader', 'warp' },
