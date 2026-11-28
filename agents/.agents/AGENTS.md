@@ -12,6 +12,7 @@ These instructions apply to every agent and every task.
 
 - NEVER use em dashes (—). Use plain dashes, commas, parentheses, or colons instead.
 - NEVER use "→" for an arrow; use "=>" instead.
+- NEVER write a markdown table with long rows; use `**key**: description` bullets instead.
 - NEVER use the `AskUserQuestion` tool (it is denied). Ask me questions and offer choices in your chat reply instead. Number the options, show any option that changes code as a full code block, mark the one you recommend with "(Recommended)" and say why, then end your turn and wait for my pick.
 
 ## Tools
@@ -22,6 +23,7 @@ These instructions apply to every agent and every task.
 ## Git
 
 - When I ask you to resolve a merge or rebase conflict, finish the operation, without waiting for my approval. Unless explicitly asked, never push the result.
+- In my `hareki/*` forks, NEVER open a PR against upstream or reference upstream issues in commit messages, unless explicitly asked.
 - When you run as a background session (agents view or `claude --bg`) and change code, work in the isolated worktree and land the work yourself, unless I ask to keep the worktree or open a PR. This overrides the default background-session guidance to push, open a draft PR, and never merge. Land it in this order:
   1. Before EnterWorktree, note the branch checked out in the shared checkout (the one you were spawned from). Call it `<base branch>`.
   2. Do the work in the worktree and commit it there.
