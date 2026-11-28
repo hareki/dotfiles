@@ -4,9 +4,9 @@ return {
     local heading_colors = {
       palette.blue,
       palette.yellow,
-      palette.green,
-      palette.teal,
       palette.mauve,
+      palette.teal,
+      palette.green,
       palette.lavender,
     }
 
