@@ -1,5 +1,5 @@
 --- Reports a bare `nvim` to the Rex pane (OSC 7577), so a server restart starts it again in its
---- directory for auto-session to restore. The Rex config's `features/nvim-resume.lua` trusts it
+--- directory for auto-session to restore. The Rex config's `features/program-resumption.lua` trusts it
 --- @class core.auto-session.rex-resume
 local M = {}
 

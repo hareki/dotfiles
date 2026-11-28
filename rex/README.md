@@ -30,7 +30,7 @@ settings live in the dotfiles instead of the Settings window.
 - 🗂️ Prefix <kbd>Cmd-d</kbd> for splits, tabs, sessions and copy mode
 - ⚙️ The app settings recorded in `config/settings.lua`, and one action that applies them all
 - 🎨 Catppuccin Mocha, imported from a Ghostty theme file
-- 🔁 Claude Code, Neovim and lazygit come back after a server restart: Claude Code through Rex's own rule, Neovim through `features/nvim-resume.lua`, which trusts the bare `nvim` Neovim reports so auto-session restores its session, and lazygit through `features/lazygit-resume.lua`, which trusts the bare `lazygit` the fork reports for the repo it is in
+- 🔁 Claude Code, Neovim and lazygit come back after a server restart: Claude Code through Rex's own rule, Neovim and lazygit through `features/program-resumption.lua`, which trusts the bare `nvim` Neovim reports so auto-session restores its session, and the bare `lazygit` the fork reports for the repo it is in
 - 🔤 [Maple Mono NF](https://github.com/subframe7536/maple-font) a weight heavier in every style, SemiBold for regular text and ExtraBold for bold, as a family built from it
 
 ## 🤔 What is it?
@@ -151,8 +151,7 @@ them.
 │   ├── pane-navigation.lua        navigate: hands the move to Neovim, or moves Rex's focus
 │   ├── pane-closing.lua           close_pane: closes a tab's last pane too, and the tab with it
 │   ├── settings-sync.lua          apply_settings: imports the theme and sets every recorded setting
-│   ├── nvim-resume.lua            the resume rule that starts Neovim again after a server restart
-│   └── lazygit-resume.lua         the resume rule that starts lazygit again after a server restart
+│   └── program-resumption.lua     the resume rules that start Neovim and lazygit again after a server restart
 ├── scripts
 │   └── build-maple-mono-nf-rex.py builds the Maple Mono NF Rex family from the installed Maple Mono NF
 └── themes

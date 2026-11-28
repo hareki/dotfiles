@@ -5,7 +5,7 @@ How a custom action is filed, named and titled, and which calls it builds on.
 ## Files
 
 - `init.lua` only requires modules: `config.keymaps`, then one line per feature
-- `features/<name>.lua` holds one feature: a custom action (`rex.action`) with the keys that run it, the keys sent to the program in the pane (`program-keys.lua`, [Where a binding goes](keys.md#where-a-binding-goes)), or a resume rule (`nvim-resume.lua`); deleting the file and its `init.lua` line removes the feature
+- `features/<name>.lua` holds one feature: a custom action (`rex.action`) with the keys that run it, the keys sent to the program in the pane (`program-keys.lua`, [Where a binding goes](keys.md#where-a-binding-goes)), or the resume rules (`program-resumption.lua`); deleting the file and its `init.lua` line removes the feature
 
 ## Naming
 
