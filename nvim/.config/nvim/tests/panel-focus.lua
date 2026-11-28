@@ -82,7 +82,7 @@ end)
 t.test('inside Rex, a move key at the edge goes on to the next pane', function()
   local left, right = split()
   local commands = spy_rex()
-  t.set(vim.env, 'REX_SESSION', 'session:test')
+  t.set(vim.env, 'REX_BLOCK', 'block:test')
 
   t.map_callback('n', '<A-m>')()
   t.eq(vim.api.nvim_get_current_win(), left, 'the focused window')
@@ -93,9 +93,9 @@ t.test('inside Rex, a move key at the edge goes on to the next pane', function()
   t.map_callback('n', '<A-e>')()
   t.eq(vim.api.nvim_get_current_win(), left, 'the focused window at the edge')
   t.eq(commands, {
-    { 'rex', 'focus', 'left', '--session', 'session:test' },
-    { 'rex', 'focus', 'down', '--session', 'session:test' },
-    { 'rex', 'focus', 'up', '--session', 'session:test' },
+    { 'rex', 'focus', 'left', '--session', 'block:test' },
+    { 'rex', 'focus', 'down', '--session', 'block:test' },
+    { 'rex', 'focus', 'up', '--session', 'block:test' },
   }, 'Rex commands')
 
   t.map_callback('n', '<A-i>')()
@@ -117,7 +117,7 @@ t.test('inside Rex, a move key takes a full-screen panel straight to the next pa
   split()
   local panel = open_panel()
   local commands = spy_rex()
-  t.set(vim.env, 'REX_SESSION', 'session:test')
+  t.set(vim.env, 'REX_BLOCK', 'block:test')
 
   t.map_callback('t', '<A-m>')()
   t.map_callback('t', '<A-n>')()
@@ -126,10 +126,10 @@ t.test('inside Rex, a move key takes a full-screen panel straight to the next pa
 
   t.eq(vim.api.nvim_get_current_win(), panel.win, 'the focused window')
   t.eq(commands, {
-    { 'rex', 'focus', 'left', '--session', 'session:test' },
-    { 'rex', 'focus', 'down', '--session', 'session:test' },
-    { 'rex', 'focus', 'up', '--session', 'session:test' },
-    { 'rex', 'focus', 'right', '--session', 'session:test' },
+    { 'rex', 'focus', 'left', '--session', 'block:test' },
+    { 'rex', 'focus', 'down', '--session', 'block:test' },
+    { 'rex', 'focus', 'up', '--session', 'block:test' },
+    { 'rex', 'focus', 'right', '--session', 'block:test' },
   }, 'Rex commands')
 end)
 
@@ -170,7 +170,7 @@ t.test('over a full-screen panel, a move key lands on the panel and hides the te
   local panel = open_panel()
   local terminal = open_floating_terminal()
   local commands = spy_rex()
-  t.set(vim.env, 'REX_SESSION', 'session:test')
+  t.set(vim.env, 'REX_BLOCK', 'block:test')
 
   t.map_callback('t', '<A-i>')()
   t.eq(vim.api.nvim_get_current_win(), panel.win, 'the focused window')
@@ -180,7 +180,7 @@ t.test('over a full-screen panel, a move key lands on the panel and hides the te
   end, 'the terminal to hide')
 
   t.map_callback('t', '<A-i>')()
-  t.eq(commands, { { 'rex', 'focus', 'right', '--session', 'session:test' } }, 'the next move')
+  t.eq(commands, { { 'rex', 'focus', 'right', '--session', 'block:test' } }, 'the next move')
 end)
 
 t.test('the floating terminal stays under a full-screen panel opened over it', function()

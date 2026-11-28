@@ -14,8 +14,9 @@ local WINCMD_KEYS = { left = 'h', down = 'j', up = 'k', right = 'l' }
 --- @param direction features.navigation.window-navigation.utils.Direction
 --- @return nil
 local function focus_pane(direction)
-  if vim.env.REX_SESSION then
-    vim.system({ 'rex', 'focus', direction, '--session', vim.env.REX_SESSION })
+  -- Rex takes a block ID for a session, and finds the session that holds the block
+  if vim.env.REX_BLOCK then
+    vim.system({ 'rex', 'focus', direction, '--session', vim.env.REX_BLOCK })
   end
 end
 
