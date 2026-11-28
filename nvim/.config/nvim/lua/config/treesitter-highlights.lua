@@ -7,6 +7,7 @@ return function(palette)
     ['@string.special.path'] = { fg = palette.text },
     ['@markup.quote'] = { fg = palette.text },
     ['@markup.italic'] = { fg = palette.flamingo, italic = true },
-    ['@markup.strong'] = { fg = palette.flamingo, bold = true },
+    ['@markup.strong'] = { fg = 'NONE', bold = true },
+    ['@markup.raw'] = { fg = palette.peach },
   }
 end
