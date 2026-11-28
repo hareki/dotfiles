@@ -31,7 +31,7 @@ settings live in the dotfiles instead of the Settings window.
 - ⚙️ The app settings recorded in `config/settings.lua`, and one action that applies them all
 - 🎨 Catppuccin Mocha, imported from a Ghostty theme file
 - 🔁 Claude Code and Neovim come back after a server restart: Claude Code through Rex's own rule, Neovim through `features/nvim-resume.lua`, which trusts the bare `nvim` Neovim reports so auto-session restores its session
-- 🔤 [Maple Mono NF](https://github.com/subframe7536/maple-font) SemiBold
+- 🔤 [Maple Mono NF](https://github.com/subframe7536/maple-font) a weight heavier in every style, SemiBold for regular text and ExtraBold for bold, as a family built from it
 
 ## 🤔 What is it?
 
@@ -48,7 +48,7 @@ settings live in the dotfiles instead of the Settings window.
 ## ⚡️ Requirements
 
 - **[Rex](https://www.superlogical.com/rex)** on macOS, with its `rex` CLI
-- **[Maple Mono NF](https://github.com/subframe7536/maple-font)**, the Nerd Font build `config/settings.lua` sets
+- **[Maple Mono NF](https://github.com/subframe7536/maple-font)**, the Nerd Font build the terminal font is made from, and **[uv](https://docs.astral.sh/uv/)** to run the script that makes it
 - **[nvim](../nvim/) and [zsh](../zsh/) configs** from these dotfiles, which bind the keys Rex sends
 - **Remote Control** (Settings > General > Client Info), to run Apply Settings from a shell: a client action from the CLI needs it
 
@@ -64,6 +64,12 @@ The config lives in my [dotfiles](https://github.com/hareki/dotfiles), which
   ```sh
   git clone https://github.com/hareki/dotfiles ~/dotfiles
   stow -d ~/dotfiles -t ~ rex
+  ```
+
+- Build the terminal font, Maple Mono NF Rex, from the installed Maple Mono NF:
+
+  ```sh
+  ~/.config/rex/fonts/maple-mono-nf-rex.py
   ```
 
 - Restart Rex, or run `rex config reload`.
@@ -136,18 +142,20 @@ them.
 
 <pre>
 ~/.config/rex
-├── init.lua                requires the keymaps, then each feature
+├── init.lua                 requires the keymaps, then each feature
 ├── config
-│   ├── keymaps.lua         keys for Rex's own actions: palette, tabs, splits, copy mode, find
-│   └── settings.lua        the settings record, one client.setting.* action per entry
+│   ├── keymaps.lua          keys for Rex's own actions: palette, tabs, splits, copy mode, find
+│   └── settings.lua         the settings record, one client.setting.* action per entry
 ├── features
-│   ├── program-keys.lua    the Cmd => Alt keys, and the raw escape sequences
-│   ├── pane-navigation.lua navigate: hands the move to Neovim, or moves Rex's focus
-│   ├── close-pane.lua      close_pane: closes a tab's last pane too, and the tab with it
-│   ├── apply-settings.lua  apply_settings: imports the theme and sets every recorded setting
-│   └── nvim-resume.lua     the resume rule that starts Neovim again after a server restart
+│   ├── program-keys.lua     the Cmd => Alt keys, and the raw escape sequences
+│   ├── pane-navigation.lua  navigate: hands the move to Neovim, or moves Rex's focus
+│   ├── close-pane.lua       close_pane: closes a tab's last pane too, and the tab with it
+│   ├── apply-settings.lua   apply_settings: imports the theme and sets every recorded setting
+│   └── nvim-resume.lua      the resume rule that starts Neovim again after a server restart
+├── fonts
+│   └── maple-mono-nf-rex.py builds the Maple Mono NF Rex family from the installed Maple Mono NF
 └── themes
-    └── Catppuccin Mocha    the Ghostty theme file Apply Settings imports
+    └── Catppuccin Mocha     the Ghostty theme file Apply Settings imports
 </pre>
 
 ## 🧪 Tests

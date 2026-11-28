@@ -30,8 +30,8 @@ return {
   { 'interface.animation.style', 'natural' },
 
   -- [[ Terminal ]]
-  { 'terminal.typography.font', 'Maple Mono NF' },
-  { 'terminal.typography.style', 'SemiBold' },
+  { 'terminal.typography.font', 'Maple Mono NF Rex' },
+  { 'terminal.typography.style', 'Regular' },
   { 'terminal.typography.size', 18.5 },
   -- Percent of the font's own line height added
   { 'terminal.typography.line_height', 28 },

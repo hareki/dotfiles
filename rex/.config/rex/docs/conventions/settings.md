@@ -23,3 +23,7 @@ Read the stored values with `defaults read com.superlogical.rex`, never the plis
 `client.theme.import` replaces the theme of the imported file's name in place, so `apply_settings` imports `themes/Catppuccin Mocha` on every run, and `themes.dark.palette` names it. Renaming the file renames the theme: change both. `apply_settings` reads the file at the stowed path, `~/.config/rex/themes/Catppuccin Mocha`, so it works only once stowed.
 
 Outside this config, nvim's `config/filetypes/init.lua` opens `rex/themes/*` with the `ghostty` filetype.
+
+## Font
+
+Rex sets the face of regular text only (`terminal.typography.style`), and takes bold, italic and bold italic from the family's own faces. So the record names `Maple Mono NF Rex`, a family of four faces that holds Maple Mono NF's SemiBold and ExtraBold, with their italics, as its Regular and Bold. `fonts/maple-mono-nf-rex.py` builds it from the installed Maple Mono NF into `~/Library/Fonts`, changing only the names and the style flags. Run it again after updating Maple Mono NF.
