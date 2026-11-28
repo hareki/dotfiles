@@ -12,6 +12,9 @@ local repo = vim.fs.dirname(
 local TSAVE = 'zsh/.config/zsh/functions/tsave'
 local LAZYGIT_EDIT = 'lazygit/.config/lazygit/shell-functions.sh'
 
+-- The $CLAUDE_PID a hook runs with: the pid of its Claude
+local CLAUDE_PID = '4242'
+
 -- The files that start nvim with NVIM_INTEGRATION set
 local INTEGRATION_CALLERS = {
   'git/.gitconfig',
@@ -126,20 +129,44 @@ t.test('every --remote-expr tsave sends evaluates here, or exists if it would qu
   end
 end)
 
-t.test("the --remote-expr Claude Code's Stop hook sends evaluates here", function()
-  for _, expr in ipairs(remote_exprs('claude-code/.claude/hooks/nvim-when-done.sh')) do
-    evaluates(expr)
-  end
-end)
-
-t.test("Claude Code's SessionStart hook reports its session here", function()
-  local hook = 'claude-code/.claude/hooks/nvim-session-start.sh'
+--- Check a Claude Code hook: every --remote-expr it sends evaluates here, and run the way Claude
+--- runs it, the hook calls `module[name]` here
+--- @param hook string Relative to the repo root
+--- @param module table
+--- @param name string
+--- @param payload table What Claude hands the hook on stdin
+--- @return table call The arguments of the hook's call, packed with vim.F.pack_len
+local function hook_call(hook, module, name, payload)
   for _, expr in ipairs(remote_exprs(hook)) do
     evaluates(expr)
   end
 
+  local calls = t.spy(module, name, function() end)
+  succeeds(
+    { 'bash', vim.fs.joinpath(repo, hook) },
+    hook,
+    { NVIM = vim.v.servername, CLAUDE_PID = CLAUDE_PID },
+    vim.json.encode(payload)
+  )
+
+  -- The hook leaves its request behind in the background
+  t.wait_for(function()
+    return #calls > 0
+  end, "the hook's call")
+  return calls[1]
+end
+
+t.test("Claude Code's Stop hook reports its finish here", function()
+  local hook = 'claude-code/.claude/hooks/nvim-when-done.sh'
+  local done = require('features.ai.claudecode-nvim.done')
+  -- Nothing in flight, so the done gate lets the hook run on
+  local call = hook_call(hook, done, 'mark', { hook_event_name = 'Stop', background_tasks = {} })
+  t.eq(call[1], CLAUDE_PID)
+end)
+
+t.test("Claude Code's SessionStart hook reports its session here", function()
+  local hook = 'claude-code/.claude/hooks/nvim-session-start.sh'
   local session = require('features.ai.claudecode-nvim.session')
-  local calls = t.spy(session, 'report', function() end)
   -- A quote in the path needs care on the way into the expr
   local payload = {
     session_id = '2f713e74-6c61-4eb1-9a81-8b3fa75cc447',
@@ -147,21 +174,11 @@ t.test("Claude Code's SessionStart hook reports its session here", function()
     hook_event_name = 'SessionStart',
     source = 'startup',
   }
-  succeeds(
-    { 'bash', vim.fs.joinpath(repo, hook) },
-    'the SessionStart hook',
-    { NVIM = vim.v.servername, CLAUDE_PID = '4242' },
-    vim.json.encode(payload)
-  )
-
-  -- The hook leaves its request behind in the background
-  t.wait_for(function()
-    return #calls > 0
-  end, "the hook's report")
-  t.eq({ calls[1][1], calls[1][2], calls[1][3] }, {
+  local call = hook_call(hook, session, 'report', payload)
+  t.eq({ call[1], call[2], call[3] }, {
     payload.session_id,
     payload.transcript_path,
-    '4242',
+    CLAUDE_PID,
   })
 end)
 

@@ -1,3 +1,5 @@
+local panel = require('features.ai.claudecode-nvim.panel')
+
 --- Remembers the Claude session the agent panel ran, so that the panel of the next nvim in this
 --- directory resumes it: auto-session saves it with the nvim session and hands it back on restore
 --- (the auto-session fragment in the spec).
@@ -23,36 +25,13 @@ local state = {
   restored = false,
 }
 
---- The panel's terminal, while it has one
---- @return integer? buf
-local function panel_buf()
-  -- Without the plugin loaded there is no panel, and asking must not load it
-  local terminal = package.loaded['claudecode.terminal']
-  return terminal and terminal.get_active_terminal_bufnr()
-end
-
---- The pid of the Claude the panel runs. claudecode.nvim starts it without a shell
---- @return integer?
-local function panel_pid()
-  local buf = panel_buf()
-  if not buf then
-    return nil
-  end
-
-  -- A job that has exited raises
-  local ok, pid = pcall(vim.fn.jobpid, vim.bo[buf].channel)
-  return ok and pid or nil
-end
-
---- Record the session a Claude runs, when that Claude is the panel's. Every Claude started under
---- this nvim reports here, one in another terminal or one the panel's Claude ran itself
---- (`claude -p`) among them: its pid tells them apart. A `/clear` or a `/resume` reports again
+--- Record the session a Claude runs, when that Claude is the panel's. A `/clear` or a `/resume`
+--- reports again
 --- @param id string
 --- @param transcript string
 --- @param pid string The reporting Claude's
 function M.report(id, transcript, pid)
-  local panel = panel_pid()
-  if not panel or tonumber(pid) ~= panel then
+  if not panel.runs(pid) then
     return
   end
 
@@ -86,7 +65,7 @@ end
 --- a Claude the user quits afterwards starts fresh, as it does without a restore
 --- @return string
 function M.command()
-  if panel_buf() then
+  if panel.buf() then
     return CLAUDE
   end
 

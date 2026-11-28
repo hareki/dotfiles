@@ -31,9 +31,9 @@ return {
         '<A-a>',
         function()
           local terminals = require('core.snacks-nvim.terminals')
-          local terminal = require('claudecode.terminal')
+          local panel = require('features.ai.claudecode-nvim.panel')
 
-          terminals.hide_others(terminal.get_active_terminal_bufnr())
+          terminals.hide_others(panel.buf())
           vim.cmd.ClaudeCode()
         end,
         desc = PREFIX .. 'Toggle',

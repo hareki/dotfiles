@@ -9,6 +9,8 @@
 # the Claude that started the daemon, if any
 [ -n "$NVIM" ] || exit 0
 
-# Backgrounded with its streams detached, like bell.sh's afplay: a busy nvim answers late, and
-# Claude holds the turn open until the hook exits
-/opt/homebrew/bin/nvim --headless --server "$NVIM" --remote-expr "v:lua.require'features.ai.claudecode-nvim.done'.mark()" </dev/null >/dev/null 2>&1 &
+# nvim acts only on the finish of its panel's Claude, which it knows by pid: a Claude the panel's
+# own started, or a background session's daemon, has the same $NVIM. Backgrounded with its
+# streams detached, like bell.sh's afplay: a busy nvim answers late, and Claude holds the turn
+# open until the hook exits
+/opt/homebrew/bin/nvim --headless --server "$NVIM" --remote-expr "v:lua.require'features.ai.claudecode-nvim.done'.mark('$CLAUDE_PID')" </dev/null >/dev/null 2>&1 &
