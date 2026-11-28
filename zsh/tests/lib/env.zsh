@@ -81,16 +81,13 @@ zt_rex() {
   "$ZT_REX" --autostart=false -S unix://$1/rex.sock "${@[2,-1]}"
 }
 
-# zt_boot <home> <dir> <tree>: boots the config laid out in <home> (by zt_home from <tree>) in a
-# pane of a private Rex server, first as a top-level login shell (SHLVL 1), then as a login shell
-# started from it, and waits for each one's dump (dump.zsh) in <dir>/dump-1.txt and dump-2.txt.
-# Boots of one HOME share its TMPDIR (<home>/../tmp), so a second boot is warm, as on a real machine.
-# With ZT_PROBE set to a file, each shell also sources it then, writing to <dir>/probe-<SHLVL>.txt
-zt_boot() {
-  local home=$1 dir=$2 tree=$3 tmp=${1:h}/tmp
+# zt_server <home> <dir>: starts a private Rex server in <dir>, whose panes start from the scratch
+# environment of <home> (zt_env), with the TMPDIR its boots share (<home>/../tmp)
+zt_server() {
+  local home=$1 dir=$2 tmp=${1:h}/tmp
   mkdir -p $dir $tmp || return 1
   if [[ ! -x $ZT_REX ]]; then
-    print -u2 -r -- 'zt_boot: no rex on PATH to host the boot'
+    print -u2 -r -- 'zt_server: no rex on PATH to host the shells'
     return 1
   fi
   zt_env $home $tmp
@@ -103,6 +100,16 @@ zt_boot() {
     [[ -S $dir/rex.sock ]] && break
     sleep 0.1
   done
+}
+
+# zt_boot <home> <dir> <tree>: boots the config laid out in <home> (by zt_home from <tree>) in a
+# pane of a private Rex server, first as a top-level login shell (SHLVL 1), then as a login shell
+# started from it, and waits for each one's dump (dump.zsh) in <dir>/dump-1.txt and dump-2.txt.
+# Boots of one HOME share its TMPDIR (<home>/../tmp), so a second boot is warm, as on a real machine.
+# With ZT_PROBE set to a file, each shell also sources it then, writing to <dir>/probe-<SHLVL>.txt
+zt_boot() {
+  local home=$1 dir=$2 tree=$3
+  zt_server $home $dir || return 1
   # --shell=none starts the arguments as they are: through a shell, a zsh would read the config
   # once more. Without the pane's ids, which differ from boot to boot, in the dump's exports
   zt_rex $dir new boot --shell=none --cwd $home -- \

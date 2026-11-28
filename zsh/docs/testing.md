@@ -14,5 +14,5 @@ Every harness here builds on `tests/lib/`. Each file in it, and each test file, 
 
 A test file drives a command through its own interface, with stand-ins for what it reaches, and asserts through `tests/lib/helpers.zsh`.
 
-- **Booting the config**: `zt_home` and `zt_boot` in `tests/lib/env.zsh`. A test's own questions for a booted shell go in a file `ZT_PROBE` names.
+- **Booting the config**: `zt_home` and `zt_boot` in `tests/lib/env.zsh`, and `zt_server` for a private Rex server to start other shells in. A test's own questions for a booted shell go in a file `ZT_PROBE` names.
 - **Driving git**: `zt_repos` in `tests/lib/repos.zsh`, before anything else touches git.
