@@ -19,72 +19,16 @@ local M = {}
 --- @field end_col integer
 --- @field group string
 
--- Whether the buffer's message is markdown, which only renders once a window shows it
-local MARKDOWN_KEY = 'notify_markdown'
-
--- The `height_offset` of the toast's notification, which `fit_toast` adds to its height
+-- The `height_offset` of the toast's notification, which the toast's fit adds to its height
 local HEIGHT_OFFSET_KEY = 'notify_height_offset'
 
--- A notification is read, never edited: the line under the cursor (the first one, as the history
--- float opens) stays rendered, where render-markdown would show an editor its markdown syntax
---- @type render.md.partial.UserConfig
-local RENDER_CONFIG = {
-  anti_conceal = { enabled = false },
-  win_options = { concealcursor = { rendered = 'nvc' } },
-}
-
 local highlight_ns = vim.api.nvim_create_namespace('utils.notifier')
-
---- Paint a window showing a notification's buffer: wrap its lines, and render the message as
---- markdown if it is markdown. nvim-notify's `on_open` and the history picker's preview and float
---- call it too: each shows the buffer in its window after the render has run
---- @param win integer
---- @return nil
-function M.paint_window(win)
-  local buf = vim.api.nvim_win_get_buf(win)
-  -- A message that is not markdown too, which the markdown filetype's own wrap never reaches
-  vim.wo[win][0].wrap = true
-  if vim.b[buf][MARKDOWN_KEY] then
-    local render_markdown = require('render-markdown')
-    -- Asked for before the filetype is set: render-markdown keeps the config of its first look at
-    -- a buffer, which the FileType handler would take, and renders once this call has returned
-    render_markdown.render({ buf = buf, win = win, config = RENDER_CONFIG })
-    -- Set while a window shows the buffer, so the FileType handlers' window options (wrap) land
-    -- on it instead of the autocmd window
-    vim.bo[buf].filetype = 'markdown'
-  end
-end
-
---- Size a toast to its message as its window shows it. nvim-notify sizes one to its buffer's
---- lines, which leaves no row for those a wrapped line adds (the lines under it scroll out of the
---- toast), and sizes it again for a duplicate without its caps. nvim-notify's `on_open` calls it
---- once the window is painted, which is what wraps its lines
---- @param win integer
---- @param max_width integer
---- @param max_height integer
---- @return nil
-function M.fit_toast(win, max_width, max_height)
-  local buf = vim.api.nvim_win_get_buf(win)
-  vim.api.nvim_win_set_width(win, math.min(vim.api.nvim_win_get_width(win), max_width))
-
-  -- Counted a line at a time, over the lines the toast has room for. A hidden line (the end of a
-  -- code fence, which takes no row) is not taken off: `height_offset` is how its sender does that
-  local rows = 0
-  for row = 0, math.min(vim.api.nvim_buf_line_count(buf), max_height) - 1 do
-    local shown = vim.api.nvim_win_text_height(win, { start_row = row, end_row = row }).all
-    rows = rows + math.max(shown, 1)
-  end
-
-  local offset = vim.b[buf][HEIGHT_OFFSET_KEY] or 0
-  vim.api.nvim_win_set_height(win, math.min(rows, max_height) + offset)
-end
 
 --- The render a notification carries, which nvim-notify runs each time it fills its buffer (the
 --- toast, a duplicate re-rendering it, the history picker's preview and float): the configured
 --- render, then the message's own paint over its plain lines
 --- @module 'notify'
---- @param highlights? utils.notifier.Highlight[] A chunk message's spans, none for a string shown
---- as written; nil paints it as markdown
+--- @param highlights utils.notifier.Highlight[] A chunk message's spans, none for a string
 --- @return fun(buf: integer, notif: notify.Notification, hl: NotifyBufHighlights, config: table)
 local function renderer(highlights)
   return function(buf, notif, hl, config)
@@ -92,39 +36,36 @@ local function renderer(highlights)
 
     -- A duplicate re-renders over the old highlights
     vim.api.nvim_buf_clear_namespace(buf, highlight_ns, 0, -1)
-    for _, span in ipairs(highlights or {}) do
+    for _, span in ipairs(highlights) do
       vim.api.nvim_buf_set_extmark(buf, highlight_ns, span.row, span.col, {
         end_col = span.end_col,
         hl_group = span.group,
       })
     end
-
-    vim.b[buf][MARKDOWN_KEY] = highlights == nil
-    -- A duplicate re-renders into the window of the toast it repeats, which nvim-notify then sizes
-    -- to the message again, once this render has returned
-    for _, toast in ipairs(vim.fn.win_findbuf(buf)) do
-      M.paint_window(toast)
-      vim.schedule(function()
-        if vim.api.nvim_win_is_valid(toast) then
-          M.fit_toast(toast, config.max_width(), config.max_height())
-        end
-      end)
-    end
   end
 end
 
---- Every markdown message carries this one render, which is how a record tells it is one
-local markdown_render = renderer()
+--- Every markdown message carries this one render, which is how a record tells it is one. No spans
+--- to paint either: the window showing the message renders its markdown
+local markdown_render = renderer({})
 
 --- A string shown as written: no spans to paint
 local plain_render = renderer({})
 
---- Whether a history record's message is markdown: a string sent as markdown through this module,
---- or a `vim.notify` message `adopt` took in
---- @param record notify.Record
+--- Whether a notification's message is markdown: a string sent as markdown through this module, or
+--- a `vim.notify` message `adopt` took in
+--- @param record notify.Record Or the notification nvim-notify renders, which carries it too
 --- @return boolean
 function M.is_markdown(record)
   return record.render == markdown_render
+end
+
+--- The `height_offset` of the notification a toast's buffer shows; none in the history, whose
+--- buffers no toast opened
+--- @param buf integer
+--- @return integer
+function M.height_offset(buf)
+  return vim.b[buf][HEIGHT_OFFSET_KEY] or 0
 end
 
 --- Give a `vim.notify` message sent outside this module the markdown render. Plugins that write

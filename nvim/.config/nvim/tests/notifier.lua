@@ -515,7 +515,7 @@ t.test('height_offset resizes the toast, not the history float', function()
   t.eq(vim.api.nvim_win_get_height(float), 1, 'the history float fits the message')
 end)
 
---- @param kind string Names the test, and tells its message from the other kind's: nvim-notify
+--- @param kind string Names the test, and tells its message from the other kinds': nvim-notify
 --- takes the same text for a duplicate
 --- @param send fun(text: string) Sends the text as a notification of that kind, titled "Wrapped"
 local function test_wrapped_toast(kind, send)
@@ -559,6 +559,10 @@ test_wrapped_toast('markdown', function(text)
 end)
 test_wrapped_toast('chunk', function(text)
   Notifier.info({ { text, 'Normal' } }, { title = 'Wrapped' })
+end)
+-- noice renders this one itself, so a duplicate runs the spec's render and none of the Notifier's
+test_wrapped_toast('lua', function(text)
+  vim.notify(text, vim.log.levels.INFO, { title = 'Wrapped', ft = 'lua' })
 end)
 
 -- nvim-notify's own renders draw the title in the buffer, so the spec's leaves the window none

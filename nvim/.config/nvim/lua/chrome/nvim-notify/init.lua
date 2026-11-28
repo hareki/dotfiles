@@ -39,18 +39,10 @@ return {
         max_height = UI.layout.inline_max_height,
         max_width = UI.layout.inline_max_width,
 
-        on_open = function(win)
-          local buf = vim.api.nvim_win_get_buf(win)
-          -- None from a notification sent with a render of its own, which never runs the one below
-          local title = vim.b[buf][notify_utils.TITLE_KEY]
-
-          vim.api.nvim_win_set_config(win, {
-            zindex = Conf.zindex.NOTIFY,
-            title = title,
-            title_pos = title and 'center' or nil,
-          })
-          Notifier.paint_window(win)
-          Notifier.fit_toast(win, UI.layout.inline_max_width(), UI.layout.inline_max_height())
+        on_open = function(win, record)
+          vim.api.nvim_win_set_config(win, { zindex = Conf.zindex.NOTIFY })
+          notify_utils.dress(win, record)
+          notify_utils.fit(win)
         end,
 
         render = function(bufnr, notif, hl)
@@ -60,22 +52,24 @@ return {
           end
           title = string.format(' %s %s ', notif.icon, title)
 
-          local title_with_hl = { { title, hl.title } }
-
           -- Set title on first notification (see `on_open` callback)
-          vim.b[bufnr][notify_utils.TITLE_KEY] = title_with_hl
-
-          -- Set title on duplicate notifications
-          for _, win in ipairs(vim.fn.win_findbuf(bufnr)) do
-            vim.api.nvim_win_set_config(win, {
-              title = title_with_hl,
-              title_pos = 'center',
-            })
-          end
+          vim.b[bufnr][notify_utils.TITLE_KEY] = { { title, hl.title } }
 
           -- Body coloring comes from the window's winhl (Normal:Notify*Body), not extmarks; a
           -- Notifier message's own highlights come from the render it carries, which calls this one
           vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, notif.message)
+
+          -- A duplicate re-renders into the window of the toast it repeats, which takes its title
+          -- here. nvim-notify then sizes the toast to the message again, once this render has
+          -- returned, so the fit comes after that
+          for _, toast in ipairs(vim.fn.win_findbuf(bufnr)) do
+            notify_utils.dress(toast, notif)
+            vim.schedule(function()
+              if vim.api.nvim_win_is_valid(toast) then
+                notify_utils.fit(toast)
+              end
+            end)
+          end
         end,
       }
     end,

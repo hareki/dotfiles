@@ -8,8 +8,75 @@ local M = {}
 --- it opens its window, and `on_open` gets neither the highlight groups nor the duplicates
 M.TITLE_KEY = 'notify_title_with_hl'
 
+-- A notification is read, never edited: the line under the cursor (the first one, as the history
+-- float opens) stays rendered, where render-markdown would show an editor its markdown syntax
+--- @type render.md.partial.UserConfig
+local RENDER_CONFIG = {
+  anti_conceal = { enabled = false },
+  win_options = { concealcursor = { rendered = 'nvc' } },
+}
+
+--- Paint a window showing a notification's buffer: wrap its lines, and render the message as
+--- markdown if it is markdown, which only renders once a window shows it. Each caller shows the
+--- buffer in its window after the render has run
+--- @param win integer
+--- @param notif notify.Record
+--- @return nil
+local function paint(win, notif)
+  -- A message that is not markdown too, which the markdown filetype's own wrap never reaches
+  vim.wo[win][0].wrap = true
+  if Notifier.is_markdown(notif) then
+    local buf = vim.api.nvim_win_get_buf(win)
+    local markdown = require('render-markdown')
+    -- Asked for before the filetype is set: render-markdown keeps the config of its first look at
+    -- a buffer, which the FileType handler would take, and renders once this call has returned
+    markdown.render({ buf = buf, win = win, config = RENDER_CONFIG })
+    -- Set while a window shows the buffer, so the FileType handlers' window options (wrap) land
+    -- on it instead of the autocmd window
+    vim.bo[buf].filetype = 'markdown'
+  end
+end
+
+--- Dress a window showing a notification's buffer as its toast: the title the spec's `render` left
+--- for it, on the border, and the paint. For a toast as it opens, the toast a duplicate re-renders
+--- and the history float; the history preview only paints, its window being the picker's
+--- @param win integer
+--- @param notif notify.Record Or the notification nvim-notify renders
+--- @return nil
+function M.dress(win, notif)
+  -- None from a notification sent with a render of its own, which never runs the spec's
+  local title = vim.b[vim.api.nvim_win_get_buf(win)][M.TITLE_KEY]
+  if title then
+    vim.api.nvim_win_set_config(win, { title = title, title_pos = 'center' })
+  end
+  paint(win, notif)
+end
+
+--- Size a window to the notification it shows, up to the inline popup caps. nvim-notify sizes a
+--- toast to its buffer's lines, which leaves no row for those a wrapped line adds (the lines under
+--- it scroll out of the toast), and sizes it again for a duplicate without its caps. Called once
+--- the window is dressed, which is what wraps its lines
+--- @param win integer
+--- @return nil
+function M.fit(win)
+  local buf = vim.api.nvim_win_get_buf(win)
+  local max_width, max_height = UI.layout.inline_max_width(), UI.layout.inline_max_height()
+  vim.api.nvim_win_set_width(win, math.min(vim.api.nvim_win_get_width(win), max_width))
+
+  -- Counted a line at a time, over the lines the window has room for (an inspected table has
+  -- thousands). A hidden line (the end of a code fence, which takes no row) is not taken off:
+  -- `height_offset` is how its sender does that
+  local rows = 0
+  for row = 0, math.min(vim.api.nvim_buf_line_count(buf), max_height) - 1 do
+    local shown = vim.api.nvim_win_text_height(win, { start_row = row, end_row = row }).all
+    rows = rows + math.max(shown, 1)
+  end
+
+  vim.api.nvim_win_set_height(win, math.min(rows, max_height) + Notifier.height_offset(buf))
+end
+
 --- Render a notification into a buffer of its own, as nvim-notify rendered its toast. The caller
---- shows the buffer in a window, then hands that to `Notifier.paint_window`
+--- shows the buffer in a window, then paints that
 --- @param notif notify.Record
 --- @return notify.OpenedBuffer
 local function open_buffer(notif)
@@ -24,12 +91,9 @@ end
 --- @return nil
 local function open_float(notif)
   local opened = open_buffer(notif)
-  local max_height = UI.layout.inline_max_height()
   local width = math.min(opened.width, UI.layout.inline_max_width())
-  local height = math.min(opened.height, max_height)
+  local height = math.min(opened.height, UI.layout.inline_max_height())
   local col, row = UI.layout.center(width, height)
-  -- None from a notification sent with a render of its own, which never runs the spec's
-  local title = vim.b[opened.buffer][M.TITLE_KEY]
 
   local win = vim.api.nvim_open_win(opened.buffer, true, {
     relative = 'editor',
@@ -39,20 +103,17 @@ local function open_float(notif)
     row = row,
     border = 'rounded',
     style = 'minimal',
-    title = title,
-    title_pos = title and 'center' or nil,
   })
 
   vim.wo[win][0].winhighlight =
     string.format('Normal:%s,FloatBorder:%s', opened.highlights.body, opened.highlights.border)
-  Notifier.paint_window(win)
+  M.dress(win, notif)
 
   -- A painted window wraps: a line wider than the float takes more rows than the buffer has
-  -- lines, and a window too short for a line's rows cannot scroll to the rest of them. Counted up
-  -- to the cap: an inspected table has thousands of lines
-  height = math.min(vim.api.nvim_win_text_height(win, { max_height = max_height }).all, max_height)
-  col, row = UI.layout.center(width, height)
-  vim.api.nvim_win_set_config(win, { relative = 'editor', height = height, col = col, row = row })
+  -- lines, and a window too short for a line's rows cannot scroll to the rest of them
+  M.fit(win)
+  col, row = UI.layout.center(width, vim.api.nvim_win_get_height(win))
+  vim.api.nvim_win_set_config(win, { relative = 'editor', col = col, row = row })
 end
 
 --- The picker's previewer: the notification as its toast showed it. Snacks' text previewer has no
@@ -64,7 +125,7 @@ local function preview(ctx)
   ctx.preview:set_buf(opened.buffer)
   -- The preview window's keys, which Snacks only maps on the scratch buffers it makes
   ctx.preview.win:map()
-  Notifier.paint_window(ctx.win)
+  paint(ctx.win, ctx.item.notif)
 end
 
 -- Under treesitter's (90 and up), so a markdown row's own colors show over the body's
