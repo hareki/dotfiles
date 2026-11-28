@@ -6,6 +6,8 @@ Personal Neovim 0.12+ configuration using the lazy.nvim plugin manager. `GLOSSAR
 
 `CLAUDE.md` is a symlink to this file and `.claude/skills` to `.agents/skills`: edit the real files. Keep every line under 1000 characters, since some views trim longer lines and a trimmed copy written back once deleted a rule.
 
+The rules for one kind of change live in `docs/`, one file per topic, written for people and agents alike: conventions in `docs/conventions/`, the testing guide beside them. A project skill in `.agents/skills/` points the agent at its doc and holds only the agent's own steps and checks, so a new convention goes in a doc.
+
 ## LuaLS Diagnostics
 
 The LuaLS diagnostics surfaced to you come from the `nvim-lua-lsp@dotfiles` plugin, which gives the server LuaJIT, Neovim's runtime and the lazy plugin dir, so its reports are real, except in scratch files outside the repo, where it flags the globals from `config/globals.lua` as undefined. When it flags `vim` itself as an undefined global, the session runs the official `lua-lsp` instead (started outside the dotfiles), and its `undefined-global`, `undefined-doc-name` and `undefined-field` reports on `vim` or plugin names and types are **false positives**: ignore them.
