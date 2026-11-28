@@ -1,5 +1,5 @@
--- features.ai.claudecode-nvim.done: the panel's agent finishing shows in the statusline while the
--- panel is out of sight, until the statusline finds it showing; no other Claude's finish does
+-- features.ai.claudecode-nvim.done: the panel's agent finishing out of sight is notified and shows
+-- in the statusline until the statusline finds the panel showing; no other Claude's finish does
 
 local t = require('tests.lib.helpers')
 local done = require('features.ai.claudecode-nvim.done')
@@ -36,6 +36,7 @@ end
 --- A Claude finishing, as its Stop hook reports it. The flag is the module's own, so when the
 --- test ends a panel shows to clear whatever it left
 --- @param pid integer The Claude's
+--- @return { level: integer, title?: string, msg: string }[] notices What the finish notified
 local function finish(pid)
   t.cleanup(function()
     if done.unseen() then
@@ -43,7 +44,9 @@ local function finish(pid)
       t.eq(done.unseen(), false, 'a shown panel clears the flag the test left')
     end
   end)
+  local notices = t.notices()
   done.mark(tostring(pid))
+  return notices
 end
 
 --- Wait for the statusline lualine last rendered to show the agent's icon, or to drop it. Asked
@@ -64,8 +67,15 @@ t.test('a finish under a hidden panel shows in the statusline until it finds the
   hide_panel(win, code_win)
   await_icon(false, 'a statusline without the icon before the finish')
 
-  finish(pid)
+  local notices = finish(pid)
   t.eq(done.unseen(), true, 'unseen after the finish')
+  t.eq(notices, {
+    {
+      level = vim.log.levels.INFO,
+      title = 'Coding Agent',
+      msg = 'The agent has finished its work',
+    },
+  })
   await_icon(true, 'the icon after the finish')
 
   show_panel(win)
@@ -76,8 +86,9 @@ end)
 
 t.test('a finish under a visible panel is not flagged', function()
   local _, pid = open_panel()
-  finish(pid)
+  local notices = finish(pid)
   t.eq(done.unseen(), false)
+  t.eq(#notices, 0, 'no notice')
 end)
 
 t.test('a finish under a hidden panel is flagged until the panel shows again', function()
@@ -85,8 +96,9 @@ t.test('a finish under a hidden panel is flagged until the panel shows again', f
   local win, pid = open_panel()
   hide_panel(win, code_win)
 
-  finish(pid)
+  local notices = finish(pid)
   t.eq(done.unseen(), true, 'unseen after the finish')
+  t.eq(#notices, 1, 'a notice')
 
   -- Focus moving between other windows leaves it
   vim.cmd.split()
@@ -105,16 +117,17 @@ t.test('a panel in another tab does not count as showing', function()
   local _, pid = open_panel()
   t.tab()
 
-  finish(pid)
+  local notices = finish(pid)
   t.eq(done.unseen(), true, 'unseen after the finish')
+  t.eq(#notices, 1, 'a notice')
 
   vim.cmd.tabclose()
   t.eq(done.unseen(), false, 'unseen back in the tab of the panel')
 end)
 
-t.test("the finish of a Claude that is not the panel's is not flagged", function()
+t.test("the finish of a Claude that is not the panel's is neither flagged nor notified", function()
   t.set(package.loaded, 'claudecode.terminal', nil)
-  finish(vim.uv.os_getpid())
+  local notices = finish(vim.uv.os_getpid())
   t.eq(done.unseen(), false, 'no panel yet')
 
   local code_win = vim.api.nvim_get_current_win()
@@ -127,4 +140,5 @@ t.test("the finish of a Claude that is not the panel's is not flagged", function
   -- The hook's expression as tests/entry-points.lua evaluates it, its variable unexpanded
   done.mark('$CLAUDE_PID')
   t.eq(done.unseen(), false, 'no pid')
+  t.eq(#notices, 0, 'no notice')
 end)
