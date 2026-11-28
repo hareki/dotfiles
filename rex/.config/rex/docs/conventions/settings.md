@@ -26,4 +26,4 @@ Outside this config, nvim's `config/filetypes/init.lua` opens `rex/themes/*` wit
 
 ## Font
 
-Rex sets the face of regular text only (`terminal.typography.style`), and takes bold, italic and bold italic from the family's own faces. So the record names `Maple Mono NF Rex`, a family of four faces that holds Maple Mono NF's SemiBold and ExtraBold, with their italics, as its Regular and Bold. `fonts/maple-mono-nf-rex.py` builds it from the installed Maple Mono NF into `~/Library/Fonts`, changing only the names and the style flags. Run it again after updating Maple Mono NF.
+Rex sets the face of regular text only (`terminal.typography.style`), and takes bold, italic and bold italic from the family's own faces. So the record names `Maple Mono NF Rex`, a family of four faces that holds Maple Mono NF's SemiBold and ExtraBold, with their italics, as its Regular and Bold. `scripts/build-maple-mono-nf-rex.py` builds it from the installed Maple Mono NF into `~/Library/Fonts`, changing only the names and the style flags. Run it again after updating Maple Mono NF.
