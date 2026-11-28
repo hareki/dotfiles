@@ -1,6 +1,5 @@
--- features.git.git-conflict-nvim.utils: what the plugin's GitConflictDetected and
--- GitConflictResolved events set up and undo on a buffer, in the orders the plugin fires them, and
--- what the statusline reads from it
+-- features.git.git-conflict-nvim.utils: what GitConflictDetected and GitConflictResolved set up
+-- and undo on a buffer, in the orders the plugin fires them, and what the statusline reads
 
 local t = require('tests.lib.helpers')
 local git_conflict = require('features.git.git-conflict-nvim.utils')

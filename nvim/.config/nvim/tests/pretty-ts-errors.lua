@@ -1,6 +1,5 @@
--- features.diagnostics.eagle-nvim.pretty-ts-errors: format() through a faked CLI (vim.system), its
--- cache and the one-spawn-per-line batching. The module's cache and its latch outlive a test, so
--- each test formats messages of its own, and the latch test comes last
+-- features.diagnostics.eagle-nvim.pretty-ts-errors: a faked CLI's format(), cache and batching
+-- Its cache and latch outlive a test: each formats its own messages, and the latch test is last
 
 local t = require('tests.lib.helpers')
 local pretty_ts_errors = require('features.diagnostics.eagle-nvim.pretty-ts-errors')

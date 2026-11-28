@@ -1,6 +1,5 @@
--- The modules something outside nvim reaches by their path (docs/architecture.md, Entry points), each checked
--- the way its caller does: lazygit's edit command, tsave, Claude's Stop and SessionStart hooks,
--- NVIM_INTEGRATION
+-- Entry points (docs/architecture.md), each checked the way its caller does: lazygit's edit
+-- command, tsave, Claude's Stop and SessionStart hooks, NVIM_INTEGRATION
 
 local t = require('tests.lib.helpers')
 

@@ -1,5 +1,4 @@
--- features.diagnostics.trouble-nvim: a grep picker's results sent to Trouble with <C-t>, whose rows
--- keep the treesitter highlights of the language each one is in
+-- features.diagnostics.trouble-nvim: grep results sent with <C-t> keep their treesitter highlights
 
 local t = require('tests.lib.helpers')
 

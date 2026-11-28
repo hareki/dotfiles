@@ -1,7 +1,5 @@
--- The prettier gate in features/formatting/conform-nvim/init.lua: conform lists prettier for a file
--- outside an oxfmt project and leaves it out inside one, as the style enforcer's conform step asks
--- it (style-enforcer/conform-nvim.lua). The gate reads nvim-lspconfig's oxfmt root_dir, which calls
--- back before it returns; one that called back later would fail the oxfmt cases here
+-- The prettier gate in conform-nvim/init.lua: conform lists prettier only outside an oxfmt project,
+-- as the style enforcer asks; the gate needs nvim-lspconfig's oxfmt root_dir to call back at once
 
 local t = require('tests.lib.helpers')
 

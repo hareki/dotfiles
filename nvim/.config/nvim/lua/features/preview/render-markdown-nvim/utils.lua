@@ -43,9 +43,8 @@ function M.evict_wiped_buffers(wiping)
   end
 end
 
---- The marks render-markdown would paint on a buffer, as data and in this call. Its `render` paints
---- a window on a later tick, which a caller with no window to show the buffer in (a picker row)
---- cannot wait for. Reads the plugin's private modules, as nothing public returns marks
+--- The marks render-markdown would paint on a buffer, in this call: `render` paints a window a
+--- tick later, too late for a picker row. Reads private modules: nothing public returns marks
 --- @param buf integer
 --- @return render.md.Mark[]
 function M.marks(buf)
@@ -53,8 +52,7 @@ function M.marks(buf)
   local Context = require('render-markdown.request.context')
   local handlers = require('render-markdown.core.handlers')
 
-  -- The plugin covers the lines of the windows showing the buffer (and 10 around them): the call
-  -- gives a buffer shown nowhere the autocmd window
+  -- The plugin parses around the windows showing the buffer; buf_call lends a hidden one a window
   return vim.api.nvim_buf_call(buf, function()
     local parser = assert(vim.treesitter.get_parser(buf, 'markdown'))
     local win = vim.api.nvim_get_current_win()
@@ -78,8 +76,8 @@ function M.skip_conceal_line_pass()
   end
 end
 
---- Hiding or revealing a line (a code fence) moves no topline, so no WinScrolled tells satellite.nvim
---- its bar measured the old lines, and a float that now fits keeps its bar; never loads the plugin
+--- Hiding or showing a line (a code fence) moves no topline, so no WinScrolled refreshes the bar
+--- satellite.nvim measured, and a float that now fits keeps it; never loads the plugin
 --- @param ctx render.md.on.render.Context render-markdown's `on.render` and `on.clear` argument
 --- @return nil
 function M.refresh_scrollbar(ctx)

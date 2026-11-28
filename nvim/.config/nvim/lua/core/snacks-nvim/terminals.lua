@@ -1,7 +1,5 @@
---- The Snacks terminals and when each one gives way. The floating terminal is smaller than the
---- screen, so the windows around it stay in reach, and hides once focus lands in one of them. The
---- full-screen panels (Lazygit, the coding agent) are pinned to Terminal mode and up one at a time,
---- so closing one lands on the code
+--- The Snacks terminals: the floating one hides once focus lands in a window around it, and the
+--- full-screen panels come up one at a time, so closing one lands on the code
 --- @class core.snacks-nvim.terminals
 local M = {}
 

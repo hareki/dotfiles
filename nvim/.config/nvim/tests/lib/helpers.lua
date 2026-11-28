@@ -1,6 +1,5 @@
 --- What a test file uses, run by tests/lib/boot.lua after the full boot (VeryLazy too). What a test
---- acquires here (a spy, a buffer, a tab, a float, a picker, a Trouble list) is undone when it
---- ends, pass or fail
+--- acquires here (spies, buffers, tabs, floats, pickers) is undone when it ends, pass or fail
 --- @class tests.lib.helpers
 local M = {}
 
@@ -137,8 +136,7 @@ function M.notices()
   return notices
 end
 
---- The statusline's text after a redraw: lualine redraws on a 1 s timer, so ask for one the way the
---- config's own modules do
+--- The statusline's text after a forced redraw: lualine's own runs on a 1 s timer
 --- @return string
 function M.statusline()
   UI.statusline.refresh()
@@ -253,9 +251,8 @@ function M.map_callback(mode, lhs, buf)
   return M.ok(map.callback, string.format('%s maps no callback', lhs))
 end
 
---- Type `keys` as the user would, mappings applied, and run them before returning. A key that
---- lazy.nvim's stub still holds has to be pressed this way: the stub loads the plugin and replays
---- the key into the typeahead, which calling the map's callback would leave unread
+--- Type `keys` as the user would, mappings applied, and run them before returning
+--- Needed for a key lazy.nvim's stub holds: a map callback call leaves the key it replays unread
 --- @param keys string In map notation, such as `<leader>e`
 --- @return nil
 function M.press(keys)

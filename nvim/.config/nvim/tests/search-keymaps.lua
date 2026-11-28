@@ -1,5 +1,4 @@
--- features.search.snacks-nvim.sources.keymaps: the keymaps picker's source, driven through
--- Snacks.picker.keymaps(), which the search fragment registers it for
+-- features.search.snacks-nvim.sources.keymaps, driven through Snacks.picker.keymaps()
 
 local t = require('tests.lib.helpers')
 

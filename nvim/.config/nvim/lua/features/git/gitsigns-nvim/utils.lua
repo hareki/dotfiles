@@ -3,8 +3,7 @@ local popup = require('utils.popup')
 --- @class features.git.gitsigns-nvim.utils
 local M = {}
 
---- A callback for an opened gitsigns popup: <Tab> toggles focus with its source window, <Esc>
---- closes it
+--- Callback for an opened gitsigns popup: <Tab> toggles focus with its source, <Esc> closes it
 --- @param popup_type string Gitsigns popup type ('blame' | 'hunk')
 function M.build_popup_navigation(popup_type)
   return function()

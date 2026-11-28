@@ -18,7 +18,6 @@ local function tree_win()
   return t.ok(api.tree.winid(), 'the tree is closed')
 end
 
---- Press `<leader>e`
 --- @return integer win
 local function toggle_tree()
   t.press('<leader>e')

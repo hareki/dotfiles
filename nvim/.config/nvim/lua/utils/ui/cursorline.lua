@@ -1,9 +1,8 @@
 --- @class utils.ui.cursorline
 local M = {}
 
---- Full cursorline or only the number, setting only what differs: a same-value set still redraws.
---- A buffer with `b:cursorline_keep_full` keeps the full line. A no-op on the window in Terminal
---- mode: Neovim restores both options as the mode leaves it
+--- Full cursorline or only the number, setting only what differs: a same-value set still redraws
+--- No-op on the current window in Terminal mode, as Neovim restores both options on leaving it
 --- @param enable boolean
 --- @param win integer
 --- @return nil

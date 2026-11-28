@@ -1,7 +1,5 @@
--- features/preview/snacks-nvim: the audio page an audio file opens as (audio-page.lua, with ffprobe
--- faked through vim.system), in a buffer and in a picker preview, and the image hover `gi` opens
--- (hover-image.lua). Headless nvim draws no pixels: the hover is tested up to the float snacks
--- sizes and shows once it knows the image's cell dimensions, not the image the terminal would get
+-- features/preview/snacks-nvim: the audio page (ffprobe faked), in a buffer and a picker preview,
+-- and the `gi` image hover up to the float snacks shows, as headless nvim draws no pixels
 
 local t = require('tests.lib.helpers')
 

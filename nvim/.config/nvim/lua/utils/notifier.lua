@@ -24,9 +24,8 @@ local HEIGHT_OFFSET_KEY = 'notify_height_offset'
 
 local highlight_ns = vim.api.nvim_create_namespace('utils.notifier')
 
---- The render a notification carries, which nvim-notify runs each time it fills its buffer (the
---- toast, a duplicate re-rendering it, the history picker's preview and float): the configured
---- render, then the message's own paint over its plain lines
+--- The render a notification carries: the configured render, then the message's own spans.
+--- nvim-notify runs it for the toast, a duplicate, and the history picker's preview and float
 --- @module 'notify'
 --- @param highlights utils.notifier.Highlight[] A chunk message's spans, none for a string
 --- @return fun(buf: integer, notif: notify.Notification, hl: NotifyBufHighlights, config: table)
@@ -52,26 +51,22 @@ local markdown_render = renderer({})
 --- A string shown as written: no spans to paint
 local plain_render = renderer({})
 
---- Whether a notification's message is markdown: a string sent as markdown through this module, or
---- a `vim.notify` message `adopt` took in
+--- Whether a message is markdown: sent with `markdown` through this module, or taken in by `adopt`
 --- @param record notify.Record Or the notification nvim-notify renders, which carries it too
 --- @return boolean
 function M.is_markdown(record)
   return record.render == markdown_render
 end
 
---- The `height_offset` of the notification a toast's buffer shows; none in the history, whose
---- buffers no toast opened
+--- The `height_offset` of a toast's notification; 0 in the history, whose buffers no toast opened
 --- @param buf integer
 --- @return integer
 function M.height_offset(buf)
   return vim.b[buf][HEIGHT_OFFSET_KEY] or 0
 end
 
---- Give a `vim.notify` message sent outside this module the markdown render. Plugins that write
---- theirs in markdown (lazy.nvim, trouble.nvim) color it from an `on_open`, which a history record
---- does not keep. A message with a render of its own, or an `ft` naming another language, stays as
---- sent
+--- Give a `vim.notify` message the markdown render, unless it has a render or a non-markdown `ft`
+--- Plugins (lazy.nvim, trouble.nvim) color their markdown from an `on_open`, which history drops
 --- @param opts table The opts of the vim.notify call
 --- @return nil
 function M.adopt(opts)
@@ -109,8 +104,7 @@ local function normalize_message(chunks)
   return table.concat(parts), highlights
 end
 
---- Notify with a string shown as written (as markdown with `opts.markdown`), or chunks keeping
---- their highlight groups
+--- Notify with a string as written (markdown with `opts.markdown`) or chunks keeping their groups
 --- @param level integer
 --- @param msg utils.notifier.Message
 --- @param opts? utils.notifier.NotifierOpts

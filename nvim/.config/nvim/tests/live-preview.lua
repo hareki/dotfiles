@@ -1,6 +1,5 @@
--- features.preview.live-preview-nvim: `<leader>pp` in the tree previews the node under the cursor
--- and in a Trouble list the file of the row under it, and the port a preview starts on, with the
--- plugin's lsof check answered by a stub
+-- features.preview.live-preview-nvim: `<leader>pp` on a tree node and on a Trouble row, and the
+-- port a preview starts on, with the plugin's lsof check answered by a stub
 
 local t = require('tests.lib.helpers')
 local tree = require('features.navigation.nvim-tree-lua.utils')

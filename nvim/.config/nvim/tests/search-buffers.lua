@@ -1,5 +1,4 @@
--- features.search.snacks-nvim.sources.buffers: the buffers picker's source, driven through
--- Snacks.picker.buffers(), which the search fragment registers it for, and its keys
+-- features.search.snacks-nvim.sources.buffers through Snacks.picker.buffers(), and its keys
 
 local t = require('tests.lib.helpers')
 

@@ -1,11 +1,7 @@
 local panel = require('features.ai.claudecode-nvim.panel')
 
---- Remembers the Claude session the agent panel ran, so that the panel of the next nvim in this
---- directory resumes it: auto-session saves it with the nvim session and hands it back on restore
---- (the auto-session fragment in the spec).
---- Entry point: Claude Code's SessionStart hook (claude-code's `nvim-session-start.sh`) calls
---- `report()` through `--remote-expr` on the nvim that started that Claude, so this path and that
---- name stay stable
+--- The panel's Claude session, saved with the nvim session so the next nvim here resumes it
+--- Entry point: the SessionStart hook calls `report()` (`--remote-expr`): path and name stay stable
 --- @class features.ai.claudecode-nvim.session
 local M = {}
 
@@ -25,8 +21,7 @@ local state = {
   restored = false,
 }
 
---- Record the session a Claude runs, when that Claude is the panel's. A `/clear` or a `/resume`
---- reports again
+--- Record the session the panel's Claude runs; a `/clear` or a `/resume` reports again
 --- @param id string
 --- @param transcript string
 --- @param pid string The reporting Claude's
@@ -53,16 +48,14 @@ function M.restore(_, data)
   state.restored = true
 end
 
---- Drop the session, ahead of an nvim session restore: one that holds no Claude session leaves the
---- panel none of the nvim session before it
+--- Drop the session before an nvim session restore, which may hold none to replace it with
 function M.forget()
   state.session = nil
   state.restored = false
 end
 
---- claudecode.nvim's `terminal_cmd`. The plugin asks on every open and toggle of the panel, though
---- only a start runs the answer. The first start after a restore takes up the restored session;
---- a Claude the user quits afterwards starts fresh, as it does without a restore
+--- claudecode.nvim's `terminal_cmd`, asked on every open and toggle though only a start runs it
+--- Only the first start after a restore resumes the restored session
 --- @return string
 function M.command()
   if panel.buf() then

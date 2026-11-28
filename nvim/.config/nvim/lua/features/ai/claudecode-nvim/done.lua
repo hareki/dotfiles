@@ -13,8 +13,7 @@ local state = {
   unseen = false,
 }
 
---- Record that a Claude is done, when that Claude is the panel's. `unseen()` tells whether the
---- panel shows that already
+--- Record that the panel's Claude is done; `unseen()` checks whether the panel shows it already
 --- @param pid string The reporting Claude's
 function M.mark(pid)
   if not panel.runs(pid) then

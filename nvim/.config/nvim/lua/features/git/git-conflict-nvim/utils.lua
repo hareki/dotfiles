@@ -72,8 +72,7 @@ local function apply_window_winhl(win, in_conflict)
     return
   end
 
-  -- `+=` and `-=` keep the window's own redirects: a Snacks float's (zen, a picker's preview of
-  -- this buffer)
+  -- `+=` and `-=` keep a window's own redirects, like a Snacks float's (zen, a picker preview)
   vim.api.nvim_win_call(win, function()
     vim.cmd.set(string.format('winhighlight%s=%s', in_conflict and '+' or '-', CONFLICT_WINHL))
   end)

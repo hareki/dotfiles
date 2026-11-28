@@ -1,6 +1,5 @@
--- features.ai.claudecode-nvim.done: the panel's agent finishing is flagged in the statusline only
--- while the panel is out of sight, from the Stop hook's mark() until the statusline finds the panel
--- showing. The finish of any other Claude is not
+-- features.ai.claudecode-nvim.done: the panel's agent finishing shows in the statusline while the
+-- panel is out of sight, until the statusline finds it showing; no other Claude's finish does
 
 local t = require('tests.lib.helpers')
 local done = require('features.ai.claudecode-nvim.done')

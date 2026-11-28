@@ -1,7 +1,5 @@
--- features.ai.claudecode-nvim.session: the Claude session the agent panel ran travels in the nvim
--- session (auto-session's extra data), and the first start of a panel after a restore resumes it.
--- Reports come as Claude's SessionStart hook sends them, and the command is asked for as
--- claudecode.nvim asks (its `terminal_cmd`); tests/entry-points.lua runs the hook itself
+-- features.ai.claudecode-nvim.session: the panel's Claude session travels in the nvim session, and
+-- a panel's first start after a restore resumes it; tests/entry-points.lua runs the hook itself
 
 local t = require('tests.lib.helpers')
 local auto_session = require('auto-session')

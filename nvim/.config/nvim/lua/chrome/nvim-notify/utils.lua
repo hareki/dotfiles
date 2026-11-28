@@ -4,21 +4,17 @@ local render_markdown = Defer.on_index('features.preview.render-markdown-nvim.ut
 --- @class chrome.nvim-notify.utils
 local M = {}
 
---- The buffer variable the spec's `render` leaves the title in: nvim-notify renders a toast before
---- it opens its window, and `on_open` gets neither the highlight groups nor the duplicates
+--- The title the spec's `render` leaves in the buffer: `on_open` sees no hl groups or duplicates
 M.TITLE_KEY = 'notify_title_with_hl'
 
--- A notification is read, never edited: the line under the cursor (the first one, as the history
--- float opens) stays rendered, where render-markdown would show an editor its markdown syntax
+-- Read, never edited: the cursor line stays rendered instead of showing its markdown syntax
 --- @type render.md.partial.UserConfig
 local RENDER_CONFIG = {
   anti_conceal = { enabled = false },
   win_options = { concealcursor = { rendered = 'nvc' } },
 }
 
---- Paint a window showing a notification's buffer: wrap its lines, and render the message as
---- markdown if it is markdown, which only renders once a window shows it. Each caller shows the
---- buffer in its window after the render has run
+--- Wrap a notification window's lines and render a markdown message, which needs the buffer shown
 --- @param win integer
 --- @param notif notify.Record
 --- @return nil
@@ -28,18 +24,15 @@ local function paint(win, notif)
   if Notifier.is_markdown(notif) then
     local buf = vim.api.nvim_win_get_buf(win)
     local markdown = require('render-markdown')
-    -- Asked for before the filetype is set: render-markdown keeps the config of its first look at
-    -- a buffer, which the FileType handler would take, and renders once this call has returned
+    -- Before the filetype: render-markdown keeps the config of its first look at a buffer
     markdown.render({ buf = buf, win = win, config = RENDER_CONFIG })
-    -- Set while a window shows the buffer, so the FileType handlers' window options (wrap) land
-    -- on it instead of the autocmd window
+    -- Set while a window shows it, so FileType window options land there, not the autocmd window
     vim.bo[buf].filetype = 'markdown'
   end
 end
 
---- Dress a window showing a notification's buffer as its toast: the title the spec's `render` left
---- for it, on the border, and the paint. For a toast as it opens, the toast a duplicate re-renders
---- and the history float; the history preview only paints, its window being the picker's
+--- Dress a window as the notification's toast: the spec's title on its border, then the paint.
+--- The history preview only paints, its window being the picker's
 --- @param win integer
 --- @param notif notify.Record Or the notification nvim-notify renders
 --- @return nil
@@ -52,10 +45,8 @@ function M.dress(win, notif)
   paint(win, notif)
 end
 
---- Size a window to the notification it shows, up to the inline popup caps. nvim-notify sizes a
---- toast to its buffer's lines, which leaves no row for those a wrapped line adds (the lines under
---- it scroll out of the toast), and sizes it again for a duplicate without its caps. Called once
---- the window is dressed, which is what wraps its lines
+--- Size a dressed window to its wrapped rows, up to the inline popup caps: nvim-notify sizes a
+--- toast to its buffer lines, and a duplicate's without the caps
 --- @param win integer
 --- @return nil
 function M.fit(win)
@@ -63,9 +54,8 @@ function M.fit(win)
   local max_width, max_height = UI.layout.inline_max_width(), UI.layout.inline_max_height()
   vim.api.nvim_win_set_width(win, math.min(vim.api.nvim_win_get_width(win), max_width))
 
-  -- Counted a line at a time, over the lines the window has room for (an inspected table has
-  -- thousands). A hidden line (the end of a code fence, which takes no row) is not taken off:
-  -- `height_offset` is how its sender does that
+  -- Only the lines the window has room for, since an inspected table has thousands
+  -- A hidden line (a code fence's end) counts a row: its sender's `height_offset` takes it off
   local rows = 0
   for row = 0, math.min(vim.api.nvim_buf_line_count(buf), max_height) - 1 do
     local shown = vim.api.nvim_win_text_height(win, { start_row = row, end_row = row }).all
@@ -75,8 +65,7 @@ function M.fit(win)
   vim.api.nvim_win_set_height(win, math.min(rows, max_height) + Notifier.height_offset(buf))
 end
 
---- Render a notification into a buffer of its own, as nvim-notify rendered its toast. The caller
---- shows the buffer in a window, then paints that
+--- Render a notification into a buffer of its own, as its toast; the caller shows it, then paints
 --- @param notif notify.Record
 --- @return notify.OpenedBuffer
 local function open_buffer(notif)
@@ -109,15 +98,13 @@ local function open_float(notif)
     string.format('Normal:%s,FloatBorder:%s', opened.highlights.body, opened.highlights.border)
   M.dress(win, notif)
 
-  -- A painted window wraps: a line wider than the float takes more rows than the buffer has
-  -- lines, and a window too short for a line's rows cannot scroll to the rest of them
+  -- The paint wraps long lines into rows the float lacks, and it can't scroll to the rest of them
   M.fit(win)
   col, row = UI.layout.center(width, vim.api.nvim_win_get_height(win))
   vim.api.nvim_win_set_config(win, { relative = 'editor', col = col, row = row })
 end
 
---- The picker's previewer: the notification as its toast showed it. Snacks' text previewer has no
---- chunk highlights
+--- The picker's previewer: the toast as shown, with the chunk highlights Snacks' text one lacks
 --- @param ctx snacks.picker.preview.ctx
 --- @return nil
 local function preview(ctx)
@@ -172,17 +159,14 @@ local function row_extmarks(mark, line)
   return { extmark }
 end
 
---- What a list row shows of a markdown message: its first line with text, a code fence aside (it
---- names the language of the lines under it), with what treesitter and render-markdown paint on
---- that line in the preview
+--- A markdown message's row: its first line with text, a fence aside, colored as in the preview
 --- @param message string[]
 --- @return string line
 --- @return snacks.picker.Extmark[] marks Their columns count from the line's start
 local function markdown_row(message)
   for row, line in ipairs(message) do
     if line:find('%S') and not line:find('^%s*```') then
-      -- Parsed down to its line only: the lines under it color nothing in the row, and an
-      -- inspected table has thousands of them (half a second for 15,000)
+      -- Parsed down to its line only: an inspected table has thousands more (0.5 s for 15,000)
       local buf = staging()
       vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.list_slice(message, 1, row))
 
@@ -200,8 +184,7 @@ local function markdown_row(message)
   return '', {}
 end
 
---- Show nvim-notify's history, newest first: each row its message's first line and the preview
---- the whole message, both as the toast showed it
+--- Show nvim-notify's history, newest first: rows and preview as the toast showed the message
 --- @return snacks.Picker
 function M.show_picker()
   local notify = require('notify')

@@ -7,9 +7,8 @@ local M = {}
 --- @type features.search.snacks-nvim.actions.State
 local state = { preview_hidden = {} }
 
---- A source's `config` hook, which makes its preview toggle carry across openings: open with the
---- preview shown or hidden as toggle_preview last left it, whoever opens the picker. snacks runs it
---- more than once per open, so it only reads the choice
+--- A source's `config` hook: open with the preview as toggle_preview last left it, whoever opens
+--- the picker. Snacks runs it more than once per open, so it only reads the choice
 --- @param opts snacks.picker.Config The source's merged config
 function M.remembered_preview(opts)
   local layout = opts.layout

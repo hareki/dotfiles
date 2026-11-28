@@ -1,6 +1,5 @@
 -- features.navigation.harpoon: the pin keys and their four outcomes, the pinned-files picker, and
--- the statusline piece, whose cache the utils' (buffer, length) key and the spec's harpoon
--- extensions invalidate between them
+-- the statusline piece, whose cache the utils' key and the spec's extensions invalidate
 
 local t = require('tests.lib.helpers')
 

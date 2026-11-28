@@ -1,6 +1,4 @@
--- features.search.snacks-nvim.sources.tabs: the tabs picker's source, driven through
--- Snacks.picker.tabs(), which the search fragment registers it for, and its keys; the tab label
--- also directly, which the statusline reads
+-- features.search.snacks-nvim.sources.tabs through Snacks.picker.tabs(), its keys and tab label
 
 local t = require('tests.lib.helpers')
 local tabs = require('features.search.snacks-nvim.sources.tabs')

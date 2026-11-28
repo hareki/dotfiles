@@ -59,9 +59,7 @@ return {
           -- Notifier message's own highlights come from the render it carries, which calls this one
           vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, notif.message)
 
-          -- A duplicate re-renders into the window of the toast it repeats, which takes its title
-          -- here. nvim-notify then sizes the toast to the message again, once this render has
-          -- returned, so the fit comes after that
+          -- A duplicate re-renders into its toast's window; fit after nvim-notify resizes it
           for _, toast in ipairs(vim.fn.win_findbuf(bufnr)) do
             notify_utils.dress(toast, notif)
             vim.schedule(function()

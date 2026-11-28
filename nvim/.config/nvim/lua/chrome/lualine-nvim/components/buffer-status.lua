@@ -69,9 +69,8 @@ local function get_current_unsaved()
   local ft = bo.filetype
   local name = vim.api.nvim_buf_get_name(bufnr)
 
-  -- Terminals are always nomodifiable (a misleading padlock); empty-filetype nofile/prompt buffers
-  -- are UI, while codediff:// views clear their filetype yet still earn the lock icon. The help
-  -- viewer goes by its buftype: a help file opened for editing (buftype '') is a file like any other
+  -- Terminals are always nomodifiable (a misleading padlock), and an edited help file is a file;
+  -- empty-filetype nofile/prompt buffers are UI, while codediff:// views still earn the lock icon
   if
     bo.buftype == 'terminal'
     or bo.buftype == 'help'

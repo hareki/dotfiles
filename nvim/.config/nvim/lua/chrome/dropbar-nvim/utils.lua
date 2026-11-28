@@ -3,8 +3,7 @@ local M = {}
 
 local IGNORED_FILETYPES = { trouble = true, ['grug-far'] = true }
 
--- The help viewer by its buftype: a help file opened for editing (buftype '') is a file like any
--- other
+-- The help viewer by its buftype: a help file opened for editing (buftype '') is a plain file
 local IGNORED_BUFTYPES = { help = true, terminal = true }
 
 --- Check if the buffer never gets a dropbar: an ignored filetype or buftype

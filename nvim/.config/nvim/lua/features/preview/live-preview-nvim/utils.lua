@@ -63,9 +63,8 @@ local function warn_unsupported()
   })
 end
 
---- Preview `path`, by default the current buffer, never another loaded file like a bare
---- `:LivePreview start`, moving to the first free port above the configured one while something
---- else (a second nvim) listens there
+--- Preview `path` (default: the current buffer, never another loaded file as a bare start does),
+--- on the first free port above the configured one when another nvim holds it
 --- @param path? string
 function M.start(path)
   local livepreview_config = require('livepreview.config')

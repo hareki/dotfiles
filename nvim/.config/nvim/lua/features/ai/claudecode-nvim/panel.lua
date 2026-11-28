@@ -1,5 +1,4 @@
---- The agent panel: the terminal claudecode.nvim runs Claude in, whether it shows, and which Claude
---- is its own
+--- The agent panel: its terminal (claudecode.nvim's), whether it shows, and which Claude is its own
 --- @class features.ai.claudecode-nvim.panel
 local M = {}
 
@@ -19,9 +18,8 @@ function M.visible()
   return win ~= -1 and not vim.api.nvim_win_get_config(win).hide
 end
 
---- Whether the Claude of `pid` is the one the panel runs, which claudecode.nvim starts without a
---- shell. The hooks of every Claude started under this nvim report to it, one in another terminal
---- or one the panel's Claude ran itself (`claude -p`) among them: its pid tells them apart
+--- Whether the Claude of `pid` is the panel's job: claudecode.nvim starts it without a shell
+--- Every Claude under this nvim reports here, one in another terminal or a `claude -p` among them
 --- @param pid string As a hook passes its `$CLAUDE_PID`
 --- @return boolean
 function M.runs(pid)

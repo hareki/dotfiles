@@ -1,6 +1,5 @@
--- utils.notifier through nvim-notify: what a notification paints (lines, highlights, markdown,
--- title) in its toast, in the toast a duplicate re-renders, in the <leader>fn picker's row and
--- preview, and in the history float, which the picker opens on confirm
+-- utils.notifier: what a notification paints in its toast, the toast a duplicate re-renders, the
+-- <leader>fn picker's row and preview, and the history float the picker opens on confirm
 
 local t = require('tests.lib.helpers')
 local notify = require('notify')
@@ -205,7 +204,7 @@ local function confirm(picker, record)
   return win, vim.api.nvim_win_get_buf(win)
 end
 
---- Open `record` from the history picker as <leader>fn, then confirm, does
+--- Open `record` in the history float, the way <leader>fn and confirm do
 --- @param record notify.Record
 --- @return integer win
 --- @return integer buf
@@ -246,8 +245,7 @@ local function await_markdown(buf, where)
   end, string.format('render-markdown to paint the inline code in %s', where))
 end
 
---- The window's title: the record's icon and title, in the level's title group of `buf`, which
---- the nvim-notify fork numbers
+--- The window's title: icon and title in the level's title group of `buf`, numbered by the fork
 --- @param record notify.Record
 --- @param buf integer
 --- @param title string

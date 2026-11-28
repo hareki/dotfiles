@@ -1,7 +1,5 @@
--- features.git.snacks-nvim.lazygit's toggle, through <A-g>, with a stand-in for lazygit on the
--- PATH that writes down its arguments and waits: the single instance it keeps, the file it preselects
--- and the full-screen panel it hides first. lazygit itself is out of reach; its edit command is
--- tests/entry-points.lua's
+-- features.git.snacks-nvim.lazygit's <A-g> toggle, with a stand-in lazygit logging its arguments:
+-- the one instance it keeps, the file it preselects and the full-screen panel it hides first
 
 local t = require('tests.lib.helpers')
 local terminals = require('core.snacks-nvim.terminals')

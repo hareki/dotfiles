@@ -62,9 +62,8 @@ nvim_test() {
 }
 
 nvim_test_cleanup() {
-  # Not waited for: the run has reported by now, and the boots' loader caches (~6,700 files) take
-  # ~0.35 s to delete, the hashes ~0.13 s. Its output is closed, or a caller reading this script's
-  # would wait anyway
+  # Not waited for: the run has reported, and the loader caches (~6,700 files) take ~0.35 s to go
+  # Its output is closed, or a caller reading this script's output would still wait for it
   (
     for cwd in "$NVIM_TEST_TMP"/*/cwd; do
       [ -d "$cwd" ] || continue

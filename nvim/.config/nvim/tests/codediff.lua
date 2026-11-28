@@ -1,7 +1,5 @@
--- features.git.codediff-nvim.utils: closing a codediff tab shows the file last selected in it at
--- the modified pane's scroll position (restore_focus, on CodeDiffClose), and the exit path closes
--- every codediff tab first (close_tabs, on VimLeavePre); driven through the real :CodeDiff in a
--- repository made in the boot's cwd
+-- features.git.codediff-nvim.utils, through the real :CodeDiff: closing a codediff tab shows the
+-- file and scroll last selected in it (restore_focus), and exit closes every such tab (close_tabs)
 
 local t = require('tests.lib.helpers')
 
