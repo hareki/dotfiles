@@ -23,7 +23,7 @@ return {
   { 'interface.active_panes.active_border_opacity', 100 },
   { 'interface.active_panes.active_border_animation', 'fade' },
   { 'interface.active_panes.fade', 'both' },
-  { 'interface.active_panes.inactive_window', true },
+  { 'interface.active_panes.inactive_window', false },
   { 'interface.splits_focus.focus_follows_mouse', false },
   { 'interface.animation.style', 'natural' },
 
