@@ -4,12 +4,7 @@
 
 source $ZT_LIB/helpers.zsh
 
-# What a hook reaches past the gate, neither of which a test should: afplay is a stand-in first on
-# PATH, and $NVIM a server that isn't there
-mkdir -p $ZT_TMP/bin
-print -r -- '#!/bin/sh' >$ZT_TMP/bin/afplay
-chmod +x $ZT_TMP/bin/afplay
-path=($ZT_TMP/bin $path)
+# What a hook reaches past the gate, which a test should not: $NVIM, a server that isn't there
 export NVIM=$ZT_TMP/no-nvim
 
 # sourced <script> [<task>...]: `done` when the script in hooks/ runs to its end, nothing when the
@@ -37,7 +32,7 @@ ran() {
     '{message: {content: [{type: "tool_use", name: "Bash", input: {$command, run_in_background: true}}]}}'
 }
 
-local command hook transcript=$ZT_TMP/transcript.jsonl filler=${(l:1000::x:):-}
+local command transcript=$ZT_TMP/transcript.jsonl filler=${(l:1000::x:):-}
 local -a servers=(
   'npx --yes http-server public -p 5050 -c-1 > serve.log 2>&1'
   'NX_DAEMON=false npx nx serve app --port 3100'
@@ -104,9 +99,7 @@ t_eq 'a clipped command that ends and begins like that server: held' \
 t_eq 'a clipped command that ends: held' "$(gate "$(shell "B=$filler npx nx build app")")" ''
 t_eq 'a clipped command no transcript has: held' "$(gate "$(shell "C=$filler npx nx serve app")")" ''
 
-for hook in nvim-when-done.sh; do
-  t_eq "$hook runs on with nothing in flight" "$(sourced $hook)" done
-  t_eq "$hook ends at a held gate" "$(sourced $hook '{"type": "subagent"}')" ''
-done
+t_eq 'nvim-when-done.sh runs on with nothing in flight' "$(sourced nvim-when-done.sh)" done
+t_eq 'nvim-when-done.sh ends at a held gate' "$(sourced nvim-when-done.sh '{"type": "subagent"}')" ''
 
 t_done

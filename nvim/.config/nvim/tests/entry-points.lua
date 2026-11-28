@@ -58,15 +58,6 @@ local function succeeds(cmd, what, env, stdin)
   t.eq(completed.code, 0, string.format('%s: %s', what, completed.stderr))
 end
 
---- Sends expr to this nvim the way an outside client does, and fails unless it evaluates
---- @param expr string
-local function evaluates(expr)
-  succeeds(
-    { vim.v.progpath, '--headless', '--server', vim.v.servername, '--remote-expr', expr },
-    expr
-  )
-end
-
 t.test("lazygit's edit command opens its files in this nvim, on the line it names", function()
   local lines = {}
   for i = 1, 20 do
@@ -120,7 +111,10 @@ end)
 --- @return table call The arguments of the hook's call, packed with vim.F.pack_len
 local function hook_call(hook, module, name, payload)
   for _, expr in ipairs(remote_exprs(hook)) do
-    evaluates(expr)
+    succeeds(
+      { vim.v.progpath, '--headless', '--server', vim.v.servername, '--remote-expr', expr },
+      expr
+    )
   end
 
   local calls = t.spy(module, name, function() end)

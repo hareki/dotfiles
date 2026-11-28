@@ -107,9 +107,9 @@ zt_boot() {
   local home=$1 dir=$2 tree=$3
   zt_server $home $dir || return 1
   # --shell=none starts the arguments as they are: through a shell, a zsh would read the config
-  # once more. Without the pane's id, which differs from boot to boot, in the dump's exports
+  # once more
   zt_rex $dir new boot --shell=none --cwd $home -- \
-    env -u REX_BLOCK SHLVL=0 ZDOTDIR=$ZT_LIB/zdotdir ZT_DUMP_DIR=$dir ZT_TREE=$tree \
+    env SHLVL=0 ZDOTDIR=$ZT_LIB/zdotdir ZT_DUMP_DIR=$dir ZT_TREE=$tree \
     ${ZT_PROBE:+ZT_PROBE=$ZT_PROBE} /bin/zsh -l >/dev/null ||
     return 1
   zt_await $dir dump-1.txt || return 1

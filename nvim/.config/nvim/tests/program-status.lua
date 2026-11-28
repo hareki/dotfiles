@@ -16,16 +16,8 @@ end
 --- @return integer buf
 --- @return integer job
 local function run(script)
-  local buf = vim.api.nvim_create_buf(false, true)
-  local job = vim.api.nvim_buf_call(buf, function()
-    return vim.fn.jobstart({ 'sh', '-c', script }, { term = true })
-  end)
-  t.cleanup(function()
-    if vim.api.nvim_buf_is_valid(buf) then
-      vim.api.nvim_buf_delete(buf, { force = true })
-    end
-  end)
-  return buf, job
+  local buf = t.buffer()
+  return buf, vim.fn.jobstart({ 'sh', '-c', script }, { term = true })
 end
 
 --- Wait for a script to end, and for what its end sets off
@@ -38,32 +30,28 @@ local function ended(job)
 end
 
 --- As inside a Rex pane, recording what is sent to the UI
---- @return table[] calls Each nvim_ui_send call's arguments
+--- @return string[] sent Each nvim_ui_send call's sequence
 local function in_rex()
   t.set(vim.env, 'REX_BLOCK', 'block:test')
-  return t.spy(vim.api, 'nvim_ui_send', function() end)
-end
-
---- @param calls table[]
---- @return string[] sequences
-local function sent(calls)
-  return vim.tbl_map(function(call)
-    return call[1]
-  end, calls)
+  local sent = {}
+  t.set(vim.api, 'nvim_ui_send', function(sequence)
+    sent[#sent + 1] = sequence
+  end)
+  return sent
 end
 
 t.test('a report reaches the pane as the program wrote it', function()
-  local calls = in_rex()
+  local sent = in_rex()
   run(osc('state=working:app=claude-code:msg=VGVzdA==') .. ' sleep 30')
 
   t.wait_for(function()
-    return #calls == 1
+    return #sent == 1
   end, 'the report')
-  t.eq(calls[1][1], '\27]7501;state=working:app=claude-code:msg=VGVzdA==\27\\')
+  t.eq(sent[1], '\27]7501;state=working:app=claude-code:msg=VGVzdA==\27\\')
 end)
 
 t.test('the query is answered to the program, and the pane hears none of it', function()
-  local calls = in_rex()
+  local sent = in_rex()
   -- The program reads the answer off its terminal, as one that asks does: raw, and unechoed
   local heard = vim.fs.joinpath(vim.fn.getcwd(), 'program-status-answer')
   local _, job =
@@ -71,31 +59,31 @@ t.test('the query is answered to the program, and the pane hears none of it', fu
   ended(job)
 
   t.eq(t.ok(io.open(heard, 'rb'), 'the program read an answer'):read('a'), '\27]7501;?\27\\')
-  t.eq(#calls, 0, 'nothing for the pane')
+  t.eq(#sent, 0, 'nothing for the pane')
 end)
 
 t.test('a program that ends at work has its record cleared', function()
-  local calls = in_rex()
+  local sent = in_rex()
   local buf = run(osc('state=working') .. ' sleep 30')
   t.wait_for(function()
-    return #calls == 1
+    return #sent == 1
   end, 'the report')
 
   vim.api.nvim_buf_delete(buf, { force = true })
   t.wait_for(function()
-    return #calls == 2
+    return #sent == 2
   end, 'the clear')
-  t.eq(calls[2][1], CLEAR)
+  t.eq(sent[2], CLEAR)
 end)
 
 t.test('a finished record outlasts its program, and so does a clear of its own', function()
-  local calls = in_rex()
+  local sent = in_rex()
   for _, state in ipairs({ 'done', 'error', 'clear' }) do
     local _, job = run(osc('state=working') .. osc('state=' .. state))
     ended(job)
   end
 
-  t.eq(sent(calls), {
+  t.eq(sent, {
     '\27]7501;state=working\27\\',
     '\27]7501;state=done\27\\',
     '\27]7501;state=working\27\\',
@@ -106,7 +94,7 @@ t.test('a finished record outlasts its program, and so does a clear of its own',
 end)
 
 t.test('the root record decides the clear, whatever a child record reported last', function()
-  local calls = in_rex()
+  local sent = in_rex()
   -- As Claude Code reports a sub-agent: a child record, cleared once the sub-agent ends
   local buf = run(
     osc('state=working')
@@ -115,26 +103,26 @@ t.test('the root record decides the clear, whatever a child record reported last
       .. ' sleep 30'
   )
   t.wait_for(function()
-    return #calls == 3
+    return #sent == 3
   end, 'the reports')
 
   vim.api.nvim_buf_delete(buf, { force = true })
   t.wait_for(function()
-    return #calls == 4
+    return #sent == 4
   end, 'the clear')
-  t.eq(calls[4][1], CLEAR)
+  t.eq(sent[4], CLEAR)
 
   local _, job = run(osc('state=done') .. osc('state=working:id=task'))
   ended(job)
-  t.eq(#calls, 6, 'no clear for a finished root record')
+  t.eq(#sent, 6, 'no clear for a finished root record')
 end)
 
 t.test('a terminal that reported nothing clears nothing', function()
-  local calls = in_rex()
+  local sent = in_rex()
   local _, job = run('true')
   ended(job)
 
-  t.eq(#calls, 0)
+  t.eq(#sent, 0)
 end)
 
 t.test('outside a Rex pane the query goes unanswered and nothing is passed on', function()

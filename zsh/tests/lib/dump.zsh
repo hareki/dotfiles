@@ -54,7 +54,7 @@ _zt_dump() {
       case $name in
         (_|ZDOTDIR|ZT_*) ;;
         (*KEY*|*TOKEN*|*SECRET*|*PASSWORD*) print -r -- "$name=<redacted>" ;;
-        (ATUIN_SESSION) print -r -- "$name=<random>" ;;
+        (ATUIN_SESSION|REX_BLOCK) print -r -- "$name=<random>" ;;
         (*) print -r -- "$name=${(P)name}" ;;
       esac
     done

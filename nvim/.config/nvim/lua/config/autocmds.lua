@@ -214,8 +214,9 @@ aucmd('TermRequest', {
 
     -- A report with an `id` is for a child record (a sub-agent's): the root record stays as it
     -- was, and the clear at its program's end takes the child records too
-    if not (':' .. report):find(':id=', 1, true) then
-      reported_states[event.buf] = (':' .. report):match(':state=(%l+)')
+    local fields = ':' .. report
+    if not fields:find(':id=', 1, true) then
+      reported_states[event.buf] = fields:match(':state=(%l+)')
     end
     -- Through the TUI's own output, so the sequence never lands inside one the TUI is writing
     vim.api.nvim_ui_send(event.data.sequence .. '\27\\')

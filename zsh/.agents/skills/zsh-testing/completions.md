@@ -13,7 +13,7 @@ trap 'zt_cleanup $root' EXIT
 zt_home $root/home $ZT_TREE || exit 1
 zt_server $root/home $root/dump || exit 1
 zt_rex $root/dump new boot --shell=none --cwd $root/home -- \
-  env -u REX_BLOCK SHLVL=0 ZDOTDIR=$ZT_LIB/zdotdir ZT_DUMP_DIR=$root/dump \
+  env SHLVL=0 ZDOTDIR=$ZT_LIB/zdotdir ZT_DUMP_DIR=$root/dump \
   ZT_TREE=$ZT_TREE /bin/zsh -l >/dev/null || exit 1
 # The dump marks the first prompt after the deferred plugins, fzf-tab among them, have loaded
 zt_await $root/dump dump-1.txt || exit 1

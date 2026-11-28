@@ -13,18 +13,16 @@ local state = {
   unseen = false,
 }
 
---- Record that the panel's Claude is done, with a notice unless the panel shows it already
+--- Record that the panel's Claude is done, with a notice, unless the panel shows it already
 --- @param pid string The reporting Claude's
 function M.mark(pid)
-  if not panel.runs(pid) then
+  if not panel.runs(pid) or panel.visible() then
     return
   end
 
   state.unseen = true
   UI.statusline.refresh()
-  if not panel.visible() then
-    Notifier.info('The agent has finished its work', { title = 'Coding Agent' })
-  end
+  Notifier.info('The agent has finished its work', { title = 'Coding Agent' })
 end
 
 --- Whether the panel's Claude finished out of sight and the panel hasn't shown since. The
