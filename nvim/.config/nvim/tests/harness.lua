@@ -11,7 +11,7 @@ local subject = {
 }
 
 --- What the first test leaves for the second to look for
---- @type { tab?: integer, buf?: integer, file?: integer, float?: integer, picker?: snacks.Picker, cleaned: string[] }
+--- @type { tab?: integer, buf?: integer, file?: integer, float?: integer, picker?: snacks.Picker, trouble?: integer, cleaned: string[] }
 local left = { cleaned = {} }
 
 t.test('a test leaves open what it acquired', function()
@@ -26,6 +26,9 @@ t.test('a test leaves open what it acquired', function()
   local calls = t.spy(subject, 'call', function()
     return 'fake'
   end)
+  -- Before the tab, whose close would take the list too
+  vim.cmd.Trouble('diagnostics open_no_results=true')
+  left.trouble = t.await_trouble()
   left.tab = t.tab()
   left.buf = t.buffer('lua', { 'return {}' })
   left.file = t.file('left.txt', { 'left' })
@@ -48,5 +51,6 @@ t.test('the next test finds none of it', function()
   t.eq(vim.api.nvim_buf_is_valid(left.file), false, 'the file buffer')
   t.eq(vim.api.nvim_win_is_valid(left.float), false, 'the float')
   t.eq(left.picker.closed, true, 'the picker')
+  t.eq(vim.api.nvim_win_is_valid(left.trouble), false, 'the Trouble list')
   t.eq(left.cleaned, { 'second', 'first' }, 'its own cleanups, the newest first')
 end)

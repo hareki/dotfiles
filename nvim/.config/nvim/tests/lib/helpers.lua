@@ -1,5 +1,6 @@
 --- What a test file uses, run by tests/lib/boot.lua after the full boot (VeryLazy too). What a test
---- acquires here (a spy, a buffer, a tab, a float, a picker) is undone when it ends, pass or fail
+--- acquires here (a spy, a buffer, a tab, a float, a picker, a Trouble list) is undone when it
+--- ends, pass or fail
 --- @class tests.lib.helpers
 local M = {}
 
@@ -303,6 +304,46 @@ end
 function M.open_picker(open, source, ready, msg)
   open()
   return M.await_picker(source, ready, msg)
+end
+
+--- @return integer? win The open Trouble list
+local function trouble_win()
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == 'trouble' then
+      return win
+    end
+  end
+end
+
+--- The open Trouble list, once it shows; closed when the test ends
+--- @return integer win
+function M.await_trouble()
+  M.cleanup(function()
+    local trouble = require('trouble')
+    trouble.close()
+    M.wait_for(function()
+      return trouble_win() == nil
+    end, 'the Trouble list to close')
+  end)
+
+  -- Not M.await(trouble_win): LuaLS would bind T to its `integer?` return, nil included
+  return M.await(function()
+    return trouble_win()
+  end, 'the Trouble list to open')
+end
+
+--- Focus `win`, a Trouble list, with the cursor on its first row showing `text`, once one does
+--- @param win integer
+--- @param text string
+function M.focus_trouble_row(win, text)
+  local lnum = M.await(function()
+    local lines = vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(win), 0, -1, false)
+    return vim.iter(ipairs(lines)):find(function(_, line)
+      return line:find(text, 1, true) ~= nil
+    end)
+  end, string.format('a Trouble row showing %q', text))
+  vim.api.nvim_set_current_win(win)
+  vim.api.nvim_win_set_cursor(win, { lnum, 0 })
 end
 
 --- Run the cleanups the test that just ended registered, newest first, each one whatever the

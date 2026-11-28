@@ -95,15 +95,6 @@ local function preview(name)
   return starts, warnings
 end
 
---- @return integer? win The open Trouble list
-local function trouble_win()
-  for _, win in ipairs(vim.api.nvim_list_wins()) do
-    if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == 'trouble' then
-      return win
-    end
-  end
-end
-
 --- The opener of a Trouble list of a Snacks picker's results, sent with the picker's <C-t>
 --- @param open fun() Opens the picker
 --- @param source string
@@ -118,21 +109,7 @@ end
 --- Press `<leader>pp` on the first row of the Trouble list that shows `text`, once one does
 --- @param text string
 local function press_on_trouble_row(text)
-  t.wait_for(function()
-    local win = trouble_win()
-    if not win then
-      return false
-    end
-    for row, line in ipairs(vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(win), 0, -1, false)) do
-      if line:find(text, 1, true) then
-        vim.api.nvim_set_current_win(win)
-        vim.api.nvim_win_set_cursor(win, { row, 0 })
-        return true
-      end
-    end
-    return false
-  end, string.format('a Trouble row showing %q', text))
-
+  t.focus_trouble_row(t.await_trouble(), text)
   t.press('<leader>pp')
 end
 
@@ -147,15 +124,7 @@ local function preview_trouble_row(open, text)
   local starts = stub_start()
   local warnings = t.spy(Notifier, 'warn', function() end)
 
-  local trouble = require('trouble')
-  t.cleanup(function()
-    trouble.close()
-    t.wait_for(function()
-      return trouble_win() == nil
-    end, 'the Trouble list to close')
-  end)
   open()
-
   press_on_trouble_row(text)
   return starts, warnings
 end

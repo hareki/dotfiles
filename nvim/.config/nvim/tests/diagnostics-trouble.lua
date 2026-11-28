@@ -2,16 +2,6 @@
 -- keep the treesitter highlights of the language each one is in
 
 local t = require('tests.lib.helpers')
-local trouble = require('trouble')
-
---- @return integer? win The open Trouble list
-local function trouble_win()
-  for _, win in ipairs(vim.api.nvim_list_wins()) do
-    if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == 'trouble' then
-      return win
-    end
-  end
-end
 
 --- Grep the boot's cwd for `search` and send the results to Trouble with the picker's <C-t>
 --- @param search string
@@ -30,17 +20,7 @@ local function grep_to_trouble(search, count)
   )
 
   t.map_callback('i', '<C-t>', picker.input.win.buf)()
-  t.cleanup(function()
-    trouble.close()
-    t.wait_for(function()
-      return trouble_win() == nil
-    end, 'the Trouble list to close')
-  end)
-
-  -- Not t.await(trouble_win): LuaLS would bind T to its `integer?` return, nil included
-  return t.await(function()
-    return trouble_win()
-  end, 'the Trouble list to open')
+  return t.await_trouble()
 end
 
 --- The highlights the screen draws two texts of a row with, nil until `win` shows the row
@@ -105,15 +85,7 @@ t.test('e on a grep row jumps to its match, as <CR> does', function()
   t.write('jump.lua', { 'local before = 1', 'local target = 2' })
 
   local win = grep_to_trouble('target', 1)
-  local lnum = t.await(function()
-    local lines = vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(win), 0, -1, false)
-    return vim.iter(ipairs(lines)):find(function(_, line)
-      return line:find('local target = 2', 1, true) ~= nil
-    end)
-  end, 'the Trouble list to show the match')
-
-  vim.api.nvim_set_current_win(win)
-  vim.api.nvim_win_set_cursor(win, { lnum, 0 })
+  t.focus_trouble_row(win, 'local target = 2')
   t.press('e')
 
   -- Trouble runs an action once the list settles, not in the key's own call
