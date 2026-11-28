@@ -6,8 +6,9 @@
 # - XDG_CONFIG_HOME, XDG_CACHE_HOME and XDG_STATE_HOME move into a private dir per run (no real
 #   undo, swap, log or compile caches); mise reads them too, so its dirs stay real, installs off
 # - Homebrew's nvim runs, not the mise shim, which blocks on an install under moved dirs
-# - NVIM_INTEGRATION (it swaps lualine for a label), NVIM (set in nvim's terminals) and REX_SESSION
-#   unset: with the last, a move key at the edge moves the real pane focus
+# - NVIM_INTEGRATION (it swaps lualine for a label), NVIM (set in nvim's terminals), REX_SESSION
+#   and OSC7577_TOKEN unset: with REX_SESSION, a move key at the edge moves the real pane focus, and
+#   the token is the pane's, which a boot would take for its own resume reports
 # - Every boot ends in os.exit, which skips VimLeavePre: no session save, no harpoon sync and no
 #   LSP shutdown, which is why tests/lib/boot.lua stubs vim.lsp.start
 # - Each boot runs in a cwd of its own, so the files one writes stay out of the next one's pickers;
@@ -56,7 +57,7 @@ nvim_test() {
         NVIM_TEST_PAYLOAD=$3 \
         NVIM_TEST_OUT=${4:-} \
         NVIM_TEST_CONFIG=$1/nvim \
-        env -u NVIM_INTEGRATION -u NVIM -u REX_SESSION \
+        env -u NVIM_INTEGRATION -u NVIM -u REX_SESSION -u OSC7577_TOKEN \
         "$TIMEOUT_BIN" -s KILL "$NVIM_TEST_TIMEOUT" \
         "$NVIM_BIN" --headless -i NONE -c "luafile $TESTS_DIR/lib/boot.lua"
   )

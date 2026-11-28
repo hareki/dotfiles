@@ -8,7 +8,10 @@ return {
     lazy = false,
     priority = Conf.priority.CORE,
     init = function()
+      local rex_resume = require('core.auto-session.rex-resume')
+
       vim.opt.sessionoptions = 'buffers,curdir,folds'
+      rex_resume.setup()
     end,
 
     keys = {
