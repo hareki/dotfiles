@@ -107,6 +107,30 @@ t.test('a finished record outlasts its program, and so does a clear of its own',
   })
 end)
 
+t.test('the root record decides the clear, whatever a child record reported last', function()
+  local calls = in_rex()
+  -- As Claude Code reports a sub-agent: a child record, cleared once the sub-agent ends
+  local buf = run(
+    osc('state=working')
+      .. osc('state=working:id=task')
+      .. osc('state=clear:id=task')
+      .. ' sleep 30'
+  )
+  t.wait_for(function()
+    return #calls == 3
+  end, 'the reports')
+
+  vim.api.nvim_buf_delete(buf, { force = true })
+  t.wait_for(function()
+    return #calls == 4
+  end, 'the clear')
+  t.eq(calls[4][1], CLEAR)
+
+  local _, job = run(osc('state=done') .. osc('state=working:id=task'))
+  ended(job)
+  t.eq(#calls, 6, 'no clear for a finished root record')
+end)
+
 t.test('a terminal that reported nothing clears nothing', function()
   local calls = in_rex()
   local _, job = run('true')

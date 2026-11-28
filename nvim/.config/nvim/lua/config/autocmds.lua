@@ -195,7 +195,7 @@ aucmd('InsertEnter', {
 -- the Rex pane shows it as for a program run in the pane itself. nvim's terminal drops the
 -- sequence, and Claude Code reports only once the terminal has answered its query
 local program_status_group = augroup('program-status')
---- Per terminal buffer, the state its program reported last
+--- Per terminal buffer, the state its program reported last for the root record
 --- @type table<integer, string>
 local reported_states = {}
 
@@ -213,7 +213,11 @@ aucmd('TermRequest', {
       return
     end
 
-    reported_states[event.buf] = (':' .. report):match(':state=(%l+)')
+    -- A report with an `id` is for a child record (a sub-agent's): the root record stays as it
+    -- was, and the clear at its program's end takes the child records too
+    if not (':' .. report):find(':id=', 1, true) then
+      reported_states[event.buf] = (':' .. report):match(':state=(%l+)')
+    end
     -- Through the TUI's own output, so the sequence never lands inside one the TUI is writing
     vim.api.nvim_ui_send(event.data.sequence .. '\27\\')
   end,
