@@ -1,5 +1,8 @@
 local PREFIX = 'Coding Agent: '
 
+--- @module 'features.ai.claudecode-nvim.session'
+local session = Defer.on_exported_call('features.ai.claudecode-nvim.session')
+
 return {
   UI.which_key({
     specs = { '<leader>a', group = 'Coding Agent', mode = { 'n', 'x' } },
@@ -9,6 +12,16 @@ return {
       color = Conf.icons.colors.CODING_AGENT,
     },
   }),
+
+  -- The panel's Claude session rides in the nvim session, so the next nvim here resumes it
+  {
+    'auto-session',
+    opts = {
+      pre_restore_cmds = { session.forget },
+      save_extra_data = session.save,
+      restore_extra_data = session.restore,
+    },
+  },
 
   {
     'hareki/claudecode.nvim',
@@ -59,6 +72,8 @@ return {
       local terminals = require('core.snacks-nvim.terminals')
 
       return {
+        -- A function, so the start after an nvim session restore resumes the Claude session
+        terminal_cmd = session.command,
         focus_after_send = true,
         -- With $TMUX set, Claude's OSC 52 comes DCS-wrapped, which nvim's :terminal paints as text
         env = { TMUX = '' },

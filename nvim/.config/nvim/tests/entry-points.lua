@@ -1,5 +1,6 @@
 -- The modules something outside nvim reaches by their path (docs/architecture.md, Entry points), each checked
--- the way its caller does: lazygit's edit command, tsave, Claude's Stop hook, NVIM_INTEGRATION
+-- the way its caller does: lazygit's edit command, tsave, Claude's Stop and SessionStart hooks,
+-- NVIM_INTEGRATION
 
 local t = require('tests.lib.helpers')
 
@@ -44,10 +45,11 @@ end
 --- @param cmd string[]
 --- @param what string Names the command in a failure
 --- @param env? table<string, string>
-local function succeeds(cmd, what, env)
+--- @param stdin? string
+local function succeeds(cmd, what, env, stdin)
   --- @type vim.SystemCompleted?
   local result
-  vim.system(cmd, { env = env, timeout = 5000 }, function(completed)
+  vim.system(cmd, { env = env, stdin = stdin, timeout = 5000 }, function(completed)
     result = completed
   end)
   t.wait_for(function()
@@ -128,6 +130,39 @@ t.test("the --remote-expr Claude Code's Stop hook sends evaluates here", functio
   for _, expr in ipairs(remote_exprs('claude-code/.claude/hooks/nvim-when-done.sh')) do
     evaluates(expr)
   end
+end)
+
+t.test("Claude Code's SessionStart hook reports its session here", function()
+  local hook = 'claude-code/.claude/hooks/nvim-session-start.sh'
+  for _, expr in ipairs(remote_exprs(hook)) do
+    evaluates(expr)
+  end
+
+  local session = require('features.ai.claudecode-nvim.session')
+  local calls = t.spy(session, 'report', function() end)
+  -- A quote in the path needs care on the way into the expr
+  local payload = {
+    session_id = '2f713e74-6c61-4eb1-9a81-8b3fa75cc447',
+    transcript_path = "/tmp/it's a project/2f713e74-6c61-4eb1-9a81-8b3fa75cc447.jsonl",
+    hook_event_name = 'SessionStart',
+    source = 'startup',
+  }
+  succeeds(
+    { 'bash', vim.fs.joinpath(repo, hook) },
+    'the SessionStart hook',
+    { NVIM = vim.v.servername, CLAUDE_PID = '4242' },
+    vim.json.encode(payload)
+  )
+
+  -- The hook leaves its request behind in the background
+  t.wait_for(function()
+    return #calls > 0
+  end, "the hook's report")
+  t.eq({ calls[1][1], calls[1][2], calls[1][3] }, {
+    payload.session_id,
+    payload.transcript_path,
+    '4242',
+  })
 end)
 
 --- Boot a child nvim on this config the way a tool with that NVIM_INTEGRATION starts it

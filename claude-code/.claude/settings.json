@@ -69,6 +69,16 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/nvim-session-start.sh"
+          }
+        ]
+      }
     ]
   },
   "worktree": {
