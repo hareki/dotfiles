@@ -30,9 +30,8 @@ fpath[1,0]=/opt/homebrew/share/zsh/site-functions
 # The empty entry keeps man's default dirs, which cover Homebrew's, in the search
 [[ -z $MANPATH ]] || manpath=('' $manpath)
 
-# .zplugins loads p10k only in a shell with job control. Rex resumes a program through
-# `zsh +m -ilc`, and there the `setopt monitor` of p10k's gitstatus start moves zsh into a process
-# group the terminal doesn't put in front, so the program stops on its first read
+# .zplugins loads p10k only with job control: under Rex's resume (`zsh +m -ilc`), gitstatus's
+# `setopt monitor` takes zsh out of the foreground group, so a program stops on its first read
 _has_job_control() { [[ -o monitor ]] }
 
 # Moved in only on success: a failed clone's empty bundle would count as fresh, never retried

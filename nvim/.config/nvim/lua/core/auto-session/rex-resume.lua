@@ -1,6 +1,5 @@
---- Reports a bare `nvim` to the Rex pane through the Program Resume Protocol (OSC 7577), so a Rex
---- server restart starts nvim again in its directory and auto-session restores the session there.
---- Rex trusts the command through the `nvim` rule in the Rex config (`features/nvim-resume.lua`)
+--- Reports a bare `nvim` to the Rex pane (OSC 7577), so a server restart starts it again in its
+--- directory for auto-session to restore. The Rex config's `features/nvim-resume.lua` trusts it
 --- @class core.auto-session.rex-resume
 local M = {}
 
@@ -10,9 +9,8 @@ local state = {
   token = nil,
 }
 
---- Tell the pane how to start this nvim again, or to forget it when a bare `nvim` in the cwd would
---- not bring this instance back: auto-session restores there only what it saves. Does nothing
---- outside a Rex pane
+--- Tell the pane how to start this nvim again, or to forget it when auto-session won't save this
+--- instance for a bare `nvim` in the cwd to restore. Does nothing outside a Rex pane
 --- @return nil
 function M.report()
   if not state.token then

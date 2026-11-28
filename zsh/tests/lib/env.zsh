@@ -74,8 +74,7 @@ zt_env() {
   )
 }
 
-# zt_rex <dir> <args>: the rex CLI on the private server zt_server started in <dir>, never the real
-# one
+# zt_rex <dir> <args>: the rex CLI on zt_server's private server in <dir>, never the real one
 zt_rex() {
   "$ZT_REX" --autostart=false -S unix://$1/rex.sock "${@[2,-1]}"
 }
@@ -101,11 +100,9 @@ zt_server() {
   done
 }
 
-# zt_boot <home> <dir> <tree>: boots the config laid out in <home> (by zt_home from <tree>) in a
-# pane of a private Rex server, first as a top-level login shell (SHLVL 1), then as a login shell
-# started from it, and waits for each one's dump (dump.zsh) in <dir>/dump-1.txt and dump-2.txt.
-# Boots of one HOME share its TMPDIR (<home>/../tmp), so a second boot is warm, as on a real machine.
-# With ZT_PROBE set to a file, each shell also sources it then, writing to <dir>/probe-<SHLVL>.txt
+# zt_boot <home> <dir> <tree>: boots <home> (zt_home from <tree>) in a private Rex server's pane as
+# a login shell (SHLVL 1), then one started from it, awaiting each dump in <dir>/dump-<SHLVL>.txt
+# ZT_PROBE=<file>: each shell also sources it then, writing to <dir>/probe-<SHLVL>.txt
 zt_boot() {
   local home=$1 dir=$2 tree=$3
   zt_server $home $dir || return 1

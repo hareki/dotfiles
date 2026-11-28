@@ -191,9 +191,8 @@ aucmd('InsertEnter', {
   end,
 })
 
--- Pass on the status a program in a terminal buffer reports (Program Status Protocol, OSC 7501), so
--- the Rex pane shows it as for a program run in the pane itself. nvim's terminal drops the
--- sequence, and Claude Code reports only once the terminal has answered its query
+-- Pass a terminal program's status reports (OSC 7501) on to the Rex pane, since nvim's terminal
+-- drops them. Claude Code reports only once the terminal has answered its query
 local program_status_group = augroup('program-status')
 --- Per terminal buffer, the state its program reported last for the root record
 --- @type table<integer, string>
@@ -223,9 +222,8 @@ aucmd('TermRequest', {
   end,
 })
 
--- The pane drops such a record when the process it runs ends, and that is nvim: a program that
--- ends here without clearing its own (killed, its buffer wiped) would leave it up. `done` and
--- `error` outlast their program
+-- The pane drops such a record only when nvim ends, so clear one its program left up on ending
+-- here (killed, its buffer wiped). `done` and `error` outlast their program
 aucmd('TermClose', {
   group = program_status_group,
   callback = function(event)

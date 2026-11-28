@@ -1,7 +1,5 @@
--- Keys for the program in the pane.
--- Only a program that turns on the kitty keyboard protocol reads the cmd key: zsh gets no bytes for
--- it, and nvim's terminal drops it and types the letter. So nvim, zsh and Claude Code listen for alt
--- keys and escape sequences, and each cmd key here sends one
+-- Only a program on the kitty keyboard protocol reads the cmd key: zsh gets no bytes, and nvim's
+-- terminal types the letter. So a cmd key here sends an alt key, read by nvim, zsh and Claude Code
 
 local TERMINAL_WRITE = 'com.superlogical.terminal.write'
 
@@ -23,9 +21,8 @@ end
 -- Claude Code: new line
 rex.bind('shift+enter', 'pane.send_key', { key = 'alt+enter' })
 
--- The cmd key itself, which nvim reads through the kitty keyboard protocol. A legacy pane such as
--- zsh gets no bytes for it. A function that returns false hands the key to the pane while still
--- shadowing the app default; a pane.send_key binding that sends its own key reaches no pane
+-- The cmd key itself, for nvim's kitty keyboard protocol. A function returning false hands the key
+-- to the pane yet shadows the app default; a pane.send_key binding to its own key reaches no pane
 local function pass_through()
   return false
 end

@@ -1,7 +1,5 @@
--- The program status (OSC 7501) a program in a terminal buffer reports, which config/autocmds.lua
--- passes on to the Rex pane: the query it answers, the reports it forwards, and the record it
--- clears for a program that ended without doing so. Each test runs a real program in a terminal
--- and reads what reaches the UI off nvim_ui_send
+-- config/autocmds.lua passing program status (OSC 7501) to the Rex pane, with a real program in a
+-- terminal: the query it answers, the reports it forwards, the record it clears for a killed one
 
 local t = require('tests.lib.helpers')
 

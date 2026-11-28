@@ -1,7 +1,5 @@
-# build against stand-ins for the toolchains: cargo and go log their call in place of a build, and
-# rustc and du answer with what a scenario sets. Each target gets a bare
-# repo (remote/<target>.git) as its origin and its checkout in $REPOS_DIR, and HOME is a scratch
-# dir, so the install root and its stamps are too
+# build against stand-ins: cargo and go log their call in place of a build, rustc and du answer as a
+# scenario sets. Each target's checkout gets a bare origin; HOME, so the install root, is scratch
 
 source "$ZT_LIB/helpers.zsh"
 source "$ZT_LIB/repos.zsh"

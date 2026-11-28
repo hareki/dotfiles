@@ -20,9 +20,8 @@ local function focus_pane(direction)
   end
 end
 
---- Go to the window in `direction`, or from a window at the edge to the Rex pane there. A
---- full-screen panel covers every window, and `wincmd` leaves a float for a window under it, so
---- with a panel up: a float over the panel goes to the panel, and the panel straight to Rex
+--- Go to the window in `direction`, or from one at the edge to the Rex pane there. A full-screen
+--- panel covers every window, so with one up a float goes to the panel and the panel to Rex
 --- @param direction features.navigation.window-navigation.utils.Direction
 --- @return nil
 function M.navigate(direction)

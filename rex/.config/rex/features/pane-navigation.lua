@@ -1,4 +1,3 @@
--- Pane navigation, shared with nvim.
 -- A program that moves between its own windows gets the key, and hands over to Rex at its edge
 -- (nvim: features/navigation/window-navigation). Any other pane moves focus right away
 

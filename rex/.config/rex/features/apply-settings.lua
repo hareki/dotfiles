@@ -7,8 +7,7 @@ rex.action({
   title = 'Apply Settings from Dotfiles',
   description = 'Imports the theme file and sets every setting config/settings.lua lists.',
   run = function()
-    -- Rex reads config files only on a config reload, so drop the cached record to read the
-    -- settings.lua on disk, as edited since
+    -- Rex reads config files only on a reload: drop the cache to read settings.lua as edited
     package.loaded['config.settings'] = nil
     local settings = require('config.settings')
     rex.client.queue('client.theme.import', { path = THEME })

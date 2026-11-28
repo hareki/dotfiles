@@ -1,8 +1,6 @@
 #!/bin/bash
-# The neovim terminal nullifies all of the choices
-# - Bell feature doesn't work
-# - Native notification needs 3rd party (terminal-notifier, alerter)
-#   But they couldn't modify the app icon to be the terminal's while not blocking stdio at the same time
+# nvim's terminal drops the bell, and a native notification needs terminal-notifier or alerter,
+# which can't show the terminal's icon without blocking stdio
 
 # This is only choice left, a simple sound play
 # Claude needs to execute this, so it can't be a zsh function

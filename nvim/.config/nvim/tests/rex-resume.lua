@@ -1,7 +1,5 @@
--- The resume reports nvim sends a Rex pane (core/auto-session/rex-resume.lua): what a report holds
--- and signs, and when it clears the record instead. Each test runs setup again with a token of its
--- own, as the boot under a Rex pane does, and reads the reports off nvim_ui_send. auto-session
--- itself answers whether it saves this instance
+-- core.auto-session.rex-resume: what a report to the Rex pane holds and signs, and when it clears
+-- the record instead. Each test runs setup with a token of its own, against the real auto-session
 
 local t = require('tests.lib.helpers')
 local auto_session = require('auto-session')

@@ -5,9 +5,8 @@
 # ///
 """Build the Maple Mono NF Rex family from the installed Maple Mono NF.
 
-Rex sets the face of regular text only, and takes bold and italic from the family's own faces. This
-family fills each of its four slots with the face one weight step heavier, so the shift happens in
-the font. Only the names and the style flags change: the outlines are the source's
+Rex sets only the regular text's face and takes bold and italic from the family's own faces, so each
+of this family's four slots holds the face a weight heavier. Only names and style flags change
 """
 
 from pathlib import Path
@@ -20,9 +19,8 @@ FAMILY = "Maple Mono NF Rex"
 POSTSCRIPT = "MapleMono-NF-Rex"
 # fsSelection's ITALIC, BOLD and REGULAR bits
 STYLE_BITS = 0x61
-# The source face and the slot it fills, then the slot's usWeightClass, fsSelection style bits and
-# macStyle. Maple Mono NF's own face of that name carries the same three, not the outlines' real
-# weight, so a lookup for the family's bold lands on the Bold slot
+# Source face, slot, then the slot's usWeightClass, fsSelection style bits and macStyle: those of
+# Maple Mono NF's face of that name, not the outlines' weight, so a bold lookup finds the Bold slot
 FACES = [
     ("SemiBold", "Regular", 400, 0x40, 0x0),
     ("ExtraBold", "Bold", 700, 0x20, 0x1),
