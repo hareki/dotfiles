@@ -90,7 +90,7 @@ The config lives in my [dotfiles](https://github.com/hareki/dotfiles), which
 - **`sync-forks`**: rebase every `hareki/*` fork onto its upstream
 - **`build`**: build atuin, eza, television, worktrunk, lazygit and fzf from source
 - **`yay`**: update Homebrew, Antidote, mise and the agent skills in one go
-- **`ctb`** / **`cts`**: toggle Claude Code's done bell, and whether git tracks its `settings.json`
+- **`cts`**: toggle whether git tracks Claude Code's `settings.json`
 
 ## 📂 File Structure
 

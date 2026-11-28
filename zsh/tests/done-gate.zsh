@@ -104,7 +104,7 @@ t_eq 'a clipped command that ends and begins like that server: held' \
 t_eq 'a clipped command that ends: held' "$(gate "$(shell "B=$filler npx nx build app")")" ''
 t_eq 'a clipped command no transcript has: held' "$(gate "$(shell "C=$filler npx nx serve app")")" ''
 
-for hook in nvim-bell-when-done.sh nvim-when-done.sh; do
+for hook in nvim-when-done.sh; do
   t_eq "$hook runs on with nothing in flight" "$(sourced $hook)" done
   t_eq "$hook ends at a held gate" "$(sourced $hook '{"type": "subagent"}')" ''
 done

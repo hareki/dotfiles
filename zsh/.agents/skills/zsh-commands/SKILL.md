@@ -1,6 +1,6 @@
 ---
 name: zsh-commands
-description: The zsh commands this config defines (`build`, `sync-forks`, `ctb`, `yay`, ...), their completions and the aliases. Use when adding or changing a command, a completion or an alias, or when a completion doesn't show up.
+description: The zsh commands this config defines (`build`, `sync-forks`, `cts`, `yay`, ...), their completions and the aliases. Use when adding or changing a command, a completion or an alias, or when a completion doesn't show up.
 ---
 
 # zsh commands

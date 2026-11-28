@@ -61,10 +61,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/hooks/nvim-bell-when-done.sh"
-          },
-          {
-            "type": "command",
             "command": "bash ~/.claude/hooks/nvim-when-done.sh"
           }
         ]
