@@ -1,6 +1,6 @@
 {
   "ai-commit-msg.nvim": { "branch": "main", "commit": "a8eb67ca531da5965660d4cfcd7ded88d2d95af1" },
-  "auto-session": { "branch": "main", "commit": "8b879c2e864b67825af32d9ae70aeedf024cc770" },
+  "auto-session": { "branch": "main", "commit": "5c666c3d1e3680386bf25319512fabee95d5e260" },
   "blink-cmp-conventional-commits": { "branch": "main", "commit": "28f46593ef5e03ba7525bdf6075be0c56c6ceb55" },
   "blink-cmp-dat-word": { "branch": "main", "commit": "0c58fe92bd94710c52a5cb3a89c63a47bc851733" },
   "blink-ripgrep.nvim": { "branch": "main", "commit": "fdc399669d88cca4c17ce84dcf108c260e6085ca" },
